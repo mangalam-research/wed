@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Some design principles: 
+
+ - Reuse TEI elements whenever possible.
+
+ - Any section which is not structured more than just being a series of paragraphs is encoded using a <div> of the appropriate type.
+
+ - 
+
+-->
+
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xml:lang="en">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>TEI for BTW Entries</title>
+        <author>Louis-Dominique Dubeau</author>
+      </titleStmt>
+      <publicationStmt>
+        <availability status="free">
+          <p>This template file is freely available and you are
+hereby authorised to copy, modify, and redistribute it in
+any way without further reference or permissions.</p>
+          <p>When making such modifications, you are strongly
+recommended to change the present text to include an
+accurate statement of the licencing conditions applicable
+to your modified text.</p>
+        </availability>
+      </publicationStmt>
+      <notesStmt>
+        <note type="ns">http://lddubeau.com/ns/btw-storage</note>
+      </notesStmt>
+      <sourceDesc>
+        <p>No source; originally written in digital form.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p>TEI for BTW Entries.</p>
+      <schemaSpec ident="btw-storage" prefix="tei_" start="btw_entry">
+        <moduleRef xmlns="http://www.tei-c.org/ns/1.0" key="header"/>
+        <moduleRef xmlns="http://www.tei-c.org/ns/1.0" key="core"/>
+        <moduleRef xmlns="http://www.tei-c.org/ns/1.0" key="tei"/>
+        <moduleRef xmlns="http://www.tei-c.org/ns/1.0" key="textstructure"/>
+        <moduleRef xmlns="http://www.tei-c.org/ns/1.0" key="dictionaries"/>
+        <moduleRef xmlns="http://www.tei-c.org/ns/1.0" key="linking"/>
+        <elementSpec ident="teiCorpus" mode="delete" module="core"/>
+        <!-- required to avoid Sanity Checker complaint -->
+        <elementSpec ident="handNote" mode="delete" module="header"/>
+
+	<!-- The following deletions are to pare down the schema to
+	     what we intend to use, and only that. -->
+
+        <elementSpec ident="pb" mode="delete" module="core"/>
+        <elementSpec ident="cb" mode="delete" module="core"/>
+        <elementSpec ident="milestone" mode="delete" module="core"/>
+        <elementSpec ident="gap" mode="delete" module="core"/>
+        <elementSpec ident="gb" mode="delete" module="core"/>
+	<elementSpec ident="index" mode="delete" module="core"/>
+	<elementSpec ident="distinct" mode="delete" module="core"/>
+	<elementSpec ident="mentioned" mode="delete" module="core"/>
+	<elementSpec ident="soCalled" mode="delete" module="core"/>
+	<elementSpec ident="gloss" mode="delete" module="core"/>
+	<elementSpec ident="graphic" mode="delete" module="core"/>
+	<elementSpec ident="binaryObject" mode="delete" module="core"/>
+	<elementSpec ident="choice" mode="delete" module="core"/>
+	<elementSpec ident="expan" mode="delete" module="core"/>
+	<elementSpec ident="sic" mode="delete" module="core"/>
+	<elementSpec ident="corr" mode="delete" module="core"/>
+	<elementSpec ident="reg" mode="delete" module="core"/>
+	<elementSpec ident="orig" mode="delete" module="core"/>
+	<elementSpec ident="add" mode="delete" module="core"/>
+	<elementSpec ident="del" mode="delete" module="core"/>
+	<elementSpec ident="unclear" mode="delete" module="core"/>
+	<elementSpec ident="date" mode="delete" module="core"/>
+	<elementSpec ident="time" mode="delete" module="core"/>
+	<elementSpec ident="num" mode="delete" module="core"/>
+	<elementSpec ident="measure" mode="delete" module="core"/>
+	<elementSpec ident="measureGrp" mode="delete" module="core"/>
+	<elementSpec ident="email" mode="delete" module="core"/>
+	<elementSpec ident="address" mode="delete" module="core"/>
+	<elementSpec ident="name" mode="delete" module="core"/>
+	<elementSpec ident="rs" mode="delete" module="core"/>
+	<elementSpec ident="idno" mode="delete" module="core"/>
+	<elementSpec ident="biblStruct" mode="delete" module="core"/>
+	<elementSpec ident="listBibl" mode="delete" module="core"/>
+	<elementSpec ident="desc" mode="delete" module="core"/>
+	<elementSpec ident="stage" mode="delete" module="core"/>
+	<elementSpec ident="said" mode="delete" module="core"/>
+	<elementSpec ident="q" mode="delete" module="core"/>
+	<elementSpec ident="media" mode="delete" module="core"/>
+	
+        <elementSpec ident="alt" mode="delete" module="linking"/>
+        <elementSpec ident="altGrp" mode="delete" module="linking"/>
+        <elementSpec ident="join" mode="delete" module="linking"/>
+        <elementSpec ident="joinGrp" mode="delete" module="linking"/>
+        <elementSpec ident="timeline" mode="delete" module="linking"/>
+        <elementSpec ident="link" mode="delete" module="linking"/>
+        <elementSpec ident="linkGrp" mode="delete" module="linking"/>
+	<elementSpec ident="anchor" mode="delete" module="linking"/>
+
+	<elementSpec ident="pRef" mode="delete" module="dictionaries"/>
+	<elementSpec ident="pVar" mode="delete" module="dictionaries"/>
+	<elementSpec ident="oRef" mode="delete" module="dictionaries"/>
+	<elementSpec ident="oVar" mode="delete" module="dictionaries"/>
+
+	<elementSpec ident="biblFull" mode="delete" module="header"/>
+
+	<elementSpec ident="floatingText" mode="delete" module="textstructure"/>
+
+        <!-- New BTW elements. -->
+        <elementSpec ident="entry" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+	    <rng:ref name="form"/>
+	    <rng:oneOrMore>
+	      <rng:ref name="div"/>
+	    </rng:oneOrMore>
+	    <rng:oneOrMore>
+	      <rng:ref name="xr"/>
+	    </rng:oneOrMore>
+	    <rng:oneOrMore>
+	      <rng:ref name="translations"/>
+	    </rng:oneOrMore>
+	    <rng:oneOrMore>
+	      <rng:ref name="div"/>
+	    </rng:oneOrMore>
+          </content>
+          <attList>
+            <attDef ident="authority" usage="req">
+	      <desc>Who is responsible for this entry.</desc>
+	    </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="translations" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+	    <rng:oneOrMore>
+	      <rng:ref name="btw_lang"/>
+	    </rng:oneOrMore>
+          </content>
+          <attList>
+            <attDef ident="type" usage="req">
+	      <desc>Type of translations.</desc>
+	    </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="lang" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+	    <rng:oneOrMore>
+	      <rng:ref name="tei_cit"/>
+	    </rng:oneOrMore>
+	    <rng:optional>
+	      <rng:ref name="seg"/>
+	    </rng:optional>
+          </content>
+          <attList>
+            <attDef ident="xml:lang" usage="req">
+	      <desc>Language of the translations.</desc>
+	    </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="example" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:ref name="btw_cit"/>
+            <rng:optional>
+              <rng:ref name="tr"/>
+            </rng:optional>
+          </content>
+          <classes>
+            <memberOf key="model.quoteLike"/>
+          </classes>
+        </elementSpec>
+
+
+        <elementSpec ident="cit" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:choice>
+              <rng:ref name="model.qLike"/>
+              <rng:ref name="model.egLike"/>
+              <rng:ref name="model.biblLike"/>
+              <rng:ref name="model.ptrLike"/>
+              <rng:ref name="model.global"/>
+              <rng:ref name="model.entryPart"/>
+            </rng:choice>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="tr" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:ref name="model.quoteLike"/>
+          </content>
+          <attList>
+            <attDef ident="xml:lang" usage="req">
+	      <desc>Language of the translations.</desc>
+	    </attDef>
+          </attList>
+        </elementSpec>
+
+        <!-- Overrides on TEI elements. -->
+        <elementSpec ident="sense" module="dictionaries" mode="change">
+          <classes mode="change">
+            <memberOf key="model.inter" mode="add"/>
+          </classes>
+        </elementSpec>
+        <elementSpec ident="pron" module="dictionaries" mode="change">
+          <classes mode="change">
+            <memberOf key="model.inter" mode="add"/>
+          </classes>
+        </elementSpec>
+      </schemaSpec>
+    </body>
+  </text>
+</TEI>
