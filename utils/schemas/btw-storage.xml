@@ -117,11 +117,9 @@ to your modified text.</p>
 	    <rng:oneOrMore>
 	      <rng:ref name="div"/>
 	    </rng:oneOrMore>
+            <rng:ref name="related"/>
 	    <rng:oneOrMore>
-	      <rng:ref name="xr"/>
-	    </rng:oneOrMore>
-	    <rng:oneOrMore>
-	      <rng:ref name="translations"/>
+	      <rng:ref name="translation"/>
 	    </rng:oneOrMore>
 	    <rng:oneOrMore>
 	      <rng:ref name="div"/>
@@ -134,7 +132,57 @@ to your modified text.</p>
           </attList>
         </elementSpec>
 
-        <elementSpec ident="translations" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+        <elementSpec ident="related" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:ref name="synonym"/>
+            <rng:ref name="cognate"/>
+            <rng:ref name="analogic"/>
+            <rng:ref name="contrastive"/>
+            <rng:ref name="cp"/>
+          </content>
+        </elementSpec>
+
+        <classSpec module="btw" type="model" ident="model.relatedContent"/>
+
+        <elementSpec ident="synonym" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:oneOrMore>
+              <rng:ref name="model.relatedContent"/>
+            </rng:oneOrMore>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="cognate" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:oneOrMore>
+              <rng:ref name="model.relatedContent"/>
+            </rng:oneOrMore>
+          </content>
+        </elementSpec>
+        <elementSpec ident="analogic" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:oneOrMore>
+              <rng:ref name="model.relatedContent"/>
+            </rng:oneOrMore>
+          </content>
+        </elementSpec>
+        <elementSpec ident="contrastive" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:oneOrMore>
+              <rng:ref name="model.relatedContent"/>
+            </rng:oneOrMore>
+          </content>
+        </elementSpec>
+        <elementSpec ident="cp" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <content>
+            <rng:oneOrMore>
+              <rng:ref name="model.relatedContent"/>
+            </rng:oneOrMore>
+          </content>
+        </elementSpec>
+
+
+        <elementSpec ident="translation" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
           <content>
 	    <rng:oneOrMore>
 	      <rng:ref name="btw_lang"/>
@@ -164,40 +212,41 @@ to your modified text.</p>
         </elementSpec>
 
         <elementSpec ident="example" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <classes>
+            <memberOf key="model.quoteLike"/>
+          </classes>
           <content>
             <rng:ref name="btw_cit"/>
             <rng:optional>
               <rng:ref name="tr"/>
             </rng:optional>
           </content>
-          <classes>
-            <memberOf key="model.quoteLike"/>
-          </classes>
         </elementSpec>
 
-
         <elementSpec ident="cit" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <desc>
+            This element encodes a citation. The actual text being cited will be contained in a &lt;quote> element inside the citation. The reference to the source is encoded using &lt;ptr> or &lt;ref> for simple references or &lt;bibl> containing the above two elements when a citation is more complex.
+          </desc>
           <content>
-            <rng:choice>
-              <rng:ref name="model.qLike"/>
-              <rng:ref name="model.egLike"/>
-              <rng:ref name="model.biblLike"/>
-              <rng:ref name="model.ptrLike"/>
-              <rng:ref name="model.global"/>
-              <rng:ref name="model.entryPart"/>
-            </rng:choice>
+            <rng:oneOrMore>
+              <rng:choice>
+                <rng:ref name="quote"/>
+                <rng:ref name="bibl"/>
+                <rng:ref name="model.ptrLike"/>
+                <rng:ref name="span"/>
+                <rng:ref name="note"/>
+              </rng:choice>
+            </rng:oneOrMore>
           </content>
         </elementSpec>
 
         <elementSpec ident="tr" ns="http://lddubeau.com/ns/btw-storage" prefix="btw_">
+          <desc>
+            Contains a translation. Its model is the same as &lt;quote and should be used in the same way. It translates to &lt;cit type="translation">&lt;quote>...&lt;/quote>&lt;/cit> in pure TEI.
+          </desc>
           <content>
-            <rng:ref name="model.quoteLike"/>
+            <rng:ref name="macro.specialPara"/>
           </content>
-          <attList>
-            <attDef ident="xml:lang" usage="req">
-	      <desc>Language of the translations.</desc>
-	    </attDef>
-          </attList>
         </elementSpec>
 
         <!-- Overrides on TEI elements. -->
@@ -209,6 +258,11 @@ to your modified text.</p>
         <elementSpec ident="pron" module="dictionaries" mode="change">
           <classes mode="change">
             <memberOf key="model.inter" mode="add"/>
+          </classes>
+        </elementSpec>
+        <elementSpec ident="xr" module="dictionaries" mode="change">
+          <classes mode="change">
+            <memberOf key="model.relatedContent" mode="add"/>
           </classes>
         </elementSpec>
       </schemaSpec>
