@@ -1,7 +1,7 @@
 'use strict';
 var requirejs = require("requirejs");
 requirejs.config({
-    baseUrl: __dirname + '/../../../static/lib/',
+    baseUrl: __dirname + '/../../../build/standalone/lib',
     nodeRequire: require
 });
 var util = requirejs("wed/util");
@@ -35,14 +35,14 @@ describe("utils", function () {
                           "blah").toString());
         });
         it("bad prefix", function () {
-            assert.throw(
+            assert.Throw(
                 util.resolveName.bind(undefined, "garbage:blah", 
                                       true), 
                 Error, 
                 "trying to resolve an unexpected namespace: garbage");
         });
         it("badly formed name", function () {
-            assert.throw(
+            assert.Throw(
                 util.resolveName.bind(undefined, "gar:bage:blah", 
                                       true), 
                 Error, 
@@ -65,7 +65,7 @@ describe("utils", function () {
                 "btw:blah");
         });
         it("bad uri", function () {
-            assert.throw(
+            assert.Throw(
                 util.unresolveName.bind(undefined, "ttt", 
                                    "blah"),
                 Error,
