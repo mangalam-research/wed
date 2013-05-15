@@ -1,0 +1,9 @@
+{ "globals": 
+  { "describe": false,
+    "assert": false,
+    "__dirname": false,
+    "it": false,
+    "require": false,
+    "console": false
+  } 
+}
