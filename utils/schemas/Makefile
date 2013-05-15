@@ -1,6 +1,6 @@
 SALVE_ROOT=~/src/git-repos/salve/
-SIMPLIFY=$(SALVE_ROOT)/tools/rng-simplification/simplify
-RNG_TO_JS=$(SALVE_ROOT)/tools/rng-to-js.xsl
+SIMPLIFY=salve-simplify
+RNG_TO_JS=$(SALVE_ROOT)/lib/salve/rng-to-js.xsl
 
 out/btw-storage.js:
 
