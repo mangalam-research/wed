@@ -61,6 +61,57 @@ function (module, mocha, chai, $, parser, util) {
             });
         });
 
+        it("precent done", function (done) {
+            require(["requirejs/text!" + config.percent_to_parse], function(data) {
+                $("#data").html(data);
+                p._max_timespan = 0;
+                p._max_cycles = 1;
+                p._initialize(function () {
+                    p._work(); // <html>
+                    assert.equal(p._part_done, 0);
+                    p._work(); // <head>
+                    assert.equal(p._part_done, 0);
+                    p._work(); // <title>
+                    assert.equal(p._part_done, 0);
+                    p._work(); // <title>
+                    assert.equal(p._part_done, 0.5);
+                    p._work(); // </head>
+                    assert.equal(p._part_done, 0.5);
+                    p._work(); // <body>
+                    assert.equal(p._part_done, 0.5);
+                    p._work(); // <em>
+                    assert.equal(p._part_done, 0.5);
+                    p._work(); // </em>
+                    assert.equal(p._part_done, 0.75);
+                    p._work(); // <em>
+                    assert.equal(p._part_done, 0.75);
+                    p._work(); // <em>
+                    assert.equal(p._part_done, 0.75);
+                    p._work(); // </em>
+                    assert.equal(p._part_done, 0.875);
+                    p._work(); // <em>
+                    assert.equal(p._part_done, 0.875);
+                    p._work(); // </em>
+                    assert.equal(p._part_done, 1);
+                    p._work(); // </em>
+                    assert.equal(p._part_done, 1);
+                    p._work(); // </body>
+                    assert.equal(p._part_done, 1);
+                    p._work(); // </html>
+                    assert.equal(p._part_done, 1);
+                    p._work(); // end
+                    assert.equal(p._part_done, 1);
+                    assert.equal($("#tmp-state").get(0).childNodes.length, 1);
+                    assert.equal($("#tmp-state").get(0).innerHTML, "valid");
+                    var $errors = $("#sb-errorlist");
+                    assert.equal($errors.get(0).childNodes.length, 0);
+                    done();
+                });
+            });
+        });
+
+
+
         it("restart at", function (done) {
             // Manipulate stop so that we know when the work is done.
             var old_stop = p.stop;
