@@ -71,7 +71,7 @@ function (module, mocha, chai, $, parser, util) {
                 assert.equal($("#tmp-state").get(0).innerHTML, "valid");
                 var $errors = $("#sb-errorlist");
                 assert.equal($errors.get(0).childNodes.length, 0);
-                // Manipulate stop again 
+                // Deal with first invocation and subsequent differently.
                 if (first) {
                     p.restartAt($("#data").get(0)); 
                     first = false;
