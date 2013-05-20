@@ -1,0 +1,113 @@
+body { 
+    font-size: 24px;
+    line-height: 1.2em;
+}
+
+#menu-layer {
+    z-index: 1;
+}
+
+#menu-layer>* {
+    position: absolute;
+}
+
+.tooltip {
+    font-size: 24px; 
+    max-width: 100em;
+    line-height: 1.2em;
+}
+
+div.head { 
+    display: block;
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+div.sense>div._text, ._sense_ptr { font-weight: bold; }
+
+.foreign { font-style: italic; }
+
+div.p { 
+    margin-top: 0em; 
+    margin-bottom: 0em;
+    text-indent: 1em;
+}
+
+div.btw\:related>._real {
+    display: block;
+    margin-top: 0em; 
+    margin-bottom: 0em;
+    /* Hanging indent */
+    padding-left: 2em;
+    text-indent: -2em;
+}
+
+div.btw\:related>div.btw\:cp {
+    display: inline;
+    margin-top: 0em; 
+    margin-bottom: 0em;
+    /* Hanging indent */
+    padding-left: 1em;
+    text-indent: 0em;
+}
+
+div.ref, div.sense, div.term, div.ptr, div.quote, div.foreign, div.cit, div.abbr, div.lang, div.seg, div.lbl, div._text, div.xr, div.pron, div.btw\:lang, div.btw\:cit, div.btw\:tr, div.btw\:example, div.note, div.orth, div._gui { 
+    display: inline;
+}
+
+div._phantom {
+    background-color: #C0C0C0;
+    white-space: pre;
+}
+
+div._phantom._gui {
+    background-color: white;
+    white-space: normal;
+}
+
+div._real {
+    background-color: white;
+    white-space: normal;
+}
+
+._owns_caret {
+    border-bottom-style: solid;
+}
+
+._placeholder {
+    border-style: solid;
+}
+
+.wed-document {
+    border-style: solid;
+    border-width: 1px;
+}
+
+/* Bootstrap styling */
+
+.tooltip { 
+    font-size: 24px;
+    line-height: 1.2em;
+}
+
+.tooltip-inner {
+    background-color: #FFEF93;
+    color: black;
+    text-indent: 0em;
+}
+
+#sidebar {
+    font-size: 16px;
+}
+
+.label {
+    text-indent: 0em;
+}
+
+.modal-body {
+    /* This is to ensure that the typeaheads that are in modals
+       show up above the modal. */
+    /* See https://github.com/twitter/bootstrap/issues/6344 */
+    overflow: visible;
+}

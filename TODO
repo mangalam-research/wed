@@ -1,0 +1,5 @@
+* Test raising Error in NameResolver
+
+* Implement XSLT 1.0 stylesheets for conversion??? Or even dump XSLT
+  altogether in favor of something faster? Loading saxon to process
+  XSLT 2.0 has a non-negligible cost.

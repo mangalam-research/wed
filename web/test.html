@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
+    <link href="/build/standalone/lib/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
+    <script type="text/javascript" src="/build/standalone/lib/requirejs/require.js"></script>
+    <script type="text/javascript" src="/config/requirejs-config-dev.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <div id="mocha-fixture" style="display:none">
+      <div id="tmp-state"></div>
+      <ul id="sb-errorlist"></ul>
+      <div id="data"></div>
+      <div id="domroot"></div>
+    </div>
+    <script>
+      require(["mocha/mocha", "test/parser_test", "test/jquery.findandself_test", "test/refman_test", "test/domlistener_test", "test/domutil_test"], function (mocha, test) {
+      mocha.run();
+      });
+    </script>
+  </body>
+</html>

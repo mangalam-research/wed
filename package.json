@@ -1,0 +1,31 @@
+{
+    "name": "wed",
+    "description": "Wed is a schema-aware editor for XML documents.",
+    "version": "0.1.0",
+    "versionedSources": "lib/wed/wed.js",
+    "keywords": ["RelaxNG", "rng", "XML", "editor"],
+    "homepage" : "https://github.com/mangalam-research/wed",
+    "author": "Louis-Dominique Dubeau <louisd@mangalamresearch.org>",
+    "main": "lib/wed/wed.js",
+    "repository" : {
+        "type" : "git",
+        "url" : "https://github.com/mangalam-research/wed.git"
+    },
+    "licenses": [ {
+        "type": "MPL",
+        "url": "https://www.mozilla.org/MPL/2.0/"
+    } ],
+    "dependencies": {
+        "amd-loader": "~0.0.4",
+        "salve": "0.9.x"
+    },
+    "devDependencies": {
+        "mocha": "1.9.x", 
+        "chai": "1.5.x", 
+        "semver-sync": "git://github.com/mangalam-research/semver-sync.git#master"
+    },
+    "scripts": {
+        "test": "make test",
+        "postinstall": "make build"
+    }
+}
