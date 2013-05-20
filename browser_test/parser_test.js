@@ -16,7 +16,6 @@ function (module, mocha, chai, $, parser, util) {
             p = new parser.Parser(schema, 
                                   resolver,
                                   $("#data").get(0),
-                                  $("#tmp-state").get(0),
                                   $("#sb-errorlist").get(0));
             p._max_timespan = 0; // Work forever.
         });
@@ -32,8 +31,7 @@ function (module, mocha, chai, $, parser, util) {
             var old_stop = p.stop;
             p.stop = function () {
                 old_stop.call(p);
-                assert.equal($("#tmp-state").get(0).childNodes.length, 1);
-                assert.equal($("#tmp-state").get(0).innerHTML, "invalid");
+                assert.equal(p._working_state, parser.INVALID);
                 var $errors = $("#sb-errorlist");
                 assert.equal($errors.get(0).childNodes.length, 1);
                 assert.equal($errors.find("a").contents().get(0).data, "tag required: {}html");
@@ -48,8 +46,7 @@ function (module, mocha, chai, $, parser, util) {
             var old_stop = p.stop;
             p.stop = function () {
                 old_stop.call(p);
-                assert.equal($("#tmp-state").get(0).childNodes.length, 1);
-                assert.equal($("#tmp-state").get(0).innerHTML, "valid");
+                assert.equal(p._working_state, parser.VALID);
                 var $errors = $("#sb-errorlist");
                 assert.equal($errors.get(0).childNodes.length, 0);
                 done();
@@ -101,8 +98,7 @@ function (module, mocha, chai, $, parser, util) {
                     assert.equal(p._part_done, 1);
                     p._work(); // end
                     assert.equal(p._part_done, 1);
-                    assert.equal($("#tmp-state").get(0).childNodes.length, 1);
-                    assert.equal($("#tmp-state").get(0).innerHTML, "valid");
+                    assert.equal(p._working_state, parser.VALID);
                     var $errors = $("#sb-errorlist");
                     assert.equal($errors.get(0).childNodes.length, 0);
                     done();
@@ -118,8 +114,7 @@ function (module, mocha, chai, $, parser, util) {
             var first = true;
             p.stop = function () {
                 old_stop.call(p);
-                assert.equal($("#tmp-state").get(0).childNodes.length, 1);
-                assert.equal($("#tmp-state").get(0).innerHTML, "valid");
+                assert.equal(p._working_state, parser.VALID);
                 var $errors = $("#sb-errorlist");
                 assert.equal($errors.get(0).childNodes.length, 0);
                 // Deal with first invocation and subsequent differently.
