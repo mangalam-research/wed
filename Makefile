@@ -86,12 +86,20 @@ build/standalone/lib/requirejs: | build/standalone/lib
 build/standalone/lib/requirejs/%: downloads/% | build/standalone/lib/requirejs 
 	cp $< $@
 
-build/standalone/lib/chai.js: node_modules/chai/chai.js
+# The following targets need to have an order dependency on the top
+# directories so that when a new version is install, the target is
+# rebuilt. This is necessary because npm preserves the modification
+# times of the files *inside* the packages.
+
+build/standalone/lib/chai.js: node_modules/chai/chai.js | node_modules/chai
 	cp $< $@
 
-build/standalone/lib/mocha/%s: node_modules/mocha/%s
+build/standalone/lib/mocha/%: node_modules/mocha/% | node_modules/mocha
 	-mkdir $(dir $@)
 	cp $< $@
 
 build/standalone/lib/salve: node_modules/salve/build/lib/salve
 	cp -rp $< $@
+# Sometimes the modification date on the top directory does not
+# get updated, so:
+	touch $@
