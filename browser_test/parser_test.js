@@ -1,5 +1,5 @@
-define(["module", "mocha/mocha", "chai", "jquery", "wed/parser", "wed/util", "salve/validate"], 
-function (module, mocha, chai, $, parser, util, validate) {
+define(["module", "mocha/mocha", "chai", "jquery", "wed/parser", "wed/util", "salve/validate", "wed/domlistener", "wed/modes/generic/generic_decorator"], 
+function (module, mocha, chai, $, parser, util, validate, domlistener, decorator) {
     var config = module.config();
     var schema = config.schema;
     var to_parse = config.to_parse;
@@ -126,7 +126,7 @@ function (module, mocha, chai, $, parser, util, validate) {
                 if (first) {
                     p.restartAt($data.get(0)); 
                     first = false;
-                }
+                    }
                 else 
                     done();
             };
@@ -141,6 +141,7 @@ function (module, mocha, chai, $, parser, util, validate) {
             // Manipulate stop so that we know when the work is done.
             var old_stop = p.stop;
             var first = true;
+            var got_reset = false;
             p.stop = function () {
                 old_stop.call(p);
                 assert.equal(p._working_state, parser.VALID);
@@ -150,10 +151,14 @@ function (module, mocha, chai, $, parser, util, validate) {
                     p.restartAt($data.get(0)); 
                     first = false;
                 }
+                else {
+                    assert.equal(got_reset, true);
+                    done();
+                }
             };
             p.addEventListener("reset-errors", function (ev) {
                 assert.equal(ev.at, 0);
-                done();
+                got_reset = true;
             });
             
             
