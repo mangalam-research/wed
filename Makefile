@@ -87,7 +87,7 @@ build/standalone/lib/requirejs/%: downloads/% | build/standalone/lib/requirejs
 	cp $< $@
 
 # The following targets need to have an order dependency on the top
-# directories so that when a new version is install, the target is
+# directories so that when a new version is installed, the target is
 # rebuilt. This is necessary because npm preserves the modification
 # times of the files *inside* the packages.
 
@@ -99,6 +99,7 @@ build/standalone/lib/mocha/%: node_modules/mocha/% | node_modules/mocha
 	cp $< $@
 
 build/standalone/lib/salve: node_modules/salve/build/lib/salve
+	rm -rf $@
 	cp -rp $< $@
 # Sometimes the modification date on the top directory does not
 # get updated, so:
