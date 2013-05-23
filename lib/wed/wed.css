@@ -101,6 +101,10 @@ div._real {
     font-size: 16px;
 }
 
+#parsing-message {
+    font-size: 16px;
+}
+
 .label {
     text-indent: 0em;
 }
@@ -110,4 +114,34 @@ div._real {
        show up above the modal. */
     /* See https://github.com/twitter/bootstrap/issues/6344 */
     overflow: visible;
+}
+
+#parsing-progress {
+    -webkit-transition: width 0 ease 0;
+    -moz-transition: width 0 ease 0;
+    -o-transition: width 0 ease 0;
+    transition: width 0 ease 0;
+}
+
+.progress {
+    margin-bottom: inherit;
+}
+
+/* To prevent labels from overflowing out of the modal */
+.modal-body .btn-group {
+    white-space: normal;
+}
+
+/* The next two styles are to allow for text over progress bars */
+.progress {
+    position: relative;
+}
+
+.progress span {
+    position: absolute;
+    color: black;
+    z-index: 2;
+    font-size: 16px;
+    text-align: center;
+    width: 100%;
 }
