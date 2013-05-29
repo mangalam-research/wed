@@ -7,17 +7,12 @@ function (module, mocha, chai, $, parser, util, validate, domlistener,
     var schema = config.schema;
     var to_parse = config.to_parse;
     var assert = chai.assert;
-    var resolver = new util.NameResolver({
-        "xml": "http://www.w3.org/XML/1998/namespace",
-        "": ""
-    });
     describe("parsing", function () {
         var p;
         var $data = $("#data");
         beforeEach(function () {
             $data.empty();
             p = new parser.Parser(schema, 
-                                  resolver,
                                   $data.get(0));
             p._max_timespan = 0; // Work forever.
         });
@@ -177,7 +172,6 @@ function (module, mocha, chai, $, parser, util, validate, domlistener,
                 beforeEach(function () {
                     $data.empty();
                     p = new parser.Parser(schema, 
-                                          resolver,
                                           $data.get(0));
                     p._max_timespan = 0; // Work forever.
                 });
@@ -306,7 +300,6 @@ function (module, mocha, chai, $, parser, util, validate, domlistener,
                 beforeEach(function () {
                     $data.empty();
                     p = new parser.Parser(schema, 
-                                          resolver,
                                           $data.get(0));
                     p._max_timespan = 0; // Work forever.
                 });
