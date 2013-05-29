@@ -1,0 +1,9 @@
+<a:html xmlns:a="uri:a" a:data-blah--blah---blah="toto">
+  <head><a:title xmlns:a="uri:a2" xmlns="uri:default">ab&amp;
+cd&amp;
+ef</a:title></head>
+<body>
+abc<em>def&amp;
+gh<em></em></em>
+</body>
+</a:html>
