@@ -70,7 +70,7 @@ function (module, mocha, chai, $, parser, util, validate, domlistener,
                         $data.html(data);
                         p._max_timespan = 0;
                         p._max_cycles = 1;
-                        p._initialize(function () {
+                        p.initialize(function () {
                             p._work(); // <html>
                             assert.equal(p._part_done, 0);
                             p._work(); // <head>
@@ -352,9 +352,9 @@ function (module, mocha, chai, $, parser, util, validate, domlistener,
                          "after decoration element", 
                          function () {
                              var el = $data.children("._real.html").get(0);
-                             var evs = p.possibleAt(el, 1);
+                             var evs = p.possibleAt(el, 2);
                              // Make sure we are looking at a real element
-                             assert.isTrue($(el.childNodes[1]).is("._real"));
+                             assert.isTrue($(el.childNodes[2]).is("._real"));
                              assert.sameMembers(
                                  evs.toArray(), 
                                  [new validate.Event("enterStartTag", "", "head")]);
