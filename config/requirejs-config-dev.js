@@ -38,8 +38,8 @@ require.config({
          percent_to_parse: '../../test-files/percent_to_parse_converted.xml'
      },
      'wed/wed': {
-         schema: 'test/simplified-rng.js',
-         mode: 'wed/modes/generic'
+         schema: 'test/tei-simplified-rng.js',
+         mode: 'wed/modes/generic/generic'
      }
  },
  enforceDefine: true
