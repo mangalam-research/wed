@@ -104,3 +104,8 @@ build/standalone/lib/salve: node_modules/salve/build/lib/salve
 # Sometimes the modification date on the top directory does not
 # get updated, so:
 	touch $@
+
+.PHONY: test
+test: build
+	semver-sync -v
+	mocha
