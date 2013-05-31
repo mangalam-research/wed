@@ -1,4 +1,9 @@
-DEV=0
+-include local.mk
+
+JSDOC3?=jsdoc
+RST2HTML?=rst2html
+
+DEV?=0
 
 # Should be the last part of the URL beginning with
 # https://rangy.googlecode.com/files/
