@@ -114,3 +114,19 @@ build/standalone/lib/salve: node_modules/salve/build/lib/salve
 test: build
 	semver-sync -v
 	mocha
+
+.PHONY: doc
+doc:
+	$(JSDOC3) -d build/doc -r lib
+# rst2html does not seem to support rewriting relative
+# urls. So we produce the html in our root.
+	$(RST2HTML) README.rst README.html
+
+.PHONY: clean
+clean:
+	-rm -rf build
+	-rm README.html
+
+.PHONY: distclean
+distclean: clean
+	-rm -rf downloads
