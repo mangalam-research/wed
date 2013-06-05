@@ -1,8 +1,8 @@
 define(["module", "mocha/mocha", "chai", "jquery", "wed/parser", 
         "wed/util", "salve/validate", "wed/domlistener", 
-        "wed/modes/generic/generic_decorator", "wed/transformation"], 
+        "wed/modes/generic/generic", "wed/transformation"], 
 function (module, mocha, chai, $, parser, util, validate, domlistener, 
-          generic_decorator, transformation) {
+          generic, transformation) {
     var config = module.config();
     var schema = config.schema;
     var to_parse = config.to_parse;
@@ -323,9 +323,11 @@ function (module, mocha, chai, $, parser, util, validate, domlistener,
                                 $data.html(data);
                                 var listener = 
                                     new domlistener.Listener($data.get(0));
+                                var mode = new generic.Mode();
+                                // The editor parameter is null. Works
+                                // for now.
                                 var decorator = 
-                                    new generic_decorator.GenericDecorator(
-                                        listener);
+                                    mode.makeDecorator(listener, null);
                                 decorator.init($data);
                                 if (transform_fn) 
                                     transform_fn();
