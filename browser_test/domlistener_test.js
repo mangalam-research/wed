@@ -26,21 +26,22 @@ function (mocha, chai, $, domlistener) {
         this._total_expected = total_expected;
         this._$root = $root;
         
-        listener.addHandler("added-element", "._marker", 
-                            (function () {
-                                assert.equal(this._count, this._total_expected);
-                                Object.keys(this._counts_expected).forEach(function (k) {
-                                    assert.equal(this._counts[k], this._counts_expected[k]);
-                                }.bind(this));
-                                Object.keys(this._counts).forEach(function (k) {
-                                    assert.equal(this._counts[k], this._counts_expected[k]);
-                                }.bind(this));
-
-
-                                assert.equal(listener._observer.takeRecords().length, 0);
-                                done();
-                            }).bind(this));
-        
+        var markHadler = (function () {
+            assert.equal(this._count, this._total_expected);
+            Object.keys(this._counts_expected).forEach(function (k) {
+                assert.equal(this._counts[k], 
+                             this._counts_expected[k]);
+            }.bind(this));
+            Object.keys(this._counts).forEach(function (k) {
+                assert.equal(this._counts[k], 
+                             this._counts_expected[k]);
+            }.bind(this));
+            
+            
+            assert.equal(listener._observer.takeRecords().length, 0);
+            done();
+        }).bind(this);
+        listener.addHandler("added-element", "._marker", markHadler);
     }
     
     (function () {
@@ -62,8 +63,11 @@ function (mocha, chai, $, domlistener) {
     var Listener = domlistener.Listener;
     describe("domlistener", function () {
         var $root = $("#domroot");
-        var $fragment_to_add = $("<div class='_real ul'><div class='_real li'>A</div><div class='_real li'>B</div></div>");
+        var $fragment_to_add = 
+            $("<div class='_real ul'><div class='_real li'>A</div>"+
+              "<div class='_real li'>B</div></div>");
         var listener;
+        var mark;
         beforeEach(function () {
             $root.empty();
             listener = new Listener($root.get(0));
@@ -72,114 +76,123 @@ function (mocha, chai, $, domlistener) {
             listener.stopListening();
         });
 
-        it("adding a fragment", function (done) {
-            var mark = new Mark(5, 
-                                {"included ul": 1, 
-                                 "added ul": 1, 
-                                 "children root": 1,
-                                 "included li": 2}, listener, $root, done);
-            listener.addHandler(
-                "included-element", 
-                "._real.ul",
-                function ($this_root, $element) {
-                    assert.equal($this_root.get(0), $root.get(0));
-                    assert.equal($element.get(0).className, "_real ul");
-                    assert.equal($element.length, 1);
-                    mark.mark("included ul");
-                });
-            listener.addHandler(
-                "included-element", 
-                "._real.li",
-                function ($this_root, $element) {
-                    assert.equal($this_root.get(0), $root.get(0));
-                    assert.equal($element.length, 1);
-                    assert.equal($element.get(0).className, "_real li");
-                    mark.mark("included li");
-                });
-            listener.addHandler(
-                "added-element", 
-                "._real.ul",
-                function ($this_root, $parent, $previous_sibling, $next_sibling, $element) {
-                    assert.equal($this_root.get(0), $root.get(0));
-                    assert.equal($this_root.get(0), $parent.get(0));
-                    assert.equal($element.get(0), $fragment_to_add.get(0));
-                    mark.mark("added ul");
-                });
-            listener.addHandler(
-                "children-changed",
-                "*",
-                function ($this_root, $added, $removed, $element) {
-                    // The marker will also trigger this
-                    // handler. Ignore it.
-                    if ($added.get(0) === $marker.get(0))
-                        return;
-                    assert.equal($this_root.get(0), $element.get(0));
-                    assert.equal($removed.length, 0);
-                    assert.equal($added.length, 1);
-                    assert.equal($added.get(0), $fragment_to_add.get(0));
-                    mark.mark("children root");
-                });
-            listener.startListening($root);
-            $root.append($fragment_to_add);
-        });
+        function makeIncludedHandler(name) {
+            return function ($this_root, 
+                             $element) {
+                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($element.get(0).className, 
+                             "_real " + name);
+                assert.equal($element.length, 1);
+                mark.mark("included " + name);
+            };
+        }
 
-        it("removing a fragment", function (done) {
-            $root.append($fragment_to_add);
-            var mark = new Mark(5, 
-                                {"excluded ul": 1,
-                                 "removed ul": 1,
-                                 "children root": 1,
-                                 "excluded li": 2},
-                                listener, $root, done);
-            listener.addHandler(
-                "excluded-element", 
-                "._real.ul",
-                function ($this_root, $element) {
-                    assert.equal($this_root.get(0), $root.get(0));
-                    assert.equal($element.length, 1);
-                    assert.equal($element.get(0).className, "_real ul");
-                    mark.mark("excluded ul");
-                });
-            listener.addHandler(
-                "excluded-element", 
-                "._real.li",
-                function ($this_root, $element) {
-                    assert.equal($this_root.get(0), $root.get(0));
-                    assert.equal($element.length, 1);
-                    assert.equal($element.get(0).className, "_real li");
-                    mark.mark("excluded li");
-                });
-            listener.addHandler(
-                "removed-element", 
-                "._real.ul",
-                function ($this_root, $parent, $previous_sibling, $next_sibling, $element) {
-                    assert.equal($this_root.get(0), $root.get(0));
-                    assert.equal($this_root.get(0), $parent.get(0));
-                    assert.equal($element.get(0), $fragment_to_add.get(0));
-                    mark.mark("removed ul");
-                });
-            listener.addHandler(
-                "children-changed",
-                "*",
-                function ($this_root, $added, $removed, $element) {
-                    // The marker will also trigger this
-                    // handler. Ignore it.
-                    if ($added.get(0) === $marker.get(0))
-                        return;
-                    assert.equal($this_root.get(0), $element.get(0));
-                    assert.equal($added.length, 0);
-                    assert.equal($removed.length, 1);
-                    assert.equal($removed.get(0), $fragment_to_add.get(0));
-                    mark.mark("children root");
-                });
-            listener.startListening($root);
-            $fragment_to_add.remove();
-        });
+        function makeExcludedHandler(name) {
+            return function ($this_root, 
+                             $element) {
+                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($element.get(0).className, 
+                             "_real " + name);
+                assert.equal($element.length, 1);
+                mark.mark("excluded " + name);
+            };
+        }
 
+
+        it("fires included-element, added-element and " + 
+           "children-changed when adding a fragment", 
+           function (done) {
+               mark = new Mark(5, 
+                               {"included ul": 1, 
+                                "added ul": 1, 
+                                "children root": 1,
+                                "included li": 2}, 
+                               listener, $root, done);
+               listener.addHandler("included-element", "._real.ul",
+                                   makeIncludedHandler("ul"));
+               listener.addHandler("included-element", "._real.li",
+                                   makeIncludedHandler("li"));
+               function addedHandler($this_root, $parent, 
+                                     $previous_sibling, 
+                                     $next_sibling, $element) {
+                   assert.equal($this_root.get(0), $root.get(0));
+                   assert.equal($this_root.get(0), $parent.get(0));
+                   assert.equal($element.get(0), 
+                                $fragment_to_add.get(0));
+                   mark.mark("added ul");
+               }
+               listener.addHandler("added-element", "._real.ul",
+                                   addedHandler);
+               function changedHandler($this_root, $added, 
+                                       $removed, $element) {
+                   // The marker will also trigger this
+                   // handler. Ignore it.
+                   if ($added.get(0) === $marker.get(0))
+                       return;
+                   assert.equal($this_root.get(0), $element.get(0));
+                   assert.equal($removed.length, 0);
+                   assert.equal($added.length, 1);
+                   assert.equal($added.get(0), 
+                                $fragment_to_add.get(0));
+                   mark.mark("children root");
+               }
+               listener.addHandler("children-changed", "*",
+                                   changedHandler);
+               listener.startListening($root);
+               $root.append($fragment_to_add);
+           });
+
+        it("fires excluded-element, removed-element and " +
+           "children-changed when removing a fragment", 
+           function (done) {
+               $root.append($fragment_to_add);
+               mark = new Mark(5, 
+                               {"excluded ul": 1,
+                                "removed ul": 1,
+                                "children root": 1,
+                                "excluded li": 2},
+                               listener, $root, done);
+               listener.addHandler("excluded-element", "._real.ul",
+                                   makeExcludedHandler("ul"));
+               listener.addHandler("excluded-element", "._real.li",
+                                   makeExcludedHandler("li"));
+               
+               function removedHandler($this_root, $parent, 
+                                       $previous_sibling, 
+                                       $next_sibling,
+                                       $element) {
+                   assert.equal($this_root.get(0), $root.get(0));
+                   assert.equal($this_root.get(0), $parent.get(0));
+                   assert.equal($element.get(0), 
+                                $fragment_to_add.get(0));
+                   mark.mark("removed ul");
+               }
+               listener.addHandler("removed-element", "._real.ul",
+                                   removedHandler);
+               function changedHandler($this_root, $added, 
+                                       $removed, $element) {
+                   // The marker will also trigger this
+                   // handler. Ignore it.
+                   if ($added.get(0) === $marker.get(0))
+                       return;
+                   assert.equal($this_root.get(0), $element.get(0));
+                   assert.equal($added.length, 0);
+                   assert.equal($removed.length, 1);
+                   assert.equal($removed.get(0), 
+                                $fragment_to_add.get(0));
+                   mark.mark("children root");
+               }
+               listener.addHandler("children-changed", "*",
+                                   changedHandler);
+               listener.startListening($root);
+               $fragment_to_add.remove();
+           });
+        
         it("trigger triggered twice, invoked once", function (done) {
             var mark = new Mark(3, 
                                 {"triggered test": 1, 
-                                 "included li": 2}, listener, $root, done);
+                                 "included li": 2}, 
+                                listener, $root, done);
             listener.addHandler(
                 "trigger", 
                 "test",
@@ -193,7 +206,8 @@ function (mocha, chai, $, domlistener) {
                 function ($this_root, $element) {
                     assert.equal($this_root.get(0), $root.get(0));
                     assert.equal($element.length, 1);
-                    assert.equal($element.get(0).className, "_real li");
+                    assert.equal($element.get(0).className, 
+                                 "_real li");
                     listener.trigger("test");
                     mark.mark("included li");
                 });
@@ -205,7 +219,8 @@ function (mocha, chai, $, domlistener) {
             var mark = new Mark(4, 
                                 {"triggered test": 1,
                                  "triggered test2": 1, 
-                                 "included li": 2}, listener, $root, done);
+                                 "included li": 2}, 
+                                listener, $root, done);
             listener.addHandler(
                 "trigger", 
                 "test",
@@ -228,15 +243,13 @@ function (mocha, chai, $, domlistener) {
                 function ($this_root, $element) {
                     assert.equal($this_root.get(0), $root.get(0));
                     assert.equal($element.length, 1);
-                    assert.equal($element.get(0).className, "_real li");
+                    assert.equal($element.get(0).className, 
+                                 "_real li");
                     listener.trigger("test");
                     mark.mark("included li");
                 });
             listener.startListening($root);
             $root.append($fragment_to_add);
         });
-
-
-
     });
 });
