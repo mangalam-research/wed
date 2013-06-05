@@ -63,12 +63,15 @@ function (mocha, chai, $, domlistener) {
     var Listener = domlistener.Listener;
     describe("domlistener", function () {
         var $root = $("#domroot");
-        var $fragment_to_add = 
-            $("<div class='_real ul'><div class='_real li'>A</div>"+
-              "<div class='_real li'>B</div></div>");
+        var $fragment_to_add;
         var listener;
         var mark;
         beforeEach(function () {
+            // Create a new fragment each time.
+            $fragment_to_add = 
+                $("<div class='_real ul'>"+ 
+                  "<div class='_real li'>A</div>"+
+                  "<div class='_real li'>B</div></div>");
             $root.empty();
             listener = new Listener($root.get(0));
         });
@@ -251,5 +254,66 @@ function (mocha, chai, $, domlistener) {
             listener.startListening($root);
             $root.append($fragment_to_add);
         });
+
+        it("fires text-changed when changing a text node", 
+           function (done) {
+               mark = new Mark(1, 
+                               {"text-changed": 1}, 
+                               listener, $root, done);
+               function textChanged($this_root, $element) {
+                   assert.equal($this_root.get(0), $root.get(0));
+                   assert.equal($element.length, 1);
+                   assert.equal($element.parent().get(0).className, 
+                                "_real li");
+                   mark.mark("text-changed");
+               }
+               listener.addHandler("text-changed", "._real.li",
+                                   textChanged);
+               listener.startListening($root);
+               $root.append($fragment_to_add);
+               $root.find("._real.li").get(0).
+                   childNodes[0].nodeValue = "Q";
+           });
+
+        it("fires children-changed when adding a text node", 
+           function (done) {
+               // The handler is called twice. Once when the single
+               // text node which was already there is removed. Once
+               // when the new text node is added.
+
+               mark = new Mark(2, 
+                               {"children li": 2}, 
+                               listener, $root, done);
+               var $li;
+               var change_no = 0;
+               function changedHandler($this_root, $added, 
+                                       $removed, $element) {
+                   // The marker will also trigger this
+                   // handler. Ignore it.
+                   if ($added.get(0) === $marker.get(0))
+                       return;
+                   assert.equal($this_root.get(0), $root.get(0));
+                   assert.equal($element.get(0), $li.get(0));
+                   assert.equal($added.length, 
+                                change_no === 0 ? 0 : 1, 
+                                "added elements");
+                   assert.equal($removed.length,
+                                change_no === 0 ? 1 : 0, 
+                                "removed elements");
+                   if (change_no === 0)
+                       assert.equal($removed.get(0).nodeValue, "A");
+                   else
+                       assert.equal($added.get(0).nodeValue, "Q");
+                   change_no++;
+                   mark.mark("children li");
+               }
+               listener.addHandler("children-changed", "._real.li",
+                                   changedHandler);
+               listener.startListening($root);
+               $root.append($fragment_to_add);
+               $li = $root.find("._real.li").first();
+               $li.text("Q");
+           });
+
     });
 });
