@@ -77,6 +77,11 @@ div._real {
 
 ._placeholder {
     border-style: solid;
+    white-space: pre;
+}
+
+._placeholder._owns_caret {
+    background-color: black;
 }
 
 .wed-document {
