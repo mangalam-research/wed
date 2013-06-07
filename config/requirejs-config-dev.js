@@ -32,7 +32,7 @@ require.config({
    }
  },
  config: {
-     'test/parser_test': {
+     'test/validator_test': {
          schema: 'test/simplified-rng.js',
          to_parse: '../../test-files/to_parse_converted.xml',
          percent_to_parse: '../../test-files/percent_to_parse_converted.xml'
