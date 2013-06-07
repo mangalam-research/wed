@@ -32,7 +32,7 @@ build: | build-standalone build-test-files
 
 build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve
 
-build-test-files: build/test-files/to_parse_converted.xml build/test-files/percent_to_parse_converted.xml
+build-test-files: build/test-files/validator_test_data/to_parse_converted.xml build/test-files/validator_test_data/percent_to_parse_converted.xml
 
 build/test-files/%_converted.xml: browser_test/%.xml
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)

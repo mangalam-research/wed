@@ -1,11 +1,14 @@
-define(["module", "mocha/mocha", "chai", "jquery", "wed/validator",
+define(["mocha/mocha", "chai", "jquery", "wed/validator",
         "wed/util", "salve/validate", "wed/domlistener",
         "wed/modes/generic/generic", "wed/transformation"],
-function (module, mocha, chai, $, validator, util, validate,
+function (mocha, chai, $, validator, util, validate,
           domlistener, generic, transformation) {
-    var config = module.config();
-    var schema = config.schema;
-    var to_parse = config.to_parse;
+    // The test subirectory is one of the paths required to be in the config
+    var schema = 'test/simplified-rng.js';
+    // Remember that relative paths are resolved against requirejs'
+    // baseUrl configuration value.
+    var to_parse =
+            '../../test-files/validator_test_data/to_parse_converted.xml';
     var assert = chai.assert;
     describe("parsing", function () {
         var p;
@@ -67,7 +70,7 @@ function (module, mocha, chai, $, validator, util, validate,
         });
 
         it("precent done", function (done) {
-            require(["requirejs/text!" + config.percent_to_parse],
+            require(["requirejs/text!../../test-files/validator_test_data/percent_to_parse_converted.xml"],
                     function(data) {
                         $data.html(data);
                         p._max_timespan = 0;
