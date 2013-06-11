@@ -5,6 +5,7 @@
     "require": false,
     "console": false,
     "before": true,
-    "define": true
+    "define": true,
+    "beforeEach": true
   }
 }
