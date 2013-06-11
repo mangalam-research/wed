@@ -17,7 +17,7 @@
     } ],
     "dependencies": {
         "amd-loader": "~0.0.4",
-        "salve": "~0.10.0"
+        "salve": "~0.12.1"
     },
     "devDependencies": {
         "mocha": "1.9.x", 
