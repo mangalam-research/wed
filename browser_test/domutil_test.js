@@ -14,7 +14,7 @@ function (mocha, chai, $, domutil) {
                 $root.empty();
             });
 
-            function testPair(no_text_expected, text_expected) {
+            function testPair(no_text_expected, text_expected, container) {
                 if (text_expected === undefined)
                     text_expected = no_text_expected;
 
@@ -23,23 +23,34 @@ function (mocha, chai, $, domutil) {
                 // we have $data = $(""), the assert.equal test would
                 // likely compare null to null, and would pass.
                 it("no_text === true", function () {
-                    assert.isNotNull(no_text_expected[0]);
+                    if (no_text_expected !== null)
+                        assert.isNotNull(no_text_expected[0]);
 
-                    var result = domutil.nextCaretPosition(caret);
-                    assert.equal(result[0], no_text_expected[0],
-                                 "node");
-                    assert.equal(result[1], no_text_expected[1],
-                                 "offset");
+                    var result = domutil.nextCaretPosition(caret, container,
+                                                           true);
+                    if (no_text_expected === null)
+                        assert.isNull(result);
+                    else {
+                        assert.equal(result[0], no_text_expected[0],
+                                     "node");
+                        assert.equal(result[1], no_text_expected[1],
+                                     "offset");
+                    }
                 });
                 it("no_text === false", function () {
-                    assert.isNotNull(text_expected[0]);
+                    if (text_expected !== null)
+                        assert.isNotNull(text_expected[0]);
 
-                    var result = domutil.nextCaretPosition(caret,
+                    var result = domutil.nextCaretPosition(caret, container,
                                                            false);
-                    assert.equal(result[0], text_expected[0],
-                                 "node");
-                    assert.equal(result[1], text_expected[1],
-                                "offset");
+                    if (text_expected === null)
+                        assert.isNull(result);
+                    else {
+                        assert.equal(result[0], text_expected[0],
+                                     "node");
+                        assert.equal(result[1], text_expected[1],
+                                     "offset");
+                    }
 
                 });
             }
@@ -54,6 +65,7 @@ function (mocha, chai, $, domutil) {
                 testPair([$data.get(0), 0],
                          [$data.get(0).childNodes[0], 3]);
             });
+
             describe("move into child from text", function () {
                 var $data = $("<span>test <b>test</b></span>");
                 beforeEach(function () {
@@ -68,6 +80,7 @@ function (mocha, chai, $, domutil) {
                          [$data.children("b").get(0).childNodes[0],
                           0]);
             });
+
             describe("move to parent", function () {
                 var $data =
                     $("<span>test <b>test</b><b>test2</b></span>");
@@ -83,6 +96,7 @@ function (mocha, chai, $, domutil) {
                 // This position is between the two b elements.
                 testPair([$data.get(0), 2]);
             });
+
             describe("enter empty elements", function () {
                 var $data =
                     $("<span><i>a</i><i></i><i>b</i></span>");
@@ -94,6 +108,7 @@ function (mocha, chai, $, domutil) {
                 });
                 testPair([$data.children("i").get(1), 0]);
             });
+
             describe("white-space: normal", function () {
                 // The case is designed so that it skips over
                 // the white space
@@ -109,6 +124,7 @@ function (mocha, chai, $, domutil) {
                 // Ends between the two s elements.
                 testPair([$data.get(0), 1]);
             });
+
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
                 // the white space.
@@ -127,17 +143,31 @@ function (mocha, chai, $, domutil) {
                           5]);
             });
 
+            describe("does not move out of text container", function () {
+                var $data = $("<span>test</span>");
+                beforeEach(function () {
+                    $root.empty();
+                    $root.append($data);
+                    caret = [$data.get(0).childNodes[0], 4];
+                });
+                testPair(null, null, $data.get(0).childNodes[0]);
+            });
+
+            describe("does not move out of element container", function () {
+                var $data = $("<span>test</span>");
+                beforeEach(function () {
+                    $root.empty();
+                    $root.append($data);
+                    caret = [$data.get(0), 1];
+                });
+                testPair(null, null, $data.get(0));
+            });
+
             describe("can't find a node", function () {
                 beforeEach(function () {
                     caret = [$("html").get(0), 30000];
                 });
-                it("no_text === true", function () {
-                    assert.isNull(domutil.nextCaretPosition(caret));
-                });
-                it("no_text === false", function () {
-                    assert.isNull(domutil.nextCaretPosition(caret,
-                                                            false));
-                });
+                testPair(null, null);
             });
         });
 
@@ -153,7 +183,7 @@ function (mocha, chai, $, domutil) {
             });
 
             function testPair(no_text_expected,
-                              text_expected) {
+                              text_expected, container) {
                 if (text_expected === undefined)
                     text_expected = no_text_expected;
 
@@ -162,23 +192,34 @@ function (mocha, chai, $, domutil) {
                 // we have $data = $(""), the assert.equal test would
                 // likely compare null to null, and would pass.
                 it("no_text === true", function () {
-                    assert.isNotNull(no_text_expected[0]);
+                    if (no_text_expected !== null)
+                        assert.isNotNull(no_text_expected[0]);
 
-                    var result = domutil.prevCaretPosition(caret);
-                    assert.equal(result[0], no_text_expected[0],
-                                 "node");
-                    assert.equal(result[1], no_text_expected[1],
-                                 "offset");
+                    var result = domutil.prevCaretPosition(caret, container,
+                                                           true);
+                    if (no_text_expected === null)
+                        assert.isNull(result);
+                    else {
+                        assert.equal(result[0], no_text_expected[0],
+                                     "node");
+                        assert.equal(result[1], no_text_expected[1],
+                                     "offset");
+                    }
                 });
                 it("no_text === false", function () {
-                    assert.isNotNull(text_expected[0]);
+                    if (text_expected !== null)
+                        assert.isNotNull(text_expected[0]);
 
-                    var result = domutil.prevCaretPosition(caret,
+                    var result = domutil.prevCaretPosition(caret, container,
                                                            false);
-                    assert.equal(result[0], text_expected[0],
-                                 "node");
-                    assert.equal(result[1], text_expected[1],
-                                "offset");
+                    if (text_expected === null)
+                        assert.isNull(result);
+                    else {
+                        assert.equal(result[0], text_expected[0],
+                                     "node");
+                        assert.equal(result[1], text_expected[1],
+                                     "offset");
+                    }
                 });
             }
 
@@ -262,17 +303,32 @@ function (mocha, chai, $, domutil) {
                          [$data.children("s").get(1).childNodes[0],
                           2]);
             });
+
+            describe("does not move out of text container", function () {
+                var $data = $("<span>test</span>");
+                beforeEach(function () {
+                    $root.empty();
+                    $root.append($data);
+                    caret = [$data.get(0).childNodes[0], 0];
+                });
+                testPair(null, null, $data.get(0).childNodes[0]);
+            });
+
+            describe("does not move out of element container", function () {
+                var $data = $("<span>test</span>");
+                beforeEach(function () {
+                    $root.empty();
+                    $root.append($data);
+                    caret = [$data.get(0), 0];
+                });
+                testPair(null, null, $data.get(0));
+            });
+
             describe("can't find a node", function () {
                 beforeEach(function () {
                     caret = [$("html").get(0), 0];
                 });
-                it("no_text === true", function () {
-                    assert.isNull(domutil.prevCaretPosition(caret));
-                });
-                it("no_text === false", function () {
-                    assert.isNull(domutil.prevCaretPosition(caret,
-                                                            false));
-                });
+                testPair(null, null);
             });
         });
     });
