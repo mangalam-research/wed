@@ -41,12 +41,39 @@ incompatible with each other. This section documents such issues.
 Contenteditable
 ---------------
 
+Incompatibilities
+~~~~~~~~~~~~~~~~~
+
 One area of incompatibility is the implementation of contenteditable
 across browsers. Even a single browser can behave inconsistently
 depending on how the DOM tree is structured. (In Firefox 20, the
 presence or absence of white-space text nodes sometimes changes the
 way BACKSPACE is handled when the caret is at the start of a
 contenteditable element.)
+
+Successive Elements and the Caret
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Suppose the structure::
+
+    <p contenteditable="true">foo <button contenteditable="false">A</button><button contenteditable="false">B</button> bar</p>
+
+If you place the caret just before the space before "bar" and hit the
+left arrow to move it back between buttons A and B, various browsers
+will handle it differently. At any rate, in both Chrome 26 and Firefox
+20, there will **not** be a caret **between** A and B. The caret may
+disappear or be moved somewhere else. Same result if you place the
+caret after the space after "foo" and hit the right arrow.
+
+Setting the caret programmatically does not work either but in general
+results is the caret disappearing.  Browsers differ a little bit. In
+Chrome 26, it seems that even though the caret becomes invisible, it
+still exists between the two elements. (It is possible to delete
+either buttons.) In Firefox 20, the caret becomes
+non-existent. (Editing is not possible.)
+
+So to allow editing between successive elements, wed has to create a
+placeholder to allow the user to put their caret between elements.
 
 Synthetic Keyboard Events
 -------------------------

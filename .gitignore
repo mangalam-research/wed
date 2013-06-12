@@ -3,3 +3,5 @@ downloads
 build
 local.mk
 README.html
+static.js
+static.py

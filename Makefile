@@ -21,6 +21,8 @@ TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
 
 LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),build/standalone/$f)
+TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
+CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 
 .PHONY: all build-dir build
 all: build
@@ -32,11 +34,16 @@ build: | build-standalone build-test-files
 
 build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve
 
-build-test-files: build/test-files/to_parse_converted.xml build/test-files/percent_to_parse_converted.xml
+build-test-files: $(CONVERTED_TEST_DATA_FILES)
 
 build/test-files/%_converted.xml: browser_test/%.xml
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
-	saxon -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl
+	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
+		saxon -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
+		saxon -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+	fi)
+
+
 
 
 build/standalone/lib/%: lib/%

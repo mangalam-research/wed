@@ -3,6 +3,7 @@ require.config({
  paths: {
    'jquery': 'jquery-1.9.1',
    'bootstrap': 'bootstrap/js/bootstrap.min',
+     // This is required by the testing framework.
    'test': '../../../browser_test/'
  },
  shim: {
@@ -32,11 +33,6 @@ require.config({
    }
  },
  config: {
-     'test/parser_test': {
-         schema: 'test/simplified-rng.js',
-         to_parse: '../../test-files/to_parse_converted.xml',
-         percent_to_parse: '../../test-files/percent_to_parse_converted.xml'
-     },
      'wed/wed': {
          schema: 'test/tei-simplified-rng.js',
          mode: 'wed/modes/generic/generic'
