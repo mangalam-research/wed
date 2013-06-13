@@ -331,5 +331,54 @@ function (mocha, chai, $, domutil) {
                 testPair(null, null);
             });
         });
+
+        describe("splitTextNode", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("fails on non-text node", function () {
+                var node = $root.find(".title").get(0);
+                assert.Throw(
+                    domutil.splitTextNode.bind(node, 0),
+                    Error, "splitTextNode called on non-text");
+            });
+
+            it("splits a text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.splitTextNode(node, 2);
+                assert.equal(pair[0].nodeValue, "ab");
+                assert.equal(pair[1].nodeValue, "cd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+
+            it("works fine with negative offset", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.splitTextNode(node, -1);
+                assert.equal(pair[0].nodeValue, "");
+                assert.equal(pair[1].nodeValue, "abcd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+
+            it("works fine with offset beyond text length", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.splitTextNode(node, node.nodeValue.length);
+                assert.equal(pair[0].nodeValue, "abcd");
+                assert.equal(pair[1].nodeValue, "");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+        });
     });
 });
