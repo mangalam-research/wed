@@ -6,6 +6,7 @@
     "console": false,
     "before": true,
     "define": true,
-    "beforeEach": true
+    "beforeEach": true,
+    "after": true
   }
 }
