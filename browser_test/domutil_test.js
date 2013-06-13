@@ -380,5 +380,145 @@ function (mocha, chai, $, domutil) {
                 assert.equal($root.find(".title").get(0).childNodes.length, 2);
             });
         });
+
+        describe("nodeToPath", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            before(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("returns a correct path on text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                assert.equal(
+                    domutil.nodeToPath(root, node),
+                    "._real.TEI[0]/._real.teiHeader[0]/._real.fileDesc[0]/" +
+                        "._real.titleStmt[0]/._real.title[0]/##text[0]");
+            });
+
+            it("returns a correct path on later text node", function () {
+                var node = $root.find(".body>.p").last().get(0).childNodes[2];
+                assert.equal(
+                    domutil.nodeToPath(root, node),
+                    "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                        "._real.p[1]/##text[1]");
+            });
+
+            it("normalizes so that it returns the same value if " +
+               "unimportant changes occurred", function () {
+                   var node = $root.find(".body>.p").last().get(0).
+                           childNodes[2];
+                   var path = "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                           "._real.p[1]/##text[1]";
+                   assert.equal(domutil.nodeToPath(root, node), path);
+                   // Split a text node. This is an unimportant change.
+                   domutil.splitTextNode(node.parentNode.childNodes[0], 1);
+                   assert.equal(domutil.nodeToPath(root, node), path);
+               });
+
+            it("fails on a node which is not a descendant of its root",
+               function () {
+                   var node = $("link").last().get(0);
+                   assert.Throw(domutil.nodeToPath.bind(undefined, root, node),
+                                Error,
+                                "node is not a descendant of root");
+                   assert.Throw(domutil.nodeToPath.bind(undefined, node, node),
+                                Error,
+                                "node is not a descendant of root");
+
+               });
+
+            it("fails on invalid root",
+               function () {
+                   var node = $("link").last().get(0);
+                   assert.Throw(domutil.nodeToPath.bind(undefined, null, node),
+                                Error,
+                                "invalid root parameter");
+
+                   assert.Throw(domutil.nodeToPath.bind(undefined, undefined,
+                                                        node),
+                                Error,
+                                "invalid root parameter");
+
+               });
+
+            it("fails on invalid node",
+               function () {
+                   assert.Throw(domutil.nodeToPath.bind(undefined, root, null),
+                                Error,
+                                "invalid node parameter");
+
+                   assert.Throw(domutil.nodeToPath.bind(undefined, root,
+                                                        undefined),
+                                Error,
+                                "invalid node parameter");
+
+               });
+
+
+
+        });
+
+        describe("pathToNode", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            before(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("returns a correct node on a text path", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                assert.equal(
+                    domutil.pathToNode(
+                        root,
+                        "._real.TEI[0]/._real.teiHeader[0]/"+
+                            "._real.fileDesc[0]/" +
+                            "._real.titleStmt[0]/._real.title[0]/##text[0]"),
+                    node);
+            });
+
+            it("returns a correct node on a later text path", function () {
+                var node = $root.find(".body>.p").last().get(0).childNodes[2];
+                assert.equal(
+                    domutil.pathToNode(
+                        root,
+                        "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                            "._real.p[1]/##text[1]"),
+                    node);
+            });
+
+            it("normalizes so that it returns the same value if " +
+               "unimportant changes occurred", function () {
+                   var node = $root.find(".body>.p").last().get(0).
+                           childNodes[2];
+                   var path = "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                           "._real.p[1]/##text[1]";
+                   assert.equal(domutil.pathToNode(root, path), node);
+                   // Split a text node. This is an unimportant change.
+                   domutil.splitTextNode(node.parentNode.childNodes[0], 1);
+                   assert.equal(domutil.pathToNode(root, path), node);
+               });
+        });
+
     });
 });
