@@ -8,7 +8,7 @@ surprised if it throws a rod and leaks oil on your carpet.
 
 Current known limitations:
 
-* There is no `html-to-xml.xsl` conversion at this time. Creating one
+* There is no ``html-to-xml.xsl`` conversion at this time. Creating one
   should be trivial but I'm concentrating my efforts on other aspects.
 
 * Wed currently only understand a subset of RelaxNG (through the
@@ -47,16 +47,16 @@ dependencies.
 Building
 ========
 
-For now, wed uses a makefile to build itself. Run::
+For now, wed uses a Makefile to build itself. Run::
 
     $ make
 
-This makefile will download external packages (like jquery and
+This Makefile will download external packages (like jquery and
 bootstrap) and place them in `<downloads>`_. It will then create an
 tree of files that could be served by a web server. The files will be
 in `<build/standalone>`_. As the name "standalone" implies this build
 includes **everything** needed to run wed, except the configuration
-for requirejs. This configuration is dependent on how the server
+for RequireJS. This configuration is dependent on how the server
 serves the files so it is up to you to create one. The file
 `<config/requirejs-config-dev.js>`_ contains an example.
 
@@ -68,10 +68,10 @@ the server through other means), etc.
 Testing
 =======
 
-Javascript
+JavaScript
 ----------
 
-Javascript tests are of two types:
+JavaScript tests are of two types:
 
 * Runnable outside a browser. We run these inside Node.js.
 
@@ -84,7 +84,7 @@ To run the tests that are not browser-dependent::
 
     $ make test
 
-These tests are located in `<test>`_. You can also run `mocha` directly
+These tests are located in `<test>`_. You can also run ``mocha`` directly
 form the command line but running the make target will trigger a build
 to ensure that the tests are run against the latest code.
 
@@ -113,32 +113,32 @@ Wed expects the XML files it uses to have been converted from XML to
 an ad-hoc HTML version. So the data passed to it must have been
 converted by `<lib/wed/xml-to-html.xsl>`_ Various schemas and projects
 will have different needs regarding whitespace handling, so it is
-likely you'll want to create your own `xml-to-html.xsl` file will
+likely you'll want to create your own ``xml-to-html.xsl`` file will
 import `<lib/wed/xml-to-html.xsl>`_ but customize whitespace handling.
 
 To include wed in a web page you must:
 
 * Require `<lib/wed/wed.js>`_
 
-* Call the `editor()` function of that module as follows::
+* Call the ``editor()`` function of that module as follows::
     wed.editor(widget, options);
 
-  The `widget` parameter must be an element (preferably a `div`) which
+  The ``widget`` parameter must be an element (preferably a ``div``) which
   contains the entire data structure to edit (converted by
-  `xml-to-html.xsl` or a customization of it). The `options` parameter
+  ``xml-to-html.xsl`` or a customization of it). The ``options`` parameter
   is an dictionary which at present understands the following keys:
 
-  + `schema`: the path to the schema to use for interpreting the
+  + ``schema``: the path to the schema to use for interpreting the
     document. This file must contain the result of doing the schema
-    conversion required by `salve` since wed uses `salve`. See
-    `salve`'s documentation.
+    conversion required by ``salve`` since wed uses ``salve``. See
+    ``salve``'s documentation.
 
-  + `mode`: a path to the mode to use. Wed comes bundled with a
-    generic mode located at `wed/modes/generic/generic`.
+  + ``mode``: a path to the mode to use. Wed comes bundled with a
+    generic mode located at ``wed/modes/generic/generic``.
 
-  If `options` is absent, wed will attempt getting its configuration
-  from requirejs by calling `module.config()`. See the requirejs
-  documentation. The `wed/wed` configuration in
+  If ``options`` is absent, wed will attempt getting its configuration
+  from RequireJS by calling ``module.config()``. See the RequireJS
+  documentation. The ``wed/wed`` configuration in
   `<config/requirejs-config-dev.js>`_ gives an example of how this can
   be used.
 
@@ -152,7 +152,7 @@ Berkeley, CA.
 Credits
 =======
 
-Salve designed and developed by Louis-Dominique Dubeau, Director of
+Wed is designed and developed by Louis-Dominique Dubeau, Director of
 Software Development for the Buddhist Translators Workbench project,
 Mangalam Research Center for Buddhist Languages.
 
@@ -168,3 +168,6 @@ Humanities.
 
 .. image:: http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg
    :target: http://www.neh.gov/
+
+..  LocalWords:  API html xml xsl wed's config jquery js chai semver
+..  LocalWords:  json minified localhost
