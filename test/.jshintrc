@@ -1,6 +1,7 @@
 { "globals": 
   { "describe": false,
     "before": false,
+    "beforeEach": false,
     "__dirname": false,
     "it": false,
     "require": false,
