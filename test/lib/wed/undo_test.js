@@ -108,6 +108,15 @@ describe("UndoList", function () {
             assert.Throw(ul.endGroup.bind(ul),
                          Error, "ending a non-existent group");
         });
+        it("ends groups in the proper order", function () {
+            ul.startGroup(new MyGroup("group1"));
+            ul.startGroup(new MyGroup("group2"));
+            ul.endGroup();
+            ul.endGroup();
+            assert.equal(ul._list[0].toString(), "group1");
+            assert.equal(ul._list.length, 1);
+        });
+
     });
 
     describe("record", function () {
