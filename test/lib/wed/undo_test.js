@@ -119,6 +119,28 @@ describe("UndoList", function () {
 
     });
 
+    describe("endGroup", function () {
+        it("returns undefined when object is new", function () {
+            assert.equal(ul.getGroup(), undefined);
+        });
+        it("returns undefined when all groups have ended", function () {
+            ul.startGroup(new MyGroup("group1"));
+            ul.endGroup();
+            assert.equal(ul.getGroup(), undefined);
+        });
+        it("returns the group which is current", function () {
+            var group1 = new MyGroup("group1");
+            var group2 = new MyGroup("group2");
+            ul.startGroup(group1);
+            ul.startGroup(group2);
+            assert.equal(ul.getGroup(), group2);
+            ul.endGroup();
+            assert.equal(ul.getGroup(), group1);
+        });
+
+    });
+
+
     describe("record", function () {
         it("records undo operations", function () {
             var undo1 = new MyUndo("undo1", obj);
