@@ -253,6 +253,27 @@ describe("UndoList", function () {
             assert.isFalse(obj.undo1);
             assert.isFalse(obj.undo2);
         });
+
+        it("terminates any group in effect", function () {
+            var group1 = new MyGroup("group1");
+            var group2 = new MyGroup("group2");
+
+            ul.startGroup(group1);
+            var undo1 = new MyUndo("undo1", obj);
+            ul.record(undo1);
+
+            ul.startGroup(group2);
+            var undo2 = new MyUndo("undo2", obj);
+            ul.record(undo2);
+
+            assert.isTrue(obj.undo1);
+            assert.isTrue(obj.undo2);
+            ul.undo();
+            assert.isFalse(obj.undo1);
+            assert.isFalse(obj.undo2);
+            assert.isUndefined(ul.getGroup());
+        });
+
     });
 
     describe("redo", function () {
