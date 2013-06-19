@@ -91,6 +91,11 @@ build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_FILE) | build/standalone/l
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
+# unzip preserves the creation date of the bootstrap directory. Which
+# means that downloads/bootstrap.zip would likely be more recent than
+# the top level directory. This would trigger this target needlessly
+# so, touch it.
+	touch $@
 
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
