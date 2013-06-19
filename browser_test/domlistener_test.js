@@ -44,20 +44,17 @@ function (mocha, chai, $, domlistener) {
         listener.addHandler("added-element", "._marker", markHadler);
     }
 
-    (function () {
-        this.mark = function (label) {
-            if (this._counts[label] === undefined)
-                this._counts[label] = 0;
+    Mark.prototype.mark = function (label) {
+        if (this._counts[label] === undefined)
+            this._counts[label] = 0;
 
-            this._counts[label]++;
+        this._counts[label]++;
 
-            this._count++;
-            // Trigger the handler only once.
-            if (this._count === 1)
-                this._$root.append($marker);
-        };
-
-    }).call(Mark.prototype);
+        this._count++;
+        // Trigger the handler only once.
+        if (this._count === 1)
+            this._$root.append($marker);
+    };
 
     var assert = chai.assert;
     var Listener = domlistener.Listener;
