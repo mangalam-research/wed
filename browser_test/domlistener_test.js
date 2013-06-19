@@ -123,8 +123,9 @@ function (mocha, chai, $, domlistener) {
                }
                listener.addHandler("added-element", "._real.ul",
                                    addedHandler);
-               function changedHandler($this_root, $added,
-                                       $removed, $element) {
+               function changedHandler($this_root, $added, $removed,
+                                       $previous_sibling, $next_sibling,
+                                       $element) {
                    // The marker will also trigger this
                    // handler. Ignore it.
                    if ($added.get(0) === $marker.get(0))
@@ -134,6 +135,8 @@ function (mocha, chai, $, domlistener) {
                    assert.equal($added.length, 1);
                    assert.equal($added.get(0),
                                 $fragment_to_add.get(0));
+                   assert.isUndefined($previous_sibling.get(0));
+                   assert.isUndefined($next_sibling.get(0));
                    mark.mark("children root");
                }
                listener.addHandler("children-changed", "*",
@@ -201,9 +204,6 @@ function (mocha, chai, $, domlistener) {
                $ul.get(0).innerHTML = '';
            });
 
-
-
-
         it("fires excluded-element, removed-element and " +
            "children-changed when removing a fragment",
            function (done) {
@@ -232,7 +232,8 @@ function (mocha, chai, $, domlistener) {
                listener.addHandler("removed-element", "._real.ul",
                                    removedHandler);
                function changedHandler($this_root, $added,
-                                       $removed, $element) {
+                                       $removed, $previous_sibling,
+                                       $next_sibling, $element) {
                    // The marker will also trigger this
                    // handler. Ignore it.
                    if ($added.get(0) === $marker.get(0))
@@ -242,6 +243,8 @@ function (mocha, chai, $, domlistener) {
                    assert.equal($removed.length, 1);
                    assert.equal($removed.get(0),
                                 $fragment_to_add.get(0));
+                   assert.isUndefined($previous_sibling.get(0));
+                   assert.isUndefined($next_sibling.get(0));
                    mark.mark("children root");
                }
                listener.addHandler("children-changed", "*",
@@ -316,8 +319,7 @@ function (mocha, chai, $, domlistener) {
 
         it("fires text-changed when changing a text node",
            function (done) {
-               mark = new Mark(1,
-                               {"text-changed": 1},
+               mark = new Mark(1, {"text-changed": 1},
                                listener, $root, done);
                function textChanged($this_root, $element) {
                    assert.equal($this_root.get(0), $root.get(0));
@@ -340,25 +342,25 @@ function (mocha, chai, $, domlistener) {
                // text node which was already there is removed. Once
                // when the new text node is added.
 
-               mark = new Mark(2,
-                               {"children li": 2},
+               mark = new Mark(2, {"children li": 2},
                                listener, $root, done);
                var $li;
                var change_no = 0;
-               function changedHandler($this_root, $added,
-                                       $removed, $element) {
+               function changedHandler($this_root, $added, $removed,
+                                       $previous_sibling, $next_sibling,
+                                       $element) {
                    // The marker will also trigger this
                    // handler. Ignore it.
                    if ($added.get(0) === $marker.get(0))
                        return;
                    assert.equal($this_root.get(0), $root.get(0));
                    assert.equal($element.get(0), $li.get(0));
-                   assert.equal($added.length,
-                                change_no === 0 ? 0 : 1,
+                   assert.equal($added.length, change_no === 0 ? 0 : 1,
                                 "added elements");
-                   assert.equal($removed.length,
-                                change_no === 0 ? 1 : 0,
+                   assert.equal($removed.length, change_no === 0 ? 1 : 0,
                                 "removed elements");
+                   assert.isUndefined($previous_sibling.get(0));
+                   assert.isUndefined($next_sibling.get(0));
                    if (change_no === 0)
                        assert.equal($removed.get(0).nodeValue, "A");
                    else
@@ -374,5 +376,28 @@ function (mocha, chai, $, domlistener) {
                $li.text("Q");
            });
 
+        it("generates children-changed with the right previous and " +
+           "next siblings",
+           function (done) {
+               mark = new Mark(1, {"children ul": 1},
+                               listener, $root, done);
+               function changedHandler($this_root, $added, $removed,
+                                       $previous_sibling, $next_sibling,
+                                       $element) {
+                   // The marker will also trigger this
+                   // handler. Ignore it.
+                   if ($added.get(0) === $marker.get(0))
+                       return;
+                   assert.equal($previous_sibling.get(0), $li.get(0));
+                   assert.equal($next_sibling.get(0), $li.get(1));
+                   mark.mark("children ul");
+               }
+               listener.addHandler("children-changed", "._real.ul",
+                                   changedHandler);
+               $root.append($fragment_to_add);
+               listener.startListening($root);
+               var $li = $root.find("._real.li");
+               $li.first().after("<li>Q</li>");
+           });
     });
 });
