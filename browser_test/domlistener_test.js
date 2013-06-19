@@ -142,7 +142,7 @@ function (mocha, chai, $, domlistener) {
                $root.append($fragment_to_add);
            });
 
-        it("generates added-element with the right previous and next sibblings",
+        it("generates added-element with the right previous and next siblings",
            function (done) {
                mark = new Mark(2,
                                {"added li": 2},
@@ -166,7 +166,7 @@ function (mocha, chai, $, domlistener) {
            });
 
         it("generates removed-element with the right previous and " +
-           "next sibblings",
+           "next siblings",
            function (done) {
                mark = new Mark(2,
                                {"removed li": 2},
