@@ -8,8 +8,9 @@ surprised if it throws a rod and leaks oil on your carpet.
 
 Current known limitations:
 
-* There is no ``html-to-xml.xsl`` conversion at this time. Creating one
-  should be trivial but I'm concentrating my efforts on other aspects.
+* There is no ``html-to-xml.xsl`` conversion at this time. Creating
+  one should be trivial but I'm concentrating my efforts on other
+  aspects of the software.
 
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
@@ -28,6 +29,7 @@ In all cases Wed requires the following packages:
 * jquery
 * bootstrap
 * `salve <https://github.com/mangalam-research/salve/>`_
+* rangy
 
 Loading wed in a Node.js environment requires installing the
 following node package:
@@ -41,8 +43,10 @@ packages:
 * chai
 * semver-sync
 
-Please see the package.json file for details regarding these
-dependencies.
+Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
+and `<Makefile>`_ files for details regarding these
+dependencies. Running the test suite additionally requires that `saxon
+<http://saxon.sourceforge.net/>`_ be installed.
 
 Building
 ========
@@ -55,10 +59,12 @@ This Makefile will download external packages (like jquery and
 bootstrap) and place them in `<downloads>`_. It will then create an
 tree of files that could be served by a web server. The files will be
 in `<build/standalone>`_. As the name "standalone" implies this build
-includes **everything** needed to run wed, except the configuration
-for RequireJS. This configuration is dependent on how the server
-serves the files so it is up to you to create one. The file
-`<config/requirejs-config-dev.js>`_ contains an example.
+includes **everything** needed to run wed on your own server, except
+the configuration for RequireJS. This configuration is dependent on
+how the server serves the files so it is up to you to create one. The
+file `<config/requirejs-config-dev.js>`_ contains an example of a
+configuration. This file is actually the one use when you use the
+files in the `<web>`_ subdirectory.
 
 Eventually additional builds will be implemented for minified
 versions, barebones versions (containing only wed's files and assuming
@@ -68,30 +74,39 @@ the server through other means), etc.
 Testing
 =======
 
-JavaScript
-----------
+Note that due to the asynchronous nature the JavaScript environments
+used to run the tests, if the test suites are run on a system
+experiencing heavy load or if the OS has to swap a lot of memory from
+the hard disk, they may fail some or all tests. I've witnessed this
+happen, for instance, due to RequireJS timing out on a ``require()``
+call because the OS was busy loading things into memory from
+swap. I've also seen individual test cases fail for similar
+reasons. The solution is to run the test suites again.
 
-JavaScript tests are of two types:
+Tests are of two types:
 
 * Runnable outside a browser. We run these inside Node.js.
 
 * Runnable inside a browser.
 
-Some tests can be run both inside and outside a browser. This
-typically happens when a mock DOM setup is used in Node.js
-
-To run the tests that are not browser-dependent::
+To run the tests that are not browser-dependent do::
 
     $ make test
 
-These tests are located in `<test>`_. You can also run ``mocha`` directly
-form the command line but running the make target will trigger a build
-to ensure that the tests are run against the latest code.
+These tests are located in `<test>`_. You can also run ``mocha``
+directly form the command line but having ``make`` build the ``test``
+target will trigger a build to ensure that the tests are run against
+the latest code.
+
+.. warning:: Keep in mind that tests are **always** run against the
+             code present in `<build/standalone>`_. If you modify your
+             source and fail to rebuild before running the test suite,
+             the suite will run against **old code!**
 
 To run the tests that are browser-dependent, you must run a basic web
-server which has its root set to the root of the source tree. Any web
-server that can do this will work. If you do not have one handy, you
-can borrow Ace's `static.js
+server which has its web site root set to the root of the source
+tree. Any web server that can do this will work. If you do not have
+one handy, you can borrow Ace's `static.js
 <https://raw.github.com/ajaxorg/ace/master/static.js>`_::
 
     $ node static.js
@@ -105,6 +120,32 @@ In either case, the server will serve on localhost:8888 by
 default. Point your browser to
 `<http://localhost:8888/web/test.html>`_ to run the test suite. The
 browser-dependent tests are located in `<browser_test>`_.
+
+If you change wed's code and want to run the browser-dependent test
+suite again, make sure to run ``make test`` before you run the suite
+again because otherwise the suite will run against the old code.
+
+Demo
+====
+
+The demo is located in `<web/kitchen-sink.html>`_. (Yes, this name is
+inspired from Ace.) To run it, you must have a minimal server running
+just like the one needed to run the browser-dependent test suit and
+then point your browser to
+`<http://localhost:8888/web/kitchen-sink.html>`_ if you use the
+suggested servers or to whatever address is proper if you roll a
+server using a different port or address. The demo currently starts
+with an empty document using a vanilla TEI schema. Things you can do:
+
+* Use the left mouse button to bring up a context menu. Such menu
+  exists for starting tags and all positions that are editable. This
+  menu allows inserting elements.
+
+* Insert text where text is valid.
+
+* Ctrl-Z to undo.
+
+* Ctrl-Y to redo.
 
 Using
 =====
@@ -121,6 +162,7 @@ To include wed in a web page you must:
 * Require `<lib/wed/wed.js>`_
 
 * Call the ``editor()`` function of that module as follows::
+
     wed.editor(widget, options);
 
   The ``widget`` parameter must be an element (preferably a ``div``) which
@@ -134,7 +176,7 @@ To include wed in a web page you must:
     ``salve``'s documentation.
 
   + ``mode``: a path to the mode to use. Wed comes bundled with a
-    generic mode located at ``wed/modes/generic/generic``.
+    generic mode located at `<lib/wed/modes/generic/generic.js>`_.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS
