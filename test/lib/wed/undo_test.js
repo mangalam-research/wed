@@ -117,6 +117,18 @@ describe("UndoList", function () {
             assert.equal(ul._list.length, 1);
         });
 
+        it("triggers the end() method on a group", function () {
+            var group1 = new MyGroup("group1");
+            var ended = false;
+            group1.end = function () {
+                ended = true;
+            };
+            ul.startGroup(group1);
+            ul.endGroup();
+            assert.isTrue(ended);
+        });
+
+
     });
 
     describe("getGroup", function () {
