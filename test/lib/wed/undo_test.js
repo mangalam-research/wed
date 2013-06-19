@@ -152,6 +152,41 @@ describe("UndoList", function () {
 
     });
 
+    describe("undoingOrRedoing", function () {
+        it("returns false when object is new", function () {
+            assert.isFalse(ul.undoingOrRedoing());
+        });
+        it("returns true in the middle of an undo but not before or after",
+           function () {
+               var undo1 = new MyUndo("undo1", obj);
+               var was_true;
+               undo1.undo = function () {
+                   was_true = ul.undoingOrRedoing();
+               };
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.record(undo1);
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.undo();
+               assert.isFalse(ul.undoingOrRedoing());
+               assert.isTrue(was_true);
+           });
+        it("returns true in the middle of a redo, but not before or after",
+           function () {
+               var undo1 = new MyUndo("undo1", obj);
+               var was_true;
+               undo1.redo = function () {
+                   was_true = ul.undoingOrRedoing();
+               };
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.record(undo1);
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.undo();
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.redo();
+               assert.isFalse(ul.undoingOrRedoing());
+               assert.isTrue(was_true);
+        });
+    });
 
     describe("record", function () {
         it("records undo operations", function () {
