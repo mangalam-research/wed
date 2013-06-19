@@ -128,11 +128,13 @@ test: build | build-test-files
 	mocha
 
 .PHONY: doc
-doc:
+doc: README.html
 	$(JSDOC3) -d build/doc -r lib
 # rst2html does not seem to support rewriting relative
 # urls. So we produce the html in our root.
-	$(RST2HTML) README.rst README.html
+
+README.html: README.rst
+	$(RST2HTML) $< $@
 
 .PHONY: clean
 clean:
