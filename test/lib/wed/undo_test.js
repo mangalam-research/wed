@@ -119,7 +119,7 @@ describe("UndoList", function () {
 
     });
 
-    describe("endGroup", function () {
+    describe("getGroup", function () {
         it("returns undefined when object is new", function () {
             assert.equal(ul.getGroup(), undefined);
         });
