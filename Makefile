@@ -30,7 +30,7 @@ all: build
 build-dir: 
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone build-test-files
+build: | build-standalone
 
 build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve
 
@@ -118,7 +118,7 @@ build/standalone/lib/salve: node_modules/salve/build/lib/salve
 	touch $@
 
 .PHONY: test
-test: build
+test: build | build-test-files
 	semver-sync -v
 	mocha
 
