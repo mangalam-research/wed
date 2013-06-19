@@ -1,6 +1,10 @@
 define(["mocha/mocha", "chai", "jquery", "wed/domlistener"],
 function (mocha, chai, $, domlistener) {
     //
+    // (The method processImmediately did not exist when this test
+    // suite was first created. At any rate testing the asynchronous
+    // execution of the functions is a good deal.)
+    //
     // Listener is based on MutationObserver, which operates
     // asynchronously. This complicates things a bit. However,
     // Listener works in such a way that all events triggered by a
@@ -399,5 +403,26 @@ function (mocha, chai, $, domlistener) {
                var $li = $root.find("._real.li");
                $li.first().after("<li>Q</li>");
            });
+
+        it("processImmediately processes immediately",
+           function () {
+               var marked = false;
+               mark = new Mark(1, {"children root": 1},
+                               listener, $root, function () { marked = true; });
+               function changedHandler($this_root, $added, $removed,
+                                       $previous_sibling, $next_sibling,
+                                       $element) {
+                   if ($added.get(0) === $marker.get(0))
+                       return;
+                   mark.mark("children root");
+               }
+               listener.addHandler("children-changed", "*",
+                                   changedHandler);
+               listener.startListening($root);
+               $root.append($fragment_to_add);
+               listener.processImmediately();
+               assert.isTrue(marked);
+           });
+
     });
 });
