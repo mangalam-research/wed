@@ -325,11 +325,13 @@ function (mocha, chai, $, domlistener) {
            function (done) {
                mark = new Mark(1, {"text-changed": 1},
                                listener, $root, done);
-               function textChanged($this_root, $element) {
+               function textChanged($this_root, $element, old_value) {
                    assert.equal($this_root.get(0), $root.get(0));
                    assert.equal($element.length, 1);
                    assert.equal($element.parent().get(0).className,
                                 "_real li");
+                   assert.equal($element.get(0).nodeValue, "Q");
+                   assert.equal(old_value, "A");
                    mark.mark("text-changed");
                }
                listener.addHandler("text-changed", "._real.li",
