@@ -12,11 +12,11 @@ function (mocha, chai, $, wed) {
     }
 
     function firstGUI($container) {
-        return $container.children("._gui").get(0).childNodes[0];
+        return $container.children("._gui").get(0);
     }
 
     function lastGUI($container) {
-        return $container.children("._gui").last().get(0).childNodes[0];
+        return $container.children("._gui").last().get(0);
     }
 
     function firstPH($container) {
@@ -237,27 +237,27 @@ function (mocha, chai, $, wed) {
                        function () {
                            var initial = lastGUI($(editor.root).find(".title").
                                                  first());
-                           editor.setCaret(initial, 0);
-                           caretCheck(editor, initial, 0, "initial");
+                           editor.setCaret(initial, 1);
+                           caretCheck(editor, initial, 1, "initial");
                            editor.moveCaretLeft();
                            // It is now inside the text
-                           var text_node = initial.parentNode.previousSibling;
+                           var text_node = initial.previousSibling;
                            var offset = text_node.nodeValue.length;
-                           caretCheck(editor, text_node, offset, "moved twice");
+                           caretCheck(editor, text_node, offset, "moved once");
                            editor.moveCaretLeft();
                            // move through text
                            offset--;
                            caretCheck(editor, text_node,
-                                      offset, "moved 3 times");
+                                      offset, "moved twice");
                            editor.moveCaretLeft();
                            editor.moveCaretLeft();
                            editor.moveCaretLeft();
-                           caretCheck(editor, text_node, 0, "moved 6 times");
+                           caretCheck(editor, text_node, 0, "moved 5 times");
                            editor.moveCaretLeft();
                            // It is now inside the first gui element.
                            caretCheck(editor, firstGUI($(editor.root).
                                                        find(".title").first()),
-                                      0, "moved 7 times");
+                                      0, "moved 6 times");
 
                            done();
                        });

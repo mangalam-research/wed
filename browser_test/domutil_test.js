@@ -331,5 +331,344 @@ function (mocha, chai, $, domutil) {
                 testPair(null, null);
             });
         });
+
+        describe("splitTextNode", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("fails on non-text node", function () {
+                var node = $root.find(".title").get(0);
+                assert.Throw(
+                    domutil.splitTextNode.bind(node, 0),
+                    Error, "insertIntoText called on non-text");
+            });
+
+            it("splits a text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.splitTextNode(node, 2);
+                assert.equal(pair[0].nodeValue, "ab");
+                assert.equal(pair[1].nodeValue, "cd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+
+            it("works fine with negative offset", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.splitTextNode(node, -1);
+                assert.equal(pair[0].nodeValue, "");
+                assert.equal(pair[1].nodeValue, "abcd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+
+            it("works fine with offset beyond text length", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.splitTextNode(node, node.nodeValue.length);
+                assert.equal(pair[0].nodeValue, "abcd");
+                assert.equal(pair[1].nodeValue, "");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+        });
+
+        describe("insertIntoText", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("fails on non-text node", function () {
+                var node = $root.find(".title").get(0);
+                assert.Throw(
+                    domutil.insertIntoText.bind(node, 0),
+                    Error, "insertIntoText called on non-text");
+            });
+
+            it("splits a text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.insertIntoText(node, 2);
+                assert.equal(pair[0].nodeValue, "ab");
+                assert.equal(pair[1].nodeValue, "cd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+
+            it("inserts the new element", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var $el = $("<span>");
+                var pair = domutil.insertIntoText(node, 2, $el.get(0));
+                assert.equal(pair[0].nodeValue, "ab");
+                assert.equal(pair[1].nodeValue, "cd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 3);
+                assert.equal($root.find(".title").get(0).childNodes[1],
+                             $el.get(0));
+            });
+
+            it("works fine with negative offset", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.insertIntoText(node, -1);
+                assert.equal(pair[0].nodeValue, "");
+                assert.equal(pair[1].nodeValue, "abcd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+            it("works fine with offset beyond text length", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.insertIntoText(node, node.nodeValue.length);
+                assert.equal(pair[0].nodeValue, "abcd");
+                assert.equal(pair[1].nodeValue, "");
+                assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            });
+        });
+
+        describe("insertText", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("modifies a text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.insertText(node, 2, "Q");
+                assert.equal(pair[0], node);
+                assert.equal(pair[1], node);
+                assert.equal(pair[0].nodeValue, "abQcd");
+            });
+
+            it("uses the next text node if possible", function () {
+                var node = $root.find(".title").get(0);
+                var pair = domutil.insertText(node, 0, "Q");
+                assert.equal(pair[0], node.childNodes[0]);
+                assert.equal(pair[1], node.childNodes[0]);
+                assert.equal(pair[0].nodeValue, "Qabcd");
+            });
+
+            it("uses the previous text node if possible", function () {
+                var node = $root.find(".title").get(0);
+                var pair = domutil.insertText(node, 1, "Q");
+                assert.equal(pair[0], node.childNodes[0]);
+                assert.equal(pair[1], node.childNodes[0]);
+                assert.equal(pair[0].nodeValue, "abcdQ");
+            });
+
+            it("creates a text node if needed", function () {
+                var node = $root.find(".title").get(0);
+                $(node).empty();
+                var pair = domutil.insertText(node, 0, "test");
+                assert.equal(pair[0], node);
+                assert.equal(pair[1], node.childNodes[0]);
+                assert.equal(pair[1].nodeValue, "test");
+            });
+        });
+
+        describe("deleteText", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("fails on non-text node", function () {
+                var node = $root.find(".title").get(0);
+                assert.Throw(
+                    domutil.deleteText.bind(node, 0, 0),
+                    Error, "deleteText called on non-text");
+            });
+
+            it("modifies a text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                domutil.deleteText(node, 2, 2);
+                assert.equal(node.nodeValue, "ab");
+            });
+
+            it("deletes an empty text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                domutil.deleteText(node, 0, 4);
+                assert.isNull(node.parentNode);
+            });
+
+        });
+
+
+
+        describe("nodeToPath", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            before(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("returns a correct path on text node", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                assert.equal(
+                    domutil.nodeToPath(root, node),
+                    "._real.TEI[0]/._real.teiHeader[0]/._real.fileDesc[0]/" +
+                        "._real.titleStmt[0]/._real.title[0]/##text[0]");
+            });
+
+            it("returns a correct path on later text node", function () {
+                var node = $root.find(".body>.p").last().get(0).childNodes[2];
+                assert.equal(
+                    domutil.nodeToPath(root, node),
+                    "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                        "._real.p[1]/##text[1]");
+            });
+
+            it("normalizes so that it returns the same value if " +
+               "unimportant changes occurred", function () {
+                   var node = $root.find(".body>.p").last().get(0).
+                           childNodes[2];
+                   var path = "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                           "._real.p[1]/##text[1]";
+                   assert.equal(domutil.nodeToPath(root, node), path);
+                   // Split a text node. This is an unimportant change.
+                   domutil.splitTextNode(node.parentNode.childNodes[0], 1);
+                   assert.equal(domutil.nodeToPath(root, node), path);
+               });
+
+            it("fails on a node which is not a descendant of its root",
+               function () {
+                   var node = $("link").last().get(0);
+                   assert.Throw(domutil.nodeToPath.bind(undefined, root, node),
+                                Error,
+                                "node is not a descendant of root");
+                   assert.Throw(domutil.nodeToPath.bind(undefined, node, node),
+                                Error,
+                                "node is not a descendant of root");
+
+               });
+
+            it("fails on invalid root",
+               function () {
+                   var node = $("link").last().get(0);
+                   assert.Throw(domutil.nodeToPath.bind(undefined, null, node),
+                                Error,
+                                "invalid root parameter");
+
+                   assert.Throw(domutil.nodeToPath.bind(undefined, undefined,
+                                                        node),
+                                Error,
+                                "invalid root parameter");
+
+               });
+
+            it("fails on invalid node",
+               function () {
+                   assert.Throw(domutil.nodeToPath.bind(undefined, root, null),
+                                Error,
+                                "invalid node parameter");
+
+                   assert.Throw(domutil.nodeToPath.bind(undefined, root,
+                                                        undefined),
+                                Error,
+                                "invalid node parameter");
+
+               });
+
+
+
+        });
+
+        describe("pathToNode", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            before(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("returns a correct node on a text path", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                assert.equal(
+                    domutil.pathToNode(
+                        root,
+                        "._real.TEI[0]/._real.teiHeader[0]/"+
+                            "._real.fileDesc[0]/" +
+                            "._real.titleStmt[0]/._real.title[0]/##text[0]"),
+                    node);
+            });
+
+            it("returns a correct node on a later text path", function () {
+                var node = $root.find(".body>.p").last().get(0).childNodes[2];
+                assert.equal(
+                    domutil.pathToNode(
+                        root,
+                        "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                            "._real.p[1]/##text[1]"),
+                    node);
+            });
+
+            it("normalizes so that it returns the same value if " +
+               "unimportant changes occurred", function () {
+                   var node = $root.find(".body>.p").last().get(0).
+                           childNodes[2];
+                   var path = "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                           "._real.p[1]/##text[1]";
+                   assert.equal(domutil.pathToNode(root, path), node);
+                   // Split a text node. This is an unimportant change.
+                   domutil.splitTextNode(node.parentNode.childNodes[0], 1);
+                   assert.equal(domutil.pathToNode(root, path), node);
+               });
+        });
+
     });
 });
