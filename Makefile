@@ -30,7 +30,7 @@ all: build
 build-dir: 
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone build-test-files
+build: | build-standalone
 
 build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve
 
@@ -91,6 +91,11 @@ build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_FILE) | build/standalone/l
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
+# unzip preserves the creation date of the bootstrap directory. Which
+# means that downloads/bootstrap.zip would likely be more recent than
+# the top level directory. This would trigger this target needlessly
+# so, touch it.
+	touch $@
 
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
@@ -118,16 +123,18 @@ build/standalone/lib/salve: node_modules/salve/build/lib/salve
 	touch $@
 
 .PHONY: test
-test: build
+test: build | build-test-files
 	semver-sync -v
 	mocha
 
 .PHONY: doc
-doc:
-	$(JSDOC3) -d build/doc -r lib
+doc: README.html
+	$(JSDOC3) -c jsdoc.conf.json -d build/doc -r lib
 # rst2html does not seem to support rewriting relative
 # urls. So we produce the html in our root.
-	$(RST2HTML) README.rst README.html
+
+README.html: README.rst
+	$(RST2HTML) $< $@
 
 .PHONY: clean
 clean:
