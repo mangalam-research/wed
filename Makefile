@@ -129,7 +129,7 @@ test: build | build-test-files
 
 .PHONY: doc
 doc: README.html
-	$(JSDOC3) -d build/doc -r lib
+	$(JSDOC3) -c jsdoc.conf.json -d build/doc -r lib
 # rst2html does not seem to support rewriting relative
 # urls. So we produce the html in our root.
 
