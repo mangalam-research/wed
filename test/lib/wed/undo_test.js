@@ -108,6 +108,84 @@ describe("UndoList", function () {
             assert.Throw(ul.endGroup.bind(ul),
                          Error, "ending a non-existent group");
         });
+        it("ends groups in the proper order", function () {
+            ul.startGroup(new MyGroup("group1"));
+            ul.startGroup(new MyGroup("group2"));
+            ul.endGroup();
+            ul.endGroup();
+            assert.equal(ul._list[0].toString(), "group1");
+            assert.equal(ul._list.length, 1);
+        });
+
+        it("triggers the end() method on a group", function () {
+            var group1 = new MyGroup("group1");
+            var ended = false;
+            group1.end = function () {
+                ended = true;
+            };
+            ul.startGroup(group1);
+            ul.endGroup();
+            assert.isTrue(ended);
+        });
+
+
+    });
+
+    describe("getGroup", function () {
+        it("returns undefined when object is new", function () {
+            assert.equal(ul.getGroup(), undefined);
+        });
+        it("returns undefined when all groups have ended", function () {
+            ul.startGroup(new MyGroup("group1"));
+            ul.endGroup();
+            assert.equal(ul.getGroup(), undefined);
+        });
+        it("returns the group which is current", function () {
+            var group1 = new MyGroup("group1");
+            var group2 = new MyGroup("group2");
+            ul.startGroup(group1);
+            ul.startGroup(group2);
+            assert.equal(ul.getGroup(), group2);
+            ul.endGroup();
+            assert.equal(ul.getGroup(), group1);
+        });
+
+    });
+
+    describe("undoingOrRedoing", function () {
+        it("returns false when object is new", function () {
+            assert.isFalse(ul.undoingOrRedoing());
+        });
+        it("returns true in the middle of an undo but not before or after",
+           function () {
+               var undo1 = new MyUndo("undo1", obj);
+               var was_true;
+               undo1.undo = function () {
+                   was_true = ul.undoingOrRedoing();
+               };
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.record(undo1);
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.undo();
+               assert.isFalse(ul.undoingOrRedoing());
+               assert.isTrue(was_true);
+           });
+        it("returns true in the middle of a redo, but not before or after",
+           function () {
+               var undo1 = new MyUndo("undo1", obj);
+               var was_true;
+               undo1.redo = function () {
+                   was_true = ul.undoingOrRedoing();
+               };
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.record(undo1);
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.undo();
+               assert.isFalse(ul.undoingOrRedoing());
+               ul.redo();
+               assert.isFalse(ul.undoingOrRedoing());
+               assert.isTrue(was_true);
+        });
     });
 
     describe("record", function () {
@@ -222,6 +300,27 @@ describe("UndoList", function () {
             assert.isFalse(obj.undo1);
             assert.isFalse(obj.undo2);
         });
+
+        it("terminates any group in effect", function () {
+            var group1 = new MyGroup("group1");
+            var group2 = new MyGroup("group2");
+
+            ul.startGroup(group1);
+            var undo1 = new MyUndo("undo1", obj);
+            ul.record(undo1);
+
+            ul.startGroup(group2);
+            var undo2 = new MyUndo("undo2", obj);
+            ul.record(undo2);
+
+            assert.isTrue(obj.undo1);
+            assert.isTrue(obj.undo2);
+            ul.undo();
+            assert.isFalse(obj.undo1);
+            assert.isFalse(obj.undo2);
+            assert.isUndefined(ul.getGroup());
+        });
+
     });
 
     describe("redo", function () {

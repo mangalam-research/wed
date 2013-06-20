@@ -88,7 +88,24 @@ div._real {
     white-space: pre;
 }
 
-._placeholder._owns_caret {
+._placeholder._invisible {
+    white-space: pre;
+    border-style: none;
+    display: inline-block;
+    max-width: 3px;
+    min-height: 100%;
+    text-align: center;
+}
+
+._wed_caret {
+    white-space: pre;
+    border-style: none;
+    display: inline-block;
+    max-width: 1px;
+    min-height: 100%;
+}
+
+._placeholder._owns_caret, ._placeholder._invisible._owns_caret {
     background-color: black;
 }
 
