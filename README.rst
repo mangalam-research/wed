@@ -15,6 +15,12 @@ Current known limitations:
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
 
+* Keyboard navigation in contextual menus works. However, if the mouse
+  is hovering over menu items two items will be highlighted at once,
+  which may be confusing. This seems to be a limitation of CSS which
+  Bootstrap does nothing to deal with. (One element may be in the
+  focused state (keyboard) while another is in the hover state.)
+
 Dependencies
 ============
 
