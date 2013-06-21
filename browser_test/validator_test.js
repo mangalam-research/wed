@@ -10,7 +10,7 @@ function (mocha, chai, $, validator, util, validate,
     var to_parse =
             '../../test-files/validator_test_data/to_parse_converted.xml';
     var assert = chai.assert;
-    describe("parsing", function () {
+    describe("validator", function () {
         var p;
         var $data = $("#data");
         beforeEach(function () {
