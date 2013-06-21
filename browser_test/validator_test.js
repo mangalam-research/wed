@@ -438,7 +438,6 @@ function (mocha, chai, $, validator, util, validate,
                         // Make sure we know what we are looking at.
                         assert.isTrue($(el).is("._placeholder"));
                         var evs = p.possibleAt(el, 0);
-                        console.log(evs.toArray());
                         assert.sameMembers(
                             evs.toArray(),
                             [new validate.Event("endTag", "", "em"),
