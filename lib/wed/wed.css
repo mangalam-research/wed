@@ -77,6 +77,11 @@ div._phantom._gui {
 div._real {
     background-color: white;
     white-space: normal;
+    margin-left: 1em;
+}
+
+div.wed-document>div._real {
+    margin-left: 0em;
 }
 
 ._owns_caret {
