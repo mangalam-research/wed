@@ -81,7 +81,7 @@ function (mocha, chai, $, domlistener) {
         });
 
         function makeIncludedHandler(name) {
-            return function ($this_root, $tree, $previous_sibling,
+            return function ($this_root, $tree, $parent, $previous_sibling,
                              $next_sibling, $element) {
                 assert.equal($this_root.get(0), $root.get(0));
                 assert.equal($element.get(0).className,
@@ -92,7 +92,7 @@ function (mocha, chai, $, domlistener) {
         }
 
         function makeExcludedHandler(name) {
-            return function ($this_root, $tree, $previous_sibling,
+            return function ($this_root, $tree, $parent, $previous_sibling,
                              $next_sibling, $element) {
                 assert.equal($this_root.get(0), $root.get(0));
                 assert.equal($element.get(0).className,
@@ -272,8 +272,8 @@ function (mocha, chai, $, domlistener) {
             listener.addHandler(
                 "included-element",
                 "._real.li",
-                function ($this_root, $tree, $previous_sibling, $next_sibling,
-                          $element) {
+                function ($this_root, $tree, $parent, $previous_sibling,
+                          $next_sibling, $element) {
                     assert.equal($this_root.get(0), $root.get(0));
                     assert.equal($element.length, 1);
                     assert.equal($element.get(0).className,
@@ -310,8 +310,8 @@ function (mocha, chai, $, domlistener) {
             listener.addHandler(
                 "included-element",
                 "._real.li",
-                function ($this_root, $tree, $previous_sibling, $next_sibling,
-                          $element) {
+                function ($this_root, $tree, $parent, $previous_sibling,
+                          $next_sibling, $element) {
                     assert.equal($this_root.get(0), $root.get(0));
                     assert.equal($element.length, 1);
                     assert.equal($element.get(0).className,
@@ -423,7 +423,7 @@ function (mocha, chai, $, domlistener) {
                    listener.addHandler(
                        incex + "-element",
                        "._real.li",
-                       function ($this_root, $tree, $previous_sibling,
+                       function ($this_root, $tree, $parent, $previous_sibling,
                                  $next_sibling, $element) {
                            assert.equal($this_root.get(0), $root.get(0));
                            assert.equal($element.length, 1);
@@ -436,14 +436,17 @@ function (mocha, chai, $, domlistener) {
                            // handler is called, the $root could be
                            // empty!
 
+                           assert.equal($parent.length, 1);
                            if ($tree.get(0) === $fragment.get(0)) {
                                mark.mark(incex + " li at root");
+                               assert.equal($parent.get(0), $root.get(0));
                                assert.isUndefined($previous_sibling.get(0));
                                assert.isUndefined($next_sibling.get(0));
                            }
                            else {
                                assert.equal($tree.get(0),
                                             $fragment.find(".ul").get(0));
+                               assert.equal($parent.get(0), $fragment.get(0));
                                assert.equal($previous_sibling.get(0),
                                             $fragment.find("p").get(0));
                                assert.equal($next_sibling.get(0),
