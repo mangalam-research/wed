@@ -8,12 +8,14 @@ surprised if it throws a rod and leaks oil on your carpet.
 
 Current known limitations:
 
-* There is no ``html-to-xml.xsl`` conversion at this time. Creating
-  one should be trivial but I'm concentrating my efforts on other
-  aspects of the software.
-
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
+
+* Eventually the plan is for having complete handling of namespace
+  changes, and there is incipient code to deal with this but for now
+  the safe thing to do if you have a file using multiple namespaces is
+  to declare them once and for all on the top element, and never
+  change them throughout the document. Otherwise, problems are likely.
 
 * Keyboard navigation in contextual menus works. However, if the mouse
   is hovering over menu items two items will be highlighted at once,
@@ -189,6 +191,28 @@ To include wed in a web page you must:
   documentation. The ``wed/wed`` configuration in
   `<config/requirejs-config-dev.js>`_ gives an example of how this can
   be used.
+
+Round-Tripping
+==============
+
+The transformations performed by `<lib/wed/xml-to-html.xsl>`_ and
+`<lib/wed/html-to-xml.xsl>`_ are not byte-for-byte reverse
+operations. Suppose document A is converted from xml to html, remains
+unmodified, and is converted back and saved as B, B will **mean** the
+same thing as A but will not necessarily be **identical** to A. Here are
+the salient points:
+
+* Comments, CDATA, and processing instructions are lost.
+
+* The order of attributes could change.
+
+* The order and location of namespaces could change.
+
+* The encoding of empty elements could change. That is, <foo/> could
+  become <foo></foo> or vice-versa.
+
+* The presence or absence of newline on the last line may not be
+  preserved.
 
 License
 =======
