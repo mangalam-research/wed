@@ -36,7 +36,7 @@ build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/stand
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES)
 
-build/test-files/%_converted.xml: browser_test/%.xml
+build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
 		saxon -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
