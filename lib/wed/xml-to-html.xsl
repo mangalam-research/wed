@@ -32,7 +32,7 @@
     <!-- A or B would not work here unless Xpath 1.0 compatibility is
          turned on. So we use if ... then ... else ... -->
     <xsl:variable name="prefixes" as="xs:string *" select="(if ($at-root) then in-scope-prefixes(.) else in-scope-prefixes(.)[namespace-uri-for-prefix(., $current-node) != namespace-uri-for-prefix(., $current-node/..)])[. != 'xml']"/>
-    <xsl:for-each select="$prefixes[. != 'xml']">
+    <xsl:for-each select="$prefixes">
       <xsl:attribute name="data-wed-xmlns{if (. = '') then '' else concat('---', replace(., '--(-+)', '---$1'))}" select="namespace-uri-for-prefix(., $current-node)"/>
     </xsl:for-each>
   </xsl:template>
