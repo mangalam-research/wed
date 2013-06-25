@@ -16,7 +16,7 @@
          1. A sequence of three dashes or more gains a dash. So three
          dashes becomes 4, 4 becomes 5, etc.
 
-         2. A colon (which should be present only to mark the prefix,
+         2. A colon (which should be present only to mark the prefix)
          becomes a sequence of three dashes.
     -->
     <div><xsl:call-template name="handleNamespaceChanges"/><xsl:attribute name="class" select="concat(name(), ' _real')"/><xsl:for-each select="@*"><xsl:attribute name="data-wed-{replace(replace(name(), '--(-+)', '---$1'), ':', '---')}" select="."/></xsl:for-each><xsl:apply-templates select="node()"/></div>
