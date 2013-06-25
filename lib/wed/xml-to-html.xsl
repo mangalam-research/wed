@@ -10,7 +10,7 @@
 
   <xsl:output method="xhtml" indent="no" omit-xml-declaration="yes"/>
 
-  <xsl:template match="*" name="copy">
+  <xsl:template match="*">
     <!-- We encode attributes here in the following way:
 
          1. A sequence of three dashes or more gains a dash. So three
