@@ -5,6 +5,8 @@ RST2HTML?=rst2html
 
 DEV?=0
 
+MOCHA_PARAMS?=
+
 # Should be the last part of the URL beginning with
 # https://rangy.googlecode.com/files/
 RANGY_FILE=rangy-1.3alpha.772.tar.gz
@@ -125,7 +127,7 @@ build/standalone/lib/salve: node_modules/salve/build/lib/salve
 .PHONY: test
 test: build | build-test-files
 	semver-sync -v
-	mocha
+	mocha $(MOCHA_PARAMS)
 
 .PHONY: doc
 doc: README.html
