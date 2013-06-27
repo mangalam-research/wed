@@ -1,3 +1,13 @@
+Release History
+===============
+
+This section covers only salient changes:
+
+* 0.4 Introduces a major API change. Whereas the ``mode`` option used
+  to be a simple path to the mode to load, it is now a simple object
+  that must have the field ``name`` set to what ``mode`` used to
+  be. See the `Using`_ section.
+
 Introduction
 ============
 
@@ -11,7 +21,7 @@ Current known limitations:
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
 
-* Eventually the plan is for having complete handling of namespace
+* Eventually the plan is for having complete handling of XML namespace
   changes, and there is incipient code to deal with this but for now
   the safe thing to do if you have a file using multiple namespaces is
   to declare them once and for all on the top element, and never
@@ -183,14 +193,33 @@ To include wed in a web page you must:
     conversion required by ``salve`` since wed uses ``salve``. See
     ``salve``'s documentation.
 
-  + ``mode``: a path to the mode to use. Wed comes bundled with a
-    generic mode located at `<lib/wed/modes/generic/generic.js>`_.
+  + ``mode``: a simple object recording mode parameters. This object
+    must have a ``name`` field set to the RequireJS path of the
+    mode. An optional ``options`` field may contain options to be
+    passed to the mode. Wed comes bundled with a generic mode located
+    at `<lib/wed/modes/generic/generic.js>`_.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS
   documentation. The ``wed/wed`` configuration in
   `<config/requirejs-config-dev.js>`_ gives an example of how this can
   be used.
+
+Here is an example of an ``options`` object::
+
+    {
+         schema: 'test/tei-simplified-rng.js',
+         mode: {
+             name: 'wed/modes/generic/generic',
+             options: {
+                 meta: 'test/tei-meta'
+             }
+         }
+    }
+
+The ``mode.options`` will be passed to the generic mode when it is
+created. What options are accepted and what they mean is determined by
+each mode.
 
 Round-Tripping
 ==============
