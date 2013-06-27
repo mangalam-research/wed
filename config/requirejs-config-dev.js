@@ -8,7 +8,7 @@ require.config({
  },
  shim: {
    'bootstrap': {
-     deps: ["jquery"], 
+     deps: ["jquery"],
      exports: "jQuery.fn.popover"
    },
    'bootstrap-contextmenu': {
@@ -24,7 +24,7 @@ require.config({
      exports: "rangy.modules.SaveRestore"
    },
    'wed/jquery.findandself': {
-     deps: ["jquery"], 
+     deps: ["jquery"],
      exports: "jQuery.fn.findAndSelf"
    },
    'mocha/mocha': {
@@ -35,7 +35,12 @@ require.config({
  config: {
      'wed/wed': {
          schema: 'test/tei-simplified-rng.js',
-         mode: 'wed/modes/generic/generic'
+         mode: {
+             path: 'wed/modes/generic/generic',
+             options: {
+                 meta: 'wed/modes/generic/metas/tei_meta'
+             }
+         }
      }
  },
  enforceDefine: true
