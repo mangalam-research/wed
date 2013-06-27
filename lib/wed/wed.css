@@ -80,6 +80,12 @@ div._real {
     margin-left: 1em;
 }
 
+div._real._inline {
+    display: inline;
+    margin-left: 0em;
+}
+
+
 div.wed-document>div._real {
     margin-left: 0em;
 }
