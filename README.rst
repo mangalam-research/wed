@@ -3,10 +3,19 @@ Release History
 
 This section covers only salient changes:
 
-* 0.4 Introduces a major API change. Whereas the ``mode`` option used
-  to be a simple path to the mode to load, it is now a simple object
-  that must have the field ``name`` set to what ``mode`` used to
-  be. See the `Using`_ section.
+* 0.4 Introduces major API changes.
+
+  - Whereas the ``mode`` option used to be a simple path to the mode
+    to load, it is now a simple object that must have the field
+    ``name`` set to what ``mode`` used to be. See the `Using`_
+    section.
+
+  - Creating and initializing a wed instance has changed
+    considerably. Instead of calling ``wed.editor()`` with appropriate
+    parameters, the user must first issue ``new wed.Editor()`` without
+    parameters and then call the ``init()`` method with the parameters
+    that were originally passed to the ``editor()`` function. See the
+    `Using`_ section for the new way to create an editor.
 
 Introduction
 ============
@@ -179,14 +188,19 @@ To include wed in a web page you must:
 
 * Require `<lib/wed/wed.js>`_
 
-* Call the ``editor()`` function of that module as follows::
+* Instantiate an ``Editor`` object of that module as follows::
 
-    wed.editor(widget, options);
+    var editor = new wed.Editor();
+    [...]
+    editor.init(widget, options);
 
-  The ``widget`` parameter must be an element (preferably a ``div``) which
-  contains the entire data structure to edit (converted by
-  ``xml-to-html.xsl`` or a customization of it). The ``options`` parameter
-  is an dictionary which at present understands the following keys:
+  Between the creation of the ``Editor`` object and the call to
+  ``init``, there conceivably could be some calls to add event
+  handlers or condition handlers. The ``widget`` parameter must be an
+  element (preferably a ``div``) which contains the entire data
+  structure to edit (converted by ``xml-to-html.xsl`` or a
+  customization of it). The ``options`` parameter is an dictionary
+  which at present understands the following keys:
 
   + ``schema``: the path to the schema to use for interpreting the
     document. This file must contain the result of doing the schema
