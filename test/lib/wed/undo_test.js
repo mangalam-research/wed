@@ -131,6 +131,47 @@ describe("UndoList", function () {
 
     });
 
+    describe("endAllGroups", function () {
+        it("does nothing when the object is new", function () {
+            assert.doesNotThrow(ul.endAllGroups.bind(ul));
+        });
+        it("does nothing upon extra calls", function () {
+            ul.startGroup(new MyGroup("group1"));
+            ul.endGroup();
+            assert.doesNotThrow(ul.endAllGroups.bind(ul));
+        });
+        it("ends all groups", function () {
+            ul.startGroup(new MyGroup("group1"));
+            ul.startGroup(new MyGroup("group2"));
+            assert.equal(ul.getGroup().toString(), "group2");
+            ul.endAllGroups();
+            assert.isUndefined(ul.getGroup());
+        });
+
+        it("triggers the end() method on a group, in the correct order",
+           function () {
+               var group1_ended = false;
+               var group2_ended = false;
+               var group1 = new MyGroup("group1");
+               group1.end = function () {
+                   group1_ended = true;
+               };
+               var group2 = new MyGroup("group2");
+               group2.end = function () {
+                   group2_ended = true;
+                   assert.isFalse(group1_ended);
+               };
+               ul.startGroup(group1);
+               ul.startGroup(group2);
+               assert.isFalse(group1_ended);
+               assert.isFalse(group2_ended);
+               ul.endAllGroups();
+               assert.isTrue(group1_ended);
+               assert.isTrue(group2_ended);
+           });
+    });
+
+
     describe("getGroup", function () {
         it("returns undefined when object is new", function () {
             assert.equal(ul.getGroup(), undefined);
