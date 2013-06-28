@@ -1,3 +1,22 @@
+Release History
+===============
+
+This section covers only salient changes:
+
+* 0.4 Introduces major API changes.
+
+  - Whereas the ``mode`` option used to be a simple path to the mode
+    to load, it is now a simple object that must have the field
+    ``name`` set to what ``mode`` used to be. See the `Using`_
+    section.
+
+  - Creating and initializing a wed instance has changed
+    considerably. Instead of calling ``wed.editor()`` with appropriate
+    parameters, the user must first issue ``new wed.Editor()`` without
+    parameters and then call the ``init()`` method with the parameters
+    that were originally passed to the ``editor()`` function. See the
+    `Using`_ section for the new way to create an editor.
+
 Introduction
 ============
 
@@ -8,12 +27,20 @@ surprised if it throws a rod and leaks oil on your carpet.
 
 Current known limitations:
 
-* There is no ``html-to-xml.xsl`` conversion at this time. Creating
-  one should be trivial but I'm concentrating my efforts on other
-  aspects of the software.
-
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
+
+* Eventually the plan is for having complete handling of XML namespace
+  changes, and there is incipient code to deal with this but for now
+  the safe thing to do if you have a file using multiple namespaces is
+  to declare them once and for all on the top element, and never
+  change them throughout the document. Otherwise, problems are likely.
+
+* Keyboard navigation in contextual menus works. However, if the mouse
+  is hovering over menu items two items will be highlighted at once,
+  which may be confusing. This seems to be a limitation of CSS which
+  Bootstrap does nothing to deal with. (One element may be in the
+  focused state (keyboard) while another is in the hover state.)
 
 Dependencies
 ============
@@ -161,28 +188,74 @@ To include wed in a web page you must:
 
 * Require `<lib/wed/wed.js>`_
 
-* Call the ``editor()`` function of that module as follows::
+* Instantiate an ``Editor`` object of that module as follows::
 
-    wed.editor(widget, options);
+    var editor = new wed.Editor();
+    [...]
+    editor.init(widget, options);
 
-  The ``widget`` parameter must be an element (preferably a ``div``) which
-  contains the entire data structure to edit (converted by
-  ``xml-to-html.xsl`` or a customization of it). The ``options`` parameter
-  is an dictionary which at present understands the following keys:
+  Between the creation of the ``Editor`` object and the call to
+  ``init``, there conceivably could be some calls to add event
+  handlers or condition handlers. The ``widget`` parameter must be an
+  element (preferably a ``div``) which contains the entire data
+  structure to edit (converted by ``xml-to-html.xsl`` or a
+  customization of it). The ``options`` parameter is an dictionary
+  which at present understands the following keys:
 
   + ``schema``: the path to the schema to use for interpreting the
     document. This file must contain the result of doing the schema
     conversion required by ``salve`` since wed uses ``salve``. See
     ``salve``'s documentation.
 
-  + ``mode``: a path to the mode to use. Wed comes bundled with a
-    generic mode located at `<lib/wed/modes/generic/generic.js>`_.
+  + ``mode``: a simple object recording mode parameters. This object
+    must have a ``name`` field set to the RequireJS path of the
+    mode. An optional ``options`` field may contain options to be
+    passed to the mode. Wed comes bundled with a generic mode located
+    at `<lib/wed/modes/generic/generic.js>`_.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS
   documentation. The ``wed/wed`` configuration in
   `<config/requirejs-config-dev.js>`_ gives an example of how this can
   be used.
+
+Here is an example of an ``options`` object::
+
+    {
+         schema: 'test/tei-simplified-rng.js',
+         mode: {
+             name: 'wed/modes/generic/generic',
+             options: {
+                 meta: 'test/tei-meta'
+             }
+         }
+    }
+
+The ``mode.options`` will be passed to the generic mode when it is
+created. What options are accepted and what they mean is determined by
+each mode.
+
+Round-Tripping
+==============
+
+The transformations performed by `<lib/wed/xml-to-html.xsl>`_ and
+`<lib/wed/html-to-xml.xsl>`_ are not byte-for-byte reverse
+operations. Suppose document A is converted from xml to html, remains
+unmodified, and is converted back and saved as B, B will **mean** the
+same thing as A but will not necessarily be **identical** to A. Here are
+the salient points:
+
+* Comments, CDATA, and processing instructions are lost.
+
+* The order of attributes could change.
+
+* The order and location of namespaces could change.
+
+* The encoding of empty elements could change. That is, <foo/> could
+  become <foo></foo> or vice-versa.
+
+* The presence or absence of newline on the last line may not be
+  preserved.
 
 License
 =======

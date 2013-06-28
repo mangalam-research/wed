@@ -35,8 +35,11 @@ function (mocha, chai, $, wed) {
             $wedroot.empty();
             require(["requirejs/text!" + source], function(data) {
                 $wedroot.append(data);
-                editor = wed.editor(wedroot);
-                done();
+                editor = new wed.Editor();
+                editor.addEventListener("initialized", function () {
+                    done();
+                });
+                editor.init(wedroot);
             });
         });
 
@@ -59,7 +62,7 @@ function (mocha, chai, $, wed) {
 
             it("moves right into gui elements and placeholders",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            var initial = editor.root.childNodes[0];
@@ -97,7 +100,7 @@ function (mocha, chai, $, wed) {
 
             it("moves right into text",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            var initial = $(editor.root).find(".title").
@@ -134,7 +137,7 @@ function (mocha, chai, $, wed) {
 
             it("moves right out of elements",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            // Text node inside title.
@@ -171,7 +174,7 @@ function (mocha, chai, $, wed) {
 
             it("does not move when at end of document",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            var initial = lastGUI($(editor.root).
@@ -196,7 +199,7 @@ function (mocha, chai, $, wed) {
 
             it("moves left into gui elements and placeholders",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            var initial = editor.root.childNodes[0];
@@ -232,7 +235,7 @@ function (mocha, chai, $, wed) {
 
             it("moves left into text",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            var initial = lastGUI($(editor.root).find(".title").
@@ -265,7 +268,7 @@ function (mocha, chai, $, wed) {
 
             it("moves left out of elements",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            var initial =
@@ -296,7 +299,7 @@ function (mocha, chai, $, wed) {
 
             it("does not move when at start of document",
                function (done) {
-                   editor.addEventListener(
+                   editor.whenCondition(
                        "first-validation-complete",
                        function () {
                            var initial = firstGUI($(editor.root).

@@ -2,10 +2,10 @@
 var child_process = require("child_process");
 var fs = require("fs");
 var assert = require("chai").assert;
-// Reminder: paths are relative to where mocha is run.
-// I.e. the root of our source tree!
-var XSL = "lib/wed/xml-to-html.xsl";
 describe("xml-to-html", function () {
+    // Reminder: paths are relative to where mocha is run.
+    // I.e. the root of our source tree!
+    var XSL = "lib/wed/xml-to-html.xsl";
     function makeTest(name) {
         var converted_name = name.replace(/ /g, '-');
         it(name, function (done) {

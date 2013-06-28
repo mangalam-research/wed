@@ -11,7 +11,8 @@
     <script>
     require(["wed/wed", "jquery"], function (wed, $) {
         $(function () {
-            window.wed_editor = wed.editor($("#widget").get(0));
+            window.wed_editor = new wed.Editor();
+            window.wed_editor.init($("#widget").get(0));
         });
     });
     </script>
