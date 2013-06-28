@@ -10,7 +10,7 @@ function (mocha, chai, $, validator, util, validate,
     var to_parse =
             '../../test-files/validator_test_data/to_parse_converted.xml';
     var assert = chai.assert;
-    describe("parsing", function () {
+    describe("validator", function () {
         var p;
         var $data = $("#data");
         beforeEach(function () {
@@ -353,21 +353,28 @@ function (mocha, chai, $, validator, util, validate,
                             var listener =
                                 new domlistener.Listener(
                                     $data.get(0));
-                            var mode = new generic.Mode();
-                            // The editor parameter is null. Works
-                            // for now.
-                            var decorator =
-                                mode.makeDecorator(listener, null);
-                            decorator.init($data);
-                            if (transform_fn)
-                                transform_fn();
-                            p.start();
+                            require(
+                                ["wed/modes/generic/metas/tei_meta"],
+                                function (meta) {
+                                    var mode = new generic.Mode(
+                                        {meta: meta});
+                                    // The editor parameter is null. Works
+                                    // for now.
+                                    var decorator =
+                                            mode.makeDecorator(listener, null);
+                                    decorator.init($data);
+                                    if (transform_fn)
+                                        transform_fn();
+                                    p.start();
+                                });
                         }
+
                         if (!no_load)
                             require(["requirejs/text!" + to_parse],
                                     processData);
                         else
                             p.start();
+
                     });
                 }
 
@@ -438,7 +445,6 @@ function (mocha, chai, $, validator, util, validate,
                         // Make sure we know what we are looking at.
                         assert.isTrue($(el).is("._placeholder"));
                         var evs = p.possibleAt(el, 0);
-                        console.log(evs.toArray());
                         assert.sameMembers(
                             evs.toArray(),
                             [new validate.Event("endTag", "", "em"),

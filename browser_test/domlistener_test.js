@@ -81,8 +81,8 @@ function (mocha, chai, $, domlistener) {
         });
 
         function makeIncludedHandler(name) {
-            return function ($this_root,
-                             $element) {
+            return function ($this_root, $tree, $parent, $previous_sibling,
+                             $next_sibling, $element) {
                 assert.equal($this_root.get(0), $root.get(0));
                 assert.equal($element.get(0).className,
                              "_real " + name);
@@ -92,8 +92,8 @@ function (mocha, chai, $, domlistener) {
         }
 
         function makeExcludedHandler(name) {
-            return function ($this_root,
-                             $element) {
+            return function ($this_root, $tree, $parent, $previous_sibling,
+                             $next_sibling, $element) {
                 assert.equal($this_root.get(0), $root.get(0));
                 assert.equal($element.get(0).className,
                              "_real " + name);
@@ -272,7 +272,8 @@ function (mocha, chai, $, domlistener) {
             listener.addHandler(
                 "included-element",
                 "._real.li",
-                function ($this_root, $element) {
+                function ($this_root, $tree, $parent, $previous_sibling,
+                          $next_sibling, $element) {
                     assert.equal($this_root.get(0), $root.get(0));
                     assert.equal($element.length, 1);
                     assert.equal($element.get(0).className,
@@ -309,7 +310,8 @@ function (mocha, chai, $, domlistener) {
             listener.addHandler(
                 "included-element",
                 "._real.li",
-                function ($this_root, $element) {
+                function ($this_root, $tree, $parent, $previous_sibling,
+                          $next_sibling, $element) {
                     assert.equal($this_root.get(0), $root.get(0));
                     assert.equal($element.length, 1);
                     assert.equal($element.get(0).className,
@@ -404,6 +406,70 @@ function (mocha, chai, $, domlistener) {
                listener.startListening($root);
                var $li = $root.find("._real.li");
                $li.first().after("<li>Q</li>");
+           });
+
+
+        it("generates included-element with the right tree, and previous and " +
+           "next siblings",
+           function (done) {
+               var mark = new Mark(8,
+                                   {"included li at root": 2,
+                                    "included li at ul": 2,
+                                    "excluded li at ul": 2,
+                                    "excluded li at root": 2
+                                   },
+                                   listener, $root, done);
+               function addHandler(incex) {
+                   listener.addHandler(
+                       incex + "-element",
+                       "._real.li",
+                       function ($this_root, $tree, $parent, $previous_sibling,
+                                 $next_sibling, $element) {
+                           assert.equal($this_root.get(0), $root.get(0));
+                           assert.equal($element.length, 1);
+                           assert.equal($element.get(0).className,
+                                        "_real li");
+                           assert.equal($tree.length, 1);
+                           // The following tests are against
+                           // $fragment rather than $root or
+                           // $this_root because by the time the
+                           // handler is called, the $root could be
+                           // empty!
+
+                           assert.equal($parent.length, 1);
+                           if ($tree.get(0) === $fragment.get(0)) {
+                               mark.mark(incex + " li at root");
+                               assert.equal($parent.get(0), $root.get(0));
+                               assert.isUndefined($previous_sibling.get(0));
+                               assert.isUndefined($next_sibling.get(0));
+                           }
+                           else {
+                               assert.equal($tree.get(0),
+                                            $fragment.find(".ul").get(0));
+                               assert.equal($parent.get(0), $fragment.get(0));
+                               assert.equal($previous_sibling.get(0),
+                                            $fragment.find("p").get(0));
+                               assert.equal($next_sibling.get(0),
+                                            $fragment.find("p").get(1));
+                               assert.equal($previous_sibling.length, 1);
+                               assert.equal($next_sibling.length, 1);
+                               mark.mark(incex + " li at ul");
+                           }
+                       });
+               }
+               addHandler("included");
+               addHandler("excluded");
+               listener.startListening($root);
+               var $fragment =
+                       $("<div><p>before</p><div class='_real ul'>"+
+                         "<div class='_real li'>A</div>"+
+                         "<div class='_real li'>B</div></div>"+
+                         "<p>after</p></div>");
+               $root.append($fragment);
+               var $ul = $root.find(".ul");
+               $ul.remove();
+               $root.find("p").first().after($ul);
+               $root.empty();
            });
 
         it("processImmediately processes immediately",

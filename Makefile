@@ -5,6 +5,8 @@ RST2HTML?=rst2html
 
 DEV?=0
 
+MOCHA_PARAMS?=
+
 # Should be the last part of the URL beginning with
 # https://rangy.googlecode.com/files/
 RANGY_FILE=rangy-1.3alpha.772.tar.gz
@@ -36,7 +38,7 @@ build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/stand
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES)
 
-build/test-files/%_converted.xml: browser_test/%.xml
+build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
 		saxon -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
@@ -125,7 +127,7 @@ build/standalone/lib/salve: node_modules/salve/build/lib/salve
 .PHONY: test
 test: build | build-test-files
 	semver-sync -v
-	mocha
+	mocha $(MOCHA_PARAMS)
 
 .PHONY: doc
 doc: README.html
