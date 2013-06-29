@@ -25,45 +25,6 @@ body {
     line-height: 1.2em;
 }
 
-div.head { 
-    display: block;
-    font-weight: bold;
-    margin-top: 1em;
-    margin-bottom: 1em;
-}
-
-div.sense>div._text, ._sense_ptr { font-weight: bold; }
-
-.foreign { font-style: italic; }
-
-div.p { 
-    margin-top: 0em; 
-    margin-bottom: 0em;
-    text-indent: 1em;
-}
-
-div.btw\:related>._real {
-    display: block;
-    margin-top: 0em; 
-    margin-bottom: 0em;
-    /* Hanging indent */
-    padding-left: 2em;
-    text-indent: -2em;
-}
-
-div.btw\:related>div.btw\:cp {
-    display: inline;
-    margin-top: 0em; 
-    margin-bottom: 0em;
-    /* Hanging indent */
-    padding-left: 1em;
-    text-indent: 0em;
-}
-
-div.ref, div.sense, div.term, div.ptr, div.quote, div.foreign, div.cit, div.abbr, div.lang, div.seg, div.lbl, div._text, div.xr, div.pron, div.btw\:lang, div.btw\:cit, div.btw\:tr, div.btw\:example, div.note, div.orth, div._gui { 
-    display: inline;
-}
-
 div._phantom {
     background-color: #C0C0C0;
     white-space: pre;
@@ -84,7 +45,6 @@ div._real._inline {
     display: inline;
     margin-left: 0em;
 }
-
 
 div.wed-document>div._real {
     margin-left: 0em;
