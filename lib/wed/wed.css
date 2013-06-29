@@ -25,6 +25,10 @@ body {
     line-height: 1.2em;
 }
 
+div._real {
+    display: inline;
+}
+
 div._phantom {
     background-color: #C0C0C0;
     white-space: pre;
