@@ -548,6 +548,10 @@ function (mocha, chai, $, domutil) {
                 $root.empty();
             });
 
+            it("returns an empty string on root", function () {
+                assert.equal(domutil.nodeToPath(root, root), "");
+            });
+
             it("returns a correct path on text node", function () {
                 var node = $root.find(".title").get(0).childNodes[0];
                 assert.equal(
@@ -582,10 +586,6 @@ function (mocha, chai, $, domutil) {
                    assert.Throw(domutil.nodeToPath.bind(undefined, root, node),
                                 Error,
                                 "node is not a descendant of root");
-                   assert.Throw(domutil.nodeToPath.bind(undefined, node, node),
-                                Error,
-                                "node is not a descendant of root");
-
                });
 
             it("fails on invalid root",
@@ -615,8 +615,6 @@ function (mocha, chai, $, domutil) {
 
                });
 
-
-
         });
 
         describe("pathToNode", function () {
@@ -634,6 +632,10 @@ function (mocha, chai, $, domutil) {
 
             after(function () {
                 $root.empty();
+            });
+
+            it("returns root when passed an empty string", function () {
+                assert.equal(domutil.pathToNode(root, ""), root);
             });
 
             it("returns a correct node on a text path", function () {
