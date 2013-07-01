@@ -696,5 +696,31 @@ function (mocha, chai, $, domutil) {
                });
         });
 
+        describe("linkTrees", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            afterEach(function () {
+                $root.empty();
+            });
+
+            it("sets wed_mirror_node", function () {
+                var $cloned = $root.clone();
+                domutil.linkTrees($cloned.get(0), $root.get(0));
+                var p = $root.find(".p").get(0);
+                var cloned_p = $cloned.find(".p").get(0);
+                assert.equal($(p).data("wed_mirror_node"), cloned_p);
+            });
+        });
+
     });
 });
