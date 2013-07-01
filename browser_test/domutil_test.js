@@ -536,7 +536,7 @@ function (mocha, chai, $, domutil) {
                     '../../test-files/domutil_test_data/source_converted.xml';
             var $root = $("#domroot");
             var root = $root.get(0);
-            before(function (done) {
+            beforeEach(function (done) {
                 $root.empty();
                 require(["requirejs/text!" + source], function(data) {
                     $root.html(data);
@@ -544,7 +544,7 @@ function (mocha, chai, $, domutil) {
                 });
             });
 
-            after(function () {
+            afterEach(function () {
                 $root.empty();
             });
 
@@ -567,6 +567,17 @@ function (mocha, chai, $, domutil) {
                     "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
                         "._real.p[1]/##text[1]");
             });
+
+            it("returns a correct path on phantom_wrap nodes", function () {
+
+                $root.find(".p").wrap("<div class='_phantom_wrap'>");
+                var node = $root.find(".p").last().get(0);
+                assert.equal(
+                    domutil.nodeToPath(root, node),
+                    "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                        "._phantom_wrap[1]/._real.p[0]");
+            });
+
 
             it("normalizes so that it returns the same value if " +
                "unimportant changes occurred", function () {
@@ -622,7 +633,7 @@ function (mocha, chai, $, domutil) {
                     '../../test-files/domutil_test_data/source_converted.xml';
             var $root = $("#domroot");
             var root = $root.get(0);
-            before(function (done) {
+            beforeEach(function (done) {
                 $root.empty();
                 require(["requirejs/text!" + source], function(data) {
                     $root.html(data);
@@ -630,7 +641,7 @@ function (mocha, chai, $, domutil) {
                 });
             });
 
-            after(function () {
+            afterEach(function () {
                 $root.empty();
             });
 
@@ -658,6 +669,19 @@ function (mocha, chai, $, domutil) {
                             "._real.p[1]/##text[1]"),
                     node);
             });
+
+            it("returns a correct node when path contains _phantom_wrap",
+               function () {
+                   $root.find(".p").wrap("<div class='_phantom_wrap'>");
+                   var node = $root.find(".p").last().get(0);
+                   assert.equal(
+                       domutil.pathToNode(
+                           root,
+                           "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                               "._phantom_wrap[1]/._real.p[0]"),
+                       node);
+               });
+
 
             it("normalizes so that it returns the same value if " +
                "unimportant changes occurred", function () {
