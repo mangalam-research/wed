@@ -25,10 +25,6 @@ body {
     line-height: 1.2em;
 }
 
-div._real {
-    display: inline;
-}
-
 div._phantom {
     background-color: #C0C0C0;
     white-space: pre;
@@ -40,6 +36,7 @@ div._phantom._gui {
 }
 
 div._real {
+    display: block;
     background-color: white;
     white-space: normal;
     margin-left: 1em;
@@ -61,15 +58,6 @@ div.wed-document>div._real {
 ._placeholder {
     border-style: solid;
     white-space: pre;
-}
-
-._placeholder._invisible {
-    white-space: pre;
-    border-style: none;
-    display: inline-block;
-    max-width: 3px;
-    min-height: 100%;
-    text-align: center;
 }
 
 ._wed_caret {
