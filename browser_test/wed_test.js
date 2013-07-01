@@ -75,25 +75,12 @@ function (mocha, chai, $, wed) {
                            caretCheck(editor, firstGUI($(initial)),
                                       0, "moved once");
                            editor.moveCaretRight();
-                           // It is now inside the placeholder between
-                           // the gui element and the first child.
-                           caretCheck(editor, firstPH($(initial)),
-                                      0, "moved twice");
-                           editor.moveCaretRight();
                            // It is now in the gui element of the 1st
                            // child.
                            caretCheck(editor,
                                       firstGUI($(initial).find(".teiHeader").
                                                first()),
-                                      0, "moved 3 times");
-                           editor.moveCaretRight();
-                           // It is now inside the placeholder between
-                           // the gui element and the first child.
-                           caretCheck(editor,
-                                      firstPH($(initial).find(".teiHeader").
-                                              first()),
-                                      0, "moved 4 times");
-
+                                      0, "moved twice");
                            done();
                        });
                });
@@ -152,18 +139,9 @@ function (mocha, chai, $, wed) {
                            caretCheck(editor, lastGUI($(initial.parentNode)),
                                       0, "moved once");
                            editor.moveCaretRight();
-                           // It is now in the placeholder after .title
-                           var container =
-                                   lastPH($(initial.parentNode.parentNode));
-                           // Make sure we container is actually
-                           // inside a placeholder.
-                           assert.equal($(container).closest("._placeholder").
-                                        length, 1, "inside placeholder");
-                           caretCheck(editor, container, 0, "moved twice");
-                           editor.moveCaretRight();
                            // It is now in the gui element at end of
                            // the title's parent.
-                           container = lastGUI($(editor.root).find(".title").
+                           var container = lastGUI($(editor.root).find(".title").
                                                parent());
                            caretCheck(editor, container, 0, "moved twice");
 
@@ -213,21 +191,11 @@ function (mocha, chai, $, wed) {
                            caretCheck(editor, lastGUI($(initial)),
                                       0, "moved once");
                            editor.moveCaretLeft();
-                           // It is now inside the placeholder between
-                           // the gui element and the last child.
-                           caretCheck(editor, lastPH($(initial)),
-                                      0, "moved twice");
-                           editor.moveCaretLeft();
                            // It is now in the gui element of the 1st
                            // child.
                            var $last_text = $(initial).find(".text").last();
                            caretCheck(editor, lastGUI($last_text),
-                                      0, "moved 3 times");
-                           editor.moveCaretLeft();
-                           // It is now inside the placeholder between
-                           // the gui element and the first child.
-                           caretCheck(editor, lastPH($last_text),
-                                      0, "moved 4 times");
+                                      0, "moved twice");
 
                            done();
                        });
@@ -276,20 +244,11 @@ function (mocha, chai, $, wed) {
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
                            editor.moveCaretLeft();
-                           // // It is now in the placeholder before .title
-                           var container =
-                                   firstPH($(editor.root).find(".title").
-                                           parent());
-                           // Make sure container is actually inside a
-                           // placeholder.
-                           assert.equal($(container).closest("._placeholder").
-                                        length, 1, "inside placeholder");
-                           caretCheck(editor, container, 0, "moved twice");
-                           editor.moveCaretLeft();
                            // It is now in the gui element at end of
                            // the title's parent.
-                           container = firstGUI($(editor.root).find(".title").
-                                               parent());
+                           var container =
+                                   firstGUI($(editor.root).find(".title").
+                                            parent());
                            caretCheck(editor, container, 0, "moved twice");
 
                            done();
