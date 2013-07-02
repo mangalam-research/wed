@@ -16,7 +16,7 @@ body {
 }
 
 #menu-layer>* {
-    position: absolute;
+    position: fixed;
 }
 
 .tooltip {
