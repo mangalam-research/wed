@@ -536,7 +536,7 @@ function (mocha, chai, $, domutil) {
                     '../../test-files/domutil_test_data/source_converted.xml';
             var $root = $("#domroot");
             var root = $root.get(0);
-            before(function (done) {
+            beforeEach(function (done) {
                 $root.empty();
                 require(["requirejs/text!" + source], function(data) {
                     $root.html(data);
@@ -544,8 +544,12 @@ function (mocha, chai, $, domutil) {
                 });
             });
 
-            after(function () {
+            afterEach(function () {
                 $root.empty();
+            });
+
+            it("returns an empty string on root", function () {
+                assert.equal(domutil.nodeToPath(root, root), "");
             });
 
             it("returns a correct path on text node", function () {
@@ -563,6 +567,17 @@ function (mocha, chai, $, domutil) {
                     "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
                         "._real.p[1]/##text[1]");
             });
+
+            it("returns a correct path on phantom_wrap nodes", function () {
+
+                $root.find(".p").wrap("<div class='_phantom_wrap'>");
+                var node = $root.find(".p").last().get(0);
+                assert.equal(
+                    domutil.nodeToPath(root, node),
+                    "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                        "._phantom_wrap[1]/._real.p[0]");
+            });
+
 
             it("normalizes so that it returns the same value if " +
                "unimportant changes occurred", function () {
@@ -582,10 +597,6 @@ function (mocha, chai, $, domutil) {
                    assert.Throw(domutil.nodeToPath.bind(undefined, root, node),
                                 Error,
                                 "node is not a descendant of root");
-                   assert.Throw(domutil.nodeToPath.bind(undefined, node, node),
-                                Error,
-                                "node is not a descendant of root");
-
                });
 
             it("fails on invalid root",
@@ -615,8 +626,6 @@ function (mocha, chai, $, domutil) {
 
                });
 
-
-
         });
 
         describe("pathToNode", function () {
@@ -624,7 +633,7 @@ function (mocha, chai, $, domutil) {
                     '../../test-files/domutil_test_data/source_converted.xml';
             var $root = $("#domroot");
             var root = $root.get(0);
-            before(function (done) {
+            beforeEach(function (done) {
                 $root.empty();
                 require(["requirejs/text!" + source], function(data) {
                     $root.html(data);
@@ -632,8 +641,12 @@ function (mocha, chai, $, domutil) {
                 });
             });
 
-            after(function () {
+            afterEach(function () {
                 $root.empty();
+            });
+
+            it("returns root when passed an empty string", function () {
+                assert.equal(domutil.pathToNode(root, ""), root);
             });
 
             it("returns a correct node on a text path", function () {
@@ -657,6 +670,19 @@ function (mocha, chai, $, domutil) {
                     node);
             });
 
+            it("returns a correct node when path contains _phantom_wrap",
+               function () {
+                   $root.find(".p").wrap("<div class='_phantom_wrap'>");
+                   var node = $root.find(".p").last().get(0);
+                   assert.equal(
+                       domutil.pathToNode(
+                           root,
+                           "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                               "._phantom_wrap[1]/._real.p[0]"),
+                       node);
+               });
+
+
             it("normalizes so that it returns the same value if " +
                "unimportant changes occurred", function () {
                    var node = $root.find(".body>.p").last().get(0).
@@ -668,6 +694,32 @@ function (mocha, chai, $, domutil) {
                    domutil.splitTextNode(node.parentNode.childNodes[0], 1);
                    assert.equal(domutil.pathToNode(root, path), node);
                });
+        });
+
+        describe("linkTrees", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            afterEach(function () {
+                $root.empty();
+            });
+
+            it("sets wed_mirror_node", function () {
+                var $cloned = $root.clone();
+                domutil.linkTrees($cloned.get(0), $root.get(0));
+                var p = $root.find(".p").get(0);
+                var cloned_p = $cloned.find(".p").get(0);
+                assert.equal($(p).data("wed_mirror_node"), cloned_p);
+            });
         });
 
     });
