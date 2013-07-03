@@ -68,7 +68,7 @@ div.wed-document>div._real {
     min-height: 100%;
 }
 
-._placeholder._owns_caret, ._placeholder._invisible._owns_caret {
+._placeholder._owns_caret {
     background-color: black;
 }
 
