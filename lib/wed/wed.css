@@ -69,7 +69,21 @@ div.wed-document>div._real {
 }
 
 ._placeholder._owns_caret {
-    background-color: black;
+    background-color: #C0C0C0;
+    animation: placeholder 1s infinite;
+    -webkit-animation: placeholder 1s infinite;
+}
+
+@keyframes placeholder {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@-webkit-keyframes placeholder {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 .wed-document {
