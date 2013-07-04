@@ -51,6 +51,10 @@ div.wed-document>div._real {
     margin-left: 0em;
 }
 
+div._text._phantom {
+    display: inline;
+}
+
 ._owns_caret {
     border-bottom-style: solid;
 }
