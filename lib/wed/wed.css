@@ -25,9 +25,13 @@ body {
     line-height: 1.2em;
 }
 
+div {
+    word-wrap: normal;
+}
+
 div._phantom {
     background-color: #C0C0C0;
-    white-space: pre;
+    white-space: normal;
 }
 
 div._phantom._gui {
