@@ -424,20 +424,43 @@ function (mocha, chai, $, domutil) {
                              $el.get(0));
             });
 
+            it("works fine with negative offset; no empty nodes", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.insertIntoText(node, -1, undefined);
+                assert.isUndefined(pair[0]);
+                assert.equal(pair[1].nodeValue, "abcd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 1);
+            });
+
+            it("works fine with offset beyond text length; no empty nodes",
+               function () {
+                   var node = $root.find(".title").get(0).childNodes[0];
+                   var pair = domutil.insertIntoText(node,
+                                                     node.nodeValue.length,
+                                                     undefined);
+                   assert.equal(pair[0].nodeValue, "abcd");
+                   assert.isUndefined(pair[1]);
+                   assert.equal(
+                       $root.find(".title").get(0).childNodes.length, 1);
+            });
+
             it("works fine with negative offset", function () {
                 var node = $root.find(".title").get(0).childNodes[0];
-                var pair = domutil.insertIntoText(node, -1);
+                var pair = domutil.insertIntoText(node, -1, undefined, false);
                 assert.equal(pair[0].nodeValue, "");
                 assert.equal(pair[1].nodeValue, "abcd");
                 assert.equal($root.find(".title").get(0).childNodes.length, 2);
             });
+
             it("works fine with offset beyond text length", function () {
                 var node = $root.find(".title").get(0).childNodes[0];
-                var pair = domutil.insertIntoText(node, node.nodeValue.length);
+                var pair = domutil.insertIntoText(node, node.nodeValue.length,
+                                                  undefined, false);
                 assert.equal(pair[0].nodeValue, "abcd");
                 assert.equal(pair[1].nodeValue, "");
                 assert.equal($root.find(".title").get(0).childNodes.length, 2);
             });
+
         });
 
         describe("insertText", function () {
