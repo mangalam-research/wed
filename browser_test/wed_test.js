@@ -1,5 +1,5 @@
-define(["mocha/mocha", "chai", "jquery", "wed/wed"],
-function (mocha, chai, $, wed) {
+define(["mocha/mocha", "chai", "jquery", "wed/wed", "rangy"],
+function (mocha, chai, $, wed, rangy) {
     var assert = chai.assert;
 
     var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
@@ -51,6 +51,41 @@ function (mocha, chai, $, wed) {
 
         it("starts with an undefined caret", function () {
             assert.equal(editor.getCaret(), undefined, "no caret");
+        });
+
+        it("clicking moves the caret", function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                    // Text node inside title.
+                    var initial = $(editor.root).find(".title").
+                            get(0).childNodes[1];
+                        editor.setCaret(initial,
+                                        initial.nodeValue.length);
+                    editor.moveCaretRight();
+                    // It is now inside the final gui element.
+                    caretCheck(editor, lastGUI($(initial.parentNode)),
+                               0, "initial caret position");
+                    // Fake caret must exist
+                    assert.equal(editor._$fake_caret.parent().length, 1);
+
+                    caretCheck(editor, lastGUI($(initial.parentNode)),
+                               0, "initial caret position");
+
+                    // We have to set the selection manually and
+                    // generate a click event because just generating
+                    // the event won't move the caret.
+                    var r = rangy.createRange();
+                    r.setStart(initial, 0);
+                    rangy.getSelection(editor.my_window).setSingleRange(r);
+                    var ev = $.Event("mouseup", { target: initial });
+                    $(initial.parentNode).trigger(ev);
+                    // In text, no fake caret
+                    assert.equal(editor._$fake_caret.parent().length, 0);
+                    caretCheck(editor, initial, 0, "final caret position");
+
+                    done();
+                });
         });
 
         describe("moveCaretRight", function () {
