@@ -20,6 +20,7 @@
         "salve": "~0.12.1"
     },
     "devDependencies": {
+        "less": "1.4.x",
         "mocha": "1.9.x", 
         "chai": "1.6.x", 
         "semver-sync": "git://github.com/mangalam-research/semver-sync.git#node-0.6-execution-fix-version-bump"
