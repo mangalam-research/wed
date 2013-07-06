@@ -303,6 +303,24 @@ function (mocha, chai, $, domutil) {
                 testPair([$data.get(0), 1]);
             });
 
+            describe("white-space: normal, not at start of parent node",
+                     function () {
+                         // The case is designed so that it does not skip over
+                         // the white space
+                         var $data =
+                                 $("<span><s>test</s>   test</span>");
+                         beforeEach(function () {
+                             $root.empty();
+                             $root.append($data);
+                             // Place the caret just after the white space
+                             // in the top node
+                             caret = [$data.get(0).childNodes[1], 3];
+                         });
+                         testPair([$data.get(0), 1],
+                                  [$data.get(0).childNodes[1], 2]);
+                     });
+
+
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
                 // the white space.
