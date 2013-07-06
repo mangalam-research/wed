@@ -125,6 +125,23 @@ function (mocha, chai, $, domutil) {
                 testPair([$data.get(0), 1]);
             });
 
+            describe("white-space: normal, not at end of parent node",
+                     function () {
+                         // The case is designed so that it does not
+                         // skip over the white space
+                         var $data = $("<span>test <s>test</s></span>");
+                         beforeEach(function () {
+                             $root.empty();
+                             $root.append($data);
+                             // This is just after the "test" string
+                             // in the top element, before the space.
+                             caret = [$data.get(0).childNodes[0], 4];
+                         });
+                         // Ends after the space
+                         testPair([$data.get(0), 0],
+                                  [$data.get(0).childNodes[0], 5]);
+                     });
+
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
                 // the white space.
@@ -269,6 +286,7 @@ function (mocha, chai, $, domutil) {
                 });
                 testPair([$data.children("i").get(1), 0]);
             });
+
             describe("white-space: normal", function () {
                 // The case is designed so that it skips over the
                 // white space
@@ -284,6 +302,7 @@ function (mocha, chai, $, domutil) {
                 });
                 testPair([$data.get(0), 1]);
             });
+
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
                 // the white space.
