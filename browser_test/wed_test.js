@@ -172,6 +172,36 @@ function (mocha, chai, $, wed, rangy) {
                        });
                });
 
+            it("moves right from text to text", function (done) {
+                editor.whenCondition(
+                    "first-validation-complete",
+                    function () {
+                        var term = $(editor.root).find(".body>.p>.term").
+                                first().get(0);
+                        var initial = term.previousSibling;
+                        // Make sure we are on the right element.
+                        assert.equal(initial.nodeType, Node.TEXT_NODE);
+                        assert.equal(initial.nodeValue, "Blah blah ");
+
+                        editor.setCaret(initial, initial.nodeValue.length - 1);
+                        caretCheck(editor, initial,
+                                   initial.nodeValue.length - 1, "initial");
+
+                        editor.moveCaretRight();
+                        caretCheck(editor, initial, initial.nodeValue.length,
+                                   "moved once");
+
+                        // It will skip position 0 because a caret at
+                        // (initial, initial.nodeValue.length is at
+                        // the same place as a caret at
+                        // (term.childNodes[0], 0).
+                        editor.moveCaretRight();
+                        caretCheck(editor, term.childNodes[0], 1,
+                                   "moved twice");
+                        done();
+                    });
+            });
+
             it("moves right out of elements",
                function (done) {
                    editor.whenCondition(
@@ -305,6 +335,28 @@ function (mocha, chai, $, wed, rangy) {
 
                        });
                });
+
+            it("moves left from text to text", function (done) {
+                editor.whenCondition(
+                    "first-validation-complete",
+                    function () {
+                        var term = $(editor.root).find(".body>.p>.term").
+                                first().get(0);
+                        var initial = term.nextSibling;
+                        // Make sure we are on the right element.
+                        assert.equal(initial.nodeType, Node.TEXT_NODE);
+                        assert.equal(initial.nodeValue, " blah.");
+
+                        editor.setCaret(initial, 1);
+                        caretCheck(editor, initial, 1, "initial");
+
+                        editor.moveCaretLeft();
+                        caretCheck(editor, term.childNodes[0],
+                                   term.childNodes[0].nodeValue.length,
+                                   "moved once");
+                        done();
+                    });
+            });
 
             it("does not move when at start of document",
                function (done) {
