@@ -3,7 +3,24 @@ Release History
 
 This section covers only salient changes:
 
-* 0.4 Introduces major API changes.
+* 0.5 introduces major changes: 
+
+  - GUI: previous versions of wed had included some placeholders
+    between XML elements so that insertion of new elements would be
+    done by putting the caret into the placeholder and selecting the
+    contextual menu. These placeholders proved unwieldy. Version 0.5
+    removes these placeholders to instead have the contextual menu on
+    starting and ending tags of elements serve respectively to add
+    elements before and after an element.
+
+  - Internal: wed now uses ``less`` to generate CSS.
+
+  - Internal: wed now maintains two DOM trees representing the
+    document. The first is a representation of the document's XML
+    data. The second is an HTML-decorated representation of this same
+    data for display purposes.
+
+* 0.4 introduces major API changes:
 
   - Whereas the ``mode`` option used to be a simple path to the mode
     to load, it is now a simple object that must have the field
