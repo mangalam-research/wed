@@ -63,6 +63,14 @@ following node package:
 
 * node-amd-loader
 
+Building wed **additionally** requires the following node packages:
+
+* less
+
+Since wed is not yet distributed in a pre-compiled form, you
+effectively need these packages installed if you want to use wed
+because you have to build it first.
+
 Running wed's tests **additionally** requires the following node
 packages:
 
