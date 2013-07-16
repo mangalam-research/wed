@@ -1,5 +1,20 @@
-define(["mocha/mocha", "chai", "jquery", "wed/wed"],
-function (mocha, chai, $, wed) {
+define(["mocha/mocha", "chai", "jquery", "wed/wed", "rangy"],
+function (mocha, chai, $, wed, rangy) {
+    var options = {
+        schema: 'test/tei-simplified-rng.js',
+        mode: {
+            path: 'wed/modes/generic/generic',
+            options: {
+                meta: 'wed/modes/generic/metas/tei_meta',
+                // This option is for testing only, not to be used as
+                // part of normal operations. It may change at any
+                // time, without warning, and without documentation.
+                __test: {
+                    no_element_decoration: ["term"]
+                }
+            }
+        }
+    };
     var assert = chai.assert;
 
     var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
@@ -39,7 +54,7 @@ function (mocha, chai, $, wed) {
                 editor.addEventListener("initialized", function () {
                     done();
                 });
-                editor.init(wedroot);
+                editor.init(wedroot, options);
             });
         });
 
@@ -51,6 +66,41 @@ function (mocha, chai, $, wed) {
 
         it("starts with an undefined caret", function () {
             assert.equal(editor.getCaret(), undefined, "no caret");
+        });
+
+        it("clicking moves the caret", function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                    // Text node inside title.
+                    var initial = $(editor.root).find(".title").
+                            get(0).childNodes[1];
+                        editor.setCaret(initial,
+                                        initial.nodeValue.length);
+                    editor.moveCaretRight();
+                    // It is now inside the final gui element.
+                    caretCheck(editor, lastGUI($(initial.parentNode)),
+                               0, "initial caret position");
+                    // Fake caret must exist
+                    assert.equal(editor._$fake_caret.parent().length, 1);
+
+                    caretCheck(editor, lastGUI($(initial.parentNode)),
+                               0, "initial caret position");
+
+                    // We have to set the selection manually and
+                    // generate a click event because just generating
+                    // the event won't move the caret.
+                    var r = rangy.createRange();
+                    r.setStart(initial, 0);
+                    rangy.getSelection(editor.my_window).setSingleRange(r);
+                    var ev = $.Event("mouseup", { target: initial });
+                    $(initial.parentNode).trigger(ev);
+                    // In text, no fake caret
+                    assert.equal(editor._$fake_caret.parent().length, 0);
+                    caretCheck(editor, initial, 0, "final caret position");
+
+                    done();
+                });
         });
 
         describe("moveCaretRight", function () {
@@ -75,25 +125,12 @@ function (mocha, chai, $, wed) {
                            caretCheck(editor, firstGUI($(initial)),
                                       0, "moved once");
                            editor.moveCaretRight();
-                           // It is now inside the placeholder between
-                           // the gui element and the first child.
-                           caretCheck(editor, firstPH($(initial)),
-                                      0, "moved twice");
-                           editor.moveCaretRight();
                            // It is now in the gui element of the 1st
                            // child.
                            caretCheck(editor,
                                       firstGUI($(initial).find(".teiHeader").
                                                first()),
-                                      0, "moved 3 times");
-                           editor.moveCaretRight();
-                           // It is now inside the placeholder between
-                           // the gui element and the first child.
-                           caretCheck(editor,
-                                      firstPH($(initial).find(".teiHeader").
-                                              first()),
-                                      0, "moved 4 times");
-
+                                      0, "moved twice");
                            done();
                        });
                });
@@ -135,6 +172,36 @@ function (mocha, chai, $, wed) {
                        });
                });
 
+            it("moves right from text to text", function (done) {
+                editor.whenCondition(
+                    "first-validation-complete",
+                    function () {
+                        var term = $(editor.root).find(".body>.p>.term").
+                                first().get(0);
+                        var initial = term.previousSibling;
+                        // Make sure we are on the right element.
+                        assert.equal(initial.nodeType, Node.TEXT_NODE);
+                        assert.equal(initial.nodeValue, "Blah blah ");
+
+                        editor.setCaret(initial, initial.nodeValue.length - 1);
+                        caretCheck(editor, initial,
+                                   initial.nodeValue.length - 1, "initial");
+
+                        editor.moveCaretRight();
+                        caretCheck(editor, initial, initial.nodeValue.length,
+                                   "moved once");
+
+                        // It will skip position 0 because a caret at
+                        // (initial, initial.nodeValue.length is at
+                        // the same place as a caret at
+                        // (term.childNodes[0], 0).
+                        editor.moveCaretRight();
+                        caretCheck(editor, term.childNodes[0], 1,
+                                   "moved twice");
+                        done();
+                    });
+            });
+
             it("moves right out of elements",
                function (done) {
                    editor.whenCondition(
@@ -152,18 +219,9 @@ function (mocha, chai, $, wed) {
                            caretCheck(editor, lastGUI($(initial.parentNode)),
                                       0, "moved once");
                            editor.moveCaretRight();
-                           // It is now in the placeholder after .title
-                           var container =
-                                   lastPH($(initial.parentNode.parentNode));
-                           // Make sure we container is actually
-                           // inside a placeholder.
-                           assert.equal($(container).closest("._placeholder").
-                                        length, 1, "inside placeholder");
-                           caretCheck(editor, container, 0, "moved twice");
-                           editor.moveCaretRight();
                            // It is now in the gui element at end of
                            // the title's parent.
-                           container = lastGUI($(editor.root).find(".title").
+                           var container = lastGUI($(editor.root).find(".title").
                                                parent());
                            caretCheck(editor, container, 0, "moved twice");
 
@@ -213,21 +271,11 @@ function (mocha, chai, $, wed) {
                            caretCheck(editor, lastGUI($(initial)),
                                       0, "moved once");
                            editor.moveCaretLeft();
-                           // It is now inside the placeholder between
-                           // the gui element and the last child.
-                           caretCheck(editor, lastPH($(initial)),
-                                      0, "moved twice");
-                           editor.moveCaretLeft();
                            // It is now in the gui element of the 1st
                            // child.
                            var $last_text = $(initial).find(".text").last();
                            caretCheck(editor, lastGUI($last_text),
-                                      0, "moved 3 times");
-                           editor.moveCaretLeft();
-                           // It is now inside the placeholder between
-                           // the gui element and the first child.
-                           caretCheck(editor, lastPH($last_text),
-                                      0, "moved 4 times");
+                                      0, "moved twice");
 
                            done();
                        });
@@ -276,26 +324,39 @@ function (mocha, chai, $, wed) {
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
                            editor.moveCaretLeft();
-                           // // It is now in the placeholder before .title
-                           var container =
-                                   firstPH($(editor.root).find(".title").
-                                           parent());
-                           // Make sure container is actually inside a
-                           // placeholder.
-                           assert.equal($(container).closest("._placeholder").
-                                        length, 1, "inside placeholder");
-                           caretCheck(editor, container, 0, "moved twice");
-                           editor.moveCaretLeft();
                            // It is now in the gui element at end of
                            // the title's parent.
-                           container = firstGUI($(editor.root).find(".title").
-                                               parent());
+                           var container =
+                                   firstGUI($(editor.root).find(".title").
+                                            parent());
                            caretCheck(editor, container, 0, "moved twice");
 
                            done();
 
                        });
                });
+
+            it("moves left from text to text", function (done) {
+                editor.whenCondition(
+                    "first-validation-complete",
+                    function () {
+                        var term = $(editor.root).find(".body>.p>.term").
+                                first().get(0);
+                        var initial = term.nextSibling;
+                        // Make sure we are on the right element.
+                        assert.equal(initial.nodeType, Node.TEXT_NODE);
+                        assert.equal(initial.nodeValue, " blah.");
+
+                        editor.setCaret(initial, 1);
+                        caretCheck(editor, initial, 1, "initial");
+
+                        editor.moveCaretLeft();
+                        caretCheck(editor, term.childNodes[0],
+                                   term.childNodes[0].nodeValue.length,
+                                   "moved once");
+                        done();
+                    });
+            });
 
             it("does not move when at start of document",
                function (done) {

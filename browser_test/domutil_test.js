@@ -125,6 +125,23 @@ function (mocha, chai, $, domutil) {
                 testPair([$data.get(0), 1]);
             });
 
+            describe("white-space: normal, not at end of parent node",
+                     function () {
+                         // The case is designed so that it does not
+                         // skip over the white space
+                         var $data = $("<span>test <s>test</s></span>");
+                         beforeEach(function () {
+                             $root.empty();
+                             $root.append($data);
+                             // This is just after the "test" string
+                             // in the top element, before the space.
+                             caret = [$data.get(0).childNodes[0], 4];
+                         });
+                         // Ends after the space
+                         testPair([$data.get(0), 0],
+                                  [$data.get(0).childNodes[0], 5]);
+                     });
+
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
                 // the white space.
@@ -269,6 +286,7 @@ function (mocha, chai, $, domutil) {
                 });
                 testPair([$data.children("i").get(1), 0]);
             });
+
             describe("white-space: normal", function () {
                 // The case is designed so that it skips over the
                 // white space
@@ -284,6 +302,25 @@ function (mocha, chai, $, domutil) {
                 });
                 testPair([$data.get(0), 1]);
             });
+
+            describe("white-space: normal, not at start of parent node",
+                     function () {
+                         // The case is designed so that it does not skip over
+                         // the white space
+                         var $data =
+                                 $("<span><s>test</s>   test</span>");
+                         beforeEach(function () {
+                             $root.empty();
+                             $root.append($data);
+                             // Place the caret just after the white space
+                             // in the top node
+                             caret = [$data.get(0).childNodes[1], 3];
+                         });
+                         testPair([$data.get(0), 1],
+                                  [$data.get(0).childNodes[1], 2]);
+                     });
+
+
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
                 // the white space.
@@ -424,20 +461,43 @@ function (mocha, chai, $, domutil) {
                              $el.get(0));
             });
 
+            it("works fine with negative offset; no empty nodes", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                var pair = domutil.insertIntoText(node, -1, undefined);
+                assert.isUndefined(pair[0]);
+                assert.equal(pair[1].nodeValue, "abcd");
+                assert.equal($root.find(".title").get(0).childNodes.length, 1);
+            });
+
+            it("works fine with offset beyond text length; no empty nodes",
+               function () {
+                   var node = $root.find(".title").get(0).childNodes[0];
+                   var pair = domutil.insertIntoText(node,
+                                                     node.nodeValue.length,
+                                                     undefined);
+                   assert.equal(pair[0].nodeValue, "abcd");
+                   assert.isUndefined(pair[1]);
+                   assert.equal(
+                       $root.find(".title").get(0).childNodes.length, 1);
+            });
+
             it("works fine with negative offset", function () {
                 var node = $root.find(".title").get(0).childNodes[0];
-                var pair = domutil.insertIntoText(node, -1);
+                var pair = domutil.insertIntoText(node, -1, undefined, false);
                 assert.equal(pair[0].nodeValue, "");
                 assert.equal(pair[1].nodeValue, "abcd");
                 assert.equal($root.find(".title").get(0).childNodes.length, 2);
             });
+
             it("works fine with offset beyond text length", function () {
                 var node = $root.find(".title").get(0).childNodes[0];
-                var pair = domutil.insertIntoText(node, node.nodeValue.length);
+                var pair = domutil.insertIntoText(node, node.nodeValue.length,
+                                                  undefined, false);
                 assert.equal(pair[0].nodeValue, "abcd");
                 assert.equal(pair[1].nodeValue, "");
                 assert.equal($root.find(".title").get(0).childNodes.length, 2);
             });
+
         });
 
         describe("insertText", function () {
@@ -536,7 +596,7 @@ function (mocha, chai, $, domutil) {
                     '../../test-files/domutil_test_data/source_converted.xml';
             var $root = $("#domroot");
             var root = $root.get(0);
-            before(function (done) {
+            beforeEach(function (done) {
                 $root.empty();
                 require(["requirejs/text!" + source], function(data) {
                     $root.html(data);
@@ -544,8 +604,12 @@ function (mocha, chai, $, domutil) {
                 });
             });
 
-            after(function () {
+            afterEach(function () {
                 $root.empty();
+            });
+
+            it("returns an empty string on root", function () {
+                assert.equal(domutil.nodeToPath(root, root), "");
             });
 
             it("returns a correct path on text node", function () {
@@ -563,6 +627,17 @@ function (mocha, chai, $, domutil) {
                     "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
                         "._real.p[1]/##text[1]");
             });
+
+            it("returns a correct path on phantom_wrap nodes", function () {
+
+                $root.find(".p").wrap("<div class='_phantom_wrap'>");
+                var node = $root.find(".p").last().get(0);
+                assert.equal(
+                    domutil.nodeToPath(root, node),
+                    "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                        "._phantom_wrap[1]/._real.p[0]");
+            });
+
 
             it("normalizes so that it returns the same value if " +
                "unimportant changes occurred", function () {
@@ -582,10 +657,6 @@ function (mocha, chai, $, domutil) {
                    assert.Throw(domutil.nodeToPath.bind(undefined, root, node),
                                 Error,
                                 "node is not a descendant of root");
-                   assert.Throw(domutil.nodeToPath.bind(undefined, node, node),
-                                Error,
-                                "node is not a descendant of root");
-
                });
 
             it("fails on invalid root",
@@ -615,8 +686,6 @@ function (mocha, chai, $, domutil) {
 
                });
 
-
-
         });
 
         describe("pathToNode", function () {
@@ -624,7 +693,7 @@ function (mocha, chai, $, domutil) {
                     '../../test-files/domutil_test_data/source_converted.xml';
             var $root = $("#domroot");
             var root = $root.get(0);
-            before(function (done) {
+            beforeEach(function (done) {
                 $root.empty();
                 require(["requirejs/text!" + source], function(data) {
                     $root.html(data);
@@ -632,8 +701,12 @@ function (mocha, chai, $, domutil) {
                 });
             });
 
-            after(function () {
+            afterEach(function () {
                 $root.empty();
+            });
+
+            it("returns root when passed an empty string", function () {
+                assert.equal(domutil.pathToNode(root, ""), root);
             });
 
             it("returns a correct node on a text path", function () {
@@ -657,6 +730,19 @@ function (mocha, chai, $, domutil) {
                     node);
             });
 
+            it("returns a correct node when path contains _phantom_wrap",
+               function () {
+                   $root.find(".p").wrap("<div class='_phantom_wrap'>");
+                   var node = $root.find(".p").last().get(0);
+                   assert.equal(
+                       domutil.pathToNode(
+                           root,
+                           "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
+                               "._phantom_wrap[1]/._real.p[0]"),
+                       node);
+               });
+
+
             it("normalizes so that it returns the same value if " +
                "unimportant changes occurred", function () {
                    var node = $root.find(".body>.p").last().get(0).
@@ -668,6 +754,32 @@ function (mocha, chai, $, domutil) {
                    domutil.splitTextNode(node.parentNode.childNodes[0], 1);
                    assert.equal(domutil.pathToNode(root, path), node);
                });
+        });
+
+        describe("linkTrees", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            beforeEach(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            afterEach(function () {
+                $root.empty();
+            });
+
+            it("sets wed_mirror_node", function () {
+                var $cloned = $root.clone();
+                domutil.linkTrees($cloned.get(0), $root.get(0));
+                var p = $root.find(".p").get(0);
+                var cloned_p = $cloned.find(".p").get(0);
+                assert.equal($(p).data("wed_mirror_node"), cloned_p);
+            });
         });
 
     });
