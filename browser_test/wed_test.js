@@ -1,5 +1,20 @@
 define(["mocha/mocha", "chai", "jquery", "wed/wed", "rangy"],
 function (mocha, chai, $, wed, rangy) {
+    var options = {
+        schema: 'test/tei-simplified-rng.js',
+        mode: {
+            path: 'wed/modes/generic/generic',
+            options: {
+                meta: 'wed/modes/generic/metas/tei_meta',
+                // This option is for testing only, not to be used as
+                // part of normal operations. It may change at any
+                // time, without warning, and without documentation.
+                __test: {
+                    no_element_decoration: ["term"]
+                }
+            }
+        }
+    };
     var assert = chai.assert;
 
     var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
@@ -39,7 +54,7 @@ function (mocha, chai, $, wed, rangy) {
                 editor.addEventListener("initialized", function () {
                     done();
                 });
-                editor.init(wedroot);
+                editor.init(wedroot, options);
             });
         });
 
