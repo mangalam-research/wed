@@ -22,7 +22,7 @@ TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
 
 LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
-STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),build/standalone/$f)
+STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 
@@ -51,6 +51,9 @@ build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xm
 build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	cp $< $@
+
+build/standalone/lib/%.css: lib/%.less
+	lessc $< $@
 
 build/standalone: | build-dir
 	-mkdir $@

@@ -14,7 +14,7 @@
   </teiHeader>
   <text>
     <body>
-      <p></p>
+      <p>Blah blah <term>blah</term> blah.</p>
     </body>
   </text>
 </TEI>
