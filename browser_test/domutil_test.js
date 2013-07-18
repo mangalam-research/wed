@@ -651,6 +651,53 @@ function (mocha, chai, $, domutil) {
 
         });
 
+        describe("firstDescendantOrSelf", function () {
+            var source =
+                    '../../test-files/domutil_test_data/source_converted.xml';
+            var $root = $("#domroot");
+            var root = $root.get(0);
+            before(function (done) {
+                $root.empty();
+                require(["requirejs/text!" + source], function(data) {
+                    $root.html(data);
+                    done();
+                });
+            });
+
+            after(function () {
+                $root.empty();
+            });
+
+            it("returns null when passed null", function () {
+                assert.isNull(domutil.firstDescendantOrSelf(null));
+            });
+
+            it("returns undefined when passed undefined", function () {
+                assert.isUndefined(domutil.firstDescendantOrSelf(undefined));
+            });
+
+            it("returns the node when it has no descendants", function () {
+                var node = $root.find(".title").get(0).childNodes[0];
+                assert.isNotNull(node); // make sure we got something
+                assert.isDefined(node); // make sure we got something
+                assert.equal(domutil.firstDescendantOrSelf(node), node);
+            });
+
+            it("returns the first descendant", function () {
+                var node = $root.get(0);
+                assert.isNotNull(node); // make sure we got something
+                assert.isDefined(node); // make sure we got something
+                assert.equal(domutil.firstDescendantOrSelf(node),
+                            $root.find(".title").get(0).childNodes[0]);
+            });
+
+
+
+
+
+        });
+
+
         describe("nodeToPath", function () {
             var source =
                     '../../test-files/domutil_test_data/source_converted.xml';
