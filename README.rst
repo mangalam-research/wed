@@ -59,6 +59,14 @@ Current known limitations:
   Bootstrap does nothing to deal with. (One element may be in the
   focused state (keyboard) while another is in the hover state.)
 
+Known bugs:
+
+* Firefox: Sometimes a caret moved to the end of a bit of text
+  disappears. There does not seem to be any rhyme or reason for it. It
+  is probably a Firefox bug. At any rate, wed does not currently
+  compensate for it. So you may see your caret disappear, but it is
+  still there, waiting for you to type text.
+
 Dependencies
 ============
 
@@ -132,14 +140,14 @@ experiencing heavy load or if the OS has to swap a lot of memory from
 the hard disk, they may fail some or all tests. I've witnessed this
 happen, for instance, due to RequireJS timing out on a ``require()``
 call because the OS was busy loading things into memory from
-swap. I've also seen individual test cases fail for similar
-reasons. The solution is to run the test suites again.
+swap. The solution is to run the test suites again.
 
 Tests are of two types:
 
-* Runnable outside a browser. We run these inside Node.js.
+* Not browser-dependent and therefore runnable outside a browser. We
+  run these in Node.js.
 
-* Runnable inside a browser.
+* Browser-dependent and therefore requiring a browser.
 
 To run the tests that are not browser-dependent do::
 
@@ -177,13 +185,23 @@ If you change wed's code and want to run the browser-dependent test
 suite again, make sure to run ``make test`` before you run the suite
 again because otherwise the suite will run against the old code.
 
+.. warning:: Some of the browser-dependent tests may fail on browsers
+             other than Chrome. Eventually, wed will work the same on
+             all browsers but at the moment development efforts are
+             spent elsewhere than hunting down differences in browser
+             behavior. For instance, as of 2013/07/19 some of the
+             caret movement tests fail on Firefox. This does not
+             prevent using wed on Firefox.
+
+.. warning:: As part of normal development, wed is tested on Chrome
+             first, Firefox second, but no other browsers.
+
 Demo
 ====
 
-The demo is located in `<web/kitchen-sink.html>`_. (Yes, this name is
-inspired from Ace.) To run it, you must have a minimal server running
-just like the one needed to run the browser-dependent test suit and
-then point your browser to
+The demo is located in `<web/kitchen-sink.html>`_. To run it, you must
+have a minimal server running just like the one needed to run the
+browser-dependent test suit and then point your browser to
 `<http://localhost:8888/web/kitchen-sink.html>`_ if you use the
 suggested servers or to whatever address is proper if you roll a
 server using a different port or address. The demo currently starts
@@ -205,9 +223,9 @@ Using
 Wed expects the XML files it uses to have been converted from XML to
 an ad-hoc HTML version. So the data passed to it must have been
 converted by `<lib/wed/xml-to-html.xsl>`_ Various schemas and projects
-will have different needs regarding whitespace handling, so it is
+will have different needs regarding white space handling, so it is
 likely you'll want to create your own ``xml-to-html.xsl`` file will
-import `<lib/wed/xml-to-html.xsl>`_ but customize whitespace handling.
+import `<lib/wed/xml-to-html.xsl>`_ but customize white space handling.
 
 To include wed in a web page you must:
 
@@ -310,4 +328,5 @@ Humanities.
    :target: http://www.neh.gov/
 
 ..  LocalWords:  API html xml xsl wed's config jquery js chai semver
-..  LocalWords:  json minified localhost
+..  LocalWords:  json minified localhost CSS init pre Makefile saxon
+..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD
