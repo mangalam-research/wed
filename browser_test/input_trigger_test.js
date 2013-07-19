@@ -1,6 +1,7 @@
 define(["mocha/mocha", "chai", "jquery", "wed/domlistener",
-        "wed/input_trigger", "wed/wed", "wed/key"],
-function (mocha, chai, $, domlistener, input_trigger, wed, key) {
+        "wed/input_trigger", "wed/wed", "wed/key", "wed/key_constants"],
+function (mocha, chai, $, domlistener, input_trigger, wed, key,
+          key_constants) {
 var assert = chai.assert;
 var Listener = domlistener.Listener;
 var InputTrigger = input_trigger.InputTrigger;
@@ -156,6 +157,43 @@ describe("InputTrigger", function () {
         editor.$root.trigger(event);
         assert.equal(seen, 0);
     });
+
+    it("does not triggers on modifications of text when they key is " +
+       "not a text input key", function () {
+           var input_trigger = new InputTrigger(editor, ".p");
+           var seen = 0;
+           var DELETE = key_constants.DELETE;
+           input_trigger.addKeyHandler(DELETE, function (type, $el) {
+               seen++;
+           });
+
+           var $p = editor.$tree_root.find(".p").last();
+           var text = $p.get(0).lastChild;
+           // Make sure we're looking at the right thing.
+           assert.equal(text.nodeValue, " blah.");
+
+           // Initiate the change.
+           text.nodeValue = " blah...";
+           editor._syncDisplay();
+           assert.equal(seen, 0);
+       });
+
+    it("does not triggers on additions of text when they key is " +
+       "not a text input key", function () {
+           var input_trigger = new InputTrigger(editor, ".p");
+           var seen = 0;
+           var DELETE = key_constants.DELETE;
+           input_trigger.addKeyHandler(DELETE, function (type, $el) {
+               seen++;
+           });
+
+           var $p = editor.$tree_root.find(".p").last();
+           var text = document.createTextNode("...");
+           $p.append(text);
+           editor._syncDisplay();
+           assert.equal(seen, 0);
+       });
+
 
 });
 
