@@ -81,11 +81,18 @@ function (mocha, chai, $, wed, rangy) {
                     // It is now inside the final gui element.
                     caretCheck(editor, lastGUI($(initial.parentNode)),
                                0, "initial caret position");
-                    // Fake caret must exist
-                    assert.equal(editor._$fake_caret.parent().length, 1);
 
-                    caretCheck(editor, lastGUI($(initial.parentNode)),
-                               0, "initial caret position");
+                    // We used to check for the existence of a fake
+                    // caret. However, not all browsers require the
+                    // fake caret to exist in this context. (Chrome
+                    // does, Firefox does not. Subject to change with
+                    // new versions.) There's no point in check
+                    // it. However, the fake caret should definitely
+                    // be off by the time we finish the test.
+                    //
+                    // Fake caret must exist
+                    // assert.equal(editor._$fake_caret.parent().length,
+                    // 1, "fake caret existence");
 
                     // We have to set the selection manually and
                     // generate a click event because just generating
@@ -192,7 +199,7 @@ function (mocha, chai, $, wed, rangy) {
                                    "moved once");
 
                         // It will skip position 0 because a caret at
-                        // (initial, initial.nodeValue.length is at
+                        // (initial, initial.nodeValue.length) is at
                         // the same place as a caret at
                         // (term.childNodes[0], 0).
                         editor.moveCaretRight();
