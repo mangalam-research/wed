@@ -43,7 +43,7 @@ describe("InputTrigger", function () {
     it("triggers on children-changed events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
-        var $p = editor.$tree_root.find(".p").last();
+        var $p = editor.$data_root.find(".p").last();
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "children-changed");
             assert.equal($el.get(0), $p.get(0));
@@ -58,7 +58,7 @@ describe("InputTrigger", function () {
     it("triggers on text-changed events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
-        var $p = editor.$tree_root.find(".p").last();
+        var $p = editor.$data_root.find(".p").last();
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "text-changed");
             assert.equal($el.get(0), $p.get(0));
@@ -81,7 +81,7 @@ describe("InputTrigger", function () {
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "keydown");
             assert.equal($el.get(0),
-                         editor.$tree_root.find(".p").last().get(0));
+                         editor.$data_root.find(".p").last().get(0));
             seen++;
         });
 
@@ -94,15 +94,15 @@ describe("InputTrigger", function () {
         event.ctrlKey = my_key.ctrlKey;
         event.altKey = my_key.altKey;
         event.metaKey = my_key.metaKey;
-        editor.setCaret(editor.$root.find(".p").last().get(0), 0);
-        editor.$root.trigger(event);
+        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.$gui_root.trigger(event);
         assert.equal(seen, 1);
     });
 
     it("does not trigger on unimportant children-changed events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
-        var $p = editor.$tree_root.find(".p").last();
+        var $p = editor.$data_root.find(".p").last();
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "children-changed");
             assert.equal($el.get(0), $p.get(0));
@@ -117,7 +117,7 @@ describe("InputTrigger", function () {
     it("does not trigger on unimportant text-changed events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
-        var $p = editor.$tree_root.find(".p").last();
+        var $p = editor.$data_root.find(".p").last();
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "text-changed");
             assert.equal($el.get(0), $p.get(0));
@@ -140,7 +140,7 @@ describe("InputTrigger", function () {
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "keydown");
             assert.equal($el.get(0),
-                         editor.$tree_root.find(".p").last().get(0));
+                         editor.$data_root.find(".p").last().get(0));
             seen++;
         });
 
@@ -153,8 +153,8 @@ describe("InputTrigger", function () {
         event.ctrlKey = my_key.ctrlKey;
         event.altKey = my_key.altKey;
         event.metaKey = my_key.metaKey;
-        editor.setCaret(editor.$root.find(".p").last().get(0), 0);
-        editor.$root.trigger(event);
+        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.$gui_root.trigger(event);
         assert.equal(seen, 0);
     });
 
@@ -167,7 +167,7 @@ describe("InputTrigger", function () {
                seen++;
            });
 
-           var $p = editor.$tree_root.find(".p").last();
+           var $p = editor.$data_root.find(".p").last();
            var text = $p.get(0).lastChild;
            // Make sure we're looking at the right thing.
            assert.equal(text.nodeValue, " blah.");
@@ -187,7 +187,7 @@ describe("InputTrigger", function () {
                seen++;
            });
 
-           var $p = editor.$tree_root.find(".p").last();
+           var $p = editor.$data_root.find(".p").last();
            var text = document.createTextNode("...");
            $p.append(text);
            editor._syncDisplay();

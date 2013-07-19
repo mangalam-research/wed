@@ -73,7 +73,7 @@ function (mocha, chai, $, wed, rangy) {
                 "first-validation-complete",
                 function () {
                     // Text node inside title.
-                    var initial = $(editor.root).find(".title").
+                    var initial = $(editor.gui_root).find(".title").
                             get(0).childNodes[1];
                         editor.setCaret(initial,
                                         initial.nodeValue.length);
@@ -122,7 +122,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = editor.root.childNodes[0];
+                           var initial = editor.gui_root.childNodes[0];
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
                            editor.moveCaretRight();
@@ -147,7 +147,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = $(editor.root).find(".title").
+                           var initial = $(editor.gui_root).find(".title").
                                    first().get(0);
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
@@ -183,7 +183,7 @@ function (mocha, chai, $, wed, rangy) {
                 editor.whenCondition(
                     "first-validation-complete",
                     function () {
-                        var term = $(editor.root).find(".body>.p>.term").
+                        var term = $(editor.gui_root).find(".body>.p>.term").
                                 first().get(0);
                         var initial = term.previousSibling;
                         // Make sure we are on the right element.
@@ -215,7 +215,7 @@ function (mocha, chai, $, wed, rangy) {
                        "first-validation-complete",
                        function () {
                            // Text node inside title.
-                           var initial = $(editor.root).find(".title").
+                           var initial = $(editor.gui_root).find(".title").
                                    get(0).childNodes[1];
                            editor.setCaret(initial,
                                            initial.nodeValue.length);
@@ -228,7 +228,7 @@ function (mocha, chai, $, wed, rangy) {
                            editor.moveCaretRight();
                            // It is now in the gui element at end of
                            // the title's parent.
-                           var container = lastGUI($(editor.root).find(".title").
+                           var container = lastGUI($(editor.gui_root).find(".title").
                                                parent());
                            caretCheck(editor, container, 0, "moved twice");
 
@@ -242,7 +242,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = lastGUI($(editor.root).
+                           var initial = lastGUI($(editor.gui_root).
                                                  children(".TEI"));
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
@@ -267,7 +267,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = editor.root.childNodes[0];
+                           var initial = editor.gui_root.childNodes[0];
                            var offset = initial.childNodes.length;
                            editor.setCaret(initial, offset);
                            caretCheck(editor, initial, offset, "initial");
@@ -293,7 +293,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = lastGUI($(editor.root).find(".title").
+                           var initial = lastGUI($(editor.gui_root).find(".title").
                                                  first());
                            editor.setCaret(initial, 1);
                            caretCheck(editor, initial, 1, "initial");
@@ -313,7 +313,7 @@ function (mocha, chai, $, wed, rangy) {
                            caretCheck(editor, text_node, 0, "moved 5 times");
                            editor.moveCaretLeft();
                            // It is now inside the first gui element.
-                           caretCheck(editor, firstGUI($(editor.root).
+                           caretCheck(editor, firstGUI($(editor.gui_root).
                                                        find(".title").first()),
                                       0, "moved 6 times");
 
@@ -327,14 +327,14 @@ function (mocha, chai, $, wed, rangy) {
                        "first-validation-complete",
                        function () {
                            var initial =
-                                   firstGUI($(editor.root).find(".title"));
+                                   firstGUI($(editor.gui_root).find(".title"));
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
                            editor.moveCaretLeft();
                            // It is now in the gui element at end of
                            // the title's parent.
                            var container =
-                                   firstGUI($(editor.root).find(".title").
+                                   firstGUI($(editor.gui_root).find(".title").
                                             parent());
                            caretCheck(editor, container, 0, "moved twice");
 
@@ -347,7 +347,7 @@ function (mocha, chai, $, wed, rangy) {
                 editor.whenCondition(
                     "first-validation-complete",
                     function () {
-                        var term = $(editor.root).find(".body>.p>.term").
+                        var term = $(editor.gui_root).find(".body>.p>.term").
                                 first().get(0);
                         var initial = term.nextSibling;
                         // Make sure we are on the right element.
@@ -370,7 +370,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = firstGUI($(editor.root).
+                           var initial = firstGUI($(editor.gui_root).
                                                   children(".TEI"));
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
