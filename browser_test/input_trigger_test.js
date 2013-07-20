@@ -78,16 +78,17 @@ describe("InputTrigger", function () {
     it("triggers on input events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
-        input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
+        input_trigger.addKeyHandler(key_constants.ENTER, function (type, $el, ev) {
             assert.equal(type, "keydown");
             assert.equal($el.get(0),
                          editor.$data_root.find(".p").last().get(0));
+            ev.stopImmediatePropagation();
             seen++;
         });
 
         // Synthetic event
         var event = new $.Event("keydown");
-        var my_key = key.makeKey(";");
+        var my_key = key_constants.ENTER;
         event.which = my_key.which;
         event.keyCode = my_key.keyCode;
         event.charCode = my_key.charCode;
