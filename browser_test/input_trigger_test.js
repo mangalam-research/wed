@@ -75,10 +75,11 @@ describe("InputTrigger", function () {
         assert.equal(seen, 1);
     });
 
-    it("triggers on input events", function () {
+    it("triggers on keydown events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
-        input_trigger.addKeyHandler(key_constants.ENTER, function (type, $el, ev) {
+        input_trigger.addKeyHandler(key_constants.ENTER,
+                                    function (type, $el, ev) {
             assert.equal(type, "keydown");
             assert.equal($el.get(0),
                          editor.$data_root.find(".p").last().get(0));
@@ -99,6 +100,33 @@ describe("InputTrigger", function () {
         editor.$gui_root.trigger(event);
         assert.equal(seen, 1);
     });
+
+    it("triggers on keypress events", function () {
+        var input_trigger = new InputTrigger(editor, ".p");
+        var seen = 0;
+        input_trigger.addKeyHandler(key.makeKey(";"),
+                                    function (type, $el, ev) {
+            assert.equal(type, "keypress");
+            assert.equal($el.get(0),
+                         editor.$data_root.find(".p").last().get(0));
+            ev.stopImmediatePropagation();
+            seen++;
+        });
+
+        // Synthetic event
+        var event = new $.Event("keypress");
+        var my_key = key.makeKey(";");
+        event.which = my_key.which;
+        event.keyCode = my_key.keyCode;
+        event.charCode = my_key.charCode;
+        event.ctrlKey = my_key.ctrlKey;
+        event.altKey = my_key.altKey;
+        event.metaKey = my_key.metaKey;
+        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.$gui_root.trigger(event);
+        assert.equal(seen, 1);
+    });
+
 
     it("does not trigger on unimportant children-changed events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
