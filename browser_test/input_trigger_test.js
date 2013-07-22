@@ -1,9 +1,7 @@
-define(["mocha/mocha", "chai", "jquery", "wed/domlistener",
-        "wed/input_trigger", "wed/wed", "wed/key", "wed/key_constants"],
-function (mocha, chai, $, domlistener, input_trigger, wed, key,
-          key_constants) {
+define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
+        "wed/key", "wed/key_constants"],
+function (mocha, chai, $, input_trigger, wed, key, key_constants) {
 var assert = chai.assert;
-var Listener = domlistener.Listener;
 var InputTrigger = input_trigger.InputTrigger;
 
 var options = {
