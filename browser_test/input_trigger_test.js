@@ -1,6 +1,8 @@
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
-        "wed/key", "wed/key_constants"],
-function (mocha, chai, $, input_trigger, wed, key, key_constants) {
+        "wed/key", "wed/key_constants", "wed/input_trigger_factory",
+        "wed/transformation"],
+function (mocha, chai, $, input_trigger, wed, key, key_constants,
+         input_trigger_factory, transformation) {
 var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
 
@@ -221,6 +223,52 @@ describe("InputTrigger", function () {
            assert.equal(seen, 0);
        });
 
+    // The following tests need to modify the document in significant
+    // ways, so we use input_trigger_factory to create an
+    // input_trigger that does something significant.
+    it("does not try to act on undo/redo changes", function () {
+        input_trigger_factory.makeSplitMergeInputTrigger(
+            editor, ".p", key.makeKey(";"),
+            key_constants.BACKSPACE, key_constants.DELETE);
+        var $ps = editor.$data_root.find(".body .p");
+        assert.equal($ps.length, 1);
+        editor.setDataCaret($ps.get(0), 0);
+        var text = $ps.get(0).firstChild;
+        var my_tr = new transformation.Transformation(
+            "Ad-hoc",
+            function (editor, node) {
+            node.nodeValue = "ab;cd;ef" + node.nodeValue;
+        });
+        editor.fireTransformation(my_tr, text);
+        editor._syncDisplay();
+
+        $ps = editor.$data_root.find(".body .p");
+        assert.equal($ps.length, 3);
+        assert.equal($ps.get(0).outerHTML,
+                     '<div class="p _real">ab</div>');
+        assert.equal($ps.get(1).outerHTML,
+                     '<div class="p _real">cd</div>');
+        assert.equal($ps.get(2).outerHTML,
+                     '<div class="p _real">efBlah blah '+
+                     '<div class="term _real">blah</div> blah.</div>');
+        editor.undo();
+        $ps = editor.$data_root.find(".body .p");
+        assert.equal($ps.length, 1);
+        assert.equal($ps.get(0).outerHTML,
+                     '<div class="p _real">Blah blah '+
+                     '<div class="term _real">blah</div> blah.</div>');
+
+        editor.redo();
+        $ps = editor.$data_root.find(".body .p");
+        assert.equal($ps.length, 3);
+        assert.equal($ps.get(0).outerHTML,
+                     '<div class="p _real">ab</div>');
+        assert.equal($ps.get(1).outerHTML,
+                     '<div class="p _real">cd</div>');
+        assert.equal($ps.get(2).outerHTML,
+                     '<div class="p _real">efBlah blah '+
+                     '<div class="term _real">blah</div> blah.</div>');
+    });
 
 });
 
