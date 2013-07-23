@@ -185,7 +185,7 @@ describe("InputTrigger", function () {
         assert.equal(seen, 0);
     });
 
-    it("does not triggers on modifications of text when they key is " +
+    it("does not trigger on modifications of text when they key is " +
        "not a text input key", function () {
            var input_trigger = new InputTrigger(editor, ".p");
            var seen = 0;
@@ -205,7 +205,7 @@ describe("InputTrigger", function () {
            assert.equal(seen, 0);
        });
 
-    it("does not triggers on additions of text when they key is " +
+    it("does not trigger on additions of text when they key is " +
        "not a text input key", function () {
            var input_trigger = new InputTrigger(editor, ".p");
            var seen = 0;
