@@ -25,7 +25,7 @@ describe("key", function () {
             var k = key.makeKey(1);
             assert.equal(k.which, 1);
             assert.equal(k.keyCode, 1);
-            assert.equal(k.charCode, 0);
+            assert.equal(k.charCode, 1);
             assert.equal(k.ctrlKey, false);
             assert.equal(k.altKey, false);
             assert.equal(k.metaKey, false);
@@ -85,7 +85,7 @@ describe("key", function () {
             it("matches a keypress key", function () {
                 var k = key.makeKey(1);
                 assert.isTrue(k.matchesEvent({which: 1, keyCode: 1,
-                                              charCode: 0,
+                                              charCode: 1,
                                               ctrlKey: false, altKey: false,
                                               metaKey: false,
                                               type: "keypress"}));
@@ -94,7 +94,7 @@ describe("key", function () {
             it("returns false when not matching an event", function () {
                 var k = key.makeCtrlKey(1);
                 assert.isFalse(k.matchesEvent({which: 1, keyCode: 1,
-                                               charCode: 0,
+                                               charCode: 1,
                                                ctrlKey: false, altKey: false,
                                                metaKey: false}));
             });
