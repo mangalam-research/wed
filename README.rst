@@ -59,6 +59,8 @@ Current known limitations:
   Bootstrap does nothing to deal with. (One element may be in the
   focused state (keyboard) while another is in the hover state.)
 
+* See also `Browser Requirements`_.
+
 Known bugs:
 
 * Firefox: Sometimes a caret moved to the end of a bit of text
@@ -66,6 +68,38 @@ Known bugs:
   is probably a Firefox bug. At any rate, wed does not currently
   compensate for it. So you may see your caret disappear, but it is
   still there, waiting for you to type text.
+
+Browser Requirements
+====================
+
+While potential users of wed should definitely heed the warnings
+below, plans are afoot to use Sauce Labs' `Open Sauce
+<https://saucelabs.com/opensauce>`_ to improve support for platforms
+other than PC-based Chrome and Firefox. Stay tuned.
+
+Wed is primarily developed using a recent version of Chrome
+(version 28) and a recent version of Firefox (version 22) for
+testing. Ideally wed should work with recent versions of other
+browsers but since it is not routinely tested with those browsers
+there may be bugs specific to running wed in those browsers. File an
+issue in github if you find a problem with IE 9 or higher or a
+relatively recent other kind of desktop browser or (obviously) with
+the browsers used for testing wed. In order of decreasing likelihood,
+support for the following cases is unlikely to ever materialize due to
+a lack of development resources:
+
+* Browsers for phones and tablets.
+* Versions of Chrome and Firefox older than those mentioned above.
+* Antique browsers.
+* Oddball browsers or other software or hardware systems that present
+  web pages.
+
+Wed does not require any specific OS facilities. However, keyboard
+support on Macs in JavaScript has some peculiarities. Unfortunately,
+since this project has not so far benefited from access to a Mac for
+testing, users of Mac-based browsers may experience issues that do not
+exist on other platforms. File an issue in github if you find a
+problem with a relatively recent Mac-based browser.
 
 Dependencies
 ============
