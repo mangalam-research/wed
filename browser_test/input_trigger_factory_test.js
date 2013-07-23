@@ -68,7 +68,8 @@ describe("input_trigger_factory", function () {
                          '<div class="p _real">Blah</div>');
             assert.equal($ps.get(1).outerHTML,
                          '<div class="p _real"> blah '+
-                         '<div class="term _real">blah</div> blah.</div>');
+                         '<div class="term _real">blah</div>'+
+                         '<div class="term _real">blah2</div> blah.</div>');
         });
 
         it("creates an InputTrigger that handles a split triggered by a " +
@@ -100,7 +101,8 @@ describe("input_trigger_factory", function () {
                          '<div class="p _real">Blah</div>');
             assert.equal($ps.get(1).outerHTML,
                          '<div class="p _real"> blah '+
-                         '<div class="term _real">blah</div> blah.</div>');
+                         '<div class="term _real">blah</div>'+
+                         '<div class="term _real">blah2</div> blah.</div>');
         });
 
 
@@ -126,7 +128,8 @@ describe("input_trigger_factory", function () {
                          '<div class="p _real">cd</div>');
             assert.equal($ps.get(2).outerHTML,
                          '<div class="p _real">efBlah blah '+
-                         '<div class="term _real">blah</div> blah.</div>');
+                         '<div class="term _real">blah</div>'+
+                         '<div class="term _real">blah2</div> blah.</div>');
         });
 
         it("creates an InputTrigger that handles a split triggered by a " +
@@ -151,7 +154,8 @@ describe("input_trigger_factory", function () {
                          '<div class="p _real">cd</div>');
             assert.equal($ps.get(2).outerHTML,
                          '<div class="p _real">efBlah blah '+
-                         '<div class="term _real">blah</div> blah.</div>');
+                         '<div class="term _real">blah</div>'+
+                         '<div class="term _real">blah2</div> blah.</div>');
         });
 
     });

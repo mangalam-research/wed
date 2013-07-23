@@ -49,8 +49,11 @@ describe("InputTrigger", function () {
             assert.equal($el.get(0), $p.get(0));
             seen++;
         });
+        // We shove this text between two elements so that jQuery has
+        // no opportunity to just add it to a text node (which would
+        // trigger text-changed.
         var text = document.createTextNode("abc;def");
-        $p.append(text);
+        $p.find(".term").first().after(text);
         editor._syncDisplay();
         assert.equal(seen, 1);
     });
@@ -250,13 +253,15 @@ describe("InputTrigger", function () {
                      '<div class="p _real">cd</div>');
         assert.equal($ps.get(2).outerHTML,
                      '<div class="p _real">efBlah blah '+
-                     '<div class="term _real">blah</div> blah.</div>');
+                     '<div class="term _real">blah</div>'+
+                     '<div class="term _real">blah2</div> blah.</div>');
         editor.undo();
         $ps = editor.$data_root.find(".body .p");
         assert.equal($ps.length, 1);
         assert.equal($ps.get(0).outerHTML,
                      '<div class="p _real">Blah blah '+
-                     '<div class="term _real">blah</div> blah.</div>');
+                     '<div class="term _real">blah</div>'+
+                     '<div class="term _real">blah2</div> blah.</div>');
 
         editor.redo();
         $ps = editor.$data_root.find(".body .p");
@@ -267,7 +272,8 @@ describe("InputTrigger", function () {
                      '<div class="p _real">cd</div>');
         assert.equal($ps.get(2).outerHTML,
                      '<div class="p _real">efBlah blah '+
-                     '<div class="term _real">blah</div> blah.</div>');
+                     '<div class="term _real">blah</div>'+
+                     '<div class="term _real">blah2</div> blah.</div>');
     });
 
 });
