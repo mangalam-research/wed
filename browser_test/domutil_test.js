@@ -746,18 +746,6 @@ function (mocha, chai, $, domutil) {
             });
 
 
-            it("normalizes so that it returns the same value if " +
-               "unimportant changes occurred", function () {
-                   var node = $root.find(".body>.p").last().get(0).
-                           childNodes[2];
-                   var path = "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
-                           "._real.p[1]/##text[1]";
-                   assert.equal(domutil.nodeToPath(root, node), path);
-                   // Split a text node. This is an unimportant change.
-                   domutil.splitTextNode(node.parentNode.childNodes[0], 1);
-                   assert.equal(domutil.nodeToPath(root, node), path);
-               });
-
             it("fails on a node which is not a descendant of its root",
                function () {
                    var node = $("link").last().get(0);
@@ -847,19 +835,6 @@ function (mocha, chai, $, domutil) {
                            "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
                                "._phantom_wrap[1]/._real.p[0]"),
                        node);
-               });
-
-
-            it("normalizes so that it returns the same value if " +
-               "unimportant changes occurred", function () {
-                   var node = $root.find(".body>.p").last().get(0).
-                           childNodes[2];
-                   var path = "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
-                           "._real.p[1]/##text[1]";
-                   assert.equal(domutil.pathToNode(root, path), node);
-                   // Split a text node. This is an unimportant change.
-                   domutil.splitTextNode(node.parentNode.childNodes[0], 1);
-                   assert.equal(domutil.pathToNode(root, path), node);
                });
         });
 
