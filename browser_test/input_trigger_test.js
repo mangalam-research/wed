@@ -240,7 +240,8 @@ describe("InputTrigger", function () {
         var my_tr = new transformation.Transformation(
             "Ad-hoc",
             function (editor, node) {
-            node.nodeValue = "ab;cd;ef" + node.nodeValue;
+            editor.data_updater.setTextNodeValue(node, "ab;cd;ef" +
+                                                 node.nodeValue);
         });
         editor.fireTransformation(my_tr, text);
         editor._syncDisplay();
@@ -254,26 +255,32 @@ describe("InputTrigger", function () {
         assert.equal($ps.get(2).outerHTML,
                      '<div class="p _real">efBlah blah '+
                      '<div class="term _real">blah</div>'+
-                     '<div class="term _real">blah2</div> blah.</div>');
+                     '<div class="term _real">blah2</div> blah.</div>',
+                    "first split: 3rd part");
+
         editor.undo();
         $ps = editor.$data_root.find(".body .p");
         assert.equal($ps.length, 1);
         assert.equal($ps.get(0).outerHTML,
                      '<div class="p _real">Blah blah '+
                      '<div class="term _real">blah</div>'+
-                     '<div class="term _real">blah2</div> blah.</div>');
+                     '<div class="term _real">blah2</div> blah.</div>',
+                     "after undo");
 
         editor.redo();
         $ps = editor.$data_root.find(".body .p");
-        assert.equal($ps.length, 3);
+        assert.equal($ps.length, 3, "after redo: length");
         assert.equal($ps.get(0).outerHTML,
-                     '<div class="p _real">ab</div>');
+                     '<div class="p _real">ab</div>',
+                     "after redo: 1st part");
         assert.equal($ps.get(1).outerHTML,
-                     '<div class="p _real">cd</div>');
+                     '<div class="p _real">cd</div>',
+                     "after redo: 2nd part");
         assert.equal($ps.get(2).outerHTML,
                      '<div class="p _real">efBlah blah '+
                      '<div class="term _real">blah</div>'+
-                     '<div class="term _real">blah2</div> blah.</div>');
+                     '<div class="term _real">blah2</div> blah.</div>',
+                     "after redo: 3rd part");
     });
 
 });
