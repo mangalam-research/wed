@@ -168,4 +168,38 @@ describe("NameResolver", function () {
                          "blah");
         });
     });
+
+    describe("clone", function () {
+        beforeEach(function () {
+            resolver = new name_resolver.NameResolver();
+            Object.keys(mapping).forEach(function (k) {
+                resolver.definePrefix(k, mapping[k]);
+            });
+        });
+
+        it("creates a clone", function () {
+            var cloned = resolver.clone();
+            Object.keys(mapping).forEach(function (k) {
+                assert.equal(cloned.resolveName(k + ":x").toString(),
+                             resolver.resolveName(k + ":x").toString());
+            });
+        });
+
+        it("creates a clone that is independent from the original",
+           function () {
+            var cloned = resolver.clone();
+            resolver.enterContext();
+            resolver.definePrefix("X", "uri:original");
+
+            cloned.enterContext();
+            cloned.definePrefix("X", "uri:cloned");
+
+            assert.equal(resolver.resolveName("X:x").toString(),
+                         new EName("uri:original", "x").toString());
+            assert.equal(cloned.resolveName("X:x").toString(),
+                         new EName("uri:cloned", "x").toString());
+
+        });
+
+    });
 });
