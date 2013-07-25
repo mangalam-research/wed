@@ -40,40 +40,28 @@ describe("InputTrigger", function () {
         editor = undefined;
     });
 
-    it("triggers on children-changed events", function () {
+    it("triggers on paste events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
         var $p = editor.$data_root.find(".p").last();
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
-            assert.equal(type, "children-changed");
+            assert.equal(type, "paste");
             assert.equal($el.get(0), $p.get(0));
             seen++;
         });
-        // We shove this text between two elements so that jQuery has
-        // no opportunity to just add it to a text node (which would
-        // trigger text-changed.
-        var text = document.createTextNode("abc;def");
-        $p.find(".term").first().after(text);
-        editor._syncDisplay();
-        assert.equal(seen, 1);
-    });
-
-    it("triggers on text-changed events", function () {
-        var input_trigger = new InputTrigger(editor, ".p");
-        var seen = 0;
-        var $p = editor.$data_root.find(".p").last();
-        input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
-            assert.equal(type, "text-changed");
-            assert.equal($el.get(0), $p.get(0));
-            seen++;
-        });
-
-        var text = $p.get(0).lastChild;
-        // Make sure we're looking at the right thing.
-        assert.equal(text.nodeValue, " blah.");
-
-        // Initiate the change.
-        text.nodeValue = " bl;a";
+        // Synthetic event
+        var event = new $.Event("paste");
+        // Provide a skeleton of clipboard data
+        event.originalEvent = {
+            clipboardData: {
+                types: ["text/plain"],
+                getData: function (type) {
+                    return "abc;def";
+                }
+            }
+        };
+        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.$gui_root.trigger(event);
         editor._syncDisplay();
         assert.equal(seen, 1);
     });
@@ -142,26 +130,6 @@ describe("InputTrigger", function () {
         });
         var text = document.createTextNode("abcdef");
         $p.append(text);
-        editor._syncDisplay();
-        assert.equal(seen, 0);
-    });
-
-    it("does not trigger on unimportant text-changed events", function () {
-        var input_trigger = new InputTrigger(editor, ".p");
-        var seen = 0;
-        var $p = editor.$data_root.find(".p").last();
-        input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
-            assert.equal(type, "text-changed");
-            assert.equal($el.get(0), $p.get(0));
-            seen++;
-        });
-
-        var text = $p.get(0).lastChild;
-        // Make sure we're looking at the right thing.
-        assert.equal(text.nodeValue, " blah.");
-
-        // Initiate the change.
-        text.nodeValue = " blah...";
         editor._syncDisplay();
         assert.equal(seen, 0);
     });
@@ -237,13 +205,18 @@ describe("InputTrigger", function () {
         assert.equal($ps.length, 1);
         editor.setDataCaret($ps.get(0), 0);
         var text = $ps.get(0).firstChild;
-        var my_tr = new transformation.Transformation(
-            "Ad-hoc",
-            function (editor, node) {
-            editor.data_updater.setTextNodeValue(node, "ab;cd;ef" +
-                                                 node.nodeValue);
-        });
-        editor.fireTransformation(my_tr, text);
+        // Synthetic event
+        var event = new $.Event("paste");
+        // Provide a skeleton of clipboard data
+        event.originalEvent = {
+            clipboardData: {
+                types: ["text/plain"],
+                getData: function (type) {
+                    return "ab;cd;ef";
+                }
+            }
+        };
+        editor.$gui_root.trigger(event);
         editor._syncDisplay();
 
         $ps = editor.$data_root.find(".body .p");

@@ -22,6 +22,9 @@ they are processed.
  + wed-input-trigger-keypress
  + wed-global-keypress
 
+* paste:
+ + wed-post-paste
+
 Those handlers that are bound to these custom events should have the
 signature::
 
@@ -50,6 +53,8 @@ used to preserve this value and pass it as a parameter.)
 * wed-global-* events are meant to be handled by the default event
   handlers for wed, or those event handlers meaning to alter default
   processing.
+
+* The paste event has no wed-global-* event associated with it.
 
 GUI Tree and Data Tree
 ----------------------

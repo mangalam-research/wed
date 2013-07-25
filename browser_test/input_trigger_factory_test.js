@@ -115,35 +115,20 @@ describe("input_trigger_factory", function () {
 
             var $ps = editor.$data_root.find(".body .p");
             assert.equal($ps.length, 1);
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "ab;cd;ef";
+                    }
+                }
+            };
             editor.setDataCaret($ps.get(0), 0);
-            var text = document.createTextNode("ab;cd;ef");
-            $ps.prepend(text);
-            editor._syncDisplay();
-
-            $ps = editor.$data_root.find(".body .p");
-            assert.equal($ps.length, 3);
-            assert.equal($ps.get(0).outerHTML,
-                         '<div class="p _real">ab</div>');
-            assert.equal($ps.get(1).outerHTML,
-                         '<div class="p _real">cd</div>');
-            assert.equal($ps.get(2).outerHTML,
-                         '<div class="p _real">efBlah blah '+
-                         '<div class="term _real">blah</div>'+
-                         '<div class="term _real">blah2</div> blah.</div>');
-        });
-
-        it("creates an InputTrigger that handles a split triggered by a " +
-           "text-changed event",
-           function () {
-            input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key.makeKey(";"),
-                key_constants.BACKSPACE, key_constants.DELETE);
-
-            var $ps = editor.$data_root.find(".body .p");
-            assert.equal($ps.length, 1);
-            editor.setDataCaret($ps.get(0), 0);
-            var text = $ps.get(0).firstChild;
-            text.nodeValue = "ab;cd;ef" + text.nodeValue;
+            editor.$gui_root.trigger(event);
             editor._syncDisplay();
 
             $ps = editor.$data_root.find(".body .p");
