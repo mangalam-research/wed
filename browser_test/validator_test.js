@@ -173,6 +173,8 @@ function (mocha, chai, $, validator, util, validate,
             });
         });
 
+        // Testing possibleAt also tests _validateUpTo because it
+        // depends on that function.
         describe("possibleAt", function () {
             var p;
             beforeEach(function () {
@@ -188,23 +190,12 @@ function (mocha, chai, $, validator, util, validate,
             });
 
             function makeTest(name, stop_fn, no_load) {
-                it(name, function (done) {
-                    // Manipulate stop so that we know when the
-                    // work is done.
-                    var old_stop = p.stop;
-                    p.stop = function () {
-                        stop_fn();
-                        done();
-                    };
-
+                it(name, function () {
                     if (!no_load)
                         require(["requirejs/text!" + to_parse],
                                 function(data) {
                                     $data.html(data);
-                                    p.start();
                                 });
-                    else
-                        p.start();
                 });
             }
 
