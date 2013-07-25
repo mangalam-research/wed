@@ -74,41 +74,40 @@ function (mocha, chai, $, validator, util, validate,
                     function(data) {
                         $data.html(data);
                         p._max_timespan = 0;
-                        p._max_cycles = 1;
                         p.initialize(function () {
-                            p._work(); // <html>
+                            p._cycle(); // <html>
                             assert.equal(p._part_done, 0);
-                            p._work(); // <head>
+                            p._cycle(); // <head>
                             assert.equal(p._part_done, 0);
-                            p._work(); // <title>
+                            p._cycle(); // <title>
                             assert.equal(p._part_done, 0);
-                            p._work(); // <title>
+                            p._cycle(); // <title>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // </head>
+                            p._cycle(); // </head>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // <body>
+                            p._cycle(); // <body>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 0.75);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.75);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.75);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 0.875);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.875);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 1);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 1);
-                            p._work(); // </body>
+                            p._cycle(); // </body>
                             assert.equal(p._part_done, 1);
-                            p._work(); // </html>
+                            p._cycle(); // </html>
                             assert.equal(p._part_done, 1);
-                            p._work(); // end
+                            p._cycle(); // end
                             assert.equal(p._part_done, 1);
                             assert.equal(p._working_state,
                                          validator.VALID);
