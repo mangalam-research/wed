@@ -376,7 +376,19 @@ function (mocha, chai, $, validator, util, validate,
                 });
             });
 
+            // An early bug would cause this case to get into an
+            // infinite loop.
+            it("works fine if the data to validate is only text",
+               function (done) {
+                var container = $data.find(".em").get(0);
+                p.initialize(function () {
+                    var to_parse = document.createTextNode("data");
+                    var ret = p.speculativelyValidate(container, 0,
+                                                      to_parse);
+                    assert.isFalse(ret, "fragment is valid");
+                    done();
+                });
+            });
         });
-
     });
 });
