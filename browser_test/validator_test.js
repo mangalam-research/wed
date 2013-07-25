@@ -292,5 +292,91 @@ function (mocha, chai, $, validator, util, validate,
                     [new validate.Event("enterStartTag", "", "body")]);
             });
         });
+
+        describe("speculativelyValidate", function () {
+            beforeEach(function (done) {
+                require(["requirejs/text!" + to_parse], function(data) {
+                    $data.html(data);
+                    done();
+                });
+            });
+
+            it("does not report errors on valid fragments", function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var ret = p.speculativelyValidate(container, index,
+                                                      body);
+                    assert.isFalse(ret);
+                    done();
+                });
+            });
+
+            it("reports errors on invalid fragments", function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var em = $data.find(".em").first();
+                    var ret = p.speculativelyValidate(container, index,
+                                                      em);
+                    assert.equal(ret.length, 1);
+                    assert.equal(ret[0].toString(),
+                                 "tag not allowed here: {}em");
+                    done();
+                });
+            });
+
+            it("on valid data, does not disturb its validator",
+               function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var ret = p.speculativelyValidate(container, index,
+                                                      body);
+                    assert.isFalse(ret);
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after speculativelyValidate");
+
+                    p._resetTo(container);
+                    p._validateUpTo(container, -1);
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after subsequent validation");
+                    done();
+                });
+            });
+
+            it("on invalid data, does not disturb its validator",
+               function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var em = $data.find(".em").first();
+                    var ret = p.speculativelyValidate(container, index,
+                                                      em);
+                    assert.equal(ret.length, 1, "the fragment is invalid");
+                    // No errors after.
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after speculativelyValidate");
+
+                    p._resetTo(container);
+                    p._validateUpTo(container, -1);
+                    // Does not cause subsequent errors when the
+                    // validator validates.
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after subsequent validation");
+                    done();
+                });
+            });
+
+        });
+
     });
 });
