@@ -3,6 +3,15 @@ Release History
 
 This section covers only salient changes:
 
+* 0.6:
+
+  - Internal: wed no longer works with Twitter Bootstrap version 2 and
+    now requires version 3 RC1 or later. This version of Bootstrap
+    fixes some problems that recently turned out to present
+    significant hurdles in wed's development. Unfortunately, version
+    3's API is **very** different from version 2's so it is not
+    possible to trivially support both versions.
+
 * 0.5 introduces major changes: 
 
   - GUI: previous versions of wed had included some placeholders
@@ -113,7 +122,7 @@ suite, is located in `<config/requirejs-config-dev.js>`_
 In all cases Wed requires the following packages:
 
 * jquery
-* bootstrap
+* bootstrap version 3-RC1 or a later version in the version 3 series.
 * `salve <https://github.com/mangalam-research/salve/>`_
 * rangy
 
