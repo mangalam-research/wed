@@ -72,42 +72,51 @@ function (mocha, chai, $, wed, rangy) {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                    // Text node inside title.
-                    var initial = $(editor.gui_root).find(".title").
-                            get(0).childNodes[1];
-                        editor.setCaret(initial,
-                                        initial.nodeValue.length);
-                    editor.moveCaretRight();
-                    // It is now inside the final gui element.
-                    caretCheck(editor, lastGUI($(initial.parentNode)),
-                               0, "initial caret position");
+                // Text node inside title.
+                var initial = $(editor.gui_root).find(".title").
+                    get(0).childNodes[1];
+                editor.setCaret(initial,
+                                initial.nodeValue.length);
+                editor.moveCaretRight();
+                // It is now inside the final gui element.
+                caretCheck(editor, lastGUI($(initial.parentNode)),
+                           0, "initial caret position");
 
-                    // We used to check for the existence of a fake
-                    // caret. However, not all browsers require the
-                    // fake caret to exist in this context. (Chrome
-                    // does, Firefox does not. Subject to change with
-                    // new versions.) There's no point in check
-                    // it. However, the fake caret should definitely
-                    // be off by the time we finish the test.
-                    //
-                    // Fake caret must exist
-                    // assert.equal(editor._$fake_caret.parent().length,
-                    // 1, "fake caret existence");
+                // We used to check for the existence of a fake
+                // caret. However, not all browsers require the
+                // fake caret to exist in this context. (Chrome
+                // does, Firefox does not. Subject to change with
+                // new versions.) There's no point in check
+                // it. However, the fake caret should definitely
+                // be off by the time we finish the test.
+                //
+                // Fake caret must exist
+                // assert.equal(editor._$fake_caret.parent().length,
+                // 1, "fake caret existence");
 
-                    // We have to set the selection manually and
-                    // generate a click event because just generating
-                    // the event won't move the caret.
-                    var r = rangy.createRange();
-                    r.setStart(initial, 0);
-                    rangy.getSelection(editor.my_window).setSingleRange(r);
-                    var ev = $.Event("mouseup", { target: initial });
-                    $(initial.parentNode).trigger(ev);
+                // We have to set the selection manually and
+                // generate a click event because just generating
+                // the event won't move the caret.
+                var r = rangy.createRange();
+                r.setStart(initial, 0);
+                rangy.getSelection(editor.my_window).setSingleRange(r);
+                var ev = $.Event("mouseup", { target: initial });
+                $(initial.parentNode).trigger(ev);
+
+                // We need to do this because setting the caret
+                // through a click is not instantaneous. wed
+                // internally sets a timeout of 0 length to deal with
+                // browser incompatibilities. We need to do the same
+                // so that wed's timeout runs before we query the
+                // value.
+                editor.my_window.setTimeout(function () {
                     // In text, no fake caret
                     assert.equal(editor._$fake_caret.parent().length, 0);
                     caretCheck(editor, initial, 0, "final caret position");
 
                     done();
-                });
+                }, 1);
+            });
         });
 
         describe("moveCaretRight", function () {
