@@ -11,17 +11,16 @@ body {
     line-height: 1.2em;
 }
 
+#menu-layer {
+    z-index: 1;
+    >* {
+        position: absolute;
+    }
+}
+
 div.wed-document {
     border-style: solid;
     border-width: 1px;
-
-    #menu-layer {
-        z-index: 1;
-
-        >* {
-            position: fixed;
-        }
-    }
 
     div {
         word-wrap: normal;
@@ -118,6 +117,14 @@ div.wed-document {
 
 .label {
     text-indent: 0em;
+    /* This restores the bootstrap 2 style. */
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.label-info {
+    /* This restores the bootstrap 2 style. */
+    background-color: #3a87ad;
 }
 
 .modal-body {
@@ -142,9 +149,9 @@ div.wed-document {
 
 .progress {
     margin-bottom: inherit;
+    height: 28px;
 
     /* The next stylings are to allow text over progress bars */
-    position: relative;
 
     span {
         position: absolute;
