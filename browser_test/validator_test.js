@@ -1,8 +1,5 @@
-define(["mocha/mocha", "chai", "jquery", "wed/validator",
-        "wed/util", "salve/validate", "wed/domlistener",
-        "wed/modes/generic/generic", "wed/transformation"],
-function (mocha, chai, $, validator, util, validate,
-          domlistener, generic, transformation) {
+define(["mocha/mocha", "chai", "jquery", "wed/validator", "salve/validate"],
+function (mocha, chai, $, validator, validate) {
     // The test subirectory is one of the paths required to be in the config
     var schema = 'test/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'
