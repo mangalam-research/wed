@@ -484,6 +484,50 @@ describe("TreeUpdater", function () {
 
         });
 
+        describe("removeNodes", function () {
+            it("generates appropriate events when merging text", function () {
+                var p = $root.find(".body>.p").get(1);
+                var $p = $(p);
+                var first_node = $p.children(".quote").get(0);
+                var last_node = $p.children(".quote").last().get(0);
+                var nodes = Array.prototype.slice.call(
+                    p.childNodes,
+                    Array.prototype.indexOf.call(p.childNodes, first_node),
+                    Array.prototype.indexOf.call(p.childNodes, last_node) + 1);
+                var parent = first_node.parentNode;
+                var prev = first_node.previousSibling;
+                var next = last_node.nextSibling;
+                assert.equal(parent.childNodes.length, 5);
+
+                var listener = new Listener(tu);
+                var calls = nodes.concat([next]);
+                var calls_ix = 0;
+                tu.addEventListener("deleteNode", function (ev) {
+                    var call = calls[calls_ix++];
+                    assert.equal(ev.node, call, "deleteNode call " + calls_ix);
+                });
+                listener.expected.deleteNode = 4;
+
+                tu.addEventListener("setTextNodeValue", function (ev) {
+                    assert.equal(ev.node, prev,
+                                 "setTextNodeValue node");
+                    assert.equal(ev.value, "before  after",
+                                 "setTextNodeValue value");
+                });
+                listener.expected.setTextNodeValue = 1;
+
+                tu.removeNodes(nodes);
+
+                // Check that we're doing what we think we're doing.
+                assert.equal(parent.childNodes.length, 1);
+                assert.equal(
+                    parent.outerHTML,
+                    ('<div class="p _real">before  after</div>'));
+                listener.check();
+            });
+
+        });
+
         describe("mergeTextNodes", function () {
             it("generates appropriate events when merging text", function () {
                 var $p = $($root.find(".body>.p").get(1));
