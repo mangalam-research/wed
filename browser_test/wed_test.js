@@ -1,5 +1,5 @@
-define(["mocha/mocha", "chai", "jquery", "wed/wed", "rangy"],
-function (mocha, chai, $, wed, rangy) {
+define(["mocha/mocha", "chai", "jquery", "wed/wed", "wed/domutil", "rangy"],
+function (mocha, chai, $, wed, domutil, rangy) {
     var options = {
         schema: 'test/tei-simplified-rng.js',
         mode: {
@@ -25,6 +25,13 @@ function (mocha, chai, $, wed, rangy) {
         assert.equal(editor._raw_caret[0], container, msg + " (container)");
         assert.equal(editor._raw_caret[1], offset, msg + " (offset)");
     }
+
+    function dataCaretCheck(editor, container, offset, msg) {
+        var data_caret = editor.getDataCaret();
+        assert.equal(data_caret[0], container, msg + " (container)");
+        assert.equal(data_caret[1], offset, msg + " (offset)");
+    }
+
 
     function firstGUI($container) {
         return $container.children("._gui").get(0);
@@ -392,6 +399,170 @@ function (mocha, chai, $, wed, rangy) {
                });
 
         });
+
+        it("handles pasting simple text", function () {
+            var initial = editor.$data_root.find(".body>.p").get(0).
+                childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.nodeValue;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "abcdef";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            assert.equal(initial.nodeValue, "abcdef" + initial_value);
+            var final_caret = editor.getDataCaret();
+            dataCaretCheck(editor, initial, 6, "final position");
+        });
+
+        it("handles pasting structured text", function () {
+            var $p = editor.$data_root.find(".body>.p").first();
+            var initial = $p.get(0).childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = $p.get(0).innerHTML;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/html", "text/plain"],
+                    getData: function (type) {
+                        return $p.get(0).innerHTML;
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            assert.equal($p.get(0).innerHTML, initial_value + initial_value);
+            dataCaretCheck(editor, $p.get(0).childNodes[2], 6,
+                           "final position");
+        });
+
+        it("handles pasting structured text: invalid, decline pasting as text",
+           function (done) {
+            var $p = editor.$data_root.find(".body>.p").first();
+            var initial = $p.get(0).childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = $p.get(0).innerHTML;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/html", "text/plain"],
+                    getData: function (type) {
+                        return $p.get(0).outerHTML;
+                    }
+                }
+            };
+            editor._paste_modal.getTopLevel().on("hidden.bs.modal",
+                                                 function () {
+                editor._syncDisplay();
+                assert.equal($p.get(0).innerHTML, initial_value);
+                dataCaretCheck(editor, initial, 0, "final position");
+                done();
+            });
+            editor.$gui_root.trigger(event);
+            // This clicks "No".
+            editor._paste_modal._$footer.find(".btn").get(1).click();
+        });
+
+        it("handles pasting structured text: invalid, accept pasting as text",
+           function (done) {
+            var $p = editor.$data_root.find(".body>.p").first();
+            var initial = $p.get(0).childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = $p.get(0).innerHTML;
+            var initial_outer = $p.get(0).outerHTML;
+            var $x = $("<div>").append(document.createTextNode(initial_outer));
+            var initial_outer_from_text_to_html = $x.get(0).innerHTML;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/html", "text/plain"],
+                    getData: function (type) {
+                        return initial_outer;
+                    }
+                }
+            };
+            editor._paste_modal.getTopLevel().on("hidden.bs.modal",
+                                                 function () {
+                editor._syncDisplay();
+                assert.equal($p.get(0).innerHTML,
+                             initial_outer_from_text_to_html + initial_value);
+                dataCaretCheck(editor, $p.get(0).childNodes[0],
+                               initial_outer.length,
+                               "final position");
+                done();
+            });
+            editor.$gui_root.trigger(event);
+            // This clicks "Yes".
+            editor._paste_modal._$footer.find(".btn-primary").get(0).
+                click();
+        });
+
+        it("handles cutting a well formed selection", function (done) {
+            var p = editor.$data_root.find(".body>.p").get(0);
+            var gui_start = editor.fromDataCaret(p.childNodes[0], 4);
+            var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
+            editor.setCaret(gui_start);
+            var range = domutil.getSelectionRange(editor.my_window);
+            range.setEnd(gui_end[0], gui_end[1]);
+            rangy.getSelection(editor.my_window).setSingleRange(range);
+
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            window.setTimeout(function () {
+                assert.equal(p.innerHTML, "Blah.");
+                done();
+            }, 1);
+        });
+
+        it("handles cutting a bad selection", function (done) {
+            var p = editor.$data_root.find(".body>.p").get(0);
+            var original_inner_html = p.innerHTML;
+            // Start caret is inside the term element.
+            var gui_start = editor.fromDataCaret(p.childNodes[1].childNodes[0],
+                                                 1);
+            var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
+            editor.setCaret(gui_start);
+            var range = domutil.getSelectionRange(editor.my_window);
+            range.setEnd(gui_end[0], gui_end[1]);
+            rangy.getSelection(editor.my_window).setSingleRange(range);
+
+            assert.equal(p.innerHTML, original_inner_html);
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            editor._cut_modal.getTopLevel().on("hidden.bs.modal",
+                                                 function () {
+                editor._syncDisplay();
+                assert.equal(p.innerHTML, original_inner_html);
+                caretCheck(editor, gui_start[0], gui_start[1],
+                           "final position");
+                done();
+            });
+            // This clicks dismisses the modal
+            editor._cut_modal._$footer.find(".btn-primary").get(0).
+                click();
+        });
+
 
     });
 });
