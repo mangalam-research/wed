@@ -172,6 +172,26 @@ describe("Modal", function () {
                 done();
             });
         });
+
+        it("without a callback", function (done) {
+            modal = new Modal();
+            modal.addOkCancel();
+            var $dom = modal.getTopLevel();
+            $wedroot.append($dom);
+            var clicked = false;
+            window.setTimeout(function () {
+                clicked = true;
+                $dom.find(".btn-primary").click();
+                // Wait a bit before considering it done.
+                window.setTimeout(function () {
+                    done();
+                }, 1);
+            }, 1);
+
+            // An earlier version did not accept modal being called
+            // without a callback. It would have crashed on the next call.
+            modal.modal();
+        });
     });
 });
 
