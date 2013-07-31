@@ -1,5 +1,5 @@
-define(["mocha/mocha", "chai", "jquery", "wed/wed", "rangy"],
-function (mocha, chai, $, wed, rangy) {
+define(["mocha/mocha", "chai", "jquery", "wed/wed", "wed/domutil", "rangy"],
+function (mocha, chai, $, wed, domutil, rangy) {
     var options = {
         schema: 'test/tei-simplified-rng.js',
         mode: {
@@ -515,7 +515,53 @@ function (mocha, chai, $, wed, rangy) {
                 click();
         });
 
+        it("handles cutting a well formed selection", function (done) {
+            var p = editor.$data_root.find(".body>.p").get(0);
+            var gui_start = editor.fromDataCaret(p.childNodes[0], 4);
+            var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
+            editor.setCaret(gui_start);
+            var range = domutil.getSelectionRange(editor.my_window);
+            range.setEnd(gui_end[0], gui_end[1]);
+            rangy.getSelection(editor.my_window).setSingleRange(range);
 
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            window.setTimeout(function () {
+                assert.equal(p.innerHTML, "Blah.");
+                done();
+            }, 1);
+        });
+
+        it("handles cutting a bad selection", function (done) {
+            var p = editor.$data_root.find(".body>.p").get(0);
+            var original_inner_html = p.innerHTML;
+            // Start caret is inside the term element.
+            var gui_start = editor.fromDataCaret(p.childNodes[1].childNodes[0],
+                                                 1);
+            var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
+            editor.setCaret(gui_start);
+            var range = domutil.getSelectionRange(editor.my_window);
+            range.setEnd(gui_end[0], gui_end[1]);
+            rangy.getSelection(editor.my_window).setSingleRange(range);
+
+            assert.equal(p.innerHTML, original_inner_html);
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            editor._cut_modal.getTopLevel().on("hidden.bs.modal",
+                                                 function () {
+                editor._syncDisplay();
+                assert.equal(p.innerHTML, original_inner_html);
+                caretCheck(editor, gui_start[0], gui_start[1],
+                           "final position");
+                done();
+            });
+            // This clicks dismisses the modal
+            editor._cut_modal._$footer.find(".btn-primary").get(0).
+                click();
+        });
 
 
     });
