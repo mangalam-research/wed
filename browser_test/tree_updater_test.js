@@ -444,9 +444,7 @@ describe("TreeUpdater", function () {
                 listener.check();
             });
 
-            it("generates appropriate events when setting text to an empty " +
-               "string",
-               function () {
+            it("generates appropriate events when merging text", function () {
                 var node = $($root.find(".body>.p").get(1)).
                     children(".quote").get(0);
                 var parent = node.parentNode;
@@ -485,6 +483,42 @@ describe("TreeUpdater", function () {
             });
 
         });
+
+        describe("mergeTextNodes", function () {
+            it("generates appropriate events when merging text", function () {
+                var $p = $($root.find(".body>.p").get(1));
+                // Remove the first quote so that we have two text
+                // nodes adjacent.
+                $p.children('.quote').first().remove();
+                var node = $p.get(0).childNodes[0];
+                var parent = node.parentNode;
+                var next = node.nextSibling;
+                assert.equal(parent.childNodes.length, 4);
+                var listener = new Listener(tu);
+                tu.addEventListener("deleteNode", function (ev) {
+                    assert.equal(ev.node, next);
+                });
+                listener.expected.deleteNode = 1;
+
+                tu.addEventListener("setTextNodeValue", function (ev) {
+                    assert.equal(ev.node, node);
+                    assert.equal(ev.value, "before  between ");
+                });
+                listener.expected.setTextNodeValue = 1;
+
+                tu.mergeTextNodes(node);
+
+                // Check that we're doing what we think we're doing.
+                assert.equal(parent.childNodes.length, 3);
+                assert.equal(
+                    parent.outerHTML,
+                    ('<div class="p _real">before  between ' +
+                     '<div class="quote _real">quoted2</div> after</div>'));
+                listener.check();
+            });
+
+        });
+
 
     });
 });
