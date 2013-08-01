@@ -13,8 +13,13 @@ This section covers only salient changes:
     possible to trivially support both versions.
 
   - API changes: ``Mode.getTransformationRegistry()`` is gone. Wed now
-    gets a mode's transformations by calling
-    ``getTagTransformations(...)``.
+    gets a mode's actions by calling
+    ``getContextualActions(...)``.
+
+  - API changes: ``fireTransformation`` no longer accepts a
+    new_caret_position.
+
+  - API changes: transformations are now a special case of actions.
 
 * 0.5 introduces major changes: 
 
