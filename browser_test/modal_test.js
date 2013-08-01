@@ -64,6 +64,18 @@ describe("Modal", function () {
         });
     });
 
+    describe("getPrimary", function () {
+        it("returns an empty set if there is no primary", function () {
+            var $button = modal.addButton("test");
+            assert.equal(modal.getPrimary().get(0), undefined);
+        });
+
+        it("returns the primary", function () {
+            var $button = modal.addButton("test", true);
+            assert.equal(modal.getPrimary().get(0), $button.get(0));
+        });
+    });
+
     function makeAddXYTest(first, second) {
         describe("add" + first + second, function () {
             it("adds " + first + " and " + second + " button, "+
