@@ -11,7 +11,8 @@ require.config({
  shim: {
    'bootstrap': {
      deps: ["jquery"],
-     exports: "jQuery.fn.popover"
+     exports: "jQuery.fn.popover",
+     init: function () { jQuery.noConflict() }
    },
    'bootstrap-contextmenu': {
      deps: ["bootstrap"],
