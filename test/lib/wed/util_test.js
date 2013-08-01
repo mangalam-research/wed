@@ -35,13 +35,13 @@ describe("utils", function () {
 
     describe("classFromOriginalName", function () {
         it("no namespace", function () {
-            assert.equal(util.classFromOriginalName("li"), "._real.li");
+            assert.equal(util.classFromOriginalName("li"), ".li._real");
         });
         it("match all", function () {
             assert.equal(util.classFromOriginalName("*"), "._real");
         });
         it("with namespace", function () { 
-            assert.equal(util.classFromOriginalName("btw:foo"), "._real.btw\\:foo");
+            assert.equal(util.classFromOriginalName("btw:foo"), ".btw\\:foo._real");
         });
     });
 });
