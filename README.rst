@@ -12,6 +12,10 @@ This section covers only salient changes:
     3's API is **very** different from version 2's so it is not
     possible to trivially support both versions.
 
+  - API changes: ``Mode.getTransformationRegistry()`` is gone. Wed now
+    gets a mode's transformations by calling
+    ``getTagTransformations(...)``.
+
 * 0.5 introduces major changes: 
 
   - GUI: previous versions of wed had included some placeholders
