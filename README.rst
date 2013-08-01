@@ -4,13 +4,18 @@ Release History
 This section covers only salient changes:
 
 * 0.6:
-
   - Internal: wed no longer works with Twitter Bootstrap version 2 and
     now requires version 3 RC1 or later. This version of Bootstrap
     fixes some problems that recently turned out to present
     significant hurdles in wed's development. Unfortunately, version
     3's API is **very** different from version 2's so it is not
     possible to trivially support both versions.
+
+  - GUI: Wed no longer makes use of any glyphicons' facilities. Upon
+    reviewing the glyphicons license, I noticed a requirement that all
+    pages which use glyphicons contain some advertisement for
+    glyphicons. I'm not going to require that those who use wed pollute
+    their web pages with such advertisement.
 
   - API changes: ``Mode.getTransformationRegistry()`` is gone. Wed now
     gets a mode's actions by calling
@@ -381,4 +386,6 @@ Humanities.
 
 ..  LocalWords:  API html xml xsl wed's config jquery js chai semver
 ..  LocalWords:  json minified localhost CSS init pre Makefile saxon
-..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD
+..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD glyphicon
+..  LocalWords:  getTransformationRegistry getContextualActions
+..  LocalWords:  fireTransformation

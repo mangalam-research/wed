@@ -3,8 +3,6 @@ require.config({
  paths: {
    'jquery': 'jquery-1.9.1',
    'bootstrap': 'bootstrap/js/bootstrap.min',
-   'glyphicons': 'glyphicons',
-
      // This is required by the testing framework.
    'test': '../../../browser_test/'
  },
