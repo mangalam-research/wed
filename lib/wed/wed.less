@@ -132,15 +132,13 @@ div.wed-document {
     line-height: 1;
 }
 
-.modal-body {
-    /* This is to ensure that the typeaheads that are in modals
-       show up above the modal. */
-    /* See https://github.com/twitter/bootstrap/issues/6344 */
-    overflow: visible;
+.modal {
+    position: absolute;
 
-    /* To prevent labels from overflowing out of the modal */
-    .btn-group {
-        white-space: normal;
+    .modal-body {
+        /* See https://github.com/twitter/bootstrap/issues/6344 if there are
+issues with typeaheads */
+        overflow-y: auto;
     }
 }
 
