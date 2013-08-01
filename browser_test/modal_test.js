@@ -204,6 +204,30 @@ describe("Modal", function () {
             // without a callback. It would have crashed on the next call.
             modal.modal();
         });
+
+        it("cleans event handlers properly", function (done) {
+            modal = new Modal();
+            modal.addOkCancel();
+            var $dom = modal.getTopLevel();
+            $wedroot.append($dom);
+            function click () { modal.getPrimary().click(); }
+            window.setTimeout(click, 1);
+
+            var first = 0;
+            modal.modal(function (ev, jQthis) {
+                first++;
+            });
+
+            window.setTimeout(click, 1);
+            var second = 0;
+            modal.modal(function (ev, jQthis) {
+                second++;
+                assert.equal(first, 1, "first handler count");
+                assert.equal(second, 1, "second handler count");
+                done();
+            });
+        });
+
     });
 });
 
