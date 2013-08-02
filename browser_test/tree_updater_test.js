@@ -628,7 +628,7 @@ describe("TreeUpdater", function () {
     });
 
     describe("cut", function () {
-        function checkReturn (ret, nodes) {
+        function checkNodes (ret, nodes) {
             assert.equal(ret.length, nodes.length, "result length");
             for(var i = 0; i < nodes.length; ++i) {
                 assert.equal(ret[i].nodeType, nodes[i].nodeType);
@@ -719,7 +719,9 @@ describe("TreeUpdater", function () {
             assert.equal(p.childNodes[0].nodeValue, 'befo ');
 
             assert.isTrue(ret.length > 0);
-            checkReturn(ret, nodes);
+            checkNodes(ret[1], nodes);
+            assert.equal(ret[0][0], p.childNodes[0]);
+            assert.equal(ret[0][1], 4);
         });
 
         it("returns proper nodes when merging text", function () {
@@ -748,7 +750,9 @@ describe("TreeUpdater", function () {
                 ('<div class="p _real">befoter</div>'));
 
             assert.isTrue(ret.length > 0);
-            checkReturn(ret, nodes);
+            checkNodes(ret[1], nodes);
+            assert.equal(ret[0][0], p.childNodes[0]);
+            assert.equal(ret[0][1], 4);
         });
 
     });
