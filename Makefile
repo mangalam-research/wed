@@ -41,6 +41,8 @@ JQUERY_FILE=jquery-1.9.1.js
 ifeq ($(BOOTSTRAP),3)
 BOOTSTRAP_PATH=https://github.com/twbs/bootstrap/releases/download/v3.0.0-rc1/
 BOOTSTRAP_FILE=bs-v3.0.0-rc1-dist.zip
+FONTAWESOME_PATH=http://fortawesome.github.io/Font-Awesome/assets/
+FONTAWESOME_FILE=font-awesome.zip
 else
 BOOTSTRAP_PATH=http://twitter.github.io/bootstrap/assets/
 BOOTSTRAP_FILE=bootstrap.zip
@@ -66,6 +68,10 @@ build-dir:
 build: | build-standalone
 
 build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve
+
+ifeq ($(BOOTSTRAP),3)
+build-standalone: build/standalone/lib/font-awesome
+endif
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES)
 
@@ -100,6 +106,13 @@ downloads/$(JQUERY_FILE): | downloads
 
 downloads/$(BOOTSTRAP_FILE): | downloads
 	(cd downloads; wget '$(BOOTSTRAP_PATH)$(BOOTSTRAP_FILE)')
+
+ifeq ($(BOOTSTRAP),3)
+downloads/$(FONTAWESOME_FILE): | downloads
+	(cd downloads; wget '$(FONTAWESOME_PATH)$(FONTAWESOME_FILE)')
+endif
+
+
 
 downloads/$(REQUIREJS_BASE): | downloads
 	(cd downloads; wget $(REQUIREJS_FILE))
@@ -137,6 +150,16 @@ endif
 # the top level directory. This would trigger this target needlessly
 # so, touch it.
 	touch $@
+
+ifeq ($(BOOTSTRAP),3)
+build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
+	-mkdir $(dir $@)
+	rm -rf $@/*
+	unzip -d $(dir $@) $<
+	rm -rf $@/scss
+	rm -rf $@/less
+	touch $@
+endif
 
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@

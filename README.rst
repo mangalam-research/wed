@@ -17,14 +17,16 @@ This section covers only salient changes:
     glyphicons. I'm not going to require that those who use wed pollute
     their web pages with such advertisement.
 
-  - API changes: ``Mode.getTransformationRegistry()`` is gone. Wed now
+  - GUI: Wed now uses Font Awesome.
+
+  - API: ``Mode.getTransformationRegistry()`` is gone. Wed now
     gets a mode's actions by calling
     ``getContextualActions(...)``.
 
-  - API changes: ``fireTransformation`` no longer accepts a
+  - API: ``fireTransformation`` no longer accepts a
     new_caret_position.
 
-  - API changes: transformations are now a special case of actions.
+  - API: transformations are now a special case of actions.
 
 * 0.5 introduces major changes: 
 
