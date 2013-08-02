@@ -550,7 +550,7 @@ function (mocha, chai, $, wed, domutil, rangy) {
             // Synthetic event
             var event = new $.Event("cut");
             editor.$gui_root.trigger(event);
-            editor._cut_modal.getTopLevel().on("hidden.bs.modal",
+            editor.straddling_modal.getTopLevel().on("hidden.bs.modal",
                                                  function () {
                 editor._syncDisplay();
                 assert.equal(p.innerHTML, original_inner_html);
@@ -559,7 +559,7 @@ function (mocha, chai, $, wed, domutil, rangy) {
                 done();
             });
             // This clicks dismisses the modal
-            editor._cut_modal._$footer.find(".btn-primary").get(0).
+            editor.straddling_modal._$footer.find(".btn-primary").get(0).
                 click();
         });
 
