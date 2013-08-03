@@ -693,68 +693,6 @@ function (mocha, chai, $, domutil) {
 
         });
 
-
-        describe("splitAt", function () {
-            var source =
-                    '../../test-files/domutil_test_data/source_converted.xml';
-            var $root = $("#domroot");
-            var root = $root.get(0);
-            beforeEach(function (done) {
-                $root.empty();
-                require(["requirejs/text!" + source], function(data) {
-                    $root.html(data);
-                    done();
-                });
-            });
-
-            after(function () {
-                $root.empty();
-            });
-
-            it("fails on node which is not child of the top", function () {
-                var top = $root.find(".p").get(0);
-                var node = $root.find(".title").get(0);
-                assert.Throw(
-                    domutil.splitAt.bind(top, node, 0),
-                    Error, "split location is not inside top");
-            });
-
-            it("splits a text node", function () {
-                var node = $root.find(".title").get(0);
-                var pair = domutil.splitAt(node.childNodes[0],
-                                           node.childNodes[0], 2);
-                assert.equal(node.childNodes[0].nodeValue, "ab");
-                assert.equal(node.childNodes[1].nodeValue, "cd");
-                assert.equal(pair[0], node.childNodes[0]);
-                assert.equal(pair[1], node.childNodes[1]);
-            });
-
-            it("splits recursively, one level of depth", function () {
-                var node = $root.find(".title").get(0);
-                domutil.splitAt(node, node.childNodes[0], 2);
-                assert.equal(node.outerHTML,
-                             '<div class="title _real">ab</div>');
-                var next = node.nextSibling;
-                assert.equal(next.outerHTML,
-                             '<div class="title _real">cd</div>');
-            });
-
-            it("splits recursively, multiple levels", function () {
-                var node = $root.find(".quote").get(0).childNodes[0];
-                var top = $root.find(".text").get(0);
-                var pair = domutil.splitAt(top, node, 3);
-                assert.equal(top.outerHTML,
-                             '<div class="text _real"><div class="body _real"><div class="p _real">blah</div><div class="p _real">before <div class="quote _real">quo</div></div></div></div>');
-                assert.equal(pair[0], top);
-                assert.equal(pair[1], top.nextSibling);
-                assert.equal(top.nextSibling.outerHTML,
-                             '<div class="text _real"><div class="body _real"><div class="p _real"><div class="quote _real">ted</div> between <div class="quote _real">quoted2</div> after</div></div></div>');
-            });
-
-
-
-        });
-
         describe("firstDescendantOrSelf", function () {
             var source =
                     '../../test-files/domutil_test_data/source_converted.xml';

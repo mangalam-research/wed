@@ -79,47 +79,59 @@ describe("TreeUpdater", function () {
             var parent = node.parentNode;
 
             var listener = new Listener(tu);
-            tu.addEventListener("refresh", function (ev) {
-                assert.equal(ev.node, parent);
+            var calls = [
+                // Insertion of a text node into <title>.
+                [parent, 0, null],
+                // Insertion of the completed 2nd half into the DOM tree.
+                [parent, 1, null]
+            ];
+            var calls_ix = 0;
+            tu.addEventListener("insertNodeAt", function (ev) {
+                var call = calls[calls_ix++];
+                assert.equal(ev.parent, call[0]);
+                assert.equal(ev.index, call[1]);
+                if (call[2] !== null)
+                    assert.equal(ev.node.nodeValue, call[2]);
             });
-            listener.expected.refresh = 1;
+            listener.expected.insertNodeAt = 2;
+
+            tu.addEventListener("deleteNode", function (ev) {
+                assert.equal(ev.node, node);
+            });
+            listener.expected.deleteNode = 1;
 
             tu.splitAt(node, node.childNodes[0], 2);
 
             // Check that we're doing what we think we're doing.
-            assert.equal(node.outerHTML,
-                         '<div class="title _real">ab</div>');
+            assert.equal(parent.childNodes[0].outerHTML,
+                         '<div class="title _real">ab</div>', "first half");
             var next = node.nextSibling;
-            assert.equal(next.outerHTML,
-                             '<div class="title _real">cd</div>');
+            assert.equal(parent.childNodes[1].outerHTML,
+                             '<div class="title _real">cd</div>', "second half");
             listener.check();
         });
 
-        it("spliting recursively, at multiple levels generates " +
-           "appropriate events", function () {
+        it("spliting recursively, at multiple levels does the right work",
+           function () {
             var node = $root.find(".quote").get(0).childNodes[0];
             var top = $root.find(".text").get(0);
             var parent = top.parentNode;
 
-            var listener = new Listener(tu);
-            tu.addEventListener("refresh", function (ev) {
-                assert.equal(ev.node, parent);
-            });
-            listener.expected.refresh = 1;
-
             var pair = tu.splitAt(top, node, 3);
 
+            var first_text = $(parent).children('.text').get(0);
+            var next_text = $(parent).children('.text').get(1);
             // Check that we're doing what we think we're doing.
             assert.equal(
-                top.outerHTML,
+                first_text.outerHTML,
                 ('<div class="text _real"><div class="body _real">' +
                  '<div class="p _real">blah</div><div class="p _real">' +
                  'before <div class="quote _real">quo</div></div></div>' +
                  '</div>'));
-            assert.equal(pair[0], top);
-            assert.equal(pair[1], top.nextSibling);
+            assert.equal(pair[0], first_text);
+            assert.equal(pair[1], next_text);
             assert.equal(
-                top.nextSibling.outerHTML,
+                next_text.outerHTML,
                 ('<div class="text _real"><div class="body _real">' +
                  '<div class="p _real"><div class="quote _real">ted</div>' +
                  ' between <div class="quote _real">quoted2</div>' +
@@ -128,8 +140,6 @@ describe("TreeUpdater", function () {
                  '<div class="quote _real">quoted2</div>' +
                  '<div class="quote _real">quoted3</div></div>' +
                  '</div></div>'));
-            listener.check();
-
         });
 
     });
