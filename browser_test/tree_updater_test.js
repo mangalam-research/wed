@@ -24,9 +24,6 @@ describe("TreeUpdater", function () {
 
     function Listener(tu) {
         this.expected = {
-            refresh: 0,
-            insertText: 0,
-            deleteText: 0,
             insertNodeAt: 0,
             setTextNodeValue: 0,
             deleteNode: 0
@@ -159,12 +156,11 @@ describe("TreeUpdater", function () {
            function () {
             var node = $root.find(".title").get(0).childNodes[0];
             var listener = new Listener(tu);
-            tu.addEventListener("insertText", function (ev) {
+            tu.addEventListener("setTextNodeValue", function (ev) {
                 assert.equal(ev.node, node);
-                assert.equal(ev.index, 2);
-                assert.equal(ev.text, "Q");
+                assert.equal(ev.value, "abQcd");
             });
-            listener.expected.insertText = 1;
+            listener.expected.setTextNodeValue = 1;
             var pair = tu.insertText(node, 2, "Q");
 
             // Check that we're doing what we think we're doing.
@@ -178,12 +174,11 @@ describe("TreeUpdater", function () {
            function () {
             var node = $root.find(".title").get(0);
             var listener = new Listener(tu);
-            tu.addEventListener("insertText", function (ev) {
-                assert.equal(ev.node, node);
-                assert.equal(ev.index, 0);
-                assert.equal(ev.text, "Q");
+            tu.addEventListener("setTextNodeValue", function (ev) {
+                assert.equal(ev.node, node.childNodes[0]);
+                assert.equal(ev.value, "Qabcd");
             });
-            listener.expected.insertText = 1;
+            listener.expected.setTextNodeValue = 1;
 
             var pair = tu.insertText(node, 0, "Q");
 
@@ -201,12 +196,11 @@ describe("TreeUpdater", function () {
             var node = $root.find(".title").get(0);
 
             var listener = new Listener(tu);
-            tu.addEventListener("insertText", function (ev) {
-                assert.equal(ev.node, node);
-                assert.equal(ev.index, 1);
-                assert.equal(ev.text, "Q");
+            tu.addEventListener("setTextNodeValue", function (ev) {
+                assert.equal(ev.node, node.childNodes[0]);
+                assert.equal(ev.value, "abcdQ");
             });
-            listener.expected.insertText = 1;
+            listener.expected.setTextNodeValue = 1;
 
             var pair = tu.insertText(node, 1, "Q");
 
@@ -224,12 +218,12 @@ describe("TreeUpdater", function () {
             $(node).empty();
 
             var listener = new Listener(tu);
-            tu.addEventListener("insertText", function (ev) {
-                assert.equal(ev.node, node);
+            tu.addEventListener("insertNodeAt", function (ev) {
+                assert.equal(ev.parent, node);
                 assert.equal(ev.index, 0);
-                assert.equal(ev.text, "test");
+                assert.equal(ev.node.nodeValue, "test");
             });
-            listener.expected.insertText = 1;
+            listener.expected.insertNodeAt = 1;
 
             var pair = tu.insertText(node, 0, "test");
 
