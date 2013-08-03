@@ -250,8 +250,8 @@ describe("TreeUpdater", function () {
 
     describe("deleteText", function () {
         it("fails on non-text node", function () {
-            var node = $root.find(".title").get(0);
-            assert.Throw(tu.deleteText.bind(tu, node, 0, 0),
+            var node = $root.find(".title");
+            assert.Throw(tu.deleteText.bind(tu, node, 0, "t"),
                          Error, "deleteText called on non-text");
         });
 
@@ -259,12 +259,11 @@ describe("TreeUpdater", function () {
            function () {
             var node = $root.find(".title").get(0).childNodes[0];
             var listener = new Listener(tu);
-            tu.addEventListener("deleteText", function (ev) {
+            tu.addEventListener("setTextNodeValue", function (ev) {
                 assert.equal(ev.node, node);
-                assert.equal(ev.index, 2);
-                assert.equal(ev.length, 2);
+                assert.equal(ev.value, "ab");
             });
-            listener.expected.deleteText = 1;
+            listener.expected.setTextNodeValue = 1;
 
             tu.deleteText(node, 2, 2);
 
@@ -277,13 +276,11 @@ describe("TreeUpdater", function () {
            "node", function () {
             var node = $root.find(".title").get(0).childNodes[0];
             var listener = new Listener(tu);
-            tu.addEventListener("deleteText", function (ev) {
+            tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
-                assert.equal(ev.index, 0);
-                assert.equal(ev.length, 4);
             });
 
-            listener.expected.deleteText = 1;
+            listener.expected.deleteNode = 1;
 
             tu.deleteText(node, 0, 4);
             // Check that we're doing what we think we're doing.
@@ -718,29 +715,21 @@ describe("TreeUpdater", function () {
             });
             listener.expected.deleteNode = calls.length;
 
-            var expected_length = start[0].nodeValue.length - start[1];
-            var first = true;
-            tu.addEventListener("deleteText", function (ev) {
-                if (first) {
-                    assert.equal(ev.node, start[0], "deleteText node");
-                    assert.equal(ev.index, start[1], "deleteText index");
-                    assert.equal(ev.length, expected_length,
-                                 "deleteText length");
-                    first = false;
-                }
-                else {
-                    assert.equal(ev.node, end[0], "deleteText node");
-                    assert.equal(ev.index, 0, "deleteText index");
-                    assert.equal(ev.length, end[1], "deleteText length");
-                }
-            });
-            listener.expected.deleteText = 2;
-
+            var stnv_calls = [
+                [start[0], "befo"],
+                [end[0], "ter"],
+                [start[0], "befoter"]
+            ];
+            var stnv_calls_ix = 0;
             tu.addEventListener("setTextNodeValue", function (ev) {
-                assert.equal(ev.node, start[0], "setTextNodeValue node");
-                assert.equal(ev.value, "befoter", "setTextNodeValue value");
+                var call = stnv_calls[stnv_calls_ix];
+                assert.equal(ev.node, call[0],
+                             "setTextNodeValue node, call " + stnv_calls_ix);
+                assert.equal(ev.value, call[1],
+                             "setTextNodeValue value, call " + stnv_calls_ix);
+                stnv_calls_ix++;
             });
-            listener.expected.setTextNodeValue = 1;
+            listener.expected.setTextNodeValue = 3;
 
             var ret = tu.cut(start, end);
 
