@@ -309,14 +309,28 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when inserting a new element",
            function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var parent = $root.find(".title").get(0);
+            var node = parent.childNodes[0];
             var $el = $("<span>");
-                var parent = node.parentNode;
             var listener = new Listener(tu);
-            tu.addEventListener("refresh", function (ev) {
-                assert.equal(ev.node, parent);
+            tu.addEventListener("deleteNode", function (ev) {
+                assert.equal(ev.node, node);
             });
-            listener.expected.refresh = 1;
+            listener.expected.deleteNode = 1;
+            var ina_calls = [
+                [parent, 0],
+                [parent, 1],
+                [parent, 2]
+            ];
+            var ina_call_ix = 0;
+            tu.addEventListener("insertNodeAt", function (ev) {
+                var call = ina_calls[ina_call_ix++];
+                assert.equal(ev.parent, call[0]);
+                assert.equal(ev.index, call[1]);
+                // We don't check ev.node here.
+            });
+            listener.expected.insertNodeAt = 3;
+
 
             var pair = tu.insertIntoText(node, 2, $el.get(0));
 
@@ -339,15 +353,27 @@ describe("TreeUpdater", function () {
             var $el = $("<span>");
 
             var listener = new Listener(tu);
-            tu.addEventListener("refresh", function (ev) {
-                assert.equal(ev.node, parent);
+            tu.addEventListener("deleteNode", function (ev) {
+                assert.equal(ev.node, node);
             });
-            listener.expected.refresh = 1;
+            listener.expected.deleteNode = 1;
+            var ina_calls = [
+                [parent, 0],
+                [parent, 1]
+            ];
+            var ina_call_ix = 0;
+            tu.addEventListener("insertNodeAt", function (ev) {
+                var call = ina_calls[ina_call_ix++];
+                assert.equal(ev.parent, call[0]);
+                assert.equal(ev.index, call[1]);
+                // We don't check ev.node here.
+            });
+            listener.expected.insertNodeAt = 2;
 
             var pair = tu.insertIntoText(node, -1, $el.get(0));
 
             // Check that we're doing what we think we're doing.
-            assert.equal(pair[0][0], node.parentNode);
+            assert.equal(pair[0][0], parent);
             assert.equal(pair[0][1], 0);
             assert.equal(pair[1][0].nodeValue, "abcd");
             assert.equal(pair[1][0].previousSibling, $el.get(0));
@@ -363,10 +389,22 @@ describe("TreeUpdater", function () {
             var $el = $("<span>");
 
             var listener = new Listener(tu);
-            tu.addEventListener("refresh", function (ev) {
-                assert.equal(ev.node, parent);
+            tu.addEventListener("deleteNode", function (ev) {
+                assert.equal(ev.node, node);
             });
-            listener.expected.refresh = 1;
+            listener.expected.deleteNode = 1;
+            var ina_calls = [
+                [parent, 0],
+                [parent, 1]
+            ];
+            var ina_call_ix = 0;
+            tu.addEventListener("insertNodeAt", function (ev) {
+                var call = ina_calls[ina_call_ix++];
+                assert.equal(ev.parent, call[0]);
+                assert.equal(ev.index, call[1]);
+                // We don't check ev.node here.
+            });
+            listener.expected.insertNodeAt = 2;
 
             var pair = tu.insertIntoText(node, node.nodeValue.length,
                                          $el.get(0));
@@ -374,7 +412,7 @@ describe("TreeUpdater", function () {
                 // Check that we're doing what we think we're doing.
             assert.equal(pair[0][0].nodeValue, "abcd");
             assert.equal(pair[0][0].nextSibling, $el.get(0));
-            assert.equal(pair[1][0], node.parentNode);
+            assert.equal(pair[1][0], parent);
             assert.equal(pair[1][1], 2);
             assert.equal($root.find(".title").get(0).childNodes.length, 2);
             listener.check();
