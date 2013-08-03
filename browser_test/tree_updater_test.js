@@ -56,6 +56,16 @@ describe("TreeUpdater", function () {
         }
     };
 
+    describe("insertNodeAt", function () {
+        it("fails on fragments", function () {
+            var top = $root.find(".p").get(0);
+            var node = document.createDocumentFragment();
+            assert.Throw(
+                tu.insertNodeAt.bind(tu, top, 0, node),
+                Error, "document fragments cannot be passed to insertNodeAt");
+        });
+    });
+
     describe("splitAt", function () {
         it("fails on node which is not child of the top", function () {
             var top = $root.find(".p").get(0);
