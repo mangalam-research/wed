@@ -769,16 +769,14 @@ function (mocha, chai, $, domutil) {
                 var node = $root.find(".title").get(0).childNodes[0];
                 assert.equal(
                     domutil.nodeToPath(root, node),
-                    ".TEI._real[0]/.teiHeader._real[0]/.fileDesc._real[0]/" +
-                        ".titleStmt._real[0]/.title._real[0]/##text[0]");
+                    "0/0/0/0/0/0");
             });
 
             it("returns a correct path on later text node", function () {
                 var node = $root.find(".body>.p").last().get(0).childNodes[2];
                 assert.equal(
                     domutil.nodeToPath(root, node),
-                    ".TEI._real[0]/.text._real[0]/.body._real[0]/" +
-                        ".p._real[1]/##text[1]");
+                    "0/1/0/1/2");
             });
 
             it("returns a correct path on phantom_wrap nodes", function () {
@@ -787,8 +785,7 @@ function (mocha, chai, $, domutil) {
                 var node = $root.find(".p").last().get(0);
                 assert.equal(
                     domutil.nodeToPath(root, node),
-                    ".TEI._real[0]/.text._real[0]/.body._real[0]/" +
-                        "._phantom_wrap[1]/.p._real[0]");
+                    "0/1/0/1/0");
             });
 
 
@@ -855,9 +852,7 @@ function (mocha, chai, $, domutil) {
                 assert.equal(
                     domutil.pathToNode(
                         root,
-                        "._real.TEI[0]/._real.teiHeader[0]/"+
-                            "._real.fileDesc[0]/" +
-                            "._real.titleStmt[0]/._real.title[0]/##text[0]"),
+                        "0/0/0/0/0/0"),
                     node);
             });
 
@@ -866,8 +861,7 @@ function (mocha, chai, $, domutil) {
                 assert.equal(
                     domutil.pathToNode(
                         root,
-                        "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
-                            "._real.p[1]/##text[1]"),
+                        "0/1/0/1/2"),
                     node);
             });
 
@@ -878,8 +872,7 @@ function (mocha, chai, $, domutil) {
                    assert.equal(
                        domutil.pathToNode(
                            root,
-                           "._real.TEI[0]/._real.text[0]/._real.body[0]/" +
-                               "._phantom_wrap[1]/._real.p[0]"),
+                           "0/1/0/1/0"),
                        node);
                });
         });
