@@ -17,7 +17,7 @@
     } ],
     "dependencies": {
         "amd-loader": "~0.0.4",
-        "salve": "~0.12.1"
+        "salve": "~0.13.0"
     },
     "devDependencies": {
         "less": "1.4.x",

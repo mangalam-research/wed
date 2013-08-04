@@ -1,3 +1,75 @@
+Internals
+=========
+
+JavaScript Event Handling
+-------------------------
+
+Modes are free to bind whatever handlers they want to those GUI
+elements they themselves are responsible for creating, managing and
+destroying. However, modes **must not** bind their own event handlers
+for the standard JavaScript type of events onto any GUI element that
+wed is responsible for managing. They must use the appropriate custom
+wed events. This ensures proper ordering of processing. Here is the
+list of JavaScript events for which custom events have been defined,
+the order in which the custom events are listed is the one in which
+they are processed.
+
+* keydown:
+ + wed-input-trigger-keydown
+ + wed-global-keydown
+
+* keypress:
+ + wed-input-trigger-keypress
+ + wed-global-keypress
+
+* paste:
+ + wed-post-paste
+
+Those handlers that are bound to these custom events should have the
+signature::
+
+    handler(wed_event, javascript_event, jQthis)
+
+Where ``wed_event`` is the jQuery ``Event`` object created for
+dispatching custom events, ``javascript_event`` is the original
+JavaScript event that caused the custom event to be triggered,
+``jQthis`` is the original value of the ``this`` as set by
+jQuery. (jQuery sets ``this`` to the element which received the event,
+but it is quite frequent in wed that we want to bind ``this`` to the
+object to which the event handler belongs. ``util.eventHandler`` is
+used to preserve this value and pass it as a parameter.)
+
+.. warning:: Returning ``false`` from handlers bound to custom events
+             won't stop the propagation of the original JavaScript
+             event. Handlers for custom events that wish to stop
+             propagation of the JavaScript event **must** call the
+             appropriate method on the ``javascript_event``
+             object. They must additionally return ``false`` or call
+             the appropriate methods on the ``wed_event`` object.
+
+* wed-input-trigger-* events are meant to be handled by
+  ``InputTrigger`` objects.
+
+* wed-global-* events are meant to be handled by the default event
+  handlers for wed, or those event handlers meaning to alter default
+  processing.
+
+* The paste event has no wed-global-* event associated with it.
+
+GUI Tree and Data Tree
+----------------------
+
+Wed maintains two trees of DOM nodes:
+
+* A data tree which is not attached to the browser's document. It is a mere representation in DOM format of the data tree being edited.
+
+* A GUI tree which is derived from the data tree. This GUI tree is
+  attached to the browser's document. It receives events.
+
+The ``copy_domlistener`` is responsible for inserting and deleting the
+nodes of the GUI tree that corresponds to those of the data tree
+whenever the latter is modified.
+
 Conversion for Editing
 ======================
 
@@ -115,7 +187,7 @@ Tests performed with Chrome's memory profiler by doing:
 1. One load.
 2. Issuing a memory profile.
 3. Reload.
-4. Issuing a memory profile. 
+4. Issuing a memory profile.
 
 Show that the whole Walker tree created before the first profile is
 created still exists at the time of the second profile. Upon reload,
@@ -124,3 +196,7 @@ deletes the data structure of the document being edited. I do not know
 of a good explanation for the leak.
 
 
+
+..  LocalWords:  contenteditable MutationObserver MutationObservers
+..  LocalWords:  keydown keypress javascript jQthis jQuery util
+..  LocalWords:  eventHandler InputTrigger

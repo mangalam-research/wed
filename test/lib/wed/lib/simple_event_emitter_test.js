@@ -105,6 +105,45 @@ describe("SimpleEventEmitter", function () {
                emitter._emit("event", null);
                assert.deepEqual(calls, ["event", "event"]);
         });
+
+        it("processes generic listeners first",
+           function () {
+            // The generic_listener will execute but not the regular
+            // listener.
+            var executed = [];
+            function generic_listener(name, ev) {
+                executed.push(name);
+                return false;
+            }
+            var listener_executed = false;
+            function listener(ev) {
+                listener_executed = true;
+            }
+            var event_name = "a";
+            emitter.addEventListener(event_name, listener);
+            emitter.addEventListener("*", generic_listener);
+            emitter._emit(event_name, null);
+            assert.isFalse(listener_executed);
+            assert.equal(executed[0], event_name);
+        });
+
+        it("calls generic listeners",
+           function () {
+            var expect = [
+                ["a", null],
+                ["b", 1]
+            ];
+            var expect_ix = 0;
+            function listener(name, ev) {
+                var expected = expect[expect_ix++];
+                assert.equal(name, expected[0]);
+                assert.equal(ev, expected[1]);
+            }
+            emitter.addEventListener("*", listener);
+            emitter._emit("a", null);
+            emitter._emit("b", 1);
+        });
+
     });
 
     describe("removeEventListener", function () {

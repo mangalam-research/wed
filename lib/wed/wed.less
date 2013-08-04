@@ -11,17 +11,16 @@ body {
     line-height: 1.2em;
 }
 
+#menu-layer {
+    z-index: 1;
+    >* {
+        position: absolute;
+    }
+}
+
 div.wed-document {
     border-style: solid;
     border-width: 1px;
-
-    #menu-layer {
-        z-index: 1;
-
-        >* {
-            position: fixed;
-        }
-    }
 
     div {
         word-wrap: normal;
@@ -118,17 +117,28 @@ div.wed-document {
 
 .label {
     text-indent: 0em;
+    /* This restores the bootstrap 2 style. */
+    font-size: 12px;
+    font-weight: bold;
 }
 
-.modal-body {
-    /* This is to ensure that the typeaheads that are in modals
-       show up above the modal. */
-    /* See https://github.com/twitter/bootstrap/issues/6344 */
-    overflow: visible;
+.label-info {
+    /* This restores the bootstrap 2 style. */
+    background-color: #3a87ad;
+}
 
-    /* To prevent labels from overflowing out of the modal */
-    .btn-group {
-        white-space: normal;
+.dropdown-menu>li>a {
+    /* This restores the bootstrap 2 style. */
+    line-height: 1;
+}
+
+.modal {
+    position: absolute;
+
+    .modal-body {
+        /* See https://github.com/twitter/bootstrap/issues/6344 if there are
+issues with typeaheads */
+        overflow-y: auto;
     }
 }
 
@@ -142,9 +152,9 @@ div.wed-document {
 
 .progress {
     margin-bottom: inherit;
+    height: 28px;
 
     /* The next stylings are to allow text over progress bars */
-    position: relative;
 
     span {
         position: absolute;

@@ -113,7 +113,7 @@ describe("UndoList", function () {
             ul.startGroup(new MyGroup("group2"));
             ul.endGroup();
             ul.endGroup();
-            assert.equal(ul._list[0].toString(), "group1");
+            assert.equal(ul._list[0]._desc, "group1");
             assert.equal(ul._list.length, 1);
         });
 
@@ -143,7 +143,7 @@ describe("UndoList", function () {
         it("ends all groups", function () {
             ul.startGroup(new MyGroup("group1"));
             ul.startGroup(new MyGroup("group2"));
-            assert.equal(ul.getGroup().toString(), "group2");
+            assert.equal(ul.getGroup()._desc, "group2");
             ul.endAllGroups();
             assert.isUndefined(ul.getGroup());
         });
