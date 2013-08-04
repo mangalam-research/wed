@@ -3,6 +3,31 @@ Release History
 
 This section covers only salient changes:
 
+* 0.6:
+  - Internal: wed no longer works with Twitter Bootstrap version 2 and
+    now requires version 3 RC1 or later. This version of Bootstrap
+    fixes some problems that recently turned out to present
+    significant hurdles in wed's development. Unfortunately, version
+    3's API is **very** different from version 2's so it is not
+    possible to trivially support both versions.
+
+  - GUI: Wed no longer makes use of any glyphicons' facilities. Upon
+    reviewing the glyphicons license, I noticed a requirement that all
+    pages which use glyphicons contain some advertisement for
+    glyphicons. I'm not going to require that those who use wed
+    **pollute their web pages** with such advertisement.
+
+  - GUI: Wed now uses Font Awesome.
+
+  - API: ``Mode.getTransformationRegistry()`` is gone. Wed now
+    gets a mode's actions by calling
+    ``getContextualActions(...)``.
+
+  - API: ``fireTransformation`` no longer accepts a
+    new_caret_position.
+
+  - API: transformations are now a special case of actions.
+
 * 0.5 introduces major changes: 
 
   - GUI: previous versions of wed had included some placeholders
@@ -59,6 +84,48 @@ Current known limitations:
   Bootstrap does nothing to deal with. (One element may be in the
   focused state (keyboard) while another is in the hover state.)
 
+* See also `Browser Requirements`_.
+
+Known bugs:
+
+* Firefox: Sometimes a caret moved to the end of a bit of text
+  disappears. There does not seem to be any rhyme or reason for it. It
+  is probably a Firefox bug. At any rate, wed does not currently
+  compensate for it. So you may see your caret disappear, but it is
+  still there, waiting for you to type text.
+
+Browser Requirements
+====================
+
+While potential users of wed should definitely heed the warnings
+below, plans are afoot to use Sauce Labs' `Open Sauce
+<https://saucelabs.com/opensauce>`_ to improve support for platforms
+other than PC-based Chrome and Firefox. Stay tuned.
+
+Wed is primarily developed using a recent version of Chrome
+(version 28) and a recent version of Firefox (version 22) for
+testing. Ideally wed should work with recent versions of other
+browsers but since it is not routinely tested with those browsers
+there may be bugs specific to running wed in those browsers. File an
+issue in github if you find a problem with IE 9 or higher or a
+relatively recent other kind of desktop browser or (obviously) with
+the browsers used for testing wed. In order of decreasing likelihood,
+support for the following cases is unlikely to ever materialize due to
+a lack of development resources:
+
+* Browsers for phones and tablets.
+* Versions of Chrome and Firefox older than those mentioned above.
+* Antique browsers.
+* Oddball browsers or other software or hardware systems that present
+  web pages.
+
+Wed does not require any specific OS facilities. However, keyboard
+support on Macs in JavaScript has some peculiarities. Unfortunately,
+since this project has not so far benefited from access to a Mac for
+testing, users of Mac-based browsers may experience issues that do not
+exist on other platforms. File an issue in github if you find a
+problem with a relatively recent Mac-based browser.
+
 Dependencies
 ============
 
@@ -71,7 +138,7 @@ suite, is located in `<config/requirejs-config-dev.js>`_
 In all cases Wed requires the following packages:
 
 * jquery
-* bootstrap
+* bootstrap version 3-RC1 or a later version in the version 3 series.
 * `salve <https://github.com/mangalam-research/salve/>`_
 * rangy
 
@@ -132,14 +199,14 @@ experiencing heavy load or if the OS has to swap a lot of memory from
 the hard disk, they may fail some or all tests. I've witnessed this
 happen, for instance, due to RequireJS timing out on a ``require()``
 call because the OS was busy loading things into memory from
-swap. I've also seen individual test cases fail for similar
-reasons. The solution is to run the test suites again.
+swap. The solution is to run the test suites again.
 
 Tests are of two types:
 
-* Runnable outside a browser. We run these inside Node.js.
+* Not browser-dependent and therefore runnable outside a browser. We
+  run these in Node.js.
 
-* Runnable inside a browser.
+* Browser-dependent and therefore requiring a browser.
 
 To run the tests that are not browser-dependent do::
 
@@ -177,13 +244,23 @@ If you change wed's code and want to run the browser-dependent test
 suite again, make sure to run ``make test`` before you run the suite
 again because otherwise the suite will run against the old code.
 
+.. warning:: Some of the browser-dependent tests may fail on browsers
+             other than Chrome. Eventually, wed will work the same on
+             all browsers but at the moment development efforts are
+             spent elsewhere than hunting down differences in browser
+             behavior. For instance, as of 2013/07/19 some of the
+             caret movement tests fail on Firefox. This does not
+             prevent using wed on Firefox.
+
+.. warning:: As part of normal development, wed is tested on Chrome
+             first, Firefox second, but no other browsers.
+
 Demo
 ====
 
-The demo is located in `<web/kitchen-sink.html>`_. (Yes, this name is
-inspired from Ace.) To run it, you must have a minimal server running
-just like the one needed to run the browser-dependent test suit and
-then point your browser to
+The demo is located in `<web/kitchen-sink.html>`_. To run it, you must
+have a minimal server running just like the one needed to run the
+browser-dependent test suit and then point your browser to
 `<http://localhost:8888/web/kitchen-sink.html>`_ if you use the
 suggested servers or to whatever address is proper if you roll a
 server using a different port or address. The demo currently starts
@@ -205,9 +282,9 @@ Using
 Wed expects the XML files it uses to have been converted from XML to
 an ad-hoc HTML version. So the data passed to it must have been
 converted by `<lib/wed/xml-to-html.xsl>`_ Various schemas and projects
-will have different needs regarding whitespace handling, so it is
+will have different needs regarding white space handling, so it is
 likely you'll want to create your own ``xml-to-html.xsl`` file will
-import `<lib/wed/xml-to-html.xsl>`_ but customize whitespace handling.
+import `<lib/wed/xml-to-html.xsl>`_ but customize white space handling.
 
 To include wed in a web page you must:
 
@@ -310,4 +387,7 @@ Humanities.
    :target: http://www.neh.gov/
 
 ..  LocalWords:  API html xml xsl wed's config jquery js chai semver
-..  LocalWords:  json minified localhost
+..  LocalWords:  json minified localhost CSS init pre Makefile saxon
+..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD glyphicon
+..  LocalWords:  getTransformationRegistry getContextualActions
+..  LocalWords:  fireTransformation

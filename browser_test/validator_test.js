@@ -1,8 +1,5 @@
-define(["mocha/mocha", "chai", "jquery", "wed/validator",
-        "wed/util", "salve/validate", "wed/domlistener",
-        "wed/modes/generic/generic", "wed/transformation"],
-function (mocha, chai, $, validator, util, validate,
-          domlistener, generic, transformation) {
+define(["mocha/mocha", "chai", "jquery", "wed/validator", "salve/validate"],
+function (mocha, chai, $, validator, validate) {
     // The test subirectory is one of the paths required to be in the config
     var schema = 'test/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'
@@ -74,41 +71,40 @@ function (mocha, chai, $, validator, util, validate,
                     function(data) {
                         $data.html(data);
                         p._max_timespan = 0;
-                        p._max_cycles = 1;
                         p.initialize(function () {
-                            p._work(); // <html>
+                            p._cycle(); // <html>
                             assert.equal(p._part_done, 0);
-                            p._work(); // <head>
+                            p._cycle(); // <head>
                             assert.equal(p._part_done, 0);
-                            p._work(); // <title>
+                            p._cycle(); // <title>
                             assert.equal(p._part_done, 0);
-                            p._work(); // <title>
+                            p._cycle(); // <title>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // </head>
+                            p._cycle(); // </head>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // <body>
+                            p._cycle(); // <body>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.5);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 0.75);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.75);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.75);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 0.875);
-                            p._work(); // <em>
+                            p._cycle(); // <em>
                             assert.equal(p._part_done, 0.875);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 1);
-                            p._work(); // </em>
+                            p._cycle(); // </em>
                             assert.equal(p._part_done, 1);
-                            p._work(); // </body>
+                            p._cycle(); // </body>
                             assert.equal(p._part_done, 1);
-                            p._work(); // </html>
+                            p._cycle(); // </html>
                             assert.equal(p._part_done, 1);
-                            p._work(); // end
+                            p._cycle(); // end
                             assert.equal(p._part_done, 1);
                             assert.equal(p._working_state,
                                          validator.VALID);
@@ -174,6 +170,8 @@ function (mocha, chai, $, validator, util, validate,
             });
         });
 
+        // Testing possibleAt also tests _validateUpTo because it
+        // depends on that function.
         describe("possibleAt", function () {
             var p;
             beforeEach(function () {
@@ -189,23 +187,12 @@ function (mocha, chai, $, validator, util, validate,
             });
 
             function makeTest(name, stop_fn, no_load) {
-                it(name, function (done) {
-                    // Manipulate stop so that we know when the
-                    // work is done.
-                    var old_stop = p.stop;
-                    p.stop = function () {
-                        stop_fn();
-                        done();
-                    };
-
+                it(name, function () {
                     if (!no_load)
                         require(["requirejs/text!" + to_parse],
                                 function(data) {
                                     $data.html(data);
-                                    p.start();
                                 });
-                    else
-                        p.start();
                 });
             }
 
@@ -300,6 +287,104 @@ function (mocha, chai, $, validator, util, validate,
                 assert.sameMembers(
                     evs.toArray(),
                     [new validate.Event("enterStartTag", "", "body")]);
+            });
+        });
+
+        describe("speculativelyValidate", function () {
+            beforeEach(function (done) {
+                require(["requirejs/text!" + to_parse], function(data) {
+                    $data.html(data);
+                    done();
+                });
+            });
+
+            it("does not report errors on valid fragments", function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var ret = p.speculativelyValidate(container, index,
+                                                      body);
+                    assert.isFalse(ret);
+                    done();
+                });
+            });
+
+            it("reports errors on invalid fragments", function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var em = $data.find(".em").first();
+                    var ret = p.speculativelyValidate(container, index,
+                                                      em);
+                    assert.equal(ret.length, 1);
+                    assert.equal(ret[0].toString(),
+                                 "tag not allowed here: {}em");
+                    done();
+                });
+            });
+
+            it("on valid data, does not disturb its validator",
+               function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var ret = p.speculativelyValidate(container, index,
+                                                      body);
+                    assert.isFalse(ret);
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after speculativelyValidate");
+
+                    p._resetTo(container);
+                    p._validateUpTo(container, -1);
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after subsequent validation");
+                    done();
+                });
+            });
+
+            it("on invalid data, does not disturb its validator",
+               function (done) {
+                var body = $data.find(".body").get(0);
+                var container = body.parentNode;
+                var index = Array.prototype.indexOf.call(container.childNodes,
+                                                         body);
+                p.initialize(function () {
+                    var em = $data.find(".em").first();
+                    var ret = p.speculativelyValidate(container, index,
+                                                      em);
+                    assert.equal(ret.length, 1, "the fragment is invalid");
+                    // No errors after.
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after speculativelyValidate");
+
+                    p._resetTo(container);
+                    p._validateUpTo(container, -1);
+                    // Does not cause subsequent errors when the
+                    // validator validates.
+                    assert.equal(p._errors.length, 0,
+                                 "no errors after subsequent validation");
+                    done();
+                });
+            });
+
+            // An early bug would cause this case to get into an
+            // infinite loop.
+            it("works fine if the data to validate is only text",
+               function (done) {
+                var container = $data.find(".em").get(0);
+                p.initialize(function () {
+                    var to_parse = document.createTextNode("data");
+                    var ret = p.speculativelyValidate(container, 0,
+                                                      to_parse);
+                    assert.isFalse(ret, "fragment is valid");
+                    done();
+                });
             });
         });
     });

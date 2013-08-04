@@ -1,5 +1,5 @@
-define(["mocha/mocha", "chai", "jquery", "wed/wed", "rangy"],
-function (mocha, chai, $, wed, rangy) {
+define(["mocha/mocha", "chai", "jquery", "wed/wed", "wed/domutil", "rangy"],
+function (mocha, chai, $, wed, domutil, rangy) {
     var options = {
         schema: 'test/tei-simplified-rng.js',
         mode: {
@@ -25,6 +25,13 @@ function (mocha, chai, $, wed, rangy) {
         assert.equal(editor._raw_caret[0], container, msg + " (container)");
         assert.equal(editor._raw_caret[1], offset, msg + " (offset)");
     }
+
+    function dataCaretCheck(editor, container, offset, msg) {
+        var data_caret = editor.getDataCaret();
+        assert.equal(data_caret[0], container, msg + " (container)");
+        assert.equal(data_caret[1], offset, msg + " (offset)");
+    }
+
 
     function firstGUI($container) {
         return $container.children("._gui").get(0);
@@ -72,35 +79,51 @@ function (mocha, chai, $, wed, rangy) {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                    // Text node inside title.
-                    var initial = $(editor.root).find(".title").
-                            get(0).childNodes[1];
-                        editor.setCaret(initial,
-                                        initial.nodeValue.length);
-                    editor.moveCaretRight();
-                    // It is now inside the final gui element.
-                    caretCheck(editor, lastGUI($(initial.parentNode)),
-                               0, "initial caret position");
-                    // Fake caret must exist
-                    assert.equal(editor._$fake_caret.parent().length, 1);
+                // Text node inside title.
+                var initial = $(editor.gui_root).find(".title").
+                    get(0).childNodes[1];
+                editor.setCaret(initial,
+                                initial.nodeValue.length);
+                editor.moveCaretRight();
+                // It is now inside the final gui element.
+                caretCheck(editor, lastGUI($(initial.parentNode)),
+                           0, "initial caret position");
 
-                    caretCheck(editor, lastGUI($(initial.parentNode)),
-                               0, "initial caret position");
+                // We used to check for the existence of a fake
+                // caret. However, not all browsers require the
+                // fake caret to exist in this context. (Chrome
+                // does, Firefox does not. Subject to change with
+                // new versions.) There's no point in check
+                // it. However, the fake caret should definitely
+                // be off by the time we finish the test.
+                //
+                // Fake caret must exist
+                // assert.equal(editor._$fake_caret.parent().length,
+                // 1, "fake caret existence");
 
-                    // We have to set the selection manually and
-                    // generate a click event because just generating
-                    // the event won't move the caret.
-                    var r = rangy.createRange();
-                    r.setStart(initial, 0);
-                    rangy.getSelection(editor.my_window).setSingleRange(r);
-                    var ev = $.Event("mouseup", { target: initial });
-                    $(initial.parentNode).trigger(ev);
+                // We have to set the selection manually and
+                // generate a click event because just generating
+                // the event won't move the caret.
+                var r = rangy.createRange();
+                r.setStart(initial, 0);
+                rangy.getSelection(editor.my_window).setSingleRange(r);
+                var ev = $.Event("mouseup", { target: initial });
+                $(initial.parentNode).trigger(ev);
+
+                // We need to do this because setting the caret
+                // through a click is not instantaneous. wed
+                // internally sets a timeout of 0 length to deal with
+                // browser incompatibilities. We need to do the same
+                // so that wed's timeout runs before we query the
+                // value.
+                editor.my_window.setTimeout(function () {
                     // In text, no fake caret
                     assert.equal(editor._$fake_caret.parent().length, 0);
                     caretCheck(editor, initial, 0, "final caret position");
 
                     done();
-                });
+                }, 1);
+            });
         });
 
         describe("moveCaretRight", function () {
@@ -115,7 +138,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = editor.root.childNodes[0];
+                           var initial = editor.gui_root.childNodes[0];
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
                            editor.moveCaretRight();
@@ -140,7 +163,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = $(editor.root).find(".title").
+                           var initial = $(editor.gui_root).find(".title").
                                    first().get(0);
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
@@ -176,7 +199,7 @@ function (mocha, chai, $, wed, rangy) {
                 editor.whenCondition(
                     "first-validation-complete",
                     function () {
-                        var term = $(editor.root).find(".body>.p>.term").
+                        var term = $(editor.gui_root).find(".body>.p>.term").
                                 first().get(0);
                         var initial = term.previousSibling;
                         // Make sure we are on the right element.
@@ -192,7 +215,7 @@ function (mocha, chai, $, wed, rangy) {
                                    "moved once");
 
                         // It will skip position 0 because a caret at
-                        // (initial, initial.nodeValue.length is at
+                        // (initial, initial.nodeValue.length) is at
                         // the same place as a caret at
                         // (term.childNodes[0], 0).
                         editor.moveCaretRight();
@@ -208,7 +231,7 @@ function (mocha, chai, $, wed, rangy) {
                        "first-validation-complete",
                        function () {
                            // Text node inside title.
-                           var initial = $(editor.root).find(".title").
+                           var initial = $(editor.gui_root).find(".title").
                                    get(0).childNodes[1];
                            editor.setCaret(initial,
                                            initial.nodeValue.length);
@@ -221,7 +244,7 @@ function (mocha, chai, $, wed, rangy) {
                            editor.moveCaretRight();
                            // It is now in the gui element at end of
                            // the title's parent.
-                           var container = lastGUI($(editor.root).find(".title").
+                           var container = lastGUI($(editor.gui_root).find(".title").
                                                parent());
                            caretCheck(editor, container, 0, "moved twice");
 
@@ -235,7 +258,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = lastGUI($(editor.root).
+                           var initial = lastGUI($(editor.gui_root).
                                                  children(".TEI"));
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
@@ -260,7 +283,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = editor.root.childNodes[0];
+                           var initial = editor.gui_root.childNodes[0];
                            var offset = initial.childNodes.length;
                            editor.setCaret(initial, offset);
                            caretCheck(editor, initial, offset, "initial");
@@ -286,7 +309,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = lastGUI($(editor.root).find(".title").
+                           var initial = lastGUI($(editor.gui_root).find(".title").
                                                  first());
                            editor.setCaret(initial, 1);
                            caretCheck(editor, initial, 1, "initial");
@@ -306,7 +329,7 @@ function (mocha, chai, $, wed, rangy) {
                            caretCheck(editor, text_node, 0, "moved 5 times");
                            editor.moveCaretLeft();
                            // It is now inside the first gui element.
-                           caretCheck(editor, firstGUI($(editor.root).
+                           caretCheck(editor, firstGUI($(editor.gui_root).
                                                        find(".title").first()),
                                       0, "moved 6 times");
 
@@ -320,14 +343,14 @@ function (mocha, chai, $, wed, rangy) {
                        "first-validation-complete",
                        function () {
                            var initial =
-                                   firstGUI($(editor.root).find(".title"));
+                                   firstGUI($(editor.gui_root).find(".title"));
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
                            editor.moveCaretLeft();
                            // It is now in the gui element at end of
                            // the title's parent.
                            var container =
-                                   firstGUI($(editor.root).find(".title").
+                                   firstGUI($(editor.gui_root).find(".title").
                                             parent());
                            caretCheck(editor, container, 0, "moved twice");
 
@@ -340,7 +363,7 @@ function (mocha, chai, $, wed, rangy) {
                 editor.whenCondition(
                     "first-validation-complete",
                     function () {
-                        var term = $(editor.root).find(".body>.p>.term").
+                        var term = $(editor.gui_root).find(".body>.p>.term").
                                 first().get(0);
                         var initial = term.nextSibling;
                         // Make sure we are on the right element.
@@ -363,7 +386,7 @@ function (mocha, chai, $, wed, rangy) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = firstGUI($(editor.root).
+                           var initial = firstGUI($(editor.gui_root).
                                                   children(".TEI"));
                            editor.setCaret(initial, 0);
                            caretCheck(editor, initial, 0, "initial");
@@ -376,6 +399,170 @@ function (mocha, chai, $, wed, rangy) {
                });
 
         });
+
+        it("handles pasting simple text", function () {
+            var initial = editor.$data_root.find(".body>.p").get(0).
+                childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.nodeValue;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "abcdef";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            assert.equal(initial.nodeValue, "abcdef" + initial_value);
+            var final_caret = editor.getDataCaret();
+            dataCaretCheck(editor, initial, 6, "final position");
+        });
+
+        it("handles pasting structured text", function () {
+            var $p = editor.$data_root.find(".body>.p").first();
+            var initial = $p.get(0).childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = $p.get(0).innerHTML;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/html", "text/plain"],
+                    getData: function (type) {
+                        return $p.get(0).innerHTML;
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            assert.equal($p.get(0).innerHTML, initial_value + initial_value);
+            dataCaretCheck(editor, $p.get(0).childNodes[2], 6,
+                           "final position");
+        });
+
+        it("handles pasting structured text: invalid, decline pasting as text",
+           function (done) {
+            var $p = editor.$data_root.find(".body>.p").first();
+            var initial = $p.get(0).childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = $p.get(0).innerHTML;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/html", "text/plain"],
+                    getData: function (type) {
+                        return $p.get(0).outerHTML;
+                    }
+                }
+            };
+            editor._paste_modal.getTopLevel().on("hidden.bs.modal",
+                                                 function () {
+                editor._syncDisplay();
+                assert.equal($p.get(0).innerHTML, initial_value);
+                dataCaretCheck(editor, initial, 0, "final position");
+                done();
+            });
+            editor.$gui_root.trigger(event);
+            // This clicks "No".
+            editor._paste_modal._$footer.find(".btn").get(1).click();
+        });
+
+        it("handles pasting structured text: invalid, accept pasting as text",
+           function (done) {
+            var $p = editor.$data_root.find(".body>.p").first();
+            var initial = $p.get(0).childNodes[0];
+            editor.setDataCaret(initial, 0);
+            var initial_value = $p.get(0).innerHTML;
+            var initial_outer = $p.get(0).outerHTML;
+            var $x = $("<div>").append(document.createTextNode(initial_outer));
+            var initial_outer_from_text_to_html = $x.get(0).innerHTML;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/html", "text/plain"],
+                    getData: function (type) {
+                        return initial_outer;
+                    }
+                }
+            };
+            editor._paste_modal.getTopLevel().on("hidden.bs.modal",
+                                                 function () {
+                editor._syncDisplay();
+                assert.equal($p.get(0).innerHTML,
+                             initial_outer_from_text_to_html + initial_value);
+                dataCaretCheck(editor, $p.get(0).childNodes[0],
+                               initial_outer.length,
+                               "final position");
+                done();
+            });
+            editor.$gui_root.trigger(event);
+            // This clicks "Yes".
+            editor._paste_modal._$footer.find(".btn-primary").get(0).
+                click();
+        });
+
+        it("handles cutting a well formed selection", function (done) {
+            var p = editor.$data_root.find(".body>.p").get(0);
+            var gui_start = editor.fromDataCaret(p.childNodes[0], 4);
+            var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
+            editor.setCaret(gui_start);
+            var range = domutil.getSelectionRange(editor.my_window);
+            range.setEnd(gui_end[0], gui_end[1]);
+            rangy.getSelection(editor.my_window).setSingleRange(range);
+
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            window.setTimeout(function () {
+                assert.equal(p.innerHTML, "Blah.");
+                done();
+            }, 1);
+        });
+
+        it("handles cutting a bad selection", function (done) {
+            var p = editor.$data_root.find(".body>.p").get(0);
+            var original_inner_html = p.innerHTML;
+            // Start caret is inside the term element.
+            var gui_start = editor.fromDataCaret(p.childNodes[1].childNodes[0],
+                                                 1);
+            var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
+            editor.setCaret(gui_start);
+            var range = domutil.getSelectionRange(editor.my_window);
+            range.setEnd(gui_end[0], gui_end[1]);
+            rangy.getSelection(editor.my_window).setSingleRange(range);
+
+            assert.equal(p.innerHTML, original_inner_html);
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            editor.straddling_modal.getTopLevel().on("hidden.bs.modal",
+                                                 function () {
+                editor._syncDisplay();
+                assert.equal(p.innerHTML, original_inner_html);
+                caretCheck(editor, gui_start[0], gui_start[1],
+                           "final position");
+                done();
+            });
+            // This clicks dismisses the modal
+            editor.straddling_modal._$footer.find(".btn-primary").get(0).
+                click();
+        });
+
 
     });
 });
