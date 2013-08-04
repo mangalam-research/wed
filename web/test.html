@@ -15,10 +15,10 @@
         <!-- Contain the editor it its own frame so that the styles do
              not mess with those of mocha. -->
       </div>
-      <iframe id="wedframe-invisible" src="wed_test.html"></iframe>
+      <iframe id="wedframe-invisible" width="100%" src="wed_test.html"></iframe>
     </div>
     <script>
-      require(["mocha/mocha", "test/validator_test", "test/jquery.findandself_test", "test/refman_test", "test/domlistener_test", "test/domutil_test", "test/wed_test"], function (mocha, test) {
+      require(["mocha/mocha", "test/validator_test", "test/jquery.findandself_test", "test/refman_test", "test/domlistener_test", "test/domutil_test", "test/wed_test", "test/input_trigger_test", "test/input_trigger_factory_test", "test/tree_updater_test", "test/modal_test", "test/jqutil_test"], function (mocha, test) {
       mocha.run();
       });
     </script>
