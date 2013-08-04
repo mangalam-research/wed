@@ -14,8 +14,8 @@ This section covers only salient changes:
   - GUI: Wed no longer makes use of any glyphicons' facilities. Upon
     reviewing the glyphicons license, I noticed a requirement that all
     pages which use glyphicons contain some advertisement for
-    glyphicons. I'm not going to require that those who use wed pollute
-    their web pages with such advertisement.
+    glyphicons. I'm not going to require that those who use wed
+    **pollute their web pages** with such advertisement.
 
   - GUI: Wed now uses Font Awesome.
 
