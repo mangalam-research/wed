@@ -11,12 +11,32 @@ body {
     line-height: 1.2em;
 }
 
-#menu-layer {
-    z-index: 1;
+.wed-menu-layer {
+    z-index: 2;
     >* {
         position: absolute;
     }
 }
+
+.wed-caret-layer {
+    z-index: 1;
+    >* {
+        position: absolute;
+    }
+
+    ._wed_caret {
+        background-color: black;
+        white-space: pre;
+        border-style: none;
+        display: inline-block;
+        max-width: 1px;
+        min-height: 100%;
+        animation: caret 1s linear infinite;
+        -webkit-animation: caret 1s linear infinite;
+    }
+
+}
+
 
 div.wed-document {
     border-style: solid;
@@ -70,14 +90,6 @@ div.wed-document {
         }
     }
 
-    ._wed_caret {
-        white-space: pre;
-        border-style: none;
-        display: inline-block;
-        max-width: 1px;
-        min-height: 100%;
-    }
-
 }
 
 
@@ -92,6 +104,21 @@ div.wed-document {
     50% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+@keyframes caret {
+    0% { opacity: 0; }
+    49% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+@-webkit-keyframes caret {
+    0% { opacity: 0; }
+    49% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
 
 /* Bootstrap styling */
 

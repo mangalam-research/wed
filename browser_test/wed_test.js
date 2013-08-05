@@ -1,5 +1,6 @@
-define(["mocha/mocha", "chai", "jquery", "wed/wed", "wed/domutil", "rangy"],
-function (mocha, chai, $, wed, domutil, rangy) {
+define(["mocha/mocha", "chai", "jquery", "wed/wed", "wed/domutil", "rangy",
+       "wed/key_constants"],
+function (mocha, chai, $, wed, domutil, rangy, key_constants) {
     var options = {
         schema: 'test/tei-simplified-rng.js',
         mode: {
@@ -123,6 +124,50 @@ function (mocha, chai, $, wed, domutil, rangy) {
 
                     done();
                 }, 1);
+            });
+        });
+
+        it("typing text works", function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                // Text node inside title.
+                var initial = $(editor.gui_root).find(".title").
+                    get(0).childNodes[1];
+                var parent = initial.parentNode;
+                editor.setCaret(initial, 0);
+
+                // There was a version of wed which would fail this
+                // test. The fake caret would be inserted inside the
+                // text node, which would throw off the
+                // nodeToPath/pathToNode calculations.
+
+                // Synthetic event
+                var event = new $.Event("keydown");
+                key_constants.SPACE.setEventToMatch(event);
+                event.type = "keypress";
+                editor.$gui_root.trigger(event);
+                editor._syncDisplay();
+                assert.equal(initial.nodeValue, " abcd");
+                assert.equal(parent.childNodes.length, 3);
+
+                event = new $.Event("keydown");
+                key_constants.SPACE.setEventToMatch(event);
+                event.type = "keypress";
+                editor.$gui_root.trigger(event);
+                editor._syncDisplay();
+                assert.equal(initial.nodeValue, "  abcd");
+                assert.equal(parent.childNodes.length, 3);
+
+                // This is where wed used to fail.
+                event = new $.Event("keydown");
+                key_constants.SPACE.setEventToMatch(event);
+                event.type = "keypress";
+                editor.$gui_root.trigger(event);
+                editor._syncDisplay();
+                assert.equal(initial.nodeValue, "   abcd");
+                assert.equal(parent.childNodes.length, 3);
+                done();
             });
         });
 
