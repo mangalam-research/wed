@@ -54,6 +54,9 @@ REQUIREJS_BASE=$(notdir $(REQUIREJS_FILE))
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
 
+LOG4JAVASCRIPT_FILE=http://downloads.sourceforge.net/project/log4javascript/log4javascript/1.4.6/log4javascript-1.4.6.zip
+LOG4JAVASCRIPT_BASE=$(notdir $(LOG4JAVASCRIPT_FILE))
+
 LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
@@ -67,7 +70,7 @@ build-dir:
 
 build: | build-standalone
 
-build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve
+build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js
 
 ifeq ($(BOOTSTRAP),3)
 build-standalone: build/standalone/lib/font-awesome
@@ -120,6 +123,9 @@ downloads/$(REQUIREJS_BASE): | downloads
 downloads/$(TEXT_PLUGIN_BASE): | downloads
 	(cd downloads; wget $(TEXT_PLUGIN_FILE))
 
+downloads/$(LOG4JAVASCRIPT_BASE): | downloads
+	(cd downloads; wget $(LOG4JAVASCRIPT_FILE))
+
 node_modules/%:
 	npm install
 
@@ -127,9 +133,9 @@ build/standalone/lib/rangy: downloads/$(RANGY_FILE) | build/standalone
 	-mkdir -p $@
 	rm -rf $@/*
 	tar -xzf $< --strip-components=1 -C $@
-ifdef DEV
+ifneq ($(DEV),0)
 	mv $@/uncompressed/* $@
-endif # ifdef(DEV)
+endif # ifneq ($(DEV),0)
 	rm -rf $@/uncompressed
 
 build/standalone/lib/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib
@@ -171,6 +177,17 @@ build/standalone/lib/requirejs/%: downloads/% | build/standalone/lib/requirejs
 # directories so that when a new version is installed, the target is
 # rebuilt. This is necessary because npm preserves the modification
 # times of the files *inside* the packages.
+
+build/standalone/lib/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
+	-mkdir $(dir $@)
+	unzip -d $(dir $@) $< log4javascript-*/js/*.js
+ifneq ($(DEV),0)
+	mv $(dir $@)/log4javascript-*/js/log4javascript_uncompressed.js $@
+else
+	mv $(dir $@)/log4javascript-*/js/log4javascript.js $@
+endif
+	rm -rf $(dir $@)/log4javascript-*
+	touch $@
 
 build/standalone/lib/chai.js: node_modules/chai/chai.js | node_modules/chai
 	cp $< $@

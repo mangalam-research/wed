@@ -31,6 +31,9 @@ require.config({
    'mocha/mocha': {
      exports: "mocha",
      init: function () { this.mocha.setup('bdd'); return this.mocha; }
+   },
+   'log4javascript': {
+       exports: "log4javascript"
    }
  },
  config: {
@@ -41,6 +44,11 @@ require.config({
              options: {
                  meta: 'wed/modes/generic/metas/tei_meta'
              }
+         },
+         // You certainly do not want this in actual deployment.
+         ajaxlog: {
+             url: "/build/ajax/log.txt"
+         },
          }
      }
  },
