@@ -178,67 +178,75 @@ function (mocha, chai, $, wed, domutil, rangy, key_constants) {
                 assert.equal(editor.getCaret(), undefined, "no caret");
             });
 
-            it("moves right into gui elements and placeholders",
+            it("moves right into gui elements",
                function (done) {
-                   editor.whenCondition(
-                       "first-validation-complete",
-                       function () {
-                           var initial = editor.gui_root.childNodes[0];
-                           editor.setCaret(initial, 0);
-                           caretCheck(editor, initial, 0, "initial");
-                           editor.moveCaretRight();
-                           // It is now located inside the text inside
-                           // the label which marks the start of the TEI
-                           // element.
-                           caretCheck(editor, firstGUI($(initial)),
-                                      0, "moved once");
-                           editor.moveCaretRight();
-                           // It is now in the gui element of the 1st
-                           // child.
-                           caretCheck(editor,
-                                      firstGUI($(initial).find(".teiHeader").
-                                               first()),
-                                      0, "moved twice");
-                           done();
-                       });
-               });
+                editor.whenCondition(
+                    "first-validation-complete",
+                    function () {
+                    var initial = editor.gui_root.childNodes[0];
+                    editor.setCaret(initial, 0);
+                    caretCheck(editor, initial, 0, "initial");
+                    editor.moveCaretRight();
+                    var first_gui = firstGUI($(initial));
+                    // It is now located inside the text inside
+                    // the label which marks the start of the TEI
+                    // element.
+                    caretCheck(editor, first_gui, 0, "moved once");
+                    editor.moveCaretRight();
+
+                    // It is now after the gui element..
+                    caretCheck(editor, first_gui.parentNode,
+                               1, "moved thrice");
+
+                    editor.moveCaretRight();
+
+                    // It is now in the gui element of the 1st
+                    // child.
+                    caretCheck(editor,
+                               firstGUI($(initial).find(".teiHeader").
+                                        first()),
+                               0, "moved thrice");
+                    done();
+                });
+            });
 
             it("moves right into text",
                function (done) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial = $(editor.gui_root).find(".title").
-                                   first().get(0);
-                           editor.setCaret(initial, 0);
-                           caretCheck(editor, initial, 0, "initial");
-                           editor.moveCaretRight();
-                           // It is now located inside the text inside
-                           // the label which marks the start of the TEI
-                           // element.
-                           caretCheck(editor, firstGUI($(initial)),
-                                      0, "moved once");
-                           editor.moveCaretRight();
-                           // It is now inside the text
-                           var text_node = $(initial).children("._gui").
-                                   get(0).nextSibling;
-                           caretCheck(editor, text_node, 0, "moved twice");
-                           editor.moveCaretRight();
-                           // move through text
-                           caretCheck(editor, text_node, 1, "moved 3 times");
-                           editor.moveCaretRight();
-                           editor.moveCaretRight();
-                           editor.moveCaretRight();
-                           // move through text
-                           caretCheck(editor, text_node, 4, "moved 6 times");
-                           editor.moveCaretRight();
-                           // It is now inside the final gui element.
-                           caretCheck(editor, lastGUI($(initial)),
-                                      0, "moved 7 times");
+                       var initial = $(editor.gui_root).find(".title").
+                           first().get(0);
+                       editor.setCaret(initial, 0);
+                       caretCheck(editor, initial, 0, "initial");
+                       editor.moveCaretRight();
+                       // It is now located inside the text inside
+                       // the label which marks the start of the TEI
+                       // element.
+                       caretCheck(editor, firstGUI($(initial)),
+                                  0, "moved once");
+                       editor.moveCaretRight();
+                       editor.moveCaretRight();
+                       // It is now inside the text
+                       var text_node = $(initial).children("._gui").
+                           get(0).nextSibling;
+                       caretCheck(editor, text_node, 0, "moved 3 times");
+                       editor.moveCaretRight();
+                       // move through text
+                       caretCheck(editor, text_node, 1, "moved 4 times");
+                       editor.moveCaretRight();
+                       editor.moveCaretRight();
+                       editor.moveCaretRight();
+                       // move through text
+                       caretCheck(editor, text_node, 4, "moved 7 times");
+                       editor.moveCaretRight();
+                       // It is now inside the final gui element.
+                       caretCheck(editor, lastGUI($(initial)),
+                                  0, "moved 8 times");
 
-                           done();
-                       });
-               });
+                       done();
+                   });
+            });
 
             it("moves right from text to text", function (done) {
                 editor.whenCondition(
@@ -259,12 +267,8 @@ function (mocha, chai, $, wed, domutil, rangy, key_constants) {
                         caretCheck(editor, initial, initial.nodeValue.length,
                                    "moved once");
 
-                        // It will skip position 0 because a caret at
-                        // (initial, initial.nodeValue.length) is at
-                        // the same place as a caret at
-                        // (term.childNodes[0], 0).
                         editor.moveCaretRight();
-                        caretCheck(editor, term.childNodes[0], 1,
+                        caretCheck(editor, term.childNodes[0], 0,
                                    "moved twice");
                         done();
                     });
@@ -287,11 +291,14 @@ function (mocha, chai, $, wed, domutil, rangy, key_constants) {
                            caretCheck(editor, lastGUI($(initial.parentNode)),
                                       0, "moved once");
                            editor.moveCaretRight();
-                           // It is now in the gui element at end of
+                           // It is now before the gui element at end of
                            // the title's parent.
-                           var container = lastGUI($(editor.gui_root).find(".title").
+                           var last_gui = lastGUI($(editor.gui_root).find(".title").
                                                parent());
-                           caretCheck(editor, container, 0, "moved twice");
+                           caretCheck(editor, last_gui.parentNode,
+                                      last_gui.parentNode.childNodes.length -
+                                      1,
+                                      "moved twice");
 
                            done();
 
@@ -323,85 +330,93 @@ function (mocha, chai, $, wed, domutil, rangy, key_constants) {
                 assert.equal(editor.getCaret(), undefined, "no caret");
             });
 
-            it("moves left into gui elements and placeholders",
+            it("moves left into gui elements",
                function (done) {
-                   editor.whenCondition(
-                       "first-validation-complete",
-                       function () {
-                           var initial = editor.gui_root.childNodes[0];
-                           var offset = initial.childNodes.length;
-                           editor.setCaret(initial, offset);
-                           caretCheck(editor, initial, offset, "initial");
-                           editor.moveCaretLeft();
-                           // It is now located inside the text inside
-                           // the label which marks the start of the TEI
-                           // element.
-                           caretCheck(editor, lastGUI($(initial)),
-                                      0, "moved once");
-                           editor.moveCaretLeft();
-                           // It is now in the gui element of the 1st
-                           // child.
-                           var $last_text = $(initial).find(".text").last();
-                           caretCheck(editor, lastGUI($last_text),
-                                      0, "moved twice");
+                editor.whenCondition(
+                    "first-validation-complete",
+                    function () {
+                    var initial = editor.gui_root.childNodes[0];
+                    var offset = initial.childNodes.length;
+                    editor.setCaret(initial, offset);
+                    caretCheck(editor, initial, offset, "initial");
+                    editor.moveCaretLeft();
+                    var last_gui =  lastGUI($(initial));
+                    // It is now located inside the text inside
+                    // the label which marks the start of the TEI
+                    // element.
+                    caretCheck(editor, last_gui, 0, "moved once");
+                    editor.moveCaretLeft();
+                    caretCheck(editor, last_gui.parentNode,
+                               last_gui.parentNode.childNodes.length - 1,
+                               "moved twice");
 
-                           done();
-                       });
-               });
+                    editor.moveCaretLeft();
+                    // It is now in the gui element of the 1st
+                    // child.
+                    var $last_text = $(initial).find(".text").last();
+                    caretCheck(editor, lastGUI($last_text),
+                               0, "moved 3 times");
+
+                    done();
+                });
+            });
 
             it("moves left into text",
                function (done) {
-                   editor.whenCondition(
-                       "first-validation-complete",
-                       function () {
-                           var initial = lastGUI($(editor.gui_root).find(".title").
-                                                 first());
-                           editor.setCaret(initial, 1);
-                           caretCheck(editor, initial, 1, "initial");
-                           editor.moveCaretLeft();
-                           // It is now inside the text
-                           var text_node = initial.previousSibling;
-                           var offset = text_node.nodeValue.length;
-                           caretCheck(editor, text_node, offset, "moved once");
-                           editor.moveCaretLeft();
-                           // move through text
-                           offset--;
-                           caretCheck(editor, text_node,
-                                      offset, "moved twice");
-                           editor.moveCaretLeft();
-                           editor.moveCaretLeft();
-                           editor.moveCaretLeft();
-                           caretCheck(editor, text_node, 0, "moved 5 times");
-                           editor.moveCaretLeft();
-                           // It is now inside the first gui element.
-                           caretCheck(editor, firstGUI($(editor.gui_root).
+                editor.whenCondition(
+                    "first-validation-complete",
+                    function () {
+                    var initial = lastGUI($(editor.gui_root).find(".title").
+                                          first());
+                    editor.setCaret(initial, 1);
+                    caretCheck(editor, initial, 1, "initial");
+                    editor.moveCaretLeft();
+                    editor.moveCaretLeft();
+                    // It is now inside the text
+                    var text_node = initial.previousSibling;
+                    var offset = text_node.nodeValue.length;
+                    caretCheck(editor, text_node, offset, "moved once");
+                    editor.moveCaretLeft();
+                    // move through text
+                    offset--;
+                    caretCheck(editor, text_node,
+                               offset, "moved twice");
+                    editor.moveCaretLeft();
+                    editor.moveCaretLeft();
+                    editor.moveCaretLeft();
+                    caretCheck(editor, text_node, 0, "moved 5 times");
+                    editor.moveCaretLeft();
+                    // It is now inside the first gui element.
+                    caretCheck(editor, firstGUI($(editor.gui_root).
                                                        find(".title").first()),
-                                      0, "moved 6 times");
+                               0, "moved 6 times");
 
-                           done();
-                       });
-               });
+                    done();
+                });
+            });
 
             it("moves left out of elements",
                function (done) {
                    editor.whenCondition(
                        "first-validation-complete",
                        function () {
-                           var initial =
-                                   firstGUI($(editor.gui_root).find(".title"));
-                           editor.setCaret(initial, 0);
-                           caretCheck(editor, initial, 0, "initial");
-                           editor.moveCaretLeft();
-                           // It is now in the gui element at end of
-                           // the title's parent.
-                           var container =
-                                   firstGUI($(editor.gui_root).find(".title").
-                                            parent());
-                           caretCheck(editor, container, 0, "moved twice");
+                       var initial =
+                           firstGUI($(editor.gui_root).find(".title"));
+                       editor.setCaret(initial, 0);
+                       caretCheck(editor, initial, 0, "initial");
+                       editor.moveCaretLeft();
+                       // It is now after the gui element at start of
+                       // the title's parent.
+                       var first_gui =
+                           firstGUI($(editor.gui_root).find(".title").
+                                    parent());
 
-                           done();
+                       caretCheck(editor, first_gui.parentNode,
+                                  1, "moved once");
 
-                       });
+                       done();
+
+                   });
                });
 
             it("moves left from text to text", function (done) {
@@ -419,9 +434,13 @@ function (mocha, chai, $, wed, domutil, rangy, key_constants) {
                         caretCheck(editor, initial, 1, "initial");
 
                         editor.moveCaretLeft();
+                        caretCheck(editor, initial, 0, "moved once");
+
+                        editor.moveCaretLeft();
                         caretCheck(editor, term.childNodes[0],
                                    term.childNodes[0].nodeValue.length,
-                                   "moved once");
+                                   "moved twice");
+
                         done();
                     });
             });
