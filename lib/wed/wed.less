@@ -90,6 +90,32 @@ div.wed-document {
         }
     }
 
+    ._gui._button>span {
+        display: inline-block;
+        line-height: 1;
+        margin: 0.25em 0em;
+    }
+
+    ._gui._button, ._gui._button._owns_caret {
+        text-indent: 0em;
+        /* This restores the bootstrap 2 style. */
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+        background-color: #3a87ad;
+        color: white;
+
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        border-radius: .25em;
+        border-style: none;
+    }
+
+    ._gui._button._button_clicked {
+        background-color: #f0ad4e;
+    }
 }
 
 
@@ -147,6 +173,7 @@ div.wed-document {
     /* This restores the bootstrap 2 style. */
     font-size: 12px;
     font-weight: bold;
+    display: inline-block;
 }
 
 .label-info {
