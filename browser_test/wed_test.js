@@ -171,6 +171,36 @@ function (mocha, chai, $, wed, domutil, rangy, key_constants) {
             });
         });
 
+        it("does not bring up a contextual menu when there is no caret",
+           function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                var initial = $(editor.gui_root).find(".title").
+                    get(0).childNodes[1];
+                assert.isUndefined(editor.getCaret());
+                var event = new $.Event("contextmenu");
+                editor.$gui_root.trigger(event);
+                assert.equal(editor.menu_layer.childNodes.length, 0);
+                done();
+            });
+        });
+
+        it("brings up a contextual menu when there is a caret",
+           function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                var initial = $(editor.gui_root).find(".title").
+                    get(0).childNodes[1];
+                editor.setCaret(initial, 0);
+                var event = new $.Event("contextmenu");
+                editor.$gui_root.trigger(event);
+                assert.equal(editor.menu_layer.childNodes.length, 1);
+                done();
+            });
+        });
+
         describe("moveCaretRight", function () {
             it("works even if there is no caret defined", function () {
                 assert.equal(editor.getCaret(), undefined, "no caret");
