@@ -11,6 +11,18 @@ body {
     line-height: 1.2em;
 }
 
+.wed-alert-layer {
+    z-index: 3;
+    .wed-alert-layer-contents {
+        position: absolute;
+        left: 50%;
+        >* {
+            position: relative;
+            left: -50%;
+        }
+    }
+}
+
 .wed-menu-layer {
     z-index: 2;
     >* {
