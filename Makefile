@@ -57,6 +57,9 @@ TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
 LOG4JAVASCRIPT_FILE=http://downloads.sourceforge.net/project/log4javascript/log4javascript/1.4.6/log4javascript-1.4.6.zip
 LOG4JAVASCRIPT_BASE=$(notdir $(LOG4JAVASCRIPT_FILE))
 
+BOOTSTRAP_GROWL_FILE=https://github.com/ifightcrime/bootstrap-growl/archive/v1.1.0.zip
+BOOTSTRAP_GROWL_BASE=bootstrap-growl-$(notdir $(BOOTSTRAP_GROWL_FILE))
+
 LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
@@ -70,13 +73,13 @@ build-dir:
 
 build: | build-standalone
 
-build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js
+build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js build/standalone/lib/jquery.bootstrap-growl.js
 
 ifeq ($(BOOTSTRAP),3)
 build-standalone: build/standalone/lib/font-awesome
 endif
 
-build-test-files: $(CONVERTED_TEST_DATA_FILES)
+build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajaxdump
 
 build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
@@ -85,9 +88,6 @@ build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xm
 		saxon -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
 	fi)
 
-
-
-
 build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	cp $< $@
@@ -95,7 +95,7 @@ build/standalone/lib/%: lib/%
 build/standalone/lib/%.css: lib/%.less
 	lessc $< $@
 
-build/standalone: | build-dir
+build/standalone build/ajaxdump: | build-dir
 	-mkdir $@
 
 downloads:
@@ -125,6 +125,9 @@ downloads/$(TEXT_PLUGIN_BASE): | downloads
 
 downloads/$(LOG4JAVASCRIPT_BASE): | downloads
 	(cd downloads; wget $(LOG4JAVASCRIPT_FILE))
+
+downloads/$(BOOTSTRAP_GROWL_BASE): | downloads
+	(cd downloads; wget -O $(BOOTSTRAP_GROWL_BASE) $(BOOTSTRAP_GROWL_FILE))
 
 node_modules/%:
 	npm install
@@ -166,6 +169,16 @@ build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standal
 	rm -rf $@/less
 	touch $@
 endif
+
+build/standalone/lib/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
+	unzip -d $(dir $@) $<
+ifneq ($(DEV),0)
+	mv $(dir $@)/bootstrap-growl-*/jquery.bootstrap-growl.js $@
+else
+	mv $(dir $@)/bootstrap-growl-*/jquery.bootstrap-growl.min.js $@
+endif
+	rm -rf $(dir $@)/bootstrap-growl-*
+	touch $@
 
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@

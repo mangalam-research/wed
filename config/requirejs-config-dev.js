@@ -28,6 +28,10 @@ require.config({
      deps: ["jquery"],
      exports: "jQuery.fn.findAndSelf"
    },
+   'jquery.bootstrap-growl': {
+     deps: ["jquery", "bootstrap"],
+     exports: "jQuery.bootstrapGrowl"
+   },
    'mocha/mocha': {
      exports: "mocha",
      init: function () { this.mocha.setup('bdd'); return this.mocha; }
