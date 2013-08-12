@@ -12,10 +12,6 @@ require.config({
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
    },
-   'bootstrap-contextmenu': {
-     deps: ["bootstrap"],
-     exports: "jQuery.fn.contextmenu"
-   },
    'rangy/rangy-core': {
      exports: "rangy",
      init: function() { return this.rangy; }
