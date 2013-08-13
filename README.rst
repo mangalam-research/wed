@@ -222,23 +222,20 @@ the latest code.
              source and fail to rebuild before running the test suite,
              the suite will run against **old code!**
 
-To run the tests that are browser-dependent, you must run a basic web
-server which has its web site root set to the root of the source
-tree. Any web server that can do this will work. If you do not have
-one handy, you can borrow Ace's `static.js
-<https://raw.github.com/ajaxorg/ace/master/static.js>`_::
+To run the tests that are browser-dependent, you must run
+`<server.js>`_, a basic web server which has its web site root set to
+the root of the source tree::
 
-    $ node static.js
+    $ ./server.js
 
-Or Ace's `static.py
-<https://raw.github.com/ajaxorg/ace/master/static.py>`_::
+The server will serve on localhost:8888 by default. Give it an
+``addr:port`` parameter if you want another address and port. Point
+your browser to `<http://localhost:8888/web/test.html>`_ to run the
+test suite. The browser-dependent tests are located in
+`<browser_test>`_.
 
-    $ python static.py
-
-In either case, the server will serve on localhost:8888 by
-default. Point your browser to
-`<http://localhost:8888/web/test.html>`_ to run the test suite. The
-browser-dependent tests are located in `<browser_test>`_.
+Some tests require **this** specific server or a server that provides
+the same responses to Ajax requests.
 
 If you change wed's code and want to run the browser-dependent test
 suite again, make sure to run ``make test`` before you run the suite
