@@ -671,7 +671,7 @@ describe("wed", function () {
                 $.get("/build/ajax/save.txt", function (data) {
                     var obj = {
                         command: 'save',
-                        version: '0.6.0',
+                        version: wed.version,
                         data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
                     };
                     var expected = "\n***\n" + JSON.stringify(obj);
@@ -723,7 +723,7 @@ describe("wed", function () {
                     $.get("/build/ajax/save.txt", function (data) {
                         var obj = {
                             command: 'save',
-                            version: '0.6.0',
+                            version: wed.version,
                             data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
@@ -752,7 +752,7 @@ describe("wed", function () {
                     $.get("/build/ajax/save.txt", function (data) {
                         var obj = {
                             command: 'recover',
-                            version: '0.6.0',
+                            version: wed.version,
                             data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
