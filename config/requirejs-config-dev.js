@@ -49,7 +49,17 @@ require.config({
          ajaxlog: {
              url: "/build/ajax/log.txt"
          },
+         // You certainly do not want this in actual deployment.
+         save: {
+             url: "/build/ajax/save.txt"
          }
+     },
+     'wed/log': {
+         focus_popup: window.wed_testing_env // For testing only.
+     },
+     'wed/onerror': {
+         suppress_old_onerror: window.wed_testing_env, // For testing only.
+         test: window.wed_testing_env // For testing only.
      }
  },
  enforceDefine: true

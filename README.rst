@@ -3,6 +3,11 @@ Release History
 
 This section covers only salient changes:
 
+* 0.7:
+  - Wed gained saving and recovery capabilities.
+  - Wed gained capabilities for logging information to a server
+    through Ajax calls.
+
 * 0.6:
   - Internal: wed no longer works with Twitter Bootstrap version 2 and
     now requires version 3 RC1 or later. This version of Bootstrap
@@ -28,7 +33,7 @@ This section covers only salient changes:
 
   - API: transformations are now a special case of actions.
 
-* 0.5 introduces major changes: 
+* 0.5 introduces major changes:
 
   - GUI: previous versions of wed had included some placeholders
     between XML elements so that insertion of new elements would be
@@ -77,6 +82,9 @@ Current known limitations:
   the safe thing to do if you have a file using multiple namespaces is
   to declare them once and for all on the top element, and never
   change them throughout the document. Otherwise, problems are likely.
+
+* We've not tested a setup in which more than one wed instance appears
+  on the same page.
 
 * Keyboard navigation in contextual menus works. However, if the mouse
   is hovering over menu items two items will be highlighted at once,
@@ -265,13 +273,27 @@ with an empty document using a vanilla TEI schema. Things you can do:
 
 * Use the left mouse button to bring up a context menu. Such menu
   exists for starting tags and all positions that are editable. This
-  menu allows inserting elements.
+  menu allows inserting elements. Ctrl-/ also brings up this menu.
 
 * Insert text where text is valid.
 
 * Ctrl-Z to undo.
 
 * Ctrl-Y to redo.
+
+* Ctrl-C to copy.
+
+* Ctrl-V to paste.
+
+* Ctrl-X to cut.
+
+* Ctrl-S to save. The data is currently dumped into a file located at
+  build/ajax/save.txt, and you won't be able to reload it. For full
+  functionality wed needs to be used with a server able to save the
+  data and serve it intelligently.
+
+* Ctrl-. to go into development mode. This will bring up a log window
+  and allow the use of F2 to dump the element to the console.
 
 Using
 =====
@@ -334,6 +356,21 @@ The ``mode.options`` will be passed to the generic mode when it is
 created. What options are accepted and what they mean is determined by
 each mode.
 
+The `<lib/wed/onerror.js>`_ module installs a global onerror
+handler. By default it calls whatever onerror handler already existed
+at the time of installation. Sometimes this is not the desired
+behavior (for instance when testing with ``mocha``). In such cases the
+``suppress_old_onerror`` option set to a true value will prevent the
+module from calling the old onerror.
+
+.. warning:: Wed installs its own handler so that if any error occurs
+             it knows about it, attempts to save the data and forces
+             the user to reload. The unfortunate upshot of this is
+             that any other JavaScript executing on a page where wed
+             is running could trip wed's onerror handler and cause wed
+             to think it crashed. The upshot is that you must not run
+             wed with JavaScript code that causes onerror to fire.
+
 Round-Tripping
 ==============
 
@@ -386,5 +423,5 @@ Humanities.
 ..  LocalWords:  API html xml xsl wed's config jquery js chai semver
 ..  LocalWords:  json minified localhost CSS init pre Makefile saxon
 ..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD glyphicon
-..  LocalWords:  getTransformationRegistry getContextualActions
-..  LocalWords:  fireTransformation
+..  LocalWords:  getTransformationRegistry getContextualActions addr
+..  LocalWords:  fireTransformation glyphicons github tei onerror

@@ -1,6 +1,7 @@
 define(["mocha/mocha", "chai", "test/global", "jquery", "wed/wed",
-        "wed/domutil", "rangy", "wed/key_constants"],
-       function (mocha, chai, global, $, wed, domutil, rangy, key_constants) {
+        "wed/domutil", "rangy", "wed/key_constants", "wed/onerror"],
+       function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
+                onerror) {
 var options = {
     schema: 'test/tei-simplified-rng.js',
     mode: {
@@ -70,6 +71,10 @@ describe("wed", function () {
         if (editor)
             editor.destroy();
         editor = undefined;
+        assert.isFalse(onerror.__test.is_terminating(),
+                       "test caused an unhandled exception to occur");
+        // We don't reload our page so we need to do this.
+        onerror.__test.reset();
     });
 
     it("starts with an undefined caret", function () {
@@ -634,6 +639,112 @@ describe("wed", function () {
         });
         // This clicks dismisses the modal
         editor.straddling_modal._$footer.find(".btn-primary").get(0).click();
+    });
+
+    describe("interacts with the server:", function () {
+        beforeEach(function (done) {
+            global.reset(done);
+        });
+
+        it("saves", function (done) {
+            var event = new $.Event("keydown");
+            key_constants.CTRL_S.setEventToMatch(event);
+            editor.addEventListener("saved", function () {
+                $.get("/build/ajax/save.txt", function (data) {
+                    var obj = {
+                        command: 'save',
+                        version: '0.6.0',
+                        data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                    };
+                    var expected = "\n***\n" + JSON.stringify(obj);
+                    assert.equal(data, expected);
+                    done();
+                });
+            });
+            editor.$gui_root.trigger(event);
+        });
+    });
+
+    describe("fails as needed and recovers:", function () {
+        beforeEach(function (done) {
+            global.reset(done);
+        });
+
+        afterEach(function () {
+            onerror.__test.reset();
+        });
+
+        it("tells the user to reload when save fails", function (done) {
+            function doit() {
+                var $modal = onerror.__test.$modal;
+                $modal.on('shown.bs.modal', function () {
+                    // Prevent a reload.
+                    $modal.off('hide.bs.modal.modal');
+                    $modal.modal('hide');
+                    done();
+                });
+
+                var event = new $.Event("keydown");
+                key_constants.CTRL_S.setEventToMatch(event);
+                editor.$gui_root.trigger(event);
+            }
+
+            global.fail_on_save(doit);
+
+        });
+
+        it("does not attempt recovery when save fails", function (done) {
+            function doit() {
+                var $modal = onerror.__test.$modal;
+                $modal.on('shown.bs.modal', function () {
+                    // Prevent a reload.
+                    $modal.off('hide.bs.modal.modal');
+                    $modal.modal('hide');
+                    // The data was saved even though the server
+                    // replied with an HTTP error code.
+                    $.get("/build/ajax/save.txt", function (data) {
+                        var obj = {
+                            command: 'save',
+                            version: '0.6.0',
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                        };
+                        var expected = "\n***\n" + JSON.stringify(obj);
+                        assert.equal(data, expected);
+                        done();
+                    });
+                });
+
+                var event = new $.Event("keydown");
+                key_constants.CTRL_S.setEventToMatch(event);
+                editor.$gui_root.trigger(event);
+            }
+
+            global.fail_on_save(doit);
+
+        });
+
+        it("attempts recovery on uncaught exception", function (done) {
+            // We can't just raise an exception because mocha will
+            // intercept it and it will never get to the onerror
+            // handler. If we raise the error in a timeout, it will go
+            // straight to onerror.
+
+            window.setTimeout(function () {
+                window.setTimeout(function () {
+                    $.get("/build/ajax/save.txt", function (data) {
+                        var obj = {
+                            command: 'recover',
+                            version: '0.6.0',
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                        };
+                        var expected = "\n***\n" + JSON.stringify(obj);
+                        assert.equal(data, expected);
+                        done();
+                    });
+                }, 500);
+                throw new Error("I'm failing!");
+            }, 0);
+        });
     });
 });
 
