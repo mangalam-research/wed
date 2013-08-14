@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><a:html xmlns:a="uri:a" a:data-blah--blah---blah="toto">
+<?xml version="1.0" encoding="UTF-8"?><a:html xmlns="uri:q" xmlns:a="uri:a" a:data-blah--blah---blah="toto" z="flex">
   <head><a:title xmlns="uri:default" xmlns:a="uri:a2">ab&amp;
 cd&amp;
 ef</a:title></head>
 <body>
-abc<em>def&amp;
-gh<em/></em>
+abc<a:em xml:lang="sa-Latn">def&amp;
+gh<em/></a:em>
 </body>
 </a:html>

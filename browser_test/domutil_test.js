@@ -875,6 +875,20 @@ function (mocha, chai, $, domutil) {
                            "0/1/0/1/0"),
                        node);
                });
+
+            it("accepts more than one digit per path step",
+               function () {
+                $root.find(".p").wrap("<div class='_phantom_wrap'>");
+                var node = $root.find(".p").last().get(0);
+                // There was a stupid bug in an earlier version of
+                // domutil which would make this fail with an
+                // exception complaining that the path was malformed
+                // due to the presence of "10". The null return value
+                // is fine since there is no such element, but at
+                // least it should not generate an exception.
+                assert.equal(domutil.pathToNode(root, "0/10"),
+                             null);
+            });
         });
 
         describe("linkTrees", function () {
@@ -905,3 +919,10 @@ function (mocha, chai, $, domutil) {
 
     });
 });
+
+//  LocalWords:  chai jquery domutil nextCaretPosition domroot pre cd
+//  LocalWords:  isNotNull html prevCaretPosition splitTextNode abcd
+//  LocalWords:  requirejs insertIntoText lastabcd firstabcd abtestcd
+//  LocalWords:  abcdfirst abfirst lastcd insertText abQcd Qabcd
+//  LocalWords:  abcdQ deleteText firstDescendantOrSelf nodeToPath
+//  LocalWords:  pathToNode linkTrees
