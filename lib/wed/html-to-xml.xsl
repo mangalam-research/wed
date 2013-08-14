@@ -13,22 +13,34 @@
 
   <xsl:function name="internal:prefix-to-uri" >
     <xsl:param name="node"/>
-    <xsl:param name="qname"/>
-    <xsl:variable name="prefix" select="substring-before($qname, ':')"/>
-    <xsl:if test="$prefix != ''">
+    <xsl:param name="prefix"/>
+    <xsl:choose>
+      <xsl:when test="$prefix='xml'">
+        <xsl:value-of select='"http://www.w3.org/XML/1998/namespace"'/>
+      </xsl:when>
+      <xsl:when test="not($node)"/>
+      <xsl:otherwise>
       <xsl:variable name="local-declaration"
-                    select="$node/@*[local-name() =
-                            concat('data-wed-xmlns---', $prefix)]"/>
-      <xsl:value-of select="if ($local-declaration) then
+                    select="if ($prefix = '') then $node/@data-wed-xmlns
+                            else $node/@*[local-name() =
+                                    concat('data-wed-xmlns---', $prefix)]"/>
+      <xsl:value-of select="if ($local-declaration != '') then
                             $local-declaration else
                             internal:prefix-to-uri($node/.., $prefix)"/>
-    </xsl:if>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
+  <xsl:function name="internal:qname-to-uri" >
+    <xsl:param name="node"/>
+    <xsl:param name="qname"/>
+    <xsl:variable name="prefix" select="substring-before($qname, ':')"/>
+    <xsl:value-of select="internal:prefix-to-uri($node, $prefix)"/>
   </xsl:function>
 
   <xsl:template match="xhtml:div">
     <xsl:variable name="qname" select="tokenize(@class, '\s+')[1]"/>
-    <xsl:variable name="prefix" select="substring-before($qname, ':')"/>
-    <xsl:variable name="uri" select="internal:prefix-to-uri(., $qname)"/>
+    <xsl:variable name="uri" select="internal:qname-to-uri(., $qname)"/>
     <xsl:element name="{$qname}" namespace="{$uri}">
       <!-- Handle the defaut namespace. -->
       <xsl:if test="@data-wed-xmlns">
@@ -40,10 +52,21 @@
                       select="replace(replace(substring-after(local-name(),
                               'data-wed-'), '^([^-]+)---([^-])', '$1:$2'),
                               '----', '---')"/>
-        <xsl:attribute name="{$qname}"
-                       namespace="{internal:prefix-to-uri(.., $qname)}">
-          <xsl:apply-templates select="."/>
-        </xsl:attribute>
+        <xsl:variable name="prefix" select="substring-before($qname, ':')"/>
+        <xsl:choose>
+          <!-- No empty namespace on attribues! -->
+          <xsl:when test="$prefix">
+            <xsl:attribute name="{$qname}"
+                           namespace="{internal:qname-to-uri(.., $qname)}">
+              <xsl:apply-templates select="."/>
+            </xsl:attribute>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="{$qname}">
+              <xsl:apply-templates select="."/>
+            </xsl:attribute>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:for-each>
       <xsl:apply-templates/>
     </xsl:element>
