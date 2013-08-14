@@ -190,6 +190,24 @@ describe("wed", function () {
         });
     });
 
+    it("does not crash when the user tries to bring up a contextual menu "+
+       "when the caret is outside wed",
+       function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Set the range on the first hyperlink in the page.
+            var range = rangy.createRange(editor.my_window.document);
+            range.selectNode($("div", editor.my_window.document).get(0));
+            rangy.getSelection(editor.my_window).setSingleRange(range);
+            assert.isUndefined(editor.getCaret());
+            var event = new $.Event("contextmenu");
+            editor.$gui_root.trigger(event);
+            assert.equal(editor.menu_layer.childNodes.length, 0);
+            done();
+        });
+    });
+
     it("brings up a contextual menu when there is a caret",
        function (done) {
         editor.whenCondition(
