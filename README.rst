@@ -4,11 +4,14 @@ Release History
 This section covers only salient changes:
 
 * 0.7:
+
   - Wed gained saving and recovery capabilities.
+
   - Wed gained capabilities for logging information to a server
     through Ajax calls.
 
 * 0.6:
+
   - Internal: wed no longer works with Twitter Bootstrap version 2 and
     now requires version 3 RC1 or later. This version of Bootstrap
     fixes some problems that recently turned out to present
@@ -16,11 +19,11 @@ This section covers only salient changes:
     3's API is **very** different from version 2's so it is not
     possible to trivially support both versions.
 
-  - GUI: Wed no longer makes use of any glyphicons' facilities. Upon
-    reviewing the glyphicons license, I noticed a requirement that all
-    pages which use glyphicons contain some advertisement for
-    glyphicons. I'm not going to require that those who use wed
-    **pollute their web pages** with such advertisement.
+  - GUI: Wed no longer uses glyphicons. Upon reviewing the glyphicons
+    license, I noticed a requirement that all pages which use
+    glyphicons contain some advertisement for glyphicons. I'm not
+    going to require that those who use wed **pollute their web
+    pages** with such advertisement.
 
   - GUI: Wed now uses Font Awesome.
 
