@@ -12,10 +12,6 @@ require.config({
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
    },
-   'bootstrap-contextmenu': {
-     deps: ["bootstrap"],
-     exports: "jQuery.fn.contextmenu"
-   },
    'rangy/rangy-core': {
      exports: "rangy",
      init: function() { return this.rangy; }
@@ -28,9 +24,16 @@ require.config({
      deps: ["jquery"],
      exports: "jQuery.fn.findAndSelf"
    },
+   'jquery.bootstrap-growl': {
+     deps: ["jquery", "bootstrap"],
+     exports: "jQuery.bootstrapGrowl"
+   },
    'mocha/mocha': {
      exports: "mocha",
      init: function () { this.mocha.setup('bdd'); return this.mocha; }
+   },
+   'log4javascript': {
+       exports: "log4javascript"
    }
  },
  config: {
@@ -41,7 +44,22 @@ require.config({
              options: {
                  meta: 'wed/modes/generic/metas/tei_meta'
              }
+         },
+         // You certainly do not want this in actual deployment.
+         ajaxlog: {
+             url: "/build/ajax/log.txt"
+         },
+         // You certainly do not want this in actual deployment.
+         save: {
+             url: "/build/ajax/save.txt"
          }
+     },
+     'wed/log': {
+         focus_popup: window.wed_testing_env // For testing only.
+     },
+     'wed/onerror': {
+         suppress_old_onerror: window.wed_testing_env, // For testing only.
+         test: window.wed_testing_env // For testing only.
      }
  },
  enforceDefine: true

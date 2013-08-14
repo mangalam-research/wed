@@ -101,6 +101,25 @@ describe("key", function () {
 
         });
 
+        describe("setEventToMatch", function () {
+            it("sets an event to match a ctrl key", function () {
+                var event = {};
+                var k = key.makeCtrlKey(1);
+                k.setEventToMatch(event);
+                assert.isTrue(k.matchesEvent(event));
+                // Biassed towards keydown
+                assert.equal(event.type, "keydown");
+            });
+
+            it("sets an event to match a keypress", function () {
+                var event = {};
+                var k = key.makeKey(1);
+                k.setEventToMatch(event);
+                assert.isTrue(k.matchesEvent(event));
+            });
+        });
+
+
     });
 
 });

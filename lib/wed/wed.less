@@ -6,16 +6,47 @@
    box-sizing: border-box;
 }
 
-body {
-    font-size: 24px;
-    line-height: 1.2em;
+.wed-alert-layer {
+    z-index: 3;
+    .wed-alert-layer-contents {
+        position: absolute;
+        left: 50%;
+        >* {
+            position: relative;
+            left: -50%;
+        }
+    }
 }
 
-#menu-layer {
+.wed-menu-layer {
+    z-index: 2;
+    >* {
+        position: absolute;
+    }
+}
+
+.wed-caret-layer {
     z-index: 1;
     >* {
         position: absolute;
     }
+
+    ._wed_caret {
+        background-color: black;
+        white-space: pre;
+        border-style: none;
+        display: inline-block;
+        max-width: 1px;
+        min-height: 100%;
+        animation: caret 1s linear infinite;
+        -webkit-animation: caret 1s linear infinite;
+    }
+
+}
+
+.wed-widget {
+    font-size: 24px;
+    line-height: 1.2em;
 }
 
 div.wed-document {
@@ -70,14 +101,32 @@ div.wed-document {
         }
     }
 
-    ._wed_caret {
-        white-space: pre;
-        border-style: none;
+    ._gui._button>span {
         display: inline-block;
-        max-width: 1px;
-        min-height: 100%;
+        line-height: 1;
+        margin: 0.25em 0em;
     }
 
+    ._gui._button, ._gui._button._owns_caret {
+        text-indent: 0em;
+        /* This restores the bootstrap 2 style. */
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+        background-color: #3a87ad;
+        color: white;
+
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        border-radius: .25em;
+        border-style: none;
+    }
+
+    ._gui._button._button_clicked {
+        background-color: #f0ad4e;
+    }
 }
 
 
@@ -92,6 +141,21 @@ div.wed-document {
     50% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+@keyframes caret {
+    0% { opacity: 0; }
+    49% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+@-webkit-keyframes caret {
+    0% { opacity: 0; }
+    49% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
 
 /* Bootstrap styling */
 
@@ -120,6 +184,7 @@ div.wed-document {
     /* This restores the bootstrap 2 style. */
     font-size: 12px;
     font-weight: bold;
+    display: inline-block;
 }
 
 .label-info {
@@ -158,6 +223,7 @@ issues with typeaheads */
 
     span {
         position: absolute;
+        left: 0;
         color: black;
         z-index: 2;
         font-size: 16px;
