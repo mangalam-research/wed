@@ -526,9 +526,31 @@ describe("TreeUpdater", function () {
             listener.check();
         });
 
+        it("does not bork on missing previous text", function () {
+            // An earlier bug would cause an unhandled exception on this
+            // test.
+            var node = $($root.find(".body>.p").get(2)).
+                children(".quote").get(0);
+            var parent = node.parentNode;
+            var ret = tu.removeNode(node);
+            assert.equal(ret[0], parent);
+            assert.equal(ret[1], 0);
+        });
     });
 
     describe("removeNodes", function () {
+        it("fails on nodes of different parents", function () {
+            // An earlier bug would cause an unhandled exception on this
+            // test.
+            var node = $($root.find(".body>.p").get(2)).
+                children(".quote").get(0);
+            var parent = node.parentNode;
+            assert.Throw(tu.removeNodes.bind(tu, [node, node.parentNode]),
+                         Error,
+                         "nodes are not immediately contiguous in " +
+                         "document order");
+        });
+
         it("generates appropriate events when merging text", function () {
             var p = $root.find(".body>.p").get(1);
             var $p = $(p);
@@ -568,6 +590,17 @@ describe("TreeUpdater", function () {
                     parent.outerHTML,
                 ('<div class="p _real">before  after</div>'));
             listener.check();
+        });
+
+        it("does not bork on missing previous text", function () {
+            // An earlier bug would cause an unhandled exception on this
+            // test.
+            var node = $($root.find(".body>.p").get(2)).
+                children(".quote").get(0);
+            var parent = node.parentNode;
+            var ret = tu.removeNodes([node]);
+            assert.equal(ret[0], parent);
+            assert.equal(ret[1], 0);
         });
 
     });
