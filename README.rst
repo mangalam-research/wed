@@ -3,6 +3,14 @@ Release History
 
 This section covers only salient changes:
 
+* 0.8:
+
+  - API change. ``Decorator`` now takes the domlistener that listens
+    to GUI changes, the editor, and the TreeUpdater that updates the
+    GUI tree.  Consequently ``mode.makeDecorator`` takes at the very
+    least the same arguments. (It could require more if the mode
+    requires it.)
+
 * 0.7:
 
   - Wed gained saving and recovery capabilities.

@@ -122,6 +122,11 @@ describe("TreeUpdater", function () {
            function () {
             var node = $root.find(".quote").get(0).childNodes[0];
             var top = $root.find(".text").get(0);
+            var body = $(top).find(".body").get(0);
+            // Drop the nodes form 3 onwards so that future additions don't
+            // change this test.
+            while(body.childNodes[3])
+                body.removeChild(body.childNodes[3]);
             var parent = top.parentNode;
 
             var pair = tu.splitAt(top, node, 3);
@@ -134,7 +139,7 @@ describe("TreeUpdater", function () {
                 ('<div class="text _real"><div class="body _real">' +
                  '<div class="p _real">blah</div><div class="p _real">' +
                  'before <div class="quote _real">quo</div></div></div>' +
-                 '</div>'));
+                 '</div>'), "before");
             assert.equal(pair[0], first_text);
             assert.equal(pair[1], next_text);
             assert.equal(
@@ -146,7 +151,7 @@ describe("TreeUpdater", function () {
                  '<div class="p _real"><div class="quote _real">quoted</div>' +
                  '<div class="quote _real">quoted2</div>' +
                  '<div class="quote _real">quoted3</div></div>' +
-                 '</div></div>'));
+                 '</div></div>'), "after");
         });
 
     });
@@ -467,7 +472,8 @@ describe("TreeUpdater", function () {
     describe("removeNode", function () {
         it("generates appropriate events when removing a node",
            function () {
-            var node = $root.find(".body>.p").last().children(".quote").get(1);
+            var node = $($root.find(".body>.p").get(2)).children(".quote").
+                get(1);
             var parent = node.parentNode;
             assert.equal(parent.childNodes.length, 3);
             var listener = new Listener(tu);
