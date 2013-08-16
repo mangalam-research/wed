@@ -175,6 +175,12 @@ describe("wed", function () {
         });
     });
 
+    function activateContextMenu(editor) {
+        var event = new $.Event("mousedown");
+        event.which = 3;
+        editor.$gui_root.trigger(event);
+    }
+
     it("does not bring up a contextual menu when there is no caret",
        function (done) {
         editor.whenCondition(
@@ -183,10 +189,11 @@ describe("wed", function () {
             var initial = $(editor.gui_root).find(".title").
                 get(0).childNodes[1];
             assert.isUndefined(editor.getCaret());
-            var event = new $.Event("contextmenu");
-            editor.$gui_root.trigger(event);
-            assert.equal(editor.menu_layer.childNodes.length, 0);
-            done();
+            activateContextMenu(editor);
+            window.setTimeout(function () {
+                assert.equal(editor.menu_layer.childNodes.length, 0);
+                done();
+            }, 1);
         });
     });
 
@@ -201,10 +208,11 @@ describe("wed", function () {
             range.selectNode($("div", editor.my_window.document).get(0));
             rangy.getSelection(editor.my_window).setSingleRange(range);
             assert.isUndefined(editor.getCaret());
-            var event = new $.Event("contextmenu");
-            editor.$gui_root.trigger(event);
-            assert.equal(editor.menu_layer.childNodes.length, 0);
-            done();
+            activateContextMenu(editor);
+            window.setTimeout(function () {
+                assert.equal(editor.menu_layer.childNodes.length, 0);
+                done();
+            }, 1);
         });
     });
 
@@ -216,10 +224,12 @@ describe("wed", function () {
             var initial = $(editor.gui_root).find(".title").
                 get(0).childNodes[1];
             editor.setCaret(initial, 0);
-            var event = new $.Event("contextmenu");
-            editor.$gui_root.trigger(event);
-            assert.equal(editor.menu_layer.childNodes.length, 1);
-            done();
+
+            activateContextMenu(editor);
+            window.setTimeout(function () {
+                assert.equal(editor.menu_layer.childNodes.length, 1);
+                done();
+            }, 1);
         });
     });
 
