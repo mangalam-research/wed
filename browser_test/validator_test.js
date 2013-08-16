@@ -42,7 +42,7 @@ function (mocha, chai, $, validator, validate) {
             p.addEventListener("error", function (ev) {
                 assert.equal(ev.error.toString(),
                              "tag required: {}html");
-                assert.equal(ev.element, $data.get(0));
+                assert.equal(ev.node, $data.get(0));
                 done();
             });
 
