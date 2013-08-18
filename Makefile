@@ -14,17 +14,6 @@ RST2HTML?=rst2html
 # Build a development version? Set to 1 if yes.
 DEV?=0
 
-# The makefile still has support for producing a bootstrap 2
-# build. This is there mainly for historical reasons, in case we ever
-# want to support boostrap 2 again. Right now, setting this to version
-# other than 3 will produce a build that will use version 2 files but
-# this build won't run because the js code expects a version 3 API. In
-# all likelihood, this support will be removed the day we are sure
-# that we won't ever support bootstrap 2.
-
-# Bootstrap version to build.
-BOOTSTRAP?=3
-
 # Parameters to pass to mocha, like "--grep foo".
 MOCHA_PARAMS?=
 
@@ -38,15 +27,10 @@ RANGY_FILE=rangy-1.3alpha.772.tar.gz
 
 JQUERY_FILE=jquery-1.9.1.js
 
-ifeq ($(BOOTSTRAP),3)
-BOOTSTRAP_PATH=https://github.com/twbs/bootstrap/releases/download/v3.0.0-rc1/
-BOOTSTRAP_FILE=bs-v3.0.0-rc1-dist.zip
+BOOTSTRAP_URL=http://github.com/twbs/bootstrap/archive/v3.0.0-rc.2.zip
+BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fortawesome.github.io/Font-Awesome/assets/
 FONTAWESOME_FILE=font-awesome.zip
-else
-BOOTSTRAP_PATH=http://twitter.github.io/bootstrap/assets/
-BOOTSTRAP_FILE=bootstrap.zip
-endif # BOOTSTRAP
 
 REQUIREJS_FILE=http://requirejs.org/docs/release/2.1.6/comments/require.js
 REQUIREJS_BASE=$(notdir $(REQUIREJS_FILE))
@@ -73,11 +57,7 @@ build-dir:
 
 build: | build-standalone
 
-build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js build/standalone/lib/jquery.bootstrap-growl.js
-
-ifeq ($(BOOTSTRAP),3)
-build-standalone: build/standalone/lib/font-awesome
-endif
+build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js build/standalone/lib/jquery.bootstrap-growl.js build/standalone/lib/font-awesome
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajaxdump
 
@@ -107,13 +87,11 @@ downloads/$(RANGY_FILE): | downloads
 downloads/$(JQUERY_FILE): | downloads
 	(cd downloads; wget 'http://code.jquery.com/$(JQUERY_FILE)' )
 
-downloads/$(BOOTSTRAP_FILE): | downloads
-	(cd downloads; wget '$(BOOTSTRAP_PATH)$(BOOTSTRAP_FILE)')
+downloads/$(BOOTSTRAP_BASE): | downloads
+	(cd downloads; wget '$(BOOTSTRAP_URL)')
 
-ifeq ($(BOOTSTRAP),3)
 downloads/$(FONTAWESOME_FILE): | downloads
 	(cd downloads; wget '$(FONTAWESOME_PATH)$(FONTAWESOME_FILE)')
-endif
 
 
 
@@ -145,22 +123,19 @@ build/standalone/lib/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone
 	-mkdir $(dir $@)
 	cp $< $@
 
-build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_FILE) | build/standalone/lib
+build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
-ifeq ($(BOOTSTRAP),3) # Bootstrap 3 puts everything in a dist/ subdirectory
 	-mkdir $@
-	mv $(dir $@)/dist/* $@
-	rm -rf $(dir $@)/dist
-endif
+	mv $(dir $@)/bootstrap-*/dist/* $@
+	rm -rf $(dir $@)/bootstrap-*
 # unzip preserves the creation date of the bootstrap directory. Which
 # means that downloads/bootstrap.zip would likely be more recent than
 # the top level directory. This would trigger this target needlessly
 # so, touch it.
 	touch $@
 
-ifeq ($(BOOTSTRAP),3)
 build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
 	-mkdir $(dir $@)
 	rm -rf $@/*
@@ -168,7 +143,6 @@ build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standal
 	rm -rf $@/scss
 	rm -rf $@/less
 	touch $@
-endif
 
 build/standalone/lib/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
 	unzip -d $(dir $@) $<
