@@ -148,8 +148,7 @@ describe("NameResolver", function () {
         });
         it("returns undefined when passed an unknown uri",
            function () {
-            assert.equal(resolver.unresolveName("ttt", "blah"),
-                         undefined);
+            assert.isUndefined(resolver.unresolveName("ttt", "blah"));
         });
         // The next two tests show that the order of defintions
         // is irrelevant.
@@ -157,17 +156,67 @@ describe("NameResolver", function () {
            function () {
             resolver.definePrefix("X", "uri:X");
             resolver.definePrefix("", "uri:X");
-            assert.equal(resolver.unresolveName("uri:X", "blah"),
-                         "blah");
+            assert.equal(resolver.unresolveName("uri:X", "blah"), "blah");
         });
         it("gives priority to the default namespace (second)",
            function () {
             resolver.definePrefix("", "uri:X");
             resolver.definePrefix("X", "uri:X");
-            assert.equal(resolver.unresolveName("uri:X", "blah"),
+            assert.equal(resolver.unresolveName("uri:X", "blah"), "blah");
+        });
+        it("handles attributes outside namespaces",
+           function () {
+            assert.equal(resolver.unresolveName("", "blah", true),
                          "blah");
         });
+        it("handles attributes in namespaces",
+           function () {
+            assert.equal(resolver.unresolveName(
+                "http://lddubeau.com/ns/btw-storage", "blah", true),
+                         "btw:blah");
+        });
+
+
     });
+
+    describe("prefixFromURI", function () {
+        beforeEach(function () {
+            resolver = new name_resolver.NameResolver();
+            Object.keys(mapping).forEach(function (k) {
+                resolver.definePrefix(k, mapping[k]);
+            });
+        });
+        it("knows the uri for the default namespace",
+           function () {
+            assert.equal(resolver.prefixFromURI("http://www.tei-c.org/ns/1.0"),
+                         "");
+        });
+        it("knows the uri of other namespaces that were defined",
+           function () {
+            assert.equal(
+                resolver.prefixFromURI("http://lddubeau.com/ns/btw-storage"),
+
+                "btw");
+        });
+        it("returns undefined when passed an unknown uri", function () {
+            assert.isUndefined(resolver.prefixFromURI("ttt"));
+        });
+        // The next two tests show that the order of defintions
+        // is irrelevant.
+        it("gives priority to the default namespace (first)",
+           function () {
+            resolver.definePrefix("X", "uri:X");
+            resolver.definePrefix("", "uri:X");
+            assert.equal(resolver.prefixFromURI("uri:X"), "");
+        });
+        it("gives priority to the default namespace (second)",
+           function () {
+            resolver.definePrefix("", "uri:X");
+            resolver.definePrefix("X", "uri:X");
+            assert.equal(resolver.prefixFromURI("uri:X"), "");
+        });
+    });
+
 
     describe("clone", function () {
         beforeEach(function () {
