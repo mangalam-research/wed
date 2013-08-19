@@ -60,6 +60,9 @@ require.config({
      'wed/onerror': {
          suppress_old_onerror: window.wed_testing_env, // For testing only.
          test: window.wed_testing_env // For testing only.
+     },
+     'wed/onbeforeunload': {
+         test: window.wed_testing_env // For testing only
      }
  },
  enforceDefine: true
