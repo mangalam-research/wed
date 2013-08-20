@@ -657,6 +657,16 @@ function (mocha, chai, $, domutil) {
                 assert.isUndefined(pair[0]);
                 assert.isUndefined(pair[1]);
             });
+
+            it("inserts in the correct position if it needs to create " +
+               "a text node", function () {
+                var node = $root.find(".title").get(0);
+                $(node).contents().replaceWith("<b>q</b>");
+                var pair = domutil.insertText(node, 1, "test");
+                assert.isUndefined(pair[0]);
+                assert.equal(pair[1], node.childNodes[1]);
+                assert.equal(pair[1].nodeValue, "test");
+            });
         });
 
         describe("deleteText", function () {
