@@ -15,6 +15,7 @@
   <text>
     <body>
       <p>Blah blah <term>blah</term> blah.</p>
+      <p><term>blah</term></p>
     </body>
   </text>
 </TEI>

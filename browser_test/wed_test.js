@@ -175,6 +175,27 @@ describe("wed", function () {
         });
     });
 
+    it("typing text after an element works", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".body>.p").get(1);
+            var parent = initial.parentNode;
+            editor.setDataCaret(initial, 1);
+
+            // Synthetic event
+            var event = new $.Event("keydown");
+            key_constants.SPACE.setEventToMatch(event);
+            event.type = "keypress";
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            assert.equal(initial.childNodes.length, 2);
+            done();
+        });
+    });
+
+
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
         event.which = 3;
@@ -682,7 +703,7 @@ describe("wed", function () {
                     var obj = {
                         command: 'save',
                         version: wed.version,
-                        data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                        data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                     };
                     var expected = "\n***\n" + JSON.stringify(obj);
                     assert.equal(data, expected);
@@ -734,7 +755,7 @@ describe("wed", function () {
                         var obj = {
                             command: 'save',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
@@ -763,7 +784,7 @@ describe("wed", function () {
                         var obj = {
                             command: 'recover',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
