@@ -25,15 +25,23 @@ they are processed.
 * paste:
  + wed-post-paste
 
+* contextmenu:
+ + wed-context-menu
+
 Those handlers that are bound to these custom events should have the
-signature::
+following signature if they do not use ``jquery.eventHandler``::
 
     handler(wed_event, javascript_event, jQthis)
 
+or the following signature if they do use ``jquery.eventHandler``::
+
+    handler(wed_event, wed_jQthis, javascript_event, jQthis)
+
 Where ``wed_event`` is the jQuery ``Event`` object created for
-dispatching custom events, ``javascript_event`` is the original
-JavaScript event that caused the custom event to be triggered,
-``jQthis`` is the original value of the ``this`` as set by
+dispatching custom events, ``wed_jQthis`` is the corresponding value
+that was assigned to ``this`` for that event, ``javascript_event`` is
+the original JavaScript event that caused the custom event to be
+triggered, ``jQthis`` is the original value of the ``this`` as set by
 jQuery. (jQuery sets ``this`` to the element which received the event,
 but it is quite frequent in wed that we want to bind ``this`` to the
 object to which the event handler belongs. ``util.eventHandler`` is
