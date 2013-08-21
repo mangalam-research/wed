@@ -195,6 +195,31 @@ describe("wed", function () {
         });
     });
 
+    it("an element that becomes empty acquires a placeholder", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".title").get(0);
+            var parent = initial.parentNode;
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.childNodes.length, 1);
+            assert.equal(initial.childNodes[0].nodeValue, "abcd");
+            editor.setDataCaret(initial, 0);
+            var caret = editor.getCaret();
+            assert.equal(caret[0].childNodes[caret[1]].nodeValue, "abcd");
+
+            // Delete all contents.
+            editor.data_updater.removeNode(initial.childNodes[0]);
+
+            // We should have a placeholder now, between the two labels.
+            assert.equal(caret[0].childNodes.length, 3);
+            assert.isTrue($(caret[0].childNodes[1]).is("._placeholder"));
+            done();
+        });
+    });
+
 
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
