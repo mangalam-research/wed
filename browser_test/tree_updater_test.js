@@ -154,6 +154,16 @@ describe("TreeUpdater", function () {
                  '</div></div>'), "after");
         });
 
+        it("does the right thing if spliting at end an element",
+           function () {
+            var top = $root.find(".body>.p")[0];
+            var node = top.childNodes[0];
+            // Make sure we're looking at the right stuff.
+            assert.equal(node.nodeValue.length, 4);
+            var pair = tu.splitAt(top, node, 4);
+            assert.equal(pair[0].outerHTML, '<div class="p _real">blah</div>');
+            assert.equal(pair[1].outerHTML, '<div class="p _real"></div>');
+        });
     });
 
     describe("insertText", function () {
