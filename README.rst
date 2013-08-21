@@ -11,6 +11,9 @@ This section covers only salient changes:
     least the same arguments. (It could require more if the mode
     requires it.)
 
+  - API change: modal callbacks are no longer called as ``callback(ev,
+    jQthis)`` but as ``callback(ev)``.
+
 * 0.7:
 
   - Wed gained saving and recovery capabilities.

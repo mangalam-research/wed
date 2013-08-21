@@ -176,10 +176,10 @@ describe("Modal", function () {
                 $dom.find(".btn-primary").click();
             }, 1);
 
-            modal.modal(function (ev, jQthis) {
+            modal.modal(function (ev) {
                 assert.equal(ev.type, "hide");
                 assert.equal(ev.namespace, "bs.modal");
-                assert.equal(jQthis, $dom.get(0));
+                assert.equal(ev.currentTarget, $dom.get(0));
                 assert.isTrue(clicked);
                 done();
             });
@@ -214,13 +214,13 @@ describe("Modal", function () {
             window.setTimeout(click, 1);
 
             var first = 0;
-            modal.modal(function (ev, jQthis) {
+            modal.modal(function (ev) {
                 first++;
             });
 
             window.setTimeout(click, 1);
             var second = 0;
-            modal.modal(function (ev, jQthis) {
+            modal.modal(function (ev) {
                 second++;
                 assert.equal(first, 1, "first handler count");
                 assert.equal(second, 1, "second handler count");
