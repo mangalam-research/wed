@@ -1,7 +1,7 @@
 define(["mocha/mocha", "chai", "test/global", "jquery", "wed/wed",
-        "wed/domutil", "rangy", "wed/key_constants", "wed/onerror"],
+        "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror) {
+                onerror, log) {
 var options = {
     schema: 'test/tei-simplified-rng.js',
     mode: {
@@ -195,6 +195,60 @@ describe("wed", function () {
         });
     });
 
+    it("clicking a gui element after typing text works", function (done) {
+        editor.whenCondition(
+            "initialized",
+            function () {
+            // Text node inside paragraph.
+            var initial = $(editor.data_root).find(".body>.p").get(0);
+            var parent = initial.parentNode;
+            editor.setDataCaret(initial.childNodes[0], 1);
+
+            // Synthetic event
+            var event = new $.Event("keydown");
+            key_constants.SPACE.setEventToMatch(event);
+            event.type = "keypress";
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
+
+            var caret = editor.getCaret();
+            var $last_gui = $(caret).closest(".p").children().last();
+            assert.isTrue($last_gui.is("._gui"));
+            var last_gui_span = $last_gui.children()[0];
+
+            // We're simulating how Chrome would handle it. When a
+            // mousedown event occurs, Chrome moves the caret *after*
+            // the mousedown event is processed.
+            event = new $.Event("mousedown");
+            event.target = last_gui_span;
+            var range = rangy.createRange(editor.my_window.document);
+            range.setStart(caret[0], caret[1]);
+            editor.getSelection().setSingleRange(range);
+
+            // This simulates the movement of the caret after the
+            // mousedown event is process. This will be processed
+            // after the mousedown handler but before _seekCaret is
+            // run.
+            window.setTimeout(log.wrap(function () {
+                var range = rangy.createRange(editor.my_window.document);
+                range.setStart(last_gui_span);
+                editor.getSelection().setSingleRange(range);
+            }), 0);
+
+            // We trigger the event here so that the order specified
+            // above is respected.
+            $(last_gui_span).trigger(event);
+
+            window.setTimeout(log.wrap(function () {
+                event = new $.Event("click");
+                event.target = last_gui_span;
+                $(last_gui_span).trigger(event);
+                done();
+            }), 1);
+        });
+    });
+
     it("an element that becomes empty acquires a placeholder", function (done) {
         editor.whenCondition(
             "first-validation-complete",
@@ -219,7 +273,6 @@ describe("wed", function () {
             done();
         });
     });
-
 
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
