@@ -5,14 +5,18 @@ This section covers only salient changes:
 
 * 0.8:
 
-  - API change. ``Decorator`` now takes the domlistener that listens
+  - API: ``Decorator`` now takes the domlistener that listens
     to GUI changes, the editor, and the TreeUpdater that updates the
     GUI tree.  Consequently ``mode.makeDecorator`` takes at the very
     least the same arguments. (It could require more if the mode
     requires it.)
 
-  - API change: modal callbacks are no longer called as ``callback(ev,
+  - API: modal callbacks are no longer called as ``callback(ev,
     jQthis)`` but as ``callback(ev)``.
+
+  - API: ``modal.getContextualActions`` takes two additional
+    parameters to tell the mode where the editor is interested in
+    getting actions.
 
 * 0.7:
 
