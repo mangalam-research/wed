@@ -249,6 +249,64 @@ describe("wed", function () {
         });
     });
 
+    it("clicking a phantom element after typing text works", function (done) {
+        editor.whenCondition(
+            "initialized",
+            function () {
+            // We create a special phantom element because the generic
+            // mode does not create any.
+            var title = editor.$gui_root.find(".title").get(0);
+            var phantom = $("<span class='_phantom'>phantom</span>").get(0);
+            title.insertBefore(phantom, null);
+
+            // Text node inside paragraph.
+            var initial = $(editor.data_root).find(".body>.p").get(0);
+            var parent = initial.parentNode;
+            editor.setDataCaret(initial.childNodes[0], 1);
+
+            // Synthetic event
+            var event = new $.Event("keydown");
+            key_constants.SPACE.setEventToMatch(event);
+            event.type = "keypress";
+            editor.$gui_root.trigger(event);
+            editor._syncDisplay();
+            assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
+
+            var caret = editor.getCaret();
+
+            // We're simulating how Chrome would handle it. When a
+            // mousedown event occurs, Chrome moves the caret *after*
+            // the mousedown event is processed.
+            event = new $.Event("mousedown");
+            event.target = phantom;
+            var range = rangy.createRange(editor.my_window.document);
+            range.setStart(caret[0], caret[1]);
+            editor.getSelection().setSingleRange(range);
+
+            // This simulates the movement of the caret after the
+            // mousedown event is process. This will be processed
+            // after the mousedown handler but before _seekCaret is
+            // run.
+            window.setTimeout(log.wrap(function () {
+                var range = rangy.createRange(editor.my_window.document);
+                range.setStart(phantom, 0);
+                editor.getSelection().setSingleRange(range);
+            }), 0);
+
+            // We trigger the event here so that the order specified
+            // above is respected.
+            $(phantom).trigger(event);
+
+            window.setTimeout(log.wrap(function () {
+                event = new $.Event("click");
+                event.target = phantom;
+                $(phantom).trigger(event);
+                done();
+            }), 1);
+        });
+    });
+
+
     it("an element that becomes empty acquires a placeholder", function (done) {
         editor.whenCondition(
             "first-validation-complete",
