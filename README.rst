@@ -4,6 +4,7 @@ Release History
 This section covers only salient changes:
 
 * 0.8:
+  - Internal: Now uses Bootstrap 3.0.0.
 
   - API: ``Decorator`` now takes the domlistener that listens
     to GUI changes, the editor, and the TreeUpdater that updates the
@@ -164,7 +165,7 @@ suite, is located in `<config/requirejs-config-dev.js>`_
 In all cases Wed requires the following packages:
 
 * jquery
-* bootstrap version 3-RC1 or a later version in the version 3 series.
+* Bootstrap version 3.0.0 or a later version in the version 3 series.
 * `salve <https://github.com/mangalam-research/salve/>`_
 * rangy
 
@@ -201,7 +202,7 @@ For now, wed uses a Makefile to build itself. Run::
     $ make
 
 This Makefile will download external packages (like jquery and
-bootstrap) and place them in `<downloads>`_. It will then create an
+Bootstrap) and place them in `<downloads>`_. It will then create an
 tree of files that could be served by a web server. The files will be
 in `<build/standalone>`_. As the name "standalone" implies this build
 includes **everything** needed to run wed on your own server, except
@@ -213,7 +214,7 @@ files in the `<web>`_ subdirectory.
 
 Eventually additional builds will be implemented for minified
 versions, barebones versions (containing only wed's files and assuming
-the other packages (jquery, bootstrap, salve, etc.) are provided by
+the other packages (jquery, Bootstrap, salve, etc.) are provided by
 the server through other means), etc.
 
 Testing

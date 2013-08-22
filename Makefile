@@ -27,8 +27,8 @@ RANGY_FILE=rangy-1.3alpha.772.tar.gz
 
 JQUERY_FILE=jquery-1.9.1.js
 
-BOOTSTRAP_URL=http://github.com/twbs/bootstrap/archive/v3.0.0-rc.2.zip
-BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
+BOOTSTRAP_URL=https://github.com/twbs/bootstrap/archive/v3.0.0.zip
+BOOTSTRAP_BASE=bootstrap-$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fortawesome.github.io/Font-Awesome/assets/
 FONTAWESOME_FILE=font-awesome.zip
 
@@ -88,7 +88,7 @@ downloads/$(JQUERY_FILE): | downloads
 	(cd downloads; wget 'http://code.jquery.com/$(JQUERY_FILE)' )
 
 downloads/$(BOOTSTRAP_BASE): | downloads
-	(cd downloads; wget '$(BOOTSTRAP_URL)')
+	(cd downloads; wget -O $(BOOTSTRAP_BASE) '$(BOOTSTRAP_URL)')
 
 downloads/$(FONTAWESOME_FILE): | downloads
 	(cd downloads; wget '$(FONTAWESOME_PATH)$(FONTAWESOME_FILE)')
