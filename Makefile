@@ -44,6 +44,9 @@ LOG4JAVASCRIPT_BASE=$(notdir $(LOG4JAVASCRIPT_FILE))
 BOOTSTRAP_GROWL_FILE=https://github.com/ifightcrime/bootstrap-growl/archive/v1.1.0.zip
 BOOTSTRAP_GROWL_BASE=bootstrap-growl-$(notdir $(BOOTSTRAP_GROWL_FILE))
 
+PURL_URL=https://github.com/allmarkedup/purl/archive/v2.3.1.zip
+PURL_BASE=purl-$(notdir $(PURL_URL))
+
 LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
@@ -55,9 +58,11 @@ all: build
 build-dir:
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone
+build: | build-standalone build-ks-files
 
 build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js build/standalone/lib/jquery.bootstrap-growl.js build/standalone/lib/font-awesome
+
+build-ks-files: build/ks/purl.js
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajaxdump
 
@@ -106,6 +111,9 @@ downloads/$(LOG4JAVASCRIPT_BASE): | downloads
 
 downloads/$(BOOTSTRAP_GROWL_BASE): | downloads
 	(cd downloads; wget -O $(BOOTSTRAP_GROWL_BASE) $(BOOTSTRAP_GROWL_FILE))
+
+downloads/$(PURL_BASE): | downloads
+	(cd downloads; wget -O $(PURL_BASE) $(PURL_URL))
 
 node_modules/%:
 	npm install
@@ -188,6 +196,14 @@ build/standalone/lib/salve: node_modules/salve/build/lib/salve
 	cp -rp $< $@
 # Sometimes the modification date on the top directory does not
 # get updated, so:
+	touch $@
+
+build/ks:
+	mkdir $@
+
+build/ks/purl.js: downloads/$(PURL_BASE) | build/ks
+	rm -rf $@
+	unzip -j -d $(dir $@) $< */$(notdir $@)
 	touch $@
 
 .PHONY: test

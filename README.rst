@@ -288,11 +288,10 @@ Demo
 
 The demo is located in `<web/kitchen-sink.html>`_. To run it, you must
 have a minimal server running just like the one needed to run the
-browser-dependent test suit and then point your browser to
-`<http://localhost:8888/web/kitchen-sink.html>`_ if you use the
-suggested servers or to whatever address is proper if you roll a
-server using a different port or address. The demo currently starts
-with an empty document using a vanilla TEI schema. Things you can do:
+browser-dependent test suite and then point your browser to
+`<http://localhost:8888/web/kitchen-sink.html>`_. The demo currently
+starts with an empty document using a vanilla TEI schema. Things you
+can do:
 
 * Use the left mouse button to bring up a context menu. Such menu
   exists for starting tags and all positions that are editable. This
@@ -317,6 +316,12 @@ with an empty document using a vanilla TEI schema. Things you can do:
 
 * Ctrl-. to go into development mode. This will bring up a log window
   and allow the use of F2 to dump the element to the console.
+
+It is possible to run the kitchen sink with a different mode than the
+default one (generic) by passing a ``mode`` parameter in the URL, for
+instance the URL
+`<http://localhost:8888/web/kitchen-sink.html?mode=tei>`_ would tell
+the kitchen sink to load the tei mode.
 
 Using
 =====
