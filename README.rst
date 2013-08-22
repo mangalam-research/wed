@@ -4,6 +4,10 @@ Release History
 This section covers only salient changes:
 
 * 0.8:
+
+  - API: Specifying a mode path can now be done in an abbreviated
+    fashion for modes bundled with wed.
+
   - Internal: Now uses Bootstrap 3.0.0.
 
   - API: ``Decorator`` now takes the domlistener that listens
@@ -348,10 +352,16 @@ To include wed in a web page you must:
     ``salve``'s documentation.
 
   + ``mode``: a simple object recording mode parameters. This object
-    must have a ``name`` field set to the RequireJS path of the
+    must have a ``path`` field set to the RequireJS path of the
     mode. An optional ``options`` field may contain options to be
     passed to the mode. Wed comes bundled with a generic mode located
     at `<lib/wed/modes/generic/generic.js>`_.
+
+    The ``path`` field may be abbreviated. For instance if wed is
+    given the path ``"foo"``, it will try to load the module
+    ``foo``. If this fails, it will try to load ``modes/foo/foo``.  If
+    this fails, it will try to load ``modes/foo/foo_mode``. These
+    paths are all relative to the wed directory.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS
@@ -364,7 +374,7 @@ Here is an example of an ``options`` object::
     {
          schema: 'test/tei-simplified-rng.js',
          mode: {
-             name: 'wed/modes/generic/generic',
+             path: 'wed/modes/generic/generic',
              options: {
                  meta: 'test/tei-meta'
              }
