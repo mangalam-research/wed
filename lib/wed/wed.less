@@ -22,13 +22,6 @@
     }
 }
 
-.wed-menu-layer {
-    z-index: 2;
-    >* {
-        position: absolute;
-    }
-}
-
 .wed-caret-layer {
     z-index: 1;
     >* {
@@ -46,6 +39,15 @@
         -webkit-animation: caret 1s linear infinite;
     }
 
+}
+
+.wed-context-menu {
+    position: fixed;
+    z-index: 2;
+
+    .dropdown-menu {
+            overflow-y: auto;
+    }
 }
 
 .wed-widget {
