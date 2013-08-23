@@ -100,6 +100,13 @@ Current known limitations:
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
 
+* Wed currently does not currently support editing attributes in a
+  generic way *as attributes*. The functionality just has not been
+  implemented **yet** because wed is developed in the context of a
+  project where all attributes are set by software or are edited
+  through domain-specific abstractions rather than directly, as
+  attributes. Other features are more pressing.
+
 * Eventually the plan is for having complete handling of XML namespace
   changes, and there is incipient code to deal with this but for now
   the safe thing to do if you have a file using multiple namespaces is
@@ -458,4 +465,5 @@ Humanities.
 ..  LocalWords:  json minified localhost CSS init pre Makefile saxon
 ..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD glyphicon
 ..  LocalWords:  getTransformationRegistry getContextualActions addr
-..  LocalWords:  fireTransformation glyphicons github tei onerror
+..  LocalWords:  fireTransformation glyphicons github tei onerror ev
+..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis
