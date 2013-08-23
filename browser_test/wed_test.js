@@ -348,7 +348,7 @@ describe("wed", function () {
             assert.isUndefined(editor.getCaret());
             activateContextMenu(editor);
             window.setTimeout(function () {
-                assert.isUndefined(editor._$current_dropdown);
+                assert.isUndefined(editor._current_dropdown);
                 done();
             }, 1);
         });
@@ -367,7 +367,7 @@ describe("wed", function () {
             assert.isUndefined(editor.getCaret());
             activateContextMenu(editor);
             window.setTimeout(function () {
-                assert.isUndefined(editor._$current_dropdown);
+                assert.isUndefined(editor._current_dropdown);
                 done();
             }, 1);
         });
@@ -384,7 +384,7 @@ describe("wed", function () {
 
             activateContextMenu(editor);
             window.setTimeout(function () {
-                assert.isDefined(editor._$current_dropdown);
+                assert.isDefined(editor._current_dropdown);
                 done();
             }, 1);
         });
