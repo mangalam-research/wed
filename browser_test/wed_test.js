@@ -733,12 +733,17 @@ describe("wed", function () {
                 }
             }
         };
-        editor._paste_modal.getTopLevel().on("hidden.bs.modal",
-                                             function () {
-            editor._syncDisplay();
-            assert.equal($p.get(0).innerHTML, initial_value);
-            dataCaretCheck(editor, initial, 0, "final position");
-            done();
+        var $top = editor._paste_modal.getTopLevel();
+        $top.one("shown.bs.modal", function () {
+            // Wait until visible to add this handler so that it is
+            // run after the callback that wed sets on the modal.
+            $top.one("hidden.bs.modal",
+                     function () {
+                editor._syncDisplay();
+                assert.equal($p.get(0).innerHTML, initial_value);
+                dataCaretCheck(editor, initial, 0, "final position");
+                done();
+            });
         });
         editor.$gui_root.trigger(event);
         // This clicks "No".
@@ -766,14 +771,18 @@ describe("wed", function () {
                 }
             }
         };
-        editor._paste_modal.getTopLevel().on("hidden.bs.modal",
-                                             function () {
-            editor._syncDisplay();
-            assert.equal($p.get(0).innerHTML,
-                         initial_outer_from_text_to_html + initial_value);
-            dataCaretCheck(editor, $p.get(0).childNodes[0],
-                           initial_outer.length, "final position");
-            done();
+        var $top = editor._paste_modal.getTopLevel();
+        $top.one("shown.bs.modal", function () {
+            // Wait until visible to add this handler so that it is
+            // run after the callback that wed sets on the modal.
+            $top.one("hidden.bs.modal", function () {
+                editor._syncDisplay();
+                assert.equal($p.get(0).innerHTML,
+                             initial_outer_from_text_to_html + initial_value);
+                dataCaretCheck(editor, $p.get(0).childNodes[0],
+                               initial_outer.length, "final position");
+                done();
+            });
         });
         editor.$gui_root.trigger(event);
         // This clicks "Yes".
@@ -811,17 +820,22 @@ describe("wed", function () {
         rangy.getSelection(editor.my_window).setSingleRange(range);
 
         assert.equal(p.innerHTML, original_inner_html);
+        var $top = editor.straddling_modal.getTopLevel();
+        $top.one("shown.bs.modal", function () {
+            // Wait until visible to add this handler so that it is
+            // run after the callback that wed sets on the modal.
+            $top.one("hidden.bs.modal",
+                     function () {
+                editor._syncDisplay();
+                assert.equal(p.innerHTML, original_inner_html);
+                caretCheck(editor, gui_end[0], gui_end[1],
+                           "final position");
+                done();
+            });
+        });
         // Synthetic event
         var event = new $.Event("cut");
         editor.$gui_root.trigger(event);
-        editor.straddling_modal.getTopLevel().on("hidden.bs.modal",
-                                                 function () {
-            editor._syncDisplay();
-            assert.equal(p.innerHTML, original_inner_html);
-            caretCheck(editor, gui_start[0], gui_start[1],
-                       "final position");
-            done();
-        });
         // This clicks dismisses the modal
         editor.straddling_modal._$footer.find(".btn-primary").get(0).click();
     });

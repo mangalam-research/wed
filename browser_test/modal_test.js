@@ -177,7 +177,7 @@ describe("Modal", function () {
             }, 1);
 
             modal.modal(function (ev) {
-                assert.equal(ev.type, "hide");
+                assert.equal(ev.type, "hidden");
                 assert.equal(ev.namespace, "bs.modal");
                 assert.equal(ev.currentTarget, $dom.get(0));
                 assert.isTrue(clicked);
