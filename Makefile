@@ -168,11 +168,6 @@ build/standalone/lib/requirejs: | build/standalone/lib
 build/standalone/lib/requirejs/%: downloads/% | build/standalone/lib/requirejs
 	cp $< $@
 
-# The following targets need to have an order dependency on the top
-# directories so that when a new version is installed, the target is
-# rebuilt. This is necessary because npm preserves the modification
-# times of the files *inside* the packages.
-
 build/standalone/lib/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
 	-mkdir $(dir $@)
 	unzip -d $(dir $@) $< log4javascript-*/js/*.js
@@ -183,6 +178,11 @@ else
 endif
 	rm -rf $(dir $@)/log4javascript-*
 	touch $@
+
+# The following targets need to have an order dependency on the top
+# directories so that when a new version is installed, the target is
+# rebuilt. This is necessary because npm preserves the modification
+# times of the files *inside* the packages.
 
 build/standalone/lib/chai.js: node_modules/chai/chai.js | node_modules/chai
 	cp $< $@
