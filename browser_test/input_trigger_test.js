@@ -62,7 +62,6 @@ describe("InputTrigger", function () {
         };
         editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
         assert.equal(seen, 1);
     });
 
@@ -130,7 +129,6 @@ describe("InputTrigger", function () {
         });
         var text = document.createTextNode("abcdef");
         $p.append(text);
-        editor._syncDisplay();
         assert.equal(seen, 0);
     });
 
@@ -174,7 +172,6 @@ describe("InputTrigger", function () {
 
            // Initiate the change.
            text.nodeValue = " blah...";
-           editor._syncDisplay();
            assert.equal(seen, 0);
        });
 
@@ -190,7 +187,6 @@ describe("InputTrigger", function () {
            var $p = editor.$data_root.find(".p").last();
            var text = document.createTextNode("...");
            $p.append(text);
-           editor._syncDisplay();
            assert.equal(seen, 0);
        });
 
@@ -217,7 +213,6 @@ describe("InputTrigger", function () {
             }
         };
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
 
         $ps = editor.$data_root.find(".body .p");
         assert.equal($ps.length, 3);

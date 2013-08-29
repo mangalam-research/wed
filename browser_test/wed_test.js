@@ -151,7 +151,6 @@ describe("wed", function () {
             key_constants.SPACE.setEventToMatch(event);
             event.type = "keypress";
             editor.$gui_root.trigger(event);
-            editor._syncDisplay();
             assert.equal(initial.nodeValue, " abcd");
             assert.equal(parent.childNodes.length, 3);
 
@@ -159,7 +158,6 @@ describe("wed", function () {
             key_constants.SPACE.setEventToMatch(event);
             event.type = "keypress";
             editor.$gui_root.trigger(event);
-            editor._syncDisplay();
             assert.equal(initial.nodeValue, "  abcd");
             assert.equal(parent.childNodes.length, 3);
 
@@ -168,7 +166,6 @@ describe("wed", function () {
             key_constants.SPACE.setEventToMatch(event);
             event.type = "keypress";
             editor.$gui_root.trigger(event);
-            editor._syncDisplay();
             assert.equal(initial.nodeValue, "   abcd");
             assert.equal(parent.childNodes.length, 3);
             done();
@@ -189,7 +186,6 @@ describe("wed", function () {
             key_constants.SPACE.setEventToMatch(event);
             event.type = "keypress";
             editor.$gui_root.trigger(event);
-            editor._syncDisplay();
             assert.equal(initial.childNodes.length, 2);
             done();
         });
@@ -209,7 +205,6 @@ describe("wed", function () {
             key_constants.SPACE.setEventToMatch(event);
             event.type = "keypress";
             editor.$gui_root.trigger(event);
-            editor._syncDisplay();
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
             var caret = editor.getCaret();
@@ -269,7 +264,6 @@ describe("wed", function () {
             key_constants.SPACE.setEventToMatch(event);
             event.type = "keypress";
             editor.$gui_root.trigger(event);
-            editor._syncDisplay();
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
             var caret = editor.getCaret();
@@ -685,7 +679,6 @@ describe("wed", function () {
             }
         };
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
         assert.equal(initial.nodeValue, "abcdef" + initial_value);
         var final_caret = editor.getDataCaret();
         dataCaretCheck(editor, initial, 6, "final position");
@@ -709,7 +702,6 @@ describe("wed", function () {
             }
         };
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
         assert.equal($p.get(0).innerHTML, initial_value + initial_value);
         dataCaretCheck(editor, $p.get(0).childNodes[2], 6,
                        "final position");
@@ -739,7 +731,6 @@ describe("wed", function () {
             // run after the callback that wed sets on the modal.
             $top.one("hidden.bs.modal",
                      function () {
-                editor._syncDisplay();
                 assert.equal($p.get(0).innerHTML, initial_value);
                 dataCaretCheck(editor, initial, 0, "final position");
                 done();
@@ -776,7 +767,6 @@ describe("wed", function () {
             // Wait until visible to add this handler so that it is
             // run after the callback that wed sets on the modal.
             $top.one("hidden.bs.modal", function () {
-                editor._syncDisplay();
                 assert.equal($p.get(0).innerHTML,
                              initial_outer_from_text_to_html + initial_value);
                 dataCaretCheck(editor, $p.get(0).childNodes[0],
@@ -801,7 +791,6 @@ describe("wed", function () {
         // Synthetic event
         var event = new $.Event("cut");
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
         window.setTimeout(function () {
             assert.equal(p.innerHTML, "Blah.");
             done();
@@ -826,7 +815,6 @@ describe("wed", function () {
             // run after the callback that wed sets on the modal.
             $top.one("hidden.bs.modal",
                      function () {
-                editor._syncDisplay();
                 assert.equal(p.innerHTML, original_inner_html);
                 caretCheck(editor, gui_end[0], gui_end[1],
                            "final position");
