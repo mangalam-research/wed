@@ -1,7 +1,8 @@
 define(["mocha/mocha", "chai", "test/global", "jquery", "wed/wed",
-        "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log"],
+        "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
+       "wed/key"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log) {
+                onerror, log, key) {
 var options = {
     schema: 'test/tei-simplified-rng.js',
     mode: {
@@ -52,6 +53,16 @@ function lastPH($container) {
         get(0).childNodes[0];
 }
 
+function type(editor, text) {
+    for(var ix = 0; ix < text.length; ++ix) {
+        var c = text[ix];
+        var k = key.makeKey(c);
+
+        var event = new $.Event("keydown");
+        k.setEventToMatch(event);
+        editor.$gui_root.trigger(event);
+    }
+}
 
 describe("wed", function () {
     var editor;
@@ -146,26 +157,16 @@ describe("wed", function () {
             // text node, which would throw off the
             // nodeToPath/pathToNode calculations.
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
+            type(editor, " ");
             assert.equal(initial.nodeValue, " abcd");
             assert.equal(parent.childNodes.length, 3);
 
-            event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
+            type(editor, " ");
             assert.equal(initial.nodeValue, "  abcd");
             assert.equal(parent.childNodes.length, 3);
 
             // This is where wed used to fail.
-            event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
+            type(editor, " ");
             assert.equal(initial.nodeValue, "   abcd");
             assert.equal(parent.childNodes.length, 3);
             done();
@@ -181,12 +182,90 @@ describe("wed", function () {
             var parent = initial.parentNode;
             editor.setDataCaret(initial, 1);
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
+            type(editor, " ");
             assert.equal(initial.childNodes.length, 2);
+            done();
+        });
+    });
+
+    it("typing text moves the caret", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            // There was a version of wed which would fail this
+            // test. The fake caret would be inserted inside the
+            // text node, which would throw off the
+            // nodeToPath/pathToNode calculations.
+
+            type(editor, "blah");
+            assert.equal(initial.nodeValue, "blahabcd");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 4, "caret after text insertion");
+            done();
+        });
+    });
+
+    it("undo undoes typed text as a group", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            // There was a version of wed which would fail this
+            // test. The fake caret would be inserted inside the
+            // text node, which would throw off the
+            // nodeToPath/pathToNode calculations.
+
+            type(editor, "blah");
+            assert.equal(initial.nodeValue, "blahabcd", "text after edit");
+            assert.equal(parent.childNodes.length, 3);
+
+            editor.undo();
+            assert.equal(initial.nodeValue, "abcd", "text after undo");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 0, "caret after undo");
+            done();
+        });
+    });
+
+    it("redo redoes typed text as a group", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            // There was a version of wed which would fail this
+            // test. The fake caret would be inserted inside the
+            // text node, which would throw off the
+            // nodeToPath/pathToNode calculations.
+
+            type(editor, "blah");
+            assert.equal(initial.nodeValue, "blahabcd", "text after edit");
+            assert.equal(parent.childNodes.length, 3);
+
+            editor.undo();
+            assert.equal(initial.nodeValue, "abcd", "text after undo");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 0, "caret after undo");
+
+            editor.redo();
+            assert.equal(initial.nodeValue, "blahabcd", "text after undo");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 4, "caret after redo");
             done();
         });
     });
@@ -200,11 +279,7 @@ describe("wed", function () {
             var parent = initial.parentNode;
             editor.setDataCaret(initial.childNodes[0], 1);
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
+            type(editor, " ");
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
             var caret = editor.getCaret();
@@ -215,7 +290,7 @@ describe("wed", function () {
             // We're simulating how Chrome would handle it. When a
             // mousedown event occurs, Chrome moves the caret *after*
             // the mousedown event is processed.
-            event = new $.Event("mousedown");
+            var event = new $.Event("mousedown");
             event.target = last_gui_span;
             var range = rangy.createRange(editor.my_window.document);
             range.setStart(caret[0], caret[1]);
@@ -259,11 +334,7 @@ describe("wed", function () {
             var parent = initial.parentNode;
             editor.setDataCaret(initial.childNodes[0], 1);
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
+            type(editor, " ");
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
             var caret = editor.getCaret();
@@ -271,7 +342,7 @@ describe("wed", function () {
             // We're simulating how Chrome would handle it. When a
             // mousedown event occurs, Chrome moves the caret *after*
             // the mousedown event is processed.
-            event = new $.Event("mousedown");
+            var event = new $.Event("mousedown");
             event.target = phantom;
             var range = rangy.createRange(editor.my_window.document);
             range.setStart(caret[0], caret[1]);
