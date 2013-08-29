@@ -37,8 +37,8 @@
           });
 
           afterEach(function () {
-              assert.isFalse(onerror.__test.is_terminating(),
-                            "test generated an uncaught exception");
+              if (onerror.__test.is_terminating())
+                  this.test.error(new Error("test generated an uncaught exception"));
           });
           describe("test-suite", function () {
               // What we are doing here is testing that we are indeed able
