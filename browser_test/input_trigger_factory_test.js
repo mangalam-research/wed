@@ -6,7 +6,7 @@ var assert = chai.assert;
 var options = {
     schema: 'test/tei-simplified-rng.js',
     mode: {
-        path: 'wed/modes/generic/generic',
+        path: 'test',
         options: {
             meta: 'wed/modes/generic/metas/tei_meta'
         }
