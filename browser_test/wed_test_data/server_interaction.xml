@@ -16,7 +16,6 @@
     <body>
       <p>Blah blah <term>blah</term> blah.</p>
       <p><term>blah</term></p>
-      <p><ref></ref></p>
     </body>
   </text>
 </TEI>
