@@ -3,6 +3,7 @@ var child_process = require("child_process");
 var fs = require("fs");
 var assert = require("chai").assert;
 describe("html-to-xml", function () {
+    this.timeout(0);
     // Reminder: paths are relative to where mocha is run.
     // I.e. the root of our source tree!
     var XSL = "lib/wed/html-to-xml.xsl";

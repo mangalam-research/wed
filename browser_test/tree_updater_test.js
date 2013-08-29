@@ -122,6 +122,11 @@ describe("TreeUpdater", function () {
            function () {
             var node = $root.find(".quote").get(0).childNodes[0];
             var top = $root.find(".text").get(0);
+            var body = $(top).find(".body").get(0);
+            // Drop the nodes form 3 onwards so that future additions don't
+            // change this test.
+            while(body.childNodes[3])
+                body.removeChild(body.childNodes[3]);
             var parent = top.parentNode;
 
             var pair = tu.splitAt(top, node, 3);
@@ -134,7 +139,7 @@ describe("TreeUpdater", function () {
                 ('<div class="text _real"><div class="body _real">' +
                  '<div class="p _real">blah</div><div class="p _real">' +
                  'before <div class="quote _real">quo</div></div></div>' +
-                 '</div>'));
+                 '</div>'), "before");
             assert.equal(pair[0], first_text);
             assert.equal(pair[1], next_text);
             assert.equal(
@@ -146,9 +151,19 @@ describe("TreeUpdater", function () {
                  '<div class="p _real"><div class="quote _real">quoted</div>' +
                  '<div class="quote _real">quoted2</div>' +
                  '<div class="quote _real">quoted3</div></div>' +
-                 '</div></div>'));
+                 '</div></div>'), "after");
         });
 
+        it("does the right thing if spliting at end an element",
+           function () {
+            var top = $root.find(".body>.p")[0];
+            var node = top.childNodes[0];
+            // Make sure we're looking at the right stuff.
+            assert.equal(node.nodeValue.length, 4);
+            var pair = tu.splitAt(top, node, 4);
+            assert.equal(pair[0].outerHTML, '<div class="p _real">blah</div>');
+            assert.equal(pair[1].outerHTML, '<div class="p _real"></div>');
+        });
     });
 
     describe("insertText", function () {
@@ -467,7 +482,8 @@ describe("TreeUpdater", function () {
     describe("removeNode", function () {
         it("generates appropriate events when removing a node",
            function () {
-            var node = $root.find(".body>.p").last().children(".quote").get(1);
+            var node = $($root.find(".body>.p").get(2)).children(".quote").
+                get(1);
             var parent = node.parentNode;
             assert.equal(parent.childNodes.length, 3);
             var listener = new Listener(tu);
@@ -526,9 +542,31 @@ describe("TreeUpdater", function () {
             listener.check();
         });
 
+        it("does not bork on missing previous text", function () {
+            // An earlier bug would cause an unhandled exception on this
+            // test.
+            var node = $($root.find(".body>.p").get(2)).
+                children(".quote").get(0);
+            var parent = node.parentNode;
+            var ret = tu.removeNode(node);
+            assert.equal(ret[0], parent);
+            assert.equal(ret[1], 0);
+        });
     });
 
     describe("removeNodes", function () {
+        it("fails on nodes of different parents", function () {
+            // An earlier bug would cause an unhandled exception on this
+            // test.
+            var node = $($root.find(".body>.p").get(2)).
+                children(".quote").get(0);
+            var parent = node.parentNode;
+            assert.Throw(tu.removeNodes.bind(tu, [node, node.parentNode]),
+                         Error,
+                         "nodes are not immediately contiguous in " +
+                         "document order");
+        });
+
         it("generates appropriate events when merging text", function () {
             var p = $root.find(".body>.p").get(1);
             var $p = $(p);
@@ -568,6 +606,17 @@ describe("TreeUpdater", function () {
                     parent.outerHTML,
                 ('<div class="p _real">before  after</div>'));
             listener.check();
+        });
+
+        it("does not bork on missing previous text", function () {
+            // An earlier bug would cause an unhandled exception on this
+            // test.
+            var node = $($root.find(".body>.p").get(2)).
+                children(".quote").get(0);
+            var parent = node.parentNode;
+            var ret = tu.removeNodes([node]);
+            assert.equal(ret[0], parent);
+            assert.equal(ret[1], 0);
         });
 
     });

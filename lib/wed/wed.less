@@ -6,6 +6,14 @@
    box-sizing: border-box;
 }
 
+.container {
+    max-width: none;
+}
+
+.modal-dialog {
+    width: auto;
+}
+
 .wed-alert-layer {
     z-index: 3;
     .wed-alert-layer-contents {
@@ -15,13 +23,6 @@
             position: relative;
             left: -50%;
         }
-    }
-}
-
-.wed-menu-layer {
-    z-index: 2;
-    >* {
-        position: absolute;
     }
 }
 
@@ -44,9 +45,64 @@
 
 }
 
+.wed-context-menu {
+    position: fixed;
+    z-index: 2;
+
+    .dropdown-menu {
+            overflow-y: auto;
+    }
+
+    .icon-remove {
+        color: red;
+    }
+
+    .icon-plus {
+        color: green;
+    }
+
+}
+
 .wed-widget {
     font-size: 24px;
     line-height: 1.2em;
+
+    .wed-validation-error {
+        color: red;
+        opacity: 0.7;
+        border-style: solid;
+
+        &.selected {
+            animation: blink 1s infinite;
+            -webkit-animation: blink 1s infinite;
+        }
+    }
+
+    .wed-sidebar-panel {
+        .panel {
+            overflow: visible;
+            .panel-body {
+                overflow-y: auto;
+                padding: 0;
+                .wed-errorlist li.selected {
+                    animation: blink 1s infinite;
+                    -webkit-animation: blink 1s infinite;
+                }
+            }
+        }
+    }
+
+    .nav>li>a {
+        padding: 0px;
+    }
+
+    .icon-remove {
+        color: red;
+    }
+
+    .icon-plus {
+        color: green;
+    }
 }
 
 div.wed-document {
@@ -96,8 +152,8 @@ div.wed-document {
 
         &._owns_caret {
             background-color: #C0C0C0;
-            animation: placeholder 1s infinite;
-            -webkit-animation: placeholder 1s infinite;
+            animation: blink 1s infinite;
+            -webkit-animation: blink 1s infinite;
         }
     }
 
@@ -130,13 +186,13 @@ div.wed-document {
 }
 
 
-@keyframes placeholder {
+@keyframes blink {
     0% { opacity: 0; }
     50% { opacity: 1; }
     100% { opacity: 0; }
 }
 
-@-webkit-keyframes placeholder {
+@-webkit-keyframes blink {
     0% { opacity: 0; }
     50% { opacity: 1; }
     100% { opacity: 0; }

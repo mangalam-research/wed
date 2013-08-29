@@ -1,7 +1,8 @@
 define(["mocha/mocha", "chai", "test/global", "jquery", "wed/wed",
-        "wed/domutil", "rangy", "wed/key_constants", "wed/onerror"],
+        "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
+       "wed/key"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror) {
+                onerror, log, key) {
 var options = {
     schema: 'test/tei-simplified-rng.js',
     mode: {
@@ -52,6 +53,16 @@ function lastPH($container) {
         get(0).childNodes[0];
 }
 
+function type(editor, text) {
+    for(var ix = 0; ix < text.length; ++ix) {
+        var c = text[ix];
+        var k = key.makeKey(c);
+
+        var event = new $.Event("keydown");
+        k.setEventToMatch(event);
+        editor.$gui_root.trigger(event);
+    }
+}
 
 describe("wed", function () {
     var editor;
@@ -146,34 +157,251 @@ describe("wed", function () {
             // text node, which would throw off the
             // nodeToPath/pathToNode calculations.
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
-            editor._syncDisplay();
+            type(editor, " ");
             assert.equal(initial.nodeValue, " abcd");
             assert.equal(parent.childNodes.length, 3);
 
-            event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
-            editor._syncDisplay();
+            type(editor, " ");
             assert.equal(initial.nodeValue, "  abcd");
             assert.equal(parent.childNodes.length, 3);
 
             // This is where wed used to fail.
-            event = new $.Event("keydown");
-            key_constants.SPACE.setEventToMatch(event);
-            event.type = "keypress";
-            editor.$gui_root.trigger(event);
-            editor._syncDisplay();
+            type(editor, " ");
             assert.equal(initial.nodeValue, "   abcd");
             assert.equal(parent.childNodes.length, 3);
             done();
         });
     });
+
+    it("typing text after an element works", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".body>.p").get(1);
+            var parent = initial.parentNode;
+            editor.setDataCaret(initial, 1);
+
+            type(editor, " ");
+            assert.equal(initial.childNodes.length, 2);
+            done();
+        });
+    });
+
+    it("typing text moves the caret", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            // There was a version of wed which would fail this
+            // test. The fake caret would be inserted inside the
+            // text node, which would throw off the
+            // nodeToPath/pathToNode calculations.
+
+            type(editor, "blah");
+            assert.equal(initial.nodeValue, "blahabcd");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 4, "caret after text insertion");
+            done();
+        });
+    });
+
+    it("undo undoes typed text as a group", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            // There was a version of wed which would fail this
+            // test. The fake caret would be inserted inside the
+            // text node, which would throw off the
+            // nodeToPath/pathToNode calculations.
+
+            type(editor, "blah");
+            assert.equal(initial.nodeValue, "blahabcd", "text after edit");
+            assert.equal(parent.childNodes.length, 3);
+
+            editor.undo();
+            assert.equal(initial.nodeValue, "abcd", "text after undo");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 0, "caret after undo");
+            done();
+        });
+    });
+
+    it("redo redoes typed text as a group", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            // There was a version of wed which would fail this
+            // test. The fake caret would be inserted inside the
+            // text node, which would throw off the
+            // nodeToPath/pathToNode calculations.
+
+            type(editor, "blah");
+            assert.equal(initial.nodeValue, "blahabcd", "text after edit");
+            assert.equal(parent.childNodes.length, 3);
+
+            editor.undo();
+            assert.equal(initial.nodeValue, "abcd", "text after undo");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 0, "caret after undo");
+
+            editor.redo();
+            assert.equal(initial.nodeValue, "blahabcd", "text after undo");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 4, "caret after redo");
+            done();
+        });
+    });
+
+    it("clicking a gui element after typing text works", function (done) {
+        editor.whenCondition(
+            "initialized",
+            function () {
+            // Text node inside paragraph.
+            var initial = $(editor.data_root).find(".body>.p").get(0);
+            var parent = initial.parentNode;
+            editor.setDataCaret(initial.childNodes[0], 1);
+
+            type(editor, " ");
+            assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
+
+            var caret = editor.getCaret();
+            var $last_gui = $(caret).closest(".p").children().last();
+            assert.isTrue($last_gui.is("._gui"));
+            var last_gui_span = $last_gui.children()[0];
+
+            // We're simulating how Chrome would handle it. When a
+            // mousedown event occurs, Chrome moves the caret *after*
+            // the mousedown event is processed.
+            var event = new $.Event("mousedown");
+            event.target = last_gui_span;
+            var range = rangy.createRange(editor.my_window.document);
+            range.setStart(caret[0], caret[1]);
+            editor.getSelection().setSingleRange(range);
+
+            // This simulates the movement of the caret after the
+            // mousedown event is process. This will be processed
+            // after the mousedown handler but before _seekCaret is
+            // run.
+            window.setTimeout(log.wrap(function () {
+                var range = rangy.createRange(editor.my_window.document);
+                range.setStart(last_gui_span);
+                editor.getSelection().setSingleRange(range);
+            }), 0);
+
+            // We trigger the event here so that the order specified
+            // above is respected.
+            $(last_gui_span).trigger(event);
+
+            window.setTimeout(log.wrap(function () {
+                event = new $.Event("click");
+                event.target = last_gui_span;
+                $(last_gui_span).trigger(event);
+                done();
+            }), 1);
+        });
+    });
+
+    it("clicking a phantom element after typing text works", function (done) {
+        editor.whenCondition(
+            "initialized",
+            function () {
+            // We create a special phantom element because the generic
+            // mode does not create any.
+            var title = editor.$gui_root.find(".title").get(0);
+            var phantom = $("<span class='_phantom'>phantom</span>").get(0);
+            title.insertBefore(phantom, null);
+
+            // Text node inside paragraph.
+            var initial = $(editor.data_root).find(".body>.p").get(0);
+            var parent = initial.parentNode;
+            editor.setDataCaret(initial.childNodes[0], 1);
+
+            type(editor, " ");
+            assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
+
+            var caret = editor.getCaret();
+
+            // We're simulating how Chrome would handle it. When a
+            // mousedown event occurs, Chrome moves the caret *after*
+            // the mousedown event is processed.
+            var event = new $.Event("mousedown");
+            event.target = phantom;
+            var range = rangy.createRange(editor.my_window.document);
+            range.setStart(caret[0], caret[1]);
+            editor.getSelection().setSingleRange(range);
+
+            // This simulates the movement of the caret after the
+            // mousedown event is process. This will be processed
+            // after the mousedown handler but before _seekCaret is
+            // run.
+            window.setTimeout(log.wrap(function () {
+                var range = rangy.createRange(editor.my_window.document);
+                range.setStart(phantom, 0);
+                editor.getSelection().setSingleRange(range);
+            }), 0);
+
+            // We trigger the event here so that the order specified
+            // above is respected.
+            $(phantom).trigger(event);
+
+            window.setTimeout(log.wrap(function () {
+                event = new $.Event("click");
+                event.target = phantom;
+                $(phantom).trigger(event);
+                done();
+            }), 1);
+        });
+    });
+
+
+    it("an element that becomes empty acquires a placeholder", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".title").get(0);
+            var parent = initial.parentNode;
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.childNodes.length, 1);
+            assert.equal(initial.childNodes[0].nodeValue, "abcd");
+            editor.setDataCaret(initial, 0);
+            var caret = editor.getCaret();
+            assert.equal(caret[0].childNodes[caret[1]].nodeValue, "abcd");
+
+            // Delete all contents.
+            editor.data_updater.removeNode(initial.childNodes[0]);
+
+            // We should have a placeholder now, between the two labels.
+            assert.equal(caret[0].childNodes.length, 3);
+            assert.isTrue($(caret[0].childNodes[1]).is("._placeholder"));
+            done();
+        });
+    });
+
+    function activateContextMenu(editor) {
+        var event = new $.Event("mousedown");
+        event.which = 3;
+        editor.$gui_root.trigger(event);
+    }
 
     it("does not bring up a contextual menu when there is no caret",
        function (done) {
@@ -183,10 +411,11 @@ describe("wed", function () {
             var initial = $(editor.gui_root).find(".title").
                 get(0).childNodes[1];
             assert.isUndefined(editor.getCaret());
-            var event = new $.Event("contextmenu");
-            editor.$gui_root.trigger(event);
-            assert.equal(editor.menu_layer.childNodes.length, 0);
-            done();
+            activateContextMenu(editor);
+            window.setTimeout(function () {
+                assert.isUndefined(editor._current_dropdown);
+                done();
+            }, 1);
         });
     });
 
@@ -201,10 +430,11 @@ describe("wed", function () {
             range.selectNode($("div", editor.my_window.document).get(0));
             rangy.getSelection(editor.my_window).setSingleRange(range);
             assert.isUndefined(editor.getCaret());
-            var event = new $.Event("contextmenu");
-            editor.$gui_root.trigger(event);
-            assert.equal(editor.menu_layer.childNodes.length, 0);
-            done();
+            activateContextMenu(editor);
+            window.setTimeout(function () {
+                assert.isUndefined(editor._current_dropdown);
+                done();
+            }, 1);
         });
     });
 
@@ -216,10 +446,12 @@ describe("wed", function () {
             var initial = $(editor.gui_root).find(".title").
                 get(0).childNodes[1];
             editor.setCaret(initial, 0);
-            var event = new $.Event("contextmenu");
-            editor.$gui_root.trigger(event);
-            assert.equal(editor.menu_layer.childNodes.length, 1);
-            done();
+
+            activateContextMenu(editor);
+            window.setTimeout(function () {
+                assert.isDefined(editor._current_dropdown);
+                done();
+            }, 1);
         });
     });
 
@@ -518,7 +750,6 @@ describe("wed", function () {
             }
         };
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
         assert.equal(initial.nodeValue, "abcdef" + initial_value);
         var final_caret = editor.getDataCaret();
         dataCaretCheck(editor, initial, 6, "final position");
@@ -542,7 +773,6 @@ describe("wed", function () {
             }
         };
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
         assert.equal($p.get(0).innerHTML, initial_value + initial_value);
         dataCaretCheck(editor, $p.get(0).childNodes[2], 6,
                        "final position");
@@ -566,12 +796,16 @@ describe("wed", function () {
                 }
             }
         };
-        editor._paste_modal.getTopLevel().on("hidden.bs.modal",
-                                             function () {
-            editor._syncDisplay();
-            assert.equal($p.get(0).innerHTML, initial_value);
-            dataCaretCheck(editor, initial, 0, "final position");
-            done();
+        var $top = editor._paste_modal.getTopLevel();
+        $top.one("shown.bs.modal", function () {
+            // Wait until visible to add this handler so that it is
+            // run after the callback that wed sets on the modal.
+            $top.one("hidden.bs.modal",
+                     function () {
+                assert.equal($p.get(0).innerHTML, initial_value);
+                dataCaretCheck(editor, initial, 0, "final position");
+                done();
+            });
         });
         editor.$gui_root.trigger(event);
         // This clicks "No".
@@ -599,14 +833,17 @@ describe("wed", function () {
                 }
             }
         };
-        editor._paste_modal.getTopLevel().on("hidden.bs.modal",
-                                             function () {
-            editor._syncDisplay();
-            assert.equal($p.get(0).innerHTML,
-                         initial_outer_from_text_to_html + initial_value);
-            dataCaretCheck(editor, $p.get(0).childNodes[0],
-                           initial_outer.length, "final position");
-            done();
+        var $top = editor._paste_modal.getTopLevel();
+        $top.one("shown.bs.modal", function () {
+            // Wait until visible to add this handler so that it is
+            // run after the callback that wed sets on the modal.
+            $top.one("hidden.bs.modal", function () {
+                assert.equal($p.get(0).innerHTML,
+                             initial_outer_from_text_to_html + initial_value);
+                dataCaretCheck(editor, $p.get(0).childNodes[0],
+                               initial_outer.length, "final position");
+                done();
+            });
         });
         editor.$gui_root.trigger(event);
         // This clicks "Yes".
@@ -625,7 +862,6 @@ describe("wed", function () {
         // Synthetic event
         var event = new $.Event("cut");
         editor.$gui_root.trigger(event);
-        editor._syncDisplay();
         window.setTimeout(function () {
             assert.equal(p.innerHTML, "Blah.");
             done();
@@ -644,17 +880,21 @@ describe("wed", function () {
         rangy.getSelection(editor.my_window).setSingleRange(range);
 
         assert.equal(p.innerHTML, original_inner_html);
+        var $top = editor.straddling_modal.getTopLevel();
+        $top.one("shown.bs.modal", function () {
+            // Wait until visible to add this handler so that it is
+            // run after the callback that wed sets on the modal.
+            $top.one("hidden.bs.modal",
+                     function () {
+                assert.equal(p.innerHTML, original_inner_html);
+                caretCheck(editor, gui_end[0], gui_end[1],
+                           "final position");
+                done();
+            });
+        });
         // Synthetic event
         var event = new $.Event("cut");
         editor.$gui_root.trigger(event);
-        editor.straddling_modal.getTopLevel().on("hidden.bs.modal",
-                                                 function () {
-            editor._syncDisplay();
-            assert.equal(p.innerHTML, original_inner_html);
-            caretCheck(editor, gui_start[0], gui_start[1],
-                       "final position");
-            done();
-        });
         // This clicks dismisses the modal
         editor.straddling_modal._$footer.find(".btn-primary").get(0).click();
     });
@@ -671,8 +911,8 @@ describe("wed", function () {
                 $.get("/build/ajax/save.txt", function (data) {
                     var obj = {
                         command: 'save',
-                        version: '0.6.0',
-                        data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                        version: wed.version,
+                        data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                     };
                     var expected = "\n***\n" + JSON.stringify(obj);
                     assert.equal(data, expected);
@@ -723,8 +963,8 @@ describe("wed", function () {
                     $.get("/build/ajax/save.txt", function (data) {
                         var obj = {
                             command: 'save',
-                            version: '0.6.0',
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                            version: wed.version,
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
@@ -752,8 +992,8 @@ describe("wed", function () {
                     $.get("/build/ajax/save.txt", function (data) {
                         var obj = {
                             command: 'recover',
-                            version: '0.6.0',
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div></div></div></div>'
+                            version: wed.version,
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);

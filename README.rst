@@ -1,72 +1,3 @@
-Release History
-===============
-
-This section covers only salient changes:
-
-* 0.7:
-
-  - Wed gained saving and recovery capabilities.
-
-  - Wed gained capabilities for logging information to a server
-    through Ajax calls.
-
-* 0.6:
-
-  - Internal: wed no longer works with Twitter Bootstrap version 2 and
-    now requires version 3 RC1 or later. This version of Bootstrap
-    fixes some problems that recently turned out to present
-    significant hurdles in wed's development. Unfortunately, version
-    3's API is **very** different from version 2's so it is not
-    possible to trivially support both versions.
-
-  - GUI: Wed no longer uses glyphicons. Upon reviewing the glyphicons
-    license, I noticed a requirement that all pages which use
-    glyphicons contain some advertisement for glyphicons. I'm not
-    going to require that those who use wed **pollute their web
-    pages** with such advertisement.
-
-  - GUI: Wed now uses Font Awesome.
-
-  - API: ``Mode.getTransformationRegistry()`` is gone. Wed now
-    gets a mode's actions by calling
-    ``getContextualActions(...)``.
-
-  - API: ``fireTransformation`` no longer accepts a
-    new_caret_position.
-
-  - API: transformations are now a special case of actions.
-
-* 0.5 introduces major changes:
-
-  - GUI: previous versions of wed had included some placeholders
-    between XML elements so that insertion of new elements would be
-    done by putting the caret into the placeholder and selecting the
-    contextual menu. These placeholders proved unwieldy. Version 0.5
-    removes these placeholders to instead have the contextual menu on
-    starting and ending tags of elements serve respectively to add
-    elements before and after an element.
-
-  - Internal: wed now uses ``less`` to generate CSS.
-
-  - Internal: wed now maintains two DOM trees representing the
-    document. The first is a representation of the document's XML
-    data. The second is an HTML-decorated representation of this same
-    data for display purposes.
-
-* 0.4 introduces major API changes:
-
-  - Whereas the ``mode`` option used to be a simple path to the mode
-    to load, it is now a simple object that must have the field
-    ``name`` set to what ``mode`` used to be. See the `Using`_
-    section.
-
-  - Creating and initializing a wed instance has changed
-    considerably. Instead of calling ``wed.editor()`` with appropriate
-    parameters, the user must first issue ``new wed.Editor()`` without
-    parameters and then call the ``init()`` method with the parameters
-    that were originally passed to the ``editor()`` function. See the
-    `Using`_ section for the new way to create an editor.
-
 Introduction
 ============
 
@@ -79,6 +10,13 @@ Current known limitations:
 
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
+
+* Wed currently does not currently support editing attributes in a
+  generic way *as attributes*. The functionality just has not been
+  implemented **yet** because wed is developed in the context of a
+  project where all attributes are set by software or are edited
+  through domain-specific abstractions rather than directly, as
+  attributes. Other features are more pressing.
 
 * Eventually the plan is for having complete handling of XML namespace
   changes, and there is incipient code to deal with this but for now
@@ -149,7 +87,7 @@ suite, is located in `<config/requirejs-config-dev.js>`_
 In all cases Wed requires the following packages:
 
 * jquery
-* bootstrap version 3-RC1 or a later version in the version 3 series.
+* Bootstrap version 3.0.0 or a later version in the version 3 series.
 * `salve <https://github.com/mangalam-research/salve/>`_
 * rangy
 
@@ -186,7 +124,7 @@ For now, wed uses a Makefile to build itself. Run::
     $ make
 
 This Makefile will download external packages (like jquery and
-bootstrap) and place them in `<downloads>`_. It will then create an
+Bootstrap) and place them in `<downloads>`_. It will then create an
 tree of files that could be served by a web server. The files will be
 in `<build/standalone>`_. As the name "standalone" implies this build
 includes **everything** needed to run wed on your own server, except
@@ -198,7 +136,7 @@ files in the `<web>`_ subdirectory.
 
 Eventually additional builds will be implemented for minified
 versions, barebones versions (containing only wed's files and assuming
-the other packages (jquery, bootstrap, salve, etc.) are provided by
+the other packages (jquery, Bootstrap, salve, etc.) are provided by
 the server through other means), etc.
 
 Testing
@@ -268,11 +206,10 @@ Demo
 
 The demo is located in `<web/kitchen-sink.html>`_. To run it, you must
 have a minimal server running just like the one needed to run the
-browser-dependent test suit and then point your browser to
-`<http://localhost:8888/web/kitchen-sink.html>`_ if you use the
-suggested servers or to whatever address is proper if you roll a
-server using a different port or address. The demo currently starts
-with an empty document using a vanilla TEI schema. Things you can do:
+browser-dependent test suite and then point your browser to
+`<http://localhost:8888/web/kitchen-sink.html>`_. The demo currently
+starts with an empty document using a vanilla TEI schema. Things you
+can do:
 
 * Use the left mouse button to bring up a context menu. Such menu
   exists for starting tags and all positions that are editable. This
@@ -297,6 +234,12 @@ with an empty document using a vanilla TEI schema. Things you can do:
 
 * Ctrl-. to go into development mode. This will bring up a log window
   and allow the use of F2 to dump the element to the console.
+
+It is possible to run the kitchen sink with a different mode than the
+default one (generic) by passing a ``mode`` parameter in the URL, for
+instance the URL
+`<http://localhost:8888/web/kitchen-sink.html?mode=tei>`_ would tell
+the kitchen sink to load the tei mode.
 
 Using
 =====
@@ -332,10 +275,16 @@ To include wed in a web page you must:
     ``salve``'s documentation.
 
   + ``mode``: a simple object recording mode parameters. This object
-    must have a ``name`` field set to the RequireJS path of the
+    must have a ``path`` field set to the RequireJS path of the
     mode. An optional ``options`` field may contain options to be
     passed to the mode. Wed comes bundled with a generic mode located
     at `<lib/wed/modes/generic/generic.js>`_.
+
+    The ``path`` field may be abbreviated. For instance if wed is
+    given the path ``"foo"``, it will try to load the module
+    ``foo``. If this fails, it will try to load ``modes/foo/foo``.  If
+    this fails, it will try to load ``modes/foo/foo_mode``. These
+    paths are all relative to the wed directory.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS
@@ -348,7 +297,7 @@ Here is an example of an ``options`` object::
     {
          schema: 'test/tei-simplified-rng.js',
          mode: {
-             name: 'wed/modes/generic/generic',
+             path: 'wed/modes/generic/generic',
              options: {
                  meta: 'test/tei-meta'
              }
@@ -427,4 +376,5 @@ Humanities.
 ..  LocalWords:  json minified localhost CSS init pre Makefile saxon
 ..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD glyphicon
 ..  LocalWords:  getTransformationRegistry getContextualActions addr
-..  LocalWords:  fireTransformation glyphicons github tei onerror
+..  LocalWords:  fireTransformation glyphicons github tei onerror ev
+..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis

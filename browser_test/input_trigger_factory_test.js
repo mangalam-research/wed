@@ -129,7 +129,6 @@ describe("input_trigger_factory", function () {
             };
             editor.setDataCaret($ps.get(0), 0);
             editor.$gui_root.trigger(event);
-            editor._syncDisplay();
 
             $ps = editor.$data_root.find(".body .p");
             assert.equal($ps.length, 3);
