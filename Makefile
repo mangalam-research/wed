@@ -64,7 +64,7 @@ build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/stand
 
 build-ks-files: build/ks/purl.js
 
-build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajaxdump
+build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
 
 build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
@@ -80,7 +80,7 @@ build/standalone/lib/%: lib/%
 build/standalone/lib/%.css: lib/%.less
 	lessc $< $@
 
-build/standalone build/ajaxdump: | build-dir
+build/standalone build/ajax: | build-dir
 	-mkdir $@
 
 downloads:
