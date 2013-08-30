@@ -49,10 +49,9 @@ function lastPH($container) {
 
 function type(editor, text) {
     for(var ix = 0; ix < text.length; ++ix) {
-        var c = text[ix];
-        var k = key.makeKey(c);
-        if (c === " ")
-            k = key_constants.SPACE;
+        var k = text[ix];
+        if (typeof(k) === "string")
+            k = (k === " ") ? key_constants.SPACE : key.makeKey(k);
 
         var event = new $.Event("keydown");
         k.setEventToMatch(event);
@@ -183,7 +182,7 @@ describe("wed", function () {
         });
     });
 
-    it("typing text in phantom text fails", function (done) {
+    it("typing text in phantom text does nothing", function (done) {
         editor.whenCondition(
             "first-validation-complete",
             function () {

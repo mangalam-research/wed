@@ -16,13 +16,14 @@ var options = {
 var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
 var $wedroot = $(wedroot);
 // Yes, we use *input_trigger* test data.
-var source = "../../test-files/input_trigger_test_data/source_converted.xml";
+var src_stack =
+        ["../../test-files/input_trigger_test_data/source_converted.xml"];
 
 describe("input_trigger_factory", function () {
     var editor;
     beforeEach(function (done) {
         $wedroot.empty();
-        require(["requirejs/text!" + source], function(data) {
+        require(["requirejs/text!" + src_stack[0]], function(data) {
             $wedroot.append(data);
             editor = new wed.Editor();
             editor.addEventListener("initialized", function () {
@@ -141,7 +142,49 @@ describe("input_trigger_factory", function () {
                          '<div class="term _real">blah</div>'+
                          '<div class="term _real">blah2</div> blah.</div>');
         });
+    });
 
+    describe("makeSplitMergeInputTrigger", function () {
+        before(function () {
+            src_stack.unshift("../../test-files/input_trigger_test_data/source2_converted.xml");
+        });
+        after(function () {
+            src_stack.shift();
+        });
+
+        it("creates an InputTrigger that backspace in phantom text",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            // Synthetic event
+            var event = new $.Event("keydown");
+            key_constants.BACKSPACE.setEventToMatch(event);
+            editor.setCaret(
+                editor.$gui_root.find(".p>.ref")[0].childNodes[0], 1);
+            editor.$gui_root.trigger(event);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1);
+        });
+
+        it("creates an InputTrigger that delete in phantom text",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            // Synthetic event
+            var event = new $.Event("keydown");
+            key_constants.DELETE.setEventToMatch(event);
+            editor.setCaret(
+                editor.$gui_root.find(".p>.ref")[0].lastChild, 0);
+            editor.$gui_root.trigger(event);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1);
+        });
     });
 });
 
