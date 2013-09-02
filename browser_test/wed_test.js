@@ -6,15 +6,9 @@ define(["mocha/mocha", "chai", "test/global", "jquery", "wed/wed",
 var options = {
     schema: 'test/tei-simplified-rng.js',
     mode: {
-        path: 'wed/modes/generic/generic',
+        path: 'test',
         options: {
-            meta: 'wed/modes/generic/metas/tei_meta',
-            // This option is for testing only, not to be used as
-            // part of normal operations. It may change at any
-            // time, without warning, and without documentation.
-            __test: {
-                no_element_decoration: ["term"]
-            }
+            meta: 'wed/modes/generic/metas/tei_meta'
         }
     }
 };
@@ -22,7 +16,7 @@ var assert = chai.assert;
 
 var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
 var $wedroot = $(wedroot);
-var source = "../../test-files/wed_test_data/source_converted.xml";
+var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 
 function caretCheck(editor, container, offset, msg) {
     assert.equal(editor._raw_caret[0], container, msg + " (container)");
@@ -55,8 +49,9 @@ function lastPH($container) {
 
 function type(editor, text) {
     for(var ix = 0; ix < text.length; ++ix) {
-        var c = text[ix];
-        var k = key.makeKey(c);
+        var k = text[ix];
+        if (typeof(k) === "string")
+            k = (k === " ") ? key_constants.SPACE : key.makeKey(k);
 
         var event = new $.Event("keydown");
         k.setEventToMatch(event);
@@ -68,7 +63,7 @@ describe("wed", function () {
     var editor;
     beforeEach(function (done) {
         $wedroot.empty();
-        require(["requirejs/text!" + source], function(data) {
+        require(["requirejs/text!" + src_stack[0]], function(data) {
             $wedroot.append(data);
             editor = new wed.Editor();
             editor.addEventListener("initialized", function () {
@@ -173,11 +168,28 @@ describe("wed", function () {
         });
     });
 
-    it("typing text after an element works", function (done) {
+    it("typing longer than the length of a text undo works", function (done) {
         editor.whenCondition(
             "first-validation-complete",
             function () {
             // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            var text =  new Array(editor._text_undo_max_length + 1).join("a");
+            type(editor, text);
+            assert.equal(initial.nodeValue, text + "abcd");
+            assert.equal(parent.childNodes.length, 3);
+            done();
+        });
+    });
+
+    it("typing text after an element works", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
             var initial = $(editor.data_root).find(".body>.p").get(1);
             var parent = initial.parentNode;
             editor.setDataCaret(initial, 1);
@@ -187,6 +199,25 @@ describe("wed", function () {
             done();
         });
     });
+
+    it("typing text in phantom text does nothing", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            var ref = $(editor.$gui_root.find(".body>.p")[2]).children(".ref")[0];
+            var initial = ref.childNodes[0];
+
+            // Make sure we're looking at the right thing.
+            assert.isTrue($(initial).is("._phantom"), " initial is phantom");
+            assert.equal($(initial).text(), "(", "initial's value");
+            editor.setCaret(initial, 1);
+
+            type(editor, " ");
+            assert.equal($(initial).text(), "(", "initial's value after");
+            done();
+        });
+    });
+
 
     it("typing text moves the caret", function (done) {
         editor.whenCondition(
@@ -900,6 +931,14 @@ describe("wed", function () {
     });
 
     describe("interacts with the server:", function () {
+        before(function () {
+            src_stack.unshift("../../test-files/wed_test_data/server_interaction_converted.xml");
+        });
+
+        after(function () {
+            src_stack.shift();
+        });
+
         beforeEach(function (done) {
             global.reset(done);
         });
@@ -924,6 +963,14 @@ describe("wed", function () {
     });
 
     describe("fails as needed and recovers:", function () {
+        before(function () {
+            src_stack.unshift("../../test-files/wed_test_data/server_interaction_converted.xml");
+        });
+
+        after(function () {
+            src_stack.shift();
+        });
+
         beforeEach(function (done) {
             global.reset(done);
         });

@@ -1,5 +1,25 @@
 Only salient changes are recorded here.
 
+* 0.9.0:
+
+  - GUI: Wed now actually uses the icons set on actions.
+
+  - API: ``Editor.{get,set}CaretAsPath`` were not used anywhere and
+    thus were removed.
+
+  - API: ``Editor.{get,set}DataCaretAsPath`` were only used by
+    wundo.js and thus removed from the ``Editor`` API and moved to
+    wundo.
+
+  - API: ``Editor.getDataCaret`` and ``Editor.toDataCaret`` are now
+    able to return approximate positions when the GUI caret happens to
+    be in a position for which there is no corresponding data caret.
+
+  - A few deal-breaker bugs were fixed. They were major enough to
+    require a new release, but the changes above required a minor
+    release rather than a patch release. Therefore, 0.9.0 and not
+    0.8.1.
+
 * 0.8:
 
   - GUI: validation error reporting is more user friendly than it used
@@ -12,14 +32,14 @@ Only salient changes are recorded here.
 
   - API: ``Decorator`` now takes the domlistener that listens
     to GUI changes, the editor, and the TreeUpdater that updates the
-    GUI tree.  Consequently ``mode.makeDecorator`` takes at the very
+    GUI tree.  Consequently ``Mode.makeDecorator`` takes at the very
     least the same arguments. (It could require more if the mode
     requires it.)
 
   - API: modal callbacks are no longer called as ``callback(ev,
     jQthis)`` but as ``callback(ev)``.
 
-  - API: ``modal.getContextualActions`` takes two additional
+  - API: ``Modal.getContextualActions`` takes two additional
     parameters to tell the mode where the editor is interested in
     getting actions.
 
@@ -77,8 +97,10 @@ Only salient changes are recorded here.
 
   - Whereas the ``mode`` option used to be a simple path to the mode
     to load, it is now a simple object that must have the field
-    ``name`` set to what ``mode`` used to be. See the `Using`_
+    ``name`` set to what ``mode`` used to be. See the Using_
     section.
+
+.. _Using: README.html#using
 
   - Creating and initializing a wed instance has changed
     considerably. Instead of calling ``wed.editor()`` with appropriate
@@ -86,3 +108,8 @@ Only salient changes are recorded here.
     parameters and then call the ``init()`` method with the parameters
     that were originally passed to the ``editor()`` function. See the
     `Using`_ section for the new way to create an editor.
+
+..  LocalWords:  API CaretAsPath DataCaretAsPath wundo js toDataCaret
+..  LocalWords:  getDataCaret domlistener TreeUpdater makeDecorator
+..  LocalWords:  ev jQthis getContextualActions wed's glyphicons CSS
+..  LocalWords:  getTransformationRegistry fireTransformation init

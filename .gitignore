@@ -3,4 +3,5 @@ downloads
 build
 local.mk
 README.html
+CHANGELOG.html
 *_flymake.*
