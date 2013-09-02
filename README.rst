@@ -86,10 +86,11 @@ suite, is located in `<config/requirejs-config-dev.js>`_
 
 In all cases Wed requires the following packages:
 
-* jquery
+* jquery 1.9.1 or higher
 * Bootstrap version 3.0.0 or a later version in the version 3 series.
 * `salve <https://github.com/mangalam-research/salve/>`_
-* rangy
+* rangy, together with its ``selectionsaverestore`` module.
+* bootstrap-growl
 
 Loading wed in a Node.js environment requires installing the
 following node package:
@@ -101,8 +102,8 @@ Building wed **additionally** requires the following node packages:
 * less
 
 Since wed is not yet distributed in a pre-compiled form, you
-effectively need these packages installed if you want to use wed
-because you have to build it first.
+effectively need the packages required to build wed installed if you
+want to use wed because you have to build it first.
 
 Running wed's tests **additionally** requires the following node
 packages:
@@ -118,6 +119,11 @@ dependencies. Running the test suite additionally requires that `saxon
 
 Building
 ========
+
+Everything generated during a build is into the ``build``
+subdirectory, except for some documentation files like
+`<README.html>`_ and `<CHANGELOG.html>`_ which are in the root
+directory.
 
 For now, wed uses a Makefile to build itself. Run::
 
@@ -377,4 +383,5 @@ Humanities.
 ..  LocalWords:  barebones py TEI Ctrl hoc schemas CDATA HD glyphicon
 ..  LocalWords:  getTransformationRegistry getContextualActions addr
 ..  LocalWords:  fireTransformation glyphicons github tei onerror ev
-..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis
+..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis README
+..  LocalWords:  selectionsaverestore CHANGELOG
