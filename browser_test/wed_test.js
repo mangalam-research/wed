@@ -168,6 +168,24 @@ describe("wed", function () {
         });
     });
 
+    it("typing longer than the length of a text undo works", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title").
+                get(0).childNodes[1];
+            var parent = initial.parentNode;
+            editor.setCaret(initial, 0);
+
+            var text =  new Array(editor._text_undo_max_length + 1).join("a");
+            type(editor, text);
+            assert.equal(initial.nodeValue, text + "abcd");
+            assert.equal(parent.childNodes.length, 3);
+            done();
+        });
+    });
+
     it("typing text after an element works", function (done) {
         editor.whenCondition(
             "first-validation-complete",
