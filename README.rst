@@ -51,16 +51,17 @@ below, plans are afoot to use Sauce Labs' `Open Sauce
 <https://saucelabs.com/opensauce>`_ to improve support for platforms
 other than PC-based Chrome and Firefox. Stay tuned.
 
-Wed is primarily developed using a recent version of Chrome
-(version 28) and a recent version of Firefox (version 22) for
-testing. Ideally wed should work with recent versions of other
-browsers but since it is not routinely tested with those browsers
-there may be bugs specific to running wed in those browsers. File an
-issue in github if you find a problem with IE 9 or higher or a
-relatively recent other kind of desktop browser or (obviously) with
-the browsers used for testing wed. In order of decreasing likelihood,
-support for the following cases is unlikely to ever materialize due to
-a lack of development resources:
+Wed is primarily developed using a recent version of Chrome (version
+29; versions 26, 27 and 28 have also been used earlier) and a recent
+version of Firefox (version 23; versions 20, 21, and 22 have also been
+used earlier) for testing. Ideally wed should work with recent
+versions of other browsers but since it is not routinely tested with
+those browsers there may be bugs specific to running wed in those
+browsers. File an issue in github if you find a problem with IE 9 or
+higher or a relatively recent other kind of desktop browser or
+(obviously) with the browsers used for testing wed. In order of
+decreasing likelihood, support for the following cases is unlikely to
+ever materialize due to a lack of development resources:
 
 * Browsers for phones and tablets.
 * Versions of Chrome and Firefox older than those mentioned above.
