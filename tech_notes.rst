@@ -59,14 +59,17 @@ GUI Tree and Data Tree
 
 Wed maintains two trees of DOM nodes:
 
-* A data tree which is not attached to the browser's document. It is a mere representation in DOM format of the data tree being edited.
+* A data tree which is not attached to the browser's document. (It is
+  not visible. It does not receive events.) It is a mere
+  representation in DOM format of the data tree being edited.
 
 * A GUI tree which is derived from the data tree. This GUI tree is
-  attached to the browser's document. It receives events.
+  attached to the browser's document. It receives events and is what
+  the user sees.
 
-The ``copy_domlistener`` is responsible for inserting and deleting the
-nodes of the GUI tree that corresponds to those of the data tree
-whenever the latter is modified.
+The ``GUIUpdater`` object stored in ``Editor._gui_updater`` is
+responsible for inserting and deleting the nodes of the GUI tree that
+corresponds to those of the data tree whenever the latter is modified.
 
 Conversion for Editing
 ======================
@@ -193,8 +196,6 @@ Wed stops all MutationObservers, removes all event handlers, and
 deletes the data structure of the document being edited. I do not know
 of a good explanation for the leak.
 
-
-
 ..  LocalWords:  contenteditable MutationObserver MutationObservers
-..  LocalWords:  keydown keypress javascript jQuery util
-..  LocalWords:  InputTrigger
+..  LocalWords:  keydown keypress javascript jQuery util contextmenu
+..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
