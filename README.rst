@@ -156,6 +156,18 @@ happen, for instance, due to RequireJS timing out on a ``require()``
 call because the OS was busy loading things into memory from
 swap. The solution is to run the test suites again.
 
+Another issue with running the tests is that wed uses ``setTimeout``
+to do the validation work in a parallel fashion. (This actually
+simulates parallelism.) Now, browsers clamp timeouts to at most once a
+second for tests that are in background tabs (i.e. tabs whose content
+is not currently visible). Some tests want the first validation to be
+finished before starting. The upshot is that if the test tab is pushed
+to the background some tests will fail due to timeouts. The solution
+for now is don't push the tab in which tests are run to the
+background. Web workers would solve this problem but would create
+other complications so it is unclear whether they are a viable
+solution.
+
 Tests are of two types:
 
 * Not browser-dependent and therefore runnable outside a browser. We
