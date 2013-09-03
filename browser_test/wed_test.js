@@ -474,6 +474,194 @@ describe("wed", function () {
         });
     });
 
+    it("unwraps elements", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".title").get(0);
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.childNodes.length, 1);
+            assert.equal(initial.childNodes[0].nodeValue, "abcd");
+            editor.setDataCaret(initial, 0);
+            var caret = editor.getCaret();
+            assert.equal(caret[0].childNodes[caret[1]].nodeValue, "abcd");
+
+            var trs = editor.mode.getContextualActions(
+                ["wrap"], "hi", initial, 0);
+
+            var tr = trs[0];
+            var data = {node: undefined, element_name: "hi"};
+            var range = rangy.createRange(editor.my_window.document);
+            editor.setDataCaret(initial.childNodes[0], 1);
+            caret = editor.getCaret();
+            range.setStart(caret[0], caret[1]);
+            range.setEnd(caret[0], caret[1] + 2);
+            editor.setSelectionRange(range);
+
+            tr.execute(data);
+
+            trs = editor.mode.getContextualActions(
+                ["unwrap"], "hi", $(initial).children(".hi")[0], 0);
+
+            tr = trs[0];
+            data = {node: $(initial).children(".hi")[0], element_name: "hi" };
+            tr.execute(data);
+            assert.equal(initial.childNodes.length, 1, "length after unwrap");
+            assert.equal(initial.firstChild.nodeValue, "abcd");
+            done();
+        });
+    });
+
+    it("wraps elements in elements (offset 0)", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".body>.p")[4];
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.childNodes.length, 1);
+            assert.equal(initial.firstChild.nodeValue, "abcdefghij");
+
+            var trs = editor.mode.getContextualActions(
+                ["wrap"], "hi", initial, 0);
+
+            var tr = trs[0];
+            var data = {node: undefined, element_name: "hi"};
+            var range = rangy.createRange(editor.my_window.document);
+            var caret = editor.fromDataCaret(initial.firstChild, 3);
+            range.setStart(caret[0], caret[1]);
+            range.setEnd(caret[0], caret[1] + 2);
+            editor.setSelectionRange(range);
+
+            tr.execute(data);
+
+            assert.equal(initial.innerHTML,
+                         'abc<div class="hi _real">de</div>fghij');
+            assert.equal(initial.childNodes.length, 3,
+                         "length after first wrap");
+
+            caret = editor.fromDataCaret(initial.firstChild, 0);
+            range.setStart(caret[0], caret[1]);
+            caret = editor.fromDataCaret(initial.lastChild, 0);
+            range.setEnd(caret[0], caret[1]);
+            editor.setSelectionRange(range);
+
+            tr.execute(data);
+
+            assert.equal(initial.innerHTML,
+                         '<div class="hi _real">abc<div class="hi _real">' +
+                         'de</div></div>fghij');
+            assert.equal(initial.childNodes.length, 2,
+                         "length after second wrap");
+
+            done();
+        });
+    });
+
+    it("wraps elements in elements (offset === nodeValue.length)", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".body>.p")[4];
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.childNodes.length, 1);
+            assert.equal(initial.firstChild.nodeValue, "abcdefghij");
+
+            var trs = editor.mode.getContextualActions(
+                ["wrap"], "hi", initial, 0);
+
+            var tr = trs[0];
+            var data = {node: undefined, element_name: "hi"};
+            var range = rangy.createRange(editor.my_window.document);
+            var caret = editor.fromDataCaret(initial.firstChild, 3);
+            range.setStart(caret[0], caret[1]);
+            range.setEnd(caret[0], caret[1] + 2);
+            editor.setSelectionRange(range);
+
+            tr.execute(data);
+
+            assert.equal(initial.innerHTML,
+                         'abc<div class="hi _real">de</div>fghij');
+            assert.equal(initial.childNodes.length, 3,
+                         "length after first wrap");
+
+            // We can't set this to the full length of the node value
+            // on Chrome because Chrome will move the range into the
+            // <div> that you see above in the innerHTML test. :-/
+            caret = editor.fromDataCaret(initial.firstChild,
+                                         initial.firstChild.nodeValue.length -
+                                         1);
+            range.setStart(caret[0], caret[1]);
+            // This tests the condition we're interested in.
+            caret = editor.fromDataCaret(initial.lastChild,
+                                         initial.lastChild.nodeValue.length);
+            range.setEnd(caret[0], caret[1]);
+            editor.setSelectionRange(range);
+
+            tr.execute(data);
+
+            assert.equal(initial.innerHTML,
+                         'ab<div class="hi _real">c<div class="hi _real">' +
+                         'de</div>fghij</div>');
+            assert.equal(initial.childNodes.length, 2,
+                         "length after second wrap");
+
+            done();
+        });
+    });
+
+    it("wraps elements in elements (no limit case)", function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".body>.p")[4];
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.childNodes.length, 1);
+            assert.equal(initial.firstChild.nodeValue, "abcdefghij");
+
+            var trs = editor.mode.getContextualActions(
+                ["wrap"], "hi", initial, 0);
+
+            var tr = trs[0];
+            var data = {node: undefined, element_name: "hi"};
+            var range = rangy.createRange(editor.my_window.document);
+            var caret = editor.fromDataCaret(initial.firstChild, 3);
+            range.setStart(caret[0], caret[1]);
+            range.setEnd(caret[0], caret[1] + 2);
+            editor.setSelectionRange(range);
+
+            tr.execute(data);
+
+            assert.equal(initial.childNodes.length, 3,
+                         "length after first wrap");
+            assert.equal(initial.innerHTML,
+                         'abc<div class="hi _real">de</div>fghij');
+
+            caret = editor.fromDataCaret(initial.firstChild, 2);
+            range.setStart(caret[0], caret[1]);
+            caret = editor.fromDataCaret(initial.lastChild, 2);
+            range.setEnd(caret[0], caret[1]);
+            editor.setSelectionRange(range);
+
+            tr.execute(data);
+
+            assert.equal(initial.childNodes.length, 3,
+                         "length after second wrap");
+            assert.equal(initial.innerHTML,
+                         'ab<div class="hi _real">c<div class="hi _real">' +
+                         'de</div>fg</div>hij');
+
+            done();
+        });
+    });
+
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
         event.which = 3;
