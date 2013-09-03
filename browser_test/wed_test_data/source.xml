@@ -17,6 +17,7 @@
       <p>Blah blah <term>blah</term> blah.</p>
       <p><term>blah</term></p>
       <p><ref></ref></p>
+      <p><hi>a</hi><hi>b</hi>c</p>
     </body>
   </text>
 </TEI>

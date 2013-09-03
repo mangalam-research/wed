@@ -168,6 +168,52 @@ describe("wed", function () {
         });
     });
 
+    it("typing text when the caret is adjacent to text works (before text)",
+       function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var $p = $(editor.data_root).find(".body>.p").eq(3);
+            var $hi = $p.children(".hi").last();
+            var initial = $p[0];
+
+            // We put the caret just after the last <hi>, which means
+            // it is just before the last text node.
+            editor.setDataCaret(
+                initial,
+                Array.prototype.indexOf.call(initial.childNodes, $hi[0]) + 1);
+
+            var initial_length = initial.childNodes.length;
+
+            type(editor, " ");
+            assert.equal(initial.lastChild.nodeValue, " c");
+            assert.equal(initial.childNodes.length, initial_length);
+            done();
+        });
+    });
+
+    it("typing text when the caret is adjacent to text works (after text)",
+       function (done) {
+        editor.whenCondition(
+            "first-validation-complete",
+            function () {
+            // Text node inside title.
+            var $p = $(editor.data_root).find(".body>.p").eq(3);
+            var initial = $p[0];
+
+            // We put the caret just after the last child, a text node.
+            editor.setDataCaret(initial, initial.childNodes.length);
+
+            var initial_length = initial.childNodes.length;
+
+            type(editor, " ");
+            assert.equal(initial.lastChild.nodeValue, "c ");
+            assert.equal(initial.childNodes.length, initial_length);
+            done();
+        });
+    });
+
     it("typing longer than the length of a text undo works", function (done) {
         editor.whenCondition(
             "first-validation-complete",
