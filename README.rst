@@ -11,11 +11,11 @@ Current known limitations:
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
 
-* Wed currently does not currently support editing attributes in a
-  generic way *as attributes*. The functionality just has not been
-  implemented **yet** because wed is developed in the context of a
-  project where all attributes are set by software or are edited
-  through domain-specific abstractions rather than directly, as
+* Wed does not currently support editing attributes in a generic way
+  *as attributes*. The functionality just has not been implemented
+  **yet** because wed is developed in the context of a project where
+  all attributes are set by software or are edited through
+  domain-specific abstractions rather than directly, as
   attributes. Other features are more pressing.
 
 * Eventually the plan is for having complete handling of XML namespace
@@ -32,6 +32,17 @@ Current known limitations:
   which may be confusing. This seems to be a limitation of CSS which
   Bootstrap does nothing to deal with. (One element may be in the
   focused state (keyboard) while another is in the hover state.)
+
+* Wed does not work with RTL scripts. There no inherent reason wed
+  could not support them but the project for which it is developed
+  currently does not need support for RTL scripts. So no resources
+  have been expended towards supporting this.
+
+* Wed is not internationalized. Although the contents of a document
+  could be in any language, wed's UI is in English. Again, there is no
+  inherent reason wed could not support other languages for the
+  UI. The project for which it is developed currently does not need
+  support for other languages, hence this state of affairs.
 
 * See also `Browser Requirements`_.
 
@@ -65,6 +76,7 @@ ever materialize due to a lack of development resources:
 
 * Browsers for phones and tablets.
 * Versions of Chrome and Firefox older than those mentioned above.
+* Versions of IE older than 9.
 * Antique browsers.
 * Oddball browsers or other software or hardware systems that present
   web pages.
@@ -397,4 +409,4 @@ Humanities.
 ..  LocalWords:  getTransformationRegistry getContextualActions addr
 ..  LocalWords:  fireTransformation glyphicons github tei onerror ev
 ..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis README
-..  LocalWords:  selectionsaverestore CHANGELOG
+..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout
