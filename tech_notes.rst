@@ -54,6 +54,48 @@ JavaScript event that caused the custom event to be triggered.
 
 * The paste event has no wed-global-* event associated with it.
 
+IME Support
+-----------
+
+As usual, the browsers and various web standards make a mess of what
+ought to be simple. On both Firefox 23 and Chrome 29, entering text
+using IBus does not generate ``keypress`` events. The only events
+available are ``keydown`` and ``keyup``. Firefox 23 generates a single
+``keyup`` event at the end of composition, Chrome 29 generates a bunch
+of ``keyup`` and ``keydown`` events while the character is being
+composed. These events are mostly useless because their parameters are
+set to values that do not indicate what the user is actually
+typing. The browsers also fire ``input`` and
+``composition{start,update,end}`` events, which are also nearly
+useless. The ``input`` event does not state what was done to the
+data. The ``composition{start,update,end}`` event indicate that
+composition happened. In theory the ``data`` parameter should hold the
+data being changed, but on Chrome 29 the ``compositionend`` event has
+a blank data when entering the Chinese character for wo3
+("I").
+
+There's an additional complication in that these events can happen
+when the user wants to **edit** a composed character rather than
+delete or add text. Suppose that we are editing the string "livré" to
+read "livre". The way to do it without composition is in two
+operations: delete the "é" and insert "e" (or vice-versa). However,
+with composition a character can be transformed into another character
+by one atomic change on the data. A composition method could make the
+change by replacing "é" with "e" as one operation, without there being
+a deletion followed by an insertion. The character itself is
+transformed.
+
+What wed currently does is capture all keydown and keypress events
+that are capturable to edit the data tree and **cancel** the default
+behavior. (Then the GUI tree is updated from the data tree and it
+looks like text input happened.) So these won't generate input
+events. When an input event **is** detected, compare all text nodes of
+the element on which the event triggered (a GUI node) with those of
+its corresponding data element. Update data nodes as needed.
+
+.. warning:: With this system, composed characters cannot serve as hot
+             keys for the input triggers.
+
 GUI Tree and Data Tree
 ----------------------
 
@@ -199,3 +241,4 @@ of a good explanation for the leak.
 ..  LocalWords:  contenteditable MutationObserver MutationObservers
 ..  LocalWords:  keydown keypress javascript jQuery util contextmenu
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
+..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
