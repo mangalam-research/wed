@@ -1,16 +1,28 @@
-* Investigate web workers to replace timeouts as the main parallelism
-   mechanism for running validation in the background.
+Caret Management
+================
+
+* Have keyboard character entry happen in a text field off screen (or
+  invisible) whose data is moved into the data tree as needed. This
+  would mean that the caret shown to the user would always be a "fake"
+  caret rather than one created and maintained by the browser. This
+  would make handling data entry and caret movement much easier.
 
 * Caret management right now is a complicated affair. Wed should try
-  to follow the blur and focus events so that whenever the caret
-  moves out of the editing area, its location is stored and when the
-  user moves back to the editing area, the location is
-  restored. Right now, push/popSelection are used to prevent the
-  caret to be lost when GUI elements that overlay the editing area
-  are displayed but we should be able to get rid of this.
+  to follow the blur and focus events so that whenever the caret moves
+  out of the editing area, its location is stored and when the user
+  moves back to the editing area, the location is restored. Right now,
+  push/popSelection are used to prevent the caret to be lost when GUI
+  elements that overlay the editing area are displayed but we should
+  be able to get rid of this.
 
 * Have real caret objects rather than the Array nonsense currently in
   effect.
 
-* Dump XSLT altogether in favor of something faster? Loading saxon to process
-  XSLT 2.0 has a non-negligible cost.
+Other
+=====
+
+* Investigate web workers to replace timeouts as the main parallelism
+  mechanism for running validation in the background.
+
+* Dump XSLT altogether in favor of something faster? Loading saxon to
+  process XSLT 2.0 has a non-negligible cost.
