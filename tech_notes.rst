@@ -1,3 +1,45 @@
+Usage Notes
+===========
+
+Schema and Structure Considerations
+-----------------------------------
+
+The following discussion covers schema design considerations if you
+wish to use wed to enforce editing constraints. It is possible rely
+instead on user discipline to enforce constraints, just like one would
+do if using a plain text editor to edit XML. If this is your case,
+then you do not need to concern yourself with the following.
+
+If you want constraints to be enforced **by wed**, then prioritize
+using a data structure that accurately reflects your **editing**
+concerns rather than your interchange concerns or your standard
+conformance concerns. Here's an example. Suppose that you use a schema
+based on the TEI markup, and that for interchange purposes with
+another system it makes sense to encode something like::
+
+    <p><term><foreign xml:lang="fr">Étranger</foreign></term> is a foreign
+    term.</p>
+
+However, you do not want to allow your users to insert text inside the
+``<term>`` element but outside ``<foreign>`` because that encoding is
+meaningless in your project. Wed is not designed to easily enforce
+this restriction. Wed will allow your users to create something
+like::
+
+    <p><term>The term <foreign xml:lang="fr">étranger</foreign>
+    </term>is a foreign term.</p>
+
+The solution here is to represent the
+``<term><foreign></foreign></term>`` structure as one element, for
+editing purposes. If it so happens that all instance of ``<foreign>``
+are always to be interpreted as ``<term><foreign></foreign></term>``
+for interchange purposes, then you might as well make your editing
+structure ``<foreign>`` and convert it to the interchange structure
+when you actually need to interchange. In other cases, you might want
+to create your own element for editing, like ``<my:custom-element>``,
+which is then created in the right context by the mode you create for
+your project.
+
 Internals
 =========
 
@@ -54,8 +96,8 @@ JavaScript event that caused the custom event to be triggered.
 
 * The paste event has no wed-global-* event associated with it.
 
-IME Support
------------
+IM Support
+----------
 
 As usual, the browsers and various web standards make a mess of what
 ought to be simple. On both Firefox 23 and Chrome 29, entering text
@@ -242,3 +284,4 @@ of a good explanation for the leak.
 ..  LocalWords:  keydown keypress javascript jQuery util contextmenu
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
 ..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
+..  LocalWords:  TEI Étranger étranger IBus
