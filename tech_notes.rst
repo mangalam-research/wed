@@ -40,6 +40,83 @@ to create your own element for editing, like ``<my:custom-element>``,
 which is then created in the right context by the mode you create for
 your project.
 
+Remote Logging
+--------------
+
+Wed uses log4javascript to log anything worth logging. By default, wed
+does not log anything to a remote server, however if the ``ajaxlog``
+option is passed to wed, it will add an ``AjaxAppender`` to the logger
+and log messages using ``XmlLayout``. The ``ajaxlog`` option is of the
+form::
+
+  ajaxlog: {
+      url: "...",
+      headers: { ... }
+  }
+
+The ``url`` parameter is the URL where log4javascript will send the
+log messages. The ``headers`` parameter specifies additional headers
+to send. In particular this is useful when the receiver is an
+installation requiring that some anti CSRF token be set on HTTP
+headers.
+
+Saving
+------
+
+Wed saves documents using Ajax queries to a server. Where wed saves is
+determined by the ``save`` option. It is of the form::
+
+  save: {
+      url: "...",
+      headers: { ... ]
+  }
+
+The ``url`` parameter is the URL where wed will send the Ajax queries
+for saving. The ``headers`` parameter is as described above for
+logging.
+
+Queries are sent as POST requests with the following parameters:
+
+* ``command``: the command wed is issuing.
+
+* ``version``: the version of wed issuing the command.
+
+* ``data``: The data associated with the command. This is always an string
+  serialization of the data tree.
+
+The possible commands are:
+
+* ``check``: This is a mere version check.
+
+* ``save``: Sent when the user manually requests a save.
+
+* ``recover``: Sent when wed detects a fatal condition requiring
+  reloading the editor from scratch. The server must save the data
+  received and note that it was a recovery.
+
+The replies are sent as JSON-encoded data. Each reply is a single
+object with a single field named ``messages`` which is a list of
+messages. Each message has a ``type`` field which determines its
+meaning and what other fields may be present in the message. The
+possible messages types are:
+
+* ``version_too_old_error`` indicates that the version of wed trying to
+  access the server is too old.
+
+* ``save_transient_error`` indicates that the save operation cannot
+  happen for some transient reason. The ``msg`` parameter on the
+  message should give a user-understandable message indicating what
+  the problem is, and to the extent possible, how to resolve it.
+
+* ``save_fatal_error`` indicates that the save operation failed
+  fatally. This is used for cases where the user cannot reasonably do
+  anything to resolve the problem.
+
+* ``locked_error`` indicates that the document the user wants to save
+  is locked.
+
+* ``save_successful`` indicates that the save was successful.
+
 Internals
 =========
 
@@ -284,4 +361,5 @@ of a good explanation for the leak.
 ..  LocalWords:  keydown keypress javascript jQuery util contextmenu
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
 ..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
-..  LocalWords:  TEI Étranger étranger IBus
+..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
+..  LocalWords:  ajaxlog url CSRF JSON msg
