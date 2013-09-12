@@ -208,7 +208,9 @@ build/ks/purl.js: downloads/$(PURL_BASE) | build/ks
 
 .PHONY: test
 test: build | build-test-files
+ifndef SKIP_SEMVER
 	semver-sync -v
+endif
 	mocha $(MOCHA_PARAMS)
 
 .PHONY: doc
