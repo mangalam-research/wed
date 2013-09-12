@@ -1120,7 +1120,8 @@ describe("wed", function () {
         var gui_start = editor.fromDataCaret(p.childNodes[0], 4);
         var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
         editor.setCaret(gui_start);
-        var range = domutil.getSelectionRange(editor.my_window);
+        var range = rangy.createRange(editor.my_window.document);
+        range.setStart(gui_start[0], gui_start[1]);
         range.setEnd(gui_end[0], gui_end[1]);
         rangy.getSelection(editor.my_window).setSingleRange(range);
 
@@ -1139,8 +1140,9 @@ describe("wed", function () {
         // Start caret is inside the term element.
         var gui_start = editor.fromDataCaret(p.childNodes[1].childNodes[0], 1);
         var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
-        editor.setCaret(gui_start);
-        var range = domutil.getSelectionRange(editor.my_window);
+        editor.setCaret(gui_end);
+        var range = rangy.createRange(editor.my_window.document);
+        range.setStart(gui_start[0], gui_start[1]);
         range.setEnd(gui_end[0], gui_end[1]);
         rangy.getSelection(editor.my_window).setSingleRange(range);
 
