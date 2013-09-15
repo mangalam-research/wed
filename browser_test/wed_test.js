@@ -88,18 +88,6 @@ describe("wed", function () {
             caretCheck(editor, lastGUI($(initial.parentNode)),
                        0, "initial caret position");
 
-            // We used to check for the existence of a fake
-            // caret. However, not all browsers require the
-            // fake caret to exist in this context. (Chrome
-            // does, Firefox does not. Subject to change with
-            // new versions.) There's no point in check
-            // it. However, the fake caret should definitely
-            // be off by the time we finish the test.
-            //
-            // Fake caret must exist
-            // assert.equal(editor._$fake_caret.parent().length,
-            // 1, "fake caret existence");
-
             // We have to set the selection manually and
             // generate a click event because just generating
             // the event won't move the caret.
@@ -116,8 +104,6 @@ describe("wed", function () {
             // so that wed's timeout runs before we query the
             // value.
             editor.my_window.setTimeout(function () {
-                // In text, no fake caret
-                assert.equal(editor._$fake_caret.parent().length, 0);
                 caretCheck(editor, initial, 0, "final caret position");
 
                 done();
@@ -519,7 +505,8 @@ describe("wed", function () {
             var tr = trs[0];
             var data = {node: undefined, element_name: "hi"};
             var range = rangy.createRange(editor.my_window.document);
-            var caret = editor.fromDataCaret(initial.firstChild, 3);
+            editor.setDataCaret(initial.firstChild, 3);
+            var caret = editor.getCaret();
             range.setStart(caret[0], caret[1]);
             range.setEnd(caret[0], caret[1] + 2);
             editor.setSelectionRange(range);
