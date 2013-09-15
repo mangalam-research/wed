@@ -47,18 +47,6 @@ function lastPH($container) {
         get(0).childNodes[0];
 }
 
-function type(editor, text) {
-    for(var ix = 0; ix < text.length; ++ix) {
-        var k = text[ix];
-        if (typeof(k) === "string")
-            k = (k === " ") ? key_constants.SPACE : key.makeKey(k);
-
-        var event = new $.Event("keydown");
-        k.setEventToMatch(event);
-        editor.$gui_root.trigger(event);
-    }
-}
-
 describe("wed", function () {
     var editor;
     beforeEach(function (done) {
@@ -152,16 +140,16 @@ describe("wed", function () {
             // text node, which would throw off the
             // nodeToPath/pathToNode calculations.
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.nodeValue, " abcd");
             assert.equal(parent.childNodes.length, 3);
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.nodeValue, "  abcd");
             assert.equal(parent.childNodes.length, 3);
 
             // This is where wed used to fail.
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.nodeValue, "   abcd");
             assert.equal(parent.childNodes.length, 3);
             done();
@@ -186,7 +174,7 @@ describe("wed", function () {
 
             var initial_length = initial.childNodes.length;
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.lastChild.nodeValue, " c");
             assert.equal(initial.childNodes.length, initial_length);
             done();
@@ -207,7 +195,7 @@ describe("wed", function () {
 
             var initial_length = initial.childNodes.length;
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.lastChild.nodeValue, "c ");
             assert.equal(initial.childNodes.length, initial_length);
             done();
@@ -225,7 +213,7 @@ describe("wed", function () {
             editor.setCaret(initial, 0);
 
             var text =  new Array(editor._text_undo_max_length + 1).join("a");
-            type(editor, text);
+            editor.type(text);
             assert.equal(initial.nodeValue, text + "abcd");
             assert.equal(parent.childNodes.length, 3);
             done();
@@ -240,7 +228,7 @@ describe("wed", function () {
             var parent = initial.parentNode;
             editor.setDataCaret(initial, 1);
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.childNodes.length, 2);
             done();
         });
@@ -258,7 +246,7 @@ describe("wed", function () {
             assert.equal($(initial).text(), "(", "initial's value");
             editor.setCaret(initial, 1);
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal($(initial).text(), "(", "initial's value after");
             done();
         });
@@ -280,7 +268,7 @@ describe("wed", function () {
             // text node, which would throw off the
             // nodeToPath/pathToNode calculations.
 
-            type(editor, "blah");
+            editor.type("blah");
             assert.equal(initial.nodeValue, "blahabcd");
             assert.equal(parent.childNodes.length, 3);
             caretCheck(editor, initial, 4, "caret after text insertion");
@@ -303,7 +291,7 @@ describe("wed", function () {
             // text node, which would throw off the
             // nodeToPath/pathToNode calculations.
 
-            type(editor, "blah");
+            editor.type("blah");
             assert.equal(initial.nodeValue, "blahabcd", "text after edit");
             assert.equal(parent.childNodes.length, 3);
 
@@ -330,7 +318,7 @@ describe("wed", function () {
             // text node, which would throw off the
             // nodeToPath/pathToNode calculations.
 
-            type(editor, "blah");
+            editor.type("blah");
             assert.equal(initial.nodeValue, "blahabcd", "text after edit");
             assert.equal(parent.childNodes.length, 3);
 
@@ -356,7 +344,7 @@ describe("wed", function () {
             var parent = initial.parentNode;
             editor.setDataCaret(initial.childNodes[0], 1);
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
             var caret = editor.getCaret();
@@ -411,7 +399,7 @@ describe("wed", function () {
             var parent = initial.parentNode;
             editor.setDataCaret(initial.childNodes[0], 1);
 
-            type(editor, " ");
+            editor.type(" ");
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
             var caret = editor.getCaret();
@@ -1180,8 +1168,6 @@ describe("wed", function () {
         });
 
         it("saves", function (done) {
-            var event = new $.Event("keydown");
-            key_constants.CTRL_S.setEventToMatch(event);
             editor.addEventListener("saved", function () {
                 $.get("/build/ajax/save.txt", function (data) {
                     var obj = {
@@ -1194,7 +1180,7 @@ describe("wed", function () {
                     done();
                 });
             });
-            editor.$gui_root.trigger(event);
+            editor.type(key_constants.CTRL_S);
         });
     });
 
@@ -1225,9 +1211,7 @@ describe("wed", function () {
                     done();
                 });
 
-                var event = new $.Event("keydown");
-                key_constants.CTRL_S.setEventToMatch(event);
-                editor.$gui_root.trigger(event);
+                editor.type(key_constants.CTRL_S);
             }
 
             global.fail_on_save(doit);
@@ -1255,9 +1239,7 @@ describe("wed", function () {
                     });
                 });
 
-                var event = new $.Event("keydown");
-                key_constants.CTRL_S.setEventToMatch(event);
-                editor.$gui_root.trigger(event);
+                editor.type(key_constants.CTRL_S);
             }
 
             global.fail_on_save(doit);

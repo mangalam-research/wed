@@ -78,16 +78,8 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        var event = new $.Event("keydown");
-        var my_key = key_constants.ENTER;
-        event.which = my_key.which;
-        event.keyCode = my_key.keyCode;
-        event.charCode = my_key.charCode;
-        event.ctrlKey = my_key.ctrlKey;
-        event.altKey = my_key.altKey;
-        event.metaKey = my_key.metaKey;
         editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
-        editor.$gui_root.trigger(event);
+        editor.type(key_constants.ENTER);
         assert.equal(seen, 1);
     });
 
@@ -104,16 +96,8 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        var event = new $.Event("keypress");
-        var my_key = key.makeKey(";");
-        event.which = my_key.which;
-        event.keyCode = my_key.keyCode;
-        event.charCode = my_key.charCode;
-        event.ctrlKey = my_key.ctrlKey;
-        event.altKey = my_key.altKey;
-        event.metaKey = my_key.metaKey;
         editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
-        editor.$gui_root.trigger(event);
+        editor.type(";");
         assert.equal(seen, 1);
     });
 
@@ -143,16 +127,8 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        var event = new $.Event("keydown");
-        var my_key = key.makeKey(":");
-        event.which = my_key.which;
-        event.keyCode = my_key.keyCode;
-        event.charCode = my_key.charCode;
-        event.ctrlKey = my_key.ctrlKey;
-        event.altKey = my_key.altKey;
-        event.metaKey = my_key.metaKey;
         editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
-        editor.$gui_root.trigger(event);
+        editor.type(":");
         assert.equal(seen, 0);
     });
 
