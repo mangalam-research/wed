@@ -94,7 +94,9 @@ describe("wed", function () {
             var r = rangy.createRange();
             r.setStart(initial, 0);
             rangy.getSelection(editor.my_window).setSingleRange(r);
-            var ev = $.Event("mouseup", { target: initial });
+            var ev = $.Event("mousedown", {target: initial});
+            $(initial.parentNode).trigger(ev);
+            var ev = $.Event("mouseup", {target: initial});
             $(initial.parentNode).trigger(ev);
 
             // We need to do this because setting the caret
@@ -345,7 +347,7 @@ describe("wed", function () {
             event.target = last_gui_span;
             var range = rangy.createRange(editor.my_window.document);
             range.setStart(caret[0], caret[1]);
-            editor.getSelection().setSingleRange(range);
+            editor.getDOMSelection().setSingleRange(range);
 
             // This simulates the movement of the caret after the
             // mousedown event is process. This will be processed
@@ -354,7 +356,7 @@ describe("wed", function () {
             window.setTimeout(log.wrap(function () {
                 var range = rangy.createRange(editor.my_window.document);
                 range.setStart(last_gui_span);
-                editor.getSelection().setSingleRange(range);
+                editor.getDOMSelection().setSingleRange(range);
             }), 0);
 
             // We trigger the event here so that the order specified
@@ -397,7 +399,7 @@ describe("wed", function () {
             event.target = phantom;
             var range = rangy.createRange(editor.my_window.document);
             range.setStart(caret[0], caret[1]);
-            editor.getSelection().setSingleRange(range);
+            editor.getDOMSelection().setSingleRange(range);
 
             // This simulates the movement of the caret after the
             // mousedown event is process. This will be processed
@@ -406,7 +408,7 @@ describe("wed", function () {
             window.setTimeout(log.wrap(function () {
                 var range = rangy.createRange(editor.my_window.document);
                 range.setStart(phantom, 0);
-                editor.getSelection().setSingleRange(range);
+                editor.getDOMSelection().setSingleRange(range);
             }), 0);
 
             // We trigger the event here so that the order specified

@@ -1,11 +1,7 @@
 Caret Management
 ================
 
-* Have keyboard character entry happen in a text field off screen (or
-  invisible) whose data is moved into the data tree as needed. This
-  would mean that the caret shown to the user would always be a "fake"
-  caret rather than one created and maintained by the browser. This
-  would make handling data entry and caret movement much easier.
+* Generally refactor the caret and selection management.
 
 * Caret management right now is a complicated affair. Wed should try
   to follow the blur and focus events so that whenever the caret moves

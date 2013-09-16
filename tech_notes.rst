@@ -173,6 +173,44 @@ JavaScript event that caused the custom event to be triggered.
 
 * The paste event has no wed-global-* event associated with it.
 
+Selections
+----------
+
+Wed works with multiple types of selections:
+
+DOM selection
+  The selection as understood by DOM. Methods working with this
+  selection have "DOM" in their name.
+
+GUI selection
+  The selection in the GUI tree. The GUI selection is just called
+  "selection", without further qualifier. This is the range selected
+  by the user in the document being edited. The methods operating on
+  this selection do not use a special qualifier. E.g. ``getSelection``
+  does not have ``DOM`` or ``data`` in its name and thus works on a
+  GUI selection.
+
+Data selection
+  The selection that corresponds to the GUI selection in the data tree.
+  Methods working with this selection have "data" in their name. Mode will
+  typically want to work with this selection.
+
+Carets
+------
+
+Wed works with multiple types of carets:
+
+Fake caret
+  A caret that exists only for wed. It has no existence as far as DOM is
+  concerned.
+
+GUI caret
+  The caret in the GUI tree. It may or may not correspond to a DOM caret.
+
+Data caret
+  The caret in the data tree that corresponds to the GUI caret. It may or may
+  not correspond to a DOM caret. Modes usually want to work with this caret.
+
 IM Support
 ----------
 

@@ -1,5 +1,23 @@
 Only salient changes are recorded here.
 
+* 0.10.0:
+
+  - GUI: wed can now handle some input methods. So long as the methods
+    are not designed to **edit** already entered text, there should be
+    no problem. I'm able to enter Sanskrit, Tibetan and Chinese using
+    ibus on Linux.
+
+  - API: the protocol for saving to a server was redesigned. See
+    `<tech_notes.rst>`_.
+
+  - API: The ``Editor`` methods ``setSelectionRange`` and
+    ``getSelectionRange`` have been renamed ``setDOMSelectionRange``
+    and ``getDOMSelectionRange``. The Editor method ``getSelection``
+    has been renamed ``getDOMSelection``.
+
+  - API: ``Editor.setSelectionRange`` and ``getSelectionRange`` are
+    two **new** methods.
+
 * 0.9.0:
 
   - GUI: Wed now actually uses the icons set on actions.
