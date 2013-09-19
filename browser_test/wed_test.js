@@ -1,10 +1,10 @@
-define(["mocha/mocha", "chai", "test/global", "jquery", "wed/wed",
+define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
        "wed/key"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
                 onerror, log, key) {
 var options = {
-    schema: 'test/tei-simplified-rng.js',
+    schema: 'browser_test/tei-simplified-rng.js',
     mode: {
         path: 'test',
         options: {
