@@ -23,7 +23,8 @@
         "less": ">=1.4.0 <2",
         "mocha": ">=1.9.0 <2",
         "chai": ">=1.6.0 <2",
-        "semver-sync": ">=1.2.0 <2"
+        "semver-sync": ">=1.2.0 <2",
+        "express": ">=3.4.0 <4"
     },
     "scripts": {
         "test": "make test",
