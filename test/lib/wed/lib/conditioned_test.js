@@ -61,4 +61,17 @@ describe("Conditioned", function () {
             assert.deepEqual(calls, ["event a", "event b"]);
         });
     });
+
+    describe("getCondition", function () {
+        it("returns false when the condition has not been met",
+           function () {
+            assert.isFalse(!!emitter.getCondition("event"));
+        });
+
+        it("returns true when the condition has not been met",
+           function () {
+            emitter._setCondition("event", null);
+            assert.isTrue(emitter.getCondition("event"));
+        });
+    });
 });
