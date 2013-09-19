@@ -97,6 +97,11 @@ configuration that will allow it to find wed's code. An example of
 such configuration, which allows running the browser-dependent test
 suite, is located in `<config/requirejs-config-dev.js>`_
 
+.. warning:: If you want to change this configuration for
+             experimentation or to match your local setup, please copy
+             it to the `<local_config>` directory and edit it
+             *there*. This directory is not tracked by git.
+
 In all cases Wed requires the following packages:
 
 * jquery 1.9.1 or higher
