@@ -13,9 +13,16 @@
     require(["wed/wed", "jquery"], function (wed, $) {
         $(function () {
             var mode = purl().param('mode');
-            var options = mode ? {mode: { path: mode}} : undefined;
-            window.wed_editor = new wed.Editor();
-            window.wed_editor.init($("#widget").get(0), options);
+            var file = purl().param('file');
+            function init() {
+                var options = mode ? {mode: { path: mode}} : undefined;
+                window.wed_editor = new wed.Editor();
+                window.wed_editor.init($("#widget").get(0), options);
+            }
+            if (file)
+                $("#widget").load(file, init);
+            else
+                init();
         });
     });
     </script>
