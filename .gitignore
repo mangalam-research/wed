@@ -7,3 +7,4 @@ local.mk
 README.html
 CHANGELOG.html
 *_flymake.*
+*.pyc

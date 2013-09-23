@@ -247,7 +247,7 @@ endif
 
 .PHONY: selenium-test
 selenium-test: build | build-test-files
-	mocha $(MOCHA_PARAMS) $(shell find selenium_test -type f)
+	behave selenium_test
 
 .PHONY: doc
 doc: README.html CHANGELOG.html
