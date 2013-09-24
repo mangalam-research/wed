@@ -1,11 +1,8 @@
-from nose.tools import assert_raises  # pylint: disable=E0611
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+import selenium.webdriver.support.expected_conditions as EC
+from selenium.webdriver.common.by import By
 
-# The * import above is not enough for pylint to know what @When,
-# @Then, etc, are available.
-#
-# pylint: disable=E0602
 
 step_matcher("re")
 
@@ -101,6 +98,15 @@ def user_clicks_outside_context_menu(context):
         .perform()
 
 
+@When("the user clicks the first context menu option")
+def user_clicks_first_context_menu_option(context):
+    driver = context.driver
+    menu = driver.find_elements_by_class_name("wed-context-menu")[0]
+    ActionChains(driver)\
+        .click(menu.find_elements_by_tag_name("a")[0])\
+        .perform()
+
+
 @Then("a context menu appears")
 def context_menu_appears(context):
     driver = context.driver
@@ -117,6 +123,5 @@ def context_choices_insert(context):
 @Then("a context menu is not visible")
 def context_menu_does_not_appears(context):
     driver = context.driver
-    assert_raises(NoSuchElementException,
-                  driver.find_element_by_class_name,
-                  "wed-context-menu")
+    WebDriverWait(driver, 2).until_not(EC.presence_of_element_located(
+        (By.CLASS_NAME, "wed-context-menu")))

@@ -42,3 +42,8 @@ Scenario: clicking outside the context menu makes it disappear.
   Given that a context menu is open
   When the user clicks outside the context menu
   Then a context menu is not visible
+
+Scenario: clicking an option of the context menu makes it disappear.
+  Given that a context menu is open
+  When the user clicks the first context menu option
+  Then a context menu is not visible
