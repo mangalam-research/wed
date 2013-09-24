@@ -6,7 +6,7 @@ browser. It is alpha software. I aim to make it extensible but the API
 is likely to change quickly for now. If you try it, do not be
 surprised if it throws a rod and leaks oil on your carpet.
 
-Current known limitations:
+Known limitations:
 
 * Wed currently only understand a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
@@ -149,6 +149,11 @@ following:
 * Python's Selenium package.
 * behave (the python package)
 * nginx is highly recommended.
+
+If you want to contribute to salve, your code will have to pass the
+checks listed in `<.glerbl/repo_conf.py>`_. So you either have to
+install glerbl to get those checks done for you or run the checks
+through other means. See Contributing_.
 
 Building
 ========
@@ -326,6 +331,16 @@ the salient points:
 
 * The presence or absence of newline on the last line may not be
   preserved.
+
+Contributing
+============
+
+Contributions must pass the commit checks turned on in
+`<.glerbl/repo_conf.py>`_. Use ``glerbl install`` to install the
+hooks. Glerbl itself can be found at
+https://github.com/lddubeau/glerbl. It will eventually make its way to
+the Python package repository so that ``pip install glerbl`` will
+work.
 
 License
 =======
