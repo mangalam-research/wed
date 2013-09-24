@@ -2,6 +2,9 @@ Only salient changes are recorded here.
 
 * 0.10.0:
 
+  - Internals: wed now requires salve 0.14.0 or later, which means
+    smaller schema files, faster loading and faster running. Yippee!
+
   - GUI: wed can now handle some input methods. So long as the methods
     are not designed to **edit** already entered text, there should be
     no problem. I'm able to enter Sanskrit, Tibetan and Chinese using
@@ -131,3 +134,6 @@ Only salient changes are recorded here.
 ..  LocalWords:  getDataCaret domlistener TreeUpdater makeDecorator
 ..  LocalWords:  ev jQthis getContextualActions wed's glyphicons CSS
 ..  LocalWords:  getTransformationRegistry fireTransformation init
+..  LocalWords:  html ibus rst setSelectionRange getSelectionRange
+..  LocalWords:  setDOMSelectionRange getDOMSelectionRange README
+..  LocalWords:  getSelection getDOMSelection

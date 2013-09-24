@@ -1,3 +1,152 @@
+Testing
+=======
+
+Note that due to the asynchronous nature the JavaScript environments
+used to run the tests, if the test suites are run on a system
+experiencing heavy load or if the OS has to swap a lot of memory from
+the hard disk, they may fail some or all tests. I've witnessed this
+happen, for instance, due to RequireJS timing out on a ``require()``
+call because the OS was busy loading things into memory from
+swap. The solution is to run the test suites again.
+
+Another issue with running the tests is that wed uses ``setTimeout``
+to do the validation work in a parallel fashion. (This actually
+simulates parallelism.) Now, browsers clamp timeouts to at most once a
+second for tests that are in background tabs (i.e. tabs whose content
+is not currently visible). Some tests want the first validation to be
+finished before starting. The upshot is that if the test tab is pushed
+to the background some tests will fail due to timeouts. The solution
+for now is don't push the tab in which tests are run to the
+background. Web workers would solve this problem but would create
+other complications so it is unclear whether they are a viable
+solution.
+
+Tests are of three types:
+
+* Not browser-dependent and therefore runnable outside a browser. We
+  run these in Node.js.
+
+* In-browser tests run *in* the browser.
+
+* Selenium-based tests which run *outside* the browser but use selenium
+  to control a browser.
+
+Browser-Independent Tests
+-------------------------
+
+To run the tests that are not browser-dependent do::
+
+    $ make test
+
+These tests are located in `<test>`_. You can also run ``mocha``
+directly form the command line but having ``make`` build the ``test``
+target will trigger a build to ensure that the tests are run against
+the latest code.
+
+.. warning:: Keep in mind that tests are **always** run against the
+             code present in `<build/standalone>`_. If you modify your
+             source and fail to rebuild before running the test suite,
+             the suite will run against **old code!**
+
+In-Browser Tests
+----------------
+
+To run the tests that run in the browser, you must run `<server.js>`_,
+a basic web server::
+
+    $ ./server.js
+
+The server will serve on localhost:8888 by default. Give it an
+``addr:port`` parameter if you want another address and port. Point
+your browser to `<http://localhost:8888/web/test.html>`_ to run the
+test suite. The browser-dependent tests are located in
+`<browser_test>`_.
+
+Some tests require **this** specific server or a server that provides
+the same responses to Ajax requests.
+
+If you change wed's code and want to run the browser-dependent test
+suite again, make sure to run ``make test`` before you run the suite
+again because otherwise the suite will run against the old code.
+
+Selenium-Based Tests
+--------------------
+
+The following information is not specific to wed but can be useful if
+you've never used Selenium before. Generally speaking, you need the
+Selenium Server, but if you only want to run tests in Chrome, you only
+need chromedriver. Selenium Server can be found on `this page
+<http://code.google.com/p/selenium/downloads/list>`__. It has a name
+like ``selenium-server-standalone-<version>.jar``. Chromedriver is
+`here <https://code.google.com/p/chromedriver/downloads/list>`__. The
+documentation for its use is `here
+<http://code.google.com/p/selenium/wiki/ChromeDriver>`__.
+
+Everything that follows is specific to wed. The first thing you need
+to do is copy `<config/selenium_local_config.py>`_ to
+`<local_config/selenium_local_config.py>`_ and edit it. If you want to
+use SauceLab's servers, set ``SAUCELABS_CREDENTIALS`` to your
+credentials on SauceLab. (Of course, you must have a SauceLab
+account.) If you use chromedriver you want to set
+``CHROMEDRIVER_PATH`` to the path where it resides.
+
+To run the Selenium-based tests, you must can run either
+`<server.js>`_ *or* an nginx-based server. The latter option is
+recommended if you run your browser on a provisioning service like
+SauceLabs *and* you want to maximize performance. Running
+`<server.js>`_ has been explained above. To run nginx, just issue::
+
+    $ misc/start_nginx
+
+This will launch an nginx server listening on localhost:8888. It will
+handle all the requests to static resources itself but will forward
+all Ajax stuff to an instance of `<server.js>`_ (which is started by
+the ``start_nginx`` script to listen on localhost:9999). This server
+puts all of the things that would go in ``/var`` if it was started by
+the OS in the `<var>`_ directory that sits at the top of the code
+tree. Look there for logs. This nginx instance uses the configuration
+built at `<build/config/nginx.conf>`_ from
+`<config/nginx.conf>`_. Remember that if you want to override the
+configuration, the proper way to do it is to copy the configuration
+file into `<local_config>`_ and edit it there. Run make again after
+you made modifications. The only processing done on nginx's file is to
+change all instances of ``@PWD@`` with the top of the code tree.
+
+Finally, to run the suite issue::
+
+    $ make selenium-test
+
+To run the suite while using the SauceLab servers, run::
+
+    $ make SELENIUM_SAUCELABS=1 selenium-test
+
+Behind the scenes, this will launch behave. See `<Makefile>`_ to see
+how behave is run.
+
+Q. Why is Python required to run the Selenium-based tests? You've
+   introduced a dependency on an additional language!
+
+A. I've found that JavaScript is poorly supported by the various
+   agents on which I depend for running Selenium the way I want. I've
+   tried avoiding adding a dependency on Python to software which is
+   JavaScript through and through but that fight proved fruitless. Do
+   I want to spent my time chassing bugs, badly documented code, and
+   obscure or unsupported packages, or do I want to focus on wed? I
+   chose the latter.
+
+.. warning:: Some of the browser-dependent tests may fail on browsers
+             other than Chrome. Eventually, wed will work the same on
+             all browsers but at the moment development efforts are
+             spent elsewhere than hunting down differences in browser
+             behavior. For instance, as of 2013/07/19 some of the
+             caret movement tests fail on Firefox. This does not
+             prevent using wed on Firefox.
+
+.. warning:: As part of normal development, wed is tested on Chrome
+             first, Firefox second. Other browsers will eventually
+             added to this list as the Selenium-based tests take
+             shape.
+
 Usage Notes
 ===========
 

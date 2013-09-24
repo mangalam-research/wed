@@ -58,14 +58,13 @@ Browser Requirements
 ====================
 
 While potential users of wed should definitely heed the warnings
-below, plans are afoot to use Sauce Labs' `Open Sauce
-<https://saucelabs.com/opensauce>`_ to improve support for platforms
-other than PC-based Chrome and Firefox. Stay tuned.
+below, we have started testing wed on SauceLab's server under their
+OpenSauce program so support for various platforms should improve.
 
 Wed is primarily developed using a recent version of Chrome (version
 29; versions 26, 27 and 28 have also been used earlier) and a recent
-version of Firefox (version 23; versions 20, 21, and 22 have also been
-used earlier) for testing. Ideally wed should work with recent
+version of Firefox (version 24; versions 20, 21, 22 and 23 have also
+been used earlier) for testing. Ideally wed should work with recent
 versions of other browsers but since it is not routinely tested with
 those browsers there may be bugs specific to running wed in those
 browsers. File an issue in github if you find a problem with IE 9 or
@@ -75,11 +74,18 @@ decreasing likelihood, support for the following cases is unlikely to
 ever materialize due to a lack of development resources:
 
 * Browsers for phones and tablets.
+
 * Versions of Chrome and Firefox older than those mentioned above.
+
 * Versions of IE older than 9.
+
 * Antique browsers.
+
 * Oddball browsers or other software or hardware systems that present
   web pages.
+
+* Operating systems or browsers no longer supported by their own
+  vendors.
 
 Wed does not require any specific OS facilities. However, keyboard
 support on Macs in JavaScript has some peculiarities. Unfortunately,
@@ -129,11 +135,20 @@ packages:
 * mocha
 * chai
 * semver-sync
+* express
 
 Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
 and `<Makefile>`_ files for details regarding these
 dependencies. Running the test suite additionally requires that `saxon
-<http://saxon.sourceforge.net/>`_ be installed.
+<http://saxon.sourceforge.net/>`_ be installed on your system.
+
+Running wed's selenium-based tests **additionally** requires the
+following:
+
+* Python 2.7.
+* Python's Selenium package.
+* behave (the python package)
+* nginx is highly recommended.
 
 Building
 ========
@@ -166,76 +181,7 @@ the server through other means), etc.
 Testing
 =======
 
-Note that due to the asynchronous nature the JavaScript environments
-used to run the tests, if the test suites are run on a system
-experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. I've witnessed this
-happen, for instance, due to RequireJS timing out on a ``require()``
-call because the OS was busy loading things into memory from
-swap. The solution is to run the test suites again.
-
-Another issue with running the tests is that wed uses ``setTimeout``
-to do the validation work in a parallel fashion. (This actually
-simulates parallelism.) Now, browsers clamp timeouts to at most once a
-second for tests that are in background tabs (i.e. tabs whose content
-is not currently visible). Some tests want the first validation to be
-finished before starting. The upshot is that if the test tab is pushed
-to the background some tests will fail due to timeouts. The solution
-for now is don't push the tab in which tests are run to the
-background. Web workers would solve this problem but would create
-other complications so it is unclear whether they are a viable
-solution.
-
-Tests are of two types:
-
-* Not browser-dependent and therefore runnable outside a browser. We
-  run these in Node.js.
-
-* Browser-dependent and therefore requiring a browser.
-
-To run the tests that are not browser-dependent do::
-
-    $ make test
-
-These tests are located in `<test>`_. You can also run ``mocha``
-directly form the command line but having ``make`` build the ``test``
-target will trigger a build to ensure that the tests are run against
-the latest code.
-
-.. warning:: Keep in mind that tests are **always** run against the
-             code present in `<build/standalone>`_. If you modify your
-             source and fail to rebuild before running the test suite,
-             the suite will run against **old code!**
-
-To run the tests that are browser-dependent, you must run
-`<server.js>`_, a basic web server which has its web site root set to
-the root of the source tree::
-
-    $ ./server.js
-
-The server will serve on localhost:8888 by default. Give it an
-``addr:port`` parameter if you want another address and port. Point
-your browser to `<http://localhost:8888/web/test.html>`_ to run the
-test suite. The browser-dependent tests are located in
-`<browser_test>`_.
-
-Some tests require **this** specific server or a server that provides
-the same responses to Ajax requests.
-
-If you change wed's code and want to run the browser-dependent test
-suite again, make sure to run ``make test`` before you run the suite
-again because otherwise the suite will run against the old code.
-
-.. warning:: Some of the browser-dependent tests may fail on browsers
-             other than Chrome. Eventually, wed will work the same on
-             all browsers but at the moment development efforts are
-             spent elsewhere than hunting down differences in browser
-             behavior. For instance, as of 2013/07/19 some of the
-             caret movement tests fail on Firefox. This does not
-             prevent using wed on Firefox.
-
-.. warning:: As part of normal development, wed is tested on Chrome
-             first, Firefox second, but no other browsers.
+See `<tech_notes.rst>`_.
 
 Demo
 ====
@@ -414,4 +360,5 @@ Humanities.
 ..  LocalWords:  getTransformationRegistry getContextualActions addr
 ..  LocalWords:  fireTransformation glyphicons github tei onerror ev
 ..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis README
-..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout
+..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout rst
+..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce
