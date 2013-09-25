@@ -1,6 +1,13 @@
+import httplib
+import base64
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import os
-import imp
+
 from selenium import webdriver
+
 
 _dirname = os.path.dirname(__file__)
 
@@ -20,9 +27,21 @@ def get_driver():
             local_conf["SAUCELABS_CREDENTIALS"] +
             "@ondemand.saucelabs.com:80/wd/hub"
         )
-        driver.implicitly_wait(10)
     else:
         driver = webdriver.Chrome(local_conf["CHROMEDRIVER_PATH"])
-        driver.implicitly_wait(2)
 
     return driver
+
+
+def set_test_status(jobid, passed=True):
+    if os.environ.get("SELENIUM_SAUCELABS"):
+        (username, key) = local_conf["SAUCELABS_CREDENTIALS"].split(":")
+        creds = base64.encodestring('%s:%s' % (username, key))[:-1]
+
+        conn = httplib.HTTPConnection("saucelabs.com")
+        conn.request('PUT', '/rest/v1/%s/jobs/%s' % (username, jobid),
+                     json.dumps({"passed": passed}),
+                     headers={"Authorization": "Basic " + creds})
+        return conn.getresponse() == 200
+    else:
+        return True

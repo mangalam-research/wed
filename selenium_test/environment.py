@@ -13,4 +13,7 @@ def before_all(context):
 
 
 def after_all(context):
-    context.driver.quit()
+    driver = context.driver
+    conf["set_test_status"](driver.session_id, not context.failed)
+    if not context.failed:
+        driver.quit()
