@@ -1,7 +1,6 @@
-# pylint: disable=E0611
-from behave import When, Then, Given
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+import selenium.webdriver.support.expected_conditions as EC
 
 WED_SERVER = "http://localhost:8888/web/kitchen-sink.html?mode=test"
 
@@ -28,22 +27,24 @@ def load_and_wait_for_editor(context, text=None):
     WebDriverWait(driver, 15).until(condition)
 
 
-@When("the user loads the page")
+@when("the user loads the page")
 def user_load(context):
     load_and_wait_for_editor(context)
 
 
-@Then("the editor shows a document")
+@then("the editor shows a document")
 def doc_appears(context):
-    context.driver.find_element(By.CLASS_NAME, "_placeholder")
+    driver = context.driver
+    WebDriverWait(driver, 2).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "_placeholder")))
 
 
-@Given("an open document")
+@given("an open document")
 def open_doc(context):
     load_and_wait_for_editor(context)
 
 
-@Given("a document containing a top level element, a p element, and text.")
+@given("a document containing a top level element, a p element, and text.")
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
