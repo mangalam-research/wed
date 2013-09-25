@@ -10,6 +10,22 @@ Only salient changes are recorded here.
     no problem. I'm able to enter Sanskrit, Tibetan and Chinese using
     ibus on Linux.
 
+  - API: ``decorator.Decorator`` used to have an ``init()``
+    method. This method no longer exists. This method has been
+    replaced by two methods:
+
+        * ``addHandlers()`` which add the event handlers on the
+          domlistener that the decorator uses.
+
+        * ``startListening()`` which tells the decorator that its
+          listener should start listening.
+
+    The old ``init()`` would do what these two methods do. Since
+    handler order matters, the new API allows one to tell the
+    decorator to add its handlers, then add more handlers, and finally
+    tell the decorator to start listening. The old API did not allow
+    this.
+
   - API: the protocol for saving to a server was redesigned. See
     `<tech_notes.rst>`_.
 
