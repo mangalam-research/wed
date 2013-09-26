@@ -1,3 +1,7 @@
+Please note that Github currently does not implement all
+reStructuredText directives, so some links in this readme
+may not work correctly when viewed there.
+
 Introduction
 ============
 
