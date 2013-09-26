@@ -124,7 +124,7 @@ dependencies. Running the test suite additionally requires that `saxon
 Building
 ========
 
-Everything generated during a build is output to the ``build``
+Everything generated during a build is output to the `<build>`_
 subdirectory, except for some documentation files like
 `<README.html>`_ and `<CHANGELOG.html>`_ which are in the root
 directory.
@@ -358,8 +358,8 @@ the salient points:
 License
 =======
 
-Wed is released under the Mozilla Public License version
-2.0. Copyright Mangalam Research Center for Buddhist Languages,
+Wed is released under the `Mozilla Public
+License version 2.0 <http://www.mozilla.org/MPL/2.0/>`_. Copyright Mangalam Research Center for Buddhist Languages,
 Berkeley, CA.
 
 Credits
