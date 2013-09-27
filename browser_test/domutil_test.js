@@ -927,6 +927,36 @@ function (mocha, chai, $, domutil) {
             });
         });
 
+
+        describe("focusNode", function () {
+            it("focuses an element", function () {
+                var p = $("#test-para")[0];
+                assert.notEqual(p, p.ownerDocument.activeElement,
+                                "p is not focused");
+                domutil.focusNode(p);
+                assert.equal(p, p.ownerDocument.activeElement, "p is focused");
+            });
+            it("focuses text's parent", function () {
+                var text = $("#test-para")[0].firstChild;
+                assert.equal(text.nodeType, Node.TEXT_NODE,
+                             "node type is text");
+                assert.notEqual(text, text.ownerDocument.activeElement,
+                                "text is not focused");
+                domutil.focusNode(text);
+                assert.equal(text.parentNode, text.ownerDocument.activeElement,
+                             "text's parent is focused");
+            });
+            it("throws an error on anything else than element or text",
+               function () {
+                assert.throws(
+                    domutil.focusNode.bind(undefined, undefined),
+                    Error,
+                    "tried to focus something else than a text node or " +
+                        "an element.");
+            });
+        });
+
+
     });
 });
 
