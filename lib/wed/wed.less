@@ -26,25 +26,6 @@
     }
 }
 
-.wed-caret-layer {
-    z-index: 1;
-    >* {
-        position: absolute;
-    }
-
-    ._wed_caret {
-        background-color: black;
-        white-space: pre;
-        border-style: none;
-        display: inline-block;
-        max-width: 1px;
-        min-height: 100%;
-        animation: caret 1s linear infinite;
-        -webkit-animation: caret 1s linear infinite;
-    }
-
-}
-
 .wed-context-menu {
     position: fixed;
     z-index: 2;
@@ -93,9 +74,22 @@
     }
 
     .wed-comp-field {
+        position: absolute;
         z-index: -10;
         top: -1000;
         left: -1000;
+    }
+
+    ._wed_caret {
+        position: absolute;
+        background-color: black;
+        white-space: pre;
+        border-style: none;
+        display: inline-block;
+        max-width: 1px;
+        min-height: 100%;
+        animation: caret 1s linear infinite;
+        -webkit-animation: caret 1s linear infinite;
     }
 
     .nav>li>a {
