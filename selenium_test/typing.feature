@@ -7,12 +7,15 @@ Scenario: deleting all text letter by letter in an element.
   When the user deletes all text letter by letter in an element
   Then a placeholder is present in the element
 
-@oldwip
-Scenario: turning on an input method.
-  When the user clicks on text that does not contain "A"
-  And the user types "A"
-  And the user turns on the input method
-  Then whatever
+#
+# This just does not work
+#
+# Scenario: turning on an input method.
+#   When the user clicks on text that does not contain "A"
+#   And the user types "A"
+#   And the user turns on the input method
+#   Then whatever
+#
 
 Scenario: typing in already existing text
   When the user clicks on text that does not contain "A"

@@ -15,12 +15,12 @@ def step_impl(context):
     element = util.find_element(driver,
                                 (By.CSS_SELECTOR,
                                  "._start_button._title_label"))
+    context.emptied_element = element.find_element_by_xpath("..")
     keys = [Keys.ARROW_RIGHT] + [Keys.DELETE] * 20
     ActionChains(driver)\
         .click(element)\
         .send_keys(*keys)\
         .perform()
-    context.emptied_element = element.find_element_by_xpath("..")
 
 
 #

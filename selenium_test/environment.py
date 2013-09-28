@@ -1,5 +1,7 @@
 import os
 
+from selenium.webdriver.common.keys import Keys
+
 _dirname = os.path.dirname(__file__)
 
 conf_path = os.path.join(os.path.dirname(_dirname),
@@ -12,8 +14,17 @@ def before_all(context):
     context.driver = conf["get_driver"]()
 
 
+def after_scenario(context, _scenario):
+    driver = context.driver
+    #
+    # On Firefox, some of the tests may leave the browser's context menu open.
+    # This closes it for the next scenario. It has otherwise no effect.
+    #
+    driver.find_element_by_tag_name("body").send_keys(Keys.ESCAPE)
+
+
 def after_all(context):
     driver = context.driver
     conf["set_test_status"](driver.session_id, not context.failed)
-    if not context.failed:
+    if not context.failed and "BEHAVE_NO_QUIT" not in os.environ:
         driver.quit()
