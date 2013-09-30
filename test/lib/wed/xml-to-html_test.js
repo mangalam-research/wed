@@ -1,3 +1,10 @@
+/**
+ * @module xml-to-html_test
+ * @desc TBA
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 'use strict';
 var child_process = require("child_process");
 var fs = require("fs");
