@@ -6,7 +6,7 @@ Introduction
 ============
 
 Wed is a schema-aware editor for XML documents. It runs in a web
-browser. It is alpha software. I aim to make it extensible but the API
+browser. It is alpha software. We aim to make it extensible, but the API
 is likely to change quickly for now. If you try it, do not be
 surprised if it throws a rod and leaks oil on your carpet.
 
@@ -22,8 +22,8 @@ Current known limitations:
   through domain-specific abstractions rather than directly, as
   attributes. Other features are more pressing.
 
-* Eventually the plan is for having complete handling of XML namespace
-  changes, and there is incipient code to deal with this; for now
+* Eventually the plan is to handle XML namespace
+  changes completely, and there is incipient code to deal with this; for now
   the safe thing to do if you have a file using multiple namespaces is
   to declare them once and for all on the top element, and never
   change them throughout the document. Otherwise, problems are likely.
@@ -58,13 +58,11 @@ other than PC-based Chrome and Firefox. Stay tuned.
 Wed is primarily developed using a recent version of Chrome
 (version 28) and a recent version of Firefox (version 22) for
 testing. Ideally wed should work with recent versions of other
-browsers but since it is not routinely tested with those browsers
+browsers, but since it is not routinely tested with those browsers
 there may be bugs specific to running wed in those browsers. File an
 issue in github if you find a problem with IE 9 or higher or a
 relatively recent other kind of desktop browser or (obviously) with
-the browsers used for testing wed. In order of decreasing likelihood,
-support for the following cases is unlikely to ever materialize due to
-a lack of development resources:
+the browsers used for testing wed. Due to a lack of development resources, the following items are unlikely to ever be supported, in decreasing order of likelihood:
 
 * Browsers for phones and tablets.
 * Versions of Chrome and Firefox older than those mentioned above.
@@ -106,7 +104,7 @@ Building wed **additionally** requires the following node packages:
 * less
 
 Since wed is not yet distributed in a pre-compiled form, you
-effectively need the packages required to build wed installed if you
+effectively need these packages installed if you
 want to use wed because you have to build it first.
 
 Running wed's tests **additionally** requires the following node
@@ -118,7 +116,7 @@ packages:
 
 Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
 and `<Makefile>`_ files for details regarding these
-dependencies. Running the test suite additionally requires that `saxon
+dependencies. Running the test suite also requires that `saxon
 <http://saxon.sourceforge.net/>`_ be installed.
 
 Building
@@ -238,7 +236,7 @@ can do:
 * Ctrl-X to cut.
 
 * Ctrl-S to save. The data is currently dumped into a file located at
-  build/ajax/save.txt, and you won't be able to reload it. For full
+  `<build/ajax/save.txt>`_, and you won't be able to reload it. For full
   functionality wed needs to be used with a server able to save the
   data and serve it intelligently.
 
@@ -330,7 +328,7 @@ module from calling the old onerror.
              the user to reload. The unfortunate upshot of this is
              that any other JavaScript executing on a page where wed
              is running could trip wed's onerror handler and cause wed
-             to think it crashed. The upshot is that you must not run
+             to think it crashed. For this reason you must not run
              wed with JavaScript code that causes onerror to fire.
 
 Round-Tripping
