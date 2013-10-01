@@ -147,6 +147,7 @@ following:
 
 * Python 2.7.
 * Python's Selenium package.
+* `selenic <http://gihub.com/mangalam-research/selenic>`_
 * behave (the python package)
 * nginx is highly recommended.
 
@@ -219,7 +220,7 @@ can do:
   functionality wed needs to be used with a server able to save the
   data and serve it intelligently.
 
-* Ctrl-. to go into development mode. This will bring up a log window
+* Ctrl-` to go into development mode. This will bring up a log window
   and allow the use of F2 to dump the element to the console.
 
 It is possible to run the kitchen sink with a different mode than the
