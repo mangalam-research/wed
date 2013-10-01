@@ -72,23 +72,11 @@ again because otherwise the suite will run against the old code.
 Selenium-Based Tests
 --------------------
 
-The following information is not specific to wed but can be useful if
-you've never used Selenium before. Generally speaking, you need the
-Selenium Server, but if you only want to run tests in Chrome, you only
-need chromedriver. Selenium Server can be found on `this page
-<http://code.google.com/p/selenium/downloads/list>`__. It has a name
-like ``selenium-server-standalone-<version>.jar``. Chromedriver is
-`here <https://code.google.com/p/chromedriver/downloads/list>`__. The
-documentation for its use is `here
-<http://code.google.com/p/selenium/wiki/ChromeDriver>`__.
-
-Everything that follows is specific to wed. The first thing you need
-to do is copy `<config/selenium_local_config.py>`_ to
-`<local_config/selenium_local_config.py>`_ and edit it. If you want to
-use SauceLab's servers, set ``SAUCELABS_CREDENTIALS`` to your
-credentials on SauceLab. (Of course, you must have a SauceLab
-account.) If you use chromedriver you want to set
-``CHROMEDRIVER_PATH`` to the path where it resides.
+Everything that follows is specific to wed. You need to have `selenic
+<http://gihub.com/mangalam-research/selenic>`_ installed and available
+on your ``PYTHONPATH``. Read its documentation. Then you need to
+create a `<config/selenium_local_config.py>`_ file. Use one of the
+example files provided with selenic.
 
 To run the Selenium-based tests, you must can run either
 `<server.js>`_ *or* an nginx-based server. The latter option is
