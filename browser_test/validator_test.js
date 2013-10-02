@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/validator", "salve/validate"],
 function (mocha, chai, $, validator, validate) {
     // The test subirectory is one of the paths required to be in the config
@@ -67,7 +72,8 @@ function (mocha, chai, $, validator, validate) {
         });
 
         it("precent done", function (done) {
-            require(["requirejs/text!../../test-files/validator_test_data/percent_to_parse_converted.xml"],
+            require(["requirejs/text!../../test-files/" +
+                     "validator_test_data/percent_to_parse_converted.xml"],
                     function(data) {
                         $data.html(data);
                         p._max_timespan = 0;

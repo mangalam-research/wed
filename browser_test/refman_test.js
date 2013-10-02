@@ -1,4 +1,9 @@
-define(["mocha/mocha", "chai", "wed/refman"], 
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
+define(["mocha/mocha", "chai", "wed/refman"],
 function (mocha, chai, refman) {
     var assert = chai.assert;
 
@@ -51,11 +56,11 @@ function (mocha, chai, refman) {
             for(var i = 0; i < 26; ++i)
                 sense_refs.allocateLabel("S." + i);
 
-            assert.throws(sense_refs.allocateLabel.bind(sense_refs, "S.9999"), 
+            assert.throws(sense_refs.allocateLabel.bind(sense_refs, "S.9999"),
                           Error);
         });
 
-        
-        
+
+
     });
 });

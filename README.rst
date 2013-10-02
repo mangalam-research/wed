@@ -1,25 +1,29 @@
+Please note that Github currently does not implement all
+reStructuredText directives, so some links in this readme
+may not work correctly when viewed there.
+
 Introduction
 ============
 
 Wed is a schema-aware editor for XML documents. It runs in a web
-browser. It is alpha software. I aim to make it extensible but the API
+browser. It is alpha software. We aim to make it extensible, but the API
 is likely to change quickly for now. If you try it, do not be
 surprised if it throws a rod and leaks oil on your carpet.
 
 Current known limitations:
 
-* Wed currently only understand a subset of RelaxNG (through the
+* Wed currently only understands a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
 
-* Wed currently does not currently support editing attributes in a
+* Wed does not currently support editing attributes in a
   generic way *as attributes*. The functionality just has not been
   implemented **yet** because wed is developed in the context of a
   project where all attributes are set by software or are edited
   through domain-specific abstractions rather than directly, as
   attributes. Other features are more pressing.
 
-* Eventually the plan is for having complete handling of XML namespace
-  changes, and there is incipient code to deal with this but for now
+* Eventually the plan is to handle XML namespace
+  changes completely, and there is incipient code to deal with this; for now
   the safe thing to do if you have a file using multiple namespaces is
   to declare them once and for all on the top element, and never
   change them throughout the document. Otherwise, problems are likely.
@@ -28,7 +32,7 @@ Current known limitations:
   on the same page.
 
 * Keyboard navigation in contextual menus works. However, if the mouse
-  is hovering over menu items two items will be highlighted at once,
+  is hovering over menu items, two items will be highlighted at once,
   which may be confusing. This seems to be a limitation of CSS which
   Bootstrap does nothing to deal with. (One element may be in the
   focused state (keyboard) while another is in the hover state.)
@@ -54,13 +58,13 @@ other than PC-based Chrome and Firefox. Stay tuned.
 Wed is primarily developed using a recent version of Chrome
 (version 28) and a recent version of Firefox (version 22) for
 testing. Ideally wed should work with recent versions of other
-browsers but since it is not routinely tested with those browsers
+browsers, but since it is not routinely tested with those browsers
 there may be bugs specific to running wed in those browsers. File an
 issue in github if you find a problem with IE 9 or higher or a
 relatively recent other kind of desktop browser or (obviously) with
-the browsers used for testing wed. In order of decreasing likelihood,
-support for the following cases is unlikely to ever materialize due to
-a lack of development resources:
+the browsers used for testing wed. Due to a lack of development resources,
+the following items are unlikely to ever be supported, in decreasing order
+of likelihood:
 
 * Browsers for phones and tablets.
 * Versions of Chrome and Firefox older than those mentioned above.
@@ -82,7 +86,7 @@ Wed is packaged as a RequireJS module. So to use it in a browser
 environment, you need to first load RequireJS and pass to it a
 configuration that will allow it to find wed's code. An example of
 such configuration, which allows running the browser-dependent test
-suite, is located in `<config/requirejs-config-dev.js>`_
+suite, is located in `<config/requirejs-config-dev.js>`_.
 
 In all cases Wed requires the following packages:
 
@@ -102,7 +106,7 @@ Building wed **additionally** requires the following node packages:
 * less
 
 Since wed is not yet distributed in a pre-compiled form, you
-effectively need the packages required to build wed installed if you
+effectively need these packages installed if you
 want to use wed because you have to build it first.
 
 Running wed's tests **additionally** requires the following node
@@ -114,13 +118,13 @@ packages:
 
 Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
 and `<Makefile>`_ files for details regarding these
-dependencies. Running the test suite additionally requires that `saxon
+dependencies. Running the test suite also requires that `saxon
 <http://saxon.sourceforge.net/>`_ be installed.
 
 Building
 ========
 
-Everything generated during a build is into the ``build``
+Everything generated during a build is output to the `<build>`_
 subdirectory, except for some documentation files like
 `<README.html>`_ and `<CHANGELOG.html>`_ which are in the root
 directory.
@@ -130,14 +134,14 @@ For now, wed uses a Makefile to build itself. Run::
     $ make
 
 This Makefile will download external packages (like jquery and
-Bootstrap) and place them in `<downloads>`_. It will then create an
+Bootstrap) and place them in `<downloads>`_. It will then create a
 tree of files that could be served by a web server. The files will be
-in `<build/standalone>`_. As the name "standalone" implies this build
+in `<build/standalone>`_. As the name "standalone" implies, this build
 includes **everything** needed to run wed on your own server, except
 the configuration for RequireJS. This configuration is dependent on
 how the server serves the files so it is up to you to create one. The
 file `<config/requirejs-config-dev.js>`_ contains an example of a
-configuration. This file is actually the one use when you use the
+configuration. This file is actually the one used when you use the
 files in the `<web>`_ subdirectory.
 
 Eventually additional builds will be implemented for minified
@@ -148,7 +152,7 @@ the server through other means), etc.
 Testing
 =======
 
-Note that due to the asynchronous nature the JavaScript environments
+Note that due to the asynchronous nature of the JavaScript environments
 used to run the tests, if the test suites are run on a system
 experiencing heavy load or if the OS has to swap a lot of memory from
 the hard disk, they may fail some or all tests. I've witnessed this
@@ -217,7 +221,7 @@ browser-dependent test suite and then point your browser to
 starts with an empty document using a vanilla TEI schema. Things you
 can do:
 
-* Use the left mouse button to bring up a context menu. Such menu
+* Use the left mouse button to bring up a context menu. Such a menu
   exists for starting tags and all positions that are editable. This
   menu allows inserting elements. Ctrl-/ also brings up this menu.
 
@@ -234,7 +238,7 @@ can do:
 * Ctrl-X to cut.
 
 * Ctrl-S to save. The data is currently dumped into a file located at
-  build/ajax/save.txt, and you won't be able to reload it. For full
+  `<build/ajax/save.txt>`_, and you won't be able to reload it. For full
   functionality wed needs to be used with a server able to save the
   data and serve it intelligently.
 
@@ -252,9 +256,9 @@ Using
 
 Wed expects the XML files it uses to have been converted from XML to
 an ad-hoc HTML version. So the data passed to it must have been
-converted by `<lib/wed/xml-to-html.xsl>`_ Various schemas and projects
+converted by `<lib/wed/xml-to-html.xsl>`_. Various schemas and projects
 will have different needs regarding white space handling, so it is
-likely you'll want to create your own ``xml-to-html.xsl`` file will
+likely you'll want to create your own ``xml-to-html.xsl`` file that will
 import `<lib/wed/xml-to-html.xsl>`_ but customize white space handling.
 
 To include wed in a web page you must:
@@ -272,13 +276,13 @@ To include wed in a web page you must:
   handlers or condition handlers. The ``widget`` parameter must be an
   element (preferably a ``div``) which contains the entire data
   structure to edit (converted by ``xml-to-html.xsl`` or a
-  customization of it). The ``options`` parameter is an dictionary
+  customization of it). The ``options`` parameter is a dictionary
   which at present understands the following keys:
 
   + ``schema``: the path to the schema to use for interpreting the
     document. This file must contain the result of doing the schema
-    conversion required by ``salve`` since wed uses ``salve``. See
-    ``salve``'s documentation.
+    conversion required by salve since wed uses salve. See
+    salve's documentation.
 
   + ``mode``: a simple object recording mode parameters. This object
     must have a ``path`` field set to the RequireJS path of the
@@ -326,7 +330,7 @@ module from calling the old onerror.
              the user to reload. The unfortunate upshot of this is
              that any other JavaScript executing on a page where wed
              is running could trip wed's onerror handler and cause wed
-             to think it crashed. The upshot is that you must not run
+             to think it crashed. For this reason you must not run
              wed with JavaScript code that causes onerror to fire.
 
 Round-Tripping
@@ -345,18 +349,18 @@ the salient points:
 
 * The order and location of namespaces could change.
 
-* The encoding of empty elements could change. That is, <foo/> could
-  become <foo></foo> or vice-versa.
+* The encoding of empty elements could change. That is, ``<foo/>`` could
+  become ``<foo></foo>`` or vice-versa.
 
-* The presence or absence of newline on the last line may not be
+* The presence or absence of a newline on the last line may not be
   preserved.
 
 License
 =======
 
-Wed is released under the Mozilla Public License version
-2.0. Copyright Mangalam Research Center for Buddhist Languages,
-Berkeley, CA.
+Wed is released under the `Mozilla Public
+License version 2.0 <http://www.mozilla.org/MPL/2.0/>`_. Copyright Mangalam
+Research Center for Buddhist Languages, Berkeley, CA.
 
 Credits
 =======
@@ -368,12 +372,12 @@ Mangalam Research Center for Buddhist Languages.
 .. image:: https://secure.gravatar.com/avatar/7fc4e7a64d9f789a90057e7737e39b2a
    :target: http://www.mangalamresearch.org/
 
-This software has been made possible in part by a Level I Digital
-Humanities Start-up Grant from the National Endowment for the
-Humanities (grant number HD-51383-11). Any views, findings,
-conclusions, or recommendations expressed in this software, do not
-necessarily represent those of the National Endowment for the
-Humanities.
+This software has been made possible in part by a Level I Digital Humanities
+Start-up Grant and a Level II Digital Humanities Start-up Grant from the
+National Endowment for the Humanities (grant numbers HD-51383-11 and
+HD-51772-13). Any views, findings, conclusions, or recommendations expressed
+in this software do not necessarily represent those of the National Endowment
+for the Humanities.
 
 .. image:: http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg
    :target: http://www.neh.gov/

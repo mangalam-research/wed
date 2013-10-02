@@ -1,4 +1,9 @@
-define(["mocha/mocha", "chai", "jquery", "wed/jquery.findandself"], 
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
+define(["mocha/mocha", "chai", "jquery", "wed/jquery.findandself"],
 function (mocha, chai, $, _) {
     var assert = chai.assert;
     describe("jQuery.findAndSelf", function () {
@@ -6,7 +11,8 @@ function (mocha, chai, $, _) {
         var $data = $("#data");
         var $root;
         beforeEach(function () {
-            $root = $("<ul data-foo='foo'><li data-foo='bar'><p data-foo='foo'>bar</p></li></ul>");
+            $root = $("<ul data-foo='foo'><li data-foo='bar'>\
+<p data-foo='foo'>bar</p></li></ul>");
             $data.append($root);
         });
 

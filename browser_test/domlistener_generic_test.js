@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(function () {
 
 // This is not as generic as it could be but this will do for now.
@@ -594,7 +599,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
            function () {
             var marked = false;
             mark = new Mark(1, {"children root": 1},
-                            listener, tree_updater, $root, function () { marked = true; });
+                            listener, tree_updater, $root,
+                            function () { marked = true; });
             function changedHandler($this_root, $added, $removed,
                                     $previous_sibling, $next_sibling,
                                     $element) {
