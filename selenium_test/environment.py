@@ -1,6 +1,11 @@
 import os
 
+from nose.tools import assert_raises  # pylint: disable=E0611
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import TimeoutException
+
+from selenic import util
 
 _dirname = os.path.dirname(__file__)
 
@@ -22,6 +27,12 @@ def before_all(context):
 
 def after_scenario(context, _scenario):
     driver = context.driver
+    #
+    # Make sure we did not trip a fatal error.
+    #
+    assert_raises(TimeoutException,
+                  util.find_element, driver,
+                  (By.CLASS_NAME, "wed-fatal-modal"))
     #
     # On Firefox, some of the tests may leave the browser's context menu open.
     # This closes it for the next scenario. It has otherwise no effect.
