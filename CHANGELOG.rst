@@ -18,7 +18,7 @@ Only salient changes are recorded here.
 
   - GUI: wed can now handle some input methods. So long as the methods
     are not designed to **edit** already entered text, there should be
-    no problem. I'm able to enter Sanskrit, Tibetan and Chinese using
+  no problem. We're able to enter Sanskrit, Tibetan and Chinese using
     ibus on Linux.
 
   - Build: the build system now creates an optimized bundle which can
@@ -73,7 +73,7 @@ Only salient changes are recorded here.
 
 * 0.8:
 
-  - GUI: validation error reporting is more user friendly than it used
+  - GUI: validation error reporting is more user-friendly than it used
     to be.
 
   - API: Specifying a mode path can now be done in an abbreviated
