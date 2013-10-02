@@ -5,6 +5,9 @@
 # modify this file. What follows are the default values.
 #
 
+# saxon command
+SAXON?=saxon
+
 # jsdoc command.
 JSDOC3?=jsdoc
 
@@ -16,6 +19,13 @@ DEV?=0
 
 # Parameters to pass to mocha, like "--grep foo".
 MOCHA_PARAMS?=
+
+# Skip the semver check. You should NOT set this in local.mk but use
+# it on the command line:
+#
+# $ make SKIP_SEMVER=1 test
+#
+SKIP_SEMVER?=
 
 #
 # End of customizable variables.
@@ -63,7 +73,7 @@ build: | build-standalone build-ks-files build-config
 
 build-config: $(CONFIG_TARGETS) | build/config
 
-build/config:
+build/config: | build-dir
 	mkdir $@
 
 #
@@ -101,8 +111,8 @@ build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
 build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
-		saxon -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
-		saxon -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
+		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
 	fi)
 
 build/standalone/lib/%: lib/%
