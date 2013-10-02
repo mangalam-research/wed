@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
         "wed/wed", "wed/key", "wed/key_constants"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants) {
@@ -146,7 +151,8 @@ describe("input_trigger_factory", function () {
 
     describe("makeSplitMergeInputTrigger", function () {
         before(function () {
-            src_stack.unshift("../../test-files/input_trigger_test_data/source2_converted.xml");
+            src_stack.unshift("../../test-files/input_trigger_test_data" +
+                              "/source2_converted.xml");
         });
         after(function () {
             src_stack.shift();

@@ -62,7 +62,9 @@ browsers, but since it is not routinely tested with those browsers
 there may be bugs specific to running wed in those browsers. File an
 issue in github if you find a problem with IE 9 or higher or a
 relatively recent other kind of desktop browser or (obviously) with
-the browsers used for testing wed. Due to a lack of development resources, the following items are unlikely to ever be supported, in decreasing order of likelihood:
+the browsers used for testing wed. Due to a lack of development resources,
+the following items are unlikely to ever be supported, in decreasing order
+of likelihood:
 
 * Browsers for phones and tablets.
 * Versions of Chrome and Firefox older than those mentioned above.
@@ -357,8 +359,8 @@ License
 =======
 
 Wed is released under the `Mozilla Public
-License version 2.0 <http://www.mozilla.org/MPL/2.0/>`_. Copyright Mangalam Research Center for Buddhist Languages,
-Berkeley, CA.
+License version 2.0 <http://www.mozilla.org/MPL/2.0/>`_. Copyright Mangalam
+Research Center for Buddhist Languages, Berkeley, CA.
 
 Credits
 =======
@@ -370,11 +372,11 @@ Mangalam Research Center for Buddhist Languages.
 .. image:: https://secure.gravatar.com/avatar/7fc4e7a64d9f789a90057e7737e39b2a
    :target: http://www.mangalamresearch.org/
 
-This software has been made possible in part by a Level I Digital Humanities Start-up
-Grant and a Level II Digital Humanities Start-up Grant from the National Endowment for
-the Humanities (grant numbers HD-51383-11 and HD-51772-13). Any views, findings,
-conclusions, or recommendations expressed in this software do not
-necessarily represent those of the National Endowment for the
+This software has been made possible in part by a Level I Digital Humanities
+Start-up Grant and a Level II Digital Humanities Start-up Grant from the National
+Endowment for the Humanities (grant numbers HD-51383-11 and HD-51772-13). Any
+views, findings, conclusions, or recommendations expressed in this software do
+not necessarily represent those of the National Endowment for the
 Humanities.
 
 .. image:: http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg

@@ -1,4 +1,5 @@
-{ "globals": 
+{
+  "globals":
   { "describe": false,
     "before": false,
     "beforeEach": false,
@@ -7,5 +8,7 @@
     "require": false,
     "console": false
   },
+  "globalstrict": true,
+  "maxlen": 80,
   "node": true
 }
