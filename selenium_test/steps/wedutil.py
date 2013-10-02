@@ -68,6 +68,8 @@ def select_text(driver, start, end):
     # So...
     #
 
+    # execute_async_script would be ideal here but for this issue:
+    # http://code.google.com/p/selenium/issues/detail?id=6353
     driver.execute_script("""
     var $ = jQuery;
     var start = arguments[0];
@@ -79,17 +81,17 @@ def select_text(driver, start, end):
     event.which = 1;
     $gui_root.trigger(event);
     setTimeout(function () {
-    var event = new $.Event("mousemove");
-    event.pageX = end.left;
-    event.pageY = end.top;
-    $gui_root.trigger(event);
-    setTimeout(function () {
-    var event = new $.Event("mouseup");
-    event.pageX = end.left;
-    event.pageY = end.top;
-    event.which = 1;
-    $gui_root.trigger(event);
-    }, 10);
+      var event = new $.Event("mousemove");
+      event.pageX = end.left;
+      event.pageY = end.top;
+      $gui_root.trigger(event);
+      setTimeout(function () {
+      var event = new $.Event("mouseup");
+        event.pageX = end.left;
+        event.pageY = end.top;
+        event.which = 1;
+        $gui_root.trigger(event);
+      }, 10);
     }, 10);
     """, start, end)
     time.sleep(0.2)
