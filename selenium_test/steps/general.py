@@ -3,7 +3,8 @@ from selenium.webdriver.common.by import By
 import selenium.webdriver.support.expected_conditions as EC
 from nose.tools import assert_true  # pylint: disable=E0611
 
-import util
+from selenic import util
+import wedutil
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
@@ -60,11 +61,12 @@ def open_simple_doc(context):
 @when('the user clicks on text that does not contain "{text}"')
 def step_impl(context, text):
     driver = context.driver
-    element = util.find_element(driver, (By.CLASS_NAME, "title"))
+    element = util.find_clickable_element(driver, (By.CLASS_NAME, "title"))
+    element.click()
+    wedutil.wait_for_caret_to_be_in(driver, element)
     context.element_to_test_for_text = element
     assert_true(
         util.get_text_excluding_children(driver, element).find(text) == -1)
-    element.click()
 
 
 @when('the user clicks on the start label of an element that does not '

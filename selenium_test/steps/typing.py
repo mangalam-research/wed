@@ -1,9 +1,8 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from nose.tools import assert_true  # pylint: disable=E0611
 
-import util
+from selenic import util
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
@@ -58,6 +57,9 @@ def step_impl(context):
 @then(u'"{text}" is in the text')
 def step_impl(context, text):
     driver = context.driver
-    el_text = util.get_text_excluding_children(
-        driver, context.element_to_test_for_text)
-    assert_true(el_text.find(text) != -1)
+
+    def condition(*_):
+        el_text = util.get_text_excluding_children(
+            driver, context.element_to_test_for_text)
+        return el_text.find(text) != -1
+    util.wait(driver, condition)

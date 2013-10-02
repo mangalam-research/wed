@@ -1,3 +1,20 @@
+from selenic import util
+
+import time
+
+
+def wait_for_caret_to_be_in(driver, element):
+    def condition(*_):
+        return driver.execute_script("""
+        var $ = jQuery;
+        var element = arguments[0];
+        var caret = wed_editor.getCaret();
+        var ret = $(caret[0]).closest(element).length > 0;
+        return ret;
+        """, element)
+    util.wait(driver, condition)
+
+
 def caret_selection_pos(driver):
     """
     Gets the ``x, y`` position of the caret relative to the
@@ -37,6 +54,8 @@ def select_text(driver, start, end):
     #
     # This does not work...
     #
+    # from selenium.webdriver.common.action_chains import ActionChains
+    #
     # gui_root = driver.find_element_by_class_name("wed-document")
     #
     # ActionChains(driver)\
@@ -64,12 +83,13 @@ def select_text(driver, start, end):
     event.pageX = end.left;
     event.pageY = end.top;
     $gui_root.trigger(event);
-    }, 1);
     setTimeout(function () {
     var event = new $.Event("mouseup");
     event.pageX = end.left;
     event.pageY = end.top;
     event.which = 1;
     $gui_root.trigger(event);
-    }, 1);
+    }, 10);
+    }, 10);
     """, start, end)
+    time.sleep(0.2)

@@ -2,7 +2,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
-import util
+
+from selenic import util
 
 step_matcher("re")
 
@@ -49,7 +50,11 @@ def context_menu_on_start_label_of_element(context):
       "top element")
 def context_menu_on_end_label_of_top_element(context):
     driver = context.driver
-    button = util.find_elements(driver, (By.CLASS_NAME, "_end_button"))[-1]
+    button = util.find_elements(driver,
+                                (By.CLASS_NAME, "_end_button"))[-1]
+    driver.execute_script("""
+    arguments[0].scrollIntoView();
+    """, button)
     ActionChains(driver)\
         .context_click(button)\
         .perform()
