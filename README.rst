@@ -164,7 +164,10 @@ subdirectory, except for some documentation files like
 `<README.html>`_ and `<CHANGELOG.html>`_ which are in the root
 directory.
 
-For now, wed uses a Makefile to build itself. Run::
+For now, wed uses a Makefile to build itself. You might want to create
+a ``local.mk`` file to record settings specific to your own build
+environment. See the start of the `<Makefile>`_ to see what variables
+you can set. When everything is set, run::
 
     $ make
 
