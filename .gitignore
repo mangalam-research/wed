@@ -1,3 +1,5 @@
+var
+local_config
 node_modules
 downloads
 build
@@ -5,3 +7,4 @@ local.mk
 README.html
 CHANGELOG.html
 *_flymake.*
+*.pyc

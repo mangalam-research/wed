@@ -1,5 +1,42 @@
 Only salient changes are recorded here.
 
+* 0.10.0:
+
+  - Internals: wed now requires salve 0.14.0 or later, which means
+    smaller schema files, faster loading and faster running. Yippee!
+
+  - GUI: wed can now handle some input methods. So long as the methods
+    are not designed to **edit** already entered text, there should be
+    no problem. I'm able to enter Sanskrit, Tibetan and Chinese using
+    ibus on Linux.
+
+  - API: ``decorator.Decorator`` used to have an ``init()``
+    method. This method no longer exists. This method has been
+    replaced by two methods:
+
+        * ``addHandlers()`` which add the event handlers on the
+          domlistener that the decorator uses.
+
+        * ``startListening()`` which tells the decorator that its
+          listener should start listening.
+
+    The old ``init()`` would do what these two methods do. Since
+    handler order matters, the new API allows one to tell the
+    decorator to add its handlers, then add more handlers, and finally
+    tell the decorator to start listening. The old API did not allow
+    this.
+
+  - API: the protocol for saving to a server was redesigned. See
+    `<tech_notes.rst>`_.
+
+  - API: The ``Editor`` methods ``setSelectionRange`` and
+    ``getSelectionRange`` have been renamed ``setDOMSelectionRange``
+    and ``getDOMSelectionRange``. The Editor method ``getSelection``
+    has been renamed ``getDOMSelection``.
+
+  - API: ``Editor.setSelectionRange`` and ``getSelectionRange`` are
+    two **new** methods.
+
 * 0.9.0:
 
   - GUI: Wed now actually uses the icons set on actions.
@@ -113,3 +150,6 @@ Only salient changes are recorded here.
 ..  LocalWords:  getDataCaret domlistener TreeUpdater makeDecorator
 ..  LocalWords:  ev jQthis getContextualActions wed's glyphicons CSS
 ..  LocalWords:  getTransformationRegistry fireTransformation init
+..  LocalWords:  html ibus rst setSelectionRange getSelectionRange
+..  LocalWords:  setDOMSelectionRange getDOMSelectionRange README
+..  LocalWords:  getSelection getDOMSelection

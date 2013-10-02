@@ -10,7 +10,7 @@ browser. It is alpha software. We aim to make it extensible, but the API
 is likely to change quickly for now. If you try it, do not be
 surprised if it throws a rod and leaks oil on your carpet.
 
-Current known limitations:
+Known limitations:
 
 * Wed currently only understands a subset of RelaxNG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
@@ -37,6 +37,17 @@ Current known limitations:
   Bootstrap does nothing to deal with. (One element may be in the
   focused state (keyboard) while another is in the hover state.)
 
+* Wed does not work with RTL scripts. There no inherent reason wed
+  could not support them but the project for which it is developed
+  currently does not need support for RTL scripts. So no resources
+  have been expended towards supporting this.
+
+* Wed is not internationalized. Although the contents of a document
+  could be in any language, wed's UI is in English. Again, there is no
+  inherent reason wed could not support other languages for the
+  UI. The project for which it is developed currently does not need
+  support for other languages, hence this state of affairs.
+
 * See also `Browser Requirements`_.
 
 Known bugs:
@@ -51,26 +62,34 @@ Browser Requirements
 ====================
 
 While potential users of wed should definitely heed the warnings
-below, plans are afoot to use Sauce Labs' `Open Sauce
-<https://saucelabs.com/opensauce>`_ to improve support for platforms
-other than PC-based Chrome and Firefox. Stay tuned.
+below, we have started testing wed on SauceLab's server under their
+OpenSauce program so support for various platforms should improve.
 
-Wed is primarily developed using a recent version of Chrome
-(version 28) and a recent version of Firefox (version 22) for
-testing. Ideally wed should work with recent versions of other
-browsers, but since it is not routinely tested with those browsers
-there may be bugs specific to running wed in those browsers. File an
-issue in github if you find a problem with IE 9 or higher or a
-relatively recent other kind of desktop browser or (obviously) with
-the browsers used for testing wed. Due to a lack of development resources,
-the following items are unlikely to ever be supported, in decreasing order
-of likelihood:
+Wed is primarily developed using a recent version of Chrome (version
+29; versions 26, 27 and 28 have also been used earlier) and a recent
+version of Firefox (version 24; versions 20, 21, 22 and 23 have also
+been used earlier) for testing. Ideally wed should work with recent
+versions of other browsers but since it is not routinely tested with
+those browsers there may be bugs specific to running wed in those
+browsers. File an issue in github if you find a problem with IE 9 or
+higher or a relatively recent other kind of desktop browser or
+(obviously) with the browsers used for testing wed.  Due to a lack of
+development resources, the following items are unlikely to ever be
+supported, in decreasing order of likelihood:
 
 * Browsers for phones and tablets.
+
 * Versions of Chrome and Firefox older than those mentioned above.
+
+* Versions of IE older than 9.
+
 * Antique browsers.
+
 * Oddball browsers or other software or hardware systems that present
   web pages.
+
+* Operating systems or browsers no longer supported by their own
+  vendors.
 
 Wed does not require any specific OS facilities. However, keyboard
 support on Macs in JavaScript has some peculiarities. Unfortunately,
@@ -87,6 +106,11 @@ environment, you need to first load RequireJS and pass to it a
 configuration that will allow it to find wed's code. An example of
 such configuration, which allows running the browser-dependent test
 suite, is located in `<config/requirejs-config-dev.js>`_.
+
+.. warning:: If you want to change this configuration for
+             experimentation or to match your local setup, please copy
+             it to the `<local_config>` directory and edit it
+             *there*. This directory is not tracked by git.
 
 In all cases Wed requires the following packages:
 
@@ -115,11 +139,26 @@ packages:
 * mocha
 * chai
 * semver-sync
+* express
 
 Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
 and `<Makefile>`_ files for details regarding these
 dependencies. Running the test suite also requires that `saxon
 <http://saxon.sourceforge.net/>`_ be installed.
+
+Running wed's selenium-based tests **additionally** requires the
+following:
+
+* Python 2.7.
+* Python's Selenium package.
+* `selenic <http://gihub.com/mangalam-research/selenic>`_
+* behave (the python package)
+* nginx is highly recommended.
+
+If you want to contribute to salve, your code will have to pass the
+checks listed in `<.glerbl/repo_conf.py>`_. So you either have to
+install glerbl to get those checks done for you or run the checks
+through other means. See Contributing_.
 
 Building
 ========
@@ -129,7 +168,10 @@ subdirectory, except for some documentation files like
 `<README.html>`_ and `<CHANGELOG.html>`_ which are in the root
 directory.
 
-For now, wed uses a Makefile to build itself. Run::
+For now, wed uses a Makefile to build itself. You might want to create
+a ``local.mk`` file to record settings specific to your own build
+environment. See the start of the `<Makefile>`_ to see what variables
+you can set. When everything is set, run::
 
     $ make
 
@@ -152,64 +194,7 @@ the server through other means), etc.
 Testing
 =======
 
-Note that due to the asynchronous nature of the JavaScript environments
-used to run the tests, if the test suites are run on a system
-experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. I've witnessed this
-happen, for instance, due to RequireJS timing out on a ``require()``
-call because the OS was busy loading things into memory from
-swap. The solution is to run the test suites again.
-
-Tests are of two types:
-
-* Not browser-dependent and therefore runnable outside a browser. We
-  run these in Node.js.
-
-* Browser-dependent and therefore requiring a browser.
-
-To run the tests that are not browser-dependent do::
-
-    $ make test
-
-These tests are located in `<test>`_. You can also run ``mocha``
-directly form the command line but having ``make`` build the ``test``
-target will trigger a build to ensure that the tests are run against
-the latest code.
-
-.. warning:: Keep in mind that tests are **always** run against the
-             code present in `<build/standalone>`_. If you modify your
-             source and fail to rebuild before running the test suite,
-             the suite will run against **old code!**
-
-To run the tests that are browser-dependent, you must run
-`<server.js>`_, a basic web server which has its web site root set to
-the root of the source tree::
-
-    $ ./server.js
-
-The server will serve on localhost:8888 by default. Give it an
-``addr:port`` parameter if you want another address and port. Point
-your browser to `<http://localhost:8888/web/test.html>`_ to run the
-test suite. The browser-dependent tests are located in
-`<browser_test>`_.
-
-Some tests require **this** specific server or a server that provides
-the same responses to Ajax requests.
-
-If you change wed's code and want to run the browser-dependent test
-suite again, make sure to run ``make test`` before you run the suite
-again because otherwise the suite will run against the old code.
-
-.. warning:: Some of the browser-dependent tests may fail on browsers
-             other than Chrome. Eventually, wed will work the same on
-             all browsers but at the moment development efforts are
-             spent elsewhere than hunting down differences in browser
-             behavior. For instance, as of 2013/07/19 some of the
-             caret movement tests fail on Firefox. This does not
-             prevent using wed on Firefox.
-
-.. warning:: As part of normal development, wed is tested on Chrome
-             first, Firefox second, but no other browsers.
+See `<tech_notes.rst>`_.
 
 Demo
 ====
@@ -242,7 +227,7 @@ can do:
   functionality wed needs to be used with a server able to save the
   data and serve it intelligently.
 
-* Ctrl-. to go into development mode. This will bring up a log window
+* Ctrl-` to go into development mode. This will bring up a log window
   and allow the use of F2 to dump the element to the console.
 
 It is possible to run the kitchen sink with a different mode than the
@@ -355,6 +340,16 @@ the salient points:
 * The presence or absence of a newline on the last line may not be
   preserved.
 
+Contributing
+============
+
+Contributions must pass the commit checks turned on in
+`<.glerbl/repo_conf.py>`_. Use ``glerbl install`` to install the
+hooks. Glerbl itself can be found at
+https://github.com/lddubeau/glerbl. It will eventually make its way to
+the Python package repository so that ``pip install glerbl`` will
+work.
+
 License
 =======
 
@@ -388,4 +383,5 @@ for the Humanities.
 ..  LocalWords:  getTransformationRegistry getContextualActions addr
 ..  LocalWords:  fireTransformation glyphicons github tei onerror ev
 ..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis README
-..  LocalWords:  selectionsaverestore CHANGELOG
+..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout rst
+..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce

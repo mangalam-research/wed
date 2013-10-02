@@ -9,7 +9,7 @@ require.config({
    'jquery': 'jquery-1.9.1',
    'bootstrap': 'bootstrap/js/bootstrap.min',
      // This is required by the testing framework.
-   'test': '../../../browser_test/'
+   'browser_test': '../../../browser_test'
  },
  shim: {
    'bootstrap': {
@@ -43,7 +43,7 @@ require.config({
  },
  config: {
      'wed/wed': {
-         schema: 'test/tei-simplified-rng.js',
+         schema: 'browser_test/tei-simplified-rng.js',
          mode: {
              path: 'wed/modes/generic/generic',
              options: {

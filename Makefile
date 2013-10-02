@@ -5,6 +5,9 @@
 # modify this file. What follows are the default values.
 #
 
+# saxon command
+SAXON?=saxon
+
 # jsdoc command.
 JSDOC3?=jsdoc
 
@@ -16,6 +19,13 @@ DEV?=0
 
 # Parameters to pass to mocha, like "--grep foo".
 MOCHA_PARAMS?=
+
+# Skip the semver check. You should NOT set this in local.mk but use
+# it on the command line:
+#
+# $ make SKIP_SEMVER=1 test
+#
+SKIP_SEMVER?=
 
 #
 # End of customizable variables.
@@ -51,6 +61,7 @@ LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
+CONFIG_TARGETS:=$(foreach f,$(shell find config local_config -type f -printf '%P\n'),$(patsubst %,build/config/%,$f))
 
 .PHONY: all build-dir build
 all: build
@@ -58,7 +69,38 @@ all: build
 build-dir:
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone build-ks-files
+build: | build-standalone build-ks-files build-config
+
+build-config: $(CONFIG_TARGETS) | build/config
+
+build/config: | build-dir
+	mkdir $@
+
+#
+# What we've got here is a poor man's dependency calculation system.
+#
+# The .d files record whether make is to take the source for the
+# corresponding file in build/config from config or local_config.
+#
+
+include $(CONFIG_TARGETS:=.d)
+
+# The order of these targets makes it so that if a file exists in
+# local_config, it shadows a file of the same name in config. (That
+# is, if the file exists in local_config, that's the file used to
+# build the build/config/... file rather than the one in config.)
+build/config/%.d: local_config/% | build/config
+	echo '$(patsubst %.d,%,$@): $<' > $@
+
+build/config/%.d: config/% | build/config
+	echo '$(patsubst %.d,%,$@): $<' > $@
+
+# Here are the actual targets that build the actual config files.
+build/config/%:
+	cp $< $@
+
+build/config/nginx.conf:
+	sed -e's;@PWD@;$(PWD);'g $< > $@
 
 build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js build/standalone/lib/jquery.bootstrap-growl.js build/standalone/lib/font-awesome
 
@@ -69,8 +111,8 @@ build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
 build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
-		saxon -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
-		saxon -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
+		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
 	fi)
 
 build/standalone/lib/%: lib/%
@@ -208,8 +250,14 @@ build/ks/purl.js: downloads/$(PURL_BASE) | build/ks
 
 .PHONY: test
 test: build | build-test-files
+ifndef SKIP_SEMVER
 	semver-sync -v
+endif
 	mocha $(MOCHA_PARAMS)
+
+.PHONY: selenium-test
+selenium-test: build | build-test-files
+	behave selenium_test
 
 .PHONY: doc
 doc: README.html CHANGELOG.html
