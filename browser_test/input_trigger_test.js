@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
         "wed/transformation"],

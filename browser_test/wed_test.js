@@ -1,6 +1,11 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-       "wed/key"],
+        "wed/key"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
                 onerror, log, key) {
 var options = {
@@ -226,7 +231,8 @@ describe("wed", function () {
         editor.whenCondition(
             "first-validation-complete",
             function () {
-            var ref = $(editor.$gui_root.find(".body>.p")[2]).children(".ref")[0];
+            var ref = $(editor.$gui_root.find(".body>.p")[2]
+                                              ).children(".ref")[0];
             var initial = ref.childNodes[0];
 
             // Make sure we're looking at the right thing.
@@ -1145,7 +1151,8 @@ describe("wed", function () {
 
     describe("interacts with the server:", function () {
         before(function () {
-            src_stack.unshift("../../test-files/wed_test_data/server_interaction_converted.xml");
+            src_stack.unshift("../../test-files/wed_test_data" +
+                              "/server_interaction_converted.xml");
         });
 
         after(function () {
@@ -1162,7 +1169,15 @@ describe("wed", function () {
                     var obj = {
                         command: 'save',
                         version: wed.version,
-                        data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                        data: '<div xmlns="http://www.w3.org/1999/xhtml" \
+data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
+<div class="teiHeader _real"><div class="fileDesc _real">\
+<div class="titleStmt _real"><div class="title _real">abcd</div>\
+</div><div class="publicationStmt _real"><div class="p _real">\
+</div></div><div class="sourceDesc _real"><div class="p _real"></div>\
+</div></div></div><div class="text _real"><div class="body _real">\
+<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
+<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                     };
                     var expected = "\n***\n" + JSON.stringify(obj);
                     assert.equal(data, expected);
@@ -1175,7 +1190,8 @@ describe("wed", function () {
 
     describe("fails as needed and recovers:", function () {
         before(function () {
-            src_stack.unshift("../../test-files/wed_test_data/server_interaction_converted.xml");
+            src_stack.unshift("../../test-files/wed_test_data/" +
+                              "server_interaction_converted.xml");
         });
 
         after(function () {
@@ -1220,7 +1236,15 @@ describe("wed", function () {
                         var obj = {
                             command: 'save',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
+data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
+<div class="teiHeader _real"><div class="fileDesc _real">\
+<div class="titleStmt _real"><div class="title _real">abcd</div>\
+</div><div class="publicationStmt _real"><div class="p _real"></div>\
+</div><div class="sourceDesc _real"><div class="p _real"></div></div>\
+</div></div><div class="text _real"><div class="body _real">\
+<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
+<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
@@ -1247,7 +1271,15 @@ describe("wed", function () {
                         var obj = {
                             command: 'recover',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real"><div class="teiHeader _real"><div class="fileDesc _real"><div class="titleStmt _real"><div class="title _real">abcd</div></div><div class="publicationStmt _real"><div class="p _real"></div></div><div class="sourceDesc _real"><div class="p _real"></div></div></div></div><div class="text _real"><div class="body _real"><div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div><div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
+data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
+<div class="teiHeader _real"><div class="fileDesc _real">\
+<div class="titleStmt _real"><div class="title _real">abcd</div></div>\
+<div class="publicationStmt _real"><div class="p _real"></div></div>\
+<div class="sourceDesc _real"><div class="p _real"></div></div></div></div>\
+<div class="text _real"><div class="body _real"><div class="p _real">Blah blah \
+<div class="term _real">blah</div> blah.</div><div class="p _real">\
+<div class="term _real">blah</div></div></div></div></div>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);

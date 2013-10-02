@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/tree_updater"],
 function (mocha, chai, $, tree_updater) {
 
@@ -114,7 +119,8 @@ describe("TreeUpdater", function () {
                          '<div class="title _real">ab</div>', "first half");
             var next = node.nextSibling;
             assert.equal(parent.childNodes[1].outerHTML,
-                             '<div class="title _real">cd</div>', "second half");
+                             '<div class="title _real">cd</div>',
+                             "second half");
             listener.check();
         });
 
