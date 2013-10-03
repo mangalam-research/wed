@@ -95,3 +95,18 @@ def select_text(driver, start, end):
     }, 10);
     """, start, end)
     time.sleep(0.2)
+
+
+def point_in_selection(driver):
+    return driver.execute_script("""
+    var sel = wed_editor.my_window.getSelection();
+    var range;
+    if (sel.rangeCount === 0)
+        return undefined;
+
+    range = sel.getRangeAt(0);
+    var rect = range.getBoundingClientRect();
+    // Return a position just inside the rect.
+    var pos = {x: rect.left + 1, y: rect.top + 1};
+    return pos;
+    """)

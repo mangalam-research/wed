@@ -8,7 +8,14 @@ import selenic.util
 
 from nose.tools import assert_equal, assert_true  # pylint: disable=E0611
 
+import wedutil
+
 step_matcher("re")
+
+
+class Trigger(object):
+    location = None
+    size = None
 
 
 @Given("that a context menu is open")
@@ -144,15 +151,6 @@ def user_clicks_outside_context_menu(context):
         .perform()
 
 
-@When("the user clicks the first context menu option")
-def user_clicks_first_context_menu_option(context):
-    driver = context.driver
-    link = WebDriverWait(driver, 2).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                    ".wed-context-menu li>a")))
-    link.click()
-
-
 @Then("a context menu appears")
 def context_menu_appears(context):
     util = context.util
@@ -160,12 +158,21 @@ def context_menu_appears(context):
     util.find_element((By.CLASS_NAME, "wed-context-menu"))
 
 
-@Then(r'^the context menu contains choices for inserting new elements')
-def context_choices_insert(context):
+@Then(r'^the context menu contains choices for (?P<kind>.*?).$')
+def context_choices_insert(context, kind):
     util = context.util
 
     cm = util.find_element((By.CLASS_NAME, "wed-context-menu"))
-    cm.find_element(By.PARTIAL_LINK_TEXT, "Create new ")
+
+    search_for = None
+    if kind == "inserting new elements":
+        search_for = "Create new "
+    elif kind == "wrapping text in new elements":
+        search_for = "Wrap in "
+    else:
+        raise ValueError("can't search for choices of this kind: " + kind)
+
+    cm.find_element(By.PARTIAL_LINK_TEXT, search_for)
 
 
 @Given("a context menu is not visible")
@@ -203,11 +210,9 @@ def step_impl(context):
     caret = util.find_element((By.CLASS_NAME, "_wed_caret"))
 
     # Mock it. The caret could move or disappear.
-    class Mock(object):
-        pass
-    trigger = Mock()
-    trigger.location = caret.location  # pylint: disable=W0201
-    trigger.size = caret.size  # pylint: disable=W0201
+    trigger = Trigger()
+    trigger.location = caret.location
+    trigger.size = caret.size
     trigger.size["width"] = 0
 
     ActionChains(driver) \
@@ -217,3 +222,54 @@ def step_impl(context):
         .perform()
 
     context.context_menu_trigger = trigger
+
+
+@when(u'the user brings up the context menu on the selection')
+def step_impl(context):
+    driver = context.driver
+
+    pos = wedutil.point_in_selection(driver)
+
+    # Selenium does not like floats.
+    pos["x"] = int(pos["x"])
+    pos["y"] = int(pos["y"])
+
+    trigger = Trigger()
+    trigger.location = pos
+    trigger.size = {'width': 0, 'height': 0}
+
+    body = driver.find_element_by_tag_name("body")
+    ActionChains(driver) \
+        .move_to_element_with_offset(body, pos["x"], pos["y"]) \
+        .context_click() \
+        .perform()
+
+    context.context_menu_trigger = trigger
+
+
+@given(u'^that the user has brough up the context menu over a selection$')
+def step_impl(context):
+    context.execute_steps(u"""
+    When the user selects text
+    And the user brings up the context menu on the selection
+    Then a context menu is visible close to where the user clicked
+    And the context menu contains choices for wrapping text in new elements.
+    """)
+
+
+@when(u'^the user clicks (?P<choice>the first context menu option|a choice '
+      u'for wrapping text in new elements)$')
+def step_impl(context, choice):
+    util = context.util
+
+    if choice == "the first context menu option":
+        link = util.wait(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, ".wed-context-menu li>a")))
+    elif choice == "a choice for wrapping text in new elements":
+        link = util.wait(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,
+                                                     "Wrap in ")))
+    else:
+        raise ValueError("can't handle this type of choice: " + choice)
+    context.clicked_context_menu_item = \
+        util.get_text_excluding_children(link).strip()
+    link.click()

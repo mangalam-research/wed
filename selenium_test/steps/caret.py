@@ -47,7 +47,9 @@ def step_impl(context):
 step_matcher("re")
 
 
-@when(u'the user selects text(?P<direction>.*?) with the mouse')
+# This is also our default for when a mechanism is not specified.
+@when(u'^the user selects text(?: |$)(?P<direction>[^ ]*?)'
+      u'(?:with the mouse)?$')
 def step_impl(context, direction):
     driver = context.driver
     util = context.util
@@ -83,6 +85,7 @@ def step_impl(context, direction):
 
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[1:3]
+    context.selection_parent = parent
 
 
 @when(u'the user selects text(?P<direction>.*?) with the keyboard')
