@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 import selenium.webdriver.support.expected_conditions as EC
 from nose.tools import assert_true  # pylint: disable=E0611
 
-from selenic import util
 import wedutil
 
 # Don't complain about redefined functions
@@ -61,24 +60,53 @@ def open_simple_doc(context):
 @when('the user clicks on text that does not contain "{text}"')
 def step_impl(context, text):
     driver = context.driver
-    element = util.find_clickable_element(driver, (By.CLASS_NAME, "title"))
+    util = context.util
+
+    element = util.find_clickable_element((By.CLASS_NAME, "title"))
     element.click()
-    wedutil.wait_for_caret_to_be_in(driver, element)
+    wedutil.wait_for_caret_to_be_in(util, element)
     context.element_to_test_for_text = element
     assert_true(
-        util.get_text_excluding_children(driver, element).find(text) == -1)
+        util.get_text_excluding_children(element).find(text) == -1)
 
 
 @when('the user clicks on the start label of an element that does not '
       'contain "{text}"')
 def step_impl(context, text):
     driver = context.driver
-    button = util.find_element(driver,
-                               (By.CSS_SELECTOR,
+    util = context.util
+
+    button = util.find_element((By.CSS_SELECTOR,
                                 "._start_button._title_label"))
     button.click()
     parent = button.find_element_by_xpath("..")
-    assert_true(
-        util.get_text_excluding_children(driver, parent).
-        find(text) == -1)
+    assert_true(util.get_text_excluding_children(parent).find(text) == -1)
     context.element_to_test_for_text = parent
+
+
+@when('the user resizes the window so that the editor pane has a vertical '
+      'scrollbar')
+def step_impl(context):
+    driver = context.driver
+    driver.set_window_size(683, 741)
+
+
+@when('the user scrolls the editor pane down')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    # We must not call it before the body is fully loaded.
+    driver.execute_script("""
+    jQuery(function () {
+      delete window.__selenic_scrolled;
+      window.scrollTo(0, document.body.scrollHeight);
+      window.__selenic_scrolled = true;
+    });
+    """)
+
+    def cond(*_):
+        return driver.execute_script("""
+        return window.__selenic_scrolled
+        """)
+    util.wait(cond)

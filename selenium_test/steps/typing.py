@@ -2,8 +2,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
-from selenic import util
-
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
@@ -11,8 +9,9 @@ from selenic import util
 @when(u'the user deletes all text letter by letter in an element')
 def step_impl(context):
     driver = context.driver
-    element = util.find_element(driver,
-                                (By.CSS_SELECTOR,
+    util = context.util
+
+    element = util.find_element((By.CSS_SELECTOR,
                                  "._start_button._title_label"))
     context.emptied_element = element.find_element_by_xpath("..")
     keys = [Keys.ARROW_RIGHT] + [Keys.DELETE] * 20
@@ -49,17 +48,19 @@ def step_impl(context, text):
 @then(u'a placeholder is present in the element')
 def step_impl(context):
     driver = context.driver
+    util = context.util
+
     element = context.emptied_element
-    util.wait(driver,
-              lambda *_: element.find_element(By.CLASS_NAME, "_placeholder"))
+    util.wait(lambda *_: element.find_element(By.CLASS_NAME, "_placeholder"))
 
 
 @then(u'"{text}" is in the text')
 def step_impl(context, text):
     driver = context.driver
+    util = context.util
 
     def condition(*_):
         el_text = util.get_text_excluding_children(
-            driver, context.element_to_test_for_text)
+            context.element_to_test_for_text)
         return el_text.find(text) != -1
-    util.wait(driver, condition)
+    util.wait(condition)

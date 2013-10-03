@@ -4,8 +4,9 @@ from nose.tools import assert_raises  # pylint: disable=E0611
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
 
-from selenic import util
+import selenic.util
 
 _dirname = os.path.dirname(__file__)
 
@@ -23,21 +24,29 @@ config = conf["Config"](local_conf_path)
 
 def before_all(context):
     context.driver = config.get_driver()
+    context.util = selenic.util.Util(context.driver)
+
+
+def before_scenario(context, _scenario):
+    driver = context.driver
+    context.before_scenario_window_size = driver.get_window_size()
 
 
 def after_scenario(context, _scenario):
     driver = context.driver
+    util = context.util
     #
     # Make sure we did not trip a fatal error.
     #
-    assert_raises(TimeoutException,
-                  util.find_element, driver,
-                  (By.CLASS_NAME, "wed-fatal-modal"))
-    #
-    # On Firefox, some of the tests may leave the browser's context menu open.
-    # This closes it for the next scenario. It has otherwise no effect.
-    #
-    driver.find_element_by_tag_name("body").send_keys(Keys.ESCAPE)
+    with util.local_timeout(0.5):
+        assert_raises(TimeoutException,
+                      util.find_element,
+                      (By.CLASS_NAME, "wed-fatal-modal"))
+
+    window_size = driver.get_window_size()
+    if window_size != context.before_scenario_window_size:
+        driver.set_window_size(context.before_scenario_window_size["width"],
+                               context.before_scenario_window_size["height"])
 
 
 def after_all(context):

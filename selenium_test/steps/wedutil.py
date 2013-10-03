@@ -1,9 +1,9 @@
-from selenic import util
-
 import time
 
 
-def wait_for_caret_to_be_in(driver, element):
+def wait_for_caret_to_be_in(util, element):
+    driver = util.driver
+
     def condition(*_):
         return driver.execute_script("""
         var $ = jQuery;
@@ -12,7 +12,7 @@ def wait_for_caret_to_be_in(driver, element):
         var ret = $(caret[0]).closest(element).length > 0;
         return ret;
         """, element)
-    util.wait(driver, condition)
+    util.wait(condition)
 
 
 def caret_selection_pos(driver):
@@ -76,19 +76,19 @@ def select_text(driver, start, end):
     var end = arguments[1];
     var $gui_root = wed_editor.$gui_root;
     var event = new $.Event("mousedown");
-    event.pageX = start.left;
-    event.pageY = start.top;
+    event.clientX = start.left;
+    event.clientY = start.top;
     event.which = 1;
     $gui_root.trigger(event);
     setTimeout(function () {
       var event = new $.Event("mousemove");
-      event.pageX = end.left;
-      event.pageY = end.top;
+      event.clientX = end.left;
+      event.clientY = end.top;
       $gui_root.trigger(event);
       setTimeout(function () {
       var event = new $.Event("mouseup");
-        event.pageX = end.left;
-        event.pageY = end.top;
+        event.clientX = end.left;
+        event.clientY = end.top;
         event.which = 1;
         $gui_root.trigger(event);
       }, 10);
