@@ -1,3 +1,7 @@
+Please note that Github currently does not implement all
+reStructuredText directives, so some links in this document
+may not work correctly when viewed there.
+
 Only salient changes are recorded here.
 
 * 0.10.0:
@@ -18,7 +22,7 @@ Only salient changes are recorded here.
 
   - GUI: wed can now handle some input methods. So long as the methods
     are not designed to **edit** already entered text, there should be
-  no problem. We're able to enter Sanskrit, Tibetan and Chinese using
+    no problem. We're able to enter Sanskrit, Tibetan and Chinese using
     ibus on Linux.
 
   - Build: the build system now creates an optimized bundle which can

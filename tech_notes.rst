@@ -1,3 +1,7 @@
+Please note that Github currently does not implement all
+reStructuredText directives, so some links in this document
+may not work correctly when viewed there.
+
 Usage Notes
 ===========
 
@@ -66,7 +70,7 @@ Schema and Structure Considerations
 -----------------------------------
 
 The following discussion covers schema design considerations if you
-wish to use wed to enforce editing constraints. It is possible rely
+wish to use wed to enforce editing constraints. It is possible to rely
 instead on user discipline to enforce constraints, just like one would
 do if using a plain text editor to edit XML. If this is your case,
 then you do not need to concern yourself with the following.
@@ -118,7 +122,7 @@ form::
 The ``url`` parameter is the URL where log4javascript will send the
 log messages. The ``headers`` parameter specifies additional headers
 to send. In particular this is useful when the receiver is an
-installation requiring that some anti CSRF token be set on HTTP
+installation requiring that some anti-CSRF token be set on HTTP
 headers.
 
 Saving
@@ -142,7 +146,7 @@ Queries are sent as POST requests with the following parameters:
 
 * ``version``: the version of wed issuing the command.
 
-* ``data``: The data associated with the command. This is always an string
+* ``data``: The data associated with the command. This is always a string
   serialization of the data tree.
 
 The possible commands are:
@@ -219,7 +223,7 @@ To run the tests that are not browser-dependent do::
     $ make test
 
 These tests are located in `<test>`_. You can also run ``mocha``
-directly form the command line but having ``make`` build the ``test``
+directly from the command line but having ``make`` build the ``test``
 target will trigger a build to ensure that the tests are run against
 the latest code.
 
@@ -272,7 +276,7 @@ You also need to have `wedutil
 <http://github.com/mangalam-research/wedutil>`_ installed and
 available on your ``PYTHONPATH``.
 
-To run the Selenium-based tests, you must can run either
+To run the Selenium-based tests, you can run either
 `<server.js>`_ *or* an nginx-based server. The latter option is
 recommended if you run your browser on a provisioning service like
 SauceLabs *and* you want to maximize performance. Running
@@ -281,7 +285,7 @@ SauceLabs *and* you want to maximize performance. Running
     $ misc/start_nginx
 
 This will launch an nginx server listening on localhost:8888. It will
-handle all the requests to static resources itself but will forward
+handle all the requests to static resources itself, but will forward
 all Ajax stuff to an instance of `<server.js>`_ (which is started by
 the ``start_nginx`` script to listen on localhost:9999). This server
 puts all of the things that would go in ``/var`` if it was started by
@@ -290,9 +294,9 @@ tree. Look there for logs. This nginx instance uses the configuration
 built at `<build/config/nginx.conf>`_ from
 `<config/nginx.conf>`_. Remember that if you want to override the
 configuration, the proper way to do it is to copy the configuration
-file into `<local_config>`_ and edit it there. Run make again after
-you made modifications. The only processing done on nginx's file is to
-change all instances of ``@PWD@`` with the top of the code tree.
+file into `<local_config>`_ and edit it there. Run ``make`` again after
+you have made modifications. The only processing done on nginx's file is to
+change replace instances of ``@PWD@`` with the top of the code tree.
 
 Finally, to run the suite issue::
 
@@ -302,18 +306,18 @@ To run the suite while using the SauceLab servers, run::
 
     $ make SELENIUM_SAUCELABS=1 selenium-test
 
-Behind the scenes, this will launch behave. See `<Makefile>`_ to see
-how behave is run.
+Behind the scenes, this will launch behave. See `<Makefile>`_ for
+information about how behave is run.
 
 Q. Why is Python required to run the Selenium-based tests? You've
    introduced a dependency on an additional language!
 
-A. I've found that JavaScript is poorly supported by the various
-   agents on which I depend for running Selenium the way I want. I've
-   tried avoiding adding a dependency on Python to software which is
-   JavaScript through and through but that fight proved fruitless. Do
-   I want to spent my time chasing bugs, badly documented code, and
-   obscure or unsupported packages, or do I want to focus on wed? I
+A. We've found that JavaScript is poorly supported by the various
+   agents on which we depend for running Selenium the way we want. We've
+   tried to avoid adding a dependency on Python to software which is
+   JavaScript through and through, but that fight proved fruitless. Do
+   we want to spend our time chasing bugs, badly documented code, and
+   obscure or unsupported packages, or do we want to focus on wed? We
    chose the latter.
 
 .. warning:: Some of the browser-dependent tests may fail on browsers
@@ -326,7 +330,7 @@ A. I've found that JavaScript is poorly supported by the various
 
 .. warning:: As part of normal development, wed is tested on Chrome
              first, Firefox second. Other browsers will eventually
-             added to this list as the Selenium-based tests take
+             be added to this list as the Selenium-based tests take
              shape.
 
 Internals
@@ -341,26 +345,30 @@ destroying. However, modes **must not** bind their own event handlers
 for the standard JavaScript type of events onto any GUI element that
 wed is responsible for managing. They must use the appropriate custom
 wed events. This ensures proper ordering of processing. Here is the
-list of JavaScript events for which custom events have been defined,
-the order in which the custom events are listed is the one in which
-they are processed.
+list of JavaScript events for which custom events have been defined;
+the order the events are listed corresponds to the order they are
+processed
 
 * keydown:
+
  + wed-input-trigger-keydown
  + wed-global-keydown
 
 * keypress:
+
  + wed-input-trigger-keypress
  + wed-global-keypress
 
 * paste:
+
  + wed-post-paste
 
 * contextmenu:
+
  + wed-context-menu
 
 Those handlers that are bound to these custom events should have the
-following signature:
+following signature::
 
     handler(wed_event, javascript_event)
 
@@ -392,11 +400,11 @@ Wed works with multiple types of selections:
 
 DOM selection
   The selection as understood by DOM. Methods working with this
-  selection have "DOM" in their name.
+  selection have ``DOM`` in their name.
 
 GUI selection
   The selection in the GUI tree. The GUI selection is just called
-  "selection", without further qualifier. This is the range selected
+  "selection", without any further qualifier. This is the range selected
   by the user in the document being edited. The methods operating on
   this selection do not use a special qualifier. E.g. ``getSelection``
   does not have ``DOM`` or ``data`` in its name and thus works on a
@@ -404,7 +412,7 @@ GUI selection
 
 Data selection
   The selection that corresponds to the GUI selection in the data tree.
-  Methods working with this selection have "data" in their name. Mode will
+  Methods working with this selection have ``data`` in their name. Mode will
   typically want to work with this selection.
 
 Carets
@@ -437,18 +445,18 @@ set to values that do not indicate what the user is actually
 typing. The browsers also fire ``input`` and
 ``composition{start,update,end}`` events, which are also nearly
 useless. The ``input`` event does not state what was done to the
-data. The ``composition{start,update,end}`` event indicate that
+data. The ``composition{start,update,end}`` events indicate that
 composition happened. In theory the ``data`` parameter should hold the
 data being changed, but on Chrome 29 the ``compositionend`` event has
-a blank data when entering the Chinese character for wo3
+a blank ``data`` field when entering the Chinese character for wo3
 ("I").
 
 There's an additional complication in that these events can happen
 when the user wants to **edit** a composed character rather than
 delete or add text. Suppose that we are editing the string "livré" to
 read "livre". The way to do it without composition is in two
-operations: delete the "é" and insert "e" (or vice-versa). However,
-with composition a character can be transformed into another character
+operations: delete the "é" and insert "e" (or in the reverse order).
+However, with composition a character can be transformed into another character
 by one atomic change on the data. A composition method could make the
 change by replacing "é" with "e" as one operation, without there being
 a deletion followed by an insertion. The character itself is
@@ -491,30 +499,40 @@ Wed operates on an HTML structure constructed as follows:
 
 * The original element's qualified name is stored as the first class in @class.
 
-* All other classes that wed reserved to wed's own purposes have an underscore prepended to them.
+* All other classes that wed reserved to wed's own purposes have an
+  underscore prepended to them.
 
-* All elements that correspond to an actual element in the XML document are of the _real class.
+* All elements that correspond to an actual element in the XML
+  document are of the _real class.
 
-* All elements that are added for decorative purposes are either in the _phantom or _phantom_wrap class.
+* All elements that are added for decorative purposes are either in
+  the _phantom or _phantom_wrap class.
 
 * A _phantom element is not editable, period.
 
-* A _phantom_wrap element is not itself editable but contains editable (_real) children.
+* A _phantom_wrap element is not itself editable but contains editable
+  (_real) children.
 
 * The XML element's attributes are stored in attributes of the form:
 
- * data-wed-[name]="..." when the attribute name is without namespace prefix
+ * ``data-wed-[name]="..."`` when the attribute name is without namespace prefix
 
- * data-wed-[prefix]---[name]="..." when the attribute name has a namespace prefix
+ * ``data-wed-[prefix]---[name]="..."`` when the attribute name has a
+   namespace prefix
 
-The [name] part is converted so that three dashes become 4, 4 become five, etc. Here are examples of XML attributes and what they become in HTML:
+The ``[name]`` part is converted so that three dashes become 4, 4 become
+five, etc. Here are examples of XML attributes and what they become in
+HTML:
 
-* foo -> data-wed-foo
-* xml:lang -> data-wed-xml---lang
-* xml:a-b -> data-wed-xml---a-b
-* xml:a---b -> data-wed-xml---a----b
+* ``foo`` -> ``data-wed-foo``
+* ``xml:lang`` -> ``data-wed-xml---lang``
+* ``xml:a-b`` -> ``data-wed-xml---a-b``
+* ``xml:a---b`` -> ``data-wed-xml---a----b``
 
-* Wed may add attributes for its internal purposes. These do not correspond to any XML attributes. They are encoded as "data-wed--[name]". An XML attribute name or prefix may not begin with a dash, so there cannot be a clash.
+* Wed may add attributes for its internal purposes. These do not
+  correspond to any XML attributes. They are encoded as
+  ``data-wed--[name]``. An XML attribute name or prefix may not begin
+  with a dash, so there cannot be a clash.
 
 Browser Issues
 ==============
@@ -531,7 +549,7 @@ Incompatibilities
 One area of incompatibility is the implementation of contenteditable
 across browsers. Even a single browser can behave inconsistently
 depending on how the DOM tree is structured. (In Firefox 20, the
-presence or absence of white-space text nodes sometimes changes the
+presence or absence of whitespace text nodes sometimes changes the
 way BACKSPACE is handled when the caret is at the start of a
 contenteditable element.)
 
@@ -540,21 +558,22 @@ Successive Elements and the Caret
 
 Suppose the structure::
 
-    <p contenteditable="true">foo <button contenteditable="false">A</button><button contenteditable="false">B</button> bar</p>
+    <p contenteditable="true">foo <button contenteditable="false">A</button>
+    <button contenteditable="false">B</button> bar</p>
 
 If you place the caret just before the space before "bar" and hit the
 left arrow to move it back between buttons A and B, various browsers
 will handle it differently. At any rate, in both Chrome 26 and Firefox
 20, there will **not** be a caret **between** A and B. The caret may
-disappear or be moved somewhere else. Same result if you place the
-caret after the space after "foo" and hit the right arrow.
+disappear or be moved somewhere else. The same result occurs if you place the
+caret after the space after ``foo`` and hit the right arrow.
 
 Setting the caret programmatically does not work either but in general
-results is the caret disappearing.  Browsers differ a little bit. In
+results in the caret disappearing.  Browsers differ a little bit. In
 Chrome 26, it seems that even though the caret becomes invisible, it
 still exists between the two elements. (It is possible to delete
-either buttons.) In Firefox 20, the caret becomes
-non-existent. (Editing is not possible.)
+either button.) In Firefox 20, the caret becomes
+non-existent (editing is not possible).
 
 So to allow editing between successive elements, wed has to create a
 placeholder to allow the user to put their caret between elements.
@@ -591,20 +610,20 @@ key.
 Memory Leaks
 ------------
 
-There seem to be a small memory leak upon reloading a window with Wed
+There seems to be a small memory leak upon reloading a window with wed
 in it.
 
 Tests performed with Chrome's memory profiler by doing:
 
-1. One load.
-2. Issuing a memory profile.
-3. Reload.
-4. Issuing a memory profile.
+1. One load,
+2. issuing a memory profile,
+3. reload, and
+4. issuing a memory profile
 
-Show that the whole Walker tree created before the first profile is
+show that the whole Walker tree created before the first profile is
 created still exists at the time of the second profile. Upon reload,
-Wed stops all MutationObservers, removes all event handlers, and
-deletes the data structure of the document being edited. I do not know
+wed stops all MutationObservers, removes all event handlers, and
+deletes the data structure of the document being edited. We do not know
 of a good explanation for the leak.
 
 ..  LocalWords:  contenteditable MutationObserver MutationObservers
