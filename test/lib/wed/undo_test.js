@@ -27,15 +27,14 @@ function MyUndo(name, object) {
 
 oop.inherit(MyUndo, Undo);
 
-(function () {
-    this.undo = function () {
-        this.object[this.name] = false;
-    };
+MyUndo.prototype.undo = function () {
+    this.object[this.name] = false;
+};
 
-    this.redo = function () {
-        this.object[this.name] = true;
-    };
-}).call(MyUndo.prototype);
+MyUndo.prototype.redo = function () {
+    this.object[this.name] = true;
+};
+
 
 function MyGroup(name) {
     UndoGroup.call(this, name);
