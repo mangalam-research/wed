@@ -296,7 +296,7 @@ built at `<build/config/nginx.conf>`_ from
 configuration, the proper way to do it is to copy the configuration
 file into `<local_config>`_ and edit it there. Run ``make`` again after
 you have made modifications. The only processing done on nginx's file is to
-change replace instances of ``@PWD@`` with the top of the code tree.
+replace instances of ``@PWD@`` with the top of the code tree.
 
 Finally, to run the suite issue::
 
@@ -368,9 +368,9 @@ processed
  + wed-context-menu
 
 Those handlers that are bound to these custom events should have the
-following signature::
+following signature:
 
-    handler(wed_event, javascript_event)
+    ``handler(wed_event, javascript_event)``
 
 Where ``wed_event`` is the jQuery ``Event`` object created for
 dispatching custom events and ``javascript_event`` is the original

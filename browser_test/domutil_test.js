@@ -133,7 +133,7 @@ function (mocha, chai, $, domutil) {
             describe("white-space: normal, not at end of parent node",
                      function () {
                          // The case is designed so that it does not
-                         // skip over the white space
+                         // skip over the whitespace
                          var $data = $("<span>test <s>test</s></span>");
                          beforeEach(function () {
                              $root.empty();
@@ -149,7 +149,7 @@ function (mocha, chai, $, domutil) {
 
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
-                // the white space.
+                // the whitespace.
                 var $data =
                     $("<span><s>test    </s>" +
                       "<s style='white-space: pre'>test  </s>" +
@@ -294,13 +294,13 @@ function (mocha, chai, $, domutil) {
 
             describe("white-space: normal", function () {
                 // The case is designed so that it skips over the
-                // white space
+                // whitespace
                 var $data =
                     $("<span><s>test</s><s>   test</s></span>");
                 beforeEach(function () {
                     $root.empty();
                     $root.append($data);
-                    // Place the caret just after the white space
+                    // Place the caret just after the whitespace
                     // in the 2nd <s> node.
                     caret = [$data.children("s").get(1).childNodes[0],
                              3];
@@ -311,13 +311,13 @@ function (mocha, chai, $, domutil) {
             describe("white-space: normal, not at start of parent node",
                      function () {
                          // The case is designed so that it does not skip over
-                         // the white space
+                         // the whitespace
                          var $data =
                                  $("<span><s>test</s>   test</span>");
                          beforeEach(function () {
                              $root.empty();
                              $root.append($data);
-                             // Place the caret just after the white space
+                             // Place the caret just after the whitespace
                              // in the top node
                              caret = [$data.get(0).childNodes[1], 3];
                          });
@@ -328,7 +328,7 @@ function (mocha, chai, $, domutil) {
 
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
-                // the white space.
+                // the whitespace.
                 var $data =
                     $("<span><s>test</s>" +
                       "<s style='white-space: pre'>   test</s>"+

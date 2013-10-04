@@ -141,7 +141,7 @@ Only salient changes are recorded here.
     starting and ending tags of elements serve respectively to add
     elements before and after an element.
 
-  - Internal: wed now uses ``less`` to generate CSS.
+  - Internal: wed now uses less to generate CSS.
 
   - Internal: wed now maintains two DOM trees representing the
     document. The first is a representation of the document's XML
