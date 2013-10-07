@@ -235,3 +235,5 @@ describe("InputTrigger", function () {
 });
 
 });
+
+// LocalWords:  chai tei InputTrigger keydown keypress

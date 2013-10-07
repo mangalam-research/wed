@@ -172,3 +172,5 @@ describe("input_trigger_factory", function () {
 });
 
 });
+
+// LocalWords:  chai jquery tei InputTrigger

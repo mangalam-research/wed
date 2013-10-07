@@ -237,3 +237,6 @@ describe("Modal", function () {
 });
 
 });
+
+// LocalWords:  chai setTitle setBody setFooter addButton getPrimary
+// LocalWords:  Ok getClicked getClickedAsText btn

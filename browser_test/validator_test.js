@@ -71,7 +71,7 @@ function (mocha, chai, $, validator, validate) {
             });
         });
 
-        it("precent done", function (done) {
+        it("percent done", function (done) {
             require(["requirejs/text!../../test-files/" +
                      "validator_test_data/percent_to_parse_converted.xml"],
                     function(data) {
@@ -395,3 +395,5 @@ function (mocha, chai, $, validator, validate) {
         });
     });
 });
+
+// LocalWords:  chai jquery validator subdirectory config requirejs

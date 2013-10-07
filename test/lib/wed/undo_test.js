@@ -427,3 +427,6 @@ describe("UndoList", function () {
 
     });
 });
+
+// LocalWords:  requirejs oop chai UndoList canUndo canRedo endGroup
+// LocalWords:  endAllGroups getGroup undoingOrRedoing noop

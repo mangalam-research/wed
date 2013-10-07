@@ -970,4 +970,4 @@ function (mocha, chai, $, domutil) {
 //  LocalWords:  requirejs insertIntoText lastabcd firstabcd abtestcd
 //  LocalWords:  abcdfirst abfirst lastcd insertText abQcd Qabcd
 //  LocalWords:  abcdQ deleteText firstDescendantOrSelf nodeToPath
-//  LocalWords:  pathToNode linkTrees
+//  LocalWords:  pathToNode linkTrees whitespace

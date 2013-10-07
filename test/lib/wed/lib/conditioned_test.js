@@ -80,3 +80,5 @@ describe("Conditioned", function () {
         });
     });
 });
+
+// LocalWords:  requirejs oop chai whenCondition getCondition

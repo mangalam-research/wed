@@ -93,7 +93,7 @@ describe("SimpleEventEmitter", function () {
             });
 
             emitter._emit("event 1", null);
-            // event 2 not present so the 2nd hander was not called.
+            // event 2 not present so the 2nd handler was not called.
             assert.deepEqual(calls, ["event 1"]);
         });
 
@@ -268,3 +268,7 @@ describe("SimpleEventEmitter", function () {
     });
 
 });
+
+// LocalWords:  requirejs oop chai SimpleEventEmitter
+// LocalWords:  addEventListener removeEventListener
+// LocalWords:  removeAllListeners addOneTimeEventListener

@@ -32,3 +32,5 @@ function fail_on_save(done) {
 exports.fail_on_save = fail_on_save;
 
 });
+
+// LocalWords:  chai ajax jquery
