@@ -856,3 +856,8 @@ describe("TreeUpdater", function () {
 });
 
 });
+
+// LocalWords:  chai jquery TreeUpdater insertNodeAt splitAt onwards
+// LocalWords:  denormalize deleteNode insertText setTextNodeValue
+// LocalWords:  deleteText insertIntoText removeNode unhandled
+// LocalWords:  removeNodes mergeTextNodes

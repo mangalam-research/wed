@@ -207,7 +207,7 @@ solution.
 
 Tests are of three types:
 
-* Not browser-dependent and therefore runnable outside a browser. We
+* Not browser-dependent and therefore may be run outside a browser. We
   run these in Node.js.
 
 * In-browser tests run *in* the browser.
@@ -549,7 +549,7 @@ Incompatibilities
 One area of incompatibility is the implementation of contenteditable
 across browsers. Even a single browser can behave inconsistently
 depending on how the DOM tree is structured. (In Firefox 20, the
-presence or absence of whitespace text nodes sometimes changes the
+presence or absence of white-space text nodes sometimes changes the
 way BACKSPACE is handled when the caret is at the start of a
 contenteditable element.)
 
@@ -631,6 +631,7 @@ of a good explanation for the leak.
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
 ..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
 ..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
-..  LocalWords:  ajaxlog url CSRF JSON msg wedutil PYTHONPATH js addr
-..  LocalWords:  setTimeout localhost selenic config nginx SauceLabs
-..  LocalWords:  nginx's SauceLab Makefile CSS getSelection oop
+..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText
+..  LocalWords:  RequireJS setTimeout localhost selenic addr config
+..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM
+..  LocalWords:  getSelection namespace programmatically profiler

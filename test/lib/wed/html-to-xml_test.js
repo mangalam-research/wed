@@ -43,3 +43,5 @@ describe("html-to-xml", function () {
     makeTest("should encode dashes in attribute names");
     makeTest("should encode namespace changes");
 });
+
+// LocalWords:  fs chai xml html xsl saxon utf namespace

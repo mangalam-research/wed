@@ -627,3 +627,5 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
 };
 
 });
+
+// LocalWords:  chai domlistener processImmediately MutationObserver

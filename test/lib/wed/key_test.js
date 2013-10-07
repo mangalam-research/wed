@@ -128,3 +128,6 @@ describe("key", function () {
     });
 
 });
+
+// LocalWords:  requirejs chai makeKey makeCtrlKey anyModifier keyup
+// LocalWords:  matchesEvent keydown keypress setEventToMatch ctrl

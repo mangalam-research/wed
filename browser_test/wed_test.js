@@ -1308,3 +1308,9 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 });
 
 });
+
+// LocalWords:  chai jquery onerror domutil tei metas wedroot gui btn
+// LocalWords:  requirejs unhandled mousedown mouseup pathToNode html
+// LocalWords:  nodeToPath seekCaret nodeValue innerHTML teiHeader
+// LocalWords:  moveCaretLeft moveCaretRight xml ajax txt xmlns
+// LocalWords:  fileDesc titleStmt publicationStmt sourceDesc

@@ -95,3 +95,6 @@ describe("util", function () {
 
 
 });
+
+// LocalWords:  requirejs util chai btw classFromOriginalName
+// LocalWords:  namespace distFromDeltas distFromRect
