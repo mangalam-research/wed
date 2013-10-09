@@ -556,7 +556,8 @@ describe("wed", function () {
         });
     });
 
-    it("wraps elements in elements (offset === nodeValue.length)", function (done) {
+    it("wraps elements in elements (offset === nodeValue.length)",
+       function (done) {
         editor.whenCondition(
             "first-validation-complete",
             function () {

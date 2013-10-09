@@ -22,7 +22,8 @@ describe("util", function () {
             assert.equal(util.decodeAttrName("data-wed-btw---blah"), "btw:blah");
         });
         it("prefix dashes", function () {
-            assert.equal(util.decodeAttrName("data-wed-btw---blah-one--two----three-----four"), "btw:blah-one--two---three----four");
+            assert.equal(util.decodeAttrName("data-wed-btw---blah-one--two----\
+three-----four"), "btw:blah-one--two---three----four");
         });
     });
 
@@ -34,7 +35,8 @@ describe("util", function () {
             assert.equal(util.encodeAttrName("btw:blah"), "data-wed-btw---blah");
         });
         it("prefix dashes", function () {
-            assert.equal(util.encodeAttrName("btw:blah-one--two---three----four"), "data-wed-btw---blah-one--two----three-----four");
+            assert.equal(util.encodeAttrName("btw:blah-one--two---three----four"),
+                         "data-wed-btw---blah-one--two----three-----four");
         });
     });
 
@@ -46,7 +48,8 @@ describe("util", function () {
             assert.equal(util.classFromOriginalName("*"), "._real");
         });
         it("with namespace", function () {
-            assert.equal(util.classFromOriginalName("btw:foo"), ".btw\\:foo._real");
+            assert.equal(util.classFromOriginalName("btw:foo"),
+                         ".btw\\:foo._real");
         });
     });
 
