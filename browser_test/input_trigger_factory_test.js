@@ -6,6 +6,8 @@
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
         "wed/wed", "wed/key", "wed/key_constants"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants) {
+'use strict';
+
 var assert = chai.assert;
 
 var options = {

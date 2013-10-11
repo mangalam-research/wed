@@ -4,6 +4,7 @@
  * @copyright 2013 Mangalam Research Center for Buddhist Languages
  */
 define(function () {
+'use strict';
 
 // This is not as generic as it could be but this will do for now.
 return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
