@@ -5,6 +5,7 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/tree_updater"],
 function (mocha, chai, $, tree_updater) {
+'use strict';
 
 var assert = chai.assert;
 var TreeUpdater = tree_updater.TreeUpdater;

@@ -4,6 +4,7 @@
  * @copyright 2013 Mangalam Research Center for Buddhist Languages
  */
 define(function (require, exports, module) {
+'use strict';
 var chai = require("chai");
 var $ = require("jquery");
 

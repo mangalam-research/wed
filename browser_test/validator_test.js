@@ -5,6 +5,8 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/validator", "salve/validate"],
 function (mocha, chai, $, validator, validate) {
+'use strict';
+
     // The test subdirectory is one of the paths required to be in the config
     var schema = 'browser_test/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'

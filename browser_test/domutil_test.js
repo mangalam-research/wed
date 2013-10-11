@@ -5,6 +5,8 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/domutil"],
 function (mocha, chai, $, domutil) {
+'use strict';
+
     var assert = chai.assert;
 
     describe("domutil", function () {

@@ -5,6 +5,7 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/jquery.findandself"],
 function (mocha, chai, $, _) {
+'use strict';
     var assert = chai.assert;
     describe("jQuery.findAndSelf", function () {
 

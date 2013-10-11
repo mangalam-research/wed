@@ -8,6 +8,8 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/key"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
                 onerror, log, key) {
+'use strict';
+
 var options = {
     schema: 'browser_test/tei-simplified-rng.js',
     mode: {

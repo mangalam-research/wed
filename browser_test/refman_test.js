@@ -5,6 +5,8 @@
  */
 define(["mocha/mocha", "chai", "wed/refman"],
 function (mocha, chai, refman) {
+'use strict';
+
     var assert = chai.assert;
 
     describe("refman", function () {
