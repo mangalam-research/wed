@@ -158,7 +158,7 @@ def context_menu_appears(context):
     util.find_element((By.CLASS_NAME, "wed-context-menu"))
 
 
-@Then(r'^the context menu contains choices for (?P<kind>.*?).$')
+@Then(r'^the context menu contains choices for (?P<kind>.*?)(?:\.|$)')
 def context_choices_insert(context, kind):
     util = context.util
 
