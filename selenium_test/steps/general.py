@@ -87,14 +87,14 @@ def step_impl(context, text):
 @when('the user resizes the window so that the editor pane has a vertical '
       'scrollbar')
 def step_impl(context):
-    driver = context.driver
-    driver.set_window_size(683, 741)
+    util = context.util
+    wedutil.set_window_size(util, 683, 741)
 
 
 @when('the user resizes the window so that the editor pane will be offscreen')
 def step_impl(context):
-    driver = context.driver
-    driver.set_window_size(683, 500)
+    util = context.util
+    wedutil.set_window_size(util, 683, 500)
 
 
 @when("the user scrolls the window down so that the editor's top is at the "
@@ -105,8 +105,8 @@ def step_impl(context):
 
     # We must not call it before the body is fully loaded.
     driver.execute_script("""
+    delete window.__selenic_scrolled;
     jQuery(function () {
-      delete window.__selenic_scrolled;
       window.scrollTo(0, wed_editor.$gui_root.offset().top);
       window.__selenic_scrolled = true;
     });
@@ -126,8 +126,8 @@ def step_impl(context):
 
     # We must not call it before the body is fully loaded.
     driver.execute_script("""
+    delete window.__selenic_scrolled;
     jQuery(function () {
-      delete window.__selenic_scrolled;
       window.scrollTo(0, document.body.scrollHeight);
       window.__selenic_scrolled = true;
     });
@@ -135,7 +135,7 @@ def step_impl(context):
 
     def cond(*_):
         return driver.execute_script("""
-        return window.__selenic_scrolled
+        return window.__selenic_scrolled;
         """)
     util.wait(cond)
 

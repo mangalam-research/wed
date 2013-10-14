@@ -118,3 +118,28 @@ def point_in_selection(driver):
     var pos = {x: rect.left + 1, y: rect.top + 1};
     return pos;
     """)
+
+
+def set_window_size(util, width, height):
+    """
+    Sets the window size and then waits until the wed editor has
+    changed size too.
+    """
+    driver = util.driver
+
+    orig_size = driver.execute_script("""
+    var height = wed_editor.$gui_root.height();
+    var width = wed_editor.$gui_root.width();
+    return {height: height, width: width};
+    """)
+    driver.set_window_size(width, height)
+
+    def cond(*_):
+        size = driver.execute_script("""
+        var height = wed_editor.$gui_root.height();
+        var width = wed_editor.$gui_root.width();
+        return {height: height, width: width};
+        """)
+        return size != orig_size
+
+    util.wait(cond)

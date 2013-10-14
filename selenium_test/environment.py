@@ -7,6 +7,7 @@ from selenium.webdriver.support.wait import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 
 import selenic.util
+from steps import wedutil
 
 _dirname = os.path.dirname(__file__)
 
@@ -45,8 +46,9 @@ def after_scenario(context, _scenario):
 
     window_size = driver.get_window_size()
     if window_size != context.before_scenario_window_size:
-        driver.set_window_size(context.before_scenario_window_size["width"],
-                               context.before_scenario_window_size["height"])
+        wedutil.set_window_size(util,
+                                context.before_scenario_window_size["width"],
+                                context.before_scenario_window_size["height"])
 
 
 def after_all(context):
