@@ -74,21 +74,29 @@ def select_text(driver, start, end):
     var $ = jQuery;
     var start = arguments[0];
     var end = arguments[1];
+    var scroll_top = document.body.scrollTop;
+    var scroll_left = document.body.scrollLeft;
     var $gui_root = wed_editor.$gui_root;
     var event = new $.Event("mousedown");
     event.clientX = start.left;
     event.clientY = start.top;
+    event.pageX = start.left + scroll_left;
+    event.pageY = start.top + scroll_top;
     event.which = 1;
     $gui_root.trigger(event);
     setTimeout(function () {
       var event = new $.Event("mousemove");
       event.clientX = end.left;
       event.clientY = end.top;
+      event.pageX = end.left + scroll_left;
+      event.pageY = end.top + scroll_top;
       $gui_root.trigger(event);
       setTimeout(function () {
       var event = new $.Event("mouseup");
         event.clientX = end.left;
         event.clientY = end.top;
+        event.pageX = end.left + scroll_left;
+        event.pageY = end.top + scroll_top;
         event.which = 1;
         $gui_root.trigger(event);
       }, 10);

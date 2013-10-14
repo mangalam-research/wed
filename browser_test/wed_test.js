@@ -98,10 +98,22 @@ describe("wed", function () {
             // the event won't move the caret.
             var r = rangy.createRange();
             r.setStart(initial, 0);
+            var scroll_top = editor.my_window.document.body.scrollTop;
+            var scroll_left = editor.my_window.document.body.scrollLeft;
             rangy.getSelection(editor.my_window).setSingleRange(r);
-            var ev = $.Event("mousedown", {target: initial});
+            // We have to take the offset of the parent because
+            // initial is a text node.
+            var initial_offset = $(initial.parentNode).offset();
+            var init = {
+                target: initial,
+                clientX: initial_offset.left - scroll_left,
+                clientY: initial_offset.top - scroll_top,
+                pageX: initial_offset.left,
+                pageY: initial_offset.top
+            };
+            var ev = $.Event("mousedown", init);
             $(initial.parentNode).trigger(ev);
-            var ev = $.Event("mouseup", {target: initial});
+            ev = $.Event("mouseup", init);
             $(initial.parentNode).trigger(ev);
 
             // We need to do this because setting the caret
@@ -647,7 +659,10 @@ describe("wed", function () {
 
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
+        var offset = editor.$gui_root.offset();
         event.which = 3;
+        event.pageX = offset.left;
+        event.pageY = offset.top;
         editor.$gui_root.trigger(event);
     }
 

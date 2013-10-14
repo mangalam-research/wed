@@ -1,7 +1,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import selenium.webdriver.support.expected_conditions as EC
-from nose.tools import assert_true  # pylint: disable=E0611
+from nose.tools import assert_true, assert_equal  # pylint: disable=E0611
 
 import wedutil
 
@@ -91,7 +91,35 @@ def step_impl(context):
     driver.set_window_size(683, 741)
 
 
-@when('the user scrolls the editor pane down')
+@when('the user resizes the window so that the editor pane will be offscreen')
+def step_impl(context):
+    driver = context.driver
+    driver.set_window_size(683, 500)
+
+
+@when("the user scrolls the window down so that the editor's top is at the "
+      "top of the window")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    # We must not call it before the body is fully loaded.
+    driver.execute_script("""
+    jQuery(function () {
+      delete window.__selenic_scrolled;
+      window.scrollTo(0, wed_editor.$gui_root.offset().top);
+      window.__selenic_scrolled = true;
+    });
+    """)
+
+    def cond(*_):
+        return driver.execute_script("""
+        return window.__selenic_scrolled
+        """)
+    util.wait(cond)
+
+
+@when("the user scrolls the editor pane down")
 def step_impl(context):
     driver = context.driver
     util = context.util
@@ -110,3 +138,13 @@ def step_impl(context):
         return window.__selenic_scrolled
         """)
     util.wait(cond)
+
+
+@then(u"the window's contents does not move")
+def step_impl(context):
+    util = context.util
+
+    assert_equal(util.window_scroll_top(), context.window_scroll_top,
+                 "top must not have changed")
+    assert_equal(util.window_scroll_left(), context.window_scroll_left,
+                 "left must not have changed")

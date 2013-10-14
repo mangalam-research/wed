@@ -73,25 +73,6 @@
         }
     }
 
-    .wed-comp-field {
-        position: absolute;
-        z-index: -10;
-        top: -1000;
-        left: -1000;
-    }
-
-    ._wed_caret {
-        position: absolute;
-        background-color: black;
-        white-space: pre;
-        border-style: none;
-        display: inline-block;
-        max-width: 1px;
-        min-height: 100%;
-        animation: caret 1s linear infinite;
-        -webkit-animation: caret 1s linear infinite;
-    }
-
     .nav>li>a {
         padding: 0px;
     }
@@ -102,6 +83,38 @@
 
     .icon-plus {
         color: green;
+    }
+}
+
+div.wed-document-constrainer {
+    position: relative;
+    overflow: hidden;
+    .wed-caret-layer {
+        z-index: 1;
+
+        >* {
+            position: absolute;
+        }
+
+        .wed-comp-field {
+            z-index: -10;
+            top: -1000px;
+            left: -1000px;
+            width: 1em;
+        }
+
+        ._wed_caret {
+
+            background-color: black;
+            white-space: pre;
+            border-style: none;
+            display: inline-block;
+            max-width: 1px;
+            min-height: 100%;
+            animation: caret 1s linear infinite;
+            -webkit-animation: caret 1s linear infinite;
+        }
+
     }
 }
 

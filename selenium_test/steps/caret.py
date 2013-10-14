@@ -48,8 +48,8 @@ step_matcher("re")
 
 
 # This is also our default for when a mechanism is not specified.
-@when(u'^the user selects text(?: |$)(?P<direction>[^ ]*?)'
-      u'(?:with the mouse)?$')
+@when(u'^the user selects text(?:|$)(?P<direction>(?:| backwards))'
+      ur'(?: with the mouse)?(?:\.)?$')
 def step_impl(context, direction):
     driver = context.driver
     util = context.util
@@ -70,7 +70,7 @@ def step_impl(context, direction):
 
     # We need to get the location of the caret.
     start = wedutil.caret_selection_pos(driver)
-    # This moves two caracters to the right
+    # This moves two characters to the right
     ActionChains(driver)\
         .send_keys(*[Keys.ARROW_RIGHT] * 2)\
         .perform()
@@ -142,3 +142,27 @@ def step_impl(context):
     util = context.util
 
     assert_equal(util.get_selection_text(), context.expected_selection)
+
+
+@when(u"the user clicks on the editor's scrollbar so that the click "
+      u"does not move the editor's contents")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    context.window_scroll_top = util.window_scroll_top()
+    context.window_scroll_left = util.window_scroll_left()
+
+    wed = util.find_element((By.CLASS_NAME, "wed-document"))
+
+    scroll_top = util.scroll_top(wed)
+
+    # This location guarantees that we are hitting the scrollbar at the top
+    # and should not move the editor's contents
+    ActionChains(driver) \
+        .move_to_element_with_offset(wed, wed.size["width"] - 1, 1) \
+        .click() \
+        .perform()
+
+    # Make sure we did nothing.
+    assert_equal(scroll_top, util.scroll_top(wed))
