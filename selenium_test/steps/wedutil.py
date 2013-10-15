@@ -28,6 +28,8 @@ def caret_selection_pos(driver):
     """
     pos = driver.execute_script("""
     var pos = wed_editor._$fake_caret.offset();
+    pos.top -= document.body.scrollTop;
+    pos.left -= document.body.scrollLeft;
     pos.top += wed_editor._$fake_caret.height() / 2;
     return pos;
     """)
