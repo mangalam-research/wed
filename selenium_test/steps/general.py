@@ -18,6 +18,7 @@ def no_before_unload(context):
 def load_and_wait_for_editor(context, text=None):
     no_before_unload(context)
     driver = context.driver
+    util = context.util
     if text is not None:
         server = WED_SERVER + "&file=" + text
     else:
@@ -25,12 +26,7 @@ def load_and_wait_for_editor(context, text=None):
 
     driver.get(server)
 
-    def condition(*_):
-        return driver.execute_script(
-            "return window.wed_editor && " +
-            "wed_editor.getCondition('initialized');")
-
-    WebDriverWait(driver, 15).until(condition)
+    wedutil.wait_for_editor(util)
 
     # This is bullshit to work around a Selenium limitation.
     driver.execute_script("""

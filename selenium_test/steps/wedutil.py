@@ -145,3 +145,15 @@ def set_window_size(util, width, height):
         return size != orig_size
 
     util.wait(cond)
+
+
+def wait_for_editor(util):
+    driver = util.driver
+
+    def cond(*_):
+        return driver.execute_script(
+            "return window.wed_editor && " +
+            "wed_editor.getCondition('initialized');")
+
+    with util.local_timeout(15):
+        util.wait(cond)
