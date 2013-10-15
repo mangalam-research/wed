@@ -238,9 +238,9 @@ def step_impl(context):
     trigger.location = pos
     trigger.size = {'width': 0, 'height': 0}
 
-    body = driver.find_element_by_tag_name("body")
     ActionChains(driver) \
-        .move_to_element_with_offset(body, pos["x"], pos["y"]) \
+        .move_to_element_with_offset(context.origin_object, pos["x"],
+                                     pos["y"]) \
         .context_click() \
         .perform()
 

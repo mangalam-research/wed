@@ -32,6 +32,14 @@ def load_and_wait_for_editor(context, text=None):
 
     WebDriverWait(driver, 15).until(condition)
 
+    # This is bullshit to work around a Selenium limitation.
+    driver.execute_script("""
+    jQuery("body").append(
+      '<div id="origin-object" '+
+      'style="position: fixed; top: 0px; left: 0px; z-index: -10;"/>');
+    """)
+    context.origin_object = driver.find_element_by_id("origin-object")
+
 
 @when("the user loads the page")
 def user_load(context):
@@ -118,6 +126,9 @@ def step_impl(context):
         """)
     util.wait(cond)
 
+    context.window_scroll_top = util.window_scroll_top()
+    context.window_scroll_left = util.window_scroll_left()
+
 
 @when("the user scrolls the editor pane down")
 def step_impl(context):
@@ -139,8 +150,20 @@ def step_impl(context):
         """)
     util.wait(cond)
 
+    context.window_scroll_top = util.window_scroll_top()
+    context.window_scroll_left = util.window_scroll_left()
 
-@then(u"the window's contents does not move")
+
+@when(u"wait {x} seconds")
+def step_impl(context, x):
+    import time
+    time.sleep(float(x))
+
+
+step_matcher("re")
+
+
+@then(ur"^the window's contents does not move.?$")
 def step_impl(context):
     util = context.util
 
