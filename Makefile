@@ -260,7 +260,7 @@ endif
 
 .PHONY: selenium-test
 selenium-test: build | build-test-files
-	PYTHONPATH=$(PWD)/selenium_test/lib behave $(BEHAVE_PARAMS) selenium_test
+	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: doc
 doc: README.html CHANGELOG.html

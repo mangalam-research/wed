@@ -73,10 +73,12 @@ Selenium-Based Tests
 --------------------
 
 Everything that follows is specific to wed. You need to have `selenic
-<http://gihub.com/mangalam-research/selenic>`_ installed and available
-on your ``PYTHONPATH``. Read its documentation. Then you need to
-create a `<config/selenium_local_config.py>`_ file. Use one of the
-example files provided with selenic.
+<http://github.com/mangalam-research/selenic>`_ installed and
+available on your ``PYTHONPATH``. Read its documentation. Then you
+need to create a `<config/selenium_local_config.py>`_ file. Use one of
+the example files provided with selenic. You also need to have
+`wedutil <http://github.com/mangalam-research/wedutil>`_ installed and
+available on your ``PYTHONPATH``.
 
 To run the Selenium-based tests, you must can run either
 `<server.js>`_ *or* an nginx-based server. The latter option is
@@ -537,4 +539,4 @@ of a good explanation for the leak.
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
 ..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
 ..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
-..  LocalWords:  ajaxlog url CSRF JSON msg
+..  LocalWords:  ajaxlog url CSRF JSON msg wedutil PYTHONPATH

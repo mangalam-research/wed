@@ -1,14 +1,3 @@
-import sys
-import os
-
-dirname = os.path.dirname(__file__)
-
-python_path = os.path.join(os.path.dirname(dirname), "selenium_test", "lib")
-if "PYTHONPATH" not in os.environ:
-    os.environ["PYTHONPATH"] = python_path
-else:
-    os.environ["PYTHONPATH"] = python_path + ":" + os.environ["PYTHONPATH"]
-
 checks = {
     'pre-commit': [
         # BEFORE_COMMIT in the root of the working tree can be used as
