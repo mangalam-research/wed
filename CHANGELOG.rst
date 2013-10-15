@@ -1,3 +1,7 @@
+Please note that Github currently does not implement all
+reStructuredText directives, so some links in this document
+may not work correctly when viewed there.
+
 Only salient changes are recorded here.
 
 * 0.10.0:
@@ -7,7 +11,7 @@ Only salient changes are recorded here.
 
   - GUI: wed can now handle some input methods. So long as the methods
     are not designed to **edit** already entered text, there should be
-    no problem. I'm able to enter Sanskrit, Tibetan and Chinese using
+    no problem. We're able to enter Sanskrit, Tibetan and Chinese using
     ibus on Linux.
 
   - API: ``decorator.Decorator`` used to have an ``init()``
@@ -59,7 +63,7 @@ Only salient changes are recorded here.
 
 * 0.8:
 
-  - GUI: validation error reporting is more user friendly than it used
+  - GUI: validation error reporting is more user-friendly than it used
     to be.
 
   - API: Specifying a mode path can now be done in an abbreviated
@@ -123,7 +127,7 @@ Only salient changes are recorded here.
     starting and ending tags of elements serve respectively to add
     elements before and after an element.
 
-  - Internal: wed now uses ``less`` to generate CSS.
+  - Internal: wed now uses less to generate CSS.
 
   - Internal: wed now maintains two DOM trees representing the
     document. The first is a representation of the document's XML

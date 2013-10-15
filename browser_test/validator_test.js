@@ -5,7 +5,9 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/validator", "salve/validate"],
 function (mocha, chai, $, validator, validate) {
-    // The test subirectory is one of the paths required to be in the config
+'use strict';
+
+    // The test subdirectory is one of the paths required to be in the config
     var schema = 'browser_test/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'
     // baseUrl configuration value.
@@ -71,7 +73,7 @@ function (mocha, chai, $, validator, validate) {
             });
         });
 
-        it("precent done", function (done) {
+        it("percent done", function (done) {
             require(["requirejs/text!../../test-files/" +
                      "validator_test_data/percent_to_parse_converted.xml"],
                     function(data) {
@@ -395,3 +397,5 @@ function (mocha, chai, $, validator, validate) {
         });
     });
 });
+
+// LocalWords:  chai jquery validator subdirectory config requirejs

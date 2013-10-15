@@ -72,3 +72,5 @@ require.config({
  },
  enforceDefine: true
 });
+
+// LocalWords:  jquery javascript ajax tei txt

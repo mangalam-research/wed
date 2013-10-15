@@ -12,7 +12,7 @@ surprised if it throws a rod and leaks oil on your carpet.
 
 Known limitations:
 
-* Wed currently only understands a subset of RelaxNG (through the
+* Wed currently only understands a subset of Relax NG (through the
   `salve <https://github.com/mangalam-research/salve/>`_ package).
 
 * Wed does not currently support editing attributes in a
@@ -384,4 +384,6 @@ for the Humanities.
 ..  LocalWords:  fireTransformation glyphicons github tei onerror ev
 ..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis README
 ..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout rst
-..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce
+..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce readme Glerbl
+..  LocalWords:  reStructuredText namespace namespaces RequireJS
+..  LocalWords:  Dubeau Mangalam

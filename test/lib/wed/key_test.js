@@ -112,7 +112,7 @@ describe("key", function () {
                 var k = key.makeCtrlKey(1);
                 k.setEventToMatch(event);
                 assert.isTrue(k.matchesEvent(event));
-                // Biassed towards keydown
+                // Biased towards keydown
                 assert.equal(event.type, "keydown");
             });
 
@@ -128,3 +128,6 @@ describe("key", function () {
     });
 
 });
+
+// LocalWords:  requirejs chai makeKey makeCtrlKey anyModifier keyup
+// LocalWords:  matchesEvent keydown keypress setEventToMatch ctrl

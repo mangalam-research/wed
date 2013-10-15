@@ -8,6 +8,7 @@ define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/transformation"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
          input_trigger_factory, transformation) {
+'use strict';
 var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
 
@@ -235,3 +236,5 @@ describe("InputTrigger", function () {
 });
 
 });
+
+// LocalWords:  chai tei InputTrigger keydown keypress

@@ -78,3 +78,6 @@ describe("jqutil", function () {
 });
 
 });
+
+// LocalWords:  toDataSelector jqutil chai jquery parens namespaces
+// LocalWords:  selectorToElements

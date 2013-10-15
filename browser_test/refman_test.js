@@ -5,6 +5,8 @@
  */
 define(["mocha/mocha", "chai", "wed/refman"],
 function (mocha, chai, refman) {
+'use strict';
+
     var assert = chai.assert;
 
     describe("refman", function () {
@@ -38,7 +40,7 @@ function (mocha, chai, refman) {
             assert.equal(sense_refs.nextNumber(), 2);
         });
 
-        it("dealocate all", function () {
+        it("deallocate all", function () {
             sense_refs.nextNumber();
             sense_refs.nextNumber();
             sense_refs.nextNumber();
@@ -64,3 +66,6 @@ function (mocha, chai, refman) {
 
     });
 });
+
+// LocalWords:  chai refman deallocate deallocateAll nextNumber
+// LocalWords:  allocateLabel

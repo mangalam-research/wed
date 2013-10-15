@@ -8,6 +8,8 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/key"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
                 onerror, log, key) {
+'use strict';
+
 var options = {
     schema: 'browser_test/tei-simplified-rng.js',
     mode: {
@@ -544,7 +546,8 @@ describe("wed", function () {
         });
     });
 
-    it("wraps elements in elements (offset === nodeValue.length)", function (done) {
+    it("wraps elements in elements (offset === nodeValue.length)",
+       function (done) {
         editor.whenCondition(
             "first-validation-complete",
             function () {
@@ -1293,3 +1296,9 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 });
 
 });
+
+// LocalWords:  chai jquery onerror domutil tei metas wedroot gui btn
+// LocalWords:  requirejs unhandled mousedown mouseup pathToNode html
+// LocalWords:  nodeToPath seekCaret nodeValue innerHTML teiHeader
+// LocalWords:  moveCaretLeft moveCaretRight xml ajax txt xmlns
+// LocalWords:  fileDesc titleStmt publicationStmt sourceDesc

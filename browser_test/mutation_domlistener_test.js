@@ -6,6 +6,7 @@
 define(["mocha/mocha", "chai", "jquery", "wed/mutation_domlistener",
        "./domlistener_generic_test"],
 function (mocha, chai, $, domlistener, generic) {
+'use strict';
 
 generic(mocha, chai, $, domlistener, "mutation_domlistener", null);
 

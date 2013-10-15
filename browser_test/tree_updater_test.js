@@ -5,6 +5,7 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/tree_updater"],
 function (mocha, chai, $, tree_updater) {
+'use strict';
 
 var assert = chai.assert;
 var TreeUpdater = tree_updater.TreeUpdater;
@@ -129,7 +130,7 @@ describe("TreeUpdater", function () {
             var node = $root.find(".quote").get(0).childNodes[0];
             var top = $root.find(".text").get(0);
             var body = $(top).find(".body").get(0);
-            // Drop the nodes form 3 onwards so that future additions don't
+            // Drop the nodes from 3 onwards so that future additions don't
             // change this test.
             while(body.childNodes[3])
                 body.removeChild(body.childNodes[3]);
@@ -856,3 +857,8 @@ describe("TreeUpdater", function () {
 });
 
 });
+
+// LocalWords:  chai jquery TreeUpdater insertNodeAt splitAt onwards
+// LocalWords:  denormalize deleteNode insertText setTextNodeValue
+// LocalWords:  deleteText insertIntoText removeNode unhandled
+// LocalWords:  removeNodes mergeTextNodes

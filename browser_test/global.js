@@ -4,6 +4,7 @@
  * @copyright 2013 Mangalam Research Center for Buddhist Languages
  */
 define(function (require, exports, module) {
+'use strict';
 var chai = require("chai");
 var $ = require("jquery");
 
@@ -32,3 +33,5 @@ function fail_on_save(done) {
 exports.fail_on_save = fail_on_save;
 
 });
+
+// LocalWords:  chai ajax jquery
