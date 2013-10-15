@@ -1,8 +1,10 @@
-
 from nose.tools import assert_equal  # pylint: disable=E0611
 
 
-@then("the selection is wrapped in a new element.")
+step_matcher("re")
+
+
+@then(ur"^the selection is wrapped in a new element.?$")
 def step_impl(context):
     util = context.util
 
