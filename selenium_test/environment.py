@@ -1,13 +1,11 @@
 import os
 
 from nose.tools import assert_raises  # pylint: disable=E0611
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
-from selenium.webdriver.common.action_chains import ActionChains
 
 import selenic.util
-from steps import wedutil
+import wedutil
 
 _dirname = os.path.dirname(__file__)
 

@@ -20,6 +20,9 @@ DEV?=0
 # Parameters to pass to mocha, like "--grep foo".
 MOCHA_PARAMS?=
 
+# Parameters to pass to behave
+BEHAVE_PARAMS?=
+
 # Skip the semver check. You should NOT set this in local.mk but use
 # it on the command line:
 #
@@ -257,7 +260,7 @@ endif
 
 .PHONY: selenium-test
 selenium-test: build | build-test-files
-	behave selenium_test
+	PYTHONPATH=$(PWD)/selenium_test/lib behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: doc
 doc: README.html CHANGELOG.html
