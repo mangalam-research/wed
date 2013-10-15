@@ -1,5 +1,4 @@
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -177,10 +176,8 @@ def context_choices_insert(context, kind):
 
 @Given("a context menu is not visible")
 @Then("a context menu is not visible")
-def context_menu_does_not_visible(context):
-    driver = context.driver
-    WebDriverWait(driver, 2).until_not(EC.presence_of_element_located(
-        (By.CLASS_NAME, "wed-context-menu")))
+def context_menu_is_not_visible(context):
+    wedutil.wait_until_a_context_menu_is_not_visible(context.util)
 
 
 @Then("a context menu is visible close to where the user clicked")

@@ -1,5 +1,8 @@
 import time
 
+import selenium.webdriver.support.expected_conditions as EC
+from selenium.webdriver.common.by import By
+
 
 def wait_for_caret_to_be_in(util, element):
     driver = util.driver
@@ -157,3 +160,8 @@ def wait_for_editor(util):
 
     with util.local_timeout(15):
         util.wait(cond)
+
+
+def wait_until_a_context_menu_is_not_visible(util):
+    util.wait_until_not(EC.presence_of_element_located(
+        (By.CLASS_NAME, "wed-context-menu")))
