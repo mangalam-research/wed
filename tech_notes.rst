@@ -520,7 +520,7 @@ Wed operates on an HTML structure constructed as follows:
  * ``data-wed-[prefix]---[name]="..."`` when the attribute name has a
    namespace prefix
 
-The ``[name]`` part is converted so that three dashes become 4, 4 become
+The ``[name]`` part is converted so that three dashes become four, four become
 five, etc. Here are examples of XML attributes and what they become in
 HTML:
 
