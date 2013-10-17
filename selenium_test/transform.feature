@@ -6,7 +6,7 @@ Background: a simple document.
 Scenario: wrapping choices
   When the user selects text
   And the user brings up the context menu on the selection
-  Then a context menu is visible close to where the user clicked
+  Then a context menu is visible close to where the user invoked it
   And the context menu contains choices for wrapping text in new elements.
 
 Scenario: wrapping the selected text

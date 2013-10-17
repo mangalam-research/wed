@@ -9,7 +9,7 @@ Background: a simple document.
 
 Scenario: bringing up the context menu with a mouse on a placeholder.
   When the user uses the mouse to bring up the context menu on a placeholder
-  Then a context menu is visible close to where the user clicked
+  Then a context menu is visible close to where the user invoked it
   And the context menu contains choices for inserting new elements
 
 Scenario: bringing up the context menu with a mouse on the start label of the top element.
@@ -22,17 +22,17 @@ Scenario: bringing up the context menu with a mouse on the end label of the top 
 
 Scenario: bringing up the context menu with a mouse on the start label of an element.
   When the user uses the mouse to bring up the context menu on the start label of an element
-  Then a context menu is visible close to where the user clicked
+  Then a context menu is visible close to where the user invoked it
   And the context menu contains choices for inserting new elements
 
 Scenario: bringing up the context menu with a mouse on the end label of an element.
   When the user uses the mouse to bring up the context menu on the end label of an element
-  Then a context menu is visible close to where the user clicked
+  Then a context menu is visible close to where the user invoked it
   And the context menu contains choices for inserting new elements
 
 Scenario: bringing up the context menu with a mouse on text.
   When the user uses the mouse to bring up the context menu on text
-  Then a context menu is visible close to where the user clicked
+  Then a context menu is visible close to where the user invoked it
   And the context menu contains choices for inserting new elements
 
 Scenario: bringing up a context menu outside wed does nothing wed-related.
@@ -53,10 +53,10 @@ Scenario: bringing up the context menu with a mouse when the main editor pane is
   When the user resizes the window so that the editor pane has a vertical scrollbar
   And the user scrolls the editor pane down
   And the user uses the mouse to bring up the context menu on a placeholder
-  Then a context menu is visible close to where the user clicked
+  Then a context menu is visible close to where the user invoked it
 
 Scenario: bringing up the context menu with a keyboard when the main editor pane is scrolled off screen
   When the user resizes the window so that the editor pane has a vertical scrollbar
   And the user scrolls the editor pane down
   And the user uses the keyboard to bring up the context menu on a placeholder
-  Then a context menu is visible close to where the user clicked
+  Then a context menu is visible close to where the user invoked it

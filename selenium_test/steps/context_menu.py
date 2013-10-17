@@ -180,7 +180,7 @@ def context_menu_is_not_visible(context):
     wedutil.wait_until_a_context_menu_is_not_visible(context.util)
 
 
-@Then("a context menu is visible close to where the user clicked")
+@Then("a context menu is visible close to where the user invoked it")
 def step_impl(context):
     util = context.util
 
@@ -249,7 +249,7 @@ def step_impl(context):
     context.execute_steps(u"""
     When the user selects text
     And the user brings up the context menu on the selection
-    Then a context menu is visible close to where the user clicked
+    Then a context menu is visible close to where the user invoked it
     And the context menu contains choices for wrapping text in new elements.
     """)
 
