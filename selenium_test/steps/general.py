@@ -126,7 +126,7 @@ def step_impl(context):
     context.window_scroll_left = util.window_scroll_left()
 
 
-@when("the user scrolls the editor pane down")
+@when("the user scrolls the window completely down")
 def step_impl(context):
     driver = context.driver
     util = context.util

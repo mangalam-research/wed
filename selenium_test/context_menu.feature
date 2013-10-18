@@ -51,13 +51,13 @@ Scenario: clicking an option of the context menu makes it disappear.
 
 Scenario: bringing up the context menu with a mouse when the main editor pane is scrolled off screen
   When the user resizes the window so that the editor pane has a vertical scrollbar
-  And the user scrolls the editor pane down
+  And the user scrolls the window completely down
   And the user uses the mouse to bring up the context menu on a placeholder
   Then a context menu is visible close to where the user invoked it
 
 Scenario: bringing up the context menu with a keyboard when the main editor pane is scrolled off screen
   When the user resizes the window so that the editor pane has a vertical scrollbar
-  And the user scrolls the editor pane down
+  And the user scrolls the window completely down
   And the user uses the keyboard to bring up the context menu on a placeholder
   Then a context menu is visible close to where the user invoked it
 
