@@ -60,3 +60,10 @@ Scenario: bringing up the context menu with a keyboard when the main editor pane
   And the user scrolls the editor pane down
   And the user uses the keyboard to bring up the context menu on a placeholder
   Then a context menu is visible close to where the user invoked it
+
+Scenario: closing the context menu with the ESC key
+  When the user uses the keyboard to bring up the context menu on text
+  Then a context menu is visible close to where the user invoked it
+  When the user types ESCAPE
+  Then a context menu is not visible
+  And the editor pane has focus

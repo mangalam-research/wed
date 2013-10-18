@@ -45,6 +45,14 @@ def step_impl(context, text):
         .perform()
 
 
+@when(u'the user types ESCAPE')
+def step_impl(context):
+    driver = context.driver
+    ActionChains(driver)\
+        .send_keys(Keys.ESCAPE)\
+        .perform()
+
+
 @then(u'a placeholder is present in the element')
 def step_impl(context):
     driver = context.driver

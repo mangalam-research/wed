@@ -167,3 +167,15 @@ def step_impl(context):
                  "top must not have changed")
     assert_equal(util.window_scroll_left(), context.window_scroll_left,
                  "left must not have changed")
+
+
+@then("the editor pane has focus")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    def cond(*_):
+        return driver.execute_script("""
+        return window.document.activeElement === wed_editor._$input_field[0];
+        """)
+    util.wait(cond)

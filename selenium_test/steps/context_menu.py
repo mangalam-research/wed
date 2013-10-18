@@ -193,16 +193,24 @@ def step_impl(context):
     assert_equal(selenic.util.locations_within(menu.location, target, 10), '')
 
 
-@When("the user uses the keyboard to bring up the context menu on a "
-      "placeholder")
-def step_impl(context):
+@When(ur"the user uses the keyboard to bring up the context menu on "
+      ur"(?P<choice>a placeholder|text)")
+def step_impl(context, choice):
     driver = context.driver
     util = context.util
 
-    placeholder = util.find_element((By.CLASS_NAME, "_placeholder"))
-    ActionChains(driver) \
-        .click(placeholder) \
+    class_name = None
+    if choice == "a placeholder":
+        class_name = "_placeholder"
+    elif choice == "text":
+        class_name = "title"
+    else:
+        raise ValueError("unknown choice: " + choice)
+
+    ActionChains(driver)\
+        .click(util.find_element((By.CLASS_NAME, class_name))) \
         .perform()
+
     # Because we use the keyboard, the caret is our reference
     caret = util.find_element((By.CLASS_NAME, "_wed_caret"))
 
