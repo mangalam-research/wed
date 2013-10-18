@@ -30,3 +30,8 @@ Scenario: Clicking in the editor's scrollbar.
   And the user scrolls the window down so that the editor's top is at the top of the window
   And the user clicks on the editor's scrollbar so that the click does not move the editor's contents
   Then the window's contents does not move
+
+Scenario: Scrolling moves the caret.
+  When the user selects text
+  And the user scrolls the editor pane down
+  Then the caret moves up relative to the browser window.

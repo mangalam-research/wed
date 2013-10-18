@@ -150,6 +150,32 @@ def step_impl(context):
     context.window_scroll_left = util.window_scroll_left()
 
 
+@when("the user scrolls the editor pane down")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    scroll_by = 10
+
+    # We must not call it before the body is fully loaded.
+    driver.execute_script("""
+    var by = arguments[0];
+    delete window.__selenic_scrolled;
+    jQuery(function () {
+      var top = window.wed_editor.$gui_root.scrollTop();
+      window.wed_editor.$gui_root.scrollTop(top + by);
+      window.__selenic_scrolled = true;
+    });
+    """, scroll_by)
+
+    def cond(*_):
+        return driver.execute_script("""
+        return window.__selenic_scrolled;
+        """)
+    util.wait(cond)
+    context.scrolled_editor_pane_by = scroll_by
+
+
 @when(u"wait {x} seconds")
 def step_impl(context, x):
     import time

@@ -86,6 +86,7 @@ def step_impl(context, direction):
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[1:3]
     context.selection_parent = parent
+    context.caret_position = wedutil.caret_pos(driver)
 
 
 @when(u'the user selects text(?P<direction>.*?) with the keyboard')
@@ -166,3 +167,13 @@ def step_impl(context):
 
     # Make sure we did nothing.
     assert_equal(scroll_top, util.scroll_top(wed))
+
+
+@then("the caret moves up relative to the browser window.")
+def step_impl(context):
+    driver = context.driver
+    prev_pos = context.caret_position
+
+    pos = wedutil.caret_pos(driver)
+
+    assert_equal(prev_pos["top"] - context.scrolled_editor_pane_by, pos["top"])
