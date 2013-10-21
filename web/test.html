@@ -4,7 +4,6 @@
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
     <link href="/build/standalone/lib/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
     <script type="text/javascript" src="/build/standalone/lib/requirejs/require.js"></script>
-    <script type="text/javascript">var wed_testing_env=true;</script>
     <script type="text/javascript" src="/build/config/requirejs-config-dev.js"></script>
   </head>
   <body>
@@ -20,6 +19,31 @@
       <p id="test-para" contenteditable="true">Test para which has to be visible.</p>
     </div>
     <script>
+      require.config({
+          paths: {
+              // This is required by the testing framework.
+              'browser_test': '../../../browser_test'
+          },
+          shim: {
+              'mocha/mocha': {
+                  exports: "mocha",
+                  init: function () { this.mocha.setup('bdd'); return this.mocha; }
+              }
+          },
+          config: {
+              'wed/log': {
+                  focus_popup: true // For testing only.
+              },
+              'wed/onerror': {
+                  suppress_old_onerror: true, // For testing only.
+                  test: true // For testing only.
+              },
+              'wed/onbeforeunload': {
+                  test: true // For testing only
+              }
+          }
+      });
+
       require(["mocha/mocha", "chai", "browser_test/global", "wed/onerror",
                "browser_test/validator_test",
                "browser_test/jquery.findandself_test", "browser_test/refman_test",

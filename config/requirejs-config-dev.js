@@ -7,9 +7,7 @@ require.config({
  baseUrl: '/build/standalone/lib/',
  paths: {
    'jquery': 'jquery-1.9.1',
-   'bootstrap': 'bootstrap/js/bootstrap.min',
-     // This is required by the testing framework.
-   'browser_test': '../../../browser_test'
+   'bootstrap': 'bootstrap/js/bootstrap.min'
  },
  shim: {
    'bootstrap': {
@@ -33,10 +31,6 @@ require.config({
      deps: ["jquery", "bootstrap"],
      exports: "jQuery.bootstrapGrowl"
    },
-   'mocha/mocha': {
-     exports: "mocha",
-     init: function () { this.mocha.setup('bdd'); return this.mocha; }
-   },
    'log4javascript': {
        exports: "log4javascript"
    }
@@ -58,16 +52,6 @@ require.config({
          save: {
              url: "/build/ajax/save.txt"
          }
-     },
-     'wed/log': {
-         focus_popup: window.wed_testing_env // For testing only.
-     },
-     'wed/onerror': {
-         suppress_old_onerror: window.wed_testing_env, // For testing only.
-         test: window.wed_testing_env // For testing only.
-     },
-     'wed/onbeforeunload': {
-         test: window.wed_testing_env // For testing only
      }
  },
  enforceDefine: true
