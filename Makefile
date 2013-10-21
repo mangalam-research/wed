@@ -105,7 +105,7 @@ build/config/%:
 build/config/nginx.conf:
 	sed -e's;@PWD@;$(PWD);'g $< > $@
 
-build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js build/standalone/lib/jquery.bootstrap-growl.js build/standalone/lib/font-awesome
+build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome
 
 build-ks-files: build/ks/purl.js
 
@@ -163,7 +163,7 @@ downloads/$(PURL_BASE): | downloads
 node_modules/%:
 	npm install
 
-build/standalone/lib/rangy: downloads/$(RANGY_FILE) | build/standalone
+build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone
 	-mkdir -p $@
 	rm -rf $@/*
 	tar -xzf $< --strip-components=1 -C $@
@@ -172,11 +172,11 @@ ifneq ($(DEV),0)
 endif # ifneq ($(DEV),0)
 	rm -rf $@/uncompressed
 
-build/standalone/lib/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib
+build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib
 	-mkdir $(dir $@)
 	cp $< $@
 
-build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
+build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
@@ -189,7 +189,7 @@ build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/l
 # so, touch it.
 	touch $@
 
-build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
+build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
@@ -197,7 +197,7 @@ build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standal
 	rm -rf $@/less
 	touch $@
 
-build/standalone/lib/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
+build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
 	unzip -d $(dir $@) $<
 ifneq ($(DEV),0)
 	mv $(dir $@)/bootstrap-growl-*/jquery.bootstrap-growl.js $@
@@ -213,7 +213,7 @@ build/standalone/lib/requirejs: | build/standalone/lib
 build/standalone/lib/requirejs/%: downloads/% | build/standalone/lib/requirejs
 	cp $< $@
 
-build/standalone/lib/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
+build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
 	-mkdir $(dir $@)
 	unzip -d $(dir $@) $< log4javascript-*/js/*.js
 ifneq ($(DEV),0)
@@ -228,13 +228,6 @@ endif
 # directories so that when a new version is installed, the target is
 # rebuilt. This is necessary because npm preserves the modification
 # times of the files *inside* the packages.
-
-build/standalone/lib/chai.js: node_modules/chai/chai.js | node_modules/chai
-	cp $< $@
-
-build/standalone/lib/mocha/%: node_modules/mocha/% | node_modules/mocha
-	-mkdir $(dir $@)
-	cp $< $@
 
 build/standalone/lib/salve: node_modules/salve/build/lib/salve
 	rm -rf $@

@@ -6,8 +6,11 @@
 require.config({
  baseUrl: '/build/standalone/lib/',
  paths: {
-   'jquery': 'jquery-1.9.1',
-   'bootstrap': 'bootstrap/js/bootstrap.min'
+   'jquery': 'external/jquery-1.9.1',
+   'bootstrap': 'external/bootstrap/js/bootstrap.min',
+   'log4javascript': 'external/log4javascript',
+   'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
+   'font-awesome': 'external/font-awesome'
  },
  shim: {
    'bootstrap': {
@@ -15,12 +18,12 @@ require.config({
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
    },
-   'rangy/rangy-core': {
+   'external/rangy/rangy-core': {
      exports: "rangy",
      init: function() { return this.rangy; }
    },
-   'rangy/rangy-selectionsaverestore': {
-     deps: ["rangy/rangy-core"],
+   'external/rangy/rangy-selectionsaverestore': {
+     deps: ["external/rangy/rangy-core"],
      exports: "rangy.modules.SaveRestore"
    },
    'jquery.bootstrap-growl': {
