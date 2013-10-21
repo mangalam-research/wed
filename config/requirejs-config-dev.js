@@ -23,10 +23,6 @@ require.config({
      deps: ["rangy/rangy-core"],
      exports: "rangy.modules.SaveRestore"
    },
-   'wed/jquery.findandself': {
-     deps: ["jquery"],
-     exports: "jQuery.fn.findAndSelf"
-   },
    'jquery.bootstrap-growl': {
      deps: ["jquery", "bootstrap"],
      exports: "jQuery.bootstrapGrowl"
