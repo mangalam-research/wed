@@ -65,6 +65,7 @@ STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/sta
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 CONFIG_TARGETS:=$(foreach f,$(shell find config local_config -type f -printf '%P\n'),$(patsubst %,build/config/%,$f))
+HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
 
 .DELETE_ON_ERROR:
 
@@ -280,18 +281,23 @@ selenium-test: build | build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: doc
-doc: README.html CHANGELOG.html
+doc: rst-doc
 	$(JSDOC3) -c jsdoc.conf.json -d build/doc -r lib
+
+rst-doc: $(HTML_TARGETS)
 
 # rst2html does not seem to support rewriting relative
 # urls. So we produce the html in our root.
 %.html: %.rst
-	$(RST2HTML) $< $@
+# The perl script is an ugly hack. It would erroneously mangle
+# plaintext that would happen to match the pattern. We need a better
+# solution eventually.
+	$(RST2HTML) $< | perl -np -e 's/href="(.*?)\.rst(#.*?)"/href="$$1.html$$2"/g' > $@
 
 .PHONY: clean
 clean:
 	-rm -rf build
-	-rm README.html CHANGELOG.html
+	-rm $(HTML_TARGETS)
 
 .PHONY: distclean
 distclean: clean
