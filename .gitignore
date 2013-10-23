@@ -4,7 +4,6 @@ node_modules
 downloads
 build
 local.mk
-README.html
-CHANGELOG.html
+/*.html
 *_flymake.*
 *.pyc
