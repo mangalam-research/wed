@@ -133,6 +133,13 @@ Since wed is not yet distributed in a pre-compiled form, you
 effectively need these packages installed if you
 want to use wed because you have to build it first.
 
+Building wed's documentation **additionally** requires the following
+packages:
+
+* jsdoc3
+* rst2html
+* perl (a stop-gap measure which we plan to get rid of eventually)
+
 Running wed's tests **additionally** requires the following node
 packages:
 
