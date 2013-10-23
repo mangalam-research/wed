@@ -1,5 +1,8 @@
+Wed
+===
+
 Caret Management
-================
+----------------
 
 * Generally refactor the caret and selection management.
 
@@ -15,10 +18,17 @@ Caret Management
   effect.
 
 Other
-=====
+-----
 
 * Investigate web workers to replace timeouts as the main parallelism
   mechanism for running validation in the background.
 
 * Dump XSLT altogether in favor of something faster? Loading saxon to
   process XSLT 2.0 has a non-negligible cost.
+
+Other Bits of the Project
+=========================
+
+* Dump the perl solution to generating the local HTML files.
+
+* Generate the local HTML somewhere else than in the root.
