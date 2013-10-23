@@ -259,8 +259,17 @@ Everything that follows is specific to wed. You need to have `selenic
 <http://github.com/mangalam-research/selenic>`_ installed and
 available on your ``PYTHONPATH``. Read its documentation. Then you
 need to create a `<config/selenium_local_config.py>`_ file. Use one of
-the example files provided with selenic. You also need to have
-`wedutil <http://github.com/mangalam-research/wedutil>`_ installed and
+the example files provided with selenic. Add the following
+variable to your `<local_config/selenium_local_config.py>`_ file::
+
+    # Location of our server
+    WED_SERVER = "http://localhost:8888/build/standalone/kitchen-sink.html"
+
+Change ``standalone`` to ``standalone-optimized`` if you want to use
+the optimized bundle.
+
+You also need to have `wedutil
+<http://github.com/mangalam-research/wedutil>`_ installed and
 available on your ``PYTHONPATH``.
 
 To run the Selenium-based tests, you must can run either

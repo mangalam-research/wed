@@ -8,8 +8,6 @@ import wedutil
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
-WED_SERVER = "http://localhost:8888/web/kitchen-sink.html?mode=test"
-
 
 def no_before_unload(context):
     context.driver.execute_script("window.onbeforeunload = undefined;")
@@ -19,10 +17,10 @@ def load_and_wait_for_editor(context, text=None):
     no_before_unload(context)
     driver = context.driver
     util = context.util
+    config = context.selenic_config
+    server = config.WED_SERVER + "?mode=test"
     if text is not None:
-        server = WED_SERVER + "&file=" + text
-    else:
-        server = WED_SERVER
+        server = server + "&file=" + text
 
     driver.get(server)
 

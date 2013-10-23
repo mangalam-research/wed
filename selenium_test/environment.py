@@ -24,6 +24,7 @@ config = conf["Config"](local_conf_path)
 def before_all(context):
     context.driver = config.get_driver()
     context.util = selenic.util.Util(context.driver)
+    context.selenic_config = config
 
 
 def before_scenario(context, _scenario):
