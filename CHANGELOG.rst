@@ -2,13 +2,27 @@ Only salient changes are recorded here.
 
 * 0.10.0:
 
-  - Internals: wed now requires salve 0.14.0 or later, which means
+.. warning:: The changes to the build system are substantial enough
+             that if you update the sources in place (through a ``git
+             pull``, for instance) we recommend rebuilding wed from
+             scratch: ``make clean`` then ``make``. Just to be on the
+             safe side.
+
+.. warning:: The location of the files to use for the demo and the
+             in-browser tests has changed. See the documentation on
+             the `demo <README.rst#demo>`_ and the documentation on
+             `testing <tech_notes.rst#in-browser-tests>`_.
+
+  - Internals: wed now requires salve 0.14.1 or later, which means
     smaller schema files, faster loading and faster running. Yippee!
 
   - GUI: wed can now handle some input methods. So long as the methods
     are not designed to **edit** already entered text, there should be
     no problem. I'm able to enter Sanskrit, Tibetan and Chinese using
     ibus on Linux.
+
+  - Build: the build system now creates an optimized bundle which can
+    be used for deploying wed.
 
   - API: ``decorator.Decorator`` used to have an ``init()``
     method. This method no longer exists. This method has been

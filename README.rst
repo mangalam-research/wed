@@ -1,5 +1,5 @@
 Please note that Github currently does not implement all
-reStructuredText directives, so some links in this readme
+reStructuredText directives, so some links in this README
 may not work correctly when viewed there.
 
 Introduction
@@ -180,16 +180,15 @@ Bootstrap) and place them in `<downloads>`_. It will then create a
 tree of files that could be served by a web server. The files will be
 in `<build/standalone>`_. As the name "standalone" implies, this build
 includes **everything** needed to run wed on your own server, except
-the configuration for RequireJS. This configuration is dependent on
-how the server serves the files so it is up to you to create one. The
-file `<config/requirejs-config-dev.js>`_ contains an example of a
-configuration. This file is actually the one used when you use the
-files in the `<web>`_ subdirectory.
+the configuration for RequireJS.
 
-Eventually additional builds will be implemented for minified
-versions, barebones versions (containing only wed's files and assuming
-the other packages (jquery, Bootstrap, salve, etc.) are provided by
-the server through other means), etc.
+Make will additionally create an optimized version of wed in
+`<build/standalone-optimized>`_. This is a version that has been
+optimized using RequireJS' ``r.js`` optimizer. This optimization
+exists for illustration purposes and for testing wed. See the
+"Deployment Considerations" section in the `<tech_notes.rst>`_ file to
+determine whether this is the optimization you want to use to deploy
+wed.
 
 Testing
 =======
@@ -199,12 +198,20 @@ See `<tech_notes.rst>`_.
 Demo
 ====
 
-The demo is located in `<web/kitchen-sink.html>`_. To run it, you must
-have a minimal server running just like the one needed to run the
-browser-dependent test suite and then point your browser to
-`<http://localhost:8888/web/kitchen-sink.html>`_. The demo currently
-starts with an empty document using a vanilla TEI schema. Things you
-can do:
+To see the demo, you must have a minimal server running just like the
+one needed to run the browser-dependent test suite (see the
+"In-Browser Tests" section in `<tech_notes.rst>`_) and then point your
+browser to either:
+
+* `<http://localhost:8888/build/standalone/kitchen-sink.html>`_ to
+  view the demo with the unoptimized file tree.
+
+* or
+  ``<http://localhost:8888/build/standalone-optimized/kitchen-sink.html>`_
+  to view the demo with an optimized file tree.
+
+The demo currently starts with an empty document using a vanilla TEI
+schema. Things you can do:
 
 * Use the left mouse button to bring up a context menu. Such a menu
   exists for starting tags and all positions that are editable. This
@@ -384,4 +391,5 @@ for the Humanities.
 ..  LocalWords:  fireTransformation glyphicons github tei onerror ev
 ..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis README
 ..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout rst
-..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce
+..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce glerbl mk
+..  LocalWords:  reStructuredText

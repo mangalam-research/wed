@@ -1,144 +1,66 @@
-Testing
-=======
-
-Note that due to the asynchronous nature the JavaScript environments
-used to run the tests, if the test suites are run on a system
-experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. I've witnessed this
-happen, for instance, due to RequireJS timing out on a ``require()``
-call because the OS was busy loading things into memory from
-swap. The solution is to run the test suites again.
-
-Another issue with running the tests is that wed uses ``setTimeout``
-to do the validation work in a parallel fashion. (This actually
-simulates parallelism.) Now, browsers clamp timeouts to at most once a
-second for tests that are in background tabs (i.e. tabs whose content
-is not currently visible). Some tests want the first validation to be
-finished before starting. The upshot is that if the test tab is pushed
-to the background some tests will fail due to timeouts. The solution
-for now is don't push the tab in which tests are run to the
-background. Web workers would solve this problem but would create
-other complications so it is unclear whether they are a viable
-solution.
-
-Tests are of three types:
-
-* Not browser-dependent and therefore runnable outside a browser. We
-  run these in Node.js.
-
-* In-browser tests run *in* the browser.
-
-* Selenium-based tests which run *outside* the browser but use selenium
-  to control a browser.
-
-Browser-Independent Tests
--------------------------
-
-To run the tests that are not browser-dependent do::
-
-    $ make test
-
-These tests are located in `<test>`_. You can also run ``mocha``
-directly form the command line but having ``make`` build the ``test``
-target will trigger a build to ensure that the tests are run against
-the latest code.
-
-.. warning:: Keep in mind that tests are **always** run against the
-             code present in `<build/standalone>`_. If you modify your
-             source and fail to rebuild before running the test suite,
-             the suite will run against **old code!**
-
-In-Browser Tests
-----------------
-
-To run the tests that run in the browser, you must run `<server.js>`_,
-a basic web server::
-
-    $ ./server.js
-
-The server will serve on localhost:8888 by default. Give it an
-``addr:port`` parameter if you want another address and port. Point
-your browser to `<http://localhost:8888/web/test.html>`_ to run the
-test suite. The browser-dependent tests are located in
-`<browser_test>`_.
-
-Some tests require **this** specific server or a server that provides
-the same responses to Ajax requests.
-
-If you change wed's code and want to run the browser-dependent test
-suite again, make sure to run ``make test`` before you run the suite
-again because otherwise the suite will run against the old code.
-
-Selenium-Based Tests
---------------------
-
-Everything that follows is specific to wed. You need to have `selenic
-<http://github.com/mangalam-research/selenic>`_ installed and
-available on your ``PYTHONPATH``. Read its documentation. Then you
-need to create a `<config/selenium_local_config.py>`_ file. Use one of
-the example files provided with selenic. You also need to have
-`wedutil <http://github.com/mangalam-research/wedutil>`_ installed and
-available on your ``PYTHONPATH``.
-
-To run the Selenium-based tests, you must can run either
-`<server.js>`_ *or* an nginx-based server. The latter option is
-recommended if you run your browser on a provisioning service like
-SauceLabs *and* you want to maximize performance. Running
-`<server.js>`_ has been explained above. To run nginx, just issue::
-
-    $ misc/start_nginx
-
-This will launch an nginx server listening on localhost:8888. It will
-handle all the requests to static resources itself but will forward
-all Ajax stuff to an instance of `<server.js>`_ (which is started by
-the ``start_nginx`` script to listen on localhost:9999). This server
-puts all of the things that would go in ``/var`` if it was started by
-the OS in the `<var>`_ directory that sits at the top of the code
-tree. Look there for logs. This nginx instance uses the configuration
-built at `<build/config/nginx.conf>`_ from
-`<config/nginx.conf>`_. Remember that if you want to override the
-configuration, the proper way to do it is to copy the configuration
-file into `<local_config>`_ and edit it there. Run make again after
-you made modifications. The only processing done on nginx's file is to
-change all instances of ``@PWD@`` with the top of the code tree.
-
-Finally, to run the suite issue::
-
-    $ make selenium-test
-
-To run the suite while using the SauceLab servers, run::
-
-    $ make SELENIUM_SAUCELABS=1 selenium-test
-
-Behind the scenes, this will launch behave. See `<Makefile>`_ to see
-how behave is run.
-
-Q. Why is Python required to run the Selenium-based tests? You've
-   introduced a dependency on an additional language!
-
-A. I've found that JavaScript is poorly supported by the various
-   agents on which I depend for running Selenium the way I want. I've
-   tried avoiding adding a dependency on Python to software which is
-   JavaScript through and through but that fight proved fruitless. Do
-   I want to spent my time chassing bugs, badly documented code, and
-   obscure or unsupported packages, or do I want to focus on wed? I
-   chose the latter.
-
-.. warning:: Some of the browser-dependent tests may fail on browsers
-             other than Chrome. Eventually, wed will work the same on
-             all browsers but at the moment development efforts are
-             spent elsewhere than hunting down differences in browser
-             behavior. For instance, as of 2013/07/19 some of the
-             caret movement tests fail on Firefox. This does not
-             prevent using wed on Firefox.
-
-.. warning:: As part of normal development, wed is tested on Chrome
-             first, Firefox second. Other browsers will eventually
-             added to this list as the Selenium-based tests take
-             shape.
-
 Usage Notes
 ===========
+
+Deployment Considerations
+-------------------------
+
+It is possible to deploy wed using the `<build/standalone>`_ file tree
+but you will pay in execution time and bandwidth because the files in
+this tree are not optimized.
+
+The `<build/standalone-optimized>`_ file tree is optimized. This
+optimization exists primarily for illustration purposes and for
+testing wed, but it could be used for deployment too, as long as you
+understand how it is constructed. The build file driving how ``r.js``
+created the optimized tree is `<requirejs.build.js>`_. Here are the
+major characteristics of this optimization:
+
+* All of wed's JavaScript is combined into one file. The only part of
+  wed excluded is the test mode used in testing, which is not meant to
+  be deployed anywhere.
+
+* All external libraries (jQuery, Bootstrap, etc.) are excluded from
+  the optimization.
+
+* The CSS files are not optimized with regards to space but not combined.
+
+This optimization is designed to provide a balance between performance
+and flexibility. Greater performance could have been achieved by
+incorporating into one file all of the external libraries. However,
+such bundle would be unlikely to be trivially deployable on a
+full-fledged web site in which wed would be embedded. Such site might
+already be using jQuery and Bootstrap, perhaps different versions from
+those used to build wed, etc. The optimization described above could
+conceivably be used on this hypothetical server, provided that the
+configuration is updated to look for the external libraries at the
+right places.
+
+Wed's build process creates a configuration for the optimized bundle
+at `<build/standalone-optimized/requirejs-config.js>`_. This
+configuration allows an external custom mode to load individual
+modules of wed, because it has mappings like these::
+
+    "wed/log": "wed/wed",
+    "wed/oop": "wed/wed",
+    "wed/lib/simple_event_emitter": "wed/wed",
+    [...]
+
+which map each individual module forming wed to the single bundle file
+created during the optimization process. If you base your own run time
+RequireJS configuration on this file, it is possible for code external
+to the bundle, for instance a custom mode, to load parts of wed in an
+arbitrary order.
+
+It is also possible to use a configuration file that does not have the
+individual module mappings. In this scenario, it is **not** possible
+for code external to wed to load parts of wed in an arbitrary
+order. The ``wed.js`` file has to be loaded first, and then wed's
+modules become accessible. Note that this way of operating should work
+for the vast majority of cases because the typical usage scenario for
+wed is to first created a ``wed.Editor`` instance which dynamically
+loads a mode. Since the mode is loaded after ``wed.Editor`` is
+created, it is guaranteed that by the time the mode runs, all of wed's
+modules are available.
 
 Schema and Structure Considerations
 -----------------------------------
@@ -255,6 +177,148 @@ possible messages types are:
   is locked.
 
 * ``save_successful`` indicates that the save was successful.
+
+Testing
+=======
+
+Note that due to the asynchronous nature the JavaScript environments
+used to run the tests, if the test suites are run on a system
+experiencing heavy load or if the OS has to swap a lot of memory from
+the hard disk, they may fail some or all tests. I've witnessed this
+happen, for instance, due to RequireJS timing out on a ``require()``
+call because the OS was busy loading things into memory from
+swap. The solution is to run the test suites again.
+
+Another issue with running the tests is that wed uses ``setTimeout``
+to do the validation work in a parallel fashion. (This actually
+simulates parallelism.) Now, browsers clamp timeouts to at most once a
+second for tests that are in background tabs (i.e. tabs whose content
+is not currently visible). Some tests want the first validation to be
+finished before starting. The upshot is that if the test tab is pushed
+to the background some tests will fail due to timeouts. The solution
+for now is don't push the tab in which tests are run to the
+background. Web workers would solve this problem but would create
+other complications so it is unclear whether they are a viable
+solution.
+
+Tests are of three types:
+
+* Not browser-dependent and therefore runnable outside a browser. We
+  run these in Node.js.
+
+* In-browser tests run *in* the browser.
+
+* Selenium-based tests which run *outside* the browser but use selenium
+  to control a browser.
+
+Browser-Independent Tests
+-------------------------
+
+To run the tests that are not browser-dependent do::
+
+    $ make test
+
+These tests are located in `<test>`_. You can also run ``mocha``
+directly form the command line but having ``make`` build the ``test``
+target will trigger a build to ensure that the tests are run against
+the latest code.
+
+.. warning:: Keep in mind that tests are **always** run against the
+             code present in `<build/standalone>`_. If you modify your
+             source and fail to rebuild before running the test suite,
+             the suite will run against **old code!**
+
+In-Browser Tests
+----------------
+
+The browser-dependent tests are located in `<browser_test>`_. To run
+the tests that run in the browser, you must run `<server.js>`_, a
+basic web server::
+
+    $ ./server.js
+
+The server will serve on localhost:8888 by default. Give it an
+``addr:port`` parameter if you want another address and port. Some
+tests require **this** specific server or a server that provides the
+same responses to Ajax requests. Point your browser to either:
+
+* `<http://localhost:8888/build/standalone/test.html>`_ to run the
+tests with an unoptimized file tree.
+
+* or ``<http://localhost:8888/build/standalone-optimized/test.html>`_ to
+  run the tests with an optimized file tree.
+
+If you change wed's code and want to run the browser-dependent test
+suite again, make sure to run ``make test`` before you run the suite
+again because otherwise the suite will run against the old code.
+
+Selenium-Based Tests
+--------------------
+
+Everything that follows is specific to wed. You need to have `selenic
+<http://github.com/mangalam-research/selenic>`_ installed and
+available on your ``PYTHONPATH``. Read its documentation. Then you
+need to create a `<config/selenium_local_config.py>`_ file. Use one of
+the example files provided with selenic. You also need to have
+`wedutil <http://github.com/mangalam-research/wedutil>`_ installed and
+available on your ``PYTHONPATH``.
+
+To run the Selenium-based tests, you must can run either
+`<server.js>`_ *or* an nginx-based server. The latter option is
+recommended if you run your browser on a provisioning service like
+SauceLabs *and* you want to maximize performance. Running
+`<server.js>`_ has been explained above. To run nginx, just issue::
+
+    $ misc/start_nginx
+
+This will launch an nginx server listening on localhost:8888. It will
+handle all the requests to static resources itself but will forward
+all Ajax stuff to an instance of `<server.js>`_ (which is started by
+the ``start_nginx`` script to listen on localhost:9999). This server
+puts all of the things that would go in ``/var`` if it was started by
+the OS in the `<var>`_ directory that sits at the top of the code
+tree. Look there for logs. This nginx instance uses the configuration
+built at `<build/config/nginx.conf>`_ from
+`<config/nginx.conf>`_. Remember that if you want to override the
+configuration, the proper way to do it is to copy the configuration
+file into `<local_config>`_ and edit it there. Run make again after
+you made modifications. The only processing done on nginx's file is to
+change all instances of ``@PWD@`` with the top of the code tree.
+
+Finally, to run the suite issue::
+
+    $ make selenium-test
+
+To run the suite while using the SauceLab servers, run::
+
+    $ make SELENIUM_SAUCELABS=1 selenium-test
+
+Behind the scenes, this will launch behave. See `<Makefile>`_ to see
+how behave is run.
+
+Q. Why is Python required to run the Selenium-based tests? You've
+   introduced a dependency on an additional language!
+
+A. I've found that JavaScript is poorly supported by the various
+   agents on which I depend for running Selenium the way I want. I've
+   tried avoiding adding a dependency on Python to software which is
+   JavaScript through and through but that fight proved fruitless. Do
+   I want to spent my time chasing bugs, badly documented code, and
+   obscure or unsupported packages, or do I want to focus on wed? I
+   chose the latter.
+
+.. warning:: Some of the browser-dependent tests may fail on browsers
+             other than Chrome. Eventually, wed will work the same on
+             all browsers but at the moment development efforts are
+             spent elsewhere than hunting down differences in browser
+             behavior. For instance, as of 2013/07/19 some of the
+             caret movement tests fail on Firefox. This does not
+             prevent using wed on Firefox.
+
+.. warning:: As part of normal development, wed is tested on Chrome
+             first, Firefox second. Other browsers will eventually
+             added to this list as the Selenium-based tests take
+             shape.
 
 Internals
 =========
@@ -539,4 +603,6 @@ of a good explanation for the leak.
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
 ..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
 ..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
-..  LocalWords:  ajaxlog url CSRF JSON msg wedutil PYTHONPATH
+..  LocalWords:  ajaxlog url CSRF JSON msg wedutil PYTHONPATH js addr
+..  LocalWords:  setTimeout localhost selenic config nginx SauceLabs
+..  LocalWords:  nginx's SauceLab Makefile CSS getSelection oop

@@ -3,8 +3,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
     <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
-    <script type="text/javascript" src="/build/standalone/lib/requirejs/require.js"></script>
-    <script type="text/javascript" src="/build/config/requirejs-config-dev.js"></script>
+    <script type="text/javascript" src="lib/requirejs/require.js"></script>
+    <script type="text/javascript" src="requirejs-config.js"></script>
   </head>
   <body>
     <div id="mocha"></div>
@@ -21,10 +21,8 @@
     <script>
       require.config({
           paths: {
-              // This is required by the testing framework.
-              'browser_test': '../../../browser_test',
-              'mocha': '../../../node_modules/mocha',
-              'chai': '../../../node_modules/chai/chai'
+              'mocha': '/node_modules/mocha',
+              'chai': '/node_modules/chai/chai'
           },
           shim: {
               'mocha/mocha': {

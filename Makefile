@@ -66,13 +66,15 @@ TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 CONFIG_TARGETS:=$(foreach f,$(shell find config local_config -type f -printf '%P\n'),$(patsubst %,build/config/%,$f))
 
+.DELETE_ON_ERROR:
+
 .PHONY: all build-dir build
 all: build
 
 build-dir:
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone build-ks-files build-config
+build: | build-standalone-optimized build-ks-files build-config
 
 build-config: $(CONFIG_TARGETS) | build/config
 
@@ -105,7 +107,29 @@ build/config/%:
 build/config/nginx.conf:
 	sed -e's;@PWD@;$(PWD);'g $< > $@
 
-build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome
+build-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome
+
+build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
+	cp $< $@
+
+build/standalone/%.html: web/%.html
+	cp $< $@
+
+build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html
+
+build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
+	cp $< $@
+
+build/standalone-optimized: requirejs.build.js $(shell find build/standalone -type f)
+# The || in the next command is because DELETE_ON_ERROR does not
+# delete *directories*. So we have to do it ourselves.
+	r.js -o $< || (rm -rf $@ && exit 1)
+
+build/standalone-optimized/%.html: web/%.html
+	cp $< $@
+
+build/config/requirejs-config-optimized.js: misc/create_optimized_config.js build/config/requirejs-config-dev.js requirejs.build.js
+	node $(word 1,$^) $(word 2,$^) $(word 3,$^) requirejs.build.js > build/config/requirejs-config-optimized.js
 
 build-ks-files: build/ks/purl.js
 
