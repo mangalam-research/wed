@@ -147,6 +147,7 @@ packages:
 * chai
 * semver-sync
 * express
+* `selenic <https://github.com/mangalam-research/selenic>`_.
 
 Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
 and `<Makefile>`_ files for details regarding these

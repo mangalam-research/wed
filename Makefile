@@ -45,9 +45,6 @@ BOOTSTRAP_BASE=bootstrap-$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fortawesome.github.io/Font-Awesome/assets/
 FONTAWESOME_FILE=font-awesome.zip
 
-REQUIREJS_FILE=http://requirejs.org/docs/release/2.1.6/comments/require.js
-REQUIREJS_BASE=$(notdir $(REQUIREJS_FILE))
-
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
 
@@ -124,7 +121,7 @@ build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-op
 build/standalone-optimized: requirejs.build.js $(shell find build/standalone -type f)
 # The || in the next command is because DELETE_ON_ERROR does not
 # delete *directories*. So we have to do it ourselves.
-	r.js -o $< || (rm -rf $@ && exit 1)
+	node_modules/requirejs/bin/r.js -o $< || (rm -rf $@ && exit 1)
 
 build/standalone-optimized/%.html: web/%.html
 	cp $< $@
@@ -167,11 +164,6 @@ downloads/$(BOOTSTRAP_BASE): | downloads
 
 downloads/$(FONTAWESOME_FILE): | downloads
 	(cd downloads; wget '$(FONTAWESOME_PATH)$(FONTAWESOME_FILE)')
-
-
-
-downloads/$(REQUIREJS_BASE): | downloads
-	(cd downloads; wget $(REQUIREJS_FILE))
 
 downloads/$(TEXT_PLUGIN_BASE): | downloads
 	(cd downloads; wget $(TEXT_PLUGIN_FILE))
@@ -235,7 +227,10 @@ endif
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
 
-build/standalone/lib/requirejs/%: downloads/% | build/standalone/lib/requirejs
+build/standalone/lib/requirejs/require.js: node_modules/requirejs/require.js | build/standalone/lib/requirejs
+	cp $< $@
+
+build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
 	cp $< $@
 
 build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
