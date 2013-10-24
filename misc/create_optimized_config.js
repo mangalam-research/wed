@@ -64,18 +64,20 @@ var config = captureConfigObject(config_file_text);
 var build = eval(build_file_text);
 
 var path_config = config.paths;
-build.modules.forEach(function (module) {
-    //
-    // Scan each module for:
-    //
-    // define("...",
-    var module_path = path.join(build.dir, module.name) + ".js";
-    var text = fileAsString(module_path);
-    text.match(/define\(["'](.*?)["']/g).forEach(function (match) {
-        var name = match.slice(8, -1);
-        path_config[name] = module.name;
+if (build.modules) {
+    build.modules.forEach(function (module) {
+        //
+        // Scan each module for:
+        //
+        // define("...",
+        var module_path = path.join(build.dir, module.name) + ".js";
+        var text = fileAsString(module_path);
+        text.match(/define\(["'](.*?)["']/g).forEach(function (match) {
+            var name = match.slice(8, -1);
+            path_config[name] = module.name;
+        });
     });
-});
+}
 config.paths = path_config;
 config.baseUrl = "/" + build.dir;
 console.log("require.config(" +
