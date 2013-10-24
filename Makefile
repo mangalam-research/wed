@@ -61,7 +61,9 @@ LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
-CONFIG_TARGETS:=$(foreach f,$(shell find config local_config -type f -printf '%P\n'),$(patsubst %,build/config/%,$f))
+# Use $(sort ...) to remove duplicates.
+CONFIG_TARGETS:=$(sort $(foreach f,$(shell find config local_config -type f -printf '%P\n'),$(patsubst %,build/config/%,$f)))
+CONFIG_DEPS:=$(CONFIG_TARGETS:=.d)
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
 
 .DELETE_ON_ERROR:
@@ -86,17 +88,26 @@ build/config: | build-dir
 # corresponding file in build/config from config or local_config.
 #
 
-include $(CONFIG_TARGETS:=.d)
+include $(CONFIG_DEPS)
 
-# The order of these targets makes it so that if a file exists in
-# local_config, it shadows a file of the same name in config. (That
-# is, if the file exists in local_config, that's the file used to
-# build the build/config/... file rather than the one in config.)
-build/config/%.d: local_config/% | build/config
-	echo '$(patsubst %.d,%,$@): $<' > $@
-
-build/config/%.d: config/% | build/config
-	echo '$(patsubst %.d,%,$@): $<' > $@
+.PHONY: $(CONFIG_DEPS)
+$(CONFIG_DEPS): DEP_FOR=$(@:.d=)
+$(CONFIG_DEPS): DEP_FOR_BASE=$(notdir $(DEP_FOR))
+$(CONFIG_DEPS): | build/config
+	@echo "Computing $@"
+	@if [ -e local_config/$(DEP_FOR_BASE) ]; then \
+		echo '$(DEP_FOR): local_config/$(DEP_FOR_BASE)' > $@.t; \
+	else \
+		echo '$(DEP_FOR): config/$(DEP_FOR_BASE)' > $@.t; \
+	fi
+# If the dependencies have changed in any way, delete the target so that it
+# is rebuilt.
+	@if ! diff -qN $@.t $@ > /dev/null; then \
+		rm -rf $(DEP_FOR); \
+		mv $@.t $@; \
+	else \
+		rm $@.t; \
+	fi
 
 # Here are the actual targets that build the actual config files.
 build/config/%:

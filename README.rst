@@ -183,6 +183,11 @@ you can set. When everything is set, run::
 
     $ make
 
+.. warning:: If you get a failure please try issuing ``make`` a second
+             time. There are some (rare) usage scenarios in which make
+             can get confused about its dependencies. A second run
+             clears it up.
+
 This Makefile will download external packages (like jquery and
 Bootstrap) and place them in `<downloads>`_. It will then create a
 tree of files that could be served by a web server. The files will be
