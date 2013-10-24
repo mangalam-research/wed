@@ -131,8 +131,8 @@ function (mocha, chai, $, validator, validate) {
                 // Deal with first invocation and subsequent
                 // differently.
                 if (first) {
-                    p.restartAt($data.get(0));
                     first = false;
+                    p.restartAt($data.get(0));
                     }
                 else
                     done();
@@ -156,8 +156,8 @@ function (mocha, chai, $, validator, validate) {
                 // Deal with first invocation and subsequent
                 // differently.
                 if (first) {
-                    p.restartAt($data.get(0));
                     first = false;
+                    p.restartAt($data.get(0));
                 }
                 else {
                     assert.equal(got_reset, true);
