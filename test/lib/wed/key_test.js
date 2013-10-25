@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 'use strict';
 var requirejs = require("requirejs");
 requirejs.config({
@@ -107,7 +112,7 @@ describe("key", function () {
                 var k = key.makeCtrlKey(1);
                 k.setEventToMatch(event);
                 assert.isTrue(k.matchesEvent(event));
-                // Biassed towards keydown
+                // Biased towards keydown
                 assert.equal(event.type, "keydown");
             });
 
@@ -123,3 +128,7 @@ describe("key", function () {
     });
 
 });
+
+//  LocalWords:  RequireJS Ctrl Mangalam MPL Dubeau requirejs chai
+//  LocalWords:  makeKey makeCtrlKey anyModifier keyup matchesEvent
+//  LocalWords:  keydown keypress setEventToMatch ctrl

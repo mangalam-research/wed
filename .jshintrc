@@ -1,4 +1,7 @@
-{ "multistr": true,
+{
+  "globalstrict": true,
+  "maxlen": 80,
+  "multistr": true,
   "globals":
   { "describe": false,
     "it": false,

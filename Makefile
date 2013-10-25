@@ -5,6 +5,9 @@
 # modify this file. What follows are the default values.
 #
 
+# saxon command
+SAXON?=saxon
+
 # jsdoc command.
 JSDOC3?=jsdoc
 
@@ -16,6 +19,16 @@ DEV?=0
 
 # Parameters to pass to mocha, like "--grep foo".
 MOCHA_PARAMS?=
+
+# Parameters to pass to behave
+BEHAVE_PARAMS?=
+
+# Skip the semver check. You should NOT set this in local.mk but use
+# it on the command line:
+#
+# $ make SKIP_SEMVER=1 test
+#
+SKIP_SEMVER?=
 
 #
 # End of customizable variables.
@@ -31,9 +44,6 @@ BOOTSTRAP_URL=https://github.com/twbs/bootstrap/archive/v3.0.0.zip
 BOOTSTRAP_BASE=bootstrap-$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fortawesome.github.io/Font-Awesome/assets/
 FONTAWESOME_FILE=font-awesome.zip
-
-REQUIREJS_FILE=http://requirejs.org/docs/release/2.1.6/comments/require.js
-REQUIREJS_BASE=$(notdir $(REQUIREJS_FILE))
 
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
@@ -51,6 +61,12 @@ LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
+# Use $(sort ...) to remove duplicates.
+CONFIG_TARGETS:=$(sort $(foreach f,$(shell find config local_config -type f -printf '%P\n'),$(patsubst %,build/config/%,$f)))
+CONFIG_DEPS:=$(CONFIG_TARGETS:=.d)
+HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
+
+.DELETE_ON_ERROR:
 
 .PHONY: all build-dir build
 all: build
@@ -58,9 +74,71 @@ all: build
 build-dir:
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone build-ks-files
+build: | build-standalone-optimized build-ks-files build-config
 
-build-standalone: $(STANDALONE_LIB_FILES) build/standalone/lib/rangy build/standalone/lib/$(JQUERY_FILE) build/standalone/lib/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/chai.js build/standalone/lib/mocha/mocha.js build/standalone/lib/mocha/mocha.css build/standalone/lib/salve build/standalone/lib/log4javascript.js build/standalone/lib/jquery.bootstrap-growl.js build/standalone/lib/font-awesome
+build-config: $(CONFIG_TARGETS) | build/config
+
+build/config: | build-dir
+	mkdir $@
+
+#
+# What we've got here is a poor man's dependency calculation system.
+#
+# The .d files record whether make is to take the source for the
+# corresponding file in build/config from config or local_config.
+#
+
+include $(CONFIG_DEPS)
+
+.PHONY: $(CONFIG_DEPS)
+$(CONFIG_DEPS): DEP_FOR=$(@:.d=)
+$(CONFIG_DEPS): DEP_FOR_BASE=$(notdir $(DEP_FOR))
+$(CONFIG_DEPS): | build/config
+	@echo "Computing $@"
+	@if [ -e local_config/$(DEP_FOR_BASE) ]; then \
+		echo '$(DEP_FOR): local_config/$(DEP_FOR_BASE)' > $@.t; \
+	else \
+		echo '$(DEP_FOR): config/$(DEP_FOR_BASE)' > $@.t; \
+	fi
+# If the dependencies have changed in any way, delete the target so that it
+# is rebuilt.
+	@if ! diff -qN $@.t $@ > /dev/null; then \
+		rm -rf $(DEP_FOR); \
+		mv $@.t $@; \
+	else \
+		rm $@.t; \
+	fi
+
+# Here are the actual targets that build the actual config files.
+build/config/%:
+	cp $< $@
+
+build/config/nginx.conf:
+	sed -e's;@PWD@;$(PWD);'g $< > $@
+
+build-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome
+
+build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
+	cp $< $@
+
+build/standalone/%.html: web/%.html
+	cp $< $@
+
+build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html
+
+build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
+	cp $< $@
+
+build/standalone-optimized: requirejs.build.js $(shell find build/standalone -type f)
+# The || in the next command is because DELETE_ON_ERROR does not
+# delete *directories*. So we have to do it ourselves.
+	node_modules/requirejs/bin/r.js -o $< || (rm -rf $@ && exit 1)
+
+build/standalone-optimized/%.html: web/%.html
+	cp $< $@
+
+build/config/requirejs-config-optimized.js: misc/create_optimized_config.js build/config/requirejs-config-dev.js requirejs.build.js
+	node $(word 1,$^) $(word 2,$^) $(word 3,$^) requirejs.build.js > build/config/requirejs-config-optimized.js
 
 build-ks-files: build/ks/purl.js
 
@@ -69,8 +147,8 @@ build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
 build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
-		saxon -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
-		saxon -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
+		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
 	fi)
 
 build/standalone/lib/%: lib/%
@@ -98,11 +176,6 @@ downloads/$(BOOTSTRAP_BASE): | downloads
 downloads/$(FONTAWESOME_FILE): | downloads
 	(cd downloads; wget '$(FONTAWESOME_PATH)$(FONTAWESOME_FILE)')
 
-
-
-downloads/$(REQUIREJS_BASE): | downloads
-	(cd downloads; wget $(REQUIREJS_FILE))
-
 downloads/$(TEXT_PLUGIN_BASE): | downloads
 	(cd downloads; wget $(TEXT_PLUGIN_FILE))
 
@@ -118,7 +191,7 @@ downloads/$(PURL_BASE): | downloads
 node_modules/%:
 	npm install
 
-build/standalone/lib/rangy: downloads/$(RANGY_FILE) | build/standalone
+build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone
 	-mkdir -p $@
 	rm -rf $@/*
 	tar -xzf $< --strip-components=1 -C $@
@@ -127,11 +200,11 @@ ifneq ($(DEV),0)
 endif # ifneq ($(DEV),0)
 	rm -rf $@/uncompressed
 
-build/standalone/lib/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib
+build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib
 	-mkdir $(dir $@)
 	cp $< $@
 
-build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
+build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
@@ -144,7 +217,7 @@ build/standalone/lib/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/l
 # so, touch it.
 	touch $@
 
-build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
+build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
@@ -152,7 +225,7 @@ build/standalone/lib/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standal
 	rm -rf $@/less
 	touch $@
 
-build/standalone/lib/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
+build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
 	unzip -d $(dir $@) $<
 ifneq ($(DEV),0)
 	mv $(dir $@)/bootstrap-growl-*/jquery.bootstrap-growl.js $@
@@ -165,10 +238,13 @@ endif
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
 
-build/standalone/lib/requirejs/%: downloads/% | build/standalone/lib/requirejs
+build/standalone/lib/requirejs/require.js: node_modules/requirejs/require.js | build/standalone/lib/requirejs
 	cp $< $@
 
-build/standalone/lib/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
+build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
+	cp $< $@
+
+build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
 	-mkdir $(dir $@)
 	unzip -d $(dir $@) $< log4javascript-*/js/*.js
 ifneq ($(DEV),0)
@@ -183,13 +259,6 @@ endif
 # directories so that when a new version is installed, the target is
 # rebuilt. This is necessary because npm preserves the modification
 # times of the files *inside* the packages.
-
-build/standalone/lib/chai.js: node_modules/chai/chai.js | node_modules/chai
-	cp $< $@
-
-build/standalone/lib/mocha/%: node_modules/mocha/% | node_modules/mocha
-	-mkdir $(dir $@)
-	cp $< $@
 
 build/standalone/lib/salve: node_modules/salve/build/lib/salve
 	rm -rf $@
@@ -208,22 +277,33 @@ build/ks/purl.js: downloads/$(PURL_BASE) | build/ks
 
 .PHONY: test
 test: build | build-test-files
+ifndef SKIP_SEMVER
 	semver-sync -v
+endif
 	mocha $(MOCHA_PARAMS)
 
+.PHONY: selenium-test
+selenium-test: build | build-test-files
+	behave $(BEHAVE_PARAMS) selenium_test
+
 .PHONY: doc
-doc: README.html CHANGELOG.html
+doc: rst-doc
 	$(JSDOC3) -c jsdoc.conf.json -d build/doc -r lib
+
+rst-doc: $(HTML_TARGETS)
 
 # rst2html does not seem to support rewriting relative
 # urls. So we produce the html in our root.
 %.html: %.rst
-	$(RST2HTML) $< $@
+# The perl script is an ugly hack. It would erroneously mangle
+# plaintext that would happen to match the pattern. We need a better
+# solution eventually.
+	$(RST2HTML) $< | perl -np -e 's/href="(.*?)\.rst(#.*?)"/href="$$1.html$$2"/g' > $@
 
 .PHONY: clean
 clean:
 	-rm -rf build
-	-rm README.html CHANGELOG.html
+	-rm $(HTML_TARGETS)
 
 .PHONY: distclean
 distclean: clean

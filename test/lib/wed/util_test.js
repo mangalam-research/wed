@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 'use strict';
 var requirejs = require("requirejs");
 requirejs.config({
@@ -17,7 +22,8 @@ describe("util", function () {
             assert.equal(util.decodeAttrName("data-wed-btw---blah"), "btw:blah");
         });
         it("prefix dashes", function () {
-            assert.equal(util.decodeAttrName("data-wed-btw---blah-one--two----three-----four"), "btw:blah-one--two---three----four");
+            assert.equal(util.decodeAttrName("data-wed-btw---blah-one--two----\
+three-----four"), "btw:blah-one--two---three----four");
         });
     });
 
@@ -29,7 +35,8 @@ describe("util", function () {
             assert.equal(util.encodeAttrName("btw:blah"), "data-wed-btw---blah");
         });
         it("prefix dashes", function () {
-            assert.equal(util.encodeAttrName("btw:blah-one--two---three----four"), "data-wed-btw---blah-one--two----three-----four");
+            assert.equal(util.encodeAttrName("btw:blah-one--two---three----four"),
+                         "data-wed-btw---blah-one--two----three-----four");
         });
     });
 
@@ -41,7 +48,8 @@ describe("util", function () {
             assert.equal(util.classFromOriginalName("*"), "._real");
         });
         it("with namespace", function () {
-            assert.equal(util.classFromOriginalName("btw:foo"), ".btw\\:foo._real");
+            assert.equal(util.classFromOriginalName("btw:foo"),
+                         ".btw\\:foo._real");
         });
     });
 
@@ -90,3 +98,7 @@ describe("util", function () {
 
 
 });
+
+//  LocalWords:  requirejs util chai classFromOriginalName namespace
+//  LocalWords:  distFromDeltas btw distFromRect li Dubeau MPL
+//  LocalWords:  Mangalam RequireJS

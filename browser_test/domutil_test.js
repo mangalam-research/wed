@@ -1,5 +1,12 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/domutil"],
 function (mocha, chai, $, domutil) {
+'use strict';
+
     var assert = chai.assert;
 
     describe("domutil", function () {
@@ -128,7 +135,7 @@ function (mocha, chai, $, domutil) {
             describe("white-space: normal, not at end of parent node",
                      function () {
                          // The case is designed so that it does not
-                         // skip over the white space
+                         // skip over the whitespace
                          var $data = $("<span>test <s>test</s></span>");
                          beforeEach(function () {
                              $root.empty();
@@ -144,7 +151,7 @@ function (mocha, chai, $, domutil) {
 
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
-                // the white space.
+                // the whitespace.
                 var $data =
                     $("<span><s>test    </s>" +
                       "<s style='white-space: pre'>test  </s>" +
@@ -289,13 +296,13 @@ function (mocha, chai, $, domutil) {
 
             describe("white-space: normal", function () {
                 // The case is designed so that it skips over the
-                // white space
+                // whitespace
                 var $data =
                     $("<span><s>test</s><s>   test</s></span>");
                 beforeEach(function () {
                     $root.empty();
                     $root.append($data);
-                    // Place the caret just after the white space
+                    // Place the caret just after the whitespace
                     // in the 2nd <s> node.
                     caret = [$data.children("s").get(1).childNodes[0],
                              3];
@@ -306,13 +313,13 @@ function (mocha, chai, $, domutil) {
             describe("white-space: normal, not at start of parent node",
                      function () {
                          // The case is designed so that it does not skip over
-                         // the white space
+                         // the whitespace
                          var $data =
                                  $("<span><s>test</s>   test</span>");
                          beforeEach(function () {
                              $root.empty();
                              $root.append($data);
-                             // Place the caret just after the white space
+                             // Place the caret just after the whitespace
                              // in the top node
                              caret = [$data.get(0).childNodes[1], 3];
                          });
@@ -323,7 +330,7 @@ function (mocha, chai, $, domutil) {
 
             describe("white-space: pre", function () {
                 // The case is designed so that it does not skip over
-                // the white space.
+                // the whitespace.
                 var $data =
                     $("<span><s>test</s>" +
                       "<s style='white-space: pre'>   test</s>"+
@@ -927,12 +934,43 @@ function (mocha, chai, $, domutil) {
             });
         });
 
+
+        describe("focusNode", function () {
+            it("focuses an element", function () {
+                var p = $("#test-para")[0];
+                assert.notEqual(p, p.ownerDocument.activeElement,
+                                "p is not focused");
+                domutil.focusNode(p);
+                assert.equal(p, p.ownerDocument.activeElement, "p is focused");
+            });
+            it("focuses text's parent", function () {
+                var text = $("#test-para")[0].firstChild;
+                assert.equal(text.nodeType, Node.TEXT_NODE,
+                             "node type is text");
+                assert.notEqual(text, text.ownerDocument.activeElement,
+                                "text is not focused");
+                domutil.focusNode(text);
+                assert.equal(text.parentNode, text.ownerDocument.activeElement,
+                             "text's parent is focused");
+            });
+            it("throws an error on anything else than element or text",
+               function () {
+                assert.throws(
+                    domutil.focusNode.bind(undefined, undefined),
+                    Error,
+                    "tried to focus something other than a text node or " +
+                        "an element.");
+            });
+        });
+
+
     });
 });
 
-//  LocalWords:  chai jquery domutil nextCaretPosition domroot pre cd
-//  LocalWords:  isNotNull html prevCaretPosition splitTextNode abcd
-//  LocalWords:  requirejs insertIntoText lastabcd firstabcd abtestcd
-//  LocalWords:  abcdfirst abfirst lastcd insertText abQcd Qabcd
-//  LocalWords:  abcdQ deleteText firstDescendantOrSelf nodeToPath
-//  LocalWords:  pathToNode linkTrees
+//  LocalWords:  RequireJS Mangalam MPL Dubeau previousSibling jQuery
+//  LocalWords:  nextSibling whitespace linkTrees pathToNode abcdQ cd
+//  LocalWords:  nodeToPath firstDescendantOrSelf deleteText Qabcd
+//  LocalWords:  abQcd insertText lastcd abfirst abcdfirst abtestcd
+//  LocalWords:  firstabcd lastabcd insertIntoText requirejs abcd pre
+//  LocalWords:  splitTextNode prevCaretPosition html isNotNull chai
+//  LocalWords:  domroot nextCaretPosition domutil jquery

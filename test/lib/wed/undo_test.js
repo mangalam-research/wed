@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 'use strict';
 var requirejs = require("requirejs");
 requirejs.config({
@@ -22,15 +27,14 @@ function MyUndo(name, object) {
 
 oop.inherit(MyUndo, Undo);
 
-(function () {
-    this.undo = function () {
-        this.object[this.name] = false;
-    };
+MyUndo.prototype.undo = function () {
+    this.object[this.name] = false;
+};
 
-    this.redo = function () {
-        this.object[this.name] = true;
-    };
-}).call(MyUndo.prototype);
+MyUndo.prototype.redo = function () {
+    this.object[this.name] = true;
+};
+
 
 function MyGroup(name) {
     UndoGroup.call(this, name);
@@ -423,3 +427,7 @@ describe("UndoList", function () {
 
     });
 });
+
+//  LocalWords:  RequireJS Mangalam MPL Dubeau ul noop getGroup chai
+//  LocalWords:  undoingOrRedoing endAllGroups endGroup canRedo oop
+//  LocalWords:  canUndo UndoList requirejs

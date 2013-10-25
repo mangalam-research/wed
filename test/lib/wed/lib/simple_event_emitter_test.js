@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 'use strict';
 var requirejs = require("requirejs");
 requirejs.config({
@@ -88,7 +93,7 @@ describe("SimpleEventEmitter", function () {
             });
 
             emitter._emit("event 1", null);
-            // event 2 not present so the 2nd hander was not called.
+            // event 2 not present so the 2nd handler was not called.
             assert.deepEqual(calls, ["event 1"]);
         });
 
@@ -263,3 +268,7 @@ describe("SimpleEventEmitter", function () {
     });
 
 });
+
+//  LocalWords:  addOneTimeEventListener removeAllListeners chai oop
+//  LocalWords:  removeEventListener addEventListener requirejs
+//  LocalWords:  SimpleEventEmitter

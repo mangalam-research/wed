@@ -1,4 +1,59 @@
+Please note that Github currently does not implement all
+reStructuredText directives, so some links in this document
+may not work correctly when viewed there.
+
 Only salient changes are recorded here.
+
+* 0.10.0:
+
+.. warning:: The changes to the build system are substantial enough
+             that if you update the sources in place (through a ``git
+             pull``, for instance) we recommend rebuilding wed from
+             scratch: ``make clean`` then ``make``. Just to be on the
+             safe side.
+
+.. warning:: The location of the files to use for the demo and the
+             in-browser tests has changed. See the documentation on
+             the `demo <README.rst#demo>`_ and the documentation on
+             `testing <tech_notes.rst#in-browser-tests>`_.
+
+  - Internals: wed now requires salve 0.14.1 or later, which means
+    smaller schema files, faster loading and faster running. Yippee!
+
+  - GUI: wed can now handle some input methods. So long as the methods
+    are not designed to **edit** already entered text, there should be
+    no problem. We're able to enter Sanskrit, Tibetan and Chinese using
+    ibus on Linux.
+
+  - Build: the build system now creates an optimized bundle which can
+    be used for deploying wed.
+
+  - API: ``decorator.Decorator`` used to have an ``init()``
+    method. This method no longer exists. This method has been
+    replaced by two methods:
+
+        * ``addHandlers()`` which add the event handlers on the
+          domlistener that the decorator uses.
+
+        * ``startListening()`` which tells the decorator that its
+          listener should start listening.
+
+    The old ``init()`` would do what these two methods do. Since
+    handler order matters, the new API allows one to tell the
+    decorator to add its handlers, then add more handlers, and finally
+    tell the decorator to start listening. The old API did not allow
+    this.
+
+  - API: the protocol for saving to a server was redesigned. See
+    `<tech_notes.rst>`_.
+
+  - API: The ``Editor`` methods ``setSelectionRange`` and
+    ``getSelectionRange`` have been renamed ``setDOMSelectionRange``
+    and ``getDOMSelectionRange``. The Editor method ``getSelection``
+    has been renamed ``getDOMSelection``.
+
+  - API: ``Editor.setSelectionRange`` and ``getSelectionRange`` are
+    two **new** methods.
 
 * 0.9.0:
 
@@ -22,7 +77,7 @@ Only salient changes are recorded here.
 
 * 0.8:
 
-  - GUI: validation error reporting is more user friendly than it used
+  - GUI: validation error reporting is more user-friendly than it used
     to be.
 
   - API: Specifying a mode path can now be done in an abbreviated
@@ -86,7 +141,7 @@ Only salient changes are recorded here.
     starting and ending tags of elements serve respectively to add
     elements before and after an element.
 
-  - Internal: wed now uses ``less`` to generate CSS.
+  - Internal: wed now uses less to generate CSS.
 
   - Internal: wed now maintains two DOM trees representing the
     document. The first is a representation of the document's XML
@@ -113,3 +168,6 @@ Only salient changes are recorded here.
 ..  LocalWords:  getDataCaret domlistener TreeUpdater makeDecorator
 ..  LocalWords:  ev jQthis getContextualActions wed's glyphicons CSS
 ..  LocalWords:  getTransformationRegistry fireTransformation init
+..  LocalWords:  html ibus rst setSelectionRange getSelectionRange
+..  LocalWords:  setDOMSelectionRange getDOMSelectionRange README
+..  LocalWords:  getSelection getDOMSelection

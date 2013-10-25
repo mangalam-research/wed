@@ -1,10 +1,17 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
         "wed/wed", "wed/key", "wed/key_constants"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants) {
+'use strict';
+
 var assert = chai.assert;
 
 var options = {
-    schema: 'test/tei-simplified-rng.js',
+    schema: 'browser_test/tei-simplified-rng.js',
     mode: {
         path: 'test',
         options: {
@@ -48,17 +55,9 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             // Synthetic event
-            var event = new $.Event("keypress");
-            var my_key = key.makeKey(";");
-            event.which = my_key.which;
-            event.keyCode = my_key.keyCode;
-            event.charCode = my_key.charCode;
-            event.ctrlKey = my_key.ctrlKey;
-            event.altKey = my_key.altKey;
-            event.metaKey = my_key.metaKey;
             editor.setDataCaret(
                 editor.$data_root.find(".p").last().get(0).childNodes[0], 4);
-            editor.$gui_root.trigger(event);
+            editor.type(";");
 
             var $ps = editor.$data_root.find(".body .p");
             assert.equal($ps.length, 2);
@@ -80,18 +79,9 @@ describe("input_trigger_factory", function () {
                 editor, ".p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            var my_key = key_constants.ENTER;
-            event.which = my_key.which;
-            event.keyCode = my_key.keyCode;
-            event.charCode = my_key.charCode;
-            event.ctrlKey = my_key.ctrlKey;
-            event.altKey = my_key.altKey;
-            event.metaKey = my_key.metaKey;
             editor.setDataCaret(
                 editor.$data_root.find(".p").last().get(0).childNodes[0], 4);
-            editor.$gui_root.trigger(event);
+            editor.type(key_constants.ENTER);
 
             var $ps = editor.$data_root.find(".body .p");
             assert.equal($ps.length, 2);
@@ -146,7 +136,8 @@ describe("input_trigger_factory", function () {
 
     describe("makeSplitMergeInputTrigger", function () {
         before(function () {
-            src_stack.unshift("../../test-files/input_trigger_test_data/source2_converted.xml");
+            src_stack.unshift("../../test-files/input_trigger_test_data" +
+                              "/source2_converted.xml");
         });
         after(function () {
             src_stack.shift();
@@ -158,12 +149,9 @@ describe("input_trigger_factory", function () {
                 editor, ".p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            key_constants.BACKSPACE.setEventToMatch(event);
             editor.setCaret(
                 editor.$gui_root.find(".p>.ref")[0].childNodes[0], 1);
-            editor.$gui_root.trigger(event);
+            editor.type(key_constants.BACKSPACE);
 
             var $ps = editor.$data_root.find(".body>.p");
             assert.equal($ps.length, 1);
@@ -175,12 +163,9 @@ describe("input_trigger_factory", function () {
                 editor, ".p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            // Synthetic event
-            var event = new $.Event("keydown");
-            key_constants.DELETE.setEventToMatch(event);
             editor.setCaret(
                 editor.$gui_root.find(".p>.ref")[0].lastChild, 0);
-            editor.$gui_root.trigger(event);
+            editor.type(key_constants.DELETE);
 
             var $ps = editor.$data_root.find(".body>.p");
             assert.equal($ps.length, 1);
@@ -189,3 +174,5 @@ describe("input_trigger_factory", function () {
 });
 
 });
+
+// LocalWords:  chai jquery tei InputTrigger

@@ -1,0 +1,9 @@
+[MESSAGES CONTROL]
+# - W0142: Used * or ** magic
+disable=W0142
+
+[VARIABLES]
+additional-builtins=when,then,given,When,Then,Given,step_matcher
+
+[REPORTS]
+include-ids=y

@@ -1,5 +1,11 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/tree_updater"],
 function (mocha, chai, $, tree_updater) {
+'use strict';
 
 var assert = chai.assert;
 var TreeUpdater = tree_updater.TreeUpdater;
@@ -114,7 +120,8 @@ describe("TreeUpdater", function () {
                          '<div class="title _real">ab</div>', "first half");
             var next = node.nextSibling;
             assert.equal(parent.childNodes[1].outerHTML,
-                             '<div class="title _real">cd</div>', "second half");
+                             '<div class="title _real">cd</div>',
+                             "second half");
             listener.check();
         });
 
@@ -123,7 +130,7 @@ describe("TreeUpdater", function () {
             var node = $root.find(".quote").get(0).childNodes[0];
             var top = $root.find(".text").get(0);
             var body = $(top).find(".body").get(0);
-            // Drop the nodes form 3 onwards so that future additions don't
+            // Drop the nodes from 3 onwards so that future additions don't
             // change this test.
             while(body.childNodes[3])
                 body.removeChild(body.childNodes[3]);
@@ -850,3 +857,10 @@ describe("TreeUpdater", function () {
 });
 
 });
+
+//  LocalWords:  domroot concat DOM html previousSibling nextSibling
+//  LocalWords:  prev abcd jQuery cd Dubeau MPL Mangalam RequireJS
+//  LocalWords:  mergeTextNodes removeNodes unhandled removeNode chai
+//  LocalWords:  insertIntoText deleteText setTextNodeValue onwards
+//  LocalWords:  insertText deleteNode denormalize splitAt jquery
+//  LocalWords:  insertNodeAt TreeUpdater

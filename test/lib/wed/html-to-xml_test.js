@@ -1,3 +1,8 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 'use strict';
 var child_process = require("child_process");
 var fs = require("fs");
@@ -38,3 +43,6 @@ describe("html-to-xml", function () {
     makeTest("should encode dashes in attribute names");
     makeTest("should encode namespace changes");
 });
+
+//  LocalWords:  Mangalam MPL Dubeau namespace utf saxon xsl html xml
+//  LocalWords:  chai fs

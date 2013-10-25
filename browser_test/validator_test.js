@@ -1,7 +1,14 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/validator", "salve/validate"],
 function (mocha, chai, $, validator, validate) {
-    // The test subirectory is one of the paths required to be in the config
-    var schema = 'test/simplified-rng.js';
+'use strict';
+
+    // The test subdirectory is one of the paths required to be in the config
+    var schema = 'browser_test/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'
     // baseUrl configuration value.
     var to_parse =
@@ -66,8 +73,9 @@ function (mocha, chai, $, validator, validate) {
             });
         });
 
-        it("precent done", function (done) {
-            require(["requirejs/text!../../test-files/validator_test_data/percent_to_parse_converted.xml"],
+        it("percent done", function (done) {
+            require(["requirejs/text!../../test-files/" +
+                     "validator_test_data/percent_to_parse_converted.xml"],
                     function(data) {
                         $data.html(data);
                         p._max_timespan = 0;
@@ -125,8 +133,8 @@ function (mocha, chai, $, validator, validate) {
                 // Deal with first invocation and subsequent
                 // differently.
                 if (first) {
-                    p.restartAt($data.get(0));
                     first = false;
+                    p.restartAt($data.get(0));
                     }
                 else
                     done();
@@ -150,8 +158,8 @@ function (mocha, chai, $, validator, validate) {
                 // Deal with first invocation and subsequent
                 // differently.
                 if (first) {
-                    p.restartAt($data.get(0));
                     first = false;
+                    p.restartAt($data.get(0));
                 }
                 else {
                     assert.equal(got_reset, true);
@@ -389,3 +397,7 @@ function (mocha, chai, $, validator, validate) {
         });
     });
 });
+
+//  LocalWords:  enterStartTag html jQuery Dubeau MPL Mangalam config
+//  LocalWords:  RequireJS requirejs subdirectory validator jquery js
+//  LocalWords:  chai baseUrl rng

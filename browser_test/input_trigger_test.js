@@ -1,13 +1,19 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
         "wed/transformation"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
          input_trigger_factory, transformation) {
+'use strict';
 var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
 
 var options = {
-    schema: 'test/tei-simplified-rng.js',
+    schema: 'browser_test/tei-simplified-rng.js',
     mode: {
         path: 'test',
         options: {
@@ -78,16 +84,8 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        var event = new $.Event("keydown");
-        var my_key = key_constants.ENTER;
-        event.which = my_key.which;
-        event.keyCode = my_key.keyCode;
-        event.charCode = my_key.charCode;
-        event.ctrlKey = my_key.ctrlKey;
-        event.altKey = my_key.altKey;
-        event.metaKey = my_key.metaKey;
         editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
-        editor.$gui_root.trigger(event);
+        editor.type(key_constants.ENTER);
         assert.equal(seen, 1);
     });
 
@@ -104,16 +102,8 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        var event = new $.Event("keypress");
-        var my_key = key.makeKey(";");
-        event.which = my_key.which;
-        event.keyCode = my_key.keyCode;
-        event.charCode = my_key.charCode;
-        event.ctrlKey = my_key.ctrlKey;
-        event.altKey = my_key.altKey;
-        event.metaKey = my_key.metaKey;
         editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
-        editor.$gui_root.trigger(event);
+        editor.type(";");
         assert.equal(seen, 1);
     });
 
@@ -143,16 +133,8 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        var event = new $.Event("keydown");
-        var my_key = key.makeKey(":");
-        event.which = my_key.which;
-        event.keyCode = my_key.keyCode;
-        event.charCode = my_key.charCode;
-        event.ctrlKey = my_key.ctrlKey;
-        event.altKey = my_key.altKey;
-        event.metaKey = my_key.metaKey;
         editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
-        editor.$gui_root.trigger(event);
+        editor.type(":");
         assert.equal(seen, 0);
     });
 
@@ -254,3 +236,7 @@ describe("InputTrigger", function () {
 });
 
 });
+
+//  LocalWords:  requirejs wedroot wedframe metas js rng RequireJS cd
+//  LocalWords:  Mangalam MPL Dubeau jquery jQuery tei keypress chai
+//  LocalWords:  keydown InputTrigger

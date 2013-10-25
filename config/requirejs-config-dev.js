@@ -1,10 +1,17 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 require.config({
  baseUrl: '/build/standalone/lib/',
  paths: {
-   'jquery': 'jquery-1.9.1',
-   'bootstrap': 'bootstrap/js/bootstrap.min',
-     // This is required by the testing framework.
-   'test': '../../../browser_test/'
+   'browser_test': '../../../browser_test',
+   'jquery': 'external/jquery-1.9.1',
+   'bootstrap': 'external/bootstrap/js/bootstrap.min',
+   'log4javascript': 'external/log4javascript',
+   'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
+   'font-awesome': 'external/font-awesome'
  },
  shim: {
    'bootstrap': {
@@ -12,25 +19,17 @@ require.config({
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
    },
-   'rangy/rangy-core': {
+   'external/rangy/rangy-core': {
      exports: "rangy",
      init: function() { return this.rangy; }
    },
-   'rangy/rangy-selectionsaverestore': {
-     deps: ["rangy/rangy-core"],
+   'external/rangy/rangy-selectionsaverestore': {
+     deps: ["external/rangy/rangy-core"],
      exports: "rangy.modules.SaveRestore"
-   },
-   'wed/jquery.findandself': {
-     deps: ["jquery"],
-     exports: "jQuery.fn.findAndSelf"
    },
    'jquery.bootstrap-growl': {
      deps: ["jquery", "bootstrap"],
      exports: "jQuery.bootstrapGrowl"
-   },
-   'mocha/mocha': {
-     exports: "mocha",
-     init: function () { this.mocha.setup('bdd'); return this.mocha; }
    },
    'log4javascript': {
        exports: "log4javascript"
@@ -38,7 +37,7 @@ require.config({
  },
  config: {
      'wed/wed': {
-         schema: 'test/tei-simplified-rng.js',
+         schema: 'browser_test/tei-simplified-rng.js',
          mode: {
              path: 'wed/modes/generic/generic',
              options: {
@@ -53,17 +52,10 @@ require.config({
          save: {
              url: "/build/ajax/save.txt"
          }
-     },
-     'wed/log': {
-         focus_popup: window.wed_testing_env // For testing only.
-     },
-     'wed/onerror': {
-         suppress_old_onerror: window.wed_testing_env, // For testing only.
-         test: window.wed_testing_env // For testing only.
-     },
-     'wed/onbeforeunload': {
-         test: window.wed_testing_env // For testing only
      }
  },
  enforceDefine: true
 });
+
+//  LocalWords:  popup onerror findandself jQuery Dubeau MPL Mangalam
+//  LocalWords:  txt tei ajax jquery

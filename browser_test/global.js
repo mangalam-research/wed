@@ -1,4 +1,10 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(function (require, exports, module) {
+'use strict';
 var chai = require("chai");
 var $ = require("jquery");
 
@@ -27,3 +33,5 @@ function fail_on_save(done) {
 exports.fail_on_save = fail_on_save;
 
 });
+
+//  LocalWords:  Mangalam MPL Dubeau jQuery jquery ajax chai

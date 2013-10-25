@@ -1,4 +1,10 @@
+/**
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
 define(function () {
+'use strict';
 
 // This is not as generic as it could be but this will do for now.
 return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
@@ -11,7 +17,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
     // asynchronously. This complicates things a bit. However,
     // Listener works in such a way that all events triggered by a
     // given mutation are processed together before the events
-    // triggered by the next muation are processed, etc. Consequently,
+    // triggered by the next mutation are processed, etc. Consequently,
     // we can mark the stream of events by making a change that uses a
     // marking element. When the handler for this marking element is
     // called, we can be sure that the Listener has called all the
@@ -594,7 +600,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
            function () {
             var marked = false;
             mark = new Mark(1, {"children root": 1},
-                            listener, tree_updater, $root, function () { marked = true; });
+                            listener, tree_updater, $root,
+                            function () { marked = true; });
             function changedHandler($this_root, $added, $removed,
                                     $previous_sibling, $next_sibling,
                                     $element) {
@@ -621,3 +628,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
 };
 
 });
+
+//  LocalWords:  domlistener processImmediately MutationObserver chai
+//  LocalWords:  jQuery jquery insertNodeAt ul li nextSibling Dubeau
+//  LocalWords:  previousSibling MPL Mangalam setTextNodeValue
+//  LocalWords:  domroot
