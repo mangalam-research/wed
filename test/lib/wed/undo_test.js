@@ -428,5 +428,6 @@ describe("UndoList", function () {
     });
 });
 
-// LocalWords:  requirejs oop chai UndoList canUndo canRedo endGroup
-// LocalWords:  endAllGroups getGroup undoingOrRedoing noop
+//  LocalWords:  RequireJS Mangalam MPL Dubeau ul noop getGroup chai
+//  LocalWords:  undoingOrRedoing endAllGroups endGroup canRedo oop
+//  LocalWords:  canUndo UndoList requirejs

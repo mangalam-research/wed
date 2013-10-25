@@ -129,5 +129,6 @@ describe("key", function () {
 
 });
 
-// LocalWords:  requirejs chai makeKey makeCtrlKey anyModifier keyup
-// LocalWords:  matchesEvent keydown keypress setEventToMatch ctrl
+//  LocalWords:  RequireJS Ctrl Mangalam MPL Dubeau requirejs chai
+//  LocalWords:  makeKey makeCtrlKey anyModifier keyup matchesEvent
+//  LocalWords:  keydown keypress setEventToMatch ctrl

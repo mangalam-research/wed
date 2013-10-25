@@ -12,3 +12,5 @@ generic(mocha, chai, $, domlistener, "updater_domlistener",
                                      tree_updater.TreeUpdater);
 
 });
+
+//  LocalWords:  domlistener chai jQuery jquery Dubeau MPL Mangalam

@@ -269,6 +269,6 @@ describe("SimpleEventEmitter", function () {
 
 });
 
-// LocalWords:  requirejs oop chai SimpleEventEmitter
-// LocalWords:  addEventListener removeEventListener
-// LocalWords:  removeAllListeners addOneTimeEventListener
+//  LocalWords:  addOneTimeEventListener removeAllListeners chai oop
+//  LocalWords:  removeEventListener addEventListener requirejs
+//  LocalWords:  SimpleEventEmitter

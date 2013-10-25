@@ -139,3 +139,5 @@ app.listen(port, ip);
 
 
 console.log("http://" + ip + ":" + port);
+
+//  LocalWords:  url querystring ajax txt json

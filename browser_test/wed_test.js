@@ -1312,8 +1312,10 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 
 });
 
-// LocalWords:  chai jquery onerror domutil tei metas wedroot gui btn
-// LocalWords:  requirejs unhandled mousedown mouseup pathToNode html
-// LocalWords:  nodeToPath seekCaret nodeValue innerHTML teiHeader
-// LocalWords:  moveCaretLeft moveCaretRight xml ajax txt xmlns
-// LocalWords:  fileDesc titleStmt publicationStmt sourceDesc
+//  LocalWords:  rng wedframe RequireJS dropdown Ctrl Mangalam MPL
+//  LocalWords:  Dubeau previousSibling nextSibling abcd jQuery xmlns
+//  LocalWords:  sourceDesc publicationStmt titleStmt fileDesc txt
+//  LocalWords:  ajax xml moveCaretRight moveCaretLeft teiHeader html
+//  LocalWords:  innerHTML nodeValue seekCaret nodeToPath pathToNode
+//  LocalWords:  mouseup mousedown unhandled requirejs btn gui metas
+//  LocalWords:  wedroot tei domutil onerror jquery chai

@@ -57,4 +57,5 @@ require.config({
  enforceDefine: true
 });
 
-// LocalWords:  jquery javascript ajax tei txt
+//  LocalWords:  popup onerror findandself jQuery Dubeau MPL Mangalam
+//  LocalWords:  txt tei ajax jquery

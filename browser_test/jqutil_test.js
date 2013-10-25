@@ -79,5 +79,5 @@ describe("jqutil", function () {
 
 });
 
-// LocalWords:  toDataSelector jqutil chai jquery parens namespaces
-// LocalWords:  selectorToElements
+//  LocalWords:  Mangalam MPL Dubeau jQuery selectorToElements parens
+//  LocalWords:  namespaces jquery chai jqutil toDataSelector

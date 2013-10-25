@@ -67,5 +67,5 @@ function (mocha, chai, refman) {
     });
 });
 
-// LocalWords:  chai refman deallocate deallocateAll nextNumber
-// LocalWords:  allocateLabel
+//  LocalWords:  Dubeau MPL Mangalam allocateLabel nextNumber refman
+//  LocalWords:  deallocateAll deallocate chai

@@ -238,5 +238,6 @@ describe("Modal", function () {
 
 });
 
-// LocalWords:  chai setTitle setBody setFooter addButton getPrimary
-// LocalWords:  Ok getClicked getClickedAsText btn
+//  LocalWords:  gui jQuery jquery Dubeau MPL Mangalam btn getClicked
+//  LocalWords:  getClickedAsText Ok getPrimary addButton setFooter
+//  LocalWords:  setBody setTitle chai wedframe wedroot

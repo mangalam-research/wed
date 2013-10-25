@@ -257,3 +257,5 @@ describe("NameResolver", function () {
 
     });
 });
+
+//  LocalWords:  RequireJS namespaces Mangalam MPL Dubeau

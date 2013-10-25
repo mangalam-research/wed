@@ -34,4 +34,4 @@ exports.fail_on_save = fail_on_save;
 
 });
 
-// LocalWords:  chai ajax jquery
+//  LocalWords:  Mangalam MPL Dubeau jQuery jquery ajax chai
