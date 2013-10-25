@@ -247,9 +247,9 @@ tests require **this** specific server or a server that provides the
 same responses to Ajax requests. Point your browser to either:
 
 * `<http://localhost:8888/build/standalone/test.html>`_ to run the
-tests with an unoptimized file tree.
+  tests with an unoptimized file tree.
 
-* or ``<http://localhost:8888/build/standalone-optimized/test.html>`_ to
+* or `<http://localhost:8888/build/standalone-optimized/test.html>`_ to
   run the tests with an optimized file tree.
 
 If you change wed's code and want to run the browser-dependent test

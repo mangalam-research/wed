@@ -147,7 +147,6 @@ packages:
 * chai
 * semver-sync
 * express
-* `selenic <https://github.com/mangalam-research/selenic>`_.
 
 Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
 and `<Makefile>`_ files for details regarding these
@@ -220,7 +219,7 @@ browser to either:
   view the demo with the unoptimized file tree.
 
 * or
-  ``<http://localhost:8888/build/standalone-optimized/kitchen-sink.html>`_
+  `<http://localhost:8888/build/standalone-optimized/kitchen-sink.html>`_
   to view the demo with an optimized file tree.
 
 The demo currently starts with an empty document using a vanilla TEI
