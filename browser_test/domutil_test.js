@@ -958,7 +958,7 @@ function (mocha, chai, $, domutil) {
                 assert.throws(
                     domutil.focusNode.bind(undefined, undefined),
                     Error,
-                    "tried to focus something else than a text node or " +
+                    "tried to focus something other than a text node or " +
                         "an element.");
             });
         });
