@@ -858,7 +858,9 @@ describe("TreeUpdater", function () {
 
 });
 
-// LocalWords:  chai jquery TreeUpdater insertNodeAt splitAt onwards
-// LocalWords:  denormalize deleteNode insertText setTextNodeValue
-// LocalWords:  deleteText insertIntoText removeNode unhandled
-// LocalWords:  removeNodes mergeTextNodes
+//  LocalWords:  domroot concat DOM html previousSibling nextSibling
+//  LocalWords:  prev abcd jQuery cd Dubeau MPL Mangalam RequireJS
+//  LocalWords:  mergeTextNodes removeNodes unhandled removeNode chai
+//  LocalWords:  insertIntoText deleteText setTextNodeValue onwards
+//  LocalWords:  insertText deleteNode denormalize splitAt jquery
+//  LocalWords:  insertNodeAt TreeUpdater

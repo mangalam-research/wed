@@ -629,4 +629,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
 
 });
 
-// LocalWords:  chai domlistener processImmediately MutationObserver
+//  LocalWords:  domlistener processImmediately MutationObserver chai
+//  LocalWords:  jQuery jquery insertNodeAt ul li nextSibling Dubeau
+//  LocalWords:  previousSibling MPL Mangalam setTextNodeValue
+//  LocalWords:  domroot

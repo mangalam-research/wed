@@ -11,3 +11,5 @@ function (mocha, chai, $, domlistener, generic) {
 generic(mocha, chai, $, domlistener, "mutation_domlistener", null);
 
 });
+
+//  LocalWords:  Mangalam MPL Dubeau jquery jQuery domlistener chai

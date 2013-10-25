@@ -36,3 +36,6 @@ describe("xml-to-html", function () {
     makeTest("should encode dashes in attribute names");
     makeTest("should encode namespace changes");
 });
+
+//  LocalWords:  namespace xml xsl saxon utf chai Dubeau MPL Mangalam
+//  LocalWords:  html

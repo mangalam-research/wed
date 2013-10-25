@@ -44,4 +44,5 @@ describe("html-to-xml", function () {
     makeTest("should encode namespace changes");
 });
 
-// LocalWords:  fs chai xml html xsl saxon utf namespace
+//  LocalWords:  Mangalam MPL Dubeau namespace utf saxon xsl html xml
+//  LocalWords:  chai fs

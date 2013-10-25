@@ -398,4 +398,6 @@ function (mocha, chai, $, validator, validate) {
     });
 });
 
-// LocalWords:  chai jquery validator subdirectory config requirejs
+//  LocalWords:  enterStartTag html jQuery Dubeau MPL Mangalam config
+//  LocalWords:  RequireJS requirejs subdirectory validator jquery js
+//  LocalWords:  chai baseUrl rng

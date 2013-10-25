@@ -237,4 +237,6 @@ describe("InputTrigger", function () {
 
 });
 
-// LocalWords:  chai tei InputTrigger keydown keypress
+//  LocalWords:  requirejs wedroot wedframe metas js rng RequireJS cd
+//  LocalWords:  Mangalam MPL Dubeau jquery jQuery tei keypress chai
+//  LocalWords:  keydown InputTrigger

@@ -37,3 +37,6 @@ function (mocha, chai, $, _) {
     });
 
 });
+
+//  LocalWords:  findAndSelf Mangalam MPL Dubeau li ul findandself
+//  LocalWords:  jquery jQuery chai

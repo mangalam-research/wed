@@ -967,9 +967,10 @@ function (mocha, chai, $, domutil) {
     });
 });
 
-//  LocalWords:  chai jquery domutil nextCaretPosition domroot pre cd
-//  LocalWords:  isNotNull html prevCaretPosition splitTextNode abcd
-//  LocalWords:  requirejs insertIntoText lastabcd firstabcd abtestcd
-//  LocalWords:  abcdfirst abfirst lastcd insertText abQcd Qabcd
-//  LocalWords:  abcdQ deleteText firstDescendantOrSelf nodeToPath
-//  LocalWords:  pathToNode linkTrees whitespace
+//  LocalWords:  RequireJS Mangalam MPL Dubeau previousSibling jQuery
+//  LocalWords:  nextSibling whitespace linkTrees pathToNode abcdQ cd
+//  LocalWords:  nodeToPath firstDescendantOrSelf deleteText Qabcd
+//  LocalWords:  abQcd insertText lastcd abfirst abcdfirst abtestcd
+//  LocalWords:  firstabcd lastabcd insertIntoText requirejs abcd pre
+//  LocalWords:  splitTextNode prevCaretPosition html isNotNull chai
+//  LocalWords:  domroot nextCaretPosition domutil jquery

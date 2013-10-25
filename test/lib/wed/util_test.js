@@ -99,5 +99,6 @@ three-----four"), "btw:blah-one--two---three----four");
 
 });
 
-// LocalWords:  requirejs util chai btw classFromOriginalName
-// LocalWords:  namespace distFromDeltas distFromRect
+//  LocalWords:  requirejs util chai classFromOriginalName namespace
+//  LocalWords:  distFromDeltas btw distFromRect li Dubeau MPL
+//  LocalWords:  Mangalam RequireJS

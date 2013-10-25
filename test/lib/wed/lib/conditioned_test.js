@@ -81,4 +81,5 @@ describe("Conditioned", function () {
     });
 });
 
-// LocalWords:  requirejs oop chai whenCondition getCondition
+//  LocalWords:  RequireJS Mangalam MPL Dubeau getCondition chai oop
+//  LocalWords:  whenCondition requirejs
