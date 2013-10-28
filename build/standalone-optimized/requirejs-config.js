@@ -1,5 +1,5 @@
 require.config({
-    "baseUrl": "/build/standalone-optimized/lib",
+    "baseUrl": "lib/",
     "paths": {
         "browser_test": "../../../browser_test",
         "jquery": "external/jquery-1.9.1",
