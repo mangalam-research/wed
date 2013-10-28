@@ -5,6 +5,28 @@ may not work correctly when viewed there.
 Usage Notes
 ===========
 
+Build Information
+-----------------
+
+Every time a build is performed, the building process stores
+information about the build into a file which at run time is available
+as a module at the ``lib/wed/build-info`` location (relative to the
+root of the build directory). This module contains two fields:
+
+* ``desc`` is a description of the build. This string is created by
+  running ``git describe`` and adding to the result the string
+  ``-unclean`` if the build was done with an unclean working tree.
+
+* ``date`` is the date of the build. (To be precise, it is the date at
+  which the build ``build-info`` module was generated.)
+
+This information was added to wed as of version 0.11.0. If you happen
+to use wed's development code that was produced after version 0.10.0
+was released but before version 0.11.0 was released, then the version
+number you'll get in the ``desc`` field will start with
+"v0.10.0-x". The additional "-x" is a special case to work around a
+bug in gitflow.
+
 Deployment Considerations
 -------------------------
 
@@ -343,6 +365,18 @@ A. We've found that JavaScript is poorly supported by the various
 Internals
 =========
 
+The Tag v0.10.0-x
+-----------------
+
+The git repository contains tags v0.10.0 and v0.10.0-x. What's the
+deal? Both tags represent the same state of development. The first
+points into the master branch, the second into the develop branch. The
+second tag was created to work around a bug that prevents using ``git
+describe`` when using the `nvie edition
+<https://github.com/nvie/gitflow>`__ of gitflow. If you use gitflow
+with wed, use the `AVH edition
+<https://github.com/petervanderdoes/gitflow>`__.
+
 JavaScript Event Handling
 -------------------------
 
@@ -638,7 +672,8 @@ of a good explanation for the leak.
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
 ..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
 ..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
-..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText
+..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText js
 ..  LocalWords:  RequireJS setTimeout localhost selenic addr config
-..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM
-..  LocalWords:  getSelection namespace programmatically profiler
+..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM desc
+..  LocalWords:  getSelection namespace programmatically profiler CSS
+..  LocalWords:  gitflow oop wedutil SauceLabs nvie AVH
