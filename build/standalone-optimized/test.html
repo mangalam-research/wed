@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
+    <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
+    <script type="text/javascript" src="lib/requirejs/require.js"></script>
+    <script type="text/javascript" src="requirejs-config.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <div id="mocha-fixture">
+      <div style="display:none">
+        <div id="data"></div>
+        <div id="domroot"></div>
+        <!-- Contain the editor it its own frame so that the styles do
+             not mess with those of mocha. -->
+      </div>
+      <iframe id="wedframe-invisible" width="100%" src="wed_test.html"></iframe>
+      <p id="test-para" contenteditable="true">Test para which has to be visible.</p>
+    </div>
+    <script>
+      require.config({
+          paths: {
+              'mocha': '/node_modules/mocha',
+              'chai': '/node_modules/chai/chai'
+          },
+          shim: {
+              'mocha/mocha': {
+                  exports: "mocha",
+                  init: function () { this.mocha.setup('bdd'); return this.mocha; }
+              }
+          },
+          config: {
+              'wed/log': {
+                  focus_popup: true // For testing only.
+              },
+              'wed/onerror': {
+                  suppress_old_onerror: true, // For testing only.
+                  test: true // For testing only.
+              },
+              'wed/onbeforeunload': {
+                  test: true // For testing only
+              }
+          }
+      });
+
+      require(["mocha/mocha", "chai", "browser_test/global", "wed/onerror",
+               "browser_test/validator_test",
+               "browser_test/jquery.findandself_test", "browser_test/refman_test",
+               "browser_test/mutation_domlistener_test", "browser_test/domutil_test",
+               "browser_test/wed_test", "browser_test/input_trigger_test",
+               "browser_test/input_trigger_factory_test", "browser_test/tree_updater_test",
+               "browser_test/modal_test", "browser_test/jqutil_test",
+               "browser_test/updater_domlistener_test"],
+              function (mocha, chai, global, onerror) {
+          var assert = chai.assert;
+
+          // Reset the server before doing anything.
+          before(function (done) {
+              global.reset(done);
+              onerror.register(window);
+          });
+
+          afterEach(function () {
+              if (onerror.__test.is_terminating())
+                  this.test.error(new Error("test generated an uncaught exception"));
+          });
+          describe("test-suite", function () {
+              // What we are doing here is testing that we are indeed able
+              // to detect that an uncaught exception happened while running
+              // the test suite because onerror overrides mocha's usual
+              // unhandled exception handling.
+
+              // after() might seem more appropriate but to ensure
+              // that the order in which this code is run relative to
+              // the global afterEach above, we made it an afterEach.
+              afterEach(function (done) {
+                  assert.isTrue(onerror.__test.is_terminating());
+                  onerror.__test.reset();
+                  global.reset(done);
+              });
+              it("failing", function (done) {
+                  window.setTimeout(function () {
+                      throw new Error("failing on purpose");
+                  }, 0);
+                  // Make sure we execute **after** the failure.
+                  window.setTimeout(function () {
+                      done();
+                  }, 1);
+              });
+          });
+          mocha.run();
+      });
+    </script>
+  </body>
+</html>
