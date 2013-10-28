@@ -79,7 +79,6 @@ if (build.modules) {
     });
 }
 config.paths = path_config;
-config.baseUrl = "/" + build.dir;
 console.log("require.config(" +
             JSON.stringify(config, null, 4) +
            ");");
