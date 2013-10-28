@@ -37,7 +37,7 @@ require.config({
  },
  config: {
      'wed/wed': {
-         schema: 'browser_test/tei-simplified-rng.js',
+         schema: '../../../schemas/tei-simplified-rng.js',
          mode: {
              path: 'wed/modes/generic/generic',
              options: {

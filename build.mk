@@ -63,6 +63,7 @@ TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
+SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js))
 
 .DELETE_ON_ERROR:
 
@@ -72,7 +73,7 @@ all: build
 build-dir:
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone-optimized build-ks-files build-config
+build: | build-standalone-optimized build-ks-files build-config build-schemas
 
 build-config: $(CONFIG_TARGETS) | build/config
 
@@ -121,6 +122,14 @@ build/config/requirejs-config-optimized.js: misc/create_optimized_config.js buil
 	node $(word 1,$^) $(word 2,$^) $(word 3,$^) requirejs.build.js > build/config/requirejs-config-optimized.js
 
 build-ks-files: build/ks/purl.js
+
+build-schemas: $(SCHEMA_TARGETS)
+
+build/schemas:
+	-mkdir -p $@
+
+build/schemas/%: schemas/% | build/schemas
+	cp $< $@
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
 

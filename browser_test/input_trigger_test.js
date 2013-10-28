@@ -13,7 +13,7 @@ var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
 
 var options = {
-    schema: 'browser_test/tei-simplified-rng.js',
+    schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
         path: 'test',
         options: {
