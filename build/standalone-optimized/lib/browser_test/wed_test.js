@@ -11,7 +11,7 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
 'use strict';
 
 var options = {
-    schema: 'browser_test/tei-simplified-rng.js',
+    schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
         path: 'test',
         options: {

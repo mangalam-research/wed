@@ -11,7 +11,7 @@ function (mocha, chai, $, input_trigger_factory, wed, key, key_constants) {
 var assert = chai.assert;
 
 var options = {
-    schema: 'browser_test/tei-simplified-rng.js',
+    schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
         path: 'test',
         options: {

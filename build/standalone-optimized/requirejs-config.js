@@ -79,18 +79,12 @@ require.config({
     },
     "config": {
         "wed/wed": {
-            "schema": "browser_test/tei-simplified-rng.js",
+            "schema": "../../../schemas/tei-simplified-rng.js",
             "mode": {
                 "path": "wed/modes/generic/generic",
                 "options": {
                     "meta": "wed/modes/generic/metas/tei_meta"
                 }
-            },
-            "ajaxlog": {
-                "url": "/build/ajax/log.txt"
-            },
-            "save": {
-                "url": "/build/ajax/save.txt"
             }
         }
     },
