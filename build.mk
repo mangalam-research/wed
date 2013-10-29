@@ -85,7 +85,7 @@ gh-pages-build: build
 		rm $$config.t; \
 	done
 
-build: | build-standalone-optimized build-ks-files build-config build-schemas build-samples
+build: | build-standalone-optimized build-ks-files build-config build-schemas build-samples build/ajax
 
 build-config: $(CONFIG_TARGETS) | build/config
 
