@@ -27,31 +27,10 @@
 //     "C": "foo.js",
 //     "D": "bar.js"
 //
-var fs = require("fs");
 var path = require("path");
-
-function fileAsString(p) {
-    return fs.readFileSync(path.resolve(p), "utf8").toString();
-}
-
-/**
- * This function defines ``require.config`` so that evaluating our
- * configuration file will capture the configuration passed to
- * ``require.config``.
- *
- * @param {String} config The text of the configuration file.
- * @returns {Object} The configuration object.
- */
-function captureConfigObject(config) {
-    var captured;
-    var require = {};
-    require.config = function (config) {
-        captured = config;
-    };
-    /* jshint evil: true */
-    eval(config);
-    return captured;
-}
+var util = require("./util");
+var captureConfigObject = util.captureConfigObject;
+var fileAsString = util.fileAsString;
 
 var config_file_path = process.argv[2];
 var build_file_path = process.argv[3];

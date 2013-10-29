@@ -64,6 +64,7 @@ CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_tes
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
 SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js))
+SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_documents/*.xml))
 
 .DELETE_ON_ERROR:
 
@@ -73,7 +74,18 @@ all: build
 build-dir:
 	-@[ -e build ] || mkdir build
 
-build: | build-standalone-optimized build-ks-files build-config build-schemas
+gh-pages-build: build
+	rm -rf gh-pages-build
+	mkdir gh-pages-build
+	cp -rp build/ks build/samples build/schemas build/standalone build/standalone-optimized $@
+	for dist in standalone standalone-optimized; do \
+		config=gh-pages-build/$$dist/requirejs-config.js; \
+		mv $$config $$config.t; \
+		node misc/modify_config.js -d config.wed/wed.ajaxlog -d config.wed/wed.save $$config.t > $$config; \
+		rm $$config.t; \
+	done
+
+build: | build-standalone-optimized build-ks-files build-config build-schemas build-samples
 
 build-config: $(CONFIG_TARGETS) | build/config
 
@@ -130,6 +142,17 @@ build/schemas:
 
 build/schemas/%: schemas/% | build/schemas
 	cp $< $@
+
+build-samples: $(SAMPLE_TARGETS)
+
+build/samples:
+	-mkdir -p $@
+
+build/samples/%: sample_documents/% | build/samples
+	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
+		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+	fi)
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
 
