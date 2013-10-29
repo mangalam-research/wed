@@ -1,51 +1,36 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=640" />
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Wed : Web editor" />
 
-    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
-    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <script type="text/javascript" src="javascripts/modernizr.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $('#main_content').headsmart()
-      })
-    </script>
-    <title>Wed by mangalam-research</title>
+    <title>Wed</title>
   </head>
 
   <body>
-    <a id="forkme_banner" href="https://github.com/mangalam-research/wed">View on GitHub</a>
-    <div class="shell">
 
-      <header>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <h1>Wed</h1>
-            <h2>Web editor</h2>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
-      </header>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/mangalam-research/wed">View on GitHub</a>
 
-      <section id="downloads">
-        <span class="inner">
-          <a href="https://github.com/mangalam-research/wed/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/mangalam-research/wed/tarball/master" class="tgz"><em>download</em> .TGZ</a>
-        </span>
-      </section>
+          <h1 id="project_title">Wed</h1>
+          <h2 id="project_tagline">Web editor</h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/mangalam-research/wed/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/mangalam-research/wed/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
 
-      <span class="banner-fix"></span>
-
-
-      <section id="main_content">
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>
 <a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h1>
 
@@ -54,7 +39,13 @@
 <h1>
 <a name="demo" class="anchor" href="#demo"><span class="octicon octicon-link"></span></a>Demo</h1>
 
-<p>The demo currently starts with an empty document using a vanilla TEI schema. Things you can do:</p>
+<p>The <a href="build/standalone/kitchen-sink.html">demo</a> currently starts with an empty document using a vanilla TEI schema. Here are some limitations of the demo:</p>
+
+<ul>
+<li><p>Wed does not support old browsers, mobile devices, oddball, or unpopular browsers. Your notion of "old" might differ from ours.</p></li>
+<li><p>Wed will fail if you try to save. Rest assured that the saving functionality works but it needs a server able to handle AJAX calls. Github.io is not able to do this.</p></li>
+<li><p>You cannot edit attributes in a generic way, <em>as attributes</em>. The functionality just has not implemented <strong>yet</strong> because wed is developed in the context of a project where all attributes are set by software or are edited through domain-specific abstractions rather than directly, as attributes.</p></li>
+</ul><p>Things you can do:</p>
 
 <ul>
 <li><p>Use the left mouse button to bring up a context menu. Such a menu exists for starting tags and all positions that are editable. This menu allows inserting elements. Ctrl-/ also brings up this menu.</p></li>
@@ -64,9 +55,7 @@
 <li><p>Ctrl-C to copy.</p></li>
 <li><p>Ctrl-V to paste.</p></li>
 <li><p>Ctrl-X to cut.</p></li>
-<li><p>Ctrl-S to save.</p></li>
-<li><p>Ctrl-` to go into development mode. This will bring up a log window
-and allow the use of F2 to dump the element to the console.</p></li>
+<li><p>Using Ctrl-S to save does not work, for the reasons given above.</p></li>
 </ul><h1>
 <a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h1>
 
@@ -83,21 +72,17 @@ and allow the use of F2 to dump the element to the console.</p></li>
 
 <p><a href="http://www.neh.gov/"><img src="http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg" alt="NEH Logo"></a></p>
       </section>
+    </div>
 
-      <footer>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <p>this project by <a href="https://github.com/mangalam-research">mangalam-research</a> can be found on <a href="https://github.com/mangalam-research/wed">GitHub</a></p>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
-        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
-        <span class="octocat"></span>
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Wed maintained by <a href="https://github.com/mangalam-research">mangalam-research</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
-
     </div>
 
     
+
   </body>
 </html>
