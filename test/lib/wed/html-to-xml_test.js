@@ -36,9 +36,11 @@ describe("html-to-xml", function () {
     }
 
     makeTest("should convert html to xml",
-             "should convert xml to html"); // We reuse the files used
-                                            // for the opposite
-                                            // conversion.
+             "should convert xml to html");
+
+    // We reuse the files used
+    // for the opposite
+    // conversion.
     makeTest("should encode name prefixes");
     makeTest("should encode dashes in attribute names");
     makeTest("should encode namespace changes");
