@@ -4,6 +4,11 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.11.0:
+
+  - API change: modes based on the generic mode should have a meta
+    that defines ``getNamespaceMappings()``.
+
 * 0.10.0:
 
 .. warning:: The changes to the build system are substantial enough
