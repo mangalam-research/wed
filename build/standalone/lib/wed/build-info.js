@@ -1,7 +1,7 @@
 define([], function () {
 return {
-    desc: 'v0.10.0-x-8-geb24477-unclean',
-    date: 'Tue Oct 29 2013 09:34:05 GMT-0400 (EDT)'
+    desc: 'v0.10.0-x-15-g46c8912',
+    date: 'Thu Oct 31 2013 16:16:23 GMT-0400 (EDT)'
 };
 });
 

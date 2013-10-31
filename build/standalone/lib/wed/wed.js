@@ -228,9 +228,8 @@ class="panel-collapse collapse">\
     this._fake_caret = undefined;
     this._refreshing_caret = 0;
 
-    this._namespace_modal = this.makeModal();
-    this._namespace_modal.setTitle("Assign names for namespaces");
-    this._namespace_modal.addOkCancel();
+    this._limitation_modal = this.makeModal();
+    this._limitation_modal.setTitle("Cannot proceed");
 
     this._paste_modal = this.makeModal();
     this._paste_modal.setTitle("Invalid structure");
@@ -615,66 +614,17 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     this.$widget.removeClass("loading");
     this.$widget.css("display", "block");
 
-    var ns_mapping;
+
+    // If the document is empty create a child node with the absolute
+    // namespace mappings.
     if (this.gui_root.childNodes.length === 0) {
-        var namespaces = this.validator.getNamespaces();
-
-        // Drop the xml namespace, because we don't need to define
-        // it. It will appear at most once in the array.
-        var xml = namespaces.indexOf(name_resolver.XML1_NAMESPACE);
-        if (xml >= 0)
-            namespaces.splice(xml, 1);
-
-        ns_mapping = Object.create(null);
-        if (namespaces.length === 1)
-            // Just make this namespace the default one
-            ns_mapping[""] = namespaces[0];
-        else {
-            namespaces.forEach(function (ns) {
-                var pre = this.resolver.prefixFromURI(ns);
-                if (pre !== undefined)
-                    ns_mapping[pre] = ns;
-            }.bind(this));
-        }
-
-        if (Object.keys(ns_mapping).length === 0) {
-            // Ask the user
-            var modal = this._namespace_modal;
-            var body = ["<form>"];
-            var ix = 0;
-            namespaces.forEach(function (ns) {
-                body.push("<label>", ns, "</label>");
-                body.push('<input type="text" name="ns' + ix + '"/>');
-                ix++;
-            });
-            body.push("</form>");
-            var $body = $(body.join(""));
-            modal.setBody($body);
-            modal.modal(function () {
-                ix = 0;
-                namespaces.forEach(function (ns) {
-                    ns_mapping[$body.find("[name=ns"+ ix + "]").val() ||
-                               ""] = ns;
-                    ix++;
-                });
-                this._postInitialize2(ns_mapping);
-            }.bind(this));
-            return;
-        }
-    }
-
-    this._postInitialize2(ns_mapping);
-});
-
-Editor.prototype._postInitialize2 = log.wrap(function (ns_mapping) {
-    if (ns_mapping) {
         var attrs = Object.create(null);
-        Object.keys(ns_mapping).forEach(function (k) {
-            this.resolver.definePrefix(k, ns_mapping[k]);
+        this.validator.getSchemaNamespaces().forEach(function (ns) {
+            var k = this.resolver.prefixFromURI(ns);
             if (k === "")
-                attrs.xmlns = ns_mapping[k];
+                attrs.xmlns = ns;
             else
-                attrs["xmlns:" + k] = ns_mapping[k];
+                attrs["xmlns:" + k] = ns;
         }.bind(this));
 
         var evs = this.validator.possibleAt(this.data_root, 0).toArray();
@@ -684,6 +634,52 @@ Editor.prototype._postInitialize2 = log.wrap(function (ns_mapping) {
                 this.resolver.unresolveName(evs[0].params[1],
                                             evs[0].params[2]),
                 attrs);
+        }
+    }
+    else {
+        var namespaces = this.validator.getDocumentNamespaces();
+        var fail = false;
+
+        // Yeah, we won't stop as early as possible if there's a failure.
+        // So what?
+        var resolver = this.resolver;
+        Object.keys(namespaces).forEach(function (prefix) {
+            var uri = namespaces[prefix];
+            if (uri.length > 1)
+                fail = true;
+
+            resolver.definePrefix(prefix, uri[0]);
+        });
+
+        if (fail) {
+            this._limitation_modal.setBody(
+                "The document you are trying to edit uses namespaces in a " +
+                "way not supported by this version of wed.");
+            this._limitation_modal.modal(function () {
+                var s = window.location.search;
+                if (!s)
+                    window.location.reload();
+                else {
+                    // We want to remove the file= parameter so that
+                    // the user does not try to reload the same file.
+                    s = s.slice(1); // drop the initial "?"
+                    var parts = s.split("&");
+                    s = "?";
+                    for(var i = 0; i < parts.length; ++i) {
+                        var p = parts[i];
+                        if (p.lastIndexOf("file=", 0) !== 0) {
+                            s += p;
+                            if (i < parts.length - 1)
+                                s += "&";
+                        }
+                    }
+                    window.location.search = s;
+                }
+
+
+            });
+            this.destroy();
+            return;
         }
     }
 

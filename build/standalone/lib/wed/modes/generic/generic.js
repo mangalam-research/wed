@@ -31,8 +31,12 @@ var $ = require("jquery");
  */
 function GenericMode () {
     Mode.apply(this, arguments);
-    this._resolver = new name_resolver.NameResolver();
     this._meta = new this._options.meta.Meta();
+    this._resolver = new name_resolver.NameResolver();
+    var mappings = this._meta.getNamespaceMappings();
+    Object.keys(mappings).forEach(function (key) {
+        this._resolver.definePrefix(key, mappings[key]);
+    }.bind(this));
 }
 
 oop.inherit(GenericMode, Mode);

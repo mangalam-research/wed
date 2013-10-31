@@ -43,6 +43,17 @@ Meta.prototype.getAdditionalClasses = function (node) {
     return ret.join(" ");
 };
 
+/**
+ * Returns absolute namespace mappings. The default implementation
+ * returns an empty mapping.
+ *
+ * @returns {Object} An object whose keys are namespace prefixes and
+ * values are namespace URIs.
+ */
+Meta.prototype.getNamespaceMappings = function () {
+    return {};
+};
+
 exports.Meta = Meta;
 
 });

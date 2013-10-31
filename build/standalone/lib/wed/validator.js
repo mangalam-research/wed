@@ -132,11 +132,60 @@ Validator.prototype.initialize = function (done) {
  * @returns {Array.<String>} The namespaces known to the schema.
  * @throws {Error} If called on uninitialized validator
  */
-Validator.prototype.getNamespaces = function () {
+Validator.prototype.getSchemaNamespaces = function () {
     if (!this._initialized)
-        throw new Error("calling getNamespaces on uninitialized validator");
-    return this._tree.getNamespaces();
+        throw new Error("calling getSchemaNamespaces on uninitialized " +
+                        "validator");
+    return this._tree.getSchemaNamespaces();
 };
+
+
+/**
+ * Get the namespaces used in the document. This method does not cache
+ * its information and scan the whole document independently of the
+ * current validation status. It is okay to call it on an
+ * uninitialized Validator because it does not use the regular
+ * validation machinery.
+ *
+ * @returns {Object} An object whose keys are namespace prefixes and
+ * values are lists of namespace URIs.  The values are lists because
+ * prefixes can be redefined in a document.
+ */
+Validator.prototype.getDocumentNamespaces = function () {
+    var ret = {};
+
+
+    // The default mapping is the value of xmlns set on the very first
+    // element that has a value for it.
+    var $def = $(this.root).find("[data-wed-xmlns]");
+    if ($def.length)
+        ret[""] = [$def.attr("data-wed-xmlns")];
+
+    function _process(node) {
+        var attr_ix_lim = node.attributes.length;
+        for(var attr_ix = 0; attr_ix < attr_ix_lim; ++attr_ix) {
+            var attr = node.attributes[attr_ix];
+            if (attr.name.lastIndexOf("data-wed-xmlns---", 0) === 0) {
+                var key = attr.name.slice(17);
+                var array = ret[key];
+                if (!array)
+                    array = ret[key] = [];
+                array.push(attr.value);
+            }
+        }
+
+        node = node.firstChild;
+        while (node) {
+            if (node.nodeType === Node.ELEMENT_NODE)
+                _process(node);
+            node = node.nextSibling;
+        }
+    }
+
+    _process(this.root);
+    return ret;
+};
+
 
 /**
  * Convenience method. The bound version of this method

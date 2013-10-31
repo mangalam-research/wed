@@ -46,6 +46,8 @@ salve/util.js
 salve/oop.js
 salve/hashstructs.js
 salve/set.js
+salve/patterns.js
+salve/formats.js
 salve/validate.js
 wed/util.js
 wed/validator.js

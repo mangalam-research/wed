@@ -46,6 +46,13 @@
       <xsl:if test="@data-wed-xmlns">
         <xsl:namespace name="" select="@data-wed-xmlns"/>
       </xsl:if>
+      <!-- Handle the other namespaces. -->
+      <xsl:for-each select="@*[starts-with(local-name(), 'data-wed-xmlns---')]">
+        <xsl:namespace
+            name="{substring-after(local-name(), 'data-wed-xmlns---')}"
+            select="."/>
+      </xsl:for-each>
+      <!-- Handle the other attributes. -->
       <xsl:for-each select="@*[starts-with(local-name(), 'data-wed-') and
                             not(starts-with(local-name(), 'data-wed-xmlns'))]">
         <xsl:variable name="qname"

@@ -143,7 +143,7 @@ NameResolver.prototype.resolveName = function (name, attribute) {
 };
 
 /**
- * Unresolves an expanded name to a qualified name. An expanded name
+ * <p>Unresolves an expanded name to a qualified name. An expanded name
  * is a (URI, name) pair. Note that if we execute:
  *
  * <pre>
@@ -154,14 +154,20 @@ NameResolver.prototype.resolveName = function (name, attribute) {
  *
  * then <code>qname === qname2</code> is not necessarily true. This
  * would happen if two prefixes map to the same URI. In such case the
- * prefix provided in the return value is arbitrarily chosen.
+ * prefix provided in the return value is arbitrarily chosen.</p>
  *
- * @param {String} uri The URI part of the expanded name.
+ * @param {String} uri The URI part of the expanded name. An empty
+ * string is valid, and basically means "no namespace". This occurrs
+ * for unprefixed attributes but could also happen if the default
+ * namespace is undeclared.
  * @param {String} name The name part.
  * @returns {String|undefined} The qualified name that corresponds to
  * the expanded name, or <code>undefined</code> if it cannot be resolved.
  */
 NameResolver.prototype.unresolveName = function (uri, name) {
+    if (uri === "")
+        return name;
+
     // Search through the contexts
     var prefixes;
     for(var c_ix = 0, ctx;
