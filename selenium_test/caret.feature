@@ -35,3 +35,8 @@ Scenario: Scrolling moves the caret.
   When the user selects text
   And the user scrolls the editor pane down
   Then the caret moves up relative to the browser window.
+
+Scenario: Selecting text and ending on an element label.
+  When the user selects text and ends on an element label
+  Then the text is selected
+  And no label is selected
