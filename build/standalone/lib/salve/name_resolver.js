@@ -184,6 +184,31 @@ NameResolver.prototype.unresolveName = function (uri, name) {
 
 };
 
+/**
+ * Returns a prefix that, in the current context, is mapped to the URI
+ * specified. Note that this function will return the first prefix
+ * that satisfies the requirement, starting from the innermost
+ * context.
+ *
+ * @param {String} uri A URI for which to get a prefix.
+ * @returns {String|undefined} A prefix that maps to this
+ * URI. Undefined if there is no prefix available.
+ */
+NameResolver.prototype.prefixFromURI = function (uri) {
+    var prefixes;
+    for(var c_ix = 0, ctx;
+        (prefixes === undefined) &&
+        (ctx = this._context_stack[c_ix]) !== undefined; ++c_ix)
+        prefixes = ctx.backwards[uri];
+
+    if (prefixes === undefined)
+        return undefined;
+
+    var pre = prefixes[0];
+    return pre;
+};
+
+
 exports.NameResolver = NameResolver;
 exports.XML1_NAMESPACE = XML1_NAMESPACE;
 

@@ -16,6 +16,8 @@ require.config({
         "salve/oop": "wed/wed",
         "salve/hashstructs": "wed/wed",
         "salve/set": "wed/wed",
+        "salve/patterns": "wed/wed",
+        "salve/formats": "wed/wed",
         "salve/validate": "wed/wed",
         "wed/util": "wed/wed",
         "wed/validator": "wed/wed",
