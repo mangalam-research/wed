@@ -8,7 +8,7 @@ function (mocha, chai, $, validator, validate) {
 'use strict';
 
     // The test subdirectory is one of the paths required to be in the config
-    var schema = 'browser_test/simplified-rng.js';
+    var schema = '../../../schemas/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'
     // baseUrl configuration value.
     var to_parse_stack =
@@ -209,7 +209,7 @@ function (mocha, chai, $, validator, validate) {
                 assert.sameMembers(
                     evs.toArray(),
                     [new validate.Event("enterStartTag", "", "html")]);
-            }, true);
+            }, /* no_load */ true);
 
             makeTest("with actual contents, at root", function () {
                 var evs = p.possibleAt($data.get(0), 0);
