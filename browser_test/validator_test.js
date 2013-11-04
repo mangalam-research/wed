@@ -298,6 +298,65 @@ function (mocha, chai, $, validator, validate) {
             });
         });
 
+        describe("possibleWhere", function () {
+            var p;
+            beforeEach(function () {
+                $data.empty();
+                p = new validator.Validator(schema,
+                                            $data.get(0));
+                p._max_timespan = 0; // Work forever.
+            });
+
+            afterEach(function () {
+                $data.empty();
+                p = undefined;
+            });
+
+            function makeTest(name, stop_fn, no_load) {
+                it(name, function () {
+                    if (!no_load)
+                        require(["requirejs/text!" + to_parse_stack[0]],
+                                function(data) {
+                                    $data.html(data);
+                                });
+                });
+            }
+
+
+            makeTest("multiple locations", function () {
+                var el = $data.find("._real.body").get(0);
+                var locs = p.possibleWhere(el,
+                                           new validate.Event(
+                                               "enterStartTag",
+                                               "",
+                                               "em"));
+                assert.sameMembers(locs.toArray(), [0, 1, 2]);
+
+            });
+
+            makeTest("no locations", function () {
+                var el = $data.find("._real.body").get(0);
+                var locs = p.possibleWhere(el,
+                                           new validate.Event(
+                                               "enterStartTag",
+                                               "",
+                                               "impossible"));
+                assert.sameMembers(locs.toArray(), []);
+
+            });
+
+            makeTest("one location", function () {
+                var el = $data.find("._real.html").get(0);
+                var locs = p.possibleWhere(el,
+                                           new validate.Event(
+                                               "enterStartTag",
+                                               "",
+                                               "body"));
+                assert.sameMembers(locs.toArray(), [1]);
+
+            });
+        });
+
         describe("speculativelyValidate", function () {
             beforeEach(function (done) {
                 require(["requirejs/text!" + to_parse_stack[0]],
