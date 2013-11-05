@@ -11,8 +11,8 @@ function (mocha, chai, $, validator, validate) {
     var schema = 'browser_test/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'
     // baseUrl configuration value.
-    var to_parse =
-            '../../test-files/validator_test_data/to_parse_converted.xml';
+    var to_parse_stack =
+            ['../../test-files/validator_test_data/to_parse_converted.xml'];
     var assert = chai.assert;
     describe("validator", function () {
         var p;
@@ -67,7 +67,7 @@ function (mocha, chai, $, validator, validate) {
                 done();
             };
 
-            require(["requirejs/text!" + to_parse], function(data) {
+            require(["requirejs/text!" + to_parse_stack[0]], function(data) {
                 $data.html(data);
                 p.start();
             });
@@ -140,7 +140,7 @@ function (mocha, chai, $, validator, validate) {
                     done();
             };
 
-            require(["requirejs/text!" + to_parse], function(data) {
+            require(["requirejs/text!" + to_parse_stack[0]], function(data) {
                 $data.html(data);
                 p.start();
             });
@@ -172,7 +172,7 @@ function (mocha, chai, $, validator, validate) {
             });
 
 
-            require(["requirejs/text!" + to_parse], function(data) {
+            require(["requirejs/text!" + to_parse_stack[0]], function(data) {
                 $data.html(data);
                 p.start();
             });
@@ -197,7 +197,7 @@ function (mocha, chai, $, validator, validate) {
             function makeTest(name, stop_fn, no_load) {
                 it(name, function () {
                     if (!no_load)
-                        require(["requirejs/text!" + to_parse],
+                        require(["requirejs/text!" + to_parse_stack[0]],
                                 function(data) {
                                     $data.html(data);
                                 });
@@ -300,7 +300,8 @@ function (mocha, chai, $, validator, validate) {
 
         describe("speculativelyValidate", function () {
             beforeEach(function (done) {
-                require(["requirejs/text!" + to_parse], function(data) {
+                require(["requirejs/text!" + to_parse_stack[0]],
+                        function(data) {
                     $data.html(data);
                     done();
                 });
@@ -394,6 +395,53 @@ function (mocha, chai, $, validator, validate) {
                     done();
                 });
             });
+        });
+
+        describe("getDocumentNamespaces", function () {
+            beforeEach(function (done) {
+                require(["requirejs/text!" + to_parse_stack[0]],
+                        function(data) {
+                    $data.html(data);
+                    done();
+                });
+            });
+
+            describe("simple document", function () {
+                before(function () {
+                    to_parse_stack.unshift(
+                        '../../test-files/validator_test_data/' +
+                            'getDocumentNamespaces1_to_parse_converted.xml');
+                });
+
+                after(function () {
+                    to_parse_stack.shift();
+                });
+
+                it("returns the namespaces", function () {
+                    assert.deepEqual(p.getDocumentNamespaces(),
+                                     {"": ["http://www.tei-c.org/ns/1.0"]});
+                });
+            });
+
+            describe("document with redefined namespaces", function () {
+                before(function () {
+                    to_parse_stack.unshift(
+                        '../../test-files/validator_test_data/' +
+                            'getDocumentNamespaces_redefined_to_parse' +
+                            '_converted.xml');
+                });
+
+                after(function () {
+                    to_parse_stack.shift();
+                });
+
+                it("returns the namespaces", function () {
+                    assert.deepEqual(p.getDocumentNamespaces(),
+                                     {"": ["http://www.tei-c.org/ns/1.0"],
+                                      "x": ["uri:x", "uri:x2"] });
+                });
+            });
+
         });
     });
 });

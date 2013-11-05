@@ -225,6 +225,9 @@ browser to either:
 The demo currently starts with an empty document using a vanilla TEI
 schema. Things you can do:
 
+* Hit F1 to get help. This help also displays the information
+  regarding how and when the wed instance you are using was built.
+
 * Use the left mouse button to bring up a context menu. Such a menu
   exists for starting tags and all positions that are editable. This
   menu allows inserting elements. Ctrl-/ also brings up this menu.
@@ -404,5 +407,5 @@ for the Humanities.
 ..  LocalWords:  domlistener TreeUpdater makeDecorator jQthis README
 ..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout rst
 ..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce readme Glerbl
-..  LocalWords:  reStructuredText namespace namespaces RequireJS
-..  LocalWords:  Dubeau Mangalam
+..  LocalWords:  reStructuredText namespace namespaces RequireJS NG
+..  LocalWords:  Dubeau Mangalam jsdoc perl selenic glerbl mk

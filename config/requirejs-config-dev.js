@@ -4,7 +4,7 @@
  * @copyright 2013 Mangalam Research Center for Buddhist Languages
  */
 require.config({
- baseUrl: '/build/standalone/lib/',
+ baseUrl: 'lib/',
  paths: {
    'browser_test': '../../../browser_test',
    'jquery': 'external/jquery-1.9.1',
@@ -37,7 +37,7 @@ require.config({
  },
  config: {
      'wed/wed': {
-         schema: 'browser_test/tei-simplified-rng.js',
+         schema: '../../../schemas/tei-simplified-rng.js',
          mode: {
              path: 'wed/modes/generic/generic',
              options: {
