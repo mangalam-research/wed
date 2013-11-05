@@ -1,0 +1,27 @@
+#!/bin/bash
+
+dead () {
+    exit 1
+}
+
+cleanup () {
+    local jobs
+    nginx -c `pwd`/build/config/nginx.conf -s stop
+    jobs=`jobs -pr`
+    if [ -n "$jobs" ]; then
+        kill `jobs -pr`
+    fi
+    exit
+}
+
+trap dead SIGCHLD
+trap cleanup EXIT
+trap cleanup ERR
+
+mkdir -p var/run || true
+mkdir -p var/log || true
+mkdir -p var/lib/nginx || true
+
+./server.js localhost:9999 & nginx -c `pwd`/build/config/nginx.conf
+
+wait

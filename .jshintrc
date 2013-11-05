@@ -1,0 +1,16 @@
+{
+  "globalstrict": true,
+  "maxlen": 80,
+  "multistr": true,
+  "globals":
+  { "describe": false,
+    "it": false,
+    "require": false,
+    "console": false,
+    "before": true,
+    "define": true,
+    "beforeEach": true,
+    "afterEach": true,
+    "after": true
+  }
+}
