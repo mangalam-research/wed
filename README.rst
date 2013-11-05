@@ -5,10 +5,11 @@ may not work correctly when viewed there.
 Introduction
 ============
 
-Wed is a schema-aware editor for XML documents. It runs in a web
-browser. It is alpha software. We aim to make it extensible, but the API
-is likely to change quickly for now. If you try it, do not be
-surprised if it throws a rod and leaks oil on your carpet.
+Wed is a web-based editor that assists users in editing XML documents
+according to their own Relax NG schema. It runs in a web browser. It
+is alpha software. We aim to make it extensible, but the API is likely
+to change quickly for now. If you try it, do not be surprised if it
+throws a rod and leaks oil on your carpet.
 
 Known limitations:
 
