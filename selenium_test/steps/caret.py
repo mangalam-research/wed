@@ -24,6 +24,19 @@ def step_impl(context):
         .perform()
 
 
+@when(u"the user clicks on the start label of an element")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    button = util.find_element((By.CSS_SELECTOR, "._start_button._p_label"))
+    context.clicked_element = button
+    assert_true("_button_clicked" not in button.get_attribute("class").split())
+    ActionChains(driver)\
+        .click(button)\
+        .perform()
+
+
 @when(u"the user hits the right arrow")
 def step_impl(context):
     driver = context.driver
@@ -37,21 +50,27 @@ def step_impl(context):
     button = context.clicked_element
     assert_true("_button_clicked" in button.get_attribute("class").split())
 
+step_matcher("re")
 
-@then(u'no label is selected')
+
+@then(u'^the label of the element that has the context menu is selected.?$')
+def step_impl(context):
+    button = context.context_menu_trigger
+    assert_true("_button_clicked" in button.get_attribute("class").split())
+
+
+@then(u'^no label is selected$')
 def step_impl(context):
     util = context.util
     util.wait_until_not(EC.presence_of_element_located(
         (By.CLASS_NAME, "_button_clicked")))
 
 
-@then(u'the caret disappears')
+@then(u'^the caret disappears$')
 def step_impl(context):
     driver = context.driver
     WebDriverWait(driver, 2).until_not(EC.presence_of_element_located(
         (By.CLASS_NAME, "_wed_caret")))
-
-step_matcher("re")
 
 
 # This is also our default for when a mechanism is not specified.
