@@ -36,10 +36,11 @@ def on_placeholder(context):
         .context_click(placeholder) \
         .perform()
     context.context_menu_trigger = placeholder
+    context.context_menu_for = placeholder
 
 
-@When("the user uses the mouse to bring up the context menu on the start "
-      "label of the top element")
+@When("^the user (?:uses the mouse to bring|brings) up the context "
+      "menu on the start label of the top element$")
 def context_menu_on_start_label_of_top_element(context):
     driver = context.driver
     util = context.util
@@ -49,10 +50,11 @@ def context_menu_on_start_label_of_top_element(context):
         .context_click(button)\
         .perform()
     context.context_menu_trigger = button
+    context.context_menu_for = button.find_element_by_xpath("..")
 
 
-@When("the user uses the mouse to bring up the context menu on the start "
-      "label of an element")
+@When("^the user (?:uses the mouse to bring|brings) up the context "
+      "menu on the start label of an element$")
 def context_menu_on_start_label_of_element(context):
     # We use the first paragraph for this one.
     driver = context.driver
@@ -63,10 +65,20 @@ def context_menu_on_start_label_of_element(context):
         .context_click(button)\
         .perform()
     context.context_menu_trigger = button
+    context.context_menu_for = button.find_element_by_xpath("..")
 
 
-@When("the user uses the mouse to bring up the context menu on the start "
-      "label of another element")
+@given(u'^that the user has brought up the context menu over the '
+       u'(?P<which>start|end) label of an element$')
+def step_impl(context, which):
+    context.execute_steps(u"""
+    When the user brings up the context menu on the {0} label of an element
+    Then a context menu is visible close to where the user invoked it
+    """.format(which))
+
+
+@When("^the user uses the mouse to bring up the context menu on the start "
+      "label of another element$")
 def context_menu_on_start_label_of_element(context):
     # We use the first title for this one.
     driver = context.driver
@@ -81,10 +93,11 @@ def context_menu_on_start_label_of_element(context):
         .context_click(button)\
         .perform()
     context.context_menu_trigger = button
+    context.context_menu_for = button.find_element_by_xpath("..")
 
 
-@When("the user uses the mouse to bring up the context menu on the end label "
-      "of the top element")
+@When("^the user uses the mouse to bring up the context menu on the end label "
+      "of the top element$")
 def context_menu_on_end_label_of_top_element(context):
     driver = context.driver
     util = context.util
@@ -97,10 +110,11 @@ def context_menu_on_end_label_of_top_element(context):
         .context_click(button)\
         .perform()
     context.context_menu_trigger = button
+    context.context_menu_for = button.find_element_by_xpath("..")
 
 
-@When("the user uses the mouse to bring up the context menu on the end label "
-      "of an element")
+@When("^the user (?:uses the mouse to bring|brings) up the context menu on "
+      "the end label of an element$")
 def context_menu_on_end_label_of_element(context):
     driver = context.driver
     util = context.util
@@ -110,6 +124,7 @@ def context_menu_on_end_label_of_element(context):
         .context_click(button)\
         .perform()
     context.context_menu_trigger = button
+    context.context_menu_for = button.find_element_by_xpath("..")
 
 
 @When("the user uses the mouse to bring up the context menu on text")
@@ -123,6 +138,7 @@ def context_menu_on_text(context):
         .context_click()\
         .perform()
     context.context_menu_trigger = element
+    context.context_menu_for = None
 
 
 @When("the user uses the mouse to bring up a context menu outside wed")
@@ -185,13 +201,18 @@ def context_choices_insert(context, kind):
 
     search_for = None
     if kind == "inserting new elements":
-        search_for = "Create new "
+        search_for = "^Create new [^ ]+$"
+    elif kind == "creating elements before the selected element":
+        search_for = "^Create new .+? before"
+    elif kind == "creating elements after the selected element":
+        search_for = "^Create new .+? after"
     elif kind == "wrapping text in new elements":
-        search_for = "Wrap in "
+        search_for = "^Wrap in "
     else:
         raise ValueError("can't search for choices of this kind: " + kind)
 
-    cm.find_element(By.PARTIAL_LINK_TEXT, search_for)
+    assert_not_equal(len(util.find_descendants_by_text_re(cm, search_for)),
+                     0, "Number of elements found")
 
 
 @Given("a context menu is not visible")
@@ -227,8 +248,10 @@ def step_impl(context, choice):
     else:
         raise ValueError("unknown choice: " + choice)
 
+    where = util.find_element((By.CLASS_NAME, class_name))
+
     ActionChains(driver)\
-        .click(util.find_element((By.CLASS_NAME, class_name))) \
+        .click(where) \
         .perform()
 
     # Because we use the keyboard, the caret is our reference
@@ -247,6 +270,7 @@ def step_impl(context, choice):
         .perform()
 
     context.context_menu_trigger = trigger
+    context.context_menu_for = where if choice == "a placeholder" else None
 
 
 @when(u'the user brings up the context menu on the selection')
@@ -270,9 +294,10 @@ def step_impl(context):
         .perform()
 
     context.context_menu_trigger = trigger
+    context.context_menu_for = None
 
 
-@given(u'^that the user has brough up the context menu over a selection$')
+@given(u'^that the user has brought up the context menu over a selection$')
 def step_impl(context):
     context.execute_steps(u"""
     When the user selects text
@@ -283,18 +308,54 @@ def step_impl(context):
 
 
 @when(u'^the user clicks (?P<choice>the first context menu option|a choice '
-      u'for wrapping text in new elements)$')
+      u'for wrapping text in new elements|'
+      u'a choice for creating an element (?:before|after) the selected '
+      u'element)$')
 def step_impl(context, choice):
     util = context.util
 
+    cm = util.find_element((By.CLASS_NAME, "wed-context-menu"))
+
+    # The following branches also normalize ``choice`` to shorter values
     if choice == "the first context menu option":
+        choice = "first"
         link = util.wait(EC.element_to_be_clickable(
             (By.CSS_SELECTOR, ".wed-context-menu li>a")))
     elif choice == "a choice for wrapping text in new elements":
+        choice = "wrap"
         link = util.wait(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,
                                                      "Wrap in ")))
+    elif (choice ==
+          "a choice for creating an element before the selected element"):
+        choice = "before"
+        link = util.find_descendants_by_text_re(cm,
+                                                "^Create new .+? before")[0]
+
+        def cond(*_):
+            return link.is_displayed()
+        util.wait(cond)
+    elif (choice ==
+          "a choice for creating an element after the selected element"):
+        choice = "after"
+        link = util.find_descendants_by_text_re(cm,
+                                                "^Create new .+? after")[0]
+
+        def cond(*_):
+            return link.is_displayed()
+        util.wait(cond)
     else:
         raise ValueError("can't handle this type of choice: " + choice)
+
+    # Record some information likely to be useful later.
+    for_element = context.context_menu_for
+    if for_element:
+        if choice in ("before", "after"):
+            info = {}
+            context.context_menu_pre_transformation_info = info
+            info["preceding"] = for_element.find_elements_by_xpath(
+                "preceding-sibling::*")
+            info["following"] = for_element.find_elements_by_xpath(
+                "following-sibling::*")
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
     link.click()

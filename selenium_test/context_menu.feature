@@ -23,12 +23,12 @@ Scenario: bringing up the context menu with a mouse on the end label of the top 
 Scenario: bringing up the context menu with a mouse on the start label of an element.
   When the user uses the mouse to bring up the context menu on the start label of an element
   Then a context menu is visible close to where the user invoked it
-  And the context menu contains choices for inserting new elements
+  And the context menu contains choices for creating elements before the selected element
 
 Scenario: bringing up the context menu with a mouse on the end label of an element.
   When the user uses the mouse to bring up the context menu on the end label of an element
   Then a context menu is visible close to where the user invoked it
-  And the context menu contains choices for inserting new elements
+  And the context menu contains choices for creating elements after the selected element
 
 Scenario: bringing up the context menu with a mouse on text.
   When the user uses the mouse to bring up the context menu on text
