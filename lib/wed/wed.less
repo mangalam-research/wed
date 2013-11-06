@@ -119,57 +119,7 @@ div.wed-document-constrainer {
     }
 }
 
-div.wed-document {
-    border-style: solid;
-    border-width: 1px;
-
-    div {
-        word-wrap: normal;
-
-        &._phantom {
-            background-color: #C0C0C0;
-            white-space: normal;
-
-            &._gui {
-                background-color: white;
-            }
-
-            &._text {
-                display: inline;
-            }
-        }
-
-        &._real {
-            display: block;
-            background-color: white;
-            white-space: normal;
-            margin-left: 1em;
-
-            &._inline {
-                display: inline;
-                margin-left: 0em;
-            }
-        }
-    }
-
-    >div._real {
-        margin-left: 0em;
-    }
-
-    ._owns_caret {
-        border-bottom-style: solid;
-    }
-
-    ._placeholder {
-        border-style: solid;
-        white-space: pre;
-
-        &._owns_caret {
-            background-color: #C0C0C0;
-            animation: blink 1s infinite;
-            -webkit-animation: blink 1s infinite;
-        }
-    }
+div.wed-frame {
 
     ._gui._button>span {
         display: inline-block;
@@ -191,11 +141,64 @@ div.wed-document {
         white-space: nowrap;
         vertical-align: middle;
         border-radius: .25em;
-        border-style: none;
+            border-style: none;
     }
 
     ._gui._button._button_clicked {
-        background-color: #f0ad4e;
+            background-color: #f0ad4e;
+    }
+
+    div.wed-document {
+        border-style: solid;
+        border-width: 1px;
+
+        div {
+            word-wrap: normal;
+
+            &._phantom {
+                background-color: #C0C0C0;
+                white-space: normal;
+
+                &._gui {
+                    background-color: white;
+                }
+
+                &._text {
+                    display: inline;
+                }
+            }
+
+            &._real {
+                display: block;
+                background-color: white;
+                white-space: normal;
+                margin-left: 1em;
+
+                &._inline {
+                    display: inline;
+                    margin-left: 0em;
+                }
+            }
+        }
+
+        >div._real {
+            margin-left: 0em;
+        }
+
+        ._owns_caret {
+            border-bottom-style: solid;
+        }
+
+        ._placeholder {
+            border-style: solid;
+            white-space: pre;
+
+            &._owns_caret {
+                background-color: #C0C0C0;
+                animation: blink 1s infinite;
+                -webkit-animation: blink 1s infinite;
+            }
+        }
     }
 }
 

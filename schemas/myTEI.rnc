@@ -5,7 +5,7 @@ namespace s = "http://www.ascc.net/xml/schematron"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace xlink = "http://www.w3.org/1999/xlink"
 
-# Schema generated from ODD source 2013-10-30T08:56:04Z.
+# Schema generated from ODD source 2013-11-01T11:46:55Z.
 # Edition: 2.5.0. Last updated on
 #	26th July 2013.
 # Edition Location: http://www.tei-c.org/Vault/P5/2.5.0/
@@ -2670,19 +2670,6 @@ tei_stage =
     }?,
     empty
   }
-tei_teiCorpus =
-
-  ## contains the whole of a TEI encoded corpus, comprising a single corpus header and one or more TEI elements, each containing a single text header and a text. [4.  15.1. ]
-  element teiCorpus {
-    (tei_teiHeader,
-     ((tei_model.resourceLike+, (tei_TEI | tei_teiCorpus)*)
-      | (tei_TEI | tei_teiCorpus)+)),
-    tei_att.global.attributes,
-
-    ## The version of the TEI scheme
-    [ a:defaultValue = "5.0" ] attribute version { tei_data.version }?,
-    empty
-  }
 tei_divGen =
 
   ## (automatically generated text division) indicates the location at which a textual division generated automatically by a text-processing application is to appear. [3.8.2. ]
@@ -4482,4 +4469,4 @@ tei_figDesc =
   element figDesc {
     tei_macro.limitedContent, tei_att.global.attributes, empty
   }
-start = tei_TEI | tei_teiCorpus
+start = tei_TEI

@@ -1,8 +1,9 @@
 'use strict';
 
-var spawn = require("child_process").spawn;
-var semver = require("semver");
-var util = require("util");
+//
+// Safety harness...
+//
+
 
 function Fatal(msg) {
     this.name = "Fatal";
@@ -13,12 +14,34 @@ Fatal.prototype.constructor = Fatal;
 
 process.on('uncaughtException', function (ex) {
     if (ex instanceof Fatal) {
-        console.log(ex.message);
+        process.stderr.write(ex.message + "\n");
         process.exit(1);
     }
     else
         throw ex;
 });
+
+//
+// Actual logic
+//
+
+var spawn = require("child_process").spawn;
+var semver = require("semver");
+var util = require("util");
+var ArgumentParser = require("argparse").ArgumentParser;
+
+var parser = new ArgumentParser({
+    addHelp: true,
+    description: 'Generates build information.'});
+
+parser.addArgument(["--unclean"],
+                   { help: "Allows building an id on an unclean tree.",
+                     action: "storeTrue" });
+parser.addArgument(["--module"],
+                   { help: "Output a module.",
+                     action: "storeTrue"});
+
+var args = parser.parseArgs();
 
 var git = spawn("git", ["status", "--porcelain"]);
 
@@ -30,6 +53,9 @@ git.stdout.on('data', function (data) {
 git.on('close', function (code) {
     if (code !== 0)
         throw new Fatal("git status exit code: " + code);
+
+    if (!args.unclean && unclean_wt)
+        throw new Fatal("Unclean tree. Stopping.");
 
     git = spawn("git", ["describe", "--match", "v*"],
                 { stdio: [null, "pipe", 2] });
@@ -56,11 +82,14 @@ git.on('close', function (code) {
             throw new Fatal("your development branch does not have all the " +
                             "tags; issue a git pull with the --tags option");
 
-        console.log("define([], function () {\n" +
-                    "return {\n" +
-                    "    desc: '" + desc + "',\n" +
-                    "    date: '" + new Date() + "'\n" +
-                    "};\n" +
-                    "});\n");
+        if (args.module)
+            console.log("define([], function () {\n" +
+                        "return {\n" +
+                        "    desc: '" + desc + "',\n" +
+                        "    date: '" + new Date() + "'\n" +
+                        "};\n" +
+                        "});\n");
+        else
+            console.log(desc);
     });
 });

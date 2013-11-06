@@ -3,7 +3,7 @@
          xmlns:xlink="http://www.w3.org/1999/xlink"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
          ns="http://www.tei-c.org/ns/1.0"><!--
-Schema generated from ODD source 2013-10-30T08:56:14Z.
+Schema generated from ODD source 2013-11-01T11:47:02Z.
 Edition: 2.5.0. Last updated on
 	26th July 2013.
 Edition Location: http://www.tei-c.org/Vault/P5/2.5.0/
@@ -4333,43 +4333,6 @@ Suggested values include: 1] setting; 2] entrance; 3] exit; 4] business; 5] nove
          <empty/>
       </element>
    </define>
-   <define name="tei_teiCorpus">
-      <element name="teiCorpus">
-         <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains the whole of a TEI encoded corpus, comprising a single corpus header and one or more TEI elements, each containing a single text header and a text. [4.  15.1. ]</a:documentation>
-         <group>
-            <ref name="tei_teiHeader"/>
-            <choice>
-               <group>
-                  <oneOrMore>
-                     <ref name="tei_model.resourceLike"/>
-                  </oneOrMore>
-                  <zeroOrMore>
-                     <choice>
-                        <ref name="tei_TEI"/>
-                        <ref name="tei_teiCorpus"/>
-                     </choice>
-                  </zeroOrMore>
-               </group>
-               <oneOrMore>
-                  <choice>
-                     <ref name="tei_TEI"/>
-                     <ref name="tei_teiCorpus"/>
-                  </choice>
-               </oneOrMore>
-            </choice>
-         </group>
-         <ref name="tei_att.global.attributes"/>
-         <optional>
-            <attribute xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
-                       name="version"
-                       a:defaultValue="5.0">
-               <a:documentation>The version of the TEI scheme</a:documentation>
-               <ref name="tei_data.version"/>
-            </attribute>
-         </optional>
-         <empty/>
-      </element>
-   </define>
    <define name="tei_divGen">
       <element name="divGen">
          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(automatically generated text division) indicates the location at which a textual division generated automatically by a text-processing application is to appear. [3.8.2. ]</a:documentation>
@@ -7337,9 +7300,6 @@ Sample values include: 1] header; 2] footer; 3] pageNum(page number) ; 4] lineNu
       </element>
    </define>
    <start>
-      <choice>
-         <ref name="tei_TEI"/>
-         <ref name="tei_teiCorpus"/>
-      </choice>
+      <ref name="tei_TEI"/>
    </start>
 </grammar>

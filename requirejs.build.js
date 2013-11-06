@@ -6,6 +6,9 @@
     removeCombined: true,
     skipDirOptimize: true,
     useStrict: false,
+    paths: {
+        "browser_test": "empty:"
+    },
     modules: [
         {
             name: "wed/wed",

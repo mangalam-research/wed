@@ -1,5 +1,13 @@
 {
     "templates": {
         "cleverLinks": true
+    },
+    "plugins": ["plugins/markdown"],
+    "markdown": {
+        "gfm": true,
+        "tables": true
+    },
+    "opts": {
+        "lenient": false
     }
 }

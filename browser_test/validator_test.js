@@ -8,7 +8,7 @@ function (mocha, chai, $, validator, validate) {
 'use strict';
 
     // The test subdirectory is one of the paths required to be in the config
-    var schema = 'browser_test/simplified-rng.js';
+    var schema = '../../../schemas/simplified-rng.js';
     // Remember that relative paths are resolved against requirejs'
     // baseUrl configuration value.
     var to_parse_stack =
@@ -209,7 +209,7 @@ function (mocha, chai, $, validator, validate) {
                 assert.sameMembers(
                     evs.toArray(),
                     [new validate.Event("enterStartTag", "", "html")]);
-            }, true);
+            }, /* no_load */ true);
 
             makeTest("with actual contents, at root", function () {
                 var evs = p.possibleAt($data.get(0), 0);
@@ -295,6 +295,65 @@ function (mocha, chai, $, validator, validate) {
                 assert.sameMembers(
                     evs.toArray(),
                     [new validate.Event("enterStartTag", "", "body")]);
+            });
+        });
+
+        describe("possibleWhere", function () {
+            var p;
+            beforeEach(function () {
+                $data.empty();
+                p = new validator.Validator(schema,
+                                            $data.get(0));
+                p._max_timespan = 0; // Work forever.
+            });
+
+            afterEach(function () {
+                $data.empty();
+                p = undefined;
+            });
+
+            function makeTest(name, stop_fn, no_load) {
+                it(name, function () {
+                    if (!no_load)
+                        require(["requirejs/text!" + to_parse_stack[0]],
+                                function(data) {
+                                    $data.html(data);
+                                });
+                });
+            }
+
+
+            makeTest("multiple locations", function () {
+                var el = $data.find("._real.body").get(0);
+                var locs = p.possibleWhere(el,
+                                           new validate.Event(
+                                               "enterStartTag",
+                                               "",
+                                               "em"));
+                assert.sameMembers(locs.toArray(), [0, 1, 2]);
+
+            });
+
+            makeTest("no locations", function () {
+                var el = $data.find("._real.body").get(0);
+                var locs = p.possibleWhere(el,
+                                           new validate.Event(
+                                               "enterStartTag",
+                                               "",
+                                               "impossible"));
+                assert.sameMembers(locs.toArray(), []);
+
+            });
+
+            makeTest("one location", function () {
+                var el = $data.find("._real.html").get(0);
+                var locs = p.possibleWhere(el,
+                                           new validate.Event(
+                                               "enterStartTag",
+                                               "",
+                                               "body"));
+                assert.sameMembers(locs.toArray(), [1]);
+
             });
         });
 

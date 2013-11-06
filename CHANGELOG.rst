@@ -6,6 +6,15 @@ Only salient changes are recorded here.
 
 * 0.11.0:
 
+  - API change for transformations:
+
+    + New signature: ``fireTransformation(editor, data)``
+
+    + Transformation handlers have the same signature.
+
+    + The ``data`` parameter now contains fields that correspond to
+      what used to be ``node`` and ``element_name``.
+
   - API change: modes based on the generic mode should have a meta
     that defines ``getNamespaceMappings()``.
 
@@ -175,4 +184,5 @@ Only salient changes are recorded here.
 ..  LocalWords:  getTransformationRegistry fireTransformation init
 ..  LocalWords:  html ibus rst setSelectionRange getSelectionRange
 ..  LocalWords:  setDOMSelectionRange getDOMSelectionRange README
-..  LocalWords:  getSelection getDOMSelection
+..  LocalWords:  getSelection getDOMSelection Github reStructuredText
+..  LocalWords:  getNamespaceMappings addHandlers startListening

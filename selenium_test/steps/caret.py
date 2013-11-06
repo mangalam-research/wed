@@ -24,6 +24,19 @@ def step_impl(context):
         .perform()
 
 
+@when(u"the user clicks on the start label of an element")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    button = util.find_element((By.CSS_SELECTOR, "._start_button._p_label"))
+    context.clicked_element = button
+    assert_true("_button_clicked" not in button.get_attribute("class").split())
+    ActionChains(driver)\
+        .click(button)\
+        .perform()
+
+
 @when(u"the user hits the right arrow")
 def step_impl(context):
     driver = context.driver
@@ -37,14 +50,27 @@ def step_impl(context):
     button = context.clicked_element
     assert_true("_button_clicked" in button.get_attribute("class").split())
 
+step_matcher("re")
 
-@then(u'the caret disappears')
+
+@then(u'^the label of the element that has the context menu is selected.?$')
+def step_impl(context):
+    button = context.context_menu_trigger
+    assert_true("_button_clicked" in button.get_attribute("class").split())
+
+
+@then(u'^no label is selected$')
+def step_impl(context):
+    util = context.util
+    util.wait_until_not(EC.presence_of_element_located(
+        (By.CLASS_NAME, "_button_clicked")))
+
+
+@then(u'^the caret disappears$')
 def step_impl(context):
     driver = context.driver
     WebDriverWait(driver, 2).until_not(EC.presence_of_element_located(
         (By.CLASS_NAME, "_wed_caret")))
-
-step_matcher("re")
 
 
 # This is also our default for when a mechanism is not specified.
@@ -135,6 +161,38 @@ def step_impl(context, direction):
 
 
 step_matcher("parse")
+
+
+# This is also our default for when a mechanism is not specified.
+@when(u'the user selects text and ends on an element label')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    element = util.find_element((By.CSS_SELECTOR,
+                                 "._start_button._title_label"))
+    # This is where our selection will end
+    end = util.element_screen_center(element)
+
+    parent = element.find_element_by_xpath("..")
+    element.click()
+    wedutil.wait_for_caret_to_be_in(util, parent)
+
+    # From the label to before the first letter and then past the
+    # first letter.
+    ActionChains(driver)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 3)\
+        .perform()
+
+    # We need to get the location of the caret.
+    start = wedutil.caret_selection_pos(driver)
+
+    wedutil.select_text(driver, start, end)
+
+    text = util.get_text_excluding_children(parent)
+    context.expected_selection = text[0:1]
+    context.selection_parent = parent
+    context.caret_position = wedutil.caret_pos(driver)
 
 
 @then(u'the text is selected')

@@ -9,7 +9,7 @@
 export
 CONFIG_TARGETS:=$(sort $(foreach f,$(shell find config local_config -type f -printf '%P\n'),$(patsubst %,build/config/%,$f)))
 CONFIG_DEPS:=$(CONFIG_TARGETS:=.d)
-PASS_THROUGH:= all test selenium-test gh-pages-build build-test-files
+PASS_THROUGH:= all test selenium-test gh-pages-build build-test-files build-deployment doc
 
 .PHONY: $(PASS_THROUGH) clean
 

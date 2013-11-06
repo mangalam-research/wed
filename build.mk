@@ -74,15 +74,39 @@ all: build
 build-dir:
 	-@[ -e build ] || mkdir build
 
-gh-pages-build: build
-	rm -rf gh-pages-build
-	mkdir gh-pages-build
-	cp -rp build/ks build/samples build/schemas build/standalone build/standalone-optimized $@
+#
+# We do this so that using :: for build-deployment works. If we try to
+# use a per-target variable assignment then the :: targets don't work.
+#
+gh-pages-build:
+	$(MAKE) -f build.mk BUILD_DEPLOYMENT_TARGET:=$@ build-deployment
+
+.PHONY: build-deployment
+build-deployment::
+	@if [ -z "$(BUILD_DEPLOYMENT_TARGET)" ]; then \
+		echo "Build deployment target not set."; \
+		exit 1; \
+	fi
+ifndef UNSAFE_DEPLOYMENT
+# Refuse to run if the tree is unclean.
+	node misc/generate_build_info.js > /dev/null
+endif # UNSAFE_DEPLOYMENT
+
+build-deployment:: build
+	rm -rf $(BUILD_DEPLOYMENT_TARGET)
+	mkdir $(BUILD_DEPLOYMENT_TARGET)
+	cp -rp build/ks build/samples build/schemas \
+		build/standalone build/standalone-optimized \
+		$(BUILD_DEPLOYMENT_TARGET)
 	for dist in standalone standalone-optimized; do \
-		config=gh-pages-build/$$dist/requirejs-config.js; \
+		config=$(BUILD_DEPLOYMENT_TARGET)/$$dist/requirejs-config.js; \
 		mv $$config $$config.t; \
-		node misc/modify_config.js -d config.wed/wed.ajaxlog -d config.wed/wed.save $$config.t > $$config; \
+		node misc/modify_config.js -d config.wed/wed.ajaxlog \
+			-d config.wed/wed.save -d paths.browser_test \
+			$$config.t > $$config; \
 		rm $$config.t; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/$$dist/test.html; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/$$dist/wed_test.html; \
 	done
 
 build: | build-standalone-optimized build-ks-files build-config build-schemas build-samples build/ajax
@@ -109,7 +133,7 @@ ifndef NO_NEW_BUILDINFO
 .PHONY: build/standalone/lib/wed/build-info.js
 endif # NO_NEW_BUILDINFO
 build/standalone/lib/wed/build-info.js:
-	node misc/generate_build_info.js > $@
+	node misc/generate_build_info.js --unclean --module > $@
 
 build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
 	cp $< $@
@@ -272,12 +296,16 @@ endif
 # rebuilt. This is necessary because npm preserves the modification
 # times of the files *inside* the packages.
 
-build/standalone/lib/salve: node_modules/salve/build/lib/salve
+build/standalone/lib/salve: node_modules/salve/build/lib/salve | node_modules/salve/build
 	rm -rf $@
 	cp -rp $< $@
 # Sometimes the modification date on the top directory does not
 # get updated, so:
 	touch $@
+
+node_modules/salve/build: node_modules/salve
+	(cd $<; npm install)
+	(cd $<; grunt)
 
 build/ks:
 	mkdir $@

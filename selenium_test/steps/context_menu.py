@@ -5,7 +5,8 @@ from selenium.webdriver.common.keys import Keys
 
 import selenic.util
 
-from nose.tools import assert_equal, assert_true  # pylint: disable=E0611
+from nose.tools import assert_equal, assert_true, \
+    assert_not_equal  # pylint: disable=E0611
 
 import wedutil
 
@@ -53,10 +54,29 @@ def context_menu_on_start_label_of_top_element(context):
 @When("the user uses the mouse to bring up the context menu on the start "
       "label of an element")
 def context_menu_on_start_label_of_element(context):
+    # We use the first paragraph for this one.
     driver = context.driver
     util = context.util
 
     button = util.find_element((By.CSS_SELECTOR, "._start_button._p_label"))
+    ActionChains(driver)\
+        .context_click(button)\
+        .perform()
+    context.context_menu_trigger = button
+
+
+@When("the user uses the mouse to bring up the context menu on the start "
+      "label of another element")
+def context_menu_on_start_label_of_element(context):
+    # We use the first title for this one.
+    driver = context.driver
+    util = context.util
+
+    clicked = context.clicked_element
+    button = util.find_element((By.CSS_SELECTOR,
+                                "._start_button._title_label"))
+
+    assert_not_equal(clicked, button)
     ActionChains(driver)\
         .context_click(button)\
         .perform()

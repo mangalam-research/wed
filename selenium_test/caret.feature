@@ -35,3 +35,17 @@ Scenario: Scrolling moves the caret.
   When the user selects text
   And the user scrolls the editor pane down
   Then the caret moves up relative to the browser window.
+
+Scenario: Selecting text and ending on an element label.
+  When the user selects text and ends on an element label
+  Then the text is selected
+  And no label is selected
+
+Scenario: Bringing up the context menu on an element label selects the element.
+  When the user uses the mouse to bring up the context menu on the start label of an element
+  Then the label of the element that has the context menu is selected.
+
+Scenario: Bringing up the context menu on an element label selects after another element has been selected selects the element that has the context menu.
+  When the user clicks on the start label of an element
+  When the user uses the mouse to bring up the context menu on the start label of another element
+  Then the label of the element that has the context menu is selected.
