@@ -1,5 +1,8 @@
 {
     "templates": {
         "cleverLinks": true
+    },
+    "opts": {
+        "lenient": false
     }
 }
