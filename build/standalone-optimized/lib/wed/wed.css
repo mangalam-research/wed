@@ -96,55 +96,13 @@ div.wed-document-constrainer .wed-caret-layer ._wed_caret {
   animation: caret 1s linear infinite;
   -webkit-animation: caret 1s linear infinite;
 }
-div.wed-document {
-  border-style: solid;
-  border-width: 1px;
-}
-div.wed-document div {
-  word-wrap: normal;
-}
-div.wed-document div._phantom {
-  background-color: #C0C0C0;
-  white-space: normal;
-}
-div.wed-document div._phantom._gui {
-  background-color: white;
-}
-div.wed-document div._phantom._text {
-  display: inline;
-}
-div.wed-document div._real {
-  display: block;
-  background-color: white;
-  white-space: normal;
-  margin-left: 1em;
-}
-div.wed-document div._real._inline {
-  display: inline;
-  margin-left: 0em;
-}
-div.wed-document > div._real {
-  margin-left: 0em;
-}
-div.wed-document ._owns_caret {
-  border-bottom-style: solid;
-}
-div.wed-document ._placeholder {
-  border-style: solid;
-  white-space: pre;
-}
-div.wed-document ._placeholder._owns_caret {
-  background-color: #C0C0C0;
-  animation: blink 1s infinite;
-  -webkit-animation: blink 1s infinite;
-}
-div.wed-document ._gui._button > span {
+div.wed-frame ._gui._button > span {
   display: inline-block;
   line-height: 1;
   margin: 0.25em 0em;
 }
-div.wed-document ._gui._button,
-div.wed-document ._gui._button._owns_caret {
+div.wed-frame ._gui._button,
+div.wed-frame ._gui._button._owns_caret {
   text-indent: 0em;
   
   font-size: 12px;
@@ -159,8 +117,50 @@ div.wed-document ._gui._button._owns_caret {
   border-radius: .25em;
   border-style: none;
 }
-div.wed-document ._gui._button._button_clicked {
+div.wed-frame ._gui._button._button_clicked {
   background-color: #f0ad4e;
+}
+div.wed-frame div.wed-document {
+  border-style: solid;
+  border-width: 1px;
+}
+div.wed-frame div.wed-document div {
+  word-wrap: normal;
+}
+div.wed-frame div.wed-document div._phantom {
+  background-color: #C0C0C0;
+  white-space: normal;
+}
+div.wed-frame div.wed-document div._phantom._gui {
+  background-color: white;
+}
+div.wed-frame div.wed-document div._phantom._text {
+  display: inline;
+}
+div.wed-frame div.wed-document div._real {
+  display: block;
+  background-color: white;
+  white-space: normal;
+  margin-left: 1em;
+}
+div.wed-frame div.wed-document div._real._inline {
+  display: inline;
+  margin-left: 0em;
+}
+div.wed-frame div.wed-document > div._real {
+  margin-left: 0em;
+}
+div.wed-frame div.wed-document ._owns_caret {
+  border-bottom-style: solid;
+}
+div.wed-frame div.wed-document ._placeholder {
+  border-style: solid;
+  white-space: pre;
+}
+div.wed-frame div.wed-document ._placeholder._owns_caret {
+  background-color: #C0C0C0;
+  animation: blink 1s infinite;
+  -webkit-animation: blink 1s infinite;
 }
 @keyframes blink {
   0% {

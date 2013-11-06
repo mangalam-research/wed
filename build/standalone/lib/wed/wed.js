@@ -104,7 +104,7 @@ Editor.prototype.init = log.wrap(function (widget, options) {
     // This structure will wrap around the document to be edited.
     var $framework = $('\
 <div class="row">\
- <div id="wed-frame" class="col-sm-push-2 col-lg-10 col-md-10 col-sm-10">\
+ <div class="wed-frame col-sm-push-2 col-lg-10 col-md-10 col-sm-10">\
   <div class="row">\
    <div class="progress">\
     <span></span>\
@@ -118,6 +118,7 @@ Editor.prototype.init = log.wrap(function (widget, options) {
     </div>\
     <div class="wed-document"><span class="root-here"/></div>\
    </div>\
+   <div class="wed-location-bar"></div>\
   </div>\
  </div>\
  <div id="sidebar" class="col-sm-pull-10 col-lg-2 col-md-2 col-sm-2"/>\
@@ -151,6 +152,8 @@ Editor.prototype.init = log.wrap(function (widget, options) {
     else
         $root_placeholder.remove();
     this.$widget.append($framework);
+
+    this._$wed_location_bar =$framework.find('.wed-location-bar');
 
     // $data_root is the document we are editing, $gui_root will become
     // decorated with all kinds of HTML elements so we keep the two
@@ -319,16 +322,24 @@ navigation panel brings up a contextual menu.</li>\
     this.split_node_tr =
         new transformation.Transformation(
             this, "Split <element_name>",
-            transformation.splitNode);
+            function(editor, data) {
+            return transformation.splitNode(editor, data.node);
+        });
     this.merge_with_previous_homogeneous_sibling_tr =
         new transformation.Transformation(
             this, "Merge <element_name> with previous",
-            transformation.mergeWithPreviousHomogeneousSibling);
+            function (editor, data) {
+            return transformation.mergeWithPreviousHomogeneousSibling(
+                editor, data.node);
+        });
 
     this.merge_with_next_homogeneous_sibling_tr =
         new transformation.Transformation(
             this, "Merge <element_name> with next",
-            transformation.mergeWithNextHomogeneousSibling);
+            function (editor, data) {
+            return transformation.mergeWithNextHomogeneousSibling(
+                editor, data.node);
+        });
 
     // This is an ad hoc cut function which modifies the DOM directly
     // for everything except the final merging of text nodes.
@@ -694,15 +705,12 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 /**
  * @param {module:transformation~Transformation} tr The transformation
  * to fire.
- * @param {Node} node The DOM node to fire it on. This can be a node
- * from the GUI tree or from the data tree.
- * @param {String} element_name The element_name to use in the
- * description of the transformation.
  * @param transformation_data Arbitrary data to be passed to the
- * transformation.
+ * transformation. This corresponds to the ``transformation_data``
+ * field of a transformation {@link
+ * module:transformation~Transformation~handler handler}.
  */
-Editor.prototype.fireTransformation = function(tr, node, element_name,
-                                               transformation_data) {
+Editor.prototype.fireTransformation = function(tr, transformation_data) {
     // This is necessary because our context menu saves/restores the
     // selection using rangy. If we move on without this call, then
     // the transformation could destroy the markers that rangy put in
@@ -720,18 +728,32 @@ Editor.prototype.fireTransformation = function(tr, node, element_name,
                             this));
     try {
         try {
+            var node = transformation_data.node;
             if (node !== undefined) {
                 var $node = $(node);
                 // Convert the gui node to a data node
                 if ($node.closest(this.$gui_root).length > 0) {
                     var path = this.nodeToPath(node);
-                    node = this.data_updater.pathToNode(path);
+                    transformation_data.node =
+                        this.data_updater.pathToNode(path);
                 }
                 else if ($node.closest(this.$data_root).length === 0)
                     throw new Error("node is neither in the gui tree nor "+
                                     "the data tree");
             }
-            tr.handler(this, node, element_name, transformation_data);
+
+            var caret = transformation_data.move_caret_to;
+            if (caret) {
+                var $caret = $(caret[0]);
+                if ($caret.closest(this.gui_root).length > 0)
+                    this.setCaret(caret);
+                else if ($caret.closest(this.data_root).length > 0)
+                    this.setDataCaret(caret);
+                else
+                    throw new Error("caret outside GUI and data trees");
+            }
+
+            tr.handler(this, transformation_data);
             // Ensure that all operations that derive from this
             // transformation are done *now*.
         }
@@ -750,11 +772,6 @@ Editor.prototype.fireTransformation = function(tr, node, element_name,
         if (!(ex instanceof AbortTransformationException))
             throw ex;
     }
-};
-
-Editor.prototype._fireTransformation = function (e) {
-    this.fireTransformation(e.data.tr, e.data.node, e.data.element_name,
-                            undefined);
 };
 
 Editor.prototype.recordUndo = function (undo) {
@@ -826,7 +843,7 @@ Editor.prototype._resizeHandler = log.wrap(function () {
 
     var width = this.$gui_root.width();
 
-    var $parent = this.$widget.find("#wed-frame");
+    var $parent = this.$widget.find(".wed-frame");
     var pheight = $parent.outerHeight(true);
     $parent.siblings().css("max-height", pheight).css("min-height", pheight).
         css("height", pheight);
@@ -1041,8 +1058,9 @@ Editor.prototype._cutHandler = function(e) {
                                            range.startOffset);
         var end_caret = this.toDataCaret(range.endContainer, range.endOffset);
         this.my_window.setTimeout(function () {
-            this.fireTransformation(this.cut_tr, caret[0], undefined,
+            this.fireTransformation(this.cut_tr,
                                     {e: e,
+                                     node: caret[0],
                                      start_caret: start_caret,
                                      end_caret: end_caret});
         }.bind(this), 1);
@@ -1054,7 +1072,7 @@ Editor.prototype._cutHandler = function(e) {
     }
 };
 
-function cut(editor, node, element_name, data) {
+function cut(editor, data) {
     var start_caret = data.start_caret;
     var end_caret = data.end_caret;
 
@@ -1106,9 +1124,9 @@ Editor.prototype._pasteHandler = function(e) {
                         // At this point $data is a single top level
                         // fake <div> element which contains the
                         // contents we actually want to paste.
-                        this.fireTransformation(this.paste_tr, caret[0],
-                                                undefined,
-                                                {$data: $data, e: e});
+                        this.fireTransformation(this.paste_tr,
+                                                {node: caret[0],
+                                                 $data: $data, e: e});
                     }
                 }.bind(this));
                 return false;
@@ -1124,13 +1142,13 @@ Editor.prototype._pasteHandler = function(e) {
 
     // At this point $data is a single top level fake <div> element
     // which contains the contents we actually want to paste.
-    this.fireTransformation(this.paste_tr, caret[0], undefined,
-                            {$data: $data, e: e});
+    this.fireTransformation(this.paste_tr,
+                            {node: caret[0], $data: $data, e: e});
     return false;
 };
 
 
-function paste(editor, node, element_name, data) {
+function paste(editor, data) {
     var $data = data.$data;
     var $data_clone = $data.clone();
     var caret = editor.getDataCaret();
@@ -2221,8 +2239,11 @@ Editor.prototype._seekCaret = log.wrap(function (ev) {
     }
 
     if (ev.which === 3) {
-        if (in_gui)
+        if (in_gui) {
+            // Set the caret to be in the trigger.
+            this.setCaret($target[0], 0);
             $target.trigger("wed-context-menu", [ev]);
+        }
         else
             return this._contextMenuHandler(ev);
     }
@@ -2558,6 +2579,21 @@ Editor.prototype._caretChangeHandler = log.wrap(
         this.scrollIntoView(pos.left, pos.top, pos.left + $what.outerWidth(),
                             pos.top + $what.outerHeight());
     }
+
+    var steps = [];
+    while(!$node.is(this.gui_root)) {
+        if ($node[0].nodeType !== Node.ELEMENT_NODE)
+            throw new Error("unexpected node type: " + $node[0].nodeType);
+
+        if (!$node.is("._phantom")) {
+            steps.unshift("<span class='_gui _button'><span>&nbsp;" +
+                          util.getOriginalName($node[0]) +
+                          "&nbsp;</span></span>");
+        }
+        $node = $node.parent();
+    }
+    this._$wed_location_bar.empty();
+    this._$wed_location_bar.append(steps.join("/"));
 });
 
 Editor.prototype.dismissContextMenu = function () {

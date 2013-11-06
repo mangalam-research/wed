@@ -25,8 +25,8 @@ var transformation = require("./transformation");
  * @param {module:wed~Editor} editor The editor instance for which
  * this decorator was created.
  * @param {module:gui_updater~GUIUpdater} gui_updater The updater to
- * use to modify the GUI tree. All modifications must go through this
- * updater.
+ * use to modify the GUI tree. All modifications to the GUI must go
+ * through this updater.
 */
 function Decorator(domlistener, editor, gui_updater) {
     this._domlistener = domlistener;
@@ -298,7 +298,8 @@ Decorator.prototype._contextMenuHandler = function (
 
                 for(var tr_ix = 0, tr; (tr = trs[tr_ix]) !== undefined;
                     ++tr_ix) {
-                    var data = {element_name: unresolved };
+                    var data = {element_name: unresolved,
+                               move_caret_to: tree_caret};
                     var icon = tr.getIcon();
                     var $a = $("<a tabindex='-1' href='#'>" +
                                (icon ? icon + " ": "") +
@@ -306,9 +307,7 @@ Decorator.prototype._contextMenuHandler = function (
                                (at_start ? " before this element":
                                 " after this element") +
                                "</a>");
-                    $a.click(data,
-                             transformation.moveDataCaretFirst(
-                                 editor, tree_caret, tr));
+                    $a.click(data, tr.bound_handler);
                     menu_items.push($("<li></li>").append($a).get(0));
                 }
             }.bind(this));
