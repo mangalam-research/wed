@@ -296,12 +296,16 @@ endif
 # rebuilt. This is necessary because npm preserves the modification
 # times of the files *inside* the packages.
 
-build/standalone/lib/salve: node_modules/salve/build/lib/salve
+build/standalone/lib/salve: node_modules/salve/build/lib/salve | node_modules/salve/build
 	rm -rf $@
 	cp -rp $< $@
 # Sometimes the modification date on the top directory does not
 # get updated, so:
 	touch $@
+
+node_modules/salve/build: node_modules/salve
+	(cd $<; npm install)
+	(cd $<; grunt)
 
 build/ks:
 	mkdir $@
