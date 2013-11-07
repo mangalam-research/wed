@@ -29,7 +29,9 @@ Only salient changes are recorded here.
 .. warning:: The location of the files to use for the demo and the
              in-browser tests has changed. See the documentation on
              the `demo <README.rst#demo>`_ and the documentation on
-             `testing <tech_notes.rst#in-browser-tests>`_.
+             `testing <http://mangalam-research.github.io/wed/tech_notes.html#
+             in-browser-tests>`_.
+
 
   - Internals: wed now requires salve 0.14.1 or later, which means
     smaller schema files, faster loading and faster running. Yippee!
@@ -59,7 +61,8 @@ Only salient changes are recorded here.
     this.
 
   - API: the protocol for saving to a server was redesigned. See
-    `<tech_notes.rst>`_.
+    the `tech notes <http://mangalam-research.github.io/wed/
+    tech_notes.html>`_.
 
   - API: The ``Editor`` methods ``setSelectionRange`` and
     ``getSelectionRange`` have been renamed ``setDOMSelectionRange``
