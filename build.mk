@@ -42,8 +42,8 @@ JQUERY_FILE=jquery-1.9.1.js
 
 BOOTSTRAP_URL=https://github.com/twbs/bootstrap/archive/v3.0.0.zip
 BOOTSTRAP_BASE=bootstrap-$(notdir $(BOOTSTRAP_URL))
-FONTAWESOME_PATH=http://fortawesome.github.io/Font-Awesome/assets/
-FONTAWESOME_FILE=font-awesome.zip
+FONTAWESOME_PATH=http://fontawesome.io/3.2.1/assets/font-awesome.zip
+FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
 
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
@@ -209,8 +209,8 @@ downloads/$(JQUERY_FILE): | downloads
 downloads/$(BOOTSTRAP_BASE): | downloads
 	(cd downloads; wget -O $(BOOTSTRAP_BASE) '$(BOOTSTRAP_URL)')
 
-downloads/$(FONTAWESOME_FILE): | downloads
-	(cd downloads; wget '$(FONTAWESOME_PATH)$(FONTAWESOME_FILE)')
+downloads/$(FONTAWESOME_BASE): | downloads
+	(cd downloads; wget '$(FONTAWESOME_PATH)')
 
 downloads/$(TEXT_PLUGIN_BASE): | downloads
 	(cd downloads; wget $(TEXT_PLUGIN_FILE))
@@ -253,7 +253,7 @@ build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/sta
 # so, touch it.
 	touch $@
 
-build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
+build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | build/standalone/lib/
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
