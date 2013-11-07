@@ -173,6 +173,7 @@ def step_impl(context):
                                  "._start_button._title_label"))
     # This is where our selection will end
     end = util.element_screen_center(element)
+    end["left"] += 2  # Move it off-center for this test
 
     parent = element.find_element_by_xpath("..")
     element.click()
