@@ -37,11 +37,11 @@ Deployment Considerations
              question is documented `here
              <https://github.com/mangalam-research/wed/issues/8>`_.
 
-It is possible to deploy wed using the ``build/standalone`` file tree
+It is possible to deploy wed using the ``build/standalone/`` file tree
 but you will pay in execution time and bandwidth because the files in
 this tree are not optimized.
 
-The ``build/standalone-optimized`` file tree is optimized. This
+The ``build/standalone-optimized/`` file tree is optimized. This
 optimization exists primarily for illustration purposes and for
 testing wed, but it could be used for deployment too, as long as you
 understand how it is constructed. The build file driving how ``r.js``
@@ -251,7 +251,7 @@ To run the tests that are not browser-dependent do::
 
     $ make test
 
-These tests are located in the ``test`` directory off the wed
+These tests are located in the ``test/`` directory off the wed
 root. You can also run ``mocha``
 directly from the command line but having ``make`` build the ``test``
 target will trigger a build to ensure that the tests are run against
@@ -265,7 +265,7 @@ the latest code.
 In-Browser Tests
 ----------------
 
-The browser-dependent tests are located in the ``browser_test`` directory
+The browser-dependent tests are located in the ``browser_test/`` directory
 off the wed root. To run
 the tests that run in the browser, you must run ``server.js``, a
 basic web server, from the root of the wed source::
