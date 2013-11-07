@@ -31,6 +31,11 @@ BEHAVE_PARAMS?=
 SKIP_SEMVER?=
 
 #
+# Unset to avoid the optimization target being built by default.
+#
+OPTIMIZE_BY_DEFAULT?=1
+
+#
 # End of customizable variables.
 #
 
@@ -109,7 +114,7 @@ build-deployment:: build
 		rm $(BUILD_DEPLOYMENT_TARGET)/$$dist/wed_test.html; \
 	done
 
-build: | build-standalone-optimized build-ks-files build-config build-schemas build-samples build/ajax
+build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 build-config: $(CONFIG_TARGETS) | build/config
 
