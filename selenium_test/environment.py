@@ -1,6 +1,7 @@
 import os
 
-from nose.tools import assert_raises  # pylint: disable=E0611
+# pylint: disable=E0611
+from nose.tools import assert_raises, assert_true
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
 
@@ -22,9 +23,17 @@ config = conf["Config"](local_conf_path)
 
 
 def before_all(context):
-    context.driver = config.get_driver()
-    context.util = selenic.util.Util(context.driver)
+    driver = config.get_driver()
+    context.driver = driver
+    context.util = selenic.util.Util(driver)
     context.selenic_config = config
+    # Without this, window sizes vary depending on the actual browser
+    # used.
+    driver.set_window_size(1000, 560)
+    assert_true(driver.desired_capabilities["nativeEvents"],
+                "Wed's test suite require that native events be available; "
+                "you may have to use a different version of your browser, "
+                "one for which Selenium supports native events.")
 
 
 def before_scenario(context, _scenario):
