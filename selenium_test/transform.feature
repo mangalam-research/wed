@@ -14,6 +14,9 @@ Scenario: wrapping the selected text
   When the user clicks a choice for wrapping text in new elements
   Then the selection is wrapped in a new element.
 
+# This test fails on Selenium 2.35.0, using FF 22. Why??? Note that
+# the failure cannot be replicated manually. It does not seem to be a
+# timeout issue.
 Scenario: creating an element before
   Given that the user has brought up the context menu over the start label of an element
   When the user clicks a choice for creating an element before the selected element
