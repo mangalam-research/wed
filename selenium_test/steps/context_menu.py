@@ -330,6 +330,8 @@ def step_impl(context, choice):
         choice = "before"
         link = util.find_descendants_by_text_re(cm,
                                                 "^Create new .+? before")[0]
+        if link.tag_name != "a":
+            link = link.find_elements_by_xpath("a")[0]
 
         def cond(*_):
             return link.is_displayed()
@@ -339,6 +341,8 @@ def step_impl(context, choice):
         choice = "after"
         link = util.find_descendants_by_text_re(cm,
                                                 "^Create new .+? after")[0]
+        if link.tag_name != "a":
+            link = link.find_elements_by_xpath("a")[0]
 
         def cond(*_):
             return link.is_displayed()
