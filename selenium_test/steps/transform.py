@@ -28,8 +28,10 @@ def step_impl(context):
     assert_is_not_none(for_element)
     preceding = for_element.find_elements_by_xpath("preceding-sibling::*")
     following = for_element.find_elements_by_xpath("following-sibling::*")
-    assert_equal(len(info["preceding"]) + 1, len(preceding))
-    assert_equal(len(info["following"]), len(following))
+    assert_equal(len(info["preceding"]) + 1, len(preceding),
+                 "items before the selected element")
+    assert_equal(len(info["following"]), len(following),
+                 "items after the selected element")
 
 
 @then(ur"^a new element is inserted after the selected element.?$")
@@ -39,5 +41,7 @@ def step_impl(context):
     assert_is_not_none(for_element)
     preceding = for_element.find_elements_by_xpath("preceding-sibling::*")
     following = for_element.find_elements_by_xpath("following-sibling::*")
-    assert_equal(len(info["preceding"]), len(preceding))
-    assert_equal(len(info["following"]) + 1, len(following))
+    assert_equal(len(info["preceding"]), len(preceding),
+                 "items before the selected element")
+    assert_equal(len(info["following"]) + 1, len(following),
+                 "items after the selected element")
