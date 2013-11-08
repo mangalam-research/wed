@@ -29,8 +29,9 @@ def load_and_wait_for_editor(context, text=None):
     # This is bullshit to work around a Selenium limitation.
     driver.execute_script("""
     jQuery("body").append(
-      '<div id="origin-object" '+
-      'style="position: fixed; top: 0px; left: 0px; z-index: -10;"/>');
+      '<div id="origin-object" ' +
+      'style=' +
+      '"position: fixed; top: 0px; left: 0px; width:1px; height:1px;"/>');
     """)
     context.origin_object = driver.find_element_by_id("origin-object")
 
