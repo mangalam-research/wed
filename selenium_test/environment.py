@@ -62,5 +62,7 @@ def after_scenario(context, _scenario):
 def after_all(context):
     driver = context.driver
     config.set_test_status(driver.session_id, not context.failed)
-    if not context.failed and "BEHAVE_NO_QUIT" not in os.environ:
+    behave_no_quit = os.environ.get("BEHAVE_NO_QUIT")
+    if not ((context.failed and behave_no_quit == "on-failure") or
+            (behave_no_quit == "always")):
         driver.quit()
