@@ -584,7 +584,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     // No click in the next binding because click does not
     // distinguish left, middle, right mouse buttons.
     this.$gui_root.on('mouseup', this._caretChangeEmitter.bind(this));
-    this.$gui_root.on('mousedown',this._mousedownHandler.bind(this));
+    this.$gui_root.on('mousedown', this._mousedownHandler.bind(this));
     this.$gui_root.on('caretchange',
                       this._caretChangeHandler.bind(this));
 
@@ -620,6 +620,9 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
     this._$caret_layer.on("mousedown mouseup click",
                           this._caretLayerMouseHandler.bind(this));
+    this._$fake_caret.on("mousedown mouseup click", function (ev) {
+        ev.preventDefault();
+    });
 
     // Make ourselves visible.
     this.$widget.removeClass("loading");
@@ -2097,16 +2100,43 @@ Editor.prototype._pointToCharBoundary = function(x, y) {
         range.setStart(boundary.node, boundary.offset);
         range.setEnd(boundary.node, boundary.offset + 1);
         var rect = range.getBoundingClientRect();
-        if (Math.abs(rect.left - x) > Math.abs(rect.right - x))
+        if (Math.abs(rect.left - x) >= Math.abs(rect.right - x))
             boundary.offset++;
     }
     return boundary;
 };
 
 Editor.prototype._mousemoveHandler = log.wrap(function (e) {
-    var boundary = this._pointToCharBoundary(e.clientX, e.clientY);
-    if (!boundary)
-        return;
+    var element_at_mouse = this.elementAtPointUnderLayers(e.clientX,
+                                                          e.clientY);
+    var $element_at_mouse = $(element_at_mouse);
+    if ($element_at_mouse.closest(this.gui_root).length === 0)
+        return; // Not in GUI tree.
+
+    var boundary;
+    if($element_at_mouse.is("[contenteditable='true']")) {
+        boundary = this._pointToCharBoundary(e.clientX, e.clientY);
+        if (!boundary)
+            return;
+    }
+    else {
+        var $child;
+        while (!$element_at_mouse.is("[contenteditable='true']")) {
+            $child = $element_at_mouse;
+            $element_at_mouse = $child.parent();
+            if ($element_at_mouse.closest(this.gui_root).length === 0)
+                return; // The mouse was in a bunch of non-editable elements.
+        }
+        element_at_mouse = $element_at_mouse[0];
+        var offset = _indexOf.call(element_at_mouse.childNodes, $child[0]);
+        var range = this.my_window.document.createRange();
+        range.setStart(element_at_mouse, offset);
+        range.setEnd(element_at_mouse, offset + 1);
+        var rect = range.getBoundingClientRect();
+        if (Math.abs(rect.left - e.clientX) >= Math.abs(rect.right - e.clientX))
+            offset++;
+        boundary = {node: element_at_mouse, offset: offset};
+    }
 
     this._sel_focus = boundary;
 
@@ -2244,8 +2274,15 @@ Editor.prototype._seekCaret = log.wrap(function (ev) {
             this.setCaret($target[0], 0);
             $target.trigger("wed-context-menu", [ev]);
         }
-        else
+        else {
+            // If there's no range we ought to set a caret somewhere.
+            if (!range) {
+                var boundary = this._pointToCharBoundary(
+                    ev.clientX, ev.clientY);
+                this.setCaret(boundary.node, boundary.offset);
+            }
             return this._contextMenuHandler(ev);
+        }
     }
     return true;
 });
@@ -2453,9 +2490,16 @@ Editor.prototype._caretChangeEmitterTimeout = log.wrap(
                                  this._sel_anchor.offset);
     }
 
-    if ((ev.type === "mouseup" &&
-         (!this._sel_anchor ||
-          this._sel_anchor.node === ev.target)) ||
+
+    var rr = this._sel_anchor &&
+        domutil.rangeFromPoints(this._sel_anchor.node,
+                                this._sel_anchor.offset,
+                                this._sel_focus.node,
+                                this._sel_focus.offset);
+
+    // We want to adjust the caret position on mouse up only if the
+    // user is not in the midst of selecting a range.
+    if ((ev.type === "mouseup" && (!rr || rr.range.collapsed)) ||
         ev.type === "click") {
         var r; // damn hoisting
 
@@ -2498,6 +2542,10 @@ Editor.prototype._caretChangeEmitterTimeout = log.wrap(
         focus_node = selection.focusNode;
         focus_offset = selection.focusOffset;
     }
+
+    var range = selection.rangeCount > 0 && selection.getRangeAt(0);
+    if (range && range.collapsed)
+        this.clearDOMSelection();
 
     if (focus_node && focus_node.nodeType === Node.ELEMENT_NODE) {
         // Placeholders attract adjacent carets into them.
@@ -2751,11 +2799,14 @@ Editor.prototype._normalizeCaretToEditableRange = function (container, offset) {
 };
 
 Editor.prototype.setDOMSelectionRange = function (range, reverse) {
+    if (range.collapsed) {
+        this.clearDOMSelection();
+        return;
+    }
     var sel = this.getDOMSelection();
-    if (reverse)
-        // The domutil.focusNode call is required to work around bug:
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
-        domutil.focusNode(range.endContainer);
+    // The domutil.focusNode call is required to work around bug:
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
+    domutil.focusNode(range.endContainer);
     sel.setSingleRange(range, reverse);
 };
 
