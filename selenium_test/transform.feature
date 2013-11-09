@@ -26,3 +26,8 @@ Scenario: creating an element after
   Given that the user has brought up the context menu over the end label of an element
   When the user clicks a choice for creating an element after the selected element
   Then a new element is inserted after the selected element.
+
+Scenario: launching a transformation when there is no caret
+  Given that the user has brought up the context menu on uneditable text
+  When the user clicks a choice for creating an element before the selected element
+  Then a new element is inserted before the selected element.

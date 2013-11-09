@@ -141,6 +141,20 @@ def context_menu_on_text(context):
     context.context_menu_for = None
 
 
+@Given("that the user has brought up the context menu on uneditable text")
+def context_menu_on_uneditable_text(context):
+    driver = context.driver
+    util = context.util
+
+    element = util.find_element((By.CSS_SELECTOR, ".ref>._phantom"))
+    ActionChains(driver)\
+        .move_to_element(element)\
+        .context_click()\
+        .perform()
+    context.context_menu_trigger = element
+    context.context_menu_for = element.find_element_by_xpath("..")
+
+
 @When("the user uses the mouse to bring up a context menu outside wed")
 def context_menu_outside_wed(context):
     driver = context.driver
@@ -331,7 +345,7 @@ def step_impl(context, choice):
         link = util.find_descendants_by_text_re(cm,
                                                 "^Create new .+? before")[0]
         if link.tag_name != "a":
-            link = link.find_elements_by_xpath("a")[0]
+            link = link.find_elements_by_xpath("descendant::a")[0]
 
         def cond(*_):
             return link.is_displayed()
