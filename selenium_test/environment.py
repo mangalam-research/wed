@@ -29,7 +29,7 @@ def before_all(context):
     context.selenic_config = config
     # Without this, window sizes vary depending on the actual browser
     # used.
-    driver.set_window_size(1000, 560)
+    driver.set_window_size(1020, 560)
     assert_true(driver.desired_capabilities["nativeEvents"],
                 "Wed's test suite require that native events be available; "
                 "you may have to use a different version of your browser, "
@@ -62,7 +62,7 @@ def after_scenario(context, _scenario):
 def after_all(context):
     driver = context.driver
     config.set_test_status(driver.session_id, not context.failed)
-    behave_no_quit = os.environ.get("BEHAVE_NO_QUIT")
-    if not ((context.failed and behave_no_quit == "on-failure") or
-            (behave_no_quit == "always")):
+    selenium_quit = os.environ.get("SELENIUM_QUIT")
+    if not ((selenium_quit == "never") or
+            (context.failed and selenium_quit == "on-success")):
         driver.quit()
