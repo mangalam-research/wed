@@ -175,6 +175,7 @@ def step_impl(context):
     context.scrolled_editor_pane_by = scroll_by
 
 
+@given(u"wait {x} seconds")
 @when(u"wait {x} seconds")
 def step_impl(context, x):
     import time
@@ -204,3 +205,9 @@ def step_impl(context):
         return window.document.activeElement === wed_editor._$input_field[0];
         """)
     util.wait(cond)
+
+
+@given("the first validation is complete")
+@when("the first validation is complete")
+def step_impl(context):
+    wedutil.wait_for_first_validation_complete(context.util)
