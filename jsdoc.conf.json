@@ -8,6 +8,7 @@
         "tables": true
     },
     "opts": {
+        "template": "misc/jsdoc_template",
         "lenient": false
     }
 }
