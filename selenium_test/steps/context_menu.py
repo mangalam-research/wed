@@ -151,8 +151,13 @@ def context_menu_on_uneditable_text(context):
         .move_to_element(element)\
         .context_click()\
         .perform()
+
     context.context_menu_trigger = element
     context.context_menu_for = element.find_element_by_xpath("..")
+
+    context.execute_steps(u"""
+    Then a context menu is visible close to where the user invoked it
+    """)
 
 
 @When("the user uses the mouse to bring up a context menu outside wed")
