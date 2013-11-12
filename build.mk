@@ -43,7 +43,7 @@ OPTIMIZE_BY_DEFAULT?=1
 # https://rangy.googlecode.com/files/
 RANGY_FILE=rangy-1.3alpha.772.tar.gz
 
-JQUERY_FILE=jquery-1.9.1.js
+JQUERY_FILE=jquery-1.10.2.js
 
 BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.0.2/bootstrap-3.0.2-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
