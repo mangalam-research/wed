@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: domlistener.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/wed.css">
+</head>
+
+<body>
+
+
+<div id="main">
+
+    <h1 class="page-title">Source: domlistener.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @module domlistener
+ * @desc Abstract base class for classes that raise events when a DOM
+ * tree is modified.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
+
+define(/** @lends module:domlistener */ function (require, exports, module) {
+'use strict';
+
+var $ = require("jquery");
+require("./jquery.findandself");
+
+/**
+ * @classdesc &lt;p>An "included-element" event is fired when an element appears in
+ * the observed tree whether it is directly added or added because its
+ * parent was added. The opposite event is "excluded-element".&lt;/p>
+ *
+ * &lt;p>An "added-element" event is fired when an element is directly
+ * added to the observed tree. The opposite event is
+ * "removed-element".&lt;/p>
+ *
+ * &lt;p>A "trigger" event with name &lt;code>[name]&lt;/code> is fired when
+ * &lt;code>trigger([name])&lt;/code> is called. Trigger events are
+ * meant to be triggered by event handlers called by the Listener, not
+ * by other code.&lt;/p>
+ *
+ * &lt;h2>Example&lt;/h2>
+ *
+ * &lt;p>Consider the following fragment:&lt;/p>
+ *
+ * &lt;pre>
+ * &lt;ul>
+ *  &lt;li>foo&lt;/li>
+ * &lt;/ul>
+ * &lt;/pre>
+ *
+ * &lt;p>If the fragment is added to a &lt;code>&lt;div>&lt;/code> element, an
+ * included-element event will be generated for &lt;code>&lt;ul>&lt;/code>
+ * and &lt;code>&lt;li>&lt;/code> but an added-element event will be
+ * generated only for &lt;code>&lt;ul>&lt;/code>.&lt;/p>
+ *
+ * &lt;p>If the fragment is removed, an excluded-element event will be
+ * generated for &lt;code>&lt;ul>&lt;/code> and &lt;code>&lt;li>&lt;/code> but a
+ * remove-element event will be generated only for
+ * &lt;code>&lt;ul>&lt;/code>.&lt;/p>
+ *
+ * &lt;p>The signature of the handlers varies by type of event:&lt;/p>
+ *
+ * &lt;dl>
+ *  &lt;dt>added-element, removed-element:&lt;/dt>
+ *
+ *    &lt;dd>
+ *
+ *      &lt;p>&lt;code>handler($root, $parent, $previous_sibling, $next_sibling,
+ *      $element)&lt;/code>&lt;/p>
+ *
+ *      &lt;p>There is no reason to provide &lt;code>$parent,
+ *      $previous_sibling, $next_sibling&lt;/code> for an added-element
+ *      event but having the same signature for additions and removals
+ *      allows to use the same function for both cases. For
+ *      removed-element events the parent is the parent that the
+ *      element had &lt;strong>before&lt;/strong> it was removed. The
+ *      $element parameter is a single element.&lt;/p>
+ * &lt;/dd>
+ *
+ *  &lt;dt>included-element, excluded-element:&lt;/dt>
+ *
+ *    &lt;dd>
+ *
+ *      &lt;p>&lt;code>handler($root, $tree, $parent, $previous_sibling,
+ *      $next_sibling, $element)&lt;/code>&lt;/p>
+ *
+ *      &lt;p>These handlers are called when a &lt;strong>tree
+ *      fragment&lt;/strong> is removed or added which contains the
+ *      element matched by the selector that was passed to {@link
+ *      module:mutation_domlistener~Listener#addHandler addHandler()} The
+ *      &lt;code>$tree&lt;/code> parameter contains the node which is at the
+ *      root of the tree fragment that was added or removed to trigger
+ *      the event. Moreover, the &lt;code>$previous_sibling,
+ *      $next_sibling&lt;/code> and &lt;code>$parent&lt;/code> parameters
+ *      record the siblings and parent of &lt;code>$tree&lt;/code>,
+ *      &lt;strong>not those of &lt;code>$element&lt;/code>&lt;/strong>.&lt;/p>&lt;/dd>
+ *
+ *  &lt;dt>children-changed:&lt;/dt>
+ *
+ *    &lt;dd>
+ *
+ *      &lt;p>&lt;code>handler($root, $added, $removed, $previous_sibling,
+ *         $next_sibling, $element)&lt;/code>&lt;/p>
+ *
+ *      &lt;p>The parameters &lt;code>$previous_sibling&lt;/code> and
+ *      &lt;code>$next_sibling&lt;/code> refer to the siblings that are
+ *      before and after the entire group of &lt;code>$added&lt;/code> or
+ *      &lt;code>$removed&lt;/code> nodes.&lt;/p>
+ *
+ * &lt;/dd>
+ *
+ * &lt;dt>text-changed:&lt;/dt>
+ *
+ *    &lt;dd>
+ *
+ *      &lt;p>&lt;code>handler($root, $element, old_value)&lt;/code>&lt;/p>
+ *
+ *      &lt;p>Note that the meaning of the &lt;code>selector&lt;/code>
+ *      parameter for text-changed events is different than the
+ *      usual. Whereas for all other handlers, the
+ *      &lt;code>selector&lt;/code> matches the &lt;code>$element&lt;/code>
+ *      parameter passed to the handler, in the case of a text-changed
+ *      event the &lt;code>selector&lt;/code> matches the
+ *      &lt;strong>parent&lt;/strong> of the &lt;code>$element&lt;/code> parameter
+ *      which itself is always a text node. The &lt;code>old_value&lt;/code>
+ *      parameter contains the text of the node before the value
+ *      changed.&lt;/p>
+ *
+ *      &lt;p>Another thing to keep in mind is that a text-changed event
+ *      is not generated when Node objects of type TEXT_NODE are added
+ *      or removed. They trigger children-changed events.&lt;/p>
+ *
+ *    &lt;/dd>
+ *
+ * &lt;dt>trigger:&lt;/dt>
+ *    &lt;dd>&lt;p>&lt;code>handler($root)&lt;/code>&lt;/p>&lt;/dd>
+ * &lt;/dl>
+ *
+ * &lt;p>The order in which handlers are added matters. The Listener
+ * provides the following guarantee: for any given type of event, the
+ * handlers will be called in the order that they were added to the
+ * listener.&lt;/p>
+ *
+ * &lt;h2>Warnings:&lt;/h2>
+ *
+ * &lt;ul>
+ *
+ * &lt;li>There are two implementations of this class:
+ *     mutation_domlistener and updater_domlistener. The first uses
+ *     the MutationObserver interface to detect changes and is thus
+ *     asynchronous, the second requires that all modifications to the
+ *     DOM tree be made through a tree_updater and is
+ *     synchronous. This means that although the interface used by
+ *     both implementations is the same some details might be
+ *     different. For instance, a listener based on
+ *     updater_domlistener will learn of node removals
+ *     &lt;strong>before&lt;/strong> the node is removed while a listener
+ *     based on mutation_domlistener will learn of it
+ *     &lt;strong>after&lt;/strong> it has been removed.&lt;/li>
+ *
+ * &lt;li>
+ *
+ *   &lt;p>A Listener does not verify whether the parameters passed to
+ *      handlers are part of the DOM tree. For instance, handler A
+ *      could operate on element X so that it is removed from the DOM
+ *      tree. If there is already another mutation on X in the
+ *      pipeline by the time A is called and handler B is called to
+ *      deal with it, then by the time B is run X will no longer be
+ *      part of the tree.&lt;p>
+ *
+ *    &lt;p>To put it differently, even if when a mutation record is
+ *       generated element X was part of the DOM tree, it is possible
+ *       that by the time the handlers that must be run for that
+ *       mutation are run, X is no longer part of the DOM tree.&lt;/p>
+ *
+ *    &lt;p>Handlers that care about whether they are operating on
+ *       elements that are in the DOM tree should perform a test
+ *       themselves to check whether what is passed to them is still
+ *       in the tree.&lt;/p>
+ *
+ *    &lt;p>The handlers fired on removed-elements events work on nodes
+ *       that have been removed from the DOM tree. To know what was
+ *       before and after these nodes &lt;strong>before&lt;/strong> they
+ *       were removed use &lt;code>$previous_sibling&lt;/code> and
+ *       &lt;code>$next_sibling&lt;/code>, because it is likely that the
+ *       nodes themselves will have both their
+ *       &lt;code>previousSibling&lt;/code> and &lt;code>nextSibling&lt;/code> set
+ *       to &lt;code>null&lt;/code>.&lt;/p>
+ *
+ *  &lt;/li>
+ *
+ *  &lt;li>Handlers that are fired on children-changed events,
+ *      &lt;strong>and&lt;/strong> which modify the DOM tree can easily
+ *      result in infinite loops. Care should be taken early in any
+ *      such handler to verify that the kind of elements added or
+ *      removed &lt;strong>should&lt;/strong> result in a change to the DOM
+ *      tree, and ignore those changes that are not relevant.&lt;/li>
+ *
+ * &lt;/ul>
+ *
+ *
+ * @constructor
+ *
+ * @param {Node} root The root of the DOM tree about which the
+ * listener should listen to changes.
+ */
+
+function Listener(root) {
+    this._$root = $(root);
+
+    this._event_handlers = {
+        "included-element": [],
+        "excluded-element": [],
+        "added-element": [],
+        "removed-element": [],
+        "children-changed": [],
+        "text-changed": []
+    };
+
+    this._trigger_handlers = {};
+
+    this._triggers_to_fire = {};
+}
+
+/**
+ * Start listening to changes on the root passed when the object was
+ * constructed.
+ * @method
+ */
+Listener.prototype.startListening = mustOverride;
+
+function mustOverride() {
+    throw new Error("derived classes must override this method");
+}
+
+/**
+ * Adds an event handler.
+ *
+ * @param {String|Array.&lt;String>} event_types Either a string naming
+ * the event this handler will process or an array of strings if
+ * multiple types of events are to be handled.
+ * @param selector Can be anything that jQuery accepts as a selector.
+ * @param {Function} handler The handler to be called by this listener
+ * when the events specified in &lt;code>event_types&lt;/code> occur.
+ * @throws {Error} If an event is unrecognized.
+ */
+Listener.prototype.addHandler = function (event_types, selector, handler) {
+    if (!(event_types instanceof Array))
+        event_types = [event_types];
+
+    for(var ev_ix = 0, event_type; (event_type = event_types[ev_ix]) !==
+        undefined; ev_ix++) {
+        if (event_type !== "trigger") {
+            var pairs = this._event_handlers[event_type];
+            if (pairs === undefined)
+                throw new Error("invalid event_type: " + event_type);
+
+            pairs.push([selector, handler]);
+        }
+        else {
+            var handlers = this._trigger_handlers[selector];
+            if (handlers === undefined)
+                handlers = this._trigger_handlers[selector] = [];
+
+            handlers.push(handler);
+        }
+    }
+};
+
+/**
+ * Stops listening to DOM changes.
+ * @method
+ */
+Listener.prototype.stopListening = mustOverride;
+
+/**
+ * Process all changes immediately.
+ * @method
+ */
+Listener.prototype.processImmediately = mustOverride;
+
+/**
+ * Tells the listener to fire the named trigger as soon as possible.
+ *
+ * @param {String} name The name of the trigger to fire.
+ */
+Listener.prototype.trigger = function(name) {
+    this._triggers_to_fire[name] = 1;
+};
+
+/**
+ * Processes pending triggers.
+ *
+ * @private
+ */
+Listener.prototype._processTriggers = function () {
+    var keys = Object.keys(this._triggers_to_fire);
+    while(keys.length > 0) {
+        // We flush the map because the triggers could trigger
+        // more triggers. This also explains why we are in a loop.
+        this._triggers_to_fire = {};
+
+        var trigger_map = this._trigger_handlers;
+        for (var key_ix = 0, key; (key = keys[key_ix]) !== undefined;
+             ++key_ix) {
+            var handlers = trigger_map[key];
+            if (handlers !== undefined) {
+                for(var handler_ix = 0, handler;
+                    (handler = handlers[handler_ix]) !== undefined;
+                    ++handler_ix)
+                    this._callHandler(handler);
+            }
+        }
+
+        // See whether there is more to trigger.
+        keys = Object.keys(this._triggers_to_fire);
+    }
+};
+
+/**
+ * Utility function for calling event handlers.
+ * @private
+ *
+ * @param {Function} handler The handler.
+ * @param rest... The arguments to pass to the handler.
+ */
+Listener.prototype._callHandler = function () {
+    var handler = arguments[0];
+    var rest = Array.prototype.slice.call(arguments, 1);
+    rest.unshift(this._$root);
+    handler.apply(undefined, rest);
+};
+
+/**
+ * Dumps a mutation to the console.
+ *
+ * @private
+ * @param mut A DOM mutation object.
+ */
+// Useful for debugging
+Listener.prototype._dumpMutation = function (mut) {
+    console.log(mut.type + ":", mut.target, mut.addedNodes, mut.removedNodes,
+                mut.previousSibling, mut.nextSibling, mut.attributeName,
+                mut.attributeNamespace, mut.oldValue);
+};
+
+exports.Listener = Listener;
+
+});
+
+//  LocalWords:  DOM Mangalam MPL Dubeau jQuery previousSibling li ul
+//  LocalWords:  MutationObserver nextSibling lt findandself jquery
+//  LocalWords:  domlistener
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="findandself.html">findandself</a></li><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="modal-Modal.html">Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="conditioned-Conditioned.html">Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="generic_meta-Meta.html">Meta</a></li><li><a href="generic_tr-Registry.html">Registry</a></li><li><a href="generic-Mode.html">Mode</a></li><li><a href="tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">Listener</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Nov 13 2013 14:29:37 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

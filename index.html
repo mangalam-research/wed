@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; Wed 0.10.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.10.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Wed 0.10.0 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="#">Wed 0.10.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Wed is a schema-aware editor for XML documents. It runs in a web
+browser. It is alpha software. We aim to make it extensible, but the
+API is likely to change quickly for now. Please see our <a class="reference internal" href="#documentation">Documentation</a>
+for details about how to use wed in your own project.</p>
+</div>
+<div class="section" id="demo">
+<h1>Demo<a class="headerlink" href="#demo" title="Permalink to this headline">¶</a></h1>
+<p>You can run the demo with:</p>
+<blockquote>
+<div><ul class="simple">
+<li>an <a class="reference external" href="build/standalone/kitchen-sink.html">empty document</a>
+using a vanilla TEI schema.</li>
+<li><a class="reference external" href="build/standalone/kitchen-sink.html?file=/wed/build/samples/sketch_for_a_medical_education.xml">Sketch for a medical education</a>, a sample document from the
+Oxford Text Archive.</li>
+</ul>
+</div></blockquote>
+<p>Here are some limitations of the demo:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Wed does not support old browsers, mobile devices, oddball, or
+unpopular browsers. Your notion of &#8220;old&#8221; might differ from ours.</li>
+<li>Wed will fail if you try to save. Rest assured that the saving
+functionality works, but it needs a server able to handle AJAX
+calls. Github.io is not able to do this.</li>
+<li>You cannot edit attributes in a generic way, as attributes. The
+functionality just has not been implemented yet because wed is
+developed in the context of a project where all attributes are set
+by software or are edited through domain-specific abstractions
+rather than directly, as attributes.</li>
+</ul>
+</div></blockquote>
+<p>Things you can do:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Use the left mouse button to bring up a context menu. Such a menu
+exists for starting tags and all positions that are editable. This
+menu allows inserting elements.  Ctrl-/ also brings up this menu.</li>
+<li>Insert text where text is valid.</li>
+<li>Ctrl-Z to undo.</li>
+<li>Ctrl-Y to redo.</li>
+<li>Ctrl-C to copy.</li>
+<li>Ctrl-V to paste.</li>
+<li>Ctrl-X to cut.</li>
+<li>Using Ctrl-S to save does not work, for the reasons given above.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<p>For information about building wed and using it on your own site, see
+the <a class="reference external" href="usage.html">basic usage information</a>. For advanced usage
+information and information about wed&#8217;s internals, see the <a class="reference external" href="tech_notes.html">technical
+notes</a>.</p>
+<p>People who would like to customize wed or create a mode for it should
+consult the <a class="reference external" href="api/index.html">API documentation</a>.</p>
+</div>
+<div class="section" id="downloads">
+<h1>Downloads<a class="headerlink" href="#downloads" title="Permalink to this headline">¶</a></h1>
+<p>View on <a class="reference external" href="https://github.com/mangalam-research/wed">Github</a>.</p>
+<p>Download a <a class="reference external" href="https://github.com/mangalam-research/wed/zipball/master">zip</a>
+or <a class="reference external" href="https://github.com/mangalam-research/wed/tarball/master">tarball</a>.</p>
+</div>
+<div class="section" id="license">
+<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
+<p>Wed is released under the <a class="reference external" href="http://www.mozilla.org/MPL/2.0/">Mozilla Public License version 2.0</a>. Copyright Mangalam Research
+Center for Buddhist Languages, Berkeley, CA.</p>
+</div>
+<div class="section" id="credits">
+<h1>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h1>
+<p>Wed is designed and developed by Louis-Dominique Dubeau (<a class="reference external" href="https://github.com/lddubeau">&#64;lddubeau</a>), Director of Software Development for
+the Buddhist Translators Workbench project, Mangalam Research Center
+for Buddhist Languages.</p>
+<a class="reference external image-reference" href="http://www.mangalamresearch.org/"><img alt="https://secure.gravatar.com/avatar/7fc4e7a64d9f789a90057e7737e39b2a" src="https://secure.gravatar.com/avatar/7fc4e7a64d9f789a90057e7737e39b2a" /></a>
+<p>This software has been made possible in part by a Level I Digital
+Humanities Start-up Grant and a Level II Digital Humanities Start-up
+Grant from the National Endowment for the Humanities (grant numbers
+HD-51383-11 and HD-51772-13). Any views, findings, conclusions, or
+recommendations expressed in this software do not necessarily
+represent those of the National Endowment for the Humanities.</p>
+<a class="reference external image-reference" href="http://www.neh.gov/"><img alt="http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg" src="http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg" /></a>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a></li>
+<li><a class="reference internal" href="#demo">Demo</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#downloads">Downloads</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+<li><a class="reference internal" href="#credits">Credits</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="#">Wed 0.10.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Louis-Dominique Dubeau.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

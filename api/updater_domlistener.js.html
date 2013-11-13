@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: updater_domlistener.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/wed.css">
+</head>
+
+<body>
+
+
+<div id="main">
+
+    <h1 class="page-title">Source: updater_domlistener.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @module updater_domlistener
+ * @desc Facility to listen to changes to a DOM tree.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
+
+define(/** @lends module:updater_domlistener */
+function (require, exports, module) {
+'use strict';
+
+var oop = require("./oop");
+var domlistener = require("./domlistener");
+var $ = require("jquery");
+require("./jquery.findandself");
+
+/**
+ * @classdesc A DOM listener based on tree_updater.
+ * @extends module:domlistener~Listener
+ *
+ * @constructor
+ * @param {Node} root The root of the DOM tree about which the
+ * listener should listen to changes.
+ * @param {module:tree_updater~TreeUpdater} updater The tree updater
+ * through which the &lt;code>root&lt;/code> is updated.
+ */
+function Listener(root, updater) {
+    domlistener.Listener.call(this, root);
+    this._updater = updater;
+    this._stopped = true;
+    this._scheduled_process_triggers = 0;
+
+    this._updater.addEventListener(
+        "insertNodeAt", this._insertNodeAtHandler.bind(this));
+    this._updater.addEventListener(
+        "setTextNodeValue", this._setTextNodeValueHandler.bind(this));
+    this._updater.addEventListener(
+        "deleteNode", this._deleteNodeHandler.bind(this));
+}
+
+oop.inherit(Listener, domlistener.Listener);
+
+Listener.prototype.startListening = function() {
+    this._stopped = false;
+};
+
+Listener.prototype.stopListening = function () {
+    this._stopped = true;
+};
+
+Listener.prototype.processImmediately = function () {
+    // It is a noop for this implementation.
+};
+
+/**
+ * Handles {@link module:tree_updater~TreeUpdater#event:insertNodeAt
+ * insertNodeAt} events.
+ *
+ * @private
+ * @param {module:tree_updater~TreeUpdater#event:insertNodeAt} ev The
+ * event.
+ */
+Listener.prototype._insertNodeAtHandler = function (ev) {
+    if (this._stopped)
+        return;
+
+    var $parent = $(ev.parent);
+    var $node = $(ev.node);
+    var cc_calls = this._childrenChangedCalls(
+        $parent, $node, $(), $node.prev(), $node.next());
+
+    var ar_calls = [];
+    var ie_calls = [];
+    if (ev.node.nodeType === Node.ELEMENT_NODE) {
+        ar_calls = this._addRemCalls("added-element", $node, $parent);
+        ie_calls = this._incExcCalls("included-element", $node, $parent);
+    }
+
+    var to_call = cc_calls.concat(ar_calls, ie_calls);
+    for(var i = 0, call; (call = to_call[i]) !== undefined; ++i)
+        this._callHandler.apply(this, call);
+
+    this._scheduleProcessTriggers();
+};
+
+/**
+ * Handles {@link module:tree_updater~TreeUpdater#event:deleteNode
+ * deleteNode} events.
+ *
+ * @private
+ * @param {module:tree_updater~TreeUpdater#event:deleteNode} ev The
+ * event.
+ */
+Listener.prototype._deleteNodeHandler = function (ev) {
+    if (this._stopped)
+        return;
+
+    var $node = $(ev.node);
+    var $parent = $node.parent();
+    var cc_calls = this._childrenChangedCalls(
+        $parent, $(), $node, $node.prev(), $node.next());
+
+    var ar_calls = [];
+    var ie_calls = [];
+    if (ev.node.nodeType === Node.ELEMENT_NODE) {
+        ar_calls = this._addRemCalls("removed-element", $node, $parent);
+        ie_calls = this._incExcCalls("excluded-element", $node, $parent);
+    }
+
+    var to_call = cc_calls.concat(ar_calls, ie_calls);
+    for(var i = 0, call; (call = to_call[i]) !== undefined; ++i)
+        this._callHandler.apply(this, call);
+
+    this._scheduleProcessTriggers();
+};
+
+/**
+ * Produces the calls for &lt;code>children-changed&lt;/code> events.
+ *
+ * @private
+ * @param {jQuery} $parent The parent of the children that have changed.
+ * @param {jQuery} $added Added children.
+ * @param {jQuery} $removed Removed children.
+ * @param {jQuery} $prev Node preceding the chilren.
+ * @param {jQuery} $next Node following the children.
+ * @returns {Array.&lt;Array>} An list of call signatures. Each signature
+ * is a list which has a function for first element and the parameters
+ * to pass to this function.
+ */
+Listener.prototype._childrenChangedCalls = function ($parent, $added, $removed,
+                                                     $prev, $next) {
+    var pairs = this._event_handlers["children-changed"];
+    var ret = [];
+    // Go over all the elements for which we have handlers
+    for (var pair_ix = 0, pair_ix_limit = pairs.length;
+         pair_ix &lt; pair_ix_limit; ++pair_ix) {
+        var pair = pairs[pair_ix];
+        var sel = pair[0];
+
+        if ($parent.is(sel))
+            ret.push([pair[1], $added, $removed, $prev, $next, $parent]);
+    }
+
+    return ret;
+};
+
+/**
+ * Handles {@link module:tree_updater~TreeUpdater#event:setTextNodeValue
+ * setTextNodeValue} events.
+ *
+ * @private
+ * @param {module:tree_updater~TreeUpdater#event:setTextNodeValue} ev The
+ * event.
+ */
+Listener.prototype._setTextNodeValueHandler = function (ev) {
+    if (this._stopped)
+        return;
+
+    var pairs = this._event_handlers["text-changed"];
+    var $target = $(ev.node);
+
+    // Go over all the elements for which we have
+    // handlers
+    var $parent = $target.parent();
+    for (var pair_ix = 0, pair_ix_limit = pairs.length;
+         pair_ix &lt; pair_ix_limit; ++pair_ix) {
+        var pair = pairs[pair_ix];
+        var sel = pair[0];
+
+        if ($parent.is(sel))
+            this._callHandler(pair[1], $target, ev.old_value);
+    }
+
+    this._scheduleProcessTriggers();
+};
+
+/**
+ * Sets a timeout to run the triggers that must be run.
+ * @private
+ */
+Listener.prototype._scheduleProcessTriggers = function () {
+    if (this._scheduled_process_triggers)
+        return;
+    this._scheduled_process_triggers = window.setTimeout(function () {
+        this._scheduled_process_triggers = undefined;
+        this._processTriggers();
+    }.bind(this), 0);
+};
+
+/**
+ * Produces the calls for &lt;code>added-element&lt;/code> and
+ * &lt;code>removed-element&lt;/code> events.
+ *
+ * @private
+ *
+ * @param {String} name The event name.
+ * @param {jQuery} $node The node added or removed.
+ * @param {jQuery} $target The parent of this node.
+ *
+ * @returns {Array.&lt;Array>} An list of call signatures. Each signature
+ * is a list which has a function for first element and the parameters
+ * to pass to this function.
+ */
+Listener.prototype._addRemCalls = function (name, $node, $target) {
+    var pairs = this._event_handlers[name];
+    var $prev = $node.prev();
+    var $next = $node.next();
+    var ret = [];
+
+    // Go over all the elements for which we have handlers
+    for (var pair_ix = 0, pair_ix_limit = pairs.length;
+         pair_ix &lt; pair_ix_limit; ++pair_ix) {
+        var pair = pairs[pair_ix];
+        var sel = pair[0];
+
+        if ($node.is(sel))
+            ret.push([pair[1], $target, $prev, $next, $node]);
+    }
+
+    return ret;
+};
+
+/**
+ * Produces the calls for &lt;code>included-element&lt;/code> and
+ * &lt;code>excluded-element&lt;/code> events.
+ *
+ * @private
+ *
+ * @param {String} name The event name.
+ * @param {jQuery} $node The node which was added or removed and for
+ * which we must issue the events.
+ * @param {jQuery} $target The parent of this node.
+ *
+ * @returns {Array.&lt;Array>} An list of call signatures. Each signature
+ * is a list which has a function for first element and the parameters
+ * to pass to this function.
+ */
+Listener.prototype._incExcCalls = function (name, $node, $target) {
+    var pairs = this._event_handlers[name];
+    var $prev = $node.prev();
+    var $next = $node.next();
+    var ret = [];
+
+    // Go over all the elements for which we have handlers
+    for (var pair_ix = 0, pair_ix_limit = pairs.length;
+         pair_ix &lt; pair_ix_limit; ++pair_ix) {
+        var pair = pairs[pair_ix];
+        var sel = pair[0];
+
+        var $targets = $node.findAndSelf(sel);
+        for(var target_ix = 0, target_ix_limit = $targets.length;
+            target_ix &lt; target_ix_limit; ++target_ix)
+            ret.push([pair[1], $node, $target, $prev, $next,
+                      $($targets.get(target_ix))]);
+    }
+    return ret;
+};
+
+exports.Listener = Listener;
+
+});
+
+//  LocalWords:  concat noop setTextNodeValue DOM oop Mangalam MPL
+//  LocalWords:  Dubeau findandself domlistener insertNodeAt prev
+//  LocalWords:  deleteNode jquery jQuery
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="findandself.html">findandself</a></li><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="modal-Modal.html">Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="conditioned-Conditioned.html">Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="generic_meta-Meta.html">Meta</a></li><li><a href="generic_tr-Registry.html">Registry</a></li><li><a href="generic-Mode.html">Mode</a></li><li><a href="tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">Listener</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Nov 13 2013 14:29:37 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

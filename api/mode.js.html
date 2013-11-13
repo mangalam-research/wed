@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: mode.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/wed.css">
+</head>
+
+<body>
+
+
+<div id="main">
+
+    <h1 class="page-title">Source: mode.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @module mode
+ * @desc The base class for modes.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
+define(/** @lends module:mode */ function (require, exports, module) {
+'use strict';
+
+var domutil = require("./domutil");
+
+/**
+ * @classdesc A mode for wed should be implemented as a module which exports a
+ * class derived from this class.
+ *
+ * @constructor
+ * @param {Object} options The options for the mode. Each mode defines
+ * what fields this object contains.
+ */
+function Mode (options) {
+    this._editor = undefined;
+    this._options = options || {};
+}
+
+/**
+ * This static method must be used by the wed editor to allow the mode
+ * to resolve those options which are paths to modules to be loaded
+ * dynamically to their respective modules. For instance if a mode
+ * expects an option &lt;code>meta&lt;/code> to be a path to a module which
+ * implements meta information, this function would resolve this path
+ * to the actual module. This is a potentially asynchronous operation,
+ * hence the need for a callback.
+ *
+ * @param {Object} options The options for the mode. Each mode defines
+ * what fields this object contains.
+ * @param {Function} callback A callback to call once the options have
+ * been resolved.
+ */
+Mode.optionResolver = function (options, callback) {
+    callback(options);
+};
+
+/**
+ * This is called by the editor when a mode is ready to be
+ * initialized. The mode could use this to add a toolbar above the
+ * editor or add listeners to key events, etc.
+ *
+ * @param {module:wed~Editor} editor The editor onto which the mode is
+ * being associated.
+ */
+Mode.prototype.init = function (editor) {
+    this._editor = editor;
+};
+
+/**
+ * &lt;p>This method returns a name resolver that is setup to resolve
+ * names outside the context of an XML tree. It is sometimes useful to
+ * use qualified names that do not depend on how a specific XML
+ * document is structured, this method provides for such
+ * functionality.&lt;/p>
+ *
+ * &lt;p>Modes must override this method.&lt;/p>
+ *
+ * @returns {module:salve/name_resolver~NameResolver}
+ */
+Mode.prototype.getAbsoluteResolver = function () {
+    throw new Error("getAbsoluteResolver must be overriden.");
+};
+
+/**
+ * &lt;p>Modes must override this method.&lt;/p>
+ *
+ * @returns {module:decorator~Decorator} The decorator that this mode
+ * will use.
+ */
+Mode.prototype.makeDecorator = function () {
+    throw new Error("makeDecorator must be overriden.");
+};
+
+/**
+ * Modes may override this method if they want to add elements to
+ * contextual menus that are presented for text.
+ *
+ * @returns {Array.&lt;Array>} An array of arrays. The subarrays have two
+ * members: a menu item title, and a function to invoke when the item
+ * is selected.
+ */
+Mode.prototype.getContextualMenuItems = function () {
+    return [];
+};
+
+/**
+ * Modes may implement this method if they want to override what
+ * transformations they allow based on state. The default
+ * implementation merely passes the call to the transformations
+ * registry of the mode. The implementation should rely on the
+ * &lt;code>container&lt;/code> and &lt;code>offset&lt;/code> position rather than
+ * use the caret because the editor may be seeking information about
+ * possible actions near to the caret.
+ *
+ * @param {Array.&lt;String>|String} type The type or types of
+ * transformations to return.
+ * @param {String} tag The tag name we are interested in.
+ * @param {Node} container The position in the data tree.
+ * @param {Integer} offset The position in the data tree.
+ * @returns {Array.&lt;module:action~Action>} An array
+ * of actions.
+ */
+Mode.prototype.getContextualActions = function (type, tag, container, offset) {
+    return this._tr.getTagTransformations(type, tag);
+};
+
+/**
+ * Get additional stylesheets to use to render the HTML.
+ *
+ * @returns {Array.&lt;String>} An array of paths to the stylesheets to
+ * load for this mode. These elements will be passed to RequireJS'
+ * &lt;code>require.toUrl&lt;/code> so they can be paths like those passed
+ * to require or could be URLs.
+ */
+Mode.prototype.getStylesheets = function () {
+    return [];
+};
+
+/**
+ * @param {Node} element This is the element to examine.
+ * @returns {Array.&lt;Node>} An array of two elements. The first is the
+ * node before editable contents, the second the node after. Either
+ * node can be null if there is nothing before or after editable
+ * contents. Both are null if there is nothing around the editable
+ * content.
+ */
+Mode.prototype.nodesAroundEditableContents = function (element) {
+    throw new Error("nodesAroundEditableContents must be overriden.");
+};
+
+/**
+ * This method can be overriden by modes to provide the editor with
+ * different placeholders for different elements. The default
+ * implementation returns a default placeholder for all elements.
+ *
+ * @param {Node} element This is the element for which to make a
+ * placeholder.
+ * @returns {Node} A placeholder for the element.
+ */
+Mode.prototype.makePlaceholderFor = function(element) {
+    return domutil.makePlaceholder();
+};
+
+exports.Mode = Mode;
+
+});
+
+//  LocalWords:  RequireJS stylesheets subarrays overriden html MPL
+//  LocalWords:  Mangalam Dubeau domutil
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="findandself.html">findandself</a></li><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="modal-Modal.html">Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="conditioned-Conditioned.html">Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="generic_meta-Meta.html">Meta</a></li><li><a href="generic_tr-Registry.html">Registry</a></li><li><a href="generic-Mode.html">Mode</a></li><li><a href="tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">Listener</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Nov 13 2013 14:29:37 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

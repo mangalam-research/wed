@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/conditioned.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/wed.css">
+</head>
+
+<body>
+
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/conditioned.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @module lib/conditioned
+ * @desc A mixin class for objects that have conditions.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
+define(/** @lends module:lib/conditioned */ function (require, exports,
+                                                           module) {
+"use strict";
+
+/**
+ * This constructor must be called by the class using this mixin.
+ *
+ * @classdesc &lt;p>This class is a mixin which adds the glue needed for
+ * an object to allow other objects to know when certain conditions
+ * have been met. This mixin depends on an event emitting and
+ * listening framework of the sort provided by {@link
+ * module:lib/simple_event_emitter simple_event_emitter}. The object
+ * using this mixin does not have to use {@link
+ * module:lib/simple_event_emitter simple_event_emitter} but must
+ * offer the same interface.&lt;/p>
+ *
+ * &lt;p>Since this mixin builds on {@link
+ * module:lib/simple_event_emitter simple_event_emitter} or something
+ * similar, the following are true:
+ *
+ *   &lt;ul>
+ *
+ *     &lt;li>a condition name is an event name; setting the condition
+ *     triggers the event.&lt;/li>
+ *
+ *     &lt;li>a condition listener is an event listener, and should have
+ *     the same signature: &lt;code>listener(ev)&lt;/code> where
+ *     &lt;code>ev&lt;/code> is an object related to the event.&lt;/li>
+ *
+ *   &lt;/ul>
+ *
+ * &lt;/p>
+ *
+ * &lt;p>Events and conditions live in the same namespace. Consequently,
+ * classes using this mixin should take care of avoiding mixing
+ * condition and event names. For instance, if a class emits an event
+ * using a condition name, this may result in condition listeners
+ * being executed, but the condition won't be recorded as being in
+ * effect as would be the case if {@link
+ * module:lib/conditioned~Conditioned#_setCondition _setCondition} would
+ * be called.&lt;/p>
+ * @mixin
+ *
+ * @constructor
+ */
+function Conditioned () {
+    this._conditions = {};
+}
+
+/**
+ * This method is called by the class using this mixin to indicate
+ * that a condition has been reached.
+ *
+ * @private
+ * @param {String} name The name of the condition that was reached.
+ * @param ev The event data to provide to listeners listening to this
+ * condition.
+ */
+Conditioned.prototype._setCondition = function (name, ev) {
+    if (this._conditions[name] === undefined) {
+        this._conditions[name] = true;
+        this._emit(name, ev);
+    }
+};
+
+/**
+ * This is a convenience method to check whether a condition has been
+ * reached or not. &lt;strong>In most cases, asynchronous code should
+ * call {@link module:lib/conditioned~Conditioned#whenCondition
+ * whenCondition} rather than poll repeatedly by using this
+ * method.&lt;/strong> However, there are some rare situations in which
+ * polling is called for.
+ *
+ * @param {String} name The name of the condition to check.
+ * @returns {Boolean} &lt;code>true&lt;/code> if the condition has been met
+ * already, or a falsy value if the condition has not been met.
+ */
+Conditioned.prototype.getCondition = function (name) {
+    return this._conditions[name];
+};
+
+/**
+ * &lt;p>This method is called so that a listener function is executed
+ * when a certain condition is reached. If the condition has already
+ * been reached, then the listener will be executed immediately. If
+ * not, then the listener will be executed as soon as the condition is
+ * reached. In any case, the listener is executed once and only
+ * once per call to this method.&lt;/p>
+ *
+ * @param {String} name The name of the condition that the caller is
+ * interested in.
+ * @param {Function} listener The listener to execute when the
+ * condition is reached.
+ */
+Conditioned.prototype.whenCondition = function (name, listener) {
+    if (this._conditions[name])
+        listener();
+    else
+        this.addOneTimeEventListener(name, listener);
+};
+
+exports.Conditioned = Conditioned;
+
+});
+
+//  LocalWords:  falsy ev mixin namespace Mangalam MPL Dubeau
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="findandself.html">findandself</a></li><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="modal-Modal.html">Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="conditioned-Conditioned.html">Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="generic_meta-Meta.html">Meta</a></li><li><a href="generic_tr-Registry.html">Registry</a></li><li><a href="generic-Mode.html">Mode</a></li><li><a href="tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">Listener</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Nov 13 2013 14:29:37 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

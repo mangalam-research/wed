@@ -1,0 +1,763 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Advanced Usage Notes &mdash; Wed 0.10.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.10.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Wed 0.10.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Wed 0.10.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="advanced-usage-notes">
+<h1>Advanced Usage Notes<a class="headerlink" href="#advanced-usage-notes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="build-information">
+<h2>Build Information<a class="headerlink" href="#build-information" title="Permalink to this headline">¶</a></h2>
+<p>Every time a build is performed, the building process stores
+information about the build into a file which at run time is available
+as a module at the <tt class="docutils literal"><span class="pre">lib/wed/build-info</span></tt> location relative to the
+root of the build directory. This module contains two fields:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">desc</span></tt> is a description of the build. This string is created by
+running <tt class="docutils literal"><span class="pre">git</span> <span class="pre">describe</span></tt> and adding to the result the string
+<tt class="docutils literal"><span class="pre">-unclean</span></tt> if the build was done with an unclean working tree.</li>
+<li><tt class="docutils literal"><span class="pre">date</span></tt> is the date of the build. (To be precise, it is the date at
+which the build <tt class="docutils literal"><span class="pre">build-info</span></tt> module was generated.)</li>
+</ul>
+<p>This information was added to wed as of version 0.11.0. If you happen
+to use wed&#8217;s development code that was produced after version 0.10.0
+was released but before version 0.11.0 was released, then the version
+number you&#8217;ll get in the <tt class="docutils literal"><span class="pre">desc</span></tt> field will start with
+&#8220;v0.10.0-x&#8221;. The additional &#8220;-x&#8221; is a special case to work around a
+bug in gitflow.</p>
+</div>
+<div class="section" id="deployment-considerations">
+<h2>Deployment Considerations<a class="headerlink" href="#deployment-considerations" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">As of version 0.10.0 there is a nasty bug in the
+optimized bundle. You may still experiment with the
+optimized version of wed if you want to do so, provided
+that you don&#8217;t deploy it in production. The bug in
+question is documented <a class="reference external" href="https://github.com/mangalam-research/wed/issues/8">here</a>.</p>
+</div>
+<p>It is possible to deploy wed using the <tt class="docutils literal"><span class="pre">build/standalone/</span></tt> file tree
+but you will pay in execution time and bandwidth because the files in
+this tree are not optimized.</p>
+<p>The <tt class="docutils literal"><span class="pre">build/standalone-optimized/</span></tt> file tree is optimized. This
+optimization exists primarily for illustration purposes and for
+testing wed, but it could be used for deployment too, as long as you
+understand how it is constructed. The build file driving how <tt class="docutils literal"><span class="pre">r.js</span></tt>
+created the optimized tree is <tt class="docutils literal"><span class="pre">requirejs.build.js</span></tt>. Here are the
+major characteristics of this optimization:</p>
+<ul class="simple">
+<li>All of wed&#8217;s JavaScript is combined into one file. The only part of
+wed excluded is the test mode used in testing, which is not meant to
+be deployed anywhere.</li>
+<li>All external libraries (jQuery, Bootstrap, etc.) are excluded from
+the optimization.</li>
+<li>The CSS files are not optimized with regards to space but not combined.</li>
+</ul>
+<p>This optimization is designed to provide a balance between performance
+and flexibility. Greater performance could have been achieved by
+incorporating into one file all of the external libraries. However,
+such bundle would be unlikely to be trivially deployable on a
+full-fledged web site in which wed would be embedded. Such site might
+already be using jQuery and Bootstrap, perhaps different versions from
+those used to build wed, etc. The optimization described above could
+conceivably be used on this hypothetical server, provided that the
+configuration is updated to look for the external libraries at the
+right places.</p>
+<p>Wed&#8217;s build process creates a configuration for the optimized bundle
+at <tt class="docutils literal"><span class="pre">build/standalone-optimized/requirejs-config.js</span></tt>. This
+configuration allows an external custom mode to load individual
+modules of wed, because it has mappings like these:</p>
+<div class="highlight-python"><pre>"wed/log": "wed/wed",
+"wed/oop": "wed/wed",
+"wed/lib/simple_event_emitter": "wed/wed",
+[...]</pre>
+</div>
+<p>which map each individual module forming wed to the single bundle file
+created during the optimization process. If you base your own run time
+RequireJS configuration on this file, it is possible for code external
+to the bundle, for instance a custom mode, to load parts of wed in an
+arbitrary order.</p>
+<p>It is also possible to use a configuration file that does not have the
+individual module mappings. In this scenario, it is <strong>not</strong> possible
+for code external to wed to load parts of wed in an arbitrary
+order. The <tt class="docutils literal"><span class="pre">wed.js</span></tt> file has to be loaded first, and then wed&#8217;s
+modules become accessible. Note that this way of operating should work
+for the vast majority of cases because the typical usage scenario for
+wed is to first create a <tt class="docutils literal"><span class="pre">wed.Editor</span></tt> instance which dynamically
+loads a mode. Since the mode is loaded after <tt class="docutils literal"><span class="pre">wed.Editor</span></tt> is
+created, it is guaranteed that by the time the mode runs, all of wed&#8217;s
+modules are available.</p>
+</div>
+<div class="section" id="schema-and-structure-considerations">
+<h2>Schema and Structure Considerations<a class="headerlink" href="#schema-and-structure-considerations" title="Permalink to this headline">¶</a></h2>
+<p>The following discussion covers schema design considerations if you
+wish to use wed to enforce editing constraints. It is possible to rely
+instead on user discipline to enforce constraints, just like one would
+do if using a plain text editor to edit XML. If this is your case,
+then you do not need to concern yourself with the following.</p>
+<p>If you want constraints to be enforced <strong>by wed</strong>, then prioritize
+using a data structure that accurately reflects your <strong>editing</strong>
+concerns rather than your interchange concerns or your standard
+conformance concerns. Here&#8217;s an example. Suppose that you use a schema
+based on the TEI markup, and that for interchange purposes with
+another system it makes sense to encode something like:</p>
+<div class="highlight-python"><pre>&lt;p&gt;&lt;term&gt;&lt;foreign xml:lang="fr"&gt;Étranger&lt;/foreign&gt;&lt;/term&gt; is a foreign
+term.&lt;/p&gt;</pre>
+</div>
+<p>However, you do not want to allow your users to insert text inside the
+<tt class="docutils literal"><span class="pre">&lt;term&gt;</span></tt> element but outside <tt class="docutils literal"><span class="pre">&lt;foreign&gt;</span></tt> because that encoding is
+meaningless in your project. Wed is not designed to easily enforce
+this restriction. Wed will allow your users to create something
+like:</p>
+<div class="highlight-python"><pre>&lt;p&gt;&lt;term&gt;The term &lt;foreign xml:lang="fr"&gt;étranger&lt;/foreign&gt;
+&lt;/term&gt;is a foreign term.&lt;/p&gt;</pre>
+</div>
+<p>The solution here is to represent the
+<tt class="docutils literal"><span class="pre">&lt;term&gt;&lt;foreign&gt;&lt;/foreign&gt;&lt;/term&gt;</span></tt> structure as one element, for
+editing purposes. If it so happens that all instances of <tt class="docutils literal"><span class="pre">&lt;foreign&gt;</span></tt>
+are always to be interpreted as <tt class="docutils literal"><span class="pre">&lt;term&gt;&lt;foreign&gt;&lt;/foreign&gt;&lt;/term&gt;</span></tt>
+for interchange purposes, then you might as well make your editing
+structure <tt class="docutils literal"><span class="pre">&lt;foreign&gt;</span></tt> and convert it to the interchange structure
+when you actually need to interchange. In other cases, you might want
+to create your own element for editing, like <tt class="docutils literal"><span class="pre">&lt;my:custom-element&gt;</span></tt>,
+which is then created in the right context by the mode you create for
+your project.</p>
+</div>
+<div class="section" id="remote-logging">
+<h2>Remote Logging<a class="headerlink" href="#remote-logging" title="Permalink to this headline">¶</a></h2>
+<p>Wed uses log4javascript to log anything worth logging. By default, wed
+does not log anything to a remote server; however, if the <tt class="docutils literal"><span class="pre">ajaxlog</span></tt>
+option is passed to wed, it will add an <tt class="docutils literal"><span class="pre">AjaxAppender</span></tt> to the logger
+and log messages using <tt class="docutils literal"><span class="pre">XmlLayout</span></tt>. The <tt class="docutils literal"><span class="pre">ajaxlog</span></tt> option is of the
+form:</p>
+<div class="highlight-python"><pre>ajaxlog: {
+    url: "...",
+    headers: { ... }
+}</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">url</span></tt> parameter is the URL where log4javascript will send the
+log messages. The <tt class="docutils literal"><span class="pre">headers</span></tt> parameter specifies additional headers
+to send. In particular this is useful when the receiver is an
+installation requiring that some anti-CSRF token be set on HTTP
+headers.</p>
+</div>
+<div class="section" id="saving">
+<h2>Saving<a class="headerlink" href="#saving" title="Permalink to this headline">¶</a></h2>
+<p>Wed saves documents using Ajax queries to a server. Where wed saves is
+determined by the <tt class="docutils literal"><span class="pre">save</span></tt> option. It is of the form:</p>
+<div class="highlight-python"><pre>save: {
+    url: "...",
+    headers: { ... ]
+}</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">url</span></tt> parameter is the URL where wed will send the Ajax queries
+for saving. The <tt class="docutils literal"><span class="pre">headers</span></tt> parameter is as described above for
+logging.</p>
+<p>Queries are sent as POST requests with the following parameters:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">command</span></tt>: the command wed is issuing.</li>
+<li><tt class="docutils literal"><span class="pre">version</span></tt>: the version of wed issuing the command.</li>
+<li><tt class="docutils literal"><span class="pre">data</span></tt>: The data associated with the command. This is always a string
+serialization of the data tree.</li>
+</ul>
+<p>The possible commands are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">check</span></tt>: This is a mere version check.</li>
+<li><tt class="docutils literal"><span class="pre">save</span></tt>: Sent when the user manually requests a save.</li>
+<li><tt class="docutils literal"><span class="pre">recover</span></tt>: Sent when wed detects a fatal condition requiring
+reloading the editor from scratch. The server must save the data
+received and note that it was a recovery.</li>
+</ul>
+<p>The replies are sent as JSON-encoded data. Each reply is a single
+object with a single field named <tt class="docutils literal"><span class="pre">messages</span></tt> which is a list of
+messages. Each message has a <tt class="docutils literal"><span class="pre">type</span></tt> field which determines its
+meaning and what other fields may be present in the message. The
+possible message types are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">version_too_old_error</span></tt> indicates that the version of wed trying to
+access the server is too old.</li>
+<li><tt class="docutils literal"><span class="pre">save_transient_error</span></tt> indicates that the save operation cannot
+happen for some transient reason. The <tt class="docutils literal"><span class="pre">msg</span></tt> parameter on the
+message should give a user-friendly message indicating what
+the problem is and, to the extent possible, how to resolve it.</li>
+<li><tt class="docutils literal"><span class="pre">save_fatal_error</span></tt> indicates that the save operation failed
+fatally. This is used for cases where the user cannot reasonably do
+anything to resolve the problem.</li>
+<li><tt class="docutils literal"><span class="pre">locked_error</span></tt> indicates that the document the user wants to save
+is locked.</li>
+<li><tt class="docutils literal"><span class="pre">save_successful</span></tt> indicates that the save was successful.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="testing">
+<h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
+<p>Note that due to the asynchronous nature of the JavaScript environments
+used to run the tests, if the test suites are run on a system
+experiencing heavy load or if the OS has to swap a lot of memory from
+the hard disk, they may fail some or all tests. I&#8217;ve witnessed this
+happen, for instance, due to RequireJS timing out on a <tt class="docutils literal"><span class="pre">require()</span></tt>
+call because the OS was busy loading things into memory from
+swap. The solution is to run the test suites again.</p>
+<p>Another issue with running the tests is that wed uses <tt class="docutils literal"><span class="pre">setTimeout</span></tt>
+to do the validation work in a parallel fashion. (This actually
+simulates parallelism.) Now, browsers clamp timeouts to at most once a
+second for tests that are in background tabs (i.e. tabs whose content
+is not currently visible). Some tests want the first validation to be
+finished before starting. The upshot is that if the test tab is pushed
+to the background some tests will fail due to timeouts. The solution
+for now is don&#8217;t push the tab in which tests are run to the
+background. Web workers would solve this problem but would create
+other complications so it is unclear whether they are a viable
+solution.</p>
+<p>Tests are of three types:</p>
+<ul class="simple">
+<li>Not browser-dependent and therefore may be run outside a browser. We
+run these in Node.js.</li>
+<li>In-browser tests run <em>in</em> the browser.</li>
+<li>Selenium-based tests which run <em>outside</em> the browser but use selenium
+to control a browser.</li>
+</ul>
+<div class="section" id="browser-independent-tests">
+<h2>Browser-Independent Tests<a class="headerlink" href="#browser-independent-tests" title="Permalink to this headline">¶</a></h2>
+<p>To run the tests that are not browser-dependent do:</p>
+<div class="highlight-python"><pre>$ make test</pre>
+</div>
+<p>These tests are located in the <tt class="docutils literal"><span class="pre">test/</span></tt> directory off the wed
+root. You can also run <tt class="docutils literal"><span class="pre">mocha</span></tt>
+directly from the command line but having <tt class="docutils literal"><span class="pre">make</span></tt> build the <tt class="docutils literal"><span class="pre">test</span></tt>
+target will trigger a build to ensure that the tests are run against
+the latest code.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Keep in mind that tests are <strong>always</strong> run against the
+code present in <tt class="docutils literal"><span class="pre">build/standalone/</span></tt>. If you modify your
+source and fail to rebuild before running the test suite,
+the suite will run against <strong>old code!</strong></p>
+</div>
+</div>
+<div class="section" id="in-browser-tests">
+<h2>In-Browser Tests<a class="headerlink" href="#in-browser-tests" title="Permalink to this headline">¶</a></h2>
+<p>The browser-dependent tests are located in the <tt class="docutils literal"><span class="pre">browser_test/</span></tt> directory
+off the wed root. To run
+the tests that run in the browser, you must run <tt class="docutils literal"><span class="pre">server.js</span></tt>, a
+basic web server, from the root of the wed source:</p>
+<div class="highlight-python"><pre>$ ./server.js</pre>
+</div>
+<p>The server will serve on localhost:8888 by default. Give it an
+<tt class="docutils literal"><span class="pre">addr:port</span></tt> parameter if you want another address and port. Some
+tests require <strong>this</strong> specific server or a server that provides the
+same responses to Ajax requests. Point your browser to either:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://localhost:8888/build/standalone/test.html">http://localhost:8888/build/standalone/test.html</a> to run the
+tests with an unoptimized file tree.</li>
+<li>or <a class="reference external" href="http://localhost:8888/build/standalone-optimized/test.html">http://localhost:8888/build/standalone-optimized/test.html</a> to
+run the tests with an optimized file tree.</li>
+</ul>
+<p>If you change wed&#8217;s code and want to run the browser-dependent test
+suite again, make sure to run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt> before you run the suite
+again because otherwise the suite will run against the old code.</p>
+</div>
+<div class="section" id="selenium-based-tests">
+<h2>Selenium-Based Tests<a class="headerlink" href="#selenium-based-tests" title="Permalink to this headline">¶</a></h2>
+<p>Everything that follows is specific to wed. You need to have <a class="reference external" href="http://github.com/mangalam-research/selenic">selenic</a> installed and
+available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt>. Read its documentation. Then you
+need to create a <tt class="docutils literal"><span class="pre">config/selenium_local_config.py</span></tt> file. Use one of
+the example files provided with selenic. Add the following
+variable to your <tt class="docutils literal"><span class="pre">local_config/selenium_local_config.py</span></tt> file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Location of our server</span>
+<span class="n">WED_SERVER</span> <span class="o">=</span> <span class="s">&quot;http://localhost:8888/build/standalone/kitchen-sink.html&quot;</span>
+</pre></div>
+</div>
+<p>Change <tt class="docutils literal"><span class="pre">standalone</span></tt> to <tt class="docutils literal"><span class="pre">standalone-optimized</span></tt> if you want to use
+the optimized bundle.</p>
+<p>You also need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a> installed and
+available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt>.</p>
+<p>To run the Selenium-based tests, you can run either
+<tt class="docutils literal"><span class="pre">server.js</span></tt> <em>or</em> an nginx-based server. The latter option is
+recommended if you run your browser on a provisioning service like
+SauceLabs <em>and</em> you want to maximize performance. Running
+<tt class="docutils literal"><span class="pre">server.js</span></tt> has been explained above. To run nginx, just issue:</p>
+<div class="highlight-python"><pre>$ misc/start_nginx</pre>
+</div>
+<p>This will launch an nginx server listening on localhost:8888. It will
+handle all the requests to static resources itself, but will forward
+all Ajax stuff to an instance of <tt class="docutils literal"><span class="pre">server.js</span></tt> (which is started by
+the <tt class="docutils literal"><span class="pre">start_nginx</span></tt> script to listen on localhost:9999). This server
+puts all of the things that would go in <tt class="docutils literal"><span class="pre">/var/</span></tt> if it was started by
+the OS in the <tt class="docutils literal"><span class="pre">var/</span></tt> directory that sits at the top of the code
+tree. Look there for logs. This nginx instance uses the configuration
+built at <tt class="docutils literal"><span class="pre">build/config/nginx.conf</span></tt> from
+<tt class="docutils literal"><span class="pre">config/nginx.conf</span></tt>. Remember that if you want to override the
+configuration, the proper way to do it is to copy the configuration
+file into <tt class="docutils literal"><span class="pre">local_config/</span></tt> and edit it there. Run <tt class="docutils literal"><span class="pre">make</span></tt> again after
+you have made modifications. The only processing done on nginx&#8217;s file is to
+replace instances of <tt class="docutils literal"><span class="pre">&#64;PWD&#64;</span></tt> with the top of the code tree.</p>
+<p>Finally, to run the suite issue:</p>
+<div class="highlight-python"><pre>$ make selenium-test</pre>
+</div>
+<p>To run the suite while using the SauceLab servers, run:</p>
+<div class="highlight-python"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test</pre>
+</div>
+<p>Behind the scenes, this will launch behave. See the makefile <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> for
+information about how behave is run.</p>
+<p>The environment variable <tt class="docutils literal"><span class="pre">BEHAVE_WAIT_BETWEEN_STEPS</span></tt> can be set to a
+numerical value in seconds to get behave to stop between steps. It
+makes the Selenium test unfold more slowly. The environment variable
+<tt class="docutils literal"><span class="pre">SELENIUM_QUIT</span></tt> can be set to <tt class="docutils literal"><span class="pre">never</span></tt> to prevent Selenium from
+quitting the browser after the suite is run. It can be set to
+<tt class="docutils literal"><span class="pre">on-success</span></tt> so that the Selenium quits only if the suite is
+successful.</p>
+<ol class="upperalpha simple" start="17">
+<li>Why is Python required to run the Selenium-based tests? You&#8217;ve
+introduced a dependency on an additional language!</li>
+</ol>
+<ol class="upperalpha simple">
+<li>We&#8217;ve found that JavaScript is poorly supported by the various
+agents on which we depend for running Selenium the way we want. We&#8217;ve
+tried to avoid adding a dependency on Python to software which is
+JavaScript through and through, but that fight proved fruitless. Do
+we want to spend our time chasing bugs, badly documented code, and
+obscure or unsupported packages, or do we want to focus on wed? We
+chose the latter.</li>
+</ol>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Some of the browser-dependent tests may fail on browsers
+other than Chrome. Eventually, wed will work the same on
+all browsers but at the moment development efforts are
+spent elsewhere than hunting down differences in browser
+behavior. For instance, as of 2013/07/19 some of the
+caret movement tests fail on Firefox. This does not
+prevent using wed on Firefox.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">As part of normal development, wed is tested on Chrome
+first, Firefox second. Other browsers will eventually
+be added to this list as the Selenium-based tests take
+shape.</p>
+</div>
+</div>
+</div>
+<div class="section" id="internals">
+<h1>Internals<a class="headerlink" href="#internals" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-tag-v0-10-0-x">
+<h2>The Tag v0.10.0-x<a class="headerlink" href="#the-tag-v0-10-0-x" title="Permalink to this headline">¶</a></h2>
+<p>The git repository contains tags v0.10.0 and v0.10.0-x. What&#8217;s the
+deal? Both tags represent the same state of development. The first
+points into the master branch, the second into the develop branch. The
+second tag was created to work around a bug that prevents using <tt class="docutils literal"><span class="pre">git</span>
+<span class="pre">describe</span></tt> when using the <a class="reference external" href="https://github.com/nvie/gitflow">nvie edition</a> of gitflow. If you use gitflow
+with wed, use the <a class="reference external" href="https://github.com/petervanderdoes/gitflow">AVH edition</a>.</p>
+</div>
+<div class="section" id="javascript-event-handling">
+<h2>JavaScript Event Handling<a class="headerlink" href="#javascript-event-handling" title="Permalink to this headline">¶</a></h2>
+<p>Modes are free to bind whatever handlers they want to those GUI
+elements they themselves are responsible for creating, managing and
+destroying. However, modes <strong>must not</strong> bind their own event handlers
+for the standard JavaScript type of events onto any GUI element that
+wed is responsible for managing. They must use the appropriate custom
+wed events. This ensures proper ordering of processing. Here is the
+list of JavaScript events for which custom events have been defined;
+the order the events are listed corresponds to the order they are
+processed</p>
+<ul class="simple">
+<li>keydown:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>wed-input-trigger-keydown</li>
+<li>wed-global-keydown</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li>keypress:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>wed-input-trigger-keypress</li>
+<li>wed-global-keypress</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li>paste:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>wed-post-paste</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li>contextmenu:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>wed-context-menu</li>
+</ul>
+</div></blockquote>
+<p>Those handlers that are bound to these custom events should have the
+following signature:</p>
+<blockquote>
+<div><tt class="docutils literal"><span class="pre">handler(wed_event,</span> <span class="pre">javascript_event)</span></tt></div></blockquote>
+<p>Where <tt class="docutils literal"><span class="pre">wed_event</span></tt> is the jQuery <tt class="docutils literal"><span class="pre">Event</span></tt> object created for
+dispatching custom events and <tt class="docutils literal"><span class="pre">javascript_event</span></tt> is the original
+JavaScript event that caused the custom event to be triggered.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Returning <tt class="docutils literal"><span class="pre">false</span></tt> from handlers bound to custom events
+won&#8217;t stop the propagation of the original JavaScript
+event. Handlers for custom events that wish to stop
+propagation of the JavaScript event <strong>must</strong> call the
+appropriate method on the <tt class="docutils literal"><span class="pre">javascript_event</span></tt>
+object. They must additionally return <tt class="docutils literal"><span class="pre">false</span></tt> or call
+the appropriate methods on the <tt class="docutils literal"><span class="pre">wed_event</span></tt> object.</p>
+</div>
+<ul class="simple">
+<li>wed-input-trigger-* events are meant to be handled by
+<tt class="docutils literal"><span class="pre">InputTrigger</span></tt> objects.</li>
+<li>wed-global-* events are meant to be handled by the default event
+handlers for wed, or those event handlers meaning to alter default
+processing.</li>
+<li>The paste event has no wed-global-* event associated with it.</li>
+</ul>
+<p>Wed also uses the custom events <tt class="docutils literal"><span class="pre">wed-click</span></tt> and <tt class="docutils literal"><span class="pre">wed-unclick</span></tt> to
+inform element labels that they should changed their status to clicked
+or unclicked. These events are used (<tt class="docutils literal"><span class="pre">wed-click</span></tt> specifically) so
+that if the status must change due to an event not caused by a mouse
+operation, then wed won&#8217;t cause a mouse event to happen. A <tt class="docutils literal"><span class="pre">click</span></tt>
+event would trickle up the handler chain, etc.</p>
+<p>Modes that define elements in the GUI tree that want to have their own
+custom context menu handler must listen for <tt class="docutils literal"><span class="pre">wed-context-menu</span></tt>
+<strong>and</strong> define a data field named <tt class="docutils literal"><span class="pre">wed-custom-context-menu</span></tt> set to a
+truthy value.</p>
+</div>
+<div class="section" id="selections">
+<h2>Selections<a class="headerlink" href="#selections" title="Permalink to this headline">¶</a></h2>
+<p>Wed works with multiple types of selections:</p>
+<dl class="docutils">
+<dt>DOM selection</dt>
+<dd>The selection as understood by DOM. Methods working with this
+selection have <tt class="docutils literal"><span class="pre">DOM</span></tt> in their name.</dd>
+<dt>GUI selection</dt>
+<dd>The selection in the GUI tree. The GUI selection is just called
+&#8220;selection&#8221;, without any further qualifier. This is the range selected
+by the user in the document being edited. The methods operating on
+this selection do not use a special qualifier. E.g. <tt class="docutils literal"><span class="pre">getSelection</span></tt>
+does not have <tt class="docutils literal"><span class="pre">DOM</span></tt> or <tt class="docutils literal"><span class="pre">data</span></tt> in its name and thus works on a
+GUI selection.</dd>
+<dt>Data selection</dt>
+<dd>The selection that corresponds to the GUI selection in the data tree.
+Methods working with this selection have <tt class="docutils literal"><span class="pre">data</span></tt> in their name. Mode will
+typically want to work with this selection.</dd>
+</dl>
+</div>
+<div class="section" id="carets">
+<h2>Carets<a class="headerlink" href="#carets" title="Permalink to this headline">¶</a></h2>
+<p>Wed works with multiple types of carets:</p>
+<dl class="docutils">
+<dt>Fake caret</dt>
+<dd>A caret that exists only for wed. It has no existence as far as DOM is
+concerned.</dd>
+<dt>GUI caret</dt>
+<dd>The caret in the GUI tree. It may or may not correspond to a DOM caret.</dd>
+<dt>Data caret</dt>
+<dd>The caret in the data tree that corresponds to the GUI caret. It may or may
+not correspond to a DOM caret. Modes usually want to work with this caret.</dd>
+</dl>
+</div>
+<div class="section" id="im-support">
+<h2>IM Support<a class="headerlink" href="#im-support" title="Permalink to this headline">¶</a></h2>
+<p>As usual, the browsers and various web standards make a mess of what
+ought to be simple. On both Firefox 23 and Chrome 29, entering text
+using IBus does not generate <tt class="docutils literal"><span class="pre">keypress</span></tt> events. The only events
+available are <tt class="docutils literal"><span class="pre">keydown</span></tt> and <tt class="docutils literal"><span class="pre">keyup</span></tt>. Firefox 23 generates a single
+<tt class="docutils literal"><span class="pre">keyup</span></tt> event at the end of composition, Chrome 29 generates a bunch
+of <tt class="docutils literal"><span class="pre">keyup</span></tt> and <tt class="docutils literal"><span class="pre">keydown</span></tt> events while the character is being
+composed. These events are mostly useless because their parameters are
+set to values that do not indicate what the user is actually
+typing. The browsers also fire <tt class="docutils literal"><span class="pre">input</span></tt> and
+<tt class="docutils literal"><span class="pre">composition{start,update,end}</span></tt> events, which are also nearly
+useless. The <tt class="docutils literal"><span class="pre">input</span></tt> event does not state what was done to the
+data. The <tt class="docutils literal"><span class="pre">composition{start,update,end}</span></tt> events indicate that
+composition happened. In theory the <tt class="docutils literal"><span class="pre">data</span></tt> parameter should hold the
+data being changed, but on Chrome 29 the <tt class="docutils literal"><span class="pre">compositionend</span></tt> event has
+a blank <tt class="docutils literal"><span class="pre">data</span></tt> field when entering the Chinese character for wo3
+(&#8220;I&#8221;).</p>
+<p>There&#8217;s an additional complication in that these events can happen
+when the user wants to <strong>edit</strong> a composed character rather than
+delete or add text. Suppose that we are editing the string &#8220;livré&#8221; to
+read &#8220;livre&#8221;. The way to do it without composition is in two
+operations: delete the &#8220;é&#8221; and insert &#8220;e&#8221; (or in the reverse order).
+However, with composition a character can be transformed into another character
+by one atomic change on the data. A composition method could make the
+change by replacing &#8220;é&#8221; with &#8220;e&#8221; as one operation, without there being
+a deletion followed by an insertion. The character itself is
+transformed.</p>
+<p>What wed currently does is capture all keydown and keypress events
+that are capturable to edit the data tree and <strong>cancel</strong> the default
+behavior. (Then the GUI tree is updated from the data tree and it
+looks like text input happened.) So these won&#8217;t generate input
+events. When an input event <strong>is</strong> detected, compare all text nodes of
+the element on which the event triggered (a GUI node) with those of
+its corresponding data element. Update data nodes as needed.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">With this system, composed characters cannot serve as hot
+keys for the input triggers.</p>
+</div>
+</div>
+<div class="section" id="gui-tree-and-data-tree">
+<h2>GUI Tree and Data Tree<a class="headerlink" href="#gui-tree-and-data-tree" title="Permalink to this headline">¶</a></h2>
+<p>Wed maintains two trees of DOM nodes:</p>
+<ul class="simple">
+<li>A data tree which is not attached to the browser&#8217;s document. (It is
+not visible. It does not receive events.) It is a mere
+representation in DOM format of the data tree being edited.</li>
+<li>A GUI tree which is derived from the data tree. This GUI tree is
+attached to the browser&#8217;s document. It receives events and is what
+the user sees.</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">GUIUpdater</span></tt> object stored in <tt class="docutils literal"><span class="pre">Editor._gui_updater</span></tt> is
+responsible for inserting and deleting the nodes of the GUI tree that
+corresponds to those of the data tree whenever the latter is modified.</p>
+</div>
+</div>
+<div class="section" id="conversion-for-editing">
+<h1>Conversion for Editing<a class="headerlink" href="#conversion-for-editing" title="Permalink to this headline">¶</a></h1>
+<p>Wed operates on an HTML structure constructed as follows:</p>
+<ul class="simple">
+<li>All elements from the XML document become HTML div elements.</li>
+<li>The original element&#8217;s qualified name is stored as the first class in &#64;class.</li>
+<li>All other classes that wed reserved to wed&#8217;s own purposes have an
+underscore prepended to them.</li>
+<li>All elements that correspond to an actual element in the XML
+document are of the _real class.</li>
+<li>All elements that are added for decorative purposes are either in
+the _phantom or _phantom_wrap class.</li>
+<li>A _phantom element is not editable, period.</li>
+<li>A _phantom_wrap element is not itself editable but contains editable
+(_real) children.</li>
+<li>The XML element&#8217;s attributes are stored in attributes of the form:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">data-wed-[name]=&quot;...&quot;</span></tt> when the attribute name is without namespace prefix</li>
+<li><tt class="docutils literal"><span class="pre">data-wed-[prefix]---[name]=&quot;...&quot;</span></tt> when the attribute name has a
+namespace prefix</li>
+</ul>
+</div></blockquote>
+<p>The <tt class="docutils literal"><span class="pre">[name]</span></tt> part is converted so that three dashes become four, four become
+five, etc. Here are examples of XML attributes and what they become in
+HTML:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">foo</span></tt> -&gt; <tt class="docutils literal"><span class="pre">data-wed-foo</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">xml:lang</span></tt> -&gt; <tt class="docutils literal"><span class="pre">data-wed-xml---lang</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">xml:a-b</span></tt> -&gt; <tt class="docutils literal"><span class="pre">data-wed-xml---a-b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">xml:a---b</span></tt> -&gt; <tt class="docutils literal"><span class="pre">data-wed-xml---a----b</span></tt></li>
+<li>Wed may add attributes for its internal purposes. These do not
+correspond to any XML attributes. They are encoded as
+<tt class="docutils literal"><span class="pre">data-wed--[name]</span></tt>. An XML attribute name or prefix may not begin
+with a dash, so there cannot be a clash.</li>
+</ul>
+</div>
+<div class="section" id="browser-issues">
+<h1>Browser Issues<a class="headerlink" href="#browser-issues" title="Permalink to this headline">¶</a></h1>
+<p>The sad fact is that browsers are limited in functionality, buggy, or
+incompatible with each other. This section documents such issues.</p>
+<div class="section" id="contenteditable">
+<h2>Contenteditable<a class="headerlink" href="#contenteditable" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="incompatibilities">
+<h3>Incompatibilities<a class="headerlink" href="#incompatibilities" title="Permalink to this headline">¶</a></h3>
+<p>One area of incompatibility is the implementation of contenteditable
+across browsers. Even a single browser can behave inconsistently
+depending on how the DOM tree is structured. (In Firefox 20, the
+presence or absence of white-space text nodes sometimes changes the
+way BACKSPACE is handled when the caret is at the start of a
+contenteditable element.)</p>
+</div>
+<div class="section" id="successive-elements-and-the-caret">
+<h3>Successive Elements and the Caret<a class="headerlink" href="#successive-elements-and-the-caret" title="Permalink to this headline">¶</a></h3>
+<p>Suppose the structure:</p>
+<div class="highlight-python"><pre>&lt;p contenteditable="true"&gt;foo &lt;button contenteditable="false"&gt;A&lt;/button&gt;
+&lt;button contenteditable="false"&gt;B&lt;/button&gt; bar&lt;/p&gt;</pre>
+</div>
+<p>If you place the caret just before the space before &#8220;bar&#8221; and hit the
+left arrow to move it back between buttons A and B, various browsers
+will handle it differently. At any rate, in both Chrome 26 and Firefox
+20, there will <strong>not</strong> be a caret <strong>between</strong> A and B. The caret may
+disappear or be moved somewhere else. The same result occurs if you place the
+caret after the space after <tt class="docutils literal"><span class="pre">foo</span></tt> and hit the right arrow.</p>
+<p>Setting the caret programmatically does not work either but in general
+results in the caret disappearing.  Browsers differ a little bit. In
+Chrome 26, it seems that even though the caret becomes invisible, it
+still exists between the two elements. (It is possible to delete
+either button.) In Firefox 20, the caret becomes
+non-existent (editing is not possible).</p>
+<p>So to allow editing between successive elements, wed has to create a
+placeholder to allow the user to put their caret between elements.</p>
+</div>
+</div>
+<div class="section" id="synthetic-keyboard-events">
+<h2>Synthetic Keyboard Events<a class="headerlink" href="#synthetic-keyboard-events" title="Permalink to this headline">¶</a></h2>
+<p>In Firefox 20, it seems impossible to get the browser to handle a
+synthetic keyboard event exactly as if the user had typed it. The
+event can be created and dispatched, and it will trigger event
+handlers. However, sending a series of &#8220;keydown&#8221;, &#8220;keypress&#8221;, &#8220;keyup&#8221;
+events for the letter &#8220;a&#8221; while the caret is in a contenteditable
+region won&#8217;t result in the letter &#8220;a&#8221; being added to the element being
+edited.</p>
+<p>It is possible to use plugins like <a class="reference external" href="http://bililite.com/blog/2011/01/23/improved-sendkeys/">sendkeys</a> to simulate key presses
+that actually modify the contents of editable elements. However, when
+it comes to simulating key presses in contenteditable elements, the
+simulation is very imperfect. Cursory testing sending BACKSPACE using
+sendkeys and BACKSPACE using the keyboard shows inconsistent behavior.</p>
+</div>
+<div class="section" id="vetoing-mutations">
+<h2>Vetoing Mutations<a class="headerlink" href="#vetoing-mutations" title="Permalink to this headline">¶</a></h2>
+<p>It might seem that using MutationObserver to check on a DOM tree, one
+would be able to veto a user-initiated change inside contenteditable
+elements. In practice, a single keyboard key (like BACKSPACE) hit
+might result in 5-6 mutations of the DOM tree, and there is no simple
+way to know that these 5-6 mutations were all initiated by a single
+key.</p>
+</div>
+<div class="section" id="memory-leaks">
+<h2>Memory Leaks<a class="headerlink" href="#memory-leaks" title="Permalink to this headline">¶</a></h2>
+<p>There seems to be a small memory leak upon reloading a window with wed
+in it.</p>
+<p>Tests performed with Chrome&#8217;s memory profiler by doing:</p>
+<ol class="arabic simple">
+<li>One load,</li>
+<li>issuing a memory profile,</li>
+<li>reload, and</li>
+<li>issuing a memory profile</li>
+</ol>
+<p>show that the whole Walker tree created before the first profile is
+created still exists at the time of the second profile. Upon reload,
+wed stops all MutationObservers, removes all event handlers, and
+deletes the data structure of the document being edited. We do not know
+of a good explanation for the leak.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Advanced Usage Notes</a><ul>
+<li><a class="reference internal" href="#build-information">Build Information</a></li>
+<li><a class="reference internal" href="#deployment-considerations">Deployment Considerations</a></li>
+<li><a class="reference internal" href="#schema-and-structure-considerations">Schema and Structure Considerations</a></li>
+<li><a class="reference internal" href="#remote-logging">Remote Logging</a></li>
+<li><a class="reference internal" href="#saving">Saving</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing">Testing</a><ul>
+<li><a class="reference internal" href="#browser-independent-tests">Browser-Independent Tests</a></li>
+<li><a class="reference internal" href="#in-browser-tests">In-Browser Tests</a></li>
+<li><a class="reference internal" href="#selenium-based-tests">Selenium-Based Tests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#internals">Internals</a><ul>
+<li><a class="reference internal" href="#the-tag-v0-10-0-x">The Tag v0.10.0-x</a></li>
+<li><a class="reference internal" href="#javascript-event-handling">JavaScript Event Handling</a></li>
+<li><a class="reference internal" href="#selections">Selections</a></li>
+<li><a class="reference internal" href="#carets">Carets</a></li>
+<li><a class="reference internal" href="#im-support">IM Support</a></li>
+<li><a class="reference internal" href="#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conversion-for-editing">Conversion for Editing</a></li>
+<li><a class="reference internal" href="#browser-issues">Browser Issues</a><ul>
+<li><a class="reference internal" href="#contenteditable">Contenteditable</a><ul>
+<li><a class="reference internal" href="#incompatibilities">Incompatibilities</a></li>
+<li><a class="reference internal" href="#successive-elements-and-the-caret">Successive Elements and the Caret</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
+<li><a class="reference internal" href="#vetoing-mutations">Vetoing Mutations</a></li>
+<li><a class="reference internal" href="#memory-leaks">Memory Leaks</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tech_notes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Wed 0.10.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Louis-Dominique Dubeau.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

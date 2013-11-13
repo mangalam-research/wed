@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: onerror.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/wed.css">
+</head>
+
+<body>
+
+
+<div id="main">
+
+    <h1 class="page-title">Source: onerror.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @module onerror
+ * @desc The onerror handler for wed.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ */
+define(/** @lends module:onerror */function (require, exports, module) {
+'use strict';
+
+var options = module.config();
+var suppress_old_onerror = options && options.suppress_old_onerror;
+var test = options && options.test;
+
+var log = require("./log");
+var $ = require("jquery");
+
+var $modal = $(
+        '\
+&lt;div class="modal wed-fatal-modal" style="position: absolute" tabindex="1">\
+  &lt;div class="modal-dialog">\
+    &lt;div class="modal-content">\
+      &lt;div class="modal-header">\
+        &lt;button type="button" class="close" data-dismiss="modal"\
+aria-hidden="true">&times;&lt;/button>\
+        &lt;h3>Fatal Error&lt;/h3>\
+      &lt;/div>\
+      &lt;div class="modal-body">\
+      &lt;/div>\
+      &lt;div class="modal-footer">\
+        &lt;a href="#" class="btn btn-primary" data-dismiss="modal">Reload&lt;/a>\
+      &lt;/div>\
+    &lt;/div>\
+  &lt;/div>\
+&lt;/div>');
+
+
+
+// Normally onerror will be reset by reloading but when testing with
+// mocha we don't want reloading, so we export this function.
+function _reset() {
+    terminating = false;
+    if (termination_timeout) {
+        termination_window.clearTimeout(termination_timeout);
+        termination_timeout = undefined;
+    }
+    $modal.off();
+    $modal.remove();
+}
+
+function _is_terminating() {
+    return terminating;
+}
+
+// For testing only
+if (test) {
+    exports.__test = {
+        $modal: $modal,
+        reset: _reset,
+        is_terminating: _is_terminating
+    };
+}
+
+// We install onto whatever window is current ASAP to catch early errors.
+installOnError(window);
+
+/**
+ * &lt;p>Aggressively installs an onerror handler. It will install it both
+ * in the window passed as parameter and into the root window if the
+ * window passed happens to be an iframe. While running wed in an
+ * iframe on Chrome 28.0.1500.95, we've noticed that the onerror
+ * handlers set on iframe windows did not catch anything, hence this
+ * behavior.&lt;/p>
+ *
+ * &lt;p>This function will inspect the value of &lt;code>win.onerror&lt;/code>
+ * and call it after it does its own bookkeeping. If this behavior is
+ * not desired, set &lt;code>suppress_old_onerror&lt;/code> as a
+ * configuration option for this module in your RequireJS setup.&lt;/p>
+ *
+ * &lt;p>Note that it is extremely unlikely that wed would play well with
+ * any onerror handler set by other software if this handler tries
+ * to do something as substantial as wed does. Note also that this
+ * handler will catch any JavaScript error so any other JavaScript
+ * running on the same page as wed will trip it.&lt;/p>
+ *
+ * @param {Window} win The window to install on.
+ */
+function register(win) {
+    installOnError(win);
+}
+
+exports.register = register;
+
+/**
+ * An array into which wed editors register themselves at creation and
+ * unregister themselves when destroyed. (Note that this is not
+ * related to this module's register function.)
+ */
+var editors = [];
+
+
+var TERMINATION_TIMEOUT = 5000;
+var terminating = false;
+var termination_timeout;
+// So that we can issue clearTimeout elsewhere.
+var termination_window;
+
+/**
+ * Installs an &lt;code>onerror&lt;/code> handler.
+ *
+ * @private
+ * @param {Window} win The window to install it on.
+ */
+function installOnError(win) {
+    // Install globally too.
+    var root = win;
+    while(root !== root.parent)
+        root = root.parent;
+
+    if (root !== win) // Don't invoke if we're already root.
+        installOnError(root);
+
+    if (win.wed_installed_onerror === win.onerror)
+        return;
+
+    var old_onerror = win.onerror;
+    win.onerror = onerror;
+    win.wed_installed_onerror = onerror;
+    function onerror(msg, url, linenumber) {
+        // This avoids an infinite loop.
+        if (terminating)
+            return false;
+        terminating = true;
+
+        var total = editors.length;
+        var results = [];
+        var messages = [];
+
+        termination_timeout = root.setTimeout(terminate, TERMINATION_TIMEOUT);
+        termination_window = root;
+        function terminate() {
+            if (termination_timeout)
+                root.clearTimeout(termination_timeout);
+            if (total === 1)
+                messages.push(to_msg(undefined,
+                                     results[0] ? results[0][1] : undefined));
+            else {
+                for(var r_ix = 0, result;
+                    (result = results[r_ix]) !== undefined;
+                    ++r_ix)
+                    messages.push(to_msg(editors[result[0]].name, result[1]));
+            }
+            $("body").append($modal);
+            $modal.find(".modal-body").contents().replaceWith(
+                messages.join(""));
+            $modal.on("hide.bs.modal.modal", function () {
+                $modal.remove();
+                root.location.reload();
+            });
+            $modal.modal();
+        }
+
+        function done(success) {
+            /* jshint validthis:true */
+            results.push([this, success]);
+            if (results.length === total)
+                terminate();
+        }
+
+        log.error(msg, url, linenumber);
+        try {
+            if (old_onerror && !suppress_old_onerror)
+                old_onerror.apply(undefined, arguments);
+        }
+        finally {
+            for(var i = 0, editor; (editor = editors[i]) !== undefined; ++i) {
+                var saver = editor._saver;
+                saver.recover(done.bind(i));
+            }
+            return false;
+        }
+    }
+}
+
+/**
+ *
+ * Converts a save operation result to a message.
+ *
+ * @private
+ * @param {String} name The name of the editor instance.
+ * @param {Boolean|undefined} result The result of the save operation.
+ *
+ * @returns {String} The message.
+*/
+function to_msg(name, result) {
+    var ret = ["&lt;p>", name || "Your editor"];
+    ret.push(" experienced a severe error.");
+    switch(result) {
+    case true:
+        ret.push(" However, it successfully saved the latest state of "+
+                 "your data to the server. Please reload.");
+        break;
+    case false:
+    case undefined:
+        ret.push(" It was not able to save your data to the server "+
+                 "before terminating.");
+        break;
+    }
+    ret.push("&lt;/p>");
+    return ret.join('');
+}
+
+exports.editors = editors;
+
+});
+
+//  LocalWords:  clearTimeout unregister iframe RequireJS href MPL
+//  LocalWords:  onerror Mangalam Dubeau validthis jshint btn jquery
+//  LocalWords:  tabindex jQuery
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="findandself.html">findandself</a></li><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="modal-Modal.html">Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="conditioned-Conditioned.html">Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="generic_meta-Meta.html">Meta</a></li><li><a href="generic_tr-Registry.html">Registry</a></li><li><a href="generic-Mode.html">Mode</a></li><li><a href="tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">Listener</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Nov 13 2013 14:29:37 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
