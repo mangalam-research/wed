@@ -11,6 +11,9 @@ SAXON?=saxon
 # jsdoc command.
 JSDOC3?=jsdoc
 
+# jsdoc3 templates
+JSDOC3_DEFAULT_TEMPLATE?=$(dir $(JSDOC3))/templates/default
+
 # rst2html command.
 RST2HTML?=rst2html
 
@@ -332,8 +335,24 @@ selenium-test: build | build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: doc
-doc: rst-doc
+doc: rst-doc jsdoc3-doc
+
+JSDOC3_TEMPLATE_TARGETS=$(patsubst $(JSDOC3_DEFAULT_TEMPLATE)/%,build/jsdoc_template/%,$(shell find $(JSDOC3_DEFAULT_TEMPLATE) -type f))
+$(info $(JSDOC3_TEMPLATE_TARGETS))
+
+.PHONY: jsdoc3-doc
+jsdoc3-doc: $(JSDOC3_TEMPLATE_TARGETS) build/jsdoc_template/static/styles/wed.css
 	$(JSDOC3) -c jsdoc.conf.json -d build/doc -r lib
+
+$(JSDOC3_TEMPLATE_TARGETS): build/jsdoc_template/%: $(JSDOC3_DEFAULT_TEMPLATE)/%
+	-mkdir -p $(dir $@)
+	cp $< $@
+
+build/jsdoc_template/static/styles/wed.css: misc/jsdoc_template/wed.css
+	cp $< $@
+
+build/jsdoc_template/tmpl/layout.tmpl:  misc/jsdoc_template/layout.tmpl
+	cp $< $@
 
 rst-doc: $(HTML_TARGETS)
 
