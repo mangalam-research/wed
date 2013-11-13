@@ -80,6 +80,9 @@ def on_placeholder(context):
     util = context.util
 
     placeholder = util.find_element((By.CLASS_NAME, "_placeholder"))
+    assert_true(util.visible_to_user(placeholder),
+                "must be visible to the user; otherwise this step "
+                "is not something the user can do")
     ActionChains(driver) \
         .context_click(placeholder) \
         .perform()
@@ -334,6 +337,17 @@ def step_impl(context, choice):
     context.context_menu_for = where if choice == "a placeholder" else None
 
 
+@When(ur"^the user uses the keyboard to bring up the context menu$")
+def step_impl(context):
+    driver = context.driver
+
+    ActionChains(driver) \
+        .key_down(Keys.CONTROL) \
+        .send_keys("/") \
+        .key_up(Keys.CONTROL) \
+        .perform()
+
+
 @when(u'the user brings up the context menu on the selection')
 def step_impl(context):
     driver = context.driver
@@ -420,3 +434,19 @@ def step_impl(context, choice):
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
     link.click()
+
+
+@When(ur"the user clicks on a placeholder that will serve to bring up "
+      ur"a context menu")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    where = util.find_element((By.CLASS_NAME, "_placeholder"))
+
+    ActionChains(driver)\
+        .click(where) \
+        .perform()
+
+    context.context_menu_trigger = Trigger(util, where)
+    context.context_menu_for = where
