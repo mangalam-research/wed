@@ -87,7 +87,7 @@ build-dir:
 # use a per-target variable assignment then the :: targets don't work.
 #
 gh-pages-build:
-	$(MAKE) -f build.mk BUILD_DEPLOYMENT_TARGET:=$@ build-deployment
+	$(MAKE) -f build.mk BUILD_DEPLOYMENT_TARGET:=$@ DEPLOYMENT_INCLUDES_DOC=1 build-deployment
 
 .PHONY: build-deployment
 build-deployment::
@@ -100,21 +100,30 @@ ifndef UNSAFE_DEPLOYMENT
 	node misc/generate_build_info.js > /dev/null
 endif # UNSAFE_DEPLOYMENT
 
-build-deployment:: build
+.PHONY: $(BUILD_DEPLOYMENT_TARGET).phony
+$(BUILD_DEPLOYMENT_TARGET).phony: $(and $(DEPLOYMENT_INCLUDES_DOC),doc)
 	rm -rf $(BUILD_DEPLOYMENT_TARGET)
 	mkdir $(BUILD_DEPLOYMENT_TARGET)
+	rm -rf build/merged-gh-pages
+	cp -rp doc build/merged-gh-pages
+	$(MAKE) -C build/merged-gh-pages html
+	cp -rp build/merged-gh-pages/_build/html/* $(BUILD_DEPLOYMENT_TARGET)
+	cp -rp build/api $(BUILD_DEPLOYMENT_TARGET)
+
+build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
+	mkdir $(BUILD_DEPLOYMENT_TARGET)/build
 	cp -rp build/ks build/samples build/schemas \
 		build/standalone build/standalone-optimized \
-		$(BUILD_DEPLOYMENT_TARGET)
+		$(BUILD_DEPLOYMENT_TARGET)/build
 	for dist in standalone standalone-optimized; do \
-		config=$(BUILD_DEPLOYMENT_TARGET)/$$dist/requirejs-config.js; \
+		config=$(BUILD_DEPLOYMENT_TARGET)/build/$$dist/requirejs-config.js; \
 		mv $$config $$config.t; \
 		node misc/modify_config.js -d config.wed/wed.ajaxlog \
 			-d config.wed/wed.save -d paths.browser_test \
 			$$config.t > $$config; \
 		rm $$config.t; \
-		rm $(BUILD_DEPLOYMENT_TARGET)/$$dist/test.html; \
-		rm $(BUILD_DEPLOYMENT_TARGET)/$$dist/wed_test.html; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/test.html; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
 build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build-ks-files build-config build-schemas build-samples build/ajax
@@ -342,7 +351,7 @@ $(info $(JSDOC3_TEMPLATE_TARGETS))
 
 .PHONY: jsdoc3-doc
 jsdoc3-doc: $(JSDOC3_TEMPLATE_TARGETS) build/jsdoc_template/static/styles/wed.css
-	$(JSDOC3) -c jsdoc.conf.json -d build/doc -r lib
+	$(JSDOC3) -c jsdoc.conf.json -d build/api -r lib
 
 $(JSDOC3_TEMPLATE_TARGETS): build/jsdoc_template/%: $(JSDOC3_DEFAULT_TEMPLATE)/%
 	-mkdir -p $(dir $@)
@@ -365,9 +374,10 @@ rst-doc: $(HTML_TARGETS)
 	$(RST2HTML) $< | perl -np -e 's/href="(.*?)\.rst(#.*?)"/href="$$1.html$$2"/g' > $@
 
 .PHONY: clean
-clean:
+clean::
 	-rm -rf build
 	-rm $(HTML_TARGETS)
+	-rm gh-pages-build
 
 .PHONY: distclean
 distclean: clean
