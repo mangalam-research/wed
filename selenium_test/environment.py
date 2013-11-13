@@ -1,4 +1,5 @@
 import os
+import time
 
 # pylint: disable=E0611
 from nose.tools import assert_raises, assert_true
@@ -35,6 +36,9 @@ def before_all(context):
                 "you may have to use a different version of your browser, "
                 "one for which Selenium supports native events.")
 
+    behave_wait = os.environ.get("BEHAVE_WAIT_BETWEEN_STEPS")
+    context.behave_wait = behave_wait and float(behave_wait)
+
 
 def before_scenario(context, _scenario):
     driver = context.driver
@@ -57,6 +61,11 @@ def after_scenario(context, _scenario):
         wedutil.set_window_size(util,
                                 context.before_scenario_window_size["width"],
                                 context.before_scenario_window_size["height"])
+
+
+def before_step(context, _step):
+    if context.behave_wait:
+        time.sleep(context.behave_wait)
 
 
 def after_all(context):
