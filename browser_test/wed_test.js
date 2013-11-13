@@ -662,14 +662,22 @@ describe("wed", function () {
 
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
-        var offset = editor.$gui_root.offset();
+        var $title = editor.$gui_root.find(".title");
+        var offset = $title.offset();
+        offset.left += $title.width() / 2;
+        offset.top += $title.height() / 2;
+        var scroll_top = editor.my_window.document.body.scrollTop;
+        var scroll_left = editor.my_window.document.body.scrollLeft;
         event.which = 3;
         event.pageX = offset.left;
         event.pageY = offset.top;
+        event.clientX = offset.left - scroll_left,
+        event.clientY = offset.top - scroll_top,
+        event.target = editor.$gui_root[0];
         editor.$gui_root.trigger(event);
     }
 
-    it("does not bring up a contextual menu when there is no caret",
+    it("brings up a contextual menu even when there is no caret",
        function (done) {
         editor.whenCondition(
             "first-validation-complete",
@@ -679,9 +687,10 @@ describe("wed", function () {
             assert.isUndefined(editor.getCaret());
             activateContextMenu(editor);
             window.setTimeout(function () {
-                assert.isUndefined(editor._current_dropdown);
+                assert.isDefined(editor._current_dropdown, "dropdown defined");
+                assert.isDefined(editor.getCaret(), "caret defined");
                 done();
-            }, 1);
+            }, 100);
         });
     });
 
@@ -698,7 +707,7 @@ describe("wed", function () {
             assert.isUndefined(editor.getCaret());
             activateContextMenu(editor);
             window.setTimeout(function () {
-                assert.isUndefined(editor._current_dropdown);
+                assert.isDefined(editor._current_dropdown);
                 done();
             }, 1);
         });

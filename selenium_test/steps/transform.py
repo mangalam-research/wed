@@ -1,4 +1,5 @@
-from nose.tools import assert_equal  # pylint: disable=E0611
+ # pylint: disable=E0611
+from nose.tools import assert_equal, assert_is_not_none
 
 
 step_matcher("re")
@@ -18,3 +19,29 @@ def step_impl(context):
     child = parent.find_element_by_class_name(element_name)
     assert_equal(util.get_text_excluding_children(child),
                  context.expected_selection)
+
+
+@then(ur"^a new element is inserted before the selected element.?$")
+def step_impl(context):
+    for_element = context.context_menu_for
+    info = context.context_menu_pre_transformation_info
+    assert_is_not_none(for_element)
+    preceding = for_element.find_elements_by_xpath("preceding-sibling::*")
+    following = for_element.find_elements_by_xpath("following-sibling::*")
+    assert_equal(len(info["preceding"]) + 1, len(preceding),
+                 "items before the selected element")
+    assert_equal(len(info["following"]), len(following),
+                 "items after the selected element")
+
+
+@then(ur"^a new element is inserted after the selected element.?$")
+def step_impl(context):
+    for_element = context.context_menu_for
+    info = context.context_menu_pre_transformation_info
+    assert_is_not_none(for_element)
+    preceding = for_element.find_elements_by_xpath("preceding-sibling::*")
+    following = for_element.find_elements_by_xpath("following-sibling::*")
+    assert_equal(len(info["preceding"]), len(preceding),
+                 "items before the selected element")
+    assert_equal(len(info["following"]) + 1, len(following),
+                 "items after the selected element")

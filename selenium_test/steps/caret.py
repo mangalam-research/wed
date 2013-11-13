@@ -55,8 +55,8 @@ step_matcher("re")
 
 @then(u'^the label of the element that has the context menu is selected.?$')
 def step_impl(context):
-    button = context.context_menu_trigger
-    assert_true("_button_clicked" in button.get_attribute("class").split())
+    trigger = context.context_menu_trigger
+    assert_true("_button_clicked" in trigger.el.get_attribute("class").split())
 
 
 @then(u'^no label is selected$')
@@ -173,6 +173,7 @@ def step_impl(context):
                                  "._start_button._title_label"))
     # This is where our selection will end
     end = util.element_screen_center(element)
+    end["left"] += 2  # Move it off-center for this test
 
     parent = element.find_element_by_xpath("..")
     element.click()

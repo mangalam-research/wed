@@ -11,6 +11,9 @@ SAXON?=saxon
 # jsdoc command.
 JSDOC3?=jsdoc
 
+# jsdoc3 templates
+JSDOC3_DEFAULT_TEMPLATE?=$(dir $(JSDOC3))/templates/default
+
 # rst2html command.
 RST2HTML?=rst2html
 
@@ -31,6 +34,11 @@ BEHAVE_PARAMS?=
 SKIP_SEMVER?=
 
 #
+# Unset to avoid the optimization target being built by default.
+#
+OPTIMIZE_BY_DEFAULT?=1
+
+#
 # End of customizable variables.
 #
 
@@ -38,12 +46,12 @@ SKIP_SEMVER?=
 # https://rangy.googlecode.com/files/
 RANGY_FILE=rangy-1.3alpha.772.tar.gz
 
-JQUERY_FILE=jquery-1.9.1.js
+JQUERY_FILE=jquery-1.10.2.js
 
-BOOTSTRAP_URL=https://github.com/twbs/bootstrap/archive/v3.0.0.zip
-BOOTSTRAP_BASE=bootstrap-$(notdir $(BOOTSTRAP_URL))
-FONTAWESOME_PATH=http://fortawesome.github.io/Font-Awesome/assets/
-FONTAWESOME_FILE=font-awesome.zip
+BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.0.2/bootstrap-3.0.2-dist.zip
+BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
+FONTAWESOME_PATH=http://fontawesome.io/3.2.1/assets/font-awesome.zip
+FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
 
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
@@ -79,7 +87,7 @@ build-dir:
 # use a per-target variable assignment then the :: targets don't work.
 #
 gh-pages-build:
-	$(MAKE) -f build.mk BUILD_DEPLOYMENT_TARGET:=$@ build-deployment
+	$(MAKE) -f build.mk BUILD_DEPLOYMENT_TARGET:=$@ DEPLOYMENT_INCLUDES_DOC=1 build-deployment
 
 .PHONY: build-deployment
 build-deployment::
@@ -92,24 +100,33 @@ ifndef UNSAFE_DEPLOYMENT
 	node misc/generate_build_info.js > /dev/null
 endif # UNSAFE_DEPLOYMENT
 
-build-deployment:: build
+.PHONY: $(BUILD_DEPLOYMENT_TARGET).phony
+$(BUILD_DEPLOYMENT_TARGET).phony: $(and $(DEPLOYMENT_INCLUDES_DOC),doc)
 	rm -rf $(BUILD_DEPLOYMENT_TARGET)
 	mkdir $(BUILD_DEPLOYMENT_TARGET)
+	rm -rf build/merged-gh-pages
+	cp -rp doc build/merged-gh-pages
+	$(MAKE) -C build/merged-gh-pages html
+	cp -rp build/merged-gh-pages/_build/html/* $(BUILD_DEPLOYMENT_TARGET)
+	cp -rp build/api $(BUILD_DEPLOYMENT_TARGET)
+
+build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
+	mkdir $(BUILD_DEPLOYMENT_TARGET)/build
 	cp -rp build/ks build/samples build/schemas \
 		build/standalone build/standalone-optimized \
-		$(BUILD_DEPLOYMENT_TARGET)
+		$(BUILD_DEPLOYMENT_TARGET)/build
 	for dist in standalone standalone-optimized; do \
-		config=$(BUILD_DEPLOYMENT_TARGET)/$$dist/requirejs-config.js; \
+		config=$(BUILD_DEPLOYMENT_TARGET)/build/$$dist/requirejs-config.js; \
 		mv $$config $$config.t; \
 		node misc/modify_config.js -d config.wed/wed.ajaxlog \
 			-d config.wed/wed.save -d paths.browser_test \
 			$$config.t > $$config; \
 		rm $$config.t; \
-		rm $(BUILD_DEPLOYMENT_TARGET)/$$dist/test.html; \
-		rm $(BUILD_DEPLOYMENT_TARGET)/$$dist/wed_test.html; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/test.html; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
-build: | build-standalone-optimized build-ks-files build-config build-schemas build-samples build/ajax
+build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 build-config: $(CONFIG_TARGETS) | build/config
 
@@ -209,8 +226,8 @@ downloads/$(JQUERY_FILE): | downloads
 downloads/$(BOOTSTRAP_BASE): | downloads
 	(cd downloads; wget -O $(BOOTSTRAP_BASE) '$(BOOTSTRAP_URL)')
 
-downloads/$(FONTAWESOME_FILE): | downloads
-	(cd downloads; wget '$(FONTAWESOME_PATH)$(FONTAWESOME_FILE)')
+downloads/$(FONTAWESOME_BASE): | downloads
+	(cd downloads; wget '$(FONTAWESOME_PATH)')
 
 downloads/$(TEXT_PLUGIN_BASE): | downloads
 	(cd downloads; wget $(TEXT_PLUGIN_FILE))
@@ -241,19 +258,19 @@ build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/s
 	cp $< $@
 
 build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
-	-mkdir $(dir $@)
-	rm -rf $@/*
-	unzip -d $(dir $@) $<
+	-rm -rf $@
 	-mkdir $@
-	mv $(dir $@)/bootstrap-*/dist/* $@
-	rm -rf $(dir $@)/bootstrap-*
+	-rm -rf downloads/dist/
+	unzip -d downloads/ $<
+	mv downloads/dist/* $@
+	rm -rf downloads/dist/
 # unzip preserves the creation date of the bootstrap directory. Which
 # means that downloads/bootstrap.zip would likely be more recent than
 # the top level directory. This would trigger this target needlessly
 # so, touch it.
 	touch $@
 
-build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_FILE) | build/standalone/lib/
+build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | build/standalone/lib/
 	-mkdir $(dir $@)
 	rm -rf $@/*
 	unzip -d $(dir $@) $<
@@ -327,8 +344,24 @@ selenium-test: build | build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: doc
-doc: rst-doc
-	$(JSDOC3) -c jsdoc.conf.json -d build/doc -r lib
+doc: rst-doc jsdoc3-doc
+
+JSDOC3_TEMPLATE_TARGETS=$(patsubst $(JSDOC3_DEFAULT_TEMPLATE)/%,build/jsdoc_template/%,$(shell find $(JSDOC3_DEFAULT_TEMPLATE) -type f))
+$(info $(JSDOC3_TEMPLATE_TARGETS))
+
+.PHONY: jsdoc3-doc
+jsdoc3-doc: $(JSDOC3_TEMPLATE_TARGETS) build/jsdoc_template/static/styles/wed.css
+	$(JSDOC3) -c jsdoc.conf.json -d build/api -r lib
+
+$(JSDOC3_TEMPLATE_TARGETS): build/jsdoc_template/%: $(JSDOC3_DEFAULT_TEMPLATE)/%
+	-mkdir -p $(dir $@)
+	cp $< $@
+
+build/jsdoc_template/static/styles/wed.css: misc/jsdoc_template/wed.css
+	cp $< $@
+
+build/jsdoc_template/tmpl/layout.tmpl:  misc/jsdoc_template/layout.tmpl
+	cp $< $@
 
 rst-doc: $(HTML_TARGETS)
 
@@ -341,9 +374,10 @@ rst-doc: $(HTML_TARGETS)
 	$(RST2HTML) $< | perl -np -e 's/href="(.*?)\.rst(#.*?)"/href="$$1.html$$2"/g' > $@
 
 .PHONY: clean
-clean:
+clean::
 	-rm -rf build
 	-rm $(HTML_TARGETS)
+	-rm gh-pages-build
 
 .PHONY: distclean
 distclean: clean

@@ -29,8 +29,9 @@ def load_and_wait_for_editor(context, text=None):
     # This is bullshit to work around a Selenium limitation.
     driver.execute_script("""
     jQuery("body").append(
-      '<div id="origin-object" '+
-      'style="position: fixed; top: 0px; left: 0px; z-index: -10;"/>');
+      '<div id="origin-object" ' +
+      'style=' +
+      '"position: fixed; top: 0px; left: 0px; width:1px; height:1px;"/>');
     """)
     context.origin_object = driver.find_element_by_id("origin-object")
 
@@ -124,30 +125,6 @@ def step_impl(context):
     context.window_scroll_left = util.window_scroll_left()
 
 
-@when("the user scrolls the window completely down")
-def step_impl(context):
-    driver = context.driver
-    util = context.util
-
-    # We must not call it before the body is fully loaded.
-    driver.execute_script("""
-    delete window.__selenic_scrolled;
-    jQuery(function () {
-      window.scrollTo(0, document.body.scrollHeight);
-      window.__selenic_scrolled = true;
-    });
-    """)
-
-    def cond(*_):
-        return driver.execute_script("""
-        return window.__selenic_scrolled;
-        """)
-    util.wait(cond)
-
-    context.window_scroll_top = util.window_scroll_top()
-    context.window_scroll_left = util.window_scroll_left()
-
-
 @when("the user scrolls the editor pane down")
 def step_impl(context):
     driver = context.driver
@@ -174,6 +151,7 @@ def step_impl(context):
     context.scrolled_editor_pane_by = scroll_by
 
 
+@given(u"wait {x} seconds")
 @when(u"wait {x} seconds")
 def step_impl(context, x):
     import time
@@ -181,6 +159,41 @@ def step_impl(context, x):
 
 
 step_matcher("re")
+
+
+@when(ur"^the user scrolls the window (?P<choice>completely down|down "
+      ur"by (?P<by>\d+))$")
+def step_impl(context, choice, by):
+    driver = context.driver
+    util = context.util
+
+    if choice == "completely down":
+        # We must not call it before the body is fully loaded.
+        driver.execute_script("""
+        delete window.__selenic_scrolled;
+        jQuery(function () {
+        window.scrollTo(0, document.body.scrollHeight);
+        window.__selenic_scrolled = true;
+        });
+        """)
+    else:
+        # We must not call it before the body is fully loaded.
+        driver.execute_script("""
+        delete window.__selenic_scrolled;
+        jQuery(function () {
+        window.scrollTo(0, window.scrollY + arguments[0]);
+        window.__selenic_scrolled = true;
+        });
+        """, by)
+
+    def cond(*_):
+        return driver.execute_script("""
+        return window.__selenic_scrolled;
+        """)
+    util.wait(cond)
+
+    context.window_scroll_top = util.window_scroll_top()
+    context.window_scroll_left = util.window_scroll_left()
 
 
 @then(ur"^the window's contents does not move.?$")
@@ -203,3 +216,9 @@ def step_impl(context):
         return window.document.activeElement === wed_editor._$input_field[0];
         """)
     util.wait(cond)
+
+
+@given("the first validation is complete")
+@when("the first validation is complete")
+def step_impl(context):
+    wedutil.wait_for_first_validation_complete(context.util)
