@@ -337,6 +337,14 @@ Behind the scenes, this will launch behave. See the makefile `build.mk
 <https://github.com/mangalam-research/wed/blob/develop/build.mk>`_ for
 information about how behave is run.
 
+The environment variable ``BEHAVE_WAIT_BETWEEN_STEPS`` can be set to a
+numerical value in seconds to get behave to stop between steps. It
+makes the Selenium test unfold more slowly. The environment variable
+``SELENIUM_QUIT`` can be set to ``never`` to prevent Selenium from
+quitting the browser after the suite is run. It can be set to
+``on-success`` so that the Selenium quits only if the suite is
+successful.
+
 Q. Why is Python required to run the Selenium-based tests? You've
    introduced a dependency on an additional language!
 
@@ -432,6 +440,18 @@ JavaScript event that caused the custom event to be triggered.
   processing.
 
 * The paste event has no wed-global-* event associated with it.
+
+Wed also uses the custom events ``wed-click`` and ``wed-unclick`` to
+inform element labels that they should changed their status to clicked
+or unclicked. These events are used (``wed-click`` specifically) so
+that if the status must change due to an event not caused by a mouse
+operation, then wed won't cause a mouse event to happen. A ``click``
+event would trickle up the handler chain, etc.
+
+Modes that define elements in the GUI tree that want to have their own
+custom context menu handler must listen for ``wed-context-menu``
+**and** define a data field named ``wed-custom-context-menu`` set to a
+truthy value.
 
 Selections
 ----------
