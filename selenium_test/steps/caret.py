@@ -55,8 +55,8 @@ step_matcher("re")
 
 @then(u'^the label of the element that has the context menu is selected.?$')
 def step_impl(context):
-    button = context.context_menu_trigger
-    assert_true("_button_clicked" in button.get_attribute("class").split())
+    trigger = context.context_menu_trigger
+    assert_true("_button_clicked" in trigger.el.get_attribute("class").split())
 
 
 @then(u'^no label is selected$')

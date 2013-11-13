@@ -14,8 +14,56 @@ step_matcher("re")
 
 
 class Trigger(object):
-    location = None
-    size = None
+    util = None
+    el = None
+    _location = None
+    _size = None
+
+    def __init__(self, util=None, element=None, location=None, size=None):
+        """
+        A target can be associated with an actual element. In this
+        case, the constructor should be called with ``util`` and
+        ``element`` set. Or a target can be just a set of coordinates
+        and dimensions. In this case, the constructor should be called
+        with ``location`` and ``size`` set. (Other combinations have
+        undefined behavior: garbage in, garbage out.) Note that in the
+        former case, the location and dimensions of the target may
+        change when the element moves or is resized, in latter case,
+        the location and dimensions are constant. (This is important
+        if testing cases where the screen has been scrolled after the
+        target was created).
+
+         :param util: Selenic's util object.
+        :param element: The element to which this trigger corresponds.
+        :type element: :class:`selenium.webdriver.remote.webelement.WebElement`
+        :param location: The location of the trigger.
+        :type location: :class:`dict` of the format ``{'left': x
+                        corrdinate, 'top': y coordinate}``
+        :param size: The size of the trigger.
+        :type size: :class:`dict` of the format ``{'width': width of
+                    the target, 'height': height of the target}``
+
+        """
+        if element:
+            self.util = util
+            self.el = element
+        else:
+            self._location = location
+            self._size = size
+
+    @property
+    def location(self):
+        if self._location:
+            return self._location
+        else:
+            return self.util.element_screen_position(self.el)
+
+    @property
+    def size(self):
+        if self._size:
+            return self._size
+        else:
+            return self.el.size
 
 
 @Given("that a context menu is open")
@@ -35,7 +83,7 @@ def on_placeholder(context):
     ActionChains(driver) \
         .context_click(placeholder) \
         .perform()
-    context.context_menu_trigger = placeholder
+    context.context_menu_trigger = Trigger(util, placeholder)
     context.context_menu_for = placeholder
 
 
@@ -49,7 +97,7 @@ def context_menu_on_start_label_of_top_element(context):
     ActionChains(driver)\
         .context_click(button)\
         .perform()
-    context.context_menu_trigger = button
+    context.context_menu_trigger = Trigger(util, button)
     context.context_menu_for = button.find_element_by_xpath("..")
 
 
@@ -64,7 +112,7 @@ def context_menu_on_start_label_of_element(context):
     ActionChains(driver)\
         .context_click(button)\
         .perform()
-    context.context_menu_trigger = button
+    context.context_menu_trigger = Trigger(util, button)
     context.context_menu_for = button.find_element_by_xpath("..")
 
 
@@ -92,7 +140,7 @@ def context_menu_on_start_label_of_element(context):
     ActionChains(driver)\
         .context_click(button)\
         .perform()
-    context.context_menu_trigger = button
+    context.context_menu_trigger = Trigger(util, button)
     context.context_menu_for = button.find_element_by_xpath("..")
 
 
@@ -109,7 +157,7 @@ def context_menu_on_end_label_of_top_element(context):
     ActionChains(driver)\
         .context_click(button)\
         .perform()
-    context.context_menu_trigger = button
+    context.context_menu_trigger = Trigger(util, button)
     context.context_menu_for = button.find_element_by_xpath("..")
 
 
@@ -123,7 +171,7 @@ def context_menu_on_end_label_of_element(context):
     ActionChains(driver)\
         .context_click(button)\
         .perform()
-    context.context_menu_trigger = button
+    context.context_menu_trigger = Trigger(util, button)
     context.context_menu_for = button.find_element_by_xpath("..")
 
 
@@ -137,7 +185,7 @@ def context_menu_on_text(context):
         .move_to_element(element)\
         .context_click()\
         .perform()
-    context.context_menu_trigger = element
+    context.context_menu_trigger = Trigger(util, element)
     context.context_menu_for = None
 
 
@@ -152,7 +200,7 @@ def context_menu_on_uneditable_text(context):
         .context_click()\
         .perform()
 
-    context.context_menu_trigger = element
+    context.context_menu_trigger = Trigger(util, element)
     context.context_menu_for = element.find_element_by_xpath("..")
 
     context.execute_steps(u"""
@@ -248,9 +296,10 @@ def step_impl(context):
     # The click was in the middle of the trigger.
     trigger = context.context_menu_trigger
     target = trigger.location
-    target["x"] += trigger.size["width"] / 2
-    target["y"] += trigger.size["height"] / 2
-    assert_equal(selenic.util.locations_within(menu.location, target, 10), '')
+    target["left"] += trigger.size["width"] / 2
+    target["top"] += trigger.size["height"] / 2
+    assert_equal(selenic.util.locations_within(
+        util.element_screen_position(menu), target, 10), '')
 
 
 @When(ur"the user uses the keyboard to bring up the context menu on "
@@ -269,18 +318,10 @@ def step_impl(context, choice):
 
     where = util.find_element((By.CLASS_NAME, class_name))
 
+    # IF YOU CHANGE THIS, CHANGE THE TRIGGER
     ActionChains(driver)\
         .click(where) \
         .perform()
-
-    # Because we use the keyboard, the caret is our reference
-    caret = util.find_element((By.CLASS_NAME, "_wed_caret"))
-
-    # Mock it. The caret could move or disappear.
-    trigger = Trigger()
-    trigger.location = caret.location
-    trigger.size = caret.size
-    trigger.size["width"] = 0
 
     ActionChains(driver) \
         .key_down(Keys.CONTROL) \
@@ -288,7 +329,8 @@ def step_impl(context, choice):
         .key_up(Keys.CONTROL) \
         .perform()
 
-    context.context_menu_trigger = trigger
+    # THIS TRIGGER WORKS ONLY BECAUSE OF .click(where) above.
+    context.context_menu_trigger = Trigger(util, where)
     context.context_menu_for = where if choice == "a placeholder" else None
 
 
@@ -299,12 +341,8 @@ def step_impl(context):
     pos = wedutil.point_in_selection(driver)
 
     # Selenium does not like floats.
-    pos["x"] = int(pos["x"])
-    pos["y"] = int(pos["y"])
-
-    trigger = Trigger()
-    trigger.location = pos
-    trigger.size = {'width': 0, 'height': 0}
+    trigger = Trigger(location={"left": int(pos["x"]), "top": int(pos["y"])},
+                      size={'width': 0, 'height': 0})
 
     ActionChains(driver) \
         .move_to_element_with_offset(context.origin_object, pos["x"],
