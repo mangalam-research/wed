@@ -217,7 +217,7 @@ Testing
 Note that due to the asynchronous nature of the JavaScript environments
 used to run the tests, if the test suites are run on a system
 experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. I've witnessed this
+the hard disk, they may fail some or all tests. We've witnessed this
 happen, for instance, due to RequireJS timing out on a ``require()``
 call because the OS was busy loading things into memory from
 swap. The solution is to run the test suites again.
