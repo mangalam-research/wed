@@ -12,13 +12,12 @@ Demo
 You can run the demo with:
 
   * an `empty document
-    <http://mangalam-research.github.io/wed/build/standalone/
-    kitchen-sink.html>`_
+    <build/standalone/kitchen-sink.html>`_
     using a vanilla TEI schema.
-  * `Sketch for a medical education <http://mangalam-research.github.io/
-    wed/build/standalone/kitchen-sink.html?file=/wed/build/samples/
-    sketch_for_a_medical_education.xml>`_, a sample document from the Oxford
-    Text Archive.
+  * `Sketch for a medical education
+    <build/standalone/kitchen-sink.html?file=/wed/build/samples/
+    sketch_for_a_medical_education.xml>`_, a sample document from the
+    Oxford Text Archive.
 
 Here are some limitations of the demo:
 
