@@ -1,9 +1,5 @@
-Please note that Github currently does not implement all
-reStructuredText directives, so some links in this document
-may not work correctly when viewed there.
-
-Usage Notes
-===========
+Advanced Usage Notes
+====================
 
 Build Information
 -----------------

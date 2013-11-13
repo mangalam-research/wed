@@ -1,25 +1,10 @@
 Introduction
-===============================
+============
 
 Wed is a schema-aware editor for XML documents. It runs in a web
 browser. It is alpha software. We aim to make it extensible, but the
-API is likely to change quickly for now. Please see our Documentation_ for the technical details.
-
-Downloads
-=========
-
-View on `Github <https://github.com/mangalam-research/wed>`_.
-
-Download a `zip <https://github.com/mangalam-research/wed/zipball/master>`_
-or `tarball <https://github.com/mangalam-research/wed/tarball/master>`_.
-
-Documentation
-=============
-
-View the API `documentation <api/index.html>`_.
-
-View the `usage information <usage.html>`_, `changelog <CHANGELOG.html>`_, or `technical
-notes <tech_notes.html>`_ about the project.
+API is likely to change quickly for now. Please see our Documentation_
+for details about how to use wed in your own project.
 
 Demo
 ====
@@ -60,6 +45,25 @@ Things you can do:
   * Ctrl-V to paste.
   * Ctrl-X to cut.
   * Using Ctrl-S to save does not work, for the reasons given above.
+
+Documentation
+=============
+
+For information about building wed and using it on your own site, see
+the `basic usage information <usage.html>`_. For advanced usage
+information and information about wed's internals, see the `technical
+notes <tech_notes.html>`_.
+
+People who would like to customize wed or create a mode for it should
+consult the `API documentation <api/index.html>`_.
+
+Downloads
+=========
+
+View on `Github <https://github.com/mangalam-research/wed>`_.
+
+Download a `zip <https://github.com/mangalam-research/wed/zipball/master>`_
+or `tarball <https://github.com/mangalam-research/wed/tarball/master>`_.
 
 License
 =======
