@@ -76,7 +76,6 @@ def step_impl(context, text):
 @when('the user clicks on the start label of an element that does not '
       'contain "{text}"')
 def step_impl(context, text):
-    driver = context.driver
     util = context.util
 
     button = util.find_element((By.CSS_SELECTOR,
@@ -85,6 +84,33 @@ def step_impl(context, text):
     parent = button.find_element_by_xpath("..")
     assert_true(util.get_text_excluding_children(parent).find(text) == -1)
     context.element_to_test_for_text = parent
+
+
+@when('the user resizes the window so that the end titleStmt label is '
+      'next to the right side of the window')
+def step_impl(context):
+    util = context.util
+    el = util.find_element((By.CSS_SELECTOR, "._end_button._titleStmt_label"))
+
+    # First, reduce the window size until the label is too big to find
+    # in the editing pane and is thus moved down.
+    initial_pos = util.element_screen_position(el)
+    pos = initial_pos
+    while pos["top"] == initial_pos["top"]:
+        wedutil.set_window_size(util, pos["left"] + el.size["width"], 741)
+        preceding_pos = pos
+        pos = util.element_screen_position(el)
+
+    # Then, increase the window size until the label is back on its
+    # original line.
+    pos_after_resize = pos
+    # The 5 increment is arbitrary. Small enough to work, but not so small
+    # that we spend an eternity finding the size.
+    new_width = preceding_pos["left"] + el.size["width"] + 5
+    while pos_after_resize["top"] != initial_pos["top"]:
+        wedutil.set_window_size(util, new_width, 741)
+        pos_after_resize = util.element_screen_position(el)
+        new_width += 5
 
 
 @when('the user resizes the window so that the editor pane has a vertical '
