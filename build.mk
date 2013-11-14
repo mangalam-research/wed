@@ -377,7 +377,7 @@ rst-doc: $(HTML_TARGETS)
 clean::
 	-rm -rf build
 	-rm $(HTML_TARGETS)
-	-rm gh-pages-build
+	-rm -rf gh-pages-build
 
 .PHONY: distclean
 distclean: clean
