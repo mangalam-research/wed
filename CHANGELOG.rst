@@ -18,6 +18,8 @@ Only salient changes are recorded here.
   - API change: modes based on the generic mode should have a meta
     that defines ``getNamespaceMappings()``.
 
+  - Moved the build to Bootstrap 3.0.2 and jQuery 1.10.2.
+
 * 0.10.0:
 
 .. warning:: The changes to the build system are substantial enough
@@ -28,8 +30,10 @@ Only salient changes are recorded here.
 
 .. warning:: The location of the files to use for the demo and the
              in-browser tests has changed. See the documentation on
-             the `demo <README.rst#demo>`_ and the documentation on
-             `testing <http://mangalam-research.github.io/wed/tech_notes.html#
+             the `demo
+             <http://mangalam-research.github.io/wed/usage.html#demo>`_
+             and the documentation on `testing
+             <http://mangalam-research.github.io/wed/tech_notes.html#
              in-browser-tests>`_.
 
 
