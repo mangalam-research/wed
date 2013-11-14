@@ -14,6 +14,10 @@ JSDOC3?=jsdoc
 # jsdoc3 templates
 JSDOC3_DEFAULT_TEMPLATE?=$(dir $(JSDOC3))/templates/default
 
+ifeq ($(wildcard $(JSDOC3_DEFAULT_TEMPLATE)),)
+$(error JSDOC3_DEFAULT_TEMPLATE must be set to the path of jsdoc3's default template)
+endif
+
 # rst2html command.
 RST2HTML?=rst2html
 
