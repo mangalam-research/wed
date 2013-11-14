@@ -119,6 +119,21 @@ def context_menu_on_start_label_of_element(context):
     context.context_menu_for = button.find_element_by_xpath("..")
 
 
+@When("^the user brings up the context menu on the end titleStmt label$")
+def context_menu_on_start_label_of_element(context):
+    # We use the first paragraph for this one.
+    driver = context.driver
+    util = context.util
+
+    button = util.find_element((By.CSS_SELECTOR,
+                                "._end_button._titleStmt_label"))
+    ActionChains(driver)\
+        .context_click(button)\
+        .perform()
+    context.context_menu_trigger = Trigger(util, button)
+    context.context_menu_for = button.find_element_by_xpath("..")
+
+
 @given(u'^that the user has brought up the context menu over the '
        u'(?P<which>start|end) label of an element$')
 def step_impl(context, which):
@@ -303,6 +318,17 @@ def step_impl(context):
     target["top"] += trigger.size["height"] / 2
     assert_equal(selenic.util.locations_within(
         util.element_screen_position(menu), target, 10), '')
+
+
+@Then("a context menu is visible and completely inside the window")
+def step_impl(context):
+    util = context.util
+
+    # Yep, we must use the dropdown-menu for this.
+    menu = util.find_element((By.CSS_SELECTOR,
+                              ".wed-context-menu>.dropdown-menu"))
+    assert_true(util.completely_visible_to_user(menu),
+                "menu is completely visible")
 
 
 @When(ur"the user uses the keyboard to bring up the context menu on "

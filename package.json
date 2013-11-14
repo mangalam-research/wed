@@ -20,6 +20,8 @@
         "salve": "~0.15.0"
     },
     "devDependencies": {
+        "semver": ">=2.2.x <3",
+        "argparse": ">=0.1.15 <1",
         "less": ">=1.4.0 <2",
         "mocha": ">=1.9.0 <2",
         "chai": ">=1.6.0 <2",

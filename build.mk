@@ -133,8 +133,10 @@ build-config: $(CONFIG_TARGETS) | build/config
 build/config: | build-dir
 	mkdir $@
 
+ifneq ($(filter clean,$(MAKECMDGOALS)),clean)
 # See Makefile for the flip side of this.
 include $(CONFIG_DEPS)
+endif
 
 # Here are the actual targets that build the actual config files.
 build/config/%:
@@ -347,7 +349,6 @@ selenium-test: build | build-test-files
 doc: rst-doc jsdoc3-doc
 
 JSDOC3_TEMPLATE_TARGETS=$(patsubst $(JSDOC3_DEFAULT_TEMPLATE)/%,build/jsdoc_template/%,$(shell find $(JSDOC3_DEFAULT_TEMPLATE) -type f))
-$(info $(JSDOC3_TEMPLATE_TARGETS))
 
 .PHONY: jsdoc3-doc
 jsdoc3-doc: $(JSDOC3_TEMPLATE_TARGETS) build/jsdoc_template/static/styles/wed.css

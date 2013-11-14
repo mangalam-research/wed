@@ -18,20 +18,23 @@ Only salient changes are recorded here.
   - API change: modes based on the generic mode should have a meta
     that defines ``getNamespaceMappings()``.
 
+  - Moved the build to Bootstrap 3.0.2 and jQuery 1.10.2.
+
 * 0.10.0:
 
-.. warning:: The changes to the build system are substantial enough
-             that if you update the sources in place (through a ``git
-             pull``, for instance) we recommend rebuilding wed from
-             scratch: ``make clean`` then ``make``. Just to be on the
-             safe side.
+  .. warning:: The changes to the build system are substantial enough
+               that if you update the sources in place (through a ``git
+               pull``, for instance) we recommend rebuilding wed from
+               scratch: ``make clean`` then ``make``. Just to be on the
+               safe side.
 
-.. warning:: The location of the files to use for the demo and the
-             in-browser tests has changed. See the documentation on
-             the `demo <README.rst#demo>`_ and the documentation on
-             `testing <http://mangalam-research.github.io/wed/tech_notes.html#
-             in-browser-tests>`_.
-
+  .. warning:: The location of the files to use for the demo and the
+               in-browser tests has changed. See the documentation on
+               the `demo
+               <http://mangalam-research.github.io/wed/usage.html#local-demo>`_
+               and the documentation on `testing
+               <http://mangalam-research.github.io/wed/tech_notes.html#
+               in-browser-tests>`_.
 
   - Internals: wed now requires salve 0.14.1 or later, which means
     smaller schema files, faster loading and faster running. Yippee!
