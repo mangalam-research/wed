@@ -240,6 +240,16 @@ schema. Things you can do:
 
 * Ctrl-X to cut.
 
+  .. warning:: Browsers put significant obstacles into the path of any
+               JavaScript code that wants to handle cutting
+               itself. (It is a security issue.) Consequently, it is
+               possible that cutting won't work on your platform. Wed
+               *cannot* verify that cutting *will* work on your
+               platform and cannot for now *reliably* issue warnings
+               about problems. So... it is possible that if you try to
+               cut, the selected data will be deleted from the editing
+               screen but will **not** be copied into the clipboard.
+
 * Ctrl-S to save. The data is currently dumped into a file located at
   `<build/ajax/save.txt>`_, and you won't be able to reload it. For full
   functionality wed needs to be used with a server able to save the

@@ -600,6 +600,33 @@ Browser Issues
 The sad fact is that browsers are limited in functionality, buggy, or
 incompatible with each other. This section documents such issues.
 
+Cut, Paste, Copy
+----------------
+
+Copying and pasting don't present any special difficulties. However,
+cutting is problematic, because:
+
+1. Browsers don't allow JavaScript to initiate cuts. So it is not
+   possible to intercept a ``cut`` event and then cause the browser to
+   cut by using a *different* event.
+
+2. A cut modifies the DOM directly. This is a problem because wed
+   wants modifications to go through ``TreeUpdater`` objects. An
+   earlier version of wed was letting ``cut`` events go through and
+   updated the data tree but this caused the GUI tree to become
+   stale. (An additional complication is that there is no undoing.)
+
+It is possible to listen to ``cut`` events and let them go through or
+veto them, but this is about the maximum level of control that can be
+achieved cross-browser.
+
+As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
+Linux. It is unknown whether it would work on other
+platforms. Unfortunately, it is not possible to automatically test for
+cutting functionality because JavaScript cannot initiate a cut
+operation by itself.
+
+
 Contenteditable
 ---------------
 

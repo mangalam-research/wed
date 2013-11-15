@@ -164,6 +164,55 @@ def step_impl(context, direction):
     context.expected_selection = text[1:3]
 
 
+@when(u'^the user selects the whole text of an element$')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    element = util.find_element((By.CSS_SELECTOR,
+                                 "._start_button._title_label"))
+    parent = element.find_element_by_xpath("..")
+
+    # From the label to before the first letter.
+    ActionChains(driver)\
+        .click(element) \
+        .send_keys(*[Keys.ARROW_RIGHT] * 2)\
+        .perform()
+
+    # This moves 4 characters to the right
+    ActionChains(driver)\
+        .key_down(Keys.SHIFT)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 4)\
+        .key_up(Keys.SHIFT)\
+        .perform()
+
+    assert_true(util.is_something_selected(), "something must be selected")
+    text = util.get_selection_text()
+    assert_equal(text, "abcd", "expected selection")
+
+    context.expected_selection = text
+    context.selection_parent = parent
+    context.caret_position = wedutil.caret_pos(driver)
+
+
+@when(u'^the user cuts$')
+def step_impl(context):
+    driver = context.driver
+    ActionChains(driver)\
+        .key_down(Keys.CONTROL) \
+        .send_keys("x") \
+        .key_up(Keys.CONTROL) \
+        .perform()
+
+
+@then(u'^the text is cut$')
+def step_impl(context):
+    util = context.util
+    parent = context.selection_parent
+
+    # It may take a bit.
+    util.wait(lambda *_: not len(util.get_text_excluding_children(parent)))
+
 step_matcher("parse")
 
 
