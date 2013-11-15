@@ -109,6 +109,8 @@ def step_impl(context, direction):
     else:
         raise ValueError("unexpected direction: " + direction)
 
+    assert_true(util.is_something_selected(), "something must be selected")
+
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[1:3]
     context.selection_parent = parent
@@ -155,6 +157,8 @@ def step_impl(context, direction):
     else:
         raise ValueError("unexpected direction: " + direction)
 
+    assert_true(util.is_something_selected(), "something must be selected")
+
     parent = element.find_element_by_xpath("..")
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[1:3]
@@ -189,6 +193,8 @@ def step_impl(context):
     start = wedutil.caret_selection_pos(driver)
 
     wedutil.select_text(driver, start, end)
+
+    assert_true(util.is_something_selected(), "something must be selected")
 
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[0:1]
@@ -236,3 +242,28 @@ def step_impl(context):
     pos = wedutil.caret_pos(driver)
 
     assert_equal(prev_pos["top"] - context.scrolled_editor_pane_by, pos["top"])
+
+
+@when("the user selects a region that is malformed")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    element = util.find_element((By.CSS_SELECTOR,
+                                 "._start_button._title_label"))
+
+    # From the label to before the first letter and then past the
+    # first letter.
+    ActionChains(driver)\
+        .click(element)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 3)\
+        .perform()
+
+    # This moves 9 caracters to the right with shift down.
+    ActionChains(driver)\
+        .key_down(Keys.SHIFT)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 9)\
+        .key_up(Keys.SHIFT)\
+        .perform()
+
+    assert_true(util.is_something_selected(), "something must be selected")
