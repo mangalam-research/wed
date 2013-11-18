@@ -368,3 +368,11 @@ hooks. Glerbl itself can be found at
 `<https://github.com/lddubeau/glerbl>`_. It will eventually make its way to
 the Python package repository so that ``pip install glerbl`` will
 work.
+
+..  LocalWords:  NG API namespace namespaces CSS RTL wed's UI github
+..  LocalWords:  SauceLab's OpenSauce RequireJS config requirejs dev
+..  LocalWords:  js jquery selectionsaverestore amd pre jsdoc rst mk
+..  LocalWords:  perl chai semver json Makefile saxon selenic nginx
+..  LocalWords:  glerbl subdirectory README html CHANGELOG TEI Ctrl
+..  LocalWords:  RequireJS's unoptimized ajax txt tei hoc xml xsl rng
+..  LocalWords:  schemas init onerror CDATA versa LocalWords

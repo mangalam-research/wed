@@ -699,4 +699,5 @@ of a good explanation for the leak.
 ..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM desc
 ..  LocalWords:  getSelection namespace programmatically profiler CSS
 ..  LocalWords:  gitflow oop wedutil SauceLabs nvie AVH deployable py
-..  LocalWords:  requirejs unoptimized conf gui LocalWords
+..  LocalWords:  requirejs unoptimized conf gui LocalWords github
+..  LocalWords:  unclick unclicked truthy

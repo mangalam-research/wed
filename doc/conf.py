@@ -13,9 +13,6 @@
 
 import sys, os, subprocess
 
-sys.path.append(os.path.abspath('ext'))
-
-
 
 #-- Wed specific setup ------------------------------------------
 wed_root = ''
@@ -28,9 +25,9 @@ else:
     raise('Unable to determine project root.')
 
 current_branch = subprocess.check_output(['git',
-                                      'rev-parse',
-                                      '--abbrev-ref',
-                                      'HEAD']).strip()
+                                          'rev-parse',
+                                          '--abbrev-ref',
+                                          'HEAD']).strip()
 if current_branch:
     github_repo_url = 'https://github.com/mangalam-research/wed/blob/' + \
         current_branch + '/'

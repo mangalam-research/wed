@@ -49,9 +49,8 @@ Documentation
 =============
 
 For information about building wed and using it on your own site, see
-the `basic usage information <usage.html>`_. For advanced usage
-information and information about wed's internals, see the `technical
-notes <tech_notes.html>`_.
+the :doc:`usage`. For advanced usage
+information and information about wed's internals, see the :doc:`tech_notes`.
 
 People who would like to customize wed or create a mode for it should
 consult the `API documentation <api/index.html>`_.
