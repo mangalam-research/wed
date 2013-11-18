@@ -1,5 +1,5 @@
-Introduction
-============
+Basic Usage
+===========
 
 Wed is a web-based editor that assists users in editing XML documents
 according to their own Relax NG schema. It runs in a web browser. It
@@ -97,11 +97,11 @@ problem with a relatively recent Mac-based browser.
 Dependencies
 ============
 
-Wed is packaged as a RequireJS module. So to use it in a browser
+Wed is packaged as a RequireJS module. To use it in a browser
 environment, you need to first load RequireJS and pass to it a
 configuration that will allow it to find wed's code. An example of
 such configuration, which allows running the browser-dependent test
-suite, is located in `<config/requirejs-config-dev.js>`_.
+suite, is located in :github:`config/requirejs-config-dev.js`.
 
 .. warning:: If you want to change this configuration for
              experimentation or to match your local setup, please copy
@@ -144,8 +144,8 @@ packages:
 * semver-sync
 * express
 
-Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
-and `<Makefile>`_ files for details regarding these
+Please see the :github:`package.json`, :github:`config/requirejs-config-dev.js`,
+:github:`Makefile` and :github:`build.mk` files for details regarding these
 dependencies. Running the test suite also requires that `saxon
 <http://saxon.sourceforge.net/>`_ be installed.
 
@@ -154,27 +154,28 @@ following:
 
 * Python 2.7.
 * Python's Selenium package.
-* `selenic <http://gihub.com/mangalam-research/selenic>`_
+* `selenic <http://github.com/mangalam-research/selenic>`_
 * behave (the python package)
 * nginx is highly recommended.
 
-If you want to contribute to salve, your code will have to pass the
-checks listed in `<.glerbl/repo_conf.py>`_. So you either have to
+If you want to contribute to wed, your code will have to pass the
+checks listed in :github:`.glerbl/repo_conf.py`. So you either have to
 install glerbl to get those checks done for you or run the checks
 through other means. See Contributing_.
 
 Building
 ========
 
-Everything generated during a build is output to the `<build>`_
+Everything generated during a build is output to the ``build/``
 subdirectory, except for some documentation files like
-`<README.html>`_ and `<CHANGELOG.html>`_ which are in the root
+``README.html`` and ``CHANGELOG.html``, which are in the root
 directory.
 
-For now, wed uses a Makefile to build itself. You might want to create
-a ``local.mk`` file to record settings specific to your own build
-environment. See the start of the `<Makefile>`_ to see what variables
-you can set. When everything is set, run::
+For now, wed uses a ``Makefile`` and associated ``build.mk`` to build
+itself. You might want to create a ``local.mk`` file to record
+settings specific to your own build environment. See the start of the
+:github:`build.mk` to see what variables you can set. When everything
+is set, run::
 
     $ make
 
@@ -183,33 +184,33 @@ you can set. When everything is set, run::
              can get confused about its dependencies. A second run
              clears it up.
 
-This Makefile will download external packages (like jquery and
-Bootstrap) and place them in `<downloads>`_. It will then create a
+The Makefile will download external packages (like jquery and
+Bootstrap) and place them in ``downloads/``. It will then create a
 tree of files that could be served by a web server. The files will be
-in `<build/standalone>`_. As the name "standalone" implies, this build
+in ``build/standalone/``. As the name "standalone" implies, this build
 includes **everything** needed to run wed on your own server, except
 the configuration for RequireJS.
 
 Make will additionally create an optimized version of wed in
-`<build/standalone-optimized>`_. This is a version that has been
-optimized using RequireJS' ``r.js`` optimizer. This optimization
+``build/standalone-optimized/``. This is a version that has been
+optimized using RequireJS's ``r.js`` optimizer. This optimization
 exists for illustration purposes and for testing wed. See the
-"Deployment Considerations" section in the `<tech_notes.rst>`_ file to
+:ref:`tech_notes_deployment_considerations` section in :doc:`tech_notes` to
 determine whether this is the optimization you want to use to deploy
 wed.
 
 Testing
 =======
 
-See `<tech_notes.rst>`_.
+See :doc:`tech_notes`.
 
 Local Demo
 ==========
 
 To see the local demo, you must have a minimal server running just
 like the one needed to run the browser-dependent test suite (see the
-"In-Browser Tests" section in `<tech_notes.rst>`_) and then point your
-browser to either:
+:ref:`tech_notes_in_browser_tests` section in :doc:`tech_notes`) and
+then point your browser to either:
 
 * `<http://localhost:8888/build/standalone/kitchen-sink.html>`_ to
   view the demo with the unoptimized file tree.
@@ -241,7 +242,7 @@ schema. Things you can do:
 * Ctrl-X to cut.
 
 * Ctrl-S to save. The data is currently dumped into a file located at
-  `<build/ajax/save.txt>`_, and you won't be able to reload it. For full
+  ``build/ajax/save.txt``, and you won't be able to reload it. For full
   functionality wed needs to be used with a server able to save the
   data and serve it intelligently.
 
@@ -259,14 +260,14 @@ Using
 
 Wed expects the XML files it uses to have been converted from XML to
 an ad-hoc HTML version. So the data passed to it must have been
-converted by `<lib/wed/xml-to-html.xsl>`_. Various schemas and projects
+converted by :github:`lib/wed/xml-to-html.xsl`. Various schemas and projects
 will have different needs regarding white space handling, so it is
 likely you'll want to create your own ``xml-to-html.xsl`` file that will
-import `<lib/wed/xml-to-html.xsl>`_ but customize white space handling.
+import :github:`lib/wed/xml-to-html.xsl` but customize white space handling.
 
 To include wed in a web page you must:
 
-* Require `<lib/wed/wed.js>`_
+* Require :github:`lib/wed/wed.js`
 
 * Instantiate an ``Editor`` object of that module as follows::
 
@@ -291,18 +292,18 @@ To include wed in a web page you must:
     must have a ``path`` field set to the RequireJS path of the
     mode. An optional ``options`` field may contain options to be
     passed to the mode. Wed comes bundled with a generic mode located
-    at `<lib/wed/modes/generic/generic.js>`_.
+    at :github:`lib/wed/modes/generic/generic.js`.
 
     The ``path`` field may be abbreviated. For instance if wed is
     given the path ``"foo"``, it will try to load the module
     ``foo``. If this fails, it will try to load ``modes/foo/foo``.  If
     this fails, it will try to load ``modes/foo/foo_mode``. These
-    paths are all relative to the wed directory.
+    paths are all relative to the ``wed/`` root directory.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS
   documentation. The ``wed/wed`` configuration in
-  `<config/requirejs-config-dev.js>`_ gives an example of how this can
+  :github:`config/requirejs-config-dev.js` gives an example of how this can
   be used.
 
 Here is an example of an ``options`` object::
@@ -321,10 +322,10 @@ The ``mode.options`` will be passed to the generic mode when it is
 created. What options are accepted and what they mean is determined by
 each mode.
 
-The `<lib/wed/onerror.js>`_ module installs a global onerror
+The :github:`lib/wed/onerror.js` module installs a global onerror
 handler. By default it calls whatever onerror handler already existed
 at the time of installation. Sometimes this is not the desired
-behavior (for instance when testing with ``mocha``). In such cases the
+behavior (for instance when testing with mocha). In such cases the
 ``suppress_old_onerror`` option set to a true value will prevent the
 module from calling the old onerror.
 
@@ -339,8 +340,8 @@ module from calling the old onerror.
 Round-Tripping
 ==============
 
-The transformations performed by `<lib/wed/xml-to-html.xsl>`_ and
-`<lib/wed/html-to-xml.xsl>`_ are not byte-for-byte reverse
+The transformations performed by :github:`lib/wed/xml-to-html.xsl` and
+:github:`lib/wed/html-to-xml.xsl` are not byte-for-byte reverse
 operations. Suppose document A is converted from xml to html, remains
 unmodified, and is converted back and saved as B, B will **mean** the
 same thing as A but will not necessarily be **identical** to A. Here are
@@ -362,8 +363,8 @@ Contributing
 ============
 
 Contributions must pass the commit checks turned on in
-`<.glerbl/repo_conf.py>`_. Use ``glerbl install`` to install the
+:github:`.glerbl/repo_conf.py`. Use ``glerbl install`` to install the
 hooks. Glerbl itself can be found at
-https://github.com/lddubeau/glerbl. It will eventually make its way to
+`<https://github.com/lddubeau/glerbl>`_. It will eventually make its way to
 the Python package repository so that ``pip install glerbl`` will
 work.

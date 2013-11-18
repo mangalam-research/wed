@@ -7,7 +7,7 @@ API is likely to change quickly for now. Please see our Documentation_
 for details about how to use wed in your own project.
 
 Demo
-====
+=====
 
 You can run the demo with:
 
@@ -92,12 +92,6 @@ represent those of the National Endowment for the Humanities.
 .. image:: http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg
    :target: http://www.neh.gov/
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 ..  LocalWords:  API README html Github TEI xml io Ctrl Mangalam api
 ..  LocalWords:  Dubeau LocalWords readme changelog

@@ -23,6 +23,8 @@ number you'll get in the ``desc`` field will start with
 "v0.10.0-x". The additional "-x" is a special case to work around a
 bug in gitflow.
 
+.. _tech_notes_deployment_considerations:
+
 Deployment Considerations
 -------------------------
 
@@ -258,6 +260,8 @@ the latest code.
              source and fail to rebuild before running the test suite,
              the suite will run against **old code!**
 
+.. _tech_notes_in_browser_tests:
+
 In-Browser Tests
 ----------------
 
@@ -333,9 +337,8 @@ To run the suite while using the SauceLab servers, run::
 
     $ make SELENIUM_SAUCELABS=1 selenium-test
 
-Behind the scenes, this will launch behave. See the makefile `build.mk
-<https://github.com/mangalam-research/wed/blob/develop/build.mk>`_ for
-information about how behave is run.
+Behind the scenes, this will launch behave. See the makefile
+:github:`build.mk` for information about how behave is run.
 
 The environment variable ``BEHAVE_WAIT_BETWEEN_STEPS`` can be set to a
 numerical value in seconds to get behave to stop between steps. It
@@ -442,7 +445,7 @@ JavaScript event that caused the custom event to be triggered.
 * The paste event has no wed-global-* event associated with it.
 
 Wed also uses the custom events ``wed-click`` and ``wed-unclick`` to
-inform element labels that they should changed their status to clicked
+inform element labels that they should change their status to clicked
 or unclicked. These events are used (``wed-click`` specifically) so
 that if the status must change due to an event not caused by a mouse
 operation, then wed won't cause a mouse event to happen. A ``click``
@@ -555,7 +558,7 @@ Conversion for Editing
 
 Wed operates on an HTML structure constructed as follows:
 
-* All elements from the XML document become HTML div elements.
+* All elements from the XML document become HTML ``div`` elements.
 
 * The original element's qualified name is stored as the first class in @class.
 
