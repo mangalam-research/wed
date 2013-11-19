@@ -1,12 +1,30 @@
 html
 {
+    margin: 0px;
+    padding: 0px;
     background-color: #133f52;
+    height: 96%
 }
 
 body {
     font: 14px "Trebuchet MS", sans-serif, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans serif;
     background-color: #1c4e63;
+    height: 98%;
 }
+
+#main {
+    float: right;
+    height:100%;
+    width: 75%;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+section {
+    margin-right: 0;
+}
+
 
 .class-description {
     font-style: normal;
@@ -14,6 +32,12 @@ body {
 
 
 nav {
+    float: left;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    width: 25%;
+    height: 100%;
     border-left: 0;
 }
 
@@ -30,6 +54,8 @@ nav h3, nav li, nav a, nav a:visited, nav a:active {
 }
 
 footer {
+    float: right;
+    margin-top: 0;
     color: #fff;
 }
 

@@ -368,6 +368,9 @@ build/jsdoc_template/static/styles/wed.css: misc/jsdoc_template/wed.css
 build/jsdoc_template/tmpl/layout.tmpl:  misc/jsdoc_template/layout.tmpl
 	cp $< $@
 
+build/jsdoc_template/publish.js:  misc/jsdoc_template/publish.js
+	cp $< $@
+
 rst-doc: $(HTML_TARGETS)
 
 # rst2html does not seem to support rewriting relative
