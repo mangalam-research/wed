@@ -2,6 +2,11 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
+from nose.tools import assert_equal  # pylint: disable=E0611
+from behave import step_matcher
+
+import wedutil
+
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
@@ -45,14 +50,6 @@ def step_impl(context, text):
         .perform()
 
 
-@when(u'the user types ESCAPE')
-def step_impl(context):
-    driver = context.driver
-    ActionChains(driver)\
-        .send_keys(Keys.ESCAPE)\
-        .perform()
-
-
 @then(u'a placeholder is present in the element')
 def step_impl(context):
     driver = context.driver
@@ -72,3 +69,28 @@ def step_impl(context, text):
             context.element_to_test_for_text)
         return el_text.find(text) != -1
     util.wait(condition)
+
+step_matcher('re')
+
+
+@when(u'^the user types (?P<choice>ESCAPE|DELETE|BACKSPACE)$')
+def step_impl(context, choice):
+    driver = context.driver
+    key = getattr(Keys, choice)
+    ActionChains(driver)\
+        .send_keys(key)\
+        .perform()
+
+
+@then(u'^the last letter of the element\'s text is deleted$')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+    initial_pos = context.caret_position_before_arrow
+
+    util.wait(lambda *_: initial_pos != wedutil.caret_pos(driver))
+
+    initial = context.clicked_element_parent_initial_text
+    parent = context.clicked_element_parent
+    final = util.get_text_excluding_children(parent)
+    assert_equal(initial[:-1], final, "edited text")

@@ -10,21 +10,28 @@ import wedutil
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
+step_matcher("re")
 
-@when(u"the user clicks on an element's label")
+
+@when(u"^the user clicks on "
+      u"(?:an element's label|the end label of an element)$")
 def step_impl(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, "._end_button._p_label"))
+    button = util.find_element((By.CSS_SELECTOR, "._end_button._title_label"))
+    parent = button.find_element_by_xpath("..")
     context.clicked_element = button
+    context.clicked_element_parent = parent
+    context.clicked_element_parent_initial_text = \
+        util.get_text_excluding_children(parent)
     assert_true("_button_clicked" not in button.get_attribute("class").split())
     ActionChains(driver)\
         .click(button)\
         .perform()
 
 
-@when(u"the user clicks on the start label of an element")
+@when(u"^the user clicks on the start label of an element$")
 def step_impl(context):
     driver = context.driver
     util = context.util
@@ -37,20 +44,22 @@ def step_impl(context):
         .perform()
 
 
-@when(u"the user hits the right arrow")
-def step_impl(context):
-    driver = context.driver
-    ActionChains(driver)\
-        .send_keys(Keys.ARROW_RIGHT)\
-        .perform()
-
-
-@then(u'the label changes to show it is selected')
+@then(u'^the label changes to show it is selected$')
 def step_impl(context):
     button = context.clicked_element
     assert_true("_button_clicked" in button.get_attribute("class").split())
 
-step_matcher("re")
+
+@when(u"the user hits the (?P<choice>right|left) arrow")
+def step_impl(context, choice):
+    driver = context.driver
+
+    context.caret_position_before_arrow = wedutil.caret_pos(driver)
+
+    key = Keys.ARROW_RIGHT if choice == "right" else Keys.ARROW_LEFT
+    ActionChains(driver)\
+        .send_keys(key)\
+        .perform()
 
 
 @then(u'^the label of the element that has the context menu is selected.?$')

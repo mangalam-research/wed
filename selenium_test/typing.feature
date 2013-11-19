@@ -27,3 +27,9 @@ Scenario: moving from an element label and typing
   And the user hits the right arrow
   And the user types "A"
   Then "A" is in the text
+
+Scenario: moving from an element's end label and deleting
+  When the user clicks on the end label of an element
+  And the user hits the left arrow
+  And the user types BACKSPACE
+  Then the last letter of the element's text is deleted
