@@ -203,10 +203,26 @@ function buildNav(members) {
         globalNav = '';
 
     if (members.modules.length) {
+        var root_modules = [];
+        var other_modules = [];
         nav += '<h3>Modules</h3><ul>';
         members.modules.forEach(function(m) {
+            if ( m.longname.match('\/') ) {
+                other_modules.push(m);
+            } else {
+                root_modules.push(m);
+            }
+        });
+
+        root_modules.forEach(function(m) {
             if ( !hasOwnProp.call(seen, m.longname) ) {
-                nav += '<li>'+linkto(m.longname, m.name)+'</li>';
+                nav += '<li>'+linkto(m.longname, m.longname.replace(/^module:/,'').replace(/\bevent:/,''))+'</li>';
+            }
+            seen[m.longname] = true;
+        });
+        other_modules.forEach(function(m) {
+            if ( !hasOwnProp.call(seen, m.longname) ) {
+                nav += '<li>'+linkto(m.longname, m.longname.replace(/^module:/,'').replace(/\bevent:/,''))+'</li>';
             }
             seen[m.longname] = true;
         });
@@ -227,9 +243,24 @@ function buildNav(members) {
     }
 
     if (members.classes.length) {
+        var other_classes = [], root_classes = [];
         members.classes.forEach(function(c) {
+            if ( c.longname.match('\/') ) {
+                other_classes.push(c);
+            } else {
+                root_classes.push(c);
+            }
+        });
+
+        root_classes.forEach(function(c) {
             if ( !hasOwnProp.call(seen, c.longname) ) {
-                classNav += '<li>'+linkto(c.longname, c.longname.replace('module:',''))+'</li>';
+                classNav += '<li>'+linkto(c.longname, c.longname.replace(/^module:/,'').replace(/\bevent:/,''))+'</li>';
+            }
+            seen[c.longname] = true;
+        });
+        other_classes.forEach(function(c) {
+            if ( !hasOwnProp.call(seen, c.longname) ) {
+                classNav += '<li>'+linkto(c.longname, c.longname.replace(/^module:/,'').replace(/\bevent:/,''))+'</li>';
             }
             seen[c.longname] = true;
         });
@@ -242,10 +273,26 @@ function buildNav(members) {
     }
 
     if (members.events.length) {
+        var root_events = [];
+        var other_events = [];
         nav += '<h3>Events</h3><ul>';
         members.events.forEach(function(e) {
+            if ( e.longname.match('\/') ) {
+                other_events.push(e);
+            } else {
+                root_events.push(e);
+            }
+        });
+
+        root_events.forEach(function(e) {
             if ( !hasOwnProp.call(seen, e.longname) ) {
-                nav += '<li>'+linkto(e.longname, e.name)+'</li>';
+                nav += '<li>'+linkto(e.longname, e.longname.replace(/^module:/,'').replace(/\bevent:/,''))+'</li>';
+            }
+            seen[e.longname] = true;
+        });
+        other_events.forEach(function(e) {
+            if ( !hasOwnProp.call(seen, e.longname) ) {
+                nav += '<li>'+linkto(e.longname, e.longname.replace(/^module:/,'').replace(/\bevent:/,''))+'</li>';
             }
             seen[e.longname] = true;
         });
