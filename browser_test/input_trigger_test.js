@@ -66,7 +66,7 @@ describe("InputTrigger", function () {
                 }
             }
         };
-        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
         editor.$gui_root.trigger(event);
         assert.equal(seen, 1);
     });
@@ -84,7 +84,7 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
         editor.type(key_constants.ENTER);
         assert.equal(seen, 1);
     });
@@ -102,7 +102,7 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
         editor.type(";");
         assert.equal(seen, 1);
     });
@@ -133,7 +133,7 @@ describe("InputTrigger", function () {
         });
 
         // Synthetic event
-        editor.setCaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
         editor.type(":");
         assert.equal(seen, 0);
     });

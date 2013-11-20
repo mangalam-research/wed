@@ -27,7 +27,8 @@
         "chai": ">=1.6.0 <2",
         "semver-sync": ">=1.2.0 <2",
         "express": ">=3.4.0 <4",
-        "requirejs": ">=2.1.9 <3"
+        "requirejs": ">=2.1.9 <3",
+        "jsdom": ">=0.8.8 <1"
     },
     "scripts": {
         "test": "make test",

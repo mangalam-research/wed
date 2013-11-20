@@ -6,6 +6,39 @@ Only salient changes are recorded here.
 
 * 0.11.0:
 
+  - Global API change. Most functions that used to take an Array as a
+    caret position or general location now require ``DLoc`` objects or
+    return ``DLoc`` objects. A non-exclusive list of methods affected.
+
+    + Most methods on the ``TreeUpdater`` class.
+
+    + ``Editor.getGUICaret``
+
+    + ``Editor.setGUICaret``
+
+    + ``Editor.getDataCaret``
+
+    + ``Editor.setDataCaret``
+
+    + ``Editor.toDataLocation``.
+
+    + ``Editor.fromDataLocation``
+
+    + ``GUIUpdater.fromDataLocation``
+
+    + The ``move_caret_to`` parameter in transformation data must now
+      be a ``DLoc`` object.
+
+  - ``editor.getCaret`` is now ``Editor.getGUICaret``.
+
+  - ``Editor.setCaret`` is now ``Editor.setGUICaret``
+
+  - ``Editor.toDataCaret`` is now ``Editor.toDataLocation``.
+
+  - ``Editor.fromDataCaret`` is now ``Editor.fromDataLocation``.
+
+  - ``GUIUpdater.fromDataCaret`` is now ``GUIUpdater.fromDataLocation``
+
   - API change for transformations:
 
     + New signature: ``fireTransformation(editor, data)``
