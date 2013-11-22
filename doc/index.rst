@@ -42,6 +42,10 @@ Things you can do:
 
 * Insert text where text is valid.
 
+* Ctrl-[ to reduce the :ref:`label visibility <label_visibility>` level.
+
+* Ctrl-[ to increase the label visibility level.
+
 * Ctrl-Z to undo.
 
 * Ctrl-Y to redo.

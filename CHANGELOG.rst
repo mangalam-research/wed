@@ -6,6 +6,10 @@ Only salient changes are recorded here.
 
 * 0.11.0:
 
+  - Wed now has a notion of label level, which allows showing more or
+    less labels. See `this
+    <http://mangalam-research.github.io/wed/usage.html#label-visibility>`_
+
   - Global API change. Most functions that used to take an Array as a
     caret position or general location now require ``DLoc`` objects or
     return ``DLoc`` objects. A non-exclusive list of methods affected.
@@ -38,6 +42,11 @@ Only salient changes are recorded here.
   - ``Editor.fromDataCaret`` is now ``Editor.fromDataLocation``.
 
   - ``GUIUpdater.fromDataCaret`` is now ``GUIUpdater.fromDataLocation``
+
+  - API change for ``Decorator.elementDecorator`` and
+    ``GenericDecorator.elementDecorator``: a new parameter has been
+    added in third position, which gives the level of the labels added
+    to the element.
 
   - API change for transformations:
 

@@ -230,6 +230,10 @@ schema. Things you can do:
 
 * Insert text where text is valid.
 
+* Ctrl-[ to reduce the :ref:`label visibility <label_visibility>` level.
+
+* Ctrl-[ to increase the label visibility level.
+
 * Ctrl-Z to undo.
 
 * Ctrl-Y to redo.
@@ -263,6 +267,21 @@ default one (generic) by passing a ``mode`` parameter in the URL, for
 instance the URL
 `<http://localhost:8888/web/kitchen-sink.html?mode=tei>`_ would tell
 the kitchen sink to load the tei mode.
+
+.. _label_visibility:
+
+Label Visibility
+----------------
+
+Wed allows the user to reduce or increase the number of element
+labeled on the screen. How this works is dependent in part on the
+specific mode that the user has selected. For instance, the default
+mode that comes with wed (the "generic" mode) knows only two levels of
+visiblity: 0 and 1. At level 0, no elements are labeled. At level 1,
+all elements are labeled. A mode with levels 0, 1, and 2 would label
+all elements at level 2, no elements at level 0 and some elements at
+level 1. Which elements are labeled depends on how the mode designer
+designed the mode.
 
 Using
 =====

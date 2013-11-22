@@ -207,6 +207,23 @@ possible message types are:
 
 * ``save_successful`` indicates that the save was successful.
 
+Creating a Mode
+===============
+
+We recommend creating new modes by inheriting from the generic
+mode. The first thing you must do is set the metadata on the
+``_wed_options`` object because wed will refuse to load your mode if
+these are not set::
+
+    this._wed_options.metadata = {
+        name: "Foo",
+        authors: ["Ty Coon"],
+        description:
+           "This mode does foo!",
+        license: "MPL 2.0",
+        copyright: "2013 Ty Coon Industries"
+    };
+
 Testing
 =======
 
