@@ -3,13 +3,23 @@ html
     margin: 0px;
     padding: 0px;
     background-color: #133f52;
-    height: 96%
+    height: 95%
 }
 
 body {
     font: 14px "Trebuchet MS", sans-serif, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans serif;
     background-color: #1c4e63;
     height: 98%;
+}
+
+h1
+{
+    color: white;
+}
+
+h4
+{
+    color: #20435c;
 }
 
 #main {
@@ -25,11 +35,14 @@ section {
     margin-right: 0;
 }
 
+article h1,h2,h3,h4
+{
+    color: black;
+}
 
 .class-description {
     font-style: normal;
 }
-
 
 nav {
     float: left;
@@ -46,7 +59,7 @@ nav ul {
 }
 
 nav h2 a, nav h2 a:visited {
-    color: #fff;
+    color: white;
 }
 
 nav h3, nav li, nav a, nav a:visited, nav a:active {
@@ -56,22 +69,13 @@ nav h3, nav li, nav a, nav a:visited, nav a:active {
 footer {
     float: right;
     margin-top: 0;
-    color: #fff;
+    color: white;
 }
 
 footer a, footer a:visited, footer a:active {
     color: #98dbcc;
 }
 
-h1
-{
-    color: white;
-}
-
-h4
-{
-    color: #20435c;
-}
 
 .params .name, .props .name, .name code {
     color: #20435c;
