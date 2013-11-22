@@ -79,7 +79,7 @@ def step_impl(context, text):
     util = context.util
 
     button = util.find_element((By.CSS_SELECTOR,
-                                "._start_button._title_label"))
+                                ".__start_label._title_label"))
     button.click()
     parent = button.find_element_by_xpath("..")
     assert_true(util.get_text_excluding_children(parent).find(text) == -1)
@@ -90,7 +90,7 @@ def step_impl(context, text):
       'next to the right side of the window')
 def step_impl(context):
     util = context.util
-    el = util.find_element((By.CSS_SELECTOR, "._end_button._titleStmt_label"))
+    el = util.find_element((By.CSS_SELECTOR, ".__end_label._titleStmt_label"))
 
     # First, reduce the window size until the label is too big to find
     # in the editing pane and is thus moved down.

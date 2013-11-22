@@ -19,13 +19,13 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, "._end_button._title_label"))
+    button = util.find_element((By.CSS_SELECTOR, ".__end_label._title_label"))
     parent = button.find_element_by_xpath("..")
     context.clicked_element = button
     context.clicked_element_parent = parent
     context.clicked_element_parent_initial_text = \
         util.get_text_excluding_children(parent)
-    assert_true("_button_clicked" not in button.get_attribute("class").split())
+    assert_true("_label_clicked" not in button.get_attribute("class").split())
     ActionChains(driver)\
         .click(button)\
         .perform()
@@ -36,9 +36,9 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, "._start_button._p_label"))
+    button = util.find_element((By.CSS_SELECTOR, ".__start_label._p_label"))
     context.clicked_element = button
-    assert_true("_button_clicked" not in button.get_attribute("class").split())
+    assert_true("_label_clicked" not in button.get_attribute("class").split())
     ActionChains(driver)\
         .click(button)\
         .perform()
@@ -47,7 +47,7 @@ def step_impl(context):
 @then(u'^the label changes to show it is selected$')
 def step_impl(context):
     button = context.clicked_element
-    assert_true("_button_clicked" in button.get_attribute("class").split())
+    assert_true("_label_clicked" in button.get_attribute("class").split())
 
 
 @when(u"the user hits the (?P<choice>right|left) arrow")
@@ -65,14 +65,14 @@ def step_impl(context, choice):
 @then(u'^the label of the element that has the context menu is selected.?$')
 def step_impl(context):
     trigger = context.context_menu_trigger
-    assert_true("_button_clicked" in trigger.el.get_attribute("class").split())
+    assert_true("_label_clicked" in trigger.el.get_attribute("class").split())
 
 
 @then(u'^no label is selected$')
 def step_impl(context):
     util = context.util
     util.wait_until_not(EC.presence_of_element_located(
-        (By.CLASS_NAME, "_button_clicked")))
+        (By.CLASS_NAME, "_label_clicked")))
 
 
 @then(u'^the caret disappears$')
@@ -92,7 +92,7 @@ def step_impl(context, direction):
     direction = direction.strip()
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
     parent = element.find_element_by_xpath("..")
     element.click()
     wedutil.wait_for_caret_to_be_in(util, parent)
@@ -133,7 +133,7 @@ def step_impl(context, direction):
     util = context.util
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
 
     if direction == "":
         # From the label to before the first letter and then past the
@@ -179,7 +179,7 @@ def step_impl(context):
     util = context.util
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
     parent = element.find_element_by_xpath("..")
 
     # From the label to before the first letter.
@@ -232,7 +232,7 @@ def step_impl(context):
     util = context.util
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
     # This is where our selection will end
     end = util.element_screen_center(element)
     end["left"] += 2  # Move it off-center for this test
@@ -308,7 +308,7 @@ def step_impl(context):
     util = context.util
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
 
     # From the label to before the first letter and then past the
     # first letter.
