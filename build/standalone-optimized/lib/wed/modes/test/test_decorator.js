@@ -9,6 +9,7 @@ define(/** @lends module:modes/test/test_decorator */
 function (require, exports, module) {
 'use strict';
 
+var Decorator = require("wed/decorator").Decorator;
 var GenericDecorator =
         require("wed/modes/generic/generic_decorator").GenericDecorator;
 var oop = require("wed/oop");
@@ -17,6 +18,7 @@ var util = require("wed/util");
 var jqutil = require("wed/jqutil");
 var log = require("wed/log");
 var context_menu = require("wed/gui/context_menu");
+var makeDLoc = require("wed/dloc").makeDLoc;
 
 var _indexOf = Array.prototype.indexOf;
 
@@ -41,9 +43,9 @@ function TestDecorator(mode, meta, options) {
 
     // Under normal circumstances, this is an empty set so all
     // elements are decorated.
-    this._no_element_decoration = {
-        "term": true,
-        "ref": true
+    this._element_level = {
+        "term": 2,
+        "ref": 2
     };
 }
 
@@ -52,17 +54,18 @@ oop.inherit(TestDecorator, GenericDecorator);
 TestDecorator.prototype.elementDecorator = function ($root, $el) {
     var el = $el[0];
     var orig_name = util.getOriginalName(el);
-    if (!this._no_element_decoration[orig_name])
-        GenericDecorator.prototype.elementDecorator.call(
-            this, $root, $el,
-            log.wrap(this._contextMenuHandler.bind(this, true)),
-            log.wrap(this._contextMenuHandler.bind(this, false)));
+    Decorator.prototype.elementDecorator.call(
+        this, $root, $el, this._element_level[orig_name] || 1,
+        log.wrap(this._contextMenuHandler.bind(this, true)),
+        log.wrap(this._contextMenuHandler.bind(this, false)));
 
     if (orig_name === "ref") {
+        $el.children("._text._phantom").remove();
         var $before = $("<div class='_text _phantom'>(</div>");
         this._gui_updater.insertBefore(
             el,
             $("<div class='_text _phantom'>)</div>")[0], null);
+
         this._gui_updater.insertNodeAt(el, 0, $before[0]);
         $before.on("wed-context-menu",
                    { node: el },
@@ -73,9 +76,9 @@ TestDecorator.prototype.elementDecorator = function ($root, $el) {
 
 TestDecorator.prototype._navigationContextMenuHandler = log.wrap(
     function (wed_ev, ev) {
-    // node is the node in the data tree which corresponds to the
-    // navigation item that for which a context menu handler was
-    // required by the user.
+    // node is the node in the GUI tree which corresponds to the
+    // navigation item for which a context menu handler was required
+    // by the user.
     var node = wed_ev.data.node;
     var orig_name = util.getOriginalName(node);
 
@@ -94,7 +97,8 @@ TestDecorator.prototype._navigationContextMenuHandler = log.wrap(
                                                   container, offset);
     // data to pass to transformations
     var data = {element_name: orig_name,
-                move_caret_to: [container, offset]};
+                move_caret_to: makeDLoc(this._editor.gui_root,
+                                        container, offset)};
     var act_ix, act;
     for(act_ix = 0, act; (act = actions[act_ix]) !== undefined; ++act_ix)
         tuples.push([act, data, act.getLabelFor(data) +

@@ -19,10 +19,9 @@ var transformation = require("./transformation");
 
 /**
  * Makes an input trigger that splits and merges consecutive elements.
- *
  * @param {module:wed~Editor} editor The editor for which to create
  * the input trigger.
- * @param {String} element_name A jQuery selector that determines
+ * @param {string} element_name A jQuery selector that determines
  * which element we want to split or merge. For instance, to operate
  * on all paragraphs, this parameter could be <code>"p"</code>.
  * @param {module:key~Key} split_key The key which splits the element.
@@ -69,10 +68,10 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
 
         // Fire it only if it the caret is at the start of the element
         // we are listening on and can't go back.
-        if ((caret[1] === 0) &&
-            (caret[0] === $el.get(0) ||
-             (caret[0].nodeType === Node.TEXT_NODE &&
-              caret[0] === $el.get(0).childNodes[0]))) {
+        if ((caret.offset === 0) &&
+            (caret.node === $el.get(0) ||
+             (caret.node.nodeType === Node.TEXT_NODE &&
+              caret.node === $el.get(0).childNodes[0]))) {
             if (ev) {
                 ev.stopImmediatePropagation();
                 ev.preventDefault();
@@ -93,11 +92,11 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
 
         // Fire it only if it the caret is at the end of the element
         // we are listening on and can't actually delete text.
-        if ((caret[0] === $el.get(0) &&
-             caret[1] === $el.get(0).childNodes.length) ||
-            (caret[0].nodeType === Node.TEXT_NODE &&
-             caret[0] === $el.get(0).lastChild &&
-             caret[1] === $el.get(0).lastChild.nodeValue.length)) {
+        if ((caret.node === $el.get(0) &&
+             caret.offset === $el.get(0).childNodes.length) ||
+            (caret.node.nodeType === Node.TEXT_NODE &&
+             caret.node === $el.get(0).lastChild &&
+             caret.offset === $el.get(0).lastChild.nodeValue.length)) {
             if (ev) {
                 ev.stopImmediatePropagation();
                 ev.preventDefault();
@@ -116,7 +115,7 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
  * @private
  * @param {module:wed~Editor} editor The editor which invoked the
  * transformation.
- * @param {String} data The key that is splitting the element.
+ * @param {string} data The key that is splitting the element.
  * @throws {Error} If the data passed is incorrect.
  */
 function split_node_on(editor, data) {
@@ -146,7 +145,7 @@ function split_node_on(editor, data) {
                 modified = true;
             }
             else if (offset !== -1) {
-                var pair = editor.data_updater.splitAt(node, [text, offset]);
+                var pair = editor.data_updater.splitAt(node, text, offset);
                 // Continue with the 2nd half of the split
                 node = pair[1];
                 modified = true;

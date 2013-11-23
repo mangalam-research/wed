@@ -22,7 +22,7 @@ var domutil = require("./domutil");
  * @extends module:undo~UndoGroup
  *
  * @constructor
- * @param {String} desc The description of this group.
+ * @param {string} desc The description of this group.
  * @param {module:wed~Editor} editor The editor for which this undo
  * group is created.
  */
@@ -58,7 +58,7 @@ UndoGroup.prototype.getDataCaretAsPath = function () {
         // Returning undefined for "the caret was undefined" would not
         // trap stupid mistakes in managing the data.
         return [undefined, undefined];
-    return [this._editor.data_updater.nodeToPath(caret[0]), caret[1]];
+    return [this._editor.data_updater.nodeToPath(caret.node), caret.offset];
 };
 
 /**
@@ -72,9 +72,8 @@ UndoGroup.prototype.setDataCaretAsPath = function (caret) {
     // anything.
     if (!caret[0] && !caret[1])
         return;
-    var real_caret = [this._editor.data_updater.pathToNode(caret[0]),
-                      caret[1]];
-    this._editor.setDataCaret(real_caret);
+    this._editor.setDataCaret(this._editor.data_updater.pathToNode(caret[0]),
+                              caret[1]);
 };
 
 /**
@@ -107,12 +106,12 @@ exports.UndoGroup = UndoGroup;
  * @extends module:wundo~UndoGroup
  *
  * @constructor
- * @param {String} desc The description of this group.
+ * @param {string} desc The description of this group.
  * @param {module:wed~Editor} editor The editor for which this undo
  * group is created.
  * @param {module:undo~UndoList} undo_list The list which will hold
  * this group.
- * @param {Integer} limit The maximum number of undo operations that
+ * @param {integer} limit The maximum number of undo operations that
  * this group should record.
  */
 function TextUndoGroup(desc, editor, undo_list, limit) {
@@ -137,7 +136,7 @@ exports.TextUndoGroup = TextUndoGroup;
  * @classdesc Serves as a marker for debugging.
  *
  * @constructor
- * @param {String} msg A message to identify the marker.
+ * @param {string} msg A message to identify the marker.
  */
 function MarkerUndo(msg) {
     undo.Undo.call(this, "*** MARKER *** " + msg);

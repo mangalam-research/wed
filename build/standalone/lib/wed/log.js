@@ -117,7 +117,7 @@ exports.wrap = wrap;
  * wed so that all messages are sent to the URL specified as a
  * parameter. A server should be listening at that address.
  *
- * @param {String} url The URL for the location to send log messages.
+ * @param {string} url The URL for the location to send log messages.
  * @param {Object} headers An object having (key, value) pairs which
  * define header fields to set for communicating. One use for this
  * parameter would be for instance to set the X-CSRFToken field when

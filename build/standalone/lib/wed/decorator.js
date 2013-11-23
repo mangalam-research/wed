@@ -67,7 +67,7 @@ Decorator.prototype.startListening = function ($root) {
  * "._real" elements.
  *
  * @param {Node} el The element to decorate.
- * @param {String|jQuery} sep A separator.
+ * @param {string|jQuery} sep A separator.
  */
 Decorator.prototype.listDecorator = function (el, sep) {
     // We expect to work with a homogeneous list. That is, all
@@ -116,7 +116,7 @@ Decorator.prototype.listDecorator = function (el, sep) {
  * <code>added-element</code> and <code>removed-element</code> events
  * in {@link module:domlistener domlistener}.
  *
- * @param {String|jQuery} sep Separator between the elements of the
+ * @param {string|jQuery} sep Separator between the elements of the
  * list.
  */
 Decorator.prototype.addRemListElementHandler = function (
@@ -130,7 +130,7 @@ Decorator.prototype.addRemListElementHandler = function (
  * <code>included-element</code> events in {@link module:domlistener
  * domlistener}.
  *
- * @param {String|jQuery} sep Separator between the elements of the
+ * @param {string|jQuery} sep Separator between the elements of the
  * list.
  */
 Decorator.prototype.includeListHandler = function (
@@ -161,13 +161,17 @@ Decorator.prototype.contentEditableHandler = function (
  *
  * @param {jQuery} $root The root of the decorated tree.
  * @param {Node} el The element to decorate.
+ * @param {integer} level The level of the labels for this element.
  * @param {Function} pre_context_handler An event handler to run when
  * the user invokes a context menu on the start label
  * @param {Function} post_context_handler An event handler to run when
  * the user invokes a context menu on the end label.
  */
 Decorator.prototype.elementDecorator = function (
-    $root, el, pre_context_handler, post_context_handler) {
+    $root, el, level, pre_context_handler, post_context_handler) {
+    if (level > this._editor.max_label_level)
+        throw new Error("level higher than the maximum set by the mode: " +
+                        level);
     var $el = $(el);
     el = $el.get(0);
     var orig_name = util.getOriginalName(el);
@@ -179,12 +183,13 @@ Decorator.prototype.elementDecorator = function (
         // should not result in text getting merged.
         me._gui_updater.deleteNode(this);
     });
-    var $pre = $('<span class="_gui _phantom _start_button ' + cls +
-                 ' _button"><span class="_phantom">&nbsp;' + orig_name +
+    cls += " _label_level_" + level;
+    var $pre = $('<span class="_gui _phantom __start_label ' + cls +
+                 ' _label"><span class="_phantom">&nbsp;' + orig_name +
                  ' >&nbsp;</span></span>');
     this._gui_updater.insertNodeAt(el, 0, $pre.get(0));
-    var $post = $('<span class="_gui _phantom _end_button ' + cls +
-                  ' _button"><span class="_phantom">&nbsp;&lt; ' +
+    var $post = $('<span class="_gui _phantom __end_label ' + cls +
+                  ' _label"><span class="_phantom">&nbsp;&lt; ' +
                   orig_name + '&nbsp;</span></span>');
     this._gui_updater.insertBefore(el, $post.get(0), null);
 
@@ -218,8 +223,8 @@ Decorator.prototype.elementDecorator = function (
  */
 Decorator.prototype._elementButtonClickHandler = function (ev) {
     var data = ev.data;
-    data.$pre.addClass("_button_clicked");
-    data.$post.addClass("_button_clicked");
+    data.$pre.addClass("_label_clicked");
+    data.$post.addClass("_label_clicked");
 };
 
 /**
@@ -232,8 +237,8 @@ Decorator.prototype._elementButtonClickHandler = function (ev) {
  */
 Decorator.prototype._elementButtonUnclickHandler = function (ev) {
     var data = ev.data;
-    data.$pre.removeClass("_button_clicked");
-    data.$post.removeClass("_button_clicked");
+    data.$pre.removeClass("_label_clicked");
+    data.$post.removeClass("_label_clicked");
 };
 
 /**
@@ -241,12 +246,12 @@ Decorator.prototype._elementButtonUnclickHandler = function (ev) {
  * module:decorator~Decorator#elementDecorator elementDecorator}.
  *
  * @private
- * @param {Boolean} at_start Whether or not this event is for the
+ * @param {boolean} at_start Whether or not this event is for the
  * start label.
  * @param {Event} wed_ev The DOM event that wed generated to trigger
  * this handler.
  * @param {Event} ev The DOM event that wed received.
- * @returns {Boolean} To be interpreted the same way as for all DOM
+ * @returns {boolean} To be interpreted the same way as for all DOM
  * event handlers.
  */
 Decorator.prototype._contextMenuHandler = function (
@@ -284,35 +289,33 @@ Decorator.prototype._contextMenuHandler = function (
         if (!at_start)
             index++;
 
-        var tree_caret = editor.toDataCaret(parent, index);
-        editor.validator.possibleAt(
-            tree_caret[0], tree_caret[1]).forEach(function (ev) {
-                if (ev.params[0] !== "enterStartTag")
-                    return;
+        var tree_caret = editor.toDataLocation(parent, index);
+        editor.validator.possibleAt(tree_caret).forEach(function (ev) {
+            if (ev.params[0] !== "enterStartTag")
+                return;
 
-                var unresolved = editor.resolver.unresolveName(
-                    ev.params[1], ev.params[2]);
+            var unresolved = editor.resolver.unresolveName(ev.params[1],
+                                                           ev.params[2]);
 
-                var trs = mode.getContextualActions(
-                    "insert", unresolved, tree_caret[0], tree_caret[1]);
-                if (trs === undefined)
-                    return;
+            var trs = mode.getContextualActions(
+                "insert", unresolved, tree_caret.node, tree_caret.offset);
+            if (trs === undefined)
+                return;
 
-                for(var tr_ix = 0, tr; (tr = trs[tr_ix]) !== undefined;
-                    ++tr_ix) {
-                    var data = {element_name: unresolved,
-                               move_caret_to: tree_caret};
-                    var icon = tr.getIcon();
-                    var $a = $("<a tabindex='-1' href='#'>" +
-                               (icon ? icon + " ": "") +
-                               tr.getDescriptionFor(data) +
-                               (at_start ? " before this element":
-                                " after this element") +
-                               "</a>");
-                    $a.click(data, tr.bound_handler);
-                    menu_items.push($("<li></li>").append($a).get(0));
-                }
-            }.bind(this));
+            for(var tr_ix = 0, tr; (tr = trs[tr_ix]) !== undefined;
+                ++tr_ix) {
+                var data = {element_name: unresolved,
+                            move_caret_to: tree_caret};
+                var icon = tr.getIcon();
+                var $a = $("<a tabindex='-1' href='#'>" +
+                           (icon ? icon + " ": "") +
+                           tr.getDescriptionFor(data) +
+                           (at_start ? " before this element":
+                            " after this element") + "</a>");
+                $a.click(data, tr.bound_handler);
+                menu_items.push($("<li></li>").append($a).get(0));
+            }
+        }.bind(this));
 
         // There's no menu to display, so let the event bubble up.
         if (menu_items === 0)

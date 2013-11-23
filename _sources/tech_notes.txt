@@ -23,6 +23,8 @@ number you'll get in the ``desc`` field will start with
 "v0.10.0-x". The additional "-x" is a special case to work around a
 bug in gitflow.
 
+.. _tech_notes_deployment_considerations:
+
 Deployment Considerations
 -------------------------
 
@@ -207,13 +209,30 @@ possible message types are:
 
 * ``save_successful`` indicates that the save was successful.
 
+Creating a Mode
+===============
+
+We recommend creating new modes by inheriting from the generic
+mode. The first thing you must do is set the metadata on the
+``_wed_options`` object because wed will refuse to load your mode if
+these are not set::
+
+    this._wed_options.metadata = {
+        name: "Foo",
+        authors: ["Ty Coon"],
+        description:
+           "This mode does foo!",
+        license: "MPL 2.0",
+        copyright: "2013 Ty Coon Industries"
+    };
+
 Testing
 =======
 
 Note that due to the asynchronous nature of the JavaScript environments
 used to run the tests, if the test suites are run on a system
 experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. I've witnessed this
+the hard disk, they may fail some or all tests. We've witnessed this
 happen, for instance, due to RequireJS timing out on a ``require()``
 call because the OS was busy loading things into memory from
 swap. The solution is to run the test suites again.
@@ -257,6 +276,8 @@ the latest code.
              code present in ``build/standalone/``. If you modify your
              source and fail to rebuild before running the test suite,
              the suite will run against **old code!**
+
+.. _tech_notes_in_browser_tests:
 
 In-Browser Tests
 ----------------
@@ -333,9 +354,8 @@ To run the suite while using the SauceLab servers, run::
 
     $ make SELENIUM_SAUCELABS=1 selenium-test
 
-Behind the scenes, this will launch behave. See the makefile `build.mk
-<https://github.com/mangalam-research/wed/blob/develop/build.mk>`_ for
-information about how behave is run.
+Behind the scenes, this will launch behave. See the makefile
+:github:`build.mk` for information about how behave is run.
 
 The environment variable ``BEHAVE_WAIT_BETWEEN_STEPS`` can be set to a
 numerical value in seconds to get behave to stop between steps. It
@@ -442,7 +462,7 @@ JavaScript event that caused the custom event to be triggered.
 * The paste event has no wed-global-* event associated with it.
 
 Wed also uses the custom events ``wed-click`` and ``wed-unclick`` to
-inform element labels that they should changed their status to clicked
+inform element labels that they should change their status to clicked
 or unclicked. These events are used (``wed-click`` specifically) so
 that if the status must change due to an event not caused by a mouse
 operation, then wed won't cause a mouse event to happen. A ``click``
@@ -555,7 +575,7 @@ Conversion for Editing
 
 Wed operates on an HTML structure constructed as follows:
 
-* All elements from the XML document become HTML div elements.
+* All elements from the XML document become HTML ``div`` elements.
 
 * The original element's qualified name is stored as the first class in @class.
 
@@ -599,6 +619,33 @@ Browser Issues
 
 The sad fact is that browsers are limited in functionality, buggy, or
 incompatible with each other. This section documents such issues.
+
+Cut, Paste, Copy
+----------------
+
+Copying and pasting don't present any special difficulties. However,
+cutting is problematic, because:
+
+1. Browsers don't allow JavaScript to initiate cuts. So it is not
+   possible to intercept a ``cut`` event and then cause the browser to
+   cut by using a *different* event.
+
+2. A cut modifies the DOM directly. This is a problem because wed
+   wants modifications to go through ``TreeUpdater`` objects. An
+   earlier version of wed was letting ``cut`` events go through and
+   updated the data tree but this caused the GUI tree to become
+   stale. (An additional complication is that there is no undoing.)
+
+It is possible to listen to ``cut`` events and let them go through or
+veto them, but this is about the maximum level of control that can be
+achieved cross-browser.
+
+As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
+Linux. It is unknown whether it would work on other
+platforms. Unfortunately, it is not possible to automatically test for
+cutting functionality because JavaScript cannot initiate a cut
+operation by itself.
+
 
 Contenteditable
 ---------------
@@ -696,4 +743,5 @@ of a good explanation for the leak.
 ..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM desc
 ..  LocalWords:  getSelection namespace programmatically profiler CSS
 ..  LocalWords:  gitflow oop wedutil SauceLabs nvie AVH deployable py
-..  LocalWords:  requirejs unoptimized conf gui LocalWords
+..  LocalWords:  requirejs unoptimized conf gui LocalWords github
+..  LocalWords:  unclick unclicked truthy

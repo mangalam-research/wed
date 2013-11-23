@@ -42,8 +42,8 @@ function TransformationRegistry() {
 }
 
 /**
- * @param {String} type The type of transformation.
- * @param {String} tag Can be a tag name or "*" to match all tags.
+ * @param {string} type The type of transformation.
+ * @param {string} tag Can be a tag name or "*" to match all tags.
  * @param
  * {module:transformation~Transformation|Array.<module:transformation~Transformation>}
  * tr One or more transformations.
@@ -59,9 +59,9 @@ TransformationRegistry.prototype.addTagTransformations = function(type, tag,
 /**
  * Gets transformations from the registry.
  *
- * @param {Array.<String>|String} type The type or types of
+ * @param {Array.<string>|string} type The type or types of
  * transformation desired.
- * @param {String} tag Can be a tag name or "*" to match all tags.
+ * @param {string} tag Can be a tag name or "*" to match all tags.
  *
  * @returns {Array.<module:transformation~Transformation>} The
  * transformations.
@@ -92,16 +92,16 @@ TransformationRegistry.prototype.getTagTransformations = function (type, tag) {
  *
  * @param {module:wed~Editor} editor The editor for which this
  * transformation must be created.
- * @param {String} desc The description of this transformation. A
+ * @param {string} desc The description of this transformation. A
  * transformation's {@link
  * module:transformation~Transformation#getDescriptionFor
  * getDescriptionFor} method will replace "&lt;element_name>" with the
  * name of the element actually being processed. So a string like
  * "Remove &lt;element_name>" would become "Remove foo" when the
  * transformation is called for the element "foo".
- * @param {String} [abbreviated_desc] An abbreviated description of this
+ * @param {string} [abbreviated_desc] An abbreviated description of this
  * transformation.
- * @param {String} [icon] An HTML representation of the icon
+ * @param {string} [icon] An HTML representation of the icon
  * associated with this transformation.
  * @param {module:transformation~Transformation~handler} handler
  * The handler to call when this
@@ -164,7 +164,7 @@ function Transformation(editor, desc, abbreviated_desc, icon, handler) {
  *   etc.  (Could be different from the name of the ``node``.)
  *
  * - ``move_caret_to``: A position to which the caret is moved before
- *   the transformation is fired. **Wed does this**.
+ *   the transformation is fired. **Wed performs the move.**.
  */
 
 oop.inherit(Transformation, Action);
@@ -191,11 +191,11 @@ Transformation.prototype.execute = function (data) {
  * @param {module:tree_updater~TreeUpdater} data_updater A tree
  * updater through which to update the DOM tree.
  * @param {Node} parent Parent of the new node.
- * @param {Integer} index Offset in the parent where to insert the new node.
- * @param {String} name Name of the new element.
+ * @param {integer} index Offset in the parent where to insert the new node.
+ * @param {string} name Name of the new element.
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
- * @param {jQuery|String|Node} [contents] The contents of the new
+ * @param {jQuery|string|Node} [contents] The contents of the new
  * element.
  *
  * @returns {jQuery} The new element.
@@ -214,7 +214,7 @@ function insertElement(data_updater, parent, index, name, attrs,
 /**
  * Makes an element appropriate for a wed data tree.
  *
- * @param {String} name Name of the new element.
+ * @param {string} name Name of the new element.
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
  *
@@ -239,11 +239,11 @@ function makeElement(name, attrs) {
  * @param {module:tree_updater~TreeUpdater} data_updater A tree
  * updater through which to update the DOM tree.
  * @param {Node} node The DOM node where to wrap. Must be a text node.
- * @param {Integer} offset Offset in the node. This parameter
+ * @param {integer} offset Offset in the node. This parameter
  * specifies where to start wrapping.
- * @param {Integer} end_offset Offset in the node. This parameter
+ * @param {integer} end_offset Offset in the node. This parameter
  * specifies where to end wrapping.
- * @param {String} name Name of the wrapping element.
+ * @param {string} name Name of the wrapping element.
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
  *
@@ -275,7 +275,7 @@ function wrapTextInElement (data_updater, node, offset, end_offset,
  * @param {module:tree_updater~TreeUpdater} data_updater A tree
  * updater through which to update the DOM tree.
  * @param {Node} container The text node to split.
- * @param {Integer} offset Where to split the node
+ * @param {integer} offset Where to split the node
  *
  * @returns {Array} Returns a caret location marking where the split
  * occurred.
@@ -311,10 +311,10 @@ function _wie_splitTextNode(data_updater, container, offset) {
  * @param {module:tree_updater~TreeUpdater} data_updater A tree
  * updater through which to update the DOM tree.
  * @param {Node} start_container The node where to start wrapping.
- * @param {Integer} start_offset The offset where to start wrapping.
+ * @param {integer} start_offset The offset where to start wrapping.
  * @param {Node} end_container The node where to end wrapping.
- * @param {Integer} end_offset The offset where to end wrapping.
- * @param {String} name The name of the new element.
+ * @param {integer} end_offset The offset where to end wrapping.
+ * @param {string} name The name of the new element.
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
  *
@@ -425,7 +425,7 @@ function unwrap(data_updater, node) {
 function splitNode(editor, node) {
     var caret = editor.getDataCaret();
 
-    if ($(caret[0]).closest(node).length === 0)
+    if ($(caret.node).closest(node).length === 0)
         throw new Error("caret outside node");
 
     var pair = editor.data_updater.splitAt(node, caret);

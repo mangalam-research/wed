@@ -34,6 +34,13 @@
 .wed-context-menu .icon-collapse {
   color: green;
 }
+.wed-cut-buffer {
+  position: fixed;
+  top: -1000px;
+  left: -1000px;
+  width: 1px;
+  height: 1px;
+}
 .wed-build-info {
   font-size: 12px;
 }
@@ -96,13 +103,13 @@ div.wed-document-constrainer .wed-caret-layer ._wed_caret {
   animation: caret 1s linear infinite;
   -webkit-animation: caret 1s linear infinite;
 }
-div.wed-frame ._gui._button > span {
+div.wed-frame ._gui._label > span {
   display: inline-block;
   line-height: 1;
   margin: 0.25em 0em;
 }
-div.wed-frame ._gui._button,
-div.wed-frame ._gui._button._owns_caret {
+div.wed-frame ._gui._label,
+div.wed-frame ._gui._label._owns_caret {
   text-indent: 0em;
   /* This restores the bootstrap 2 style. */
 
@@ -118,7 +125,7 @@ div.wed-frame ._gui._button._owns_caret {
   border-radius: .25em;
   border-style: none;
 }
-div.wed-frame ._gui._button._button_clicked {
+div.wed-frame ._gui._label._label_clicked {
   background-color: #f0ad4e;
 }
 div.wed-frame div.wed-document {

@@ -19,8 +19,15 @@ var domutil = require("./domutil");
  * what fields this object contains.
  */
 function Mode (options) {
+    // These fields are all "protected". Derived classes may change them.
     this._editor = undefined;
     this._options = options || {};
+    this._wed_options = {
+        label_levels: {
+            max: 1,
+            initial: 1
+        }
+    };
 }
 
 /**
@@ -51,6 +58,16 @@ Mode.optionResolver = function (options, callback) {
  */
 Mode.prototype.init = function (editor) {
     this._editor = editor;
+};
+
+/**
+ * Gets the options that the mode wants wed to use with this mode.
+ *
+ * @returns {Object} The options. Callers are not allowed to modify
+ * the value returned.
+ */
+Mode.prototype.getWedOptions = function () {
+    return this._wed_options;
 };
 
 /**
@@ -99,11 +116,11 @@ Mode.prototype.getContextualMenuItems = function () {
  * use the caret because the editor may be seeking information about
  * possible actions near to the caret.
  *
- * @param {Array.<String>|String} type The type or types of
+ * @param {Array.<string>|string} type The type or types of
  * transformations to return.
- * @param {String} tag The tag name we are interested in.
+ * @param {string} tag The tag name we are interested in.
  * @param {Node} container The position in the data tree.
- * @param {Integer} offset The position in the data tree.
+ * @param {integer} offset The position in the data tree.
  * @returns {Array.<module:action~Action>} An array
  * of actions.
  */
@@ -114,7 +131,7 @@ Mode.prototype.getContextualActions = function (type, tag, container, offset) {
 /**
  * Get additional stylesheets to use to render the HTML.
  *
- * @returns {Array.<String>} An array of paths to the stylesheets to
+ * @returns {Array.<string>} An array of paths to the stylesheets to
  * load for this mode. These elements will be passed to RequireJS'
  * <code>require.toUrl</code> so they can be paths like those passed
  * to require or could be URLs.

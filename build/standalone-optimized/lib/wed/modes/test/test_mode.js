@@ -31,6 +31,21 @@ var TestDecorator = require("./test_decorator").TestDecorator;
 function TestMode () {
     Mode.apply(this, arguments);
     this._contextual_menu_items = [];
+
+    if (this.constructor !== TestMode)
+        throw new Error("this is a test mode; don't derive from it!");
+
+    this._wed_options.metadata = {
+        name: "Test",
+        authors: ["Louis-Dominique Dubeau"],
+        description: "TEST MODE. DO NOT USE IN PRODUCTION!",
+        license: "MPL 2.0",
+        copyright: "2013 Mangalam Research Center for Buddhist Languages"
+    };
+    this._wed_options.label_levels = {
+        max: 2,
+        initial: 1
+    };
 }
 
 oop.inherit(TestMode, Mode);

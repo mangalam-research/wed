@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced Usage Notes &mdash; Wed 0.10.0 documentation</title>
+    <title>Advanced Usage Notes &mdash; Wed v0.10.0-x-132-g16eeb61 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.10.0',
+        VERSION:     'v0.10.0-x-132-g16eeb61',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed 0.10.0 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.10.0-x-132-g16eeb61 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed 0.10.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.10.0-x-132-g16eeb61 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -66,7 +66,7 @@ number you&#8217;ll get in the <tt class="docutils literal"><span class="pre">de
 bug in gitflow.</p>
 </div>
 <div class="section" id="deployment-considerations">
-<h2>Deployment Considerations<a class="headerlink" href="#deployment-considerations" title="Permalink to this headline">¶</a></h2>
+<span id="tech-notes-deployment-considerations"></span><h2>Deployment Considerations<a class="headerlink" href="#deployment-considerations" title="Permalink to this headline">¶</a></h2>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">As of version 0.10.0 there is a nasty bug in the
@@ -228,12 +228,29 @@ is locked.</li>
 </ul>
 </div>
 </div>
+<div class="section" id="creating-a-mode">
+<h1>Creating a Mode<a class="headerlink" href="#creating-a-mode" title="Permalink to this headline">¶</a></h1>
+<p>We recommend creating new modes by inheriting from the generic
+mode. The first thing you must do is set the metadata on the
+<tt class="docutils literal"><span class="pre">_wed_options</span></tt> object because wed will refuse to load your mode if
+these are not set:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">this</span><span class="o">.</span><span class="n">_wed_options</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="s">&quot;Foo&quot;</span><span class="p">,</span>
+    <span class="n">authors</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Ty Coon&quot;</span><span class="p">],</span>
+    <span class="n">description</span><span class="p">:</span>
+       <span class="s">&quot;This mode does foo!&quot;</span><span class="p">,</span>
+    <span class="n">license</span><span class="p">:</span> <span class="s">&quot;MPL 2.0&quot;</span><span class="p">,</span>
+    <span class="n">copyright</span><span class="p">:</span> <span class="s">&quot;2013 Ty Coon Industries&quot;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="testing">
 <h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
 <p>Note that due to the asynchronous nature of the JavaScript environments
 used to run the tests, if the test suites are run on a system
 experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. I&#8217;ve witnessed this
+the hard disk, they may fail some or all tests. We&#8217;ve witnessed this
 happen, for instance, due to RequireJS timing out on a <tt class="docutils literal"><span class="pre">require()</span></tt>
 call because the OS was busy loading things into memory from
 swap. The solution is to run the test suites again.</p>
@@ -275,7 +292,7 @@ the suite will run against <strong>old code!</strong></p>
 </div>
 </div>
 <div class="section" id="in-browser-tests">
-<h2>In-Browser Tests<a class="headerlink" href="#in-browser-tests" title="Permalink to this headline">¶</a></h2>
+<span id="tech-notes-in-browser-tests"></span><h2>In-Browser Tests<a class="headerlink" href="#in-browser-tests" title="Permalink to this headline">¶</a></h2>
 <p>The browser-dependent tests are located in the <tt class="docutils literal"><span class="pre">browser_test/</span></tt> directory
 off the wed root. To run
 the tests that run in the browser, you must run <tt class="docutils literal"><span class="pre">server.js</span></tt>, a
@@ -337,8 +354,8 @@ replace instances of <tt class="docutils literal"><span class="pre">&#64;PWD&#64
 <p>To run the suite while using the SauceLab servers, run:</p>
 <div class="highlight-python"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test</pre>
 </div>
-<p>Behind the scenes, this will launch behave. See the makefile <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> for
-information about how behave is run.</p>
+<p>Behind the scenes, this will launch behave. See the makefile
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> for information about how behave is run.</p>
 <p>The environment variable <tt class="docutils literal"><span class="pre">BEHAVE_WAIT_BETWEEN_STEPS</span></tt> can be set to a
 numerical value in seconds to get behave to stop between steps. It
 makes the Selenium test unfold more slowly. The environment variable
@@ -460,7 +477,7 @@ processing.</li>
 <li>The paste event has no wed-global-* event associated with it.</li>
 </ul>
 <p>Wed also uses the custom events <tt class="docutils literal"><span class="pre">wed-click</span></tt> and <tt class="docutils literal"><span class="pre">wed-unclick</span></tt> to
-inform element labels that they should changed their status to clicked
+inform element labels that they should change their status to clicked
 or unclicked. These events are used (<tt class="docutils literal"><span class="pre">wed-click</span></tt> specifically) so
 that if the status must change due to an event not caused by a mouse
 operation, then wed won&#8217;t cause a mouse event to happen. A <tt class="docutils literal"><span class="pre">click</span></tt>
@@ -565,7 +582,7 @@ corresponds to those of the data tree whenever the latter is modified.</p>
 <h1>Conversion for Editing<a class="headerlink" href="#conversion-for-editing" title="Permalink to this headline">¶</a></h1>
 <p>Wed operates on an HTML structure constructed as follows:</p>
 <ul class="simple">
-<li>All elements from the XML document become HTML div elements.</li>
+<li>All elements from the XML document become HTML <tt class="docutils literal"><span class="pre">div</span></tt> elements.</li>
 <li>The original element&#8217;s qualified name is stored as the first class in &#64;class.</li>
 <li>All other classes that wed reserved to wed&#8217;s own purposes have an
 underscore prepended to them.</li>
@@ -603,6 +620,29 @@ with a dash, so there cannot be a clash.</li>
 <h1>Browser Issues<a class="headerlink" href="#browser-issues" title="Permalink to this headline">¶</a></h1>
 <p>The sad fact is that browsers are limited in functionality, buggy, or
 incompatible with each other. This section documents such issues.</p>
+<div class="section" id="cut-paste-copy">
+<h2>Cut, Paste, Copy<a class="headerlink" href="#cut-paste-copy" title="Permalink to this headline">¶</a></h2>
+<p>Copying and pasting don&#8217;t present any special difficulties. However,
+cutting is problematic, because:</p>
+<ol class="arabic simple">
+<li>Browsers don&#8217;t allow JavaScript to initiate cuts. So it is not
+possible to intercept a <tt class="docutils literal"><span class="pre">cut</span></tt> event and then cause the browser to
+cut by using a <em>different</em> event.</li>
+<li>A cut modifies the DOM directly. This is a problem because wed
+wants modifications to go through <tt class="docutils literal"><span class="pre">TreeUpdater</span></tt> objects. An
+earlier version of wed was letting <tt class="docutils literal"><span class="pre">cut</span></tt> events go through and
+updated the data tree but this caused the GUI tree to become
+stale. (An additional complication is that there is no undoing.)</li>
+</ol>
+<p>It is possible to listen to <tt class="docutils literal"><span class="pre">cut</span></tt> events and let them go through or
+veto them, but this is about the maximum level of control that can be
+achieved cross-browser.</p>
+<p>As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
+Linux. It is unknown whether it would work on other
+platforms. Unfortunately, it is not possible to automatically test for
+cutting functionality because JavaScript cannot initiate a cut
+operation by itself.</p>
+</div>
 <div class="section" id="contenteditable">
 <h2>Contenteditable<a class="headerlink" href="#contenteditable" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="incompatibilities">
@@ -695,6 +735,7 @@ of a good explanation for the leak.</p>
 <li><a class="reference internal" href="#saving">Saving</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#creating-a-mode">Creating a Mode</a></li>
 <li><a class="reference internal" href="#testing">Testing</a><ul>
 <li><a class="reference internal" href="#browser-independent-tests">Browser-Independent Tests</a></li>
 <li><a class="reference internal" href="#in-browser-tests">In-Browser Tests</a></li>
@@ -712,6 +753,7 @@ of a good explanation for the leak.</p>
 </li>
 <li><a class="reference internal" href="#conversion-for-editing">Conversion for Editing</a></li>
 <li><a class="reference internal" href="#browser-issues">Browser Issues</a><ul>
+<li><a class="reference internal" href="#cut-paste-copy">Cut, Paste, Copy</a></li>
 <li><a class="reference internal" href="#contenteditable">Contenteditable</a><ul>
 <li><a class="reference internal" href="#incompatibilities">Incompatibilities</a></li>
 <li><a class="reference internal" href="#successive-elements-and-the-caret">Successive Elements and the Caret</a></li>
@@ -752,11 +794,11 @@ of a good explanation for the leak.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed 0.10.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.10.0-x-132-g16eeb61 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Louis-Dominique Dubeau.
+        &copy; Copyright 2013, Mangalam Research Center for Buddhist Languages.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

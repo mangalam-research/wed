@@ -46,7 +46,6 @@ var _indexOf = Array.prototype.indexOf;
 
 /**
  * Gets the first range in the selection.
- *
  * @param {Window} win The window for which we want the selection.
  * @returns {Range|undefined} The first range in the
  * selection. Undefined if there is no selection or no range.
@@ -64,10 +63,10 @@ function getSelectionRange(win) {
  * Creates a range from two points in a document.
  *
  * @param {Node} startContainer
- * @param {Integer} startOffset
+ * @param {integer} startOffset
  * @param {Node} endContainer
- * @param {Integer} endOffset
- * @returns {{range: Range, reversed: Boolean}} The &lt;code>range&lt;/code>
+ * @param {integer} endOffset
+ * @returns {{range: Range, reversed: boolean}} The &lt;code>range&lt;/code>
  * field is a rangy range. The &lt;code>reversed&lt;/code> field is
  * &lt;code>true&lt;/code> if the range is reversed, that is, if the end
  * comes before the start.
@@ -133,7 +132,7 @@ function focusNode(node) {
  * @param {Node} container A DOM node which indicates the container
  * within which caret movements must be contained.
  *
- * @param {Boolean} no_text If true, and a text node would be
+ * @param {boolean} no_text If true, and a text node would be
  * returned, the function will instead return the parent of the text
  * node.
  *
@@ -225,7 +224,7 @@ function nextCaretPosition(caret, container, no_text) {
  * @param {Node} container A DOM node which indicates the container
  * within which caret movements must be contained.
  *
- * @param {Boolean} no_text If true, and a text node would be
+ * @param {boolean} no_text If true, and a text node would be
  * returned, the function will instead return the parent of the text
  * node.
  *
@@ -358,7 +357,7 @@ function nodeToPath(root, node) {
  * @param {Node} root The root where the path starts.
  * @param {Node} node The node for which to construct a path.
  *
- * @returns {String} The path.
+ * @returns {string} The path.
  */
 function _nodeToPath(root, node)
 {
@@ -398,7 +397,7 @@ function _nodeToPath(root, node)
  *
  * @param {Node} root The node from which to interpret the path
  *
- * @param {String} path The path to interpret.
+ * @param {string} path The path to interpret.
  *
  * @returns {Node} The node corresponding to the path, or
  * &lt;code>null&lt;/code> if no such node exists.
@@ -450,7 +449,7 @@ function pathToNode(root, path) {
 /**
  * Makes a placeholder element
  *
- * @param {String} text The text to put in the placeholder.
+ * @param {string} text The text to put in the placeholder.
  * @returns {jQuery} A jQuery object.
  */
 function makePlaceholder(text) {
@@ -463,7 +462,7 @@ function makePlaceholder(text) {
  * modify the DOM tree only once.
  *
  * @param {Node} text_node The text node to split into two text nodes.
- * @param {Integer} index The offset into the text node where to split.
+ * @param {integer} index The offset into the text node where to split.
  * @returns {Array.&lt;Node>} The first element of the array is the text
  * node which contains the text before index and the second element
  * of the array is the text node which contains the text after the
@@ -489,7 +488,7 @@ function splitTextNode(text_node, index) {
  *
  * @param {Node} text_node The text node that will be cut in two by the new
  * element.
- * @param {Integer} index The offset into the text node where
+ * @param {integer} index The offset into the text node where
  * the new element is to be inserted.
  * @param {Node} node The node to insert.
  * @returns {Array} The first element of the array is a caret position
@@ -527,12 +526,12 @@ function genericInsertIntoText(text_node, index, node) {
  * @private
  * @param {Node} text_node The text node that will be cut in two by the new
  * element.
- * @param {Integer} index The offset into the text node where
+ * @param {integer} index The offset into the text node where
  * the new element is to be inserted.
  * @param {Node} node The node to insert. If this parameter evaluates
  * to &lt;code>false&lt;/code>, then this function effectively splits the
  * text node into two parts.
- * @param {Boolean} [clean=true] The operation must clean contiguous
+ * @param {boolean} [clean=true] The operation must clean contiguous
  * text nodes so as to merge them and must not create empty
  * nodes. &lt;strong>This code assumes that the text node into which data
  * is added is not preceded or followed by another text node and that
@@ -632,7 +631,7 @@ var _insertIntoText = _genericInsertIntoText.bind(plain_dom_mockup);
  * @function
  * @param {Node} text_node The text node that will be cut in two by the new
  * element.
- * @param {Integer} index The offset into the text node where
+ * @param {integer} index The offset into the text node where
  * the new element is to be inserted.
  * @param {Node} node The node to insert.
  * @returns {Array} The first element of the array is a caret position
@@ -652,9 +651,9 @@ var insertIntoText = genericInsertIntoText.bind(plain_dom_mockup);
  * text nodes whenever possible rather than create a new text node.
  *
  * @param {Node} node The node where the text is to be inserted.
- * @param {Integer} index The location in the node where the text is
+ * @param {integer} index The location in the node where the text is
  * to be inserted.
- * @param {String} text The text to insert.
+ * @param {string} text The text to insert.
  * @returns {Array.&lt;Node>} The first element of the array is the node
  * that was modified to insert the text. It will be
  * &lt;code>undefined&lt;/code> if no node was modified. The second element
@@ -716,11 +715,11 @@ function genericInsertText(node, index, text) {
 /**
  * Inserts text into a node. This function will use already existing
  * text nodes whenever possible rather than create a new text node.
- *
+ * @function
  * @param {Node} node The node where the text is to be inserted.
- * @param {Integer} index The location in the node where the text is
+ * @param {integer} index The location in the node where the text is
  * to be inserted.
- * @param {String} text The text to insert.
+ * @param {string} text The text to insert.
  * @returns {Array.&lt;Node>} The first element of the array is the node
  * that was modified to insert the text. It will be
  * &lt;code>undefined&lt;/code> if no node was modified. The second element
@@ -744,8 +743,8 @@ var insertText = genericInsertText.bind({
  * is deleted.
  *
  * @param {Node} node The text node from which to delete text.
- * @param {Integer} index The index at which to delete text.
- * @param {Integer} length The length of text to delete.
+ * @param {integer} index The index at which to delete text.
+ * @param {integer} length The length of text to delete.
  * @throws {Error} If &lt;code>node&lt;/code> is not a text Node type.
  */
 function deleteText(node, index, length) {
@@ -833,7 +832,7 @@ function deleteNode(node) {
  *
  * @param {Node} parent The node which will become the parent of the
  * inserted node.
- * @param {Integer} index The position at which to insert the node
+ * @param {integer} index The position at which to insert the node
  * into the parent.
  * @param {Node} node The node to insert.
  */
@@ -900,10 +899,6 @@ function genericCutFunction (start_caret, end_caret) {
 
     var parent;
     var same_container = start_container === end_container;
-
-    // The corresponding elements on the gui side have already been
-    // removed from the gui tree, so we exceptionally modify the data tree
-    // directly.
 
     var final_caret;
     var start_text;
@@ -1037,7 +1032,7 @@ function nodePairFromRange(range) {
  * set. The interpretation of these values is the same as for DOM
  * &lt;code>Range&lt;/code> objects. Therefore, the object passed can be a
  * DOM range.
- * @returns {Boolean} &lt;code>true&lt;/code> if the range is well-formed.
+ * @returns {boolean} &lt;code>true&lt;/code> if the range is well-formed.
  * &lt;code>false&lt;/code> if not.
  */
 function isWellFormedRange(range) {
@@ -1048,7 +1043,7 @@ function isWellFormedRange(range) {
 /**
  * Dumps the current selection to the console.
  *
- * @param {String} msg A message to output in front of the range
+ * @param {string} msg A message to output in front of the range
  * information.
  * @param {Window} win The window for which to dump selection
  * information.
@@ -1061,7 +1056,7 @@ function dumpCurrentSelection(msg, win) {
 /**
  * Dumps a range to the console.
  *
- * @param {String} msg A message to output in front of the range
+ * @param {string} msg A message to output in front of the range
  * information.
  * @param {Window} range The range.
  */
@@ -1086,11 +1081,11 @@ function dumpRange(msg, range) {
  * &lt;code>pageY&lt;/code>.
  *
  * @param {Node} element The element to check.
- * @param {Number} x The x coordinate &lt;strong>relative to the
+ * @param {number} x The x coordinate &lt;strong>relative to the
  * document.&lt;/strong>
- * @param {Number} y The y coordinate &lt;strong>relative to the
+ * @param {number} y The y coordinate &lt;strong>relative to the
  * document.&lt;/strong>
- * @returns {Boolean} &lt;code>true&lt;/code> if inside, &lt;code>false&lt;/code>
+ * @returns {boolean} &lt;code>true&lt;/code> if inside, &lt;code>false&lt;/code>
  * if not.
  */
 function pointInContents(element, x, y) {
@@ -1150,13 +1145,13 @@ exports.pointInContents = pointInContents;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="findandself.html">findandself</a></li><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="modal-Modal.html">Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="conditioned-Conditioned.html">Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="generic_meta-Meta.html">Meta</a></li><li><a href="generic_tr-Registry.html">Registry</a></li><li><a href="generic-Mode.html">Mode</a></li><li><a href="tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">Listener</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Nov 13 2013 14:29:37 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Sat Nov 23 2013 16:19:55 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

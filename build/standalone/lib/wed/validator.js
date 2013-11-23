@@ -15,6 +15,7 @@ var validate = require("salve/validate");
 var $ = require("jquery");
 var util = require("./util");
 var oop = require("./oop");
+var dloc = require("./dloc");
 
 var _indexOf = Array.prototype.indexOf;
 
@@ -41,7 +42,7 @@ exports.VALID = VALID;
  * @mixes module:lib/simple_event_emitter~SimpleEventEmitter
  *
  * @constructor
- * @param {String} schema A path to the schema to pass to salve for
+ * @param {string} schema A path to the schema to pass to salve for
  * validation. This is a path that will be interpreted by
  * RequireJS. The schema must have already been prepared for use by
  * salve. See salve's documentation.
@@ -129,7 +130,7 @@ Validator.prototype.initialize = function (done) {
  * Validator. It is a fatal error to call this on an uninitialized
  * Validator.
  *
- * @returns {Array.<String>} The namespaces known to the schema.
+ * @returns {Array.<string>} The namespaces known to the schema.
  * @throws {Error} If called on uninitialized validator
  */
 Validator.prototype.getSchemaNamespaces = function () {
@@ -207,7 +208,7 @@ Validator.prototype._workWrapper = function () {
  * of the validator is reached.
  *
  * @private
- * @returns {Boolean} False if there is no more work to do. True
+ * @returns {boolean} False if there is no more work to do. True
  * otherwise.
  */
 Validator.prototype._work = function () {
@@ -233,7 +234,7 @@ Validator.prototype._work = function () {
  * small unit of work.
  *
  * @private
- * @returns {Boolean} False if there is no more work to be done. True
+ * @returns {boolean} False if there is no more work to be done. True
  * otherwise.
  * @throws {Error} When there is an internal error.
  */
@@ -493,7 +494,7 @@ Validator.prototype._resetTo = function (node) {
      *
      * @event module:validator~Validator#reset-errors
      * @type {Object}
-     * @property {Integer} at The index of the first error that must
+     * @property {integer} at The index of the first error that must
      * be deleted. This error and all those after it must be deleted.
      */
 
@@ -540,7 +541,7 @@ Validator.prototype.getWorkingState = function () {
  * @private
  * @param result The result of the walker's <code>fireEvent</code> call.
  * @param {Node} node The data node to which the result belongs.
- * @param {Integer} index The index into <code>node</code> to which the
+ * @param {integer} index The index into <code>node</code> to which the
  * result belongs.
  * @emits module:validator~Validator#error
  */
@@ -554,7 +555,7 @@ Validator.prototype._processEventResult = function (result, node, index) {
          * @type {Object}
          * @property {Object} error The validation error.
          * @property {Node} node The node where the error occurred.
-         * @property {Integer} index The index in this node.
+         * @property {integer} index The index in this node.
          */
         this._emit("error", { error: err, node: node, index: index});
     }
@@ -567,7 +568,7 @@ Validator.prototype._processEventResult = function (result, node, index) {
  * @param {module:validate~Walker} walker The walker on which to fire events.
  * @param {module:validate~Event} event The event to fire.
  * @param {Node} el The DOM node associated with this event.
- * @param {Integer} ix The index into <code>el</code> associated with this
+ * @param {integer} ix The index into <code>el</code> associated with this
  event.
  */
 Validator.prototype._fireAndProcessEvent = function (walker, event, el, ix) {
@@ -592,7 +593,7 @@ Validator.prototype._fireAndProcessEvent = function (walker, event, el, ix) {
  * fire an event.
  * @param {module:validate~Walker} walker The walker on which to fire
  * events.
- * @param {Boolean} [dont_record=false] If true means do not record
+ * @param {boolean} [dont_record=false] If true means do not record
  * the event among the list of events. This is necessary for some
  * speculative parsing operations.
  *
@@ -633,7 +634,7 @@ Validator.prototype._fireTextEventIfNeeded = function (text_node, walker,
  *
  * @private
  * @param {Node} container
- * @param {Integer} index
+ * @param {integer} index
  * @throws {Error} If <code>container</code> is not of element or text type.
  */
 Validator.prototype._validateUpTo = function (container, index) {
@@ -716,7 +717,7 @@ oop.inherit(EventIndexException, Error);
  * @private
  *
  * @param {Node} container
- * @param {Integer} index
+ * @param {integer} index
  * @returns {module:validate~Walker} The walker.
  * @throws {EventIndexException} If it runs out of events or computes
  * an event index that makes no sense.
@@ -823,11 +824,20 @@ Validator.prototype._getWalkerAt = function(container, index) {
  * interpreted. A "possible event" is an event that if fired won't
  * result in a validation error.
  *
+ * @param {module:dloc~DLoc} loc Location at which to get possibilities.
+ * @returns {module:validate~EventSet} A set of possible events.
+ *
+ * @also
+ *
  * @param {Node} container
- * @param {Integer} index
+ * @param {integer} index
  * @returns {module:validate~EventSet} A set of possible events.
  */
 Validator.prototype.possibleAt = function (container, index) {
+    if (container instanceof dloc.DLoc) {
+        index = container.offset;
+        container = container.node;
+    }
     var walker = this._getWalkerAt(container, index);
     return walker.possible();
 };
@@ -839,7 +849,7 @@ Validator.prototype.possibleAt = function (container, index) {
  *
  * @param {Node} container A node.
  * @param {module:validate~Event} event The event to search for.
- * @returns {Array.<Integer>} The locations in <code>container</code>
+ * @returns {Array.<integer>} The locations in <code>container</code>
  * where the event is possible.
  */
 Validator.prototype.possibleWhere = function (container, event) {
@@ -863,14 +873,27 @@ Validator.prototype.possibleWhere = function (container, event) {
  * document. Unclosed elements or fragments that are not well-formed
  * must be caught by other means.</p>
  *
+ * @param {module:dloc~DLoc} loc The location in the tree to start at.
+ * @param {Node} to_parse The fragment to parse.
+ * @returns {Array.<Object>|false} Returns an array of errors if there
+ * is an error. Otherwise returns false.
+ *
+ * @also
+ *
  * @param {Node} container The location in the tree to start at.
- * @param {Integer} index The location in the tree to start at.
+ * @param {integer} index The location in the tree to start at.
  * @param {Node} to_parse The fragment to parse.
  * @returns {Array.<Object>|false} Returns an array of errors if there
  * is an error. Otherwise returns false.
  */
 Validator.prototype.speculativelyValidate = function (container, index,
                                                       to_parse) {
+    if (container instanceof dloc.DLoc) {
+        to_parse = index;
+        index = container.offset;
+        container = container.node;
+    }
+
     if (!this._initialized)
         throw new Error("uninitialized Validator");
 

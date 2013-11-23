@@ -160,9 +160,9 @@ InputTrigger.prototype.addKeyHandler = function (key, handler) {
  * @param {Event} e The original DOM event that wed received.
  */
 InputTrigger.prototype._keydownHandler = function (wed_event, e) {
-    var caret = this._editor.getCaret();
+    var caret = this._editor.getGUICaret();
 
-    var $node_of_interest = $(caret[0]).closest(this._selector);
+    var $node_of_interest = $(caret.node).closest(this._selector);
 
     if ($node_of_interest.length > 0) {
         $node_of_interest =
@@ -185,9 +185,9 @@ InputTrigger.prototype._keydownHandler = function (wed_event, e) {
  * @param {Event} e The original DOM event that wed received.
  */
 InputTrigger.prototype._keypressHandler = function (wed_event, e) {
-    var caret = this._editor.getCaret();
+    var caret = this._editor.getGUICaret();
 
-    var $node_of_interest = $(caret[0]).closest(this._selector);
+    var $node_of_interest = $(caret.node).closest(this._selector);
 
     if ($node_of_interest.length > 0) {
         $node_of_interest =
@@ -208,7 +208,7 @@ InputTrigger.prototype._keypressHandler = function (wed_event, e) {
  * @param {Event} wed_event The DOM event wed generated to trigger
  * this handler.
  * @param {Event} e The original DOM event that wed received.
- * @param {Array} caret The data caret.
+ * @param {module:dloc~DLoc} caret The data caret.
  * @param {jQuery} $data The data that the user wants to insert.
  */
 InputTrigger.prototype._pasteHandler = function (wed_event, e, caret,
@@ -226,8 +226,8 @@ InputTrigger.prototype._pasteHandler = function (wed_event, e, caret,
 
         var ch = String.fromCharCode(key.which);
 
-        var $node_of_interest = (caret[0].nodeType === Node.TEXT_NODE) ?
-            $(caret[0].parentNode) : $(caret[0]);
+        var $node_of_interest = (caret.node.nodeType === Node.TEXT_NODE) ?
+            $(caret.node.parentNode) : $(caret.node);
         for (var i = 0, node; (node = text[i]) !== undefined; i++) {
             if (node.parentNode && // Skip those who
                                    // are not in the tree anymore.

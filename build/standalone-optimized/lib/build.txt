@@ -50,8 +50,9 @@ salve/patterns.js
 salve/formats.js
 salve/validate.js
 wed/util.js
-wed/validator.js
 wed/domutil.js
+wed/dloc.js
+wed/validator.js
 wed/jquery.findandself.js
 wed/domlistener.js
 wed/mutation_domlistener.js
@@ -73,6 +74,7 @@ wed/gui/context_menu.js
 wed/exceptions.js
 wed/onerror.js
 wed/build-info.js
+wed/object_check.js
 wed/onbeforeunload.js
 wed/wed.js
 wed/mode.js

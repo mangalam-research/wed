@@ -22,7 +22,7 @@ function Meta () {
  * This method determines whether a node needs to be represented inline.
  *
  * @param {Node} node The node to examine.
- * @return {Boolean} True if the node should be inline, false otherwise.
+ * @return {boolean} True if the node should be inline, false otherwise.
  */
 Meta.prototype.isInline = function (node) {
     return false;
@@ -32,7 +32,7 @@ Meta.prototype.isInline = function (node) {
  * Returns additional classes that should apply to a node.
  *
  * @param {Node} node The node to check.
- * @returns {String} A string that contains all the class names
+ * @returns {string} A string that contains all the class names
  * separated by spaces. In other words, a string that could be put as
  * the value of the <code>class</code> attribute in an HTML tree.
  */

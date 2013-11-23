@@ -39,6 +39,10 @@ var onerror = require("./onerror");
 var key = require("./key");
 var build_info = require("./build-info");
 var AbortTransformationException = exceptions.AbortTransformationException;
+var dloc = require("./dloc");
+var object_check = require("./object_check");
+var makeDLoc = dloc.makeDLoc;
+var DLoc = dloc.DLoc;
 require("bootstrap");
 require("jquery.bootstrap-growl");
 require("./onbeforeunload");
@@ -75,6 +79,9 @@ oop.implement(Editor, Conditioned);
 
 
 Editor.prototype.init = log.wrap(function (widget, options) {
+    this.max_label_level = undefined;
+    this._current_label_level = undefined;
+
     this.widget = widget;
     this.$widget = $(this.widget);
 
@@ -112,6 +119,7 @@ Editor.prototype.init = log.wrap(function (widget, options) {
    </div>\
   </div>\
   <div class="row">\
+   <div class="wed-cut-buffer" contenteditable="true"></div>\
    <div class="wed-document-constrainer">\
     <div class="wed-caret-layer">\
      <input class="wed-comp-field" type="text"></input>\
@@ -141,6 +149,7 @@ Editor.prototype.init = log.wrap(function (widget, options) {
     this.$validation_message = this.$validation_progress.prev('span');
 
     this._$input_field = $framework.find(".wed-comp-field");
+    this._$cut_buffer = $framework.find(".wed-cut-buffer");
 
     this._caret_layer = $framework.find('.wed-caret-layer').get(0);
     this._$caret_layer = $(this._caret_layer);
@@ -161,6 +170,9 @@ Editor.prototype.init = log.wrap(function (widget, options) {
     this.$data_root = this.$gui_root.clone();
     this.data_root = this.$data_root.get(0);
     this.$data_root.css("display", "none");
+
+    dloc.markRoot(this.gui_root);
+    dloc.markRoot(this.data_root);
 
     // Put the data_root into a document fragment to keep rangy happy.
     var frag = this.widget.ownerDocument.createDocumentFragment();
@@ -231,8 +243,12 @@ class="panel-collapse collapse">\
     this._fake_caret = undefined;
     this._refreshing_caret = 0;
 
-    this._limitation_modal = this.makeModal();
+    // The limitation modal is a modal that comes up when wed cannot proceed.
+    // It is not created with this.makeModal() because we don't care about the
+    // selection.
+    this._limitation_modal = new modal.Modal();
     this._limitation_modal.setTitle("Cannot proceed");
+    this._limitation_modal.addButton("Reload", true);
 
     this._paste_modal = this.makeModal();
     this._paste_modal.setTitle("Invalid structure");
@@ -260,6 +276,8 @@ brings up a contextual menu.</li>\
           <li>Clicking the right mouse button on the links in the \
 navigation panel brings up a contextual menu.</li>\
           <li>F1: help</li>\
+          <li>Ctrl-[: Decrease the label visibility level.</li>\
+          <li>Ctrl-]: Increase the label visibility level.</li>\
           <li>Ctrl-S: Save</li>\
           <li>Ctrl-X: Cut</li>\
           <li>Ctrl-V: Paste</li>\
@@ -341,14 +359,6 @@ navigation panel brings up a contextual menu.</li>\
                 editor, data.node);
         });
 
-    // This is an ad hoc cut function which modifies the DOM directly
-    // for everything except the final merging of text nodes.
-    this.cut_function = domutil.genericCutFunction.bind(
-        {deleteText: domutil.deleteText,
-         deleteNode: domutil.deleteNode,
-         mergeTextNodes:
-         this.data_updater.mergeTextNodes.bind(this.data_updater)});
-
     this.setMode(this.mode_path, options.mode.options);
 });
 
@@ -381,6 +391,11 @@ Editor.prototype.onModeChange = log.wrap(function (mode) {
     this.mode = mode;
     mode.init(this);
 
+    var wed_options = mode.getWedOptions();
+
+    if (!this._processWedOptions(wed_options))
+        return;
+
     var styles = this.mode.getStylesheets();
     for(var style_ix = 0, style; (style = styles[style_ix]) !== undefined;
         ++style_ix)
@@ -406,6 +421,75 @@ Editor.prototype.onModeChange = log.wrap(function (mode) {
     this.validator.initialize(this._postInitialize.bind(this));
 });
 
+Editor.prototype._processWedOptions = function(options) {
+    var terminate = function () {
+        this._limitation_modal.setBody(
+            "<p>The mode you are trying to use is passing incorrect " +
+                "options to wed. Contact the mode author with the " +
+                "following information: </p>" +
+                "<ul><li>" + errors.join("</li><li>") + "</li></ul>");
+        this._limitation_modal.modal(function () {
+            window.location.reload();
+        });
+        this.destroy();
+        return false;
+    }.bind(this);
+
+    var template = {
+        metadata: {
+            name: true,
+            authors: true,
+            description: true,
+            license: true,
+            copyright: true
+        },
+        label_levels: {
+            max: true,
+            initial: true
+        }
+    };
+
+    var ret = object_check.check(template, options);
+
+    var errors = [];
+
+    var name;
+    if (ret.missing) {
+        ret.missing.forEach(function (name) {
+            errors.push("missing option: " + name);
+        });
+    }
+
+    if (ret.extra) {
+        ret.extra.forEach(function (name) {
+            errors.push("extra option: " + name);
+        });
+    }
+
+    if (errors.length)
+        return terminate();
+
+    this.max_label_level = options.label_levels.max;
+    if (this.max_label_level < 1)
+        errors.push("label_levels.max must be >= 1");
+
+    this._current_label_level = this.max_label_level;
+
+    var initial = options.label_levels.initial;
+    if (initial > this.max_label_level)
+        errors.push("label_levels.initial must be < label_levels.max");
+    if (initial < 1)
+        errors.push("label_levels.initial must be >= 1");
+
+    while(this._current_label_level > initial)
+        this.decreaseLabelVisiblityLevel();
+
+    if (errors.length)
+        return terminate();
+
+    return true;
+};
+
 Editor.prototype._postInitialize = log.wrap(function  () {
     if (this._destroyed)
         return;
@@ -417,7 +501,9 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         "._real, ._phantom_wrap, .wed-document",
         function ($root, $added, $removed, $prev, $next, $target) {
         if ($added.is("._real, ._phantom_wrap") ||
-            $removed.is("._real, ._phantom_wrap")) {
+            $added.filter(jqutil.textFilter).length ||
+            $removed.is("._real, ._phantom_wrap") ||
+            $removed.filter(jqutil.textFilter).length) {
             this._last_done_shown = 0;
             this.validator.restartAt($target.get(0));
         }
@@ -451,6 +537,25 @@ Editor.prototype._postInitialize = log.wrap(function  () {
             return;
 
         this.gui_domlistener.trigger("refresh-caret");
+    }.bind(this));
+
+    this.gui_domlistener.addHandler(
+        "included-element",
+        "._label",
+        function ($root, $tree, $parent, $prev, $next, $target) {
+        var cl = $target[0].classList;
+        var found = false;
+        for(var i = 0; i < cl.length && !found; ++i) {
+            if (cl[i].lastIndexOf("_label_level_", 0) === 0) {
+                found = Number(cl[i].slice(13));
+            }
+        }
+        if (!found)
+            throw new Error("unable to get level");
+        if (found > this._current_label_level)
+            $target.hide();
+        else
+            $target.show();
     }.bind(this));
 
     this.gui_domlistener.addHandler(
@@ -538,30 +643,36 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         if (!this._raw_caret)
             return; // no caret to move
 
-        var container = this._raw_caret[0];
+        var container = this._raw_caret.node;
         var $container = $(container);
         if ($container.closest($element).length > 0) {
             var parent = $parent.get(0);
             // We must move the caret to a sane position.
             if ($prev.length > 0 && $prev.closest($root).length > 0 &&
                 $parent.closest($root).length > 0)
-                this.setCaret(parent, _indexOf.call(parent.childNodes,
-                                                    $prev.get(0)) + 1);
+                this.setGUICaret(parent, _indexOf.call(parent.childNodes,
+                                                       $prev.get(0)) + 1);
             else if ($next.length > 0 && $next.closest($root).length > 0 &&
                      $parent.closest($root).length > 0)
-                this.setCaret(parent,
-                              _indexOf.call(parent.childNodes, $next.get(0)));
+                this.setGUICaret(parent,
+                                 _indexOf.call(parent.childNodes,
+                                               $next.get(0)));
             else if ($parent.closest($root).length > 0)
-                this.setCaret(parent, parent.childNodes.length);
+                this.setGUICaret(parent, parent.childNodes.length);
             else {
                 // There's nowhere sensible to put it
-                this._removeFakeCaret();
+                this._setFakeCaretTo();
                 this._raw_caret = undefined;
             }
         }
     }.bind(this));
 
     this.decorator.startListening(this.$gui_root);
+
+    // Drag and drop not supported.
+    this.$gui_root.on("dragenter", false);
+    this.$gui_root.on("dragover", false);
+    this.$gui_root.on("drop", false);
 
     this.$gui_root.on('wed-global-keydown',
                       this._globalKeydownHandler.bind(this));
@@ -583,7 +694,6 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
     // No click in the next binding because click does not
     // distinguish left, middle, right mouse buttons.
-    this.$gui_root.on('mouseup', this._caretChangeEmitter.bind(this));
     this.$gui_root.on('mousedown', this._mousedownHandler.bind(this));
     this.$gui_root.on('caretchange',
                       this._caretChangeHandler.bind(this));
@@ -613,11 +723,11 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     // This is a guard to make sure that mousemove handlers are
     // removed once the button is up again.
     $('body', this.my_window.document).on('mouseup.wed', function (ev) {
-        this.$gui_root.off('mousemove.wed');
-        this._$caret_layer.off('mousemove');
+        this.$gui_root.off('mousemove.wed mouseup');
+        this._$caret_layer.off('mousemove mouseup');
     }.bind(this));
 
-    this._$caret_layer.on("mousedown mouseup click contextmenu",
+    this._$caret_layer.on("mousedown click contextmenu",
                           this._caretLayerMouseHandler.bind(this));
 
     // Make ourselves visible.
@@ -740,17 +850,19 @@ Editor.prototype.fireTransformation = function(tr, transformation_data) {
 
             var caret = transformation_data.move_caret_to;
             if (caret) {
-                var $caret = $(caret[0]);
-                if ($caret.closest(this.gui_root).length > 0)
-                    this.setCaret(caret);
-                else if ($caret.closest(this.data_root).length > 0)
+                switch(caret.root) {
+                case this.gui_root:
+                    this.setGUICaret(caret);
+                    break;
+                case this.data_root:
                     this.setDataCaret(caret);
-                else
+                    break;
+                default:
                     throw new Error("caret outside GUI and data trees");
+                }
             }
 
-            var raw_caret = this._getRawCaret();
-            if (raw_caret === undefined)
+            if (this._raw_caret === undefined)
                 throw new Error("transformation applied with undefined caret.");
 
             tr.handler(this, transformation_data);
@@ -877,9 +989,9 @@ Editor.prototype._contextMenuHandler = function (e) {
     // then put it inside the placeholder.
     var $ph = $(e.target).closest("._placeholder");
     if ($ph.length > 0)
-        this.setCaret($ph.get(0).childNodes[0], 0);
+        this.setGUICaret($ph.get(0).childNodes[0], 0);
 
-    var caret = this._getRawCaret();
+    var caret = this._raw_caret;
     // This can happen if the user does a left click before having
     // put the caret anywhere.
     if (!caret)
@@ -890,6 +1002,9 @@ Editor.prototype._contextMenuHandler = function (e) {
 
     var originally_collapsed;
     if (range && !range.collapsed) {
+        if (!domutil.isWellFormedRange(range))
+            return false;
+
         // Range not in our gui.
         if ($(range.startContainer).closest(this.gui_root).length === 0 ||
             $(range.endContainer).closest(this.gui_root).length === 0)
@@ -904,8 +1019,8 @@ Editor.prototype._contextMenuHandler = function (e) {
         offset = range.startOffset;
     }
     else {
-        $node_of_interest = $(caret[0]);
-        offset = caret[1];
+        $node_of_interest = $(caret.node);
+        offset = caret.offset;
         originally_collapsed = true;
     }
 
@@ -951,7 +1066,9 @@ Editor.prototype._contextMenuHandler = function (e) {
                 offset = before_ix + 1;
             if (after_ix !== null && offset >= after_ix)
                 offset = after_ix - 1;
-            data_base = { move_caret_to: [$node_of_interest[0], offset] };
+            data_base = { move_caret_to: makeDLoc(this.gui_root,
+                                                  $node_of_interest[0],
+                                                  offset) };
         }
         else
             $node_of_interest = $(); // empty the set
@@ -1091,28 +1208,14 @@ Editor.prototype._contextMenuHandler = function (e) {
 };
 
 Editor.prototype._cutHandler = function(e) {
-    var caret = this.getDataCaret();
-    if (caret === undefined)
+    if (this.getDataCaret() === undefined)
         return false; // XXX alert the user?
-
-    // The strategy here is:
-    // - If the cut should be prevented, return false.
-    // - If the cut should go ahead:
-    //  - Set a timer to update the data tree after the browser cut happens.
-    //  - Return true to let the browser cut. This will cut from the gui tree.
 
     var range = this.getDOMSelectionRange();
     if (domutil.isWellFormedRange(range)) {
-        var start_caret = this.toDataCaret(range.startContainer,
-                                           range.startOffset);
-        var end_caret = this.toDataCaret(range.endContainer, range.endOffset);
-        this.my_window.setTimeout(function () {
-            this.fireTransformation(this.cut_tr,
-                                    {e: e,
-                                     node: caret[0],
-                                     start_caret: start_caret,
-                                     end_caret: end_caret});
-        }.bind(this), 1);
+        // The only thing we need to pass is the event that triggered the
+        // cut.
+        this.fireTransformation(this.cut_tr, {e: e});
         return true;
     }
     else {
@@ -1122,10 +1225,24 @@ Editor.prototype._cutHandler = function(e) {
 };
 
 function cut(editor, data) {
-    var start_caret = data.start_caret;
-    var end_caret = data.end_caret;
+    var range = editor.getDOMSelectionRange();
+    if (!domutil.isWellFormedRange(range))
+        throw new Error("malformed range");
 
-    editor.cut_function(start_caret, end_caret);
+    var start_caret = editor.toDataLocation(range.startContainer,
+                                            range.startOffset);
+    var end_caret = editor.toDataLocation(range.endContainer, range.endOffset);
+    var cut_ret = editor.data_updater.cut(start_caret, end_caret);
+    editor._$cut_buffer.empty();
+    editor._$cut_buffer.append(cut_ret[1]);
+    editor.setDataCaret(cut_ret[0]);
+    range = editor.my_window.document.createRange();
+    var container = editor._$cut_buffer[0];
+    range.setStart(container, 0);
+    range.setEnd(container,  container.childNodes.length);
+    var sel = editor.my_window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
 }
 
 Editor.prototype._pasteHandler = function(e) {
@@ -1163,7 +1280,7 @@ Editor.prototype._pasteHandler = function(e) {
         else {
             // Otherwise, check whether it is valid.
             var errors = this.validator.speculativelyValidate(
-                caret[0], caret[1], $data.contents().toArray());
+                caret, $data.contents().toArray());
             if (errors) {
                 this._paste_modal.modal(function () {
                     if (this._paste_modal.getClickedAsText() === "Yes") {
@@ -1174,7 +1291,7 @@ Editor.prototype._pasteHandler = function(e) {
                         // fake <div> element which contains the
                         // contents we actually want to paste.
                         this.fireTransformation(this.paste_tr,
-                                                {node: caret[0],
+                                                {node: caret.node,
                                                  $data: $data, e: e});
                     }
                 }.bind(this));
@@ -1192,7 +1309,7 @@ Editor.prototype._pasteHandler = function(e) {
     // At this point $data is a single top level fake <div> element
     // which contains the contents we actually want to paste.
     this.fireTransformation(this.paste_tr,
-                            {node: caret[0], $data: $data, e: e});
+                            {node: caret.node, $data: $data, e: e});
     return false;
 };
 
@@ -1205,33 +1322,35 @@ function paste(editor, data) {
     var new_caret, ret;
     if (wrapper.childNodes.length === 1 &&
         wrapper.firstChild.nodeType === Node.TEXT_NODE) {
-        ret = editor.data_updater.insertText(caret[0], caret[1],
+        ret = editor.data_updater.insertText(caret,
                                              wrapper.firstChild.nodeValue);
         new_caret = (ret[0] === ret[1]) ?
-            [caret[0], caret[1] + wrapper.firstChild.nodeValue.length] :
-            [ret[1], ret[1].nodeValue.length];
+            caret.make(caret.node,
+                       caret.offset + wrapper.firstChild.nodeValue.length) :
+            caret.make(ret[1], ret[1].nodeValue.length);
     }
     else {
         var frag = document.createDocumentFragment();
         $data.contents().each(function () {
             frag.appendChild(this);
         });
-        switch(caret[0].nodeType) {
+        switch(caret.node.nodeType) {
         case Node.TEXT_NODE:
-            var parent = caret[0].parentNode;
-            ret = editor.data_updater.insertIntoText(caret[0], caret[1], frag);
+            var parent = caret.node.parentNode;
+            ret = editor.data_updater.insertIntoText(caret, frag);
             new_caret = ret[1];
             break;
         case Node.ELEMENT_NODE:
-            var child = caret[0].childNodes[caret[1]];
+            var child = caret.node.childNodes[caret.offset];
             var after =  child ? child.nextSibling : null;
-            editor.data_updater.insertBefore(caret[0], frag, child);
-            new_caret = [caret[0],
-                         after ? _indexOf.call(caret[0].childNodes, after) :
-                         caret[0].childNodes.length];
+            editor.data_updater.insertBefore(caret.node, frag, child);
+            new_caret = caret.make(caret.node,
+                                   after ? _indexOf.call(caret.node.childNodes,
+                                                         after) :
+                                   caret.node.childNodes.length);
             break;
         default:
-            throw new Error("unexpected node type: " + caret[0].nodeType);
+            throw new Error("unexpected node type: " + caret.node.nodeType);
         }
     }
     editor.setDataCaret(new_caret);
@@ -1239,8 +1358,7 @@ function paste(editor, data) {
 }
 
 Editor.prototype.caretPositionRight = function () {
-    var pos = this._getRawCaret();
-    return this.positionRight(pos);
+    return this.positionRight(this._raw_caret);
 };
 
 Editor.prototype.positionRight = function (pos) {
@@ -1248,29 +1366,32 @@ Editor.prototype.positionRight = function (pos) {
         return undefined; // nothing to be done
 
     // If we are in a gui node, immediately move out of it
-    var closest_gui = $(pos[0]).closest("._gui").get(0);
+    var closest_gui = $(pos.node).closest("._gui").get(0);
     if (closest_gui !== undefined)
-        pos = [closest_gui, closest_gui.childNodes.length];
+        pos = pos.make(closest_gui, closest_gui.childNodes.length);
 
     // If we are in a placeholder node, immediately move out of it.
-    var closest_ph = $(pos[0]).closest("._placeholder").get(0);
+    var closest_ph = $(pos.node).closest("._placeholder").get(0);
     if (closest_ph !== undefined)
-        pos = [closest_ph.parentNode,
-               _indexOf.call(closest_ph.parentNode.childNodes, closest_ph) + 1];
+        pos = pos.make(closest_ph.parentNode,
+                       _indexOf.call(closest_ph.parentNode.childNodes,
+                                     closest_ph) + 1);
 
     while(true)
     {
-        pos = domutil.nextCaretPosition(pos, this.gui_root.childNodes[0],
-                                        false);
-        if (pos === null)
+        pos = pos.make(
+            domutil.nextCaretPosition(pos.toArray(),
+                                      this.gui_root.childNodes[0],
+                                      false));
+        if (!pos)
             break;
 
-        var $node = $(pos[0]);
+        var $node = $(pos.node);
         closest_gui = $node.closest("._gui").get(0);
         if (closest_gui !== undefined) {
             // Stopping in a gui element is fine, but normalize the
             // position to the start of the gui element.
-            pos = [closest_gui, 0];
+            pos = pos.make(closest_gui, 0);
             break;
         }
 
@@ -1278,31 +1399,31 @@ Editor.prototype.positionRight = function (pos) {
         var closest_phantom = $node.closest("._phantom").get(0);
         if (closest_phantom) {
             // This ensures the next loop will move after the phantom.
-            pos = [closest_phantom, closest_phantom.childNodes.length];
+            pos = pos.make(closest_phantom, closest_phantom.childNodes.length);
             continue;
         }
 
         // Or beyond the first position in a placeholder node.
         var closest_ph = $node.closest("._placeholder").get(0);
-        if (closest_ph && pos[1] > 0) {
+        if (closest_ph && pos.offset > 0) {
             // This ensures the next loop will move after the placeholder.
-            pos = [closest_ph, closest_ph.childNodes.length];
+            pos = pos.make(closest_ph, closest_ph.childNodes.length);
             continue;
         }
 
         // Make sure the position makes sense from an editing
         // standpoint.
-        if (pos[0].nodeType === Node.ELEMENT_NODE) {
-            var next_node = pos[0].childNodes[pos[1]];
-            var prev_node = pos[0].childNodes[pos[1] - 1];
+        if (pos.node.nodeType === Node.ELEMENT_NODE) {
+            var next_node = pos.node.childNodes[pos.offset];
+            var prev_node = pos.node.childNodes[pos.offset - 1];
             var $next_node = $(next_node);
             var $prev_node = $(prev_node);
             if (next_node !== undefined &&
                 // We do not stop in front of element nodes.
                 (next_node.nodeType === Node.ELEMENT_NODE &&
-                 !$next_node.is("._gui._end_button") &&
-                 !$prev_node.is("._gui._start_button")) ||
-                $prev_node.is("._wed-validation-error, ._gui._end_button"))
+                 !$next_node.is("._gui.__end_label") &&
+                 !$prev_node.is("._gui.__start_label")) ||
+                $prev_node.is("._wed-validation-error, ._gui.__end_label"))
                 continue; // can't stop here
         }
 
@@ -1314,8 +1435,7 @@ Editor.prototype.positionRight = function (pos) {
 };
 
 Editor.prototype.caretPositionLeft = function () {
-    var pos = this._getRawCaret();
-    return this.positionLeft(pos);
+    return this.positionLeft(this._raw_caret);
 };
 
 Editor.prototype.positionLeft = function (pos) {
@@ -1323,29 +1443,31 @@ Editor.prototype.positionLeft = function (pos) {
         return undefined; // nothing to be done
 
     // If we are in a gui node, immediately move out of it
-    var closest_gui = $(pos[0]).closest("._gui").get(0);
+    var closest_gui = $(pos.node).closest("._gui").get(0);
     if (closest_gui !== undefined)
-        pos = [closest_gui, 0];
+        pos = pos.make(closest_gui, 0);
 
     // If we are in a placeholder node, immediately move out of it.
-    var closest_ph = $(pos[0]).closest("._placeholder").get(0);
+    var closest_ph = $(pos.node).closest("._placeholder").get(0);
     if (closest_ph !== undefined)
-        pos = [closest_ph.parentNode,
-               _indexOf.call(closest_ph.parentNode.childNodes, closest_ph)];
+        pos = pos.make(closest_ph.parentNode,
+                       _indexOf.call(closest_ph.parentNode.childNodes,
+                                     closest_ph));
 
     while(true)
     {
-        pos = domutil.prevCaretPosition(pos, this.gui_root.childNodes[0],
-                                        false);
-        if (pos === null)
+        pos = pos.make(
+            domutil.prevCaretPosition(pos.toArray(),
+                                      this.gui_root.childNodes[0], false));
+        if (!pos)
             break;
 
-        var $node = $(pos[0]);
+        var $node = $(pos.node);
         closest_gui = $node.closest("._gui").get(0);
         if (closest_gui !== undefined) {
             // Stopping in a gui element is fine, but normalize
             // the position to the start of the gui element.
-            pos = [closest_gui, 0];
+            pos = pos.make(closest_gui, 0);
             break;
         }
 
@@ -1353,7 +1475,7 @@ Editor.prototype.positionLeft = function (pos) {
         if ($closest_ph.length > 0) {
             // Stopping in a placeholder is fine, but normalize
             // the position to the start of the text.
-            pos = [$closest_ph.get(0).childNodes[0], 0];
+            pos = pos.make($closest_ph.get(0).childNodes[0], 0);
             break;
         }
 
@@ -1363,24 +1485,24 @@ Editor.prototype.positionLeft = function (pos) {
         {
             // Setting the position to this will ensure that on the
             // next loop we move to the left of the phantom node.
-            pos = [closest_phantom, 0];
+            pos = pos.make(closest_phantom, 0);
             continue;
         }
 
         // Make sure the position makes sense from an editing
         // standpoint.
-        if (pos[0].nodeType === Node.ELEMENT_NODE) {
-            var prev_node = pos[0].childNodes[pos[1] - 1];
-            var next_node = pos[0].childNodes[pos[1]];
+        if (pos.node.nodeType === Node.ELEMENT_NODE) {
+            var prev_node = pos.node.childNodes[pos.offset - 1];
+            var next_node = pos.node.childNodes[pos.offset];
             var $next_node = $(next_node);
             var $prev_node = $(prev_node);
             if (prev_node !== undefined &&
                 // We do not stop just before a start tag button.
                 (prev_node.nodeType === Node.ELEMENT_NODE &&
-                 !$prev_node.is("._gui._start_button") &&
-                 !$next_node.is("._gui._end_button")) ||
+                 !$prev_node.is("._gui.__start_label") &&
+                 !$next_node.is("._gui.__end_label")) ||
                 // Can't stop right before a validation error.
-                $next_node.is("._gui._start_button, .wed-validation-error"))
+                $next_node.is("._gui.__start_label, .wed-validation-error"))
                 continue; // can't stop here
         }
 
@@ -1394,40 +1516,14 @@ Editor.prototype.positionLeft = function (pos) {
 Editor.prototype.moveCaretRight = function () {
     var pos = this.caretPositionRight();
     if (pos)
-        this.setCaret(pos[0], pos[1]);
+        this.setGUICaret(pos);
 };
 
 Editor.prototype.moveCaretLeft = function () {
     var pos = this.caretPositionLeft();
     if (pos)
-        this.setCaret(pos[0], pos[1]);
+        this.setGUICaret(pos);
 };
-
-Editor.prototype._canSetCaretHere = function (pos) {
-    var r = rangy.createRange(this.my_window.document);
-    r.setStart(pos[0], pos[1]);
-    var sel = this.getDOMSelection();
-    // Save the range before doing this so that we can restore it.
-    // Note that rangy won't help here because it will insert a span
-    // and mess up our caret position.
-    var saved = sel.rangeCount && sel.getRangeAt(0);
-    var ret;
-    try {
-        sel.setSingleRange(r);
-        var r2 = sel.rangeCount > 0 && sel.getRangeAt(0);
-
-        ret = (r2 && r2.startContainer === pos[0] &&
-               r2.startOffset === pos[1]);
-    }
-    finally {
-        if (saved)
-            sel.setSingleRange(saved);
-        else
-            sel.removeAllRanges();
-    }
-    return ret;
-};
-
 
 /**
  * <p>Scrolls the window and <code>gui_root</code> so that the
@@ -1438,10 +1534,10 @@ Editor.prototype._canSetCaretHere = function (pos) {
  * adjust <code>gui_root</code> and the window <emph>just
  * enough</emph> to make the rectangle visible.</p>
  *
- * @param {Number} left Left side of the rectangle.
- * @param {Number} top Top side of the rectangle.
- * @param {Number} right Right side of the rectangle.
- * @param {Number} bottom Bottom side of the rectangle.
+ * @param {number} left Left side of the rectangle.
+ * @param {number} top Top side of the rectangle.
+ * @param {number} right Right side of the rectangle.
+ * @param {number} bottom Bottom side of the rectangle.
  */
 Editor.prototype.scrollIntoView = function (left, top, right, bottom) {
     // Adjust gui_root.
@@ -1494,20 +1590,25 @@ Editor.prototype.scrollIntoView = function (left, top, right, bottom) {
     this.my_window.scrollBy(by_x, by_y);
 };
 
-Editor.prototype.setCaret = function (node, offset, force_fake, text_edit) {
+Editor.prototype.setGUICaret = function (loc, offset, force_fake, text_edit) {
     // Accept a single array as argument
-    if (node instanceof Array) {
-        offset = node[1];
-        node = node[0];
+    var node;
+    if (loc instanceof DLoc) {
+        offset = loc.offset;
+        node = loc.node;
         force_fake = arguments[1];
         text_edit = arguments[2];
+    }
+    else {
+        node = loc;
+        loc = makeDLoc(this.gui_root, node, offset);
     }
 
     // We set a fake caret.
     this.clearDOMSelection();
-    this._setFakeCaretTo(node, offset);
+    this._setFakeCaretTo(loc);
     this._focusInputField();
-    this._sel_anchor = {node: node, offset: offset};
+    this._sel_anchor = loc;
     this._sel_focus = this._sel_anchor;
     this._caretChangeEmitter(undefined, text_edit);
 };
@@ -1518,21 +1619,22 @@ Editor.prototype._focusInputField = function () {
     this._$input_field.focus();
 };
 
-Editor.prototype._setFakeCaretTo = function (node, offset) {
-    this._fake_caret = [node, offset];
-    this._refreshFakeCaret();
-};
-
-Editor.prototype._removeFakeCaret = function () {
-    this._fake_caret = undefined;
+/**
+ * Sets the fake caret's position.
+ *
+ * @param {module:dloc~DLoc} [loc] The location of the fake caret in
+ * the GUI tree. Can be ``undefined`` to unset the fake caret.
+ */
+Editor.prototype._setFakeCaretTo = function (loc) {
+    this._fake_caret = loc;
     this._refreshFakeCaret();
 };
 
 Editor.prototype._refreshFakeCaret = function () {
     var node, offset;
     if (this._fake_caret) {
-        node = this._fake_caret[0];
-        offset = this._fake_caret[1];
+        node = this._fake_caret.node;
+        offset = this._fake_caret.offset;
 
         // Fake caret was in a node that was removed from the tree.
         if ($(node).closest(this.$gui_root).length === 0)
@@ -1656,7 +1758,7 @@ Editor.prototype._refreshFakeCaret = function () {
 };
 
 Editor.prototype._keydownHandler = log.wrap(function (e) {
-    var caret = this.getCaret();
+    var caret = this.getGUICaret();
     // Don't call it on undefined caret.
     if (caret)
         this.$gui_root.trigger('wed-input-trigger-keydown', [e]);
@@ -1691,13 +1793,15 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         // F2
         if (e.which === 113) {
             var data_caret = this.getDataCaret();
-            console.log("raw caret", this._raw_caret[0], this._raw_caret[1]);
-            console.log("data caret", data_caret[0], data_caret[1]);
-            console.log("fake caret", this._fake_caret[0], this._fake_caret[1]);
+            console.log("raw caret", this._raw_caret.node,
+                        this._raw_caret.offset);
+            console.log("data caret", data_caret.node, data_caret.offset);
+            console.log("fake caret", this._fake_caret.node,
+                        this._fake_caret.offset);
             console.log("data closest real",
-                        $(data_caret[0]).closest("._real"));
+                        $(data_caret.node).closest("._real"));
             console.log("gui closest real",
-                        $(this._raw_caret[0]).closest("._real"));
+                        $(this._raw_caret.node).closest("._real"));
             var range = this.getDOMSelectionRange();
             if (range)
                 console.log("DOM range",
@@ -1739,13 +1843,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         if (key_constants.RIGHT_ARROW.matchesEvent(e)) {
             if (e.shiftKey) {
                 // Extend the selection
-                pos = this.positionRight([this._sel_focus.node,
-                                          this._sel_focus.offset]);
-                this._sel_focus = {node: pos[0], offset: pos[1]};
-                var rr = domutil.rangeFromPoints(this._sel_anchor.node,
-                                                 this._sel_anchor.offset,
-                                                 this._sel_focus.node,
-                                                 this._sel_focus.offset);
+                this._sel_focus = this.positionRight(this._sel_focus);
+                var rr = this._sel_anchor.makeRange(this._sel_focus);
                 this.setSelectionRange(rr.range, rr.reversed);
             }
             else
@@ -1755,13 +1854,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         else if (key_constants.LEFT_ARROW.matchesEvent(e)) {
             if (e.shiftKey) {
                 // Extend the selection
-                pos = this.positionLeft([this._sel_focus.node,
-                                         this._sel_focus.offset]);
-                this._sel_focus = {node: pos[0], offset: pos[1]};
-                var rr = domutil.rangeFromPoints(this._sel_anchor.node,
-                                                 this._sel_anchor.offset,
-                                                 this._sel_focus.node,
-                                                 this._sel_focus.offset);
+                this._sel_focus = this.positionLeft(this._sel_focus);
+                var rr = this._sel_anchor.makeRange(this._sel_focus);
                 this.setSelectionRange(rr.range, rr.reversed);
             }
             else
@@ -1789,8 +1883,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         return true;
     }
     else if (key_constants.SPACE.matchesEvent(e)) {
-        caret = this.getCaret();
-        if (caret && $(caret[0]).closest("._phantom").length === 0)
+        caret = this.getGUICaret();
+        if (caret && $(caret.node).closest("._phantom").length === 0)
             // On Chrome we must handle it here.
             this._handleKeyInsertingText(e);
         return terminate();
@@ -1802,6 +1896,14 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
                          { ele: "body", type: 'info', align: 'center' });
         if (this._development_mode)
             log.showPopup();
+        return terminate();
+    }
+    else if (key_constants.CTRL_OPEN_BRACKET.matchesEvent(e)) {
+        this.decreaseLabelVisiblityLevel();
+        return terminate();
+    }
+    else if (key_constants.CTRL_CLOSE_BRACKET.matchesEvent(e)) {
+        this.increaseLabelVisibilityLevel();
         return terminate();
     }
     else if (key_constants.CTRL_FORWARD_SLASH.matchesEvent(e) &&
@@ -1841,10 +1943,10 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
             return terminate();
     }
 
-    var raw_caret = this._getRawCaret();
+    var raw_caret = this._raw_caret;
 
     if (raw_caret !== undefined) {
-        var $placeholders = $(raw_caret[0]).closest('._placeholder');
+        var $placeholders = $(raw_caret.node).closest('._placeholder');
         if ($placeholders.length > 0) {
             // We're in a placeholder, so...
 
@@ -1857,8 +1959,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
             // text. If so, then do not allow entering regular text in
             // this location.
             if (!util.anySpecialKeyHeld(e) &&
-                !this.validator.possibleAt(caret[0], caret[1]).
-                has(new validate.Event("text")))
+                !this.validator.possibleAt(caret).has(
+                    new validate.Event("text")))
                 return terminate();
 
             // Swallow these events when they happen in a placeholder.
@@ -1868,8 +1970,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
                 return terminate();
         }
 
-        if ($(raw_caret[0]).hasClass('_phantom') ||
-            $(raw_caret[0]).hasClass('_phantom_wrap')) {
+        if ($(raw_caret.node).hasClass('_phantom') ||
+            $(raw_caret.node).hasClass('_phantom_wrap')) {
             return terminate();
         }
     }
@@ -1877,26 +1979,27 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
     var text_undo; // damn hoisting
     if (key_constants.DELETE.matchesEvent(e)) {
         // Prevent deleting phantom stuff
-        if (!$(domutil.nextCaretPosition(raw_caret, this.gui_root, true)[0])
+        if (!$(domutil.nextCaretPosition(this._raw_caret.toArray(),
+                                         this.gui_root, true)[0])
             .is("._phantom, ._phantom_wrap")) {
             // We need to handle the delete
             caret = this.getDataCaret();
             // If the container is not a text node, we may still
             // be just AT a text node from which we can
             // delete. Handle this.
-            if (caret[0].nodeType !== Node.TEXT_NODE)
-                caret = [caret[0].childNodes[caret[1]], 0];
+            if (caret.node.nodeType !== Node.TEXT_NODE)
+                caret = caret.make(caret.node.childNodes[caret.offset], 0);
 
-            if (caret[0].nodeType === Node.TEXT_NODE) {
-                var parent = caret[0].parentNode;
-                var offset = _indexOf.call(parent.childNodes, caret[0]);
+            if (caret.node.nodeType === Node.TEXT_NODE) {
+                var parent = caret.node.parentNode;
+                var offset = _indexOf.call(parent.childNodes, caret.node);
 
                 text_undo = this._initiateTextUndo();
-                this.data_updater.deleteText(caret[0], caret[1], 1);
+                this.data_updater.deleteText(caret, 1);
                 // Don't set the caret inside a node that has been
                 // deleted.
-                if (caret[0].parentNode)
-                    this.setDataCaret(caret[0], caret[1], true);
+                if (caret.node.parentNode)
+                    this.setDataCaret(caret, true);
                 else
                     this.setDataCaret(parent, offset, true);
                 text_undo.recordCaretAfter();
@@ -1907,7 +2010,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
 
     if (key_constants.BACKSPACE.matchesEvent(e)) {
         // Prevent backspacing over phantom stuff
-        if (!$(domutil.prevCaretPosition(raw_caret, this.gui_root, true)[0])
+        if (!$(domutil.prevCaretPosition(this._raw_caret.toArray(),
+                                         this.gui_root, true)[0])
             .is("._phantom, ._phantom_wrap")) {
             // We need to handle the backspace
             caret = this.getDataCaret();
@@ -1915,24 +2019,25 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
             // If the container is not a text node, we may still
             // be just behind a text node from which we can
             // delete. Handle this.
-            if (caret[0].nodeType !== Node.TEXT_NODE)
-                caret = [caret[0].childNodes[caret[1]],
-                         caret[0].childNodes[caret[1]].length - 1];
+            if (caret.node.nodeType !== Node.TEXT_NODE)
+                caret = caret.make(
+                    caret.node.childNodes[caret.offset - 1],
+                    caret.node.childNodes[caret.offset - 1].length);
 
-            if (caret[0].nodeType === Node.TEXT_NODE) {
-                var parent = caret[0].parentNode;
-                var offset = _indexOf.call(parent.childNodes, caret[0]);
+            if (caret.node.nodeType === Node.TEXT_NODE) {
+                var parent = caret.node.parentNode;
+                var offset = _indexOf.call(parent.childNodes, caret.node);
 
                 // At start of text, nothing to delete.
-                if (caret[1] === 0)
+                if (caret.offset === 0)
                     return terminate();
 
                 text_undo = this._initiateTextUndo();
-                this.data_updater.deleteText(caret[0], caret[1] - 1, 1);
+                this.data_updater.deleteText(caret.node, caret.offset - 1, 1);
                 // Don't set the caret inside a node that has been
                 // deleted.
-                if (caret[0].parentNode)
-                    this.setDataCaret(caret[0], caret[1] - 1, true);
+                if (caret.node.parentNode)
+                    this.setDataCaret(caret.node, caret.offset - 1, true);
                 else
                     this.setDataCaret(parent, offset, true);
                 text_undo.recordCaretAfter();
@@ -1976,7 +2081,7 @@ Editor.prototype._keypressHandler = log.wrap(function (e) {
 /**
  * Simulates typing text in the editor.
  *
- * @param {module:key~Key|Array.<module:key~Key>|String} text The text to type
+ * @param {module:key~Key|Array.<module:key~Key>|string} text The text to type
  * in. An array of keys, a string or a single key.
  */
 Editor.prototype.type = function (text) {
@@ -1995,8 +2100,7 @@ Editor.prototype.type = function (text) {
 };
 
 Editor.prototype._globalKeypressHandler = log.wrap(function (wed_event, e) {
-    var raw_caret = this._getRawCaret();
-    if (raw_caret === undefined)
+    if (this._raw_caret === undefined)
         return true;
 
     // On Firefox keypress events are generated for things like
@@ -2031,13 +2135,13 @@ Editor.prototype._insertText = function (text) {
     if (text === "")
         return;
 
-    var caret = this._getRawCaret();
+    var caret = this._raw_caret;
 
-    var $container = $(caret[0]);
+    var $container = $(caret.node);
     var ph = $container.closest('._placeholder').get(0);
     if (ph) {
         // Move our caret to just before the node before removing it.
-        this.setCaret(this.getCaret());
+        this.setGUICaret(this.getGUICaret());
         this._gui_updater.removeNode(ph);
     }
 
@@ -2048,7 +2152,7 @@ Editor.prototype._insertText = function (text) {
 
     var text_undo = this._initiateTextUndo();
     caret = this.getDataCaret();
-    var insert_ret = this.data_updater.insertText(caret[0], caret[1], text);
+    var insert_ret = this.data_updater.insertText(caret, text);
     var modified_node = insert_ret[0];
     if (modified_node === undefined)
         this.setDataCaret(insert_ret[1], text.length, true);
@@ -2056,10 +2160,10 @@ Editor.prototype._insertText = function (text) {
         var final_offset;
         // Before the call, either the caret was in the text node that
         // received the new text...
-        if (modified_node === caret[0])
-            final_offset = caret[1] + text.length;
+        if (modified_node === caret.node)
+            final_offset = caret.offset + text.length;
         // ... or it was immediately adjacent to this text node.
-        else if (caret[0].childNodes[caret[1]] === modified_node)
+        else if (caret.node.childNodes[caret.offset] === modified_node)
             final_offset = text.length;
         else
             final_offset = modified_node.nodeValue.length;
@@ -2073,7 +2177,7 @@ Editor.prototype._compositionHandler = log.wrap(function (ev) {
         this._composing = true;
         this._composition_data = {
             data: ev.originalEvent.data,
-            start_caret: this._getRawCaret()
+            start_caret: this._raw_caret
         };
         this._$input_field.css("z-index", 10);
     }
@@ -2191,10 +2295,7 @@ Editor.prototype._mousemoveHandler = log.wrap(function (e) {
     if (!this._prev_sel_focus ||
         this._sel_focus.offset != this._prev_sel_focus.offset ||
         this._sel_focus.node != this._prev_sel_focus.node) {
-        var rr = domutil.rangeFromPoints(this._sel_anchor.node,
-                                         this._sel_anchor.offset,
-                                         this._sel_focus.node,
-                                         this._sel_focus.offset);
+        var rr = this._sel_anchor.makeRange(this._sel_focus);
         this.setDOMSelectionRange(rr.range, rr.reversed);
         this._prev_sel_focus = this._sel_focus;
     }
@@ -2204,8 +2305,8 @@ Editor.prototype._mousemoveHandler = log.wrap(function (e) {
 /**
  * Returns the element under the point, ignoring the editor's layers.
  *
- * @param {Number} x The x coordinate.
- * @param {Number} y The y coordinate.
+ * @param {number} x The x coordinate.
+ * @param {number} y The y coordinate.
  * @returns {Node|undefined} The element under the point, or
  * <code>undefined</code> if the point is outside the document.
  */
@@ -2223,9 +2324,12 @@ Editor.prototype.elementAtPointUnderLayers = function (x, y) {
 };
 
 Editor.prototype._caretLayerMouseHandler = log.wrap(function (e) {
-    if (e.type === "mousedown")
+    if (e.type === "mousedown") {
         this._$caret_layer.on("mousemove",
                              this._caretLayerMouseHandler.bind(this));
+        this._$caret_layer.one("mouseup",
+                               this._caretLayerMouseHandler.bind(this));
+    }
     var element_at_mouse =
         this.elementAtPointUnderLayers(e.clientX, e.clientY);
     var new_e = $.Event(e.type, e);
@@ -2247,8 +2351,12 @@ Editor.prototype._mousedownHandler = log.wrap(function(e) {
     if (!domutil.pointInContents(this.gui_root, e.pageX, e.pageY))
         return false;
 
+    this.$gui_root.one('mouseup', this._caretChangeEmitter.bind(this));
+
     if (e.which === 1) {
-        this._sel_anchor = this._pointToCharBoundary(e.clientX, e.clientY);
+        var boundary = this._pointToCharBoundary(e.clientX, e.clientY);
+        this._sel_anchor = makeDLoc(this.gui_root,
+                                    boundary.node, boundary.offset);
         this._sel_focus = this._sel_anchor;
         this._prev_sel_focus = undefined;
         this.$gui_root.on('mousemove.wed', this._mousemoveHandler.bind(this));
@@ -2261,32 +2369,20 @@ Editor.prototype._mousedownHandler = log.wrap(function(e) {
     if (!range || range.collapsed) {
         this.my_window.setTimeout(this._seekCaret.bind(this, e), 0);
     }
-    else if (e.which === 3) {
-        // Only well-formed ranges can be processed.
-        if (!domutil.isWellFormedRange(range))
-            return false;
+    else if (e.which === 3)
         return this._contextMenuHandler(e);
-    }
 
     return true;
 });
 
-Editor.prototype.insertPlaceholderAt = function (node, offset) {
-    var ph = this.mode.makePlaceholderFor(node)[0];
-    this._updating_placeholder++;
-    this._gui_updater.insertNodeAt(node, offset, ph);
-    this._updating_placeholder--;
-};
-
 /**
- * @param {Node} node The node into which to insert a transient placeholder.
- * @param {Integer} offset The offset at which to put the placeholder.
+ * @param {module:dloc~DLoc} loc Location where to insert.
  * @returns {Node} The placeholder.
  */
-Editor.prototype.insertTransientPlaceholderAt = function (node, offset) {
+Editor.prototype.insertTransientPlaceholderAt = function (loc) {
     var ph = $("<span class='_placeholder _transient' " +
                "contenteditable='false'> </span>")[0];
-    this._gui_updater.insertNodeAt(node, offset, ph);
+    this._gui_updater.insertNodeAt(loc, ph);
     return ph;
 };
 
@@ -2316,13 +2412,13 @@ Editor.prototype._seekCaret = log.wrap(function (ev) {
         // Don't update the caret if outside our gui.
         if (!($(range.startContainer).closest(this.gui_root).length === 0 ||
               $(range.endContainer).closest(this.gui_root).length === 0))
-            this.setCaret(range.startContainer, range.startOffset);
+            this.setGUICaret(range.startContainer, range.startOffset);
     }
 
     if (ev.which === 3) {
         if (in_gui) {
             // Set the caret to be in the trigger.
-            this.setCaret($target[0], 0);
+            this.setGUICaret($target[0], 0);
             $target.trigger("wed-context-menu", [ev]);
         }
         else {
@@ -2330,7 +2426,7 @@ Editor.prototype._seekCaret = log.wrap(function (ev) {
             if (!range) {
                 var boundary = this._pointToCharBoundary(
                     ev.clientX, ev.clientY);
-                this.setCaret(boundary.node, boundary.offset);
+                this.setGUICaret(boundary.node, boundary.offset);
             }
 
             if ($target.data("wed-custom-context-menu")) {
@@ -2345,102 +2441,99 @@ Editor.prototype._seekCaret = log.wrap(function (ev) {
 });
 
 /**
- *
- * This method returns the current position of the caret. However, it
+ * This method returns the current position of the GUI caret. However, it
  * sanitizes its return value to avoid providing positions where
  * inserting new elements or text is not allowed. One prime example of
  * this would be inside of a _placeholder or a _gui element.
  *
- * @returns {Array.<Integer>} The returned value is an array of size
- * two which has for first element the node where the caret is located
- * and for second element the offset into this node. The pair of node
- * and offset is to be interpreted as the same way it is interpreted
- * for DOM ranges. Callers must not change the value they get.
+ * @returns {module:dloc~DLoc} The caret location. Callers must not
+ * change the value they get.
  */
-Editor.prototype.getCaret = function () {
+Editor.prototype.getGUICaret = function () {
     // Caret is unset
-    var raw_caret = this._getRawCaret();
-    if (raw_caret === undefined)
+    if (this._raw_caret === undefined)
         return undefined;
 
-    return this.normalizeCaret(raw_caret);
+    return this._normalizeCaret(this._raw_caret);
 };
 
-Editor.prototype.normalizeCaret = function (node, offset) {
-    // Accept a single array as argument
-    if (arguments.length === 1 && node instanceof Array) {
-        offset = node[1];
-        node = node[0];
-    }
 
-    var pg = $(node).closest("._placeholder, ._gui").get(0);
+Editor.prototype._normalizeCaret = function (loc) {
+    if (!loc)
+        return loc;
+
+    var pg = $(loc.node).closest("._placeholder, ._gui").get(0);
     // We are in a placeholder or gui node, make the caret be
     // the parent of the this node.
     if (pg !== undefined) {
         var parent = pg.parentNode;
-        return [parent, _indexOf.call(parent.childNodes, pg)];
+        return loc.make(parent, _indexOf.call(parent.childNodes, pg));
     }
 
-    return [node, offset];
+    return loc;
 };
 
-Editor.prototype._getRawCaret = function () {
-    // Make sure the caret is not stale.
-    if (!this._raw_caret)
-        return undefined;
-    return this._raw_caret.slice();
-};
 
-Editor.prototype.fromDataCaret = function (node, offset) {
-    var ret = this._gui_updater.fromDataCaret(node, offset);
+Editor.prototype.fromDataLocation = function (node, offset) {
+    var ret = this._gui_updater.fromDataLocation(node, offset);
 
+    var new_offset = ret.offset;
+    node = ret.node;
     if(node.nodeType === Node.ELEMENT_NODE) {
         // Normalize to a range within the editable nodes. We could be
         // outside of them in an element which is empty, for instance.
-        var pair = this.mode.nodesAroundEditableContents(ret[0]);
-        var first_index = _indexOf.call(ret[0].childNodes, pair[0]);
-        if (ret[1] <= first_index)
-            ret[1] = first_index + 1;
+        var pair = this.mode.nodesAroundEditableContents(node);
+        var first_index = _indexOf.call(node.childNodes, pair[0]);
+        if (new_offset <= first_index)
+            new_offset = first_index + 1;
         else {
             var second_index =
-                    pair[1] ? _indexOf.call(ret[0].childNodes, pair[1]) :
-                    ret[0].childNodes.length;
-            if (ret[1] >= second_index)
-                ret[1] = second_index;
+                    pair[1] ? _indexOf.call(node.childNodes, pair[1]) :
+                    node.childNodes.length;
+            if (new_offset >= second_index)
+                new_offset = second_index;
         }
     }
-    return ret;
+    return ret.make(node, new_offset);
 };
 
 /**
- * Converts a gui caret to a data caret. This method's signature is
- * determined by the type of the first parameter. If a node, then
- * <code>this.toDataCaret(node, offset, closest)</code>. If an array,
- * then <code>this.toDataCaret(caret, closest)</code>. In the second
- * case, the names are changed to reflect the role of the parameters.
+ * Converts a gui location to a data location.
  *
- * @param {Node|Array} node Either a node which, with the next
- * parameter, represents a position or an array of two elements which
- * represents a caret position.
- * @param {Integer} [offset] The offset in the node in the first
- * parameter. Must be present if the first parameter is a node. If the
- * first parameter is an array, then this parameter must be absent.
- * @param {Boolean} [closest=false] Some gui caret positions do not
- * correspond to data caret positions. Like if the caret is in a gui
+ * @param {module:dloc~DLoc} loc A location in the GUI tree.
+ * @param {Boolean} [closest=false] Some GUI locations do not
+ * correspond to data locations. Like if the location is in a gui
+ * element or phantom text. By default, this method will return
+ * undefined in such case. If this parameter is true, then this method
+ * will return the closest location.
+ * @returns {module:dloc~DLoc} The data location that corresponds to
+ * the location passed. This could be undefined if the location does
+ * not correspond to a location in the data tree.
+ *
+ * @also
+ *
+ * @param {Node} node A node which, with the next parameter,
+ * represents a position.
+ * @param {Integer} offset The offset in the node in the first
+ * parameter.
+ * @param {Boolean} [closest=false] Some GUI locations do not
+ * correspond to data locations. Like if the location is in a gui
  * element or phantom text. By default, this method will return
  * undefined in such case. If this parameter is true, then this method
  * will return the closest position.
- * @returns {Array} The data caret that corresponds to the caret
- * passed. This could be undefined if the caret is in a position that
- * does not correspond to a position in the data tree.
+ * @returns {module:dloc~DLoc} The data location that corresponds to
+ * the location passed. This could be undefined if the location does
+ * not correspond to a location in the data tree.
  */
-Editor.prototype.toDataCaret = function(node, offset, closest) {
-    // Accept a single array as argument
-    if (node instanceof Array) {
+Editor.prototype.toDataLocation = function(loc, offset, closest) {
+    var node;
+    if (loc instanceof DLoc) {
         closest = offset;
-        offset = node[1];
-        node = node[0];
+        offset = loc.offset;
+        node = loc.node;
     }
+    else
+        node = loc;
 
     var top_phantom = $(node).parents("._phantom, ._gui").last()[0] ||
             ($(node).is("._phantom, ._gui") ? node : undefined);
@@ -2452,19 +2545,20 @@ Editor.prototype.toDataCaret = function(node, offset, closest) {
         offset = _indexOf.call(node.childNodes, top_phantom);
     }
 
-    var normalized = this.normalizeCaret(node, offset);
-    node = normalized[0];
-    offset = normalized[1];
+    var normalized = this._normalizeCaret(
+        makeDLoc(this.gui_root, node, offset));
+    node = normalized.node;
+    offset = normalized.offset;
 
     var data_node;
     if (node.nodeType === Node.TEXT_NODE) {
         data_node = this.data_updater.pathToNode(this.nodeToPath(node));
-        return [data_node, offset];
+        return makeDLoc(this.data_root, data_node, offset);
     }
 
     if (offset >= node.childNodes.length) {
         data_node = this.data_updater.pathToNode(this.nodeToPath(node));
-        return [data_node, data_node.childNodes.length];
+        return makeDLoc(this.data_root, data_node, data_node.childNodes.length);
     }
 
     var child = node.childNodes[offset];
@@ -2481,33 +2575,50 @@ Editor.prototype.toDataCaret = function(node, offset, closest) {
         }
 
         if (!found)
-            return [this.data_updater.pathToNode(this.nodeToPath(node)), 0];
+            return makeDLoc(this.data_root,
+                            this.data_updater.pathToNode(this.nodeToPath(node)),
+                            0);
 
         data_node = this.data_updater.pathToNode(this.nodeToPath(found));
-        return [data_node.parentNode,
-                _indexOf.call(data_node.parentNode.childNodes, data_node) + 1];
+        return makeDLoc(this.data_root, data_node.parentNode,
+                        _indexOf.call(data_node.parentNode.childNodes,
+                                      data_node) + 1);
     }
 
     data_node = this.data_updater.pathToNode(this.nodeToPath(child));
-    return [data_node.parentNode,
-            _indexOf.call(data_node.parentNode.childNodes, data_node)];
+    return makeDLoc(this.data_root, data_node.parentNode,
+                    _indexOf.call(data_node.parentNode.childNodes, data_node));
 };
 
 Editor.prototype.getDataCaret = function (closest) {
-    var caret = this.getCaret();
+    var caret = this.getGUICaret();
     if (caret === undefined)
         return undefined;
-    return this.toDataCaret(caret, closest);
+    return this.toDataLocation(caret, closest);
 };
 
-Editor.prototype.setDataCaret = function (node, offset, text_edit) {
+/**
+ * @param {module:dloc~DLoc} loc The location of the data caret.
+ * @param {Boolean} [text_edit=false] Whether the caret is being moved
+ * for a text editing operation.
+ *
+ * @also
+ *
+ * @param {Node} node The location of the data caret.
+ * @param {Integer} offset The location of the data caret.
+ * @param {Boolean} [text_edit=false] Whether the caret is being moved
+ * for a text editing operation.
+ */
+Editor.prototype.setDataCaret = function (loc, offset, text_edit) {
+    if (loc instanceof DLoc)
+        text_edit = offset;
+    else
+        loc = makeDLoc(this.data_root, loc, offset);
+
     text_edit = !!text_edit; // normalize
-    // Accept a single array as argument
-    if (arguments.length === 1 && node instanceof Array) {
-        offset = node[1];
-        node = node[0];
-    }
-    this.setCaret(this.fromDataCaret(node, offset), false, text_edit);
+
+    var caret = this.fromDataLocation(loc);
+    this.setGUICaret(caret, false, text_edit);
 };
 
 
@@ -2540,19 +2651,14 @@ Editor.prototype._caretChangeEmitterTimeout = log.wrap(
     function (ev, text_edit) {
     if (ev.type === "mouseup") {
         if (this._sel_focus)
-            this._setFakeCaretTo(this._sel_focus.node,
-                                 this._sel_focus.offset);
+            this._setFakeCaretTo(this._sel_focus);
         else if (this._sel_anchor)
-            this._setFakeCaretTo(this._sel_anchor.node,
-                                 this._sel_anchor.offset);
+            this._setFakeCaretTo(this._sel_anchor);
     }
 
 
     var rr = this._sel_anchor &&
-        domutil.rangeFromPoints(this._sel_anchor.node,
-                                this._sel_anchor.offset,
-                                this._sel_focus.node,
-                                this._sel_focus.offset);
+        this._sel_anchor.makeRange(this._sel_focus);
 
     // We want to adjust the caret position on mouse up only if the
     // user is not in the midst of selecting a range.
@@ -2563,14 +2669,14 @@ Editor.prototype._caretChangeEmitterTimeout = log.wrap(
         // If the caret is changing due to a click on a
         // placeholder, then put it inside the placeholder.
         if ($(ev.target).closest("._placeholder").length > 0)
-            this.setCaret(ev.target, 0);
+            this.setGUICaret(ev.target, 0);
 
         // If clicked inside a gui element, normalize the caret to the
         // start of that element.
         //
         var closest_gui = $(ev.target).closest("._gui").get(0);
         if (closest_gui)
-            this.setCaret(closest_gui, 0);
+            this.setGUICaret(closest_gui, 0);
         else {
             // This is in an else branch to handle a phantom inside a
             // gui as above.
@@ -2579,7 +2685,7 @@ Editor.prototype._caretChangeEmitterTimeout = log.wrap(
             // the start of that element.
             var phantom = $(ev.target).parents("._phantom").last().get(0);
             if (phantom)
-                this.setCaret(phantom.parentNode,
+                this.setGUICaret(phantom.parentNode,
                               _indexOf.call(phantom.parentNode.childNodes,
                                             phantom));
         }
@@ -2590,8 +2696,8 @@ Editor.prototype._caretChangeEmitterTimeout = log.wrap(
     var focus_offset;
 
     if (this._fake_caret) {
-        focus_node = this._fake_caret[0];
-        focus_offset = this._fake_caret[1];
+        focus_node = this._fake_caret.node;
+        focus_offset = this._fake_caret.offset;
     }
     else if (selection.rangeCount > 0 &&
              // Don't set it to something outside our window.
@@ -2610,16 +2716,17 @@ Editor.prototype._caretChangeEmitterTimeout = log.wrap(
         var $ph = $(focus_node).children("._placeholder");
         var ph = $ph.get(0);
         if (ph && !$ph.is("._dying")) {
-            this.setCaret(ph, 0);
+            this.setGUICaret(ph, 0);
             return;
         }
     }
 
     if (this._raw_caret === undefined ||
-        this._raw_caret[0] !== focus_node ||
-        this._raw_caret[1] !== focus_offset) {
+        this._raw_caret.node !== focus_node ||
+        this._raw_caret.offset !== focus_offset) {
         var old_caret = this._raw_caret;
-        this._raw_caret = focus_node ? [focus_node, focus_offset] : undefined;
+        this._raw_caret = focus_node ?
+            makeDLoc(this.gui_root, focus_node, focus_offset) : undefined;
         this.$gui_root.trigger("caretchange",
                                [this._raw_caret, old_caret, text_edit]);
     }
@@ -2648,7 +2755,7 @@ Editor.prototype._caretChangeHandler = log.wrap(
     $(this.gui_root).find("._owns_caret").removeClass("_owns_caret");
 
     if (old_caret) {
-        var $old_caret = $(old_caret[0]);
+        var $old_caret = $(old_caret.node);
         var $old_gui = $old_caret.closest("._gui");
         if ($old_gui.length > 0)
             $old_gui.trigger("wed-unclick");
@@ -2661,8 +2768,8 @@ Editor.prototype._caretChangeHandler = log.wrap(
     if (!caret)
         return;
 
-    var $node = $((caret[0].nodeType === Node.ELEMENT_NODE)?
-                  caret[0]: caret[0].parentNode);
+    var $node = $((caret.node.nodeType === Node.ELEMENT_NODE)?
+                  caret.node: caret.node.parentNode);
 
     // This caret is no longer in the gui tree. It is probably an
     // intermediary state so don't do anything with it.
@@ -2700,7 +2807,7 @@ Editor.prototype._caretChangeHandler = log.wrap(
             throw new Error("unexpected node type: " + $node[0].nodeType);
 
         if (!$node.is("._phantom")) {
-            steps.unshift("<span class='_gui _button'><span>&nbsp;" +
+            steps.unshift("<span class='_gui _label'><span>&nbsp;" +
                           util.getOriginalName($node[0]) +
                           "&nbsp;</span></span>");
         }
@@ -2747,12 +2854,9 @@ Editor.prototype.popSelection = function () {
     this._sel_anchor = it[0];
     this._sel_focus = it[1];
     if (this._sel_anchor) {
-        var rr = domutil.rangeFromPoints(this._sel_anchor.node,
-                                         this._sel_anchor.offset,
-                                         this._sel_focus.node,
-                                         this._sel_focus.offset);
+        var rr = this._sel_anchor.makeRange(this._sel_focus);
         this.setSelectionRange(rr.range, rr.reversed);
-        this._setFakeCaretTo(this._sel_focus.node, this._sel_focus.offset);
+        this._setFakeCaretTo(this._sel_focus);
         this._focusInputField();
         this._caretChangeEmitter();
     }
@@ -2761,7 +2865,7 @@ Editor.prototype.popSelection = function () {
 };
 
 Editor.prototype.clearSelection = function () {
-    this._removeFakeCaret();
+    this._setFakeCaretTo();
     var sel = this.getDOMSelection();
     if (sel.rangeCount > 0 &&
         $(sel.focusNode).closest(this.$gui_root).length > 0)
@@ -2796,19 +2900,14 @@ Editor.prototype.getDOMSelectionRange = function () {
 };
 
 Editor.prototype.getSelectionRange = function () {
-    if (!this._sel_anchor)
-        return undefined;
-
-    var range = domutil.rangeFromPoints(this._sel_anchor.node,
-                                        this._sel_anchor.offset,
-                                        this._sel_focus.node,
-                                        this._sel_focus.offset).range;
-    return range;
+    return this._sel_anchor ? this._sel_anchor.makeRange(this._sel_focus).range
+        : undefined;
 };
 
 Editor.prototype.setSelectionRange = function (range, reverse) {
-    var start = {node: range.startContainer, offset: range.startOffset};
-    var end = {node: range.endContainer, offset: range.endOffset};
+    var start = makeDLoc(this.gui_root,
+                         range.startContainer, range.startOffset);
+    var end = makeDLoc(this.gui_root, range.endContainer, range.endOffset);
 
     if (reverse) {
         this._sel_anchor = end;
@@ -2820,10 +2919,7 @@ Editor.prototype.setSelectionRange = function (range, reverse) {
     }
 
     this.setDOMSelectionRange(range, reverse);
-    if (reverse)
-        this._setFakeCaretTo(range.startContainer, range.startOffset);
-    else
-        this._setFakeCaretTo(range.endContainer, range.endOffset);
+    this._setFakeCaretTo(this._sel_focus);
     this._caretChangeEmitter();
 };
 
@@ -2832,21 +2928,19 @@ Editor.prototype._normalizeSelectionRange = function () {
     if (!range)
         return undefined;
 
-    range = range.cloneRange();
-
     var start = this._normalizeCaretToEditableRange(
         range.startContainer, range.startOffset);
     var end = this._normalizeCaretToEditableRange(
         range.endContainer, range.endOffset);
-    range.setStart(start[0], start[1]);
-    range.setEnd(end[0], end[1]);
-    return range;
+    return start.makeRange(end).range;
 };
 
 Editor.prototype._normalizeCaretToEditableRange = function (container, offset) {
-    if (container instanceof Array) {
-        offset = container[1];
-        container = container[0];
+    if (container instanceof DLoc) {
+        if (container.root != this.gui_root)
+            throw new Error("DLoc object must be for the GUI tree");
+        offset = container.offset;
+        container = container.node;
     }
 
     if(container.nodeType === Node.ELEMENT_NODE) {
@@ -2865,7 +2959,7 @@ Editor.prototype._normalizeCaretToEditableRange = function (container, offset) {
                 offset = second_index;
         }
     }
-    return [container, offset];
+    return makeDLoc(this.gui_root, container, offset);
 };
 
 Editor.prototype.setDOMSelectionRange = function (range, reverse) {
@@ -2882,27 +2976,21 @@ Editor.prototype.setDOMSelectionRange = function (range, reverse) {
 
 Editor.prototype.getDataSelectionRange = function () {
     var range = this.getDOMSelectionRange();
-    var data_range = rangy.createRange(this.data_root.parentNode);
-    var start_caret = this.toDataCaret(range.startContainer, range.startOffset);
-    data_range.setStart(start_caret[0], start_caret[1]);
-    if (!range.collapsed) {
-        var end_caret = this.toDataCaret(range.endContainer, range.endOffset);
-        data_range.setEnd(end_caret[0], end_caret[1]);
-    }
-    return data_range;
+    var start_caret = this.toDataLocation(range.startContainer,
+                                          range.startOffset);
+    var end_caret;
+    if (!range.collapsed)
+        end_caret = this.toDataLocation(range.endContainer, range.endOffset);
+    // This will create a collapsed range if end_caret is undefined .
+    return start_caret.makeRange(end_caret).range;
 };
 
 Editor.prototype.setDataSelectionRange = function (range) {
-    var gui_range = rangy.createRange(this.my_window.document);
-    var start_caret = this.fromDataCaret(range.startContainer,
-                                         range.startOffset);
-    gui_range.setStart(start_caret[0], start_caret[1]);
-    if (!range.collapsed) {
-        var end_caret = this.fromDataCaret(range.endContainer,
-                                           range.endOffset);
-        gui_range.setEnd(end_caret[0], end_caret[1]);
-    }
-    this.setSelectionRange(gui_range);
+    var start = this.fromDataLocation(range.startContainer, range.startOffset);
+    var end;
+    if (!range.collapsed)
+        end = this.fromDataLocation(range.endContainer, range.endOffset);
+    this.setSelectionRange(start.makeRange(end).range);
 };
 
 Editor.prototype._onSaverSaved = function () {
@@ -2968,7 +3056,7 @@ Editor.prototype._processValidationError = function (ev) {
     var error = ev.error;
     var data_node = ev.node;
     var index = ev.index;
-    var gui_caret = this.fromDataCaret(data_node, index);
+    var gui_caret = this.fromDataLocation(data_node, index);
     gui_caret = this._normalizeCaretToEditableRange(gui_caret);
 
     var link_id = util.newGenericID();
@@ -2988,7 +3076,7 @@ Editor.prototype._processValidationError = function (ev) {
         $link.addClass('selected');
     }.bind(this)));
     var marker_id = $marker.get(0).id = util.newGenericID();
-    this._gui_updater.insertAt(gui_caret[0], gui_caret[1], $marker.get(0));
+    this._gui_updater.insertAt(gui_caret, $marker.get(0));
 
     // Turn the expanded names back into qualified names.
     var names = error.getNames();
@@ -3047,6 +3135,24 @@ Editor.prototype.getModeData = function (key) {
 
 Editor.prototype.setModeData = function (key, value) {
     this._mode_data[key] = value;
+};
+
+Editor.prototype.increaseLabelVisibilityLevel = function () {
+    if (this._current_label_level < this.max_label_level) {
+        this._current_label_level++;
+        this.$gui_root.find("._label_level_" +
+                            this._current_label_level).show();
+        this._refreshFakeCaret();
+    }
+};
+
+Editor.prototype.decreaseLabelVisiblityLevel = function () {
+    if (this._current_label_level) {
+        var prev = this._current_label_level;
+        this._current_label_level--;
+        this.$gui_root.find("._label_level_" + prev).hide();
+        this._refreshFakeCaret();
+    }
 };
 
 Editor.prototype.destroy = function () {
@@ -3127,8 +3233,8 @@ exports.Editor = Editor;
 
 });
 
-//  LocalWords:  unclick saveSelection rethrown focusNode setCaret ns
-//  LocalWords:  caretChangeEmitter caretchange toDataCaret RTL keyup
+//  LocalWords:  unclick saveSelection rethrown focusNode setGUICaret ns
+//  LocalWords:  caretChangeEmitter caretchange toDataLocation RTL keyup
 //  LocalWords:  compositionstart keypress keydown TextUndoGroup Yay
 //  LocalWords:  getCaret endContainer startContainer uneditable prev
 //  LocalWords:  CapsLock insertIntoText getDOMSelectionRange prepend
