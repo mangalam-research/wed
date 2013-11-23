@@ -62,18 +62,17 @@ below, we have started testing wed on SauceLab's server under their
 OpenSauce program so support for various platforms should improve.
 
 Wed is primarily developed using a recent version of Chrome (version
-29; versions 26, 27 and 28 have also been used earlier) and a recent
-version of Firefox (version 24; versions 20, 21, 22 and 23 have also
-been used earlier) for testing. Ideally wed should work with recent
-versions of other browsers but since it is not routinely tested with
-those browsers there may be bugs specific to running wed in those
-browsers. File an issue in github if you find a problem with IE 9 or
-higher or a relatively recent other kind of desktop browser or
-(obviously) with the browsers used for testing wed.  Due to a lack of
-development resources, the following items are unlikely to ever be
-supported, in decreasing order of likelihood:
-
-* Browsers for phones and tablets.
+30; versions 26-29 have also been used earlier) and a recent version
+of Firefox (version 25; versions 20-24 have also been used earlier)
+for testing. Ideally wed should work with recent versions of other
+browsers but since it is not routinely tested with those browsers
+there may be bugs specific to running wed in those browsers. File an
+issue in github if you find a problem with IE 9 or higher or a
+relatively recent other kind of desktop browser or (obviously) with
+the browsers used for testing wed.  We would like to support phone and
+tablet browsers but due to a lack of development resources, such
+support is unlikely to materialize soon. In decreasing order of
+likelihood, the following cases are unlikely to ever be supported:
 
 * Versions of Chrome and Firefox older than those mentioned above.
 
@@ -82,7 +81,7 @@ supported, in decreasing order of likelihood:
 * Antique browsers.
 
 * Oddball browsers or other software or hardware systems that present
-  web pages.
+  web pages. (E.g. gaming consoles, smart TVs.)
 
 * Operating systems or browsers no longer supported by their own
   vendors.
@@ -126,8 +125,8 @@ Building wed **additionally** requires the following node packages:
 * less
 
 Since wed is not yet distributed in a pre-compiled form, you
-effectively need these packages installed if you
-want to use wed because you have to build it first.
+effectively need these packages installed if you want to use wed
+because you have to build it first.
 
 Building wed's documentation **additionally** requires the following
 packages:
@@ -143,6 +142,7 @@ packages:
 * chai
 * semver-sync
 * express
+* jsdom
 
 Please see the `<package.json>`_, `<config/requirejs-config-dev.js>`_
 and `<Makefile>`_ files for details regarding these
@@ -156,7 +156,7 @@ following:
 * Python's Selenium package.
 * `selenic <http://gihub.com/mangalam-research/selenic>`_
 * behave (the python package)
-* nginx is highly recommended.
+* nginx is highly recommended but optional.
 
 If you want to contribute to salve, your code will have to pass the
 checks listed in `<.glerbl/repo_conf.py>`_. So you either have to
