@@ -62,18 +62,17 @@ below, we have started testing wed on SauceLab's server under their
 OpenSauce program so support for various platforms should improve.
 
 Wed is primarily developed using a recent version of Chrome (version
-29; versions 26, 27 and 28 have also been used earlier) and a recent
-version of Firefox (version 24; versions 20, 21, 22 and 23 have also
-been used earlier) for testing. Ideally wed should work with recent
-versions of other browsers but since it is not routinely tested with
-those browsers there may be bugs specific to running wed in those
-browsers. File an issue in github if you find a problem with IE 9 or
-higher or a relatively recent other kind of desktop browser or
-(obviously) with the browsers used for testing wed.  Due to a lack of
-development resources, the following items are unlikely to ever be
-supported, in decreasing order of likelihood:
-
-* Browsers for phones and tablets.
+30; versions 26-29 have also been used earlier) and a recent version
+of Firefox (version 25; versions 20-24 have also been used earlier)
+for testing. Ideally wed should work with recent versions of other
+browsers but since it is not routinely tested with those browsers
+there may be bugs specific to running wed in those browsers. File an
+issue in github if you find a problem with IE 9 or higher or a
+relatively recent other kind of desktop browser or (obviously) with
+the browsers used for testing wed.  We would like to support phone and
+tablet browsers but due to a lack of development resources, such
+support is unlikely to materialize soon. In decreasing order of
+likelihood, the following cases are unlikely to ever be supported:
 
 * Versions of Chrome and Firefox older than those mentioned above.
 
@@ -82,7 +81,7 @@ supported, in decreasing order of likelihood:
 * Antique browsers.
 
 * Oddball browsers or other software or hardware systems that present
-  web pages.
+  web pages. (E.g. gaming consoles, smart TVs.)
 
 * Operating systems or browsers no longer supported by their own
   vendors.
@@ -126,8 +125,8 @@ Building wed **additionally** requires the following node packages:
 * less
 
 Since wed is not yet distributed in a pre-compiled form, you
-effectively need these packages installed if you
-want to use wed because you have to build it first.
+effectively need these packages installed if you want to use wed
+because you have to build it first.
 
 Building wed's documentation **additionally** requires the following
 packages:
@@ -143,6 +142,7 @@ packages:
 * chai
 * semver-sync
 * express
+* jsdom
 
 Please see the :github:`package.json`, :github:`config/requirejs-config-dev.js`,
 :github:`Makefile` and :github:`build.mk` files for details regarding these
@@ -156,7 +156,7 @@ following:
 * Python's Selenium package.
 * `selenic <http://github.com/mangalam-research/selenic>`_
 * behave (the python package)
-* nginx is highly recommended.
+* nginx is highly recommended but optional.
 
 If you want to contribute to wed, your code will have to pass the
 checks listed in :github:`.glerbl/repo_conf.py`. So you either have to
@@ -231,6 +231,10 @@ schema. Things you can do:
 
 * Insert text where text is valid.
 
+* Ctrl-[ to reduce the :ref:`label visibility <label_visibility>` level.
+
+* Ctrl-[ to increase the label visibility level.
+
 * Ctrl-Z to undo.
 
 * Ctrl-Y to redo.
@@ -240,6 +244,16 @@ schema. Things you can do:
 * Ctrl-V to paste.
 
 * Ctrl-X to cut.
+
+  .. warning:: Browsers put significant obstacles into the path of any
+               JavaScript code that wants to handle cutting
+               itself. (It is a security issue.) Consequently, it is
+               possible that cutting won't work on your platform. Wed
+               *cannot* verify that cutting *will* work on your
+               platform and cannot for now *reliably* issue warnings
+               about problems. So... it is possible that if you try to
+               cut, the selected data will be deleted from the editing
+               screen but will **not** be copied into the clipboard.
 
 * Ctrl-S to save. The data is currently dumped into a file located at
   ``build/ajax/save.txt``, and you won't be able to reload it. For full
@@ -254,6 +268,21 @@ default one (generic) by passing a ``mode`` parameter in the URL, for
 instance the URL
 `<http://localhost:8888/web/kitchen-sink.html?mode=tei>`_ would tell
 the kitchen sink to load the tei mode.
+
+.. _label_visibility:
+
+Label Visibility
+----------------
+
+Wed allows the user to reduce or increase the number of element
+labeled on the screen. How this works is dependent in part on the
+specific mode that the user has selected. For instance, the default
+mode that comes with wed (the "generic" mode) knows only two levels of
+visiblity: 0 and 1. At level 0, no elements are labeled. At level 1,
+all elements are labeled. A mode with levels 0, 1, and 2 would label
+all elements at level 2, no elements at level 0 and some elements at
+level 1. Which elements are labeled depends on how the mode designer
+designed the mode.
 
 Using
 =====

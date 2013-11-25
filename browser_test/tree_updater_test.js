@@ -3,12 +3,13 @@
  * @license MPL 2.0
  * @copyright 2013 Mangalam Research Center for Buddhist Languages
  */
-define(["mocha/mocha", "chai", "jquery", "wed/tree_updater"],
-function (mocha, chai, $, tree_updater) {
+define(["mocha/mocha", "chai", "jquery", "wed/tree_updater", "wed/dloc"],
+function (mocha, chai, $, tree_updater, dloc) {
 'use strict';
 
 var assert = chai.assert;
 var TreeUpdater = tree_updater.TreeUpdater;
+var makeDLoc = dloc.makeDLoc;
 
 var source = "../../test-files/tree_updater_test_data/source_converted.xml";
 var $root = $("#domroot");
@@ -19,6 +20,7 @@ describe("TreeUpdater", function () {
         $root.empty();
         require(["requirejs/text!" + source], function(data) {
             $root.html(data);
+            dloc.markRoot($root);
             tu = new TreeUpdater($root.get(0));
             done();
         });
@@ -358,12 +360,12 @@ describe("TreeUpdater", function () {
             var pair = tu.insertIntoText(node, 2, $el.get(0));
 
             // Check that we're doing what we think we're doing.
-            assert.equal(pair[0][0].nodeValue, "ab");
-            assert.equal(pair[0][0].nextSibling, $el.get(0));
-            assert.equal(pair[0][1], 2);
-            assert.equal(pair[1][0].nodeValue, "cd");
-            assert.equal(pair[1][0].previousSibling, $el.get(0));
-            assert.equal(pair[1][1], 0);
+            assert.equal(pair[0].node.nodeValue, "ab");
+            assert.equal(pair[0].node.nextSibling, $el.get(0));
+            assert.equal(pair[0].offset, 2);
+            assert.equal(pair[1].node.nodeValue, "cd");
+            assert.equal(pair[1].node.previousSibling, $el.get(0));
+            assert.equal(pair[1].offset, 0);
             assert.equal($root.find(".title").get(0).childNodes.length, 3);
             assert.equal($root.find(".title").get(0).childNodes[1], $el.get(0));
 
@@ -396,10 +398,10 @@ describe("TreeUpdater", function () {
             var pair = tu.insertIntoText(node, -1, $el.get(0));
 
             // Check that we're doing what we think we're doing.
-            assert.equal(pair[0][0], parent);
-            assert.equal(pair[0][1], 0);
-            assert.equal(pair[1][0].nodeValue, "abcd");
-            assert.equal(pair[1][0].previousSibling, $el.get(0));
+            assert.equal(pair[0].node, parent);
+            assert.equal(pair[0].offset, 0);
+            assert.equal(pair[1].node.nodeValue, "abcd");
+            assert.equal(pair[1].node.previousSibling, $el.get(0));
             assert.equal($root.find(".title").get(0).childNodes.length, 2);
 
             listener.check();
@@ -433,10 +435,10 @@ describe("TreeUpdater", function () {
                                          $el.get(0));
 
                 // Check that we're doing what we think we're doing.
-            assert.equal(pair[0][0].nodeValue, "abcd");
-            assert.equal(pair[0][0].nextSibling, $el.get(0));
-            assert.equal(pair[1][0], parent);
-            assert.equal(pair[1][1], 2);
+            assert.equal(pair[0].node.nodeValue, "abcd");
+            assert.equal(pair[0].node.nextSibling, $el.get(0));
+            assert.equal(pair[1].node, parent);
+            assert.equal(pair[1].offset, 2);
             assert.equal($root.find(".title").get(0).childNodes.length, 2);
             listener.check();
 
@@ -556,8 +558,8 @@ describe("TreeUpdater", function () {
                 children(".quote").get(0);
             var parent = node.parentNode;
             var ret = tu.removeNode(node);
-            assert.equal(ret[0], parent);
-            assert.equal(ret[1], 0);
+            assert.equal(ret.node, parent);
+            assert.equal(ret.offset, 0);
         });
     });
 
@@ -622,8 +624,8 @@ describe("TreeUpdater", function () {
                 children(".quote").get(0);
             var parent = node.parentNode;
             var ret = tu.removeNodes([node]);
-            assert.equal(ret[0], parent);
-            assert.equal(ret[1], 0);
+            assert.equal(ret.node, parent);
+            assert.equal(ret.offset, 0);
         });
 
     });
@@ -700,8 +702,8 @@ describe("TreeUpdater", function () {
                  '<div class="quote _real">quoted2</div> after</div>'));
 
             // Check return value.
-            assert.equal(ret[0], node);
-            assert.equal(ret[1], 7);
+            assert.equal(ret.node, node);
+            assert.equal(ret.offset, 7);
         });
 
         it("returns a proper caret value when it does nothing",
@@ -725,8 +727,8 @@ describe("TreeUpdater", function () {
             listener.check();
 
             // Check the return value.
-            assert.equal(ret[0], parent);
-            assert.equal(ret[1],
+            assert.equal(ret.node, parent);
+            assert.equal(ret.offset,
                          Array.prototype.indexOf.call(parent.childNodes,
                                                       node) + 1);
         });
@@ -755,19 +757,19 @@ describe("TreeUpdater", function () {
         it("generates appropriate events when merging text", function () {
             var p = $root.find(".body>.p").get(1);
             var $p = $(p);
-            var start = [p.childNodes[0], 4];
-            var end = [p.childNodes[4], 3];
+            var start = makeDLoc($root[0], p.childNodes[0], 4);
+            var end = makeDLoc($root[0], p.childNodes[4], 3);
             assert.equal(p.childNodes.length, 5);
 
             var nodes = Array.prototype.slice.call(
                 p.childNodes,
                 Array.prototype.indexOf.call(p.childNodes,
-                                             start[0].nextSibling),
+                                             start.node.nextSibling),
                 Array.prototype.indexOf.call(p.childNodes,
-                                             end[0].previousSibling) + 1);
+                                             end.node.previousSibling) + 1);
             var listener = new Listener(tu);
             nodes = nodes.reverse();
-            var calls = nodes.concat([end[0]]);
+            var calls = nodes.concat([end.node]);
             var calls_ix = 0;
             tu.addEventListener("deleteNode", function (ev) {
                 var call = calls[calls_ix++];
@@ -776,9 +778,9 @@ describe("TreeUpdater", function () {
             listener.expected.deleteNode = calls.length;
 
             var stnv_calls = [
-                [start[0], "befo"],
-                [end[0], "ter"],
-                [start[0], "befoter"]
+                [start.node, "befo"],
+                [end.node, "ter"],
+                [start.node, "befoter"]
             ];
             var stnv_calls_ix = 0;
             tu.addEventListener("setTextNodeValue", function (ev) {
@@ -804,8 +806,8 @@ describe("TreeUpdater", function () {
         it("returns proper nodes when merging a single node", function () {
             var p = $root.find(".body>.p").get(1);
             var $p = $(p);
-            var start = [p.childNodes[0], 4];
-            var end = [p.childNodes[0], 6];
+            var start = makeDLoc($root[0], p.childNodes[0], 4);
+            var end = makeDLoc($root[0], p.childNodes[0], 6);
             assert.equal(p.childNodes.length, 5);
 
             var nodes = [p.ownerDocument.createTextNode("re")];
@@ -817,23 +819,23 @@ describe("TreeUpdater", function () {
 
             assert.isTrue(ret.length > 0);
             checkNodes(ret[1], nodes);
-            assert.equal(ret[0][0], p.childNodes[0]);
-            assert.equal(ret[0][1], 4);
+            assert.equal(ret[0].node, p.childNodes[0]);
+            assert.equal(ret[0].offset, 4);
         });
 
         it("returns proper nodes when merging text", function () {
             var p = $root.find(".body>.p").get(1);
             var $p = $(p);
-            var start = [p.childNodes[0], 4];
-            var end = [p.childNodes[4], 3];
+            var start = makeDLoc($root[0], p.childNodes[0], 4);
+            var end = makeDLoc($root[0], p.childNodes[4], 3);
             assert.equal(p.childNodes.length, 5);
 
             var nodes = Array.prototype.slice.call(
                 p.childNodes,
                 Array.prototype.indexOf.call(p.childNodes,
-                                             start[0].nextSibling),
+                                             start.node.nextSibling),
                 Array.prototype.indexOf.call(p.childNodes,
-                                             end[0].previousSibling) + 1);
+                                             end.node.previousSibling) + 1);
             var listener = new Listener(tu);
             nodes.unshift(p.ownerDocument.createTextNode("re "));
             nodes.push(p.ownerDocument.createTextNode(" af"));
@@ -848,8 +850,8 @@ describe("TreeUpdater", function () {
 
             assert.isTrue(ret.length > 0);
             checkNodes(ret[1], nodes);
-            assert.equal(ret[0][0], p.childNodes[0]);
-            assert.equal(ret[0][1], 4);
+            assert.equal(ret[0].node, p.childNodes[0]);
+            assert.equal(ret[0].offset, 4);
         });
 
     });

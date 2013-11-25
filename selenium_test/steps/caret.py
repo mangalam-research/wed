@@ -10,60 +10,69 @@ import wedutil
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
+step_matcher("re")
 
-@when(u"the user clicks on an element's label")
+
+@when(u"^the user clicks on "
+      u"(?:an element's label|the end label of an element)$")
 def step_impl(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, "._end_button._p_label"))
+    button = util.find_element((By.CSS_SELECTOR, ".__end_label._title_label"))
+    parent = button.find_element_by_xpath("..")
     context.clicked_element = button
-    assert_true("_button_clicked" not in button.get_attribute("class").split())
+    context.clicked_element_parent = parent
+    context.clicked_element_parent_initial_text = \
+        util.get_text_excluding_children(parent)
+    assert_true("_label_clicked" not in button.get_attribute("class").split())
     ActionChains(driver)\
         .click(button)\
         .perform()
 
 
-@when(u"the user clicks on the start label of an element")
+@when(u"^the user clicks on the start label of an element$")
 def step_impl(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, "._start_button._p_label"))
+    button = util.find_element((By.CSS_SELECTOR, ".__start_label._p_label"))
     context.clicked_element = button
-    assert_true("_button_clicked" not in button.get_attribute("class").split())
+    assert_true("_label_clicked" not in button.get_attribute("class").split())
     ActionChains(driver)\
         .click(button)\
         .perform()
 
 
-@when(u"the user hits the right arrow")
-def step_impl(context):
-    driver = context.driver
-    ActionChains(driver)\
-        .send_keys(Keys.ARROW_RIGHT)\
-        .perform()
-
-
-@then(u'the label changes to show it is selected')
+@then(u'^the label changes to show it is selected$')
 def step_impl(context):
     button = context.clicked_element
-    assert_true("_button_clicked" in button.get_attribute("class").split())
+    assert_true("_label_clicked" in button.get_attribute("class").split())
 
-step_matcher("re")
+
+@when(u"the user hits the (?P<choice>right|left) arrow")
+def step_impl(context, choice):
+    driver = context.driver
+
+    context.caret_position_before_arrow = wedutil.caret_pos(driver)
+
+    key = Keys.ARROW_RIGHT if choice == "right" else Keys.ARROW_LEFT
+    ActionChains(driver)\
+        .send_keys(key)\
+        .perform()
 
 
 @then(u'^the label of the element that has the context menu is selected.?$')
 def step_impl(context):
     trigger = context.context_menu_trigger
-    assert_true("_button_clicked" in trigger.el.get_attribute("class").split())
+    assert_true("_label_clicked" in trigger.el.get_attribute("class").split())
 
 
 @then(u'^no label is selected$')
 def step_impl(context):
     util = context.util
     util.wait_until_not(EC.presence_of_element_located(
-        (By.CLASS_NAME, "_button_clicked")))
+        (By.CLASS_NAME, "_label_clicked")))
 
 
 @then(u'^the caret disappears$')
@@ -83,7 +92,7 @@ def step_impl(context, direction):
     direction = direction.strip()
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
     parent = element.find_element_by_xpath("..")
     element.click()
     wedutil.wait_for_caret_to_be_in(util, parent)
@@ -109,6 +118,8 @@ def step_impl(context, direction):
     else:
         raise ValueError("unexpected direction: " + direction)
 
+    assert_true(util.is_something_selected(), "something must be selected")
+
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[1:3]
     context.selection_parent = parent
@@ -122,7 +133,7 @@ def step_impl(context, direction):
     util = context.util
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
 
     if direction == "":
         # From the label to before the first letter and then past the
@@ -155,10 +166,61 @@ def step_impl(context, direction):
     else:
         raise ValueError("unexpected direction: " + direction)
 
+    assert_true(util.is_something_selected(), "something must be selected")
+
     parent = element.find_element_by_xpath("..")
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[1:3]
 
+
+@when(u'^the user selects the whole text of an element$')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    element = util.find_element((By.CSS_SELECTOR,
+                                 ".__start_label._title_label"))
+    parent = element.find_element_by_xpath("..")
+
+    # From the label to before the first letter.
+    ActionChains(driver)\
+        .click(element) \
+        .send_keys(*[Keys.ARROW_RIGHT] * 2)\
+        .perform()
+
+    # This moves 4 characters to the right
+    ActionChains(driver)\
+        .key_down(Keys.SHIFT)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 4)\
+        .key_up(Keys.SHIFT)\
+        .perform()
+
+    assert_true(util.is_something_selected(), "something must be selected")
+    text = util.get_selection_text()
+    assert_equal(text, "abcd", "expected selection")
+
+    context.expected_selection = text
+    context.selection_parent = parent
+    context.caret_position = wedutil.caret_pos(driver)
+
+
+@when(u'^the user cuts$')
+def step_impl(context):
+    driver = context.driver
+    ActionChains(driver)\
+        .key_down(Keys.CONTROL) \
+        .send_keys("x") \
+        .key_up(Keys.CONTROL) \
+        .perform()
+
+
+@then(u'^the text is cut$')
+def step_impl(context):
+    util = context.util
+    parent = context.selection_parent
+
+    # It may take a bit.
+    util.wait(lambda *_: not len(util.get_text_excluding_children(parent)))
 
 step_matcher("parse")
 
@@ -170,7 +232,7 @@ def step_impl(context):
     util = context.util
 
     element = util.find_element((By.CSS_SELECTOR,
-                                 "._start_button._title_label"))
+                                 ".__start_label._title_label"))
     # This is where our selection will end
     end = util.element_screen_center(element)
     end["left"] += 2  # Move it off-center for this test
@@ -189,6 +251,8 @@ def step_impl(context):
     start = wedutil.caret_selection_pos(driver)
 
     wedutil.select_text(driver, start, end)
+
+    assert_true(util.is_something_selected(), "something must be selected")
 
     text = util.get_text_excluding_children(parent)
     context.expected_selection = text[0:1]
@@ -236,3 +300,28 @@ def step_impl(context):
     pos = wedutil.caret_pos(driver)
 
     assert_equal(prev_pos["top"] - context.scrolled_editor_pane_by, pos["top"])
+
+
+@when("the user selects a region that is malformed")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    element = util.find_element((By.CSS_SELECTOR,
+                                 ".__start_label._title_label"))
+
+    # From the label to before the first letter and then past the
+    # first letter.
+    ActionChains(driver)\
+        .click(element)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 3)\
+        .perform()
+
+    # This moves 9 caracters to the right with shift down.
+    ActionChains(driver)\
+        .key_down(Keys.SHIFT)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 9)\
+        .key_up(Keys.SHIFT)\
+        .perform()
+
+    assert_true(util.is_something_selected(), "something must be selected")

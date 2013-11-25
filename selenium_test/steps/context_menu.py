@@ -96,7 +96,7 @@ def context_menu_on_start_label_of_top_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CLASS_NAME, "_start_button"))
+    button = util.find_element((By.CLASS_NAME, "__start_label"))
     ActionChains(driver)\
         .context_click(button)\
         .perform()
@@ -111,7 +111,7 @@ def context_menu_on_start_label_of_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, "._start_button._p_label"))
+    button = util.find_element((By.CSS_SELECTOR, ".__start_label._p_label"))
     ActionChains(driver)\
         .context_click(button)\
         .perform()
@@ -126,7 +126,7 @@ def context_menu_on_start_label_of_element(context):
     util = context.util
 
     button = util.find_element((By.CSS_SELECTOR,
-                                "._end_button._titleStmt_label"))
+                                ".__end_label._titleStmt_label"))
     ActionChains(driver)\
         .context_click(button)\
         .perform()
@@ -152,7 +152,7 @@ def context_menu_on_start_label_of_element(context):
 
     clicked = context.clicked_element
     button = util.find_element((By.CSS_SELECTOR,
-                                "._start_button._title_label"))
+                                ".__start_label._title_label"))
 
     assert_not_equal(clicked, button)
     ActionChains(driver)\
@@ -168,7 +168,7 @@ def context_menu_on_end_label_of_top_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_elements((By.CLASS_NAME, "_end_button"))[-1]
+    button = util.find_elements((By.CLASS_NAME, "__end_label"))[-1]
     driver.execute_script("""
     arguments[0].scrollIntoView();
     """, button)
@@ -185,7 +185,7 @@ def context_menu_on_end_label_of_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, "._end_button._p_label"))
+    button = util.find_element((By.CSS_SELECTOR, ".__end_label._p_label"))
     ActionChains(driver)\
         .context_click(button)\
         .perform()

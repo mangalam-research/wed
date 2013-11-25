@@ -73,3 +73,8 @@ Scenario: bringing up the context menu next to the right side of the window
  When the user resizes the window so that the end titleStmt label is next to the right side of the window
  And the user brings up the context menu on the end titleStmt label
  Then a context menu is visible and completely inside the window
+
+Scenario: bringing up the context menu on a malformed selection
+  When the user selects a region that is malformed
+  And the user brings up the context menu on the selection
+  Then a context menu is not visible

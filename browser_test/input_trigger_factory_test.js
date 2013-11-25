@@ -149,7 +149,7 @@ describe("input_trigger_factory", function () {
                 editor, ".p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            editor.setCaret(
+            editor.setGUICaret(
                 editor.$gui_root.find(".p>.ref")[0].childNodes[0], 1);
             editor.type(key_constants.BACKSPACE);
 
@@ -163,7 +163,7 @@ describe("input_trigger_factory", function () {
                 editor, ".p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            editor.setCaret(
+            editor.setGUICaret(
                 editor.$gui_root.find(".p>.ref")[0].lastChild, 0);
             editor.type(key_constants.DELETE);
 

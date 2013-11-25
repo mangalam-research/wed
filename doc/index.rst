@@ -11,39 +11,63 @@ Demo
 
 You can run the demo with:
 
-  * an `empty document
-    <build/standalone/kitchen-sink.html>`_
-    using a vanilla TEI schema.
-  * `Sketch for a medical education
-    <build/standalone/kitchen-sink.html?file=/wed/build/samples/
-    sketch_for_a_medical_education.xml>`_, a sample document from the
-    Oxford Text Archive.
+* an `empty document <build/standalone/kitchen-sink.html>`_ using a
+  vanilla TEI schema.
+
+* `Sketch for a medical education
+  <build/standalone/kitchen-sink.html?file=/wed/build/samples/
+  sketch_for_a_medical_education.xml>`_, a sample document from the
+  Oxford Text Archive.
 
 Here are some limitations of the demo:
 
-  * Wed does not support old browsers, mobile devices, oddball, or
-    unpopular browsers. Your notion of "old" might differ from ours.
-  * Wed will fail if you try to save. Rest assured that the saving
-    functionality works, but it needs a server able to handle AJAX
-    calls. Github.io is not able to do this.
-  * You cannot edit attributes in a generic way, as attributes. The
-    functionality just has not been implemented yet because wed is
-    developed in the context of a project where all attributes are set
-    by software or are edited through domain-specific abstractions
-    rather than directly, as attributes.
+* Wed does not support old browsers, mobile devices, oddball, or
+  unpopular browsers. Your notion of "old" might differ from ours.
+
+* Wed will fail if you try to save. Rest assured that the saving
+  functionality works, but it needs a server able to handle AJAX
+  calls. Github.io is not able to do this.
+
+* You cannot edit attributes in a generic way, as attributes. The
+  functionality just has not been implemented yet because wed is
+  developed in the context of a project where all attributes are set
+  by software or are edited through domain-specific abstractions
+  rather than directly, as attributes.
 
 Things you can do:
 
-  * Use the left mouse button to bring up a context menu. Such a menu
-    exists for starting tags and all positions that are editable. This
-    menu allows inserting elements.  Ctrl-/ also brings up this menu.
-  * Insert text where text is valid.
-  * Ctrl-Z to undo.
-  * Ctrl-Y to redo.
-  * Ctrl-C to copy.
-  * Ctrl-V to paste.
-  * Ctrl-X to cut.
-  * Using Ctrl-S to save does not work, for the reasons given above.
+* Use the left mouse button to bring up a context menu. Such a menu
+  exists for starting tags and all positions that are editable. This
+  menu allows inserting elements.  Ctrl-/ also brings up this menu.
+
+* Insert text where text is valid.
+
+* Ctrl-[ to reduce the :ref:`label visibility <label_visibility>` level.
+
+* Ctrl-[ to increase the label visibility level.
+
+* Ctrl-Z to undo.
+
+* Ctrl-Y to redo.
+
+* Ctrl-C to copy.
+
+* Ctrl-V to paste.
+
+* Ctrl-X to cut.
+
+  .. warning:: Browsers put significant obstacles into the path of any
+               JavaScript code that wants to handle cutting
+               itself. (It is a security issue.) Consequently, it is
+               possible that cutting won't work on your platform. Wed
+               *cannot* verify that cutting *will* work on your
+               platform and cannot for now *reliably* issue warnings
+               about problems. So... it is possible that if you try to
+               cut, the selected data will be deleted from the editing
+               screen but will **not** be copied into the clipboard.
+
+
+* Using Ctrl-S to save does not work, for the reasons given above.
 
 Documentation
 =============

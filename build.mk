@@ -130,7 +130,7 @@ build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
-build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build-ks-files build-config build-schemas build-samples build/ajax
+build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone
 
 build-config: $(CONFIG_TARGETS) | build/config
 
@@ -149,7 +149,9 @@ build/config/%:
 build/config/nginx.conf:
 	sed -e's;@PWD@;$(PWD);'g $< > $@
 
-build-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/wed/build-info.js
+build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
+
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/wed/build-info.js
 
 ifndef NO_NEW_BUILDINFO
 # Force rebuilding
@@ -339,7 +341,7 @@ build/ks/purl.js: downloads/$(PURL_BASE) | build/ks
 	touch $@
 
 .PHONY: test
-test: build | build-test-files
+test: build-standalone | build-test-files
 ifndef SKIP_SEMVER
 	semver-sync -v
 endif
