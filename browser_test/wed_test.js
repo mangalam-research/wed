@@ -764,22 +764,20 @@ describe("wed", function () {
                 // element.
                 caretCheck(editor, firstGUI($(initial)), 0, "moved once");
                 editor.moveCaretRight();
-                editor.moveCaretRight();
                 // It is now inside the text
-                var text_node = $(initial).children("._gui").
-                    get(0).nextSibling;
-                caretCheck(editor, text_node, 0, "moved 3 times");
+                var text_node = $(initial).children("._gui")[0].nextSibling;
+                caretCheck(editor, text_node, 0, "moved 2 times");
                 editor.moveCaretRight();
                 // move through text
-                caretCheck(editor, text_node, 1, "moved 4 times");
+                caretCheck(editor, text_node, 1, "moved 3 times");
                 editor.moveCaretRight();
                 editor.moveCaretRight();
                 editor.moveCaretRight();
                 // move through text
-                caretCheck(editor, text_node, 4, "moved 7 times");
+                caretCheck(editor, text_node, 4, "moved 6 times");
                 editor.moveCaretRight();
                 // It is now inside the final gui element.
-                caretCheck(editor, lastGUI($(initial)), 0, "moved 8 times");
+                caretCheck(editor, lastGUI($(initial)), 0, "moved 7 times");
 
                 done();
             });
@@ -789,8 +787,7 @@ describe("wed", function () {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                var term = $(editor.gui_root).find(".body>.p>.term").
-                    first().get(0);
+                var term = $(editor.gui_root).find(".body>.p>.term").first()[0];
                 var initial = term.previousSibling;
                 // Make sure we are on the right element.
                 assert.equal(initial.nodeType, Node.TEXT_NODE);
@@ -805,7 +802,8 @@ describe("wed", function () {
                            "moved once");
 
                 editor.moveCaretRight();
-                caretCheck(editor, term.childNodes[0], 0, "moved twice");
+                // The first child node is an invisible element label.
+                caretCheck(editor, term.childNodes[1], 0, "moved twice");
                 done();
             });
         });
@@ -903,7 +901,6 @@ describe("wed", function () {
                 editor.setGUICaret(initial, 1);
                 caretCheck(editor, initial, 1, "initial");
                 editor.moveCaretLeft();
-                editor.moveCaretLeft();
                 // It is now inside the text
                 var text_node = initial.previousSibling;
                 var offset = text_node.nodeValue.length;
@@ -966,8 +963,8 @@ describe("wed", function () {
                 caretCheck(editor, initial, 0, "moved once");
 
                 editor.moveCaretLeft();
-                caretCheck(editor, term.childNodes[0],
-                           term.childNodes[0].nodeValue.length,
+                caretCheck(editor, term.childNodes[1],
+                           term.childNodes[1].nodeValue.length,
                            "moved twice");
 
                 done();

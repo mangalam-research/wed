@@ -100,7 +100,7 @@ def step_impl(context, direction):
     # From the label to before the first letter and then past the
     # first letter.
     ActionChains(driver)\
-        .send_keys(*[Keys.ARROW_RIGHT] * 3)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 2)\
         .perform()
 
     # We need to get the location of the caret.
@@ -140,7 +140,7 @@ def step_impl(context, direction):
         # first letter.
         ActionChains(driver)\
             .click(element)\
-            .send_keys(*[Keys.ARROW_RIGHT] * 3)\
+            .send_keys(*[Keys.ARROW_RIGHT] * 2)\
             .perform()
 
          # This moves two caracters to the right with shift down.
@@ -154,7 +154,7 @@ def step_impl(context, direction):
         # first letter, and then two more to the right.
         ActionChains(driver)\
             .click(element)\
-            .send_keys(*[Keys.ARROW_RIGHT] * (3 + 2))\
+            .send_keys(*[Keys.ARROW_RIGHT] * (2 + 2))\
             .perform()
 
          # This moves two caracters to the left with shift down.
@@ -185,7 +185,7 @@ def step_impl(context):
     # From the label to before the first letter.
     ActionChains(driver)\
         .click(element) \
-        .send_keys(*[Keys.ARROW_RIGHT] * 2)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 1)\
         .perform()
 
     # This moves 4 characters to the right
@@ -244,7 +244,7 @@ def step_impl(context):
     # From the label to before the first letter and then past the
     # first letter.
     ActionChains(driver)\
-        .send_keys(*[Keys.ARROW_RIGHT] * 3)\
+        .send_keys(*[Keys.ARROW_RIGHT] * 2)\
         .perform()
 
     # We need to get the location of the caret.
