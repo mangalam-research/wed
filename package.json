@@ -17,7 +17,7 @@
     } ],
     "dependencies": {
         "amd-loader": "~0.0.4",
-        "salve": "~0.15.0"
+        "salve": "~0.16.0"
     },
     "devDependencies": {
         "semver": ">=2.2.x <3",
