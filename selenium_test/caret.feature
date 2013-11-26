@@ -50,7 +50,7 @@ Scenario: Bringing up the context menu on an element label after another element
   And the user uses the mouse to bring up the context menu on the start label of another element
   Then the label of the element that has the context menu is selected.
 
-Scenario: cut text
+Scenario: Cutting text.
   When the user selects the whole text of an element
   And the user cuts
   Then the text is cut
