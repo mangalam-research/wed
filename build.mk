@@ -351,6 +351,10 @@ endif
 selenium-test: build | build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
+.PHONY: selenium_test/%.feature
+selenium_test/%.feature: build | build-test-files
+	behave $(BEHAVE_PARAMS) $@
+
 .PHONY: doc
 doc: rst-doc jsdoc3-doc
 
