@@ -1,4 +1,5 @@
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 import selenium.webdriver.support.expected_conditions as EC
 from nose.tools import assert_true, assert_equal  # pylint: disable=E0611
@@ -51,13 +52,6 @@ def doc_appears(context):
 @given("an open document")
 def open_doc(context):
     load_and_wait_for_editor(context)
-
-
-@given("a document containing a top level element, a p element, and text.")
-def open_simple_doc(context):
-    load_and_wait_for_editor(
-        context,
-        text="/build/test-files/wed_test_data/source_converted.xml")
 
 
 @when('the user clicks on text that does not contain "{text}"')
@@ -120,6 +114,19 @@ def step_impl(context):
     wedutil.set_window_size(util, 683, 741)
 
 
+@when('the user resizes the window so that the last "term" element is no '
+      'longer visible')
+def step_impl(context):
+    util = context.util
+    term = util.find_elements((By.CLASS_NAME, "term"))[-1]
+
+    size = dict(context.before_scenario_window_size)
+
+    while util.visible_to_user(term, ".wed-caret-layer"):
+        size["height"] -= 15
+        wedutil.set_window_size(util, size["width"], size["height"])
+
+
 @when('the user resizes the window so that the editor pane will be offscreen')
 def step_impl(context):
     util = context.util
@@ -151,12 +158,28 @@ def step_impl(context):
     context.window_scroll_left = util.window_scroll_left()
 
 
-@when("the user scrolls the editor pane down")
-def step_impl(context):
+@given(u"wait {x} seconds")
+@when(u"wait {x} seconds")
+def step_impl(context, x):
+    import time
+    time.sleep(float(x))
+
+
+step_matcher("re")
+
+
+@when("^(?:the user )?scrolls the editor pane (?P<choice>completely )?down$")
+def step_impl(context, choice):
     driver = context.driver
     util = context.util
 
-    scroll_by = 10
+    if choice == "completely ":
+        # We must not call it before the body is fully loaded.
+        scroll_by = driver.execute_script("""
+        return wed_editor.gui_root.scrollHeight;
+        """)
+    else:
+        scroll_by = 10
 
     # We must not call it before the body is fully loaded.
     driver.execute_script("""
@@ -177,14 +200,12 @@ def step_impl(context):
     context.scrolled_editor_pane_by = scroll_by
 
 
-@given(u"wait {x} seconds")
-@when(u"wait {x} seconds")
-def step_impl(context, x):
-    import time
-    time.sleep(float(x))
-
-
-step_matcher("re")
+@given(ur"^a document containing a top level element, a p element, "
+       ur"and text.?$")
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        text="/build/test-files/wed_test_data/source_converted.xml")
 
 
 @when(ur"^the user scrolls the window (?P<choice>completely down|down "

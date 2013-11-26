@@ -1,5 +1,6 @@
 from selenium.webdriver.common.action_chains import ActionChains
-from nose.tools import assert_true, assert_equal  # pylint: disable=E0611
+# pylint: disable=E0611
+from nose.tools import assert_true, assert_equal, assert_false
 from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -31,12 +32,21 @@ def step_impl(context):
         .perform()
 
 
-@when(u"^the user clicks on the start label of an element$")
-def step_impl(context):
+@when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
+      ur'the first "p" element in "body")$')
+def step_impl(context, choice):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, ".__start_label._p_label"))
+    if choice == "an element":
+        button = util.find_element((By.CSS_SELECTOR,
+                                    ".__start_label._p_label"))
+    elif choice == 'the first "p" element in "body"':
+        button = util.find_element((By.CSS_SELECTOR,
+                                    ".body .__start_label._p_label"))
+    else:
+        raise ValueError("unexpected choice: " + choice)
+
     context.clicked_element = button
     assert_true("_label_clicked" not in button.get_attribute("class").split())
     ActionChains(driver)\
@@ -50,7 +60,7 @@ def step_impl(context):
     assert_true("_label_clicked" in button.get_attribute("class").split())
 
 
-@when(u"the user hits the (?P<choice>right|left) arrow")
+@when(u"^(?:the user )?hits the (?P<choice>right|left) arrow$")
 def step_impl(context, choice):
     driver = context.driver
 

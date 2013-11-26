@@ -45,7 +45,7 @@ Scenario: Bringing up the context menu on an element label selects the element.
   When the user uses the mouse to bring up the context menu on the start label of an element
   Then the label of the element that has the context menu is selected.
 
-Scenario: Bringing up the context menu on an element label selects after another element has been selected selects the element that has the context menu.
+Scenario: Bringing up the context menu on an element label after another element has been selected selects the element that has the context menu.
   When the user clicks on the start label of an element
   And the user uses the mouse to bring up the context menu on the start label of another element
   Then the label of the element that has the context menu is selected.
