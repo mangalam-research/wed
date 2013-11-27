@@ -30,7 +30,9 @@ def before_all(context):
     context.selenic_config = config
     # Without this, window sizes vary depending on the actual browser
     # used.
-    driver.set_window_size(1020, 560)
+    context.initial_window_size = {"width": 1020, "height": 560}
+    driver.set_window_size(context.initial_window_size["width"],
+                           context.initial_window_size["height"])
     assert_true(driver.desired_capabilities["nativeEvents"],
                 "Wed's test suite require that native events be available; "
                 "you may have to use a different version of your browser, "
@@ -42,25 +44,20 @@ def before_all(context):
 
 def before_scenario(context, _scenario):
     driver = context.driver
-    context.before_scenario_window_size = driver.get_window_size()
+    size = driver.get_window_size()
+    if size != context.initial_window_size:
+        driver.set_window_size(context.initial_window_size["width"],
+                               context.initial_window_size["height"])
 
 
 def after_scenario(context, _scenario):
-    driver = context.driver
     util = context.util
     #
     # Make sure we did not trip a fatal error.
     #
     with util.local_timeout(0.5):
-        assert_raises(TimeoutException,
-                      util.find_element,
+        assert_raises(TimeoutException, util.find_element,
                       (By.CLASS_NAME, "wed-fatal-modal"))
-
-    window_size = driver.get_window_size()
-    if window_size != context.before_scenario_window_size:
-        wedutil.set_window_size(util,
-                                context.before_scenario_window_size["width"],
-                                context.before_scenario_window_size["height"])
 
 
 def before_step(context, _step):
