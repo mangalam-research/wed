@@ -7,12 +7,15 @@ html
 }
 
 body {
-    font: 14px "Trebuchet MS", sans-serif, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans serif;
+    font: 14px "Trebuchet MS", sans-serif,
+    "DejaVu Sans Condensed", "Liberation Sans",
+    "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue",
+    Helvetica, Arial, sans serif;
     background-color: #1c4e63;
     height: 98%;
 }
 
-h1
+h1,h2,h3
 {
     color: white;
 }
@@ -35,7 +38,7 @@ section {
     margin-right: 0;
 }
 
-article h1,h2,h3,h4
+article h1, article h2, article h3, article h4
 {
     color: black;
 }
