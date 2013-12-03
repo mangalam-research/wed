@@ -1,9 +1,10 @@
-var
-local_config
-node_modules
-downloads
-build
-local.mk
+/var
+/local_config
+/node_modules
+/downloads
+/build
+/schemas/out
+/local.mk
 /*.html
 *_flymake.*
 *.pyc
