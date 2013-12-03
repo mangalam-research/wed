@@ -361,14 +361,14 @@ doc: rst-doc jsdoc3-doc
 JSDOC3_TEMPLATE_TARGETS=$(patsubst $(JSDOC3_DEFAULT_TEMPLATE)/%,build/jsdoc_template/%,$(shell find $(JSDOC3_DEFAULT_TEMPLATE) -type f))
 
 .PHONY: jsdoc3-doc
-jsdoc3-doc: $(JSDOC3_TEMPLATE_TARGETS) build/jsdoc_template/static/styles/wed.css
+jsdoc3-doc: $(JSDOC3_TEMPLATE_TARGETS) build/jsdoc_template/static/styles/mangalam.css
 	$(JSDOC3) -c jsdoc.conf.json -d build/api -r lib doc/api_intro.md
 
 $(JSDOC3_TEMPLATE_TARGETS): build/jsdoc_template/%: $(JSDOC3_DEFAULT_TEMPLATE)/%
 	-mkdir -p $(dir $@)
 	cp $< $@
 
-build/jsdoc_template/static/styles/wed.css: misc/jsdoc_template/wed.css
+build/jsdoc_template/static/styles/mangalam.css: misc/jsdoc_template/mangalam.css
 	cp $< $@
 
 build/jsdoc_template/tmpl/layout.tmpl:  misc/jsdoc_template/layout.tmpl
