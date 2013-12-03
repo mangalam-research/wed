@@ -1,0 +1,123 @@
+#!/usr/bin/env node
+'use strict';
+
+//
+// Safety harness...
+//
+
+
+function Fatal(msg) {
+    this.name = "Fatal";
+    this.message = msg;
+}
+Fatal.prototype = new Error();
+Fatal.prototype.constructor = Fatal;
+
+process.on('uncaughtException', function (ex) {
+    if (ex instanceof Fatal) {
+        process.stderr.write(ex.message + "\n");
+        process.exit(1);
+    }
+    else
+        throw ex;
+});
+
+//
+// Actual logic
+//
+
+var ArgumentParser = require("argparse").ArgumentParser;
+var path = require("path");
+var fs = require("fs");
+
+function fileAsString(p) {
+    return fs.readFileSync(path.resolve(p), "utf8").toString();
+}
+
+var parser = new ArgumentParser({
+    addHelp: true,
+    description: 'Generates a JSON file suitable for using as the ``metadata`` option for a generic Meta object. The input file must be a JSON file in the format produced by TEI\'s odd2json.xsl transformation.'});
+
+parser.addArgument(["input"],
+                   {help: "Input file."});
+parser.addArgument(["output"],
+                   {help: "Output file. If absent, outputs to stdout.",
+                    nargs: "?"});
+parser.addArgument(["-p", "--pretty"],
+                   {help: "Pretty print the final JSON.",
+                    action: "storeTrue"});
+parser.addArgument(
+    ["--ns", "--namespace"],
+    {help:
+     "Defines a namespace. The format is 'prefix=uri'. This option may be " +
+     "repeated to define multiple namespaces.",
+     action: "append",
+     defaultValue: [],
+     metavar: "NAMESPACE",
+     dest: "namespaces"});
+
+var args = parser.parseArgs();
+
+var input_data = fileAsString(args.input);
+var parsed = JSON.parse(input_data);
+
+var output = {};
+
+output.generator = "tei_json_to_generic_meta_json";
+output.date = new Date().toISOString();
+output.version = "1";
+output.namespaces = {
+    "": "http://www.tei-c.org/ns/1.0"
+};
+
+var i;
+for(i = 0; i < args.namespaces.length; ++i) {
+    var spec = args.namespaces[i];
+    var sep = spec.indexOf("=");
+    if (sep === -1)
+        throw new Fatal("incorrect format for namespace: " + spec);
+
+    var prefix = spec.slice(0, sep);
+    var uri = spec.slice(sep + 1);
+
+    if (prefix === "xml")
+        throw new Fatal("can't define the xml prefix");
+
+    if (prefix === "")
+        throw new Fatal("can't define the default prefix");
+
+    if (prefix in output.namespaces)
+        throw new Fatal("prefix already defined: " + prefix);
+
+    output.namespaces[prefix] = uri;
+}
+
+var members = parsed.members;
+for(i = members.length - 1; i >= 0; i--)
+    // Delete class specs
+    if (members[i].type !== "elementSpec")
+        members.splice(i, 1);
+
+for(i = 0; i < members.length; ++i) {
+    var member = members[i];
+    delete member.type;
+    delete member.module;
+    delete member.classes;
+    delete member.model;
+    delete member.attributes;
+    delete member.classattributes;
+    member.name = member.ident;
+    member.desc = member.desc;
+    delete member.ident;
+    if ("ns" in member)
+        throw Error("input contains namespaces");
+}
+
+output.elements = members;
+
+var stringified = JSON.stringify(output, undefined,
+                                 args.pretty ? 2 : undefined);
+if (args.output)
+    fs.writeFileSync(args.output, stringified);
+else
+    console.log(stringified);

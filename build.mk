@@ -75,7 +75,7 @@ TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
-SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js))
+SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json
 SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_documents/*.xml))
 
 .DELETE_ON_ERROR:
@@ -191,6 +191,16 @@ build/schemas:
 
 build/schemas/%: schemas/% | build/schemas
 	cp $< $@
+
+schemas/out/myTEI.xml.compiled: schemas/myTEI.xml
+	roma2 --compile --dochtml --doc --nodtd --noxsd $< schemas/out
+
+schemas/out/myTEI.json: schemas/out/myTEI.xml.compiled
+	saxon -xsl:/usr/share/xml/tei/stylesheet/odds/odd2json.xsl -s:$< -o:$@ callback=''
+
+build/schemas/tei-metadata.json: schemas/out/myTEI.json
+	bin/tei-to-generic-meta-json \
+		--ns tei=http://www.tei-c.org/ns/1.0 $< $@
 
 build-samples: $(SAMPLE_TARGETS)
 
