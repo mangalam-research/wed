@@ -42,7 +42,12 @@ require.config({
          mode: {
              path: 'wed/modes/generic/generic',
              options: {
-                 meta: 'wed/modes/generic/metas/tei_meta'
+                 meta: {
+                     path: 'wed/modes/generic/metas/tei_meta',
+                     options: {
+                         metadata: '../../../../../schemas/tei-metadata.json'
+                     }
+                 }
              }
          },
          // You certainly do not want this in actual deployment.
