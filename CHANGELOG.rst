@@ -10,6 +10,11 @@ Only salient changes are recorded here.
     less labels. See `this
     <http://mangalam-research.github.io/wed/usage.html#label-visibility>`_
 
+  - Wed is now able to show tooltips for start and end labels that
+    mark the start and end of elements. To support this, modes must
+    implement a ``shortDescriptionFor`` method that returns a string
+    to be used for the tooltips.
+
   - Global API change. Most functions that used to take an Array as a
     caret position or general location now require ``DLoc`` objects or
     return ``DLoc`` objects. A non-exclusive list of methods affected.
@@ -59,6 +64,12 @@ Only salient changes are recorded here.
 
   - API change: modes based on the generic mode should have a meta
     that defines ``getNamespaceMappings()``.
+
+  - API change: Modes no longer need to provide ``optionResolver``
+    class methods.
+
+  - API change: Modes must now emit a ``pubsub.WED_MODE_READY`` event
+    when they are ready to be used by the editor.
 
   - Moved the build to Bootstrap 3.0.2 and jQuery 1.10.2.
 
