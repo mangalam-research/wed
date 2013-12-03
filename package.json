@@ -17,7 +17,8 @@
     } ],
     "dependencies": {
         "amd-loader": "~0.0.4",
-        "salve": "~0.16.0"
+        "salve": "~0.16.0",
+        "pubsub-js": "git+https://github.com/codio/PubSubJS.git#a5a738f1e272b71b007514ba82c3ed7075d95f45"
     },
     "devDependencies": {
         "semver": ">=2.2.x <3",
@@ -28,10 +29,10 @@
         "semver-sync": ">=1.2.0 <2",
         "express": ">=3.4.0 <4",
         "requirejs": ">=2.1.9 <3",
-        "jsdom": ">=0.8.8 <1"
+        "jsdom": ">=0.8.8 <1",
+        "sinon": ">=1.7.3 <2"
     },
     "scripts": {
-        "test": "make test",
-        "postinstall": "make build"
+        "test": "make test"
     }
 }

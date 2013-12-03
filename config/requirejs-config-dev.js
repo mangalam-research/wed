@@ -11,7 +11,8 @@ require.config({
    'bootstrap': 'external/bootstrap/js/bootstrap.min',
    'log4javascript': 'external/log4javascript',
    'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
-   'font-awesome': 'external/font-awesome'
+   'font-awesome': 'external/font-awesome',
+   'pubsub-js': 'external/pubsub'
  },
  shim: {
    'bootstrap': {
