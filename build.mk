@@ -75,7 +75,7 @@ TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
-SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js))
+SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json
 SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_documents/*.xml))
 
 .DELETE_ON_ERROR:
@@ -151,7 +151,7 @@ build/config/nginx.conf:
 
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/wed/build-info.js
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/wed/build-info.js
 
 ifndef NO_NEW_BUILDINFO
 # Force rebuilding
@@ -191,6 +191,16 @@ build/schemas:
 
 build/schemas/%: schemas/% | build/schemas
 	cp $< $@
+
+schemas/out/myTEI.xml.compiled: schemas/myTEI.xml
+	roma2 --compile --dochtml --doc --nodtd --noxsd $< schemas/out
+
+schemas/out/myTEI.json: schemas/out/myTEI.xml.compiled
+	saxon -xsl:/usr/share/xml/tei/stylesheet/odds/odd2json.xsl -s:$< -o:$@ callback=''
+
+build/schemas/tei-metadata.json: schemas/out/myTEI.json
+	bin/tei-to-generic-meta-json \
+		--ns tei=http://www.tei-c.org/ns/1.0 $< $@
 
 build-samples: $(SAMPLE_TARGETS)
 
@@ -315,6 +325,9 @@ else
 endif
 	rm -rf $(dir $@)/log4javascript-*
 	touch $@
+
+build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js
+	cp $< $@
 
 # The following targets need to have an order dependency on the top
 # directories so that when a new version is installed, the target is

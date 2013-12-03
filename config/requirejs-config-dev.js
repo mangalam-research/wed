@@ -11,7 +11,8 @@ require.config({
    'bootstrap': 'external/bootstrap/js/bootstrap.min',
    'log4javascript': 'external/log4javascript',
    'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
-   'font-awesome': 'external/font-awesome'
+   'font-awesome': 'external/font-awesome',
+   'pubsub-js': 'external/pubsub'
  },
  shim: {
    'bootstrap': {
@@ -41,7 +42,12 @@ require.config({
          mode: {
              path: 'wed/modes/generic/generic',
              options: {
-                 meta: 'wed/modes/generic/metas/tei_meta'
+                 meta: {
+                     path: 'wed/modes/generic/metas/tei_meta',
+                     options: {
+                         metadata: '../../../../../schemas/tei-metadata.json'
+                     }
+                 }
              }
          },
          // You certainly do not want this in actual deployment.
