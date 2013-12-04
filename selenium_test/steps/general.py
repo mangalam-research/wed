@@ -36,6 +36,20 @@ def load_and_wait_for_editor(context, text=None):
     """)
     context.origin_object = driver.find_element_by_id("origin-object")
 
+    # Make sure we are off any element that requires a tooltip...
+    ActionChains(driver) \
+        .move_to_element(context.origin_object) \
+        .perform()
+
+    # ... and that tooltips are not displayed. Otherwise, a tooltip
+    # may still be visible after we set the preference to ``false``.
+    wedutil.wait_until_no_tooltip(util)
+
+    # Turning off tooltips makes the tests much easier to handle.
+    driver.execute_script("""
+    wed_editor.preferences.set("tooltips", false);
+    """)
+
 
 @when("the user loads the page")
 def user_load(context):

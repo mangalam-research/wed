@@ -46,6 +46,9 @@ parser.addArgument(["output"],
 parser.addArgument(["-p", "--pretty"],
                    {help: "Pretty print the final JSON.",
                     action: "storeTrue"});
+parser.addArgument(["--dochtml"],
+                   {help: "A path to where the HTML documentation will be installed on the server where wed will execute."});
+
 parser.addArgument(
     ["--ns", "--namespace"],
     {help:
@@ -69,6 +72,7 @@ output.version = "1";
 output.namespaces = {
     "": "http://www.tei-c.org/ns/1.0"
 };
+output.dochtml = args.dochtml;
 
 var i;
 for(i = 0; i < args.namespaces.length; ++i) {

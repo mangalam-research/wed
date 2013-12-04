@@ -21,6 +21,9 @@ endif
 # rst2html command.
 RST2HTML?=rst2html
 
+# Location of TEI's odd2html.xsl transform.
+ODD2HTML?=/usr/share/xml/tei/stylesheet/odds/odd2html.xsl
+
 # Build a development version? Set to 1 if yes.
 DEV?=0
 
@@ -75,7 +78,7 @@ TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
-SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json
+SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json build/schemas/tei-doc
 SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_documents/*.xml))
 
 .DELETE_ON_ERROR:
@@ -193,14 +196,21 @@ build/schemas/%: schemas/% | build/schemas
 	cp $< $@
 
 schemas/out/myTEI.xml.compiled: schemas/myTEI.xml
-	roma2 --compile --dochtml --doc --nodtd --noxsd $< schemas/out
+	roma2 --compile --nodtd --noxsd $< schemas/out
 
 schemas/out/myTEI.json: schemas/out/myTEI.xml.compiled
 	saxon -xsl:/usr/share/xml/tei/stylesheet/odds/odd2json.xsl -s:$< -o:$@ callback=''
 
 build/schemas/tei-metadata.json: schemas/out/myTEI.json
+# The --dochtml string is a path that is meaningful at run time.
 	bin/tei-to-generic-meta-json \
+		--dochtml "../../../../../schemas/tei-doc/"\
 		--ns tei=http://www.tei-c.org/ns/1.0 $< $@
+
+build/schemas/tei-doc: schemas/out/myTEI.xml.compiled
+	-rm -rf $@
+	-mkdir $@
+	$(SAXON) -s:$< -xsl:$(ODD2HTML) STDOUT=false splitLevel=0 outputDir=$@
 
 build-samples: $(SAMPLE_TARGETS)
 
