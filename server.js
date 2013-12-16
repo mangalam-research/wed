@@ -30,12 +30,11 @@ app.use(express.static(cwd));
 
 function writeResponse(response, status, data, type) {
     if (verbose)
-        console.log('response message', data);
+        console.log('response message:', data);
 
     type = type || "text/plain";
 
-    var headers = {"Content-Type": type,
-                   "Content-Length": Buffer.byteLength(data)};
+    var headers = {"Content-Type": type};
 
     response.writeHead(status, headers);
 
