@@ -21,7 +21,8 @@
                 "bootstrap",
                 "rangy",
                 "jquery.bootstrap-growl",
-                "log4javascript"
+                "log4javascript",
+                "lodash"
             ]
         }
     ]

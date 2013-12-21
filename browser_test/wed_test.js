@@ -15,7 +15,12 @@ var options = {
     mode: {
         path: 'test',
         options: {
-            meta: 'wed/modes/generic/metas/tei_meta'
+            meta: {
+                path: 'wed/modes/generic/metas/tei_meta',
+                options: {
+                    metadata: '../../../../../schemas/tei-metadata.json'
+                }
+            }
         }
     }
 };
@@ -872,7 +877,7 @@ describe("wed", function () {
                 editor.moveCaretLeft();
                 var last_gui =  lastGUI($(initial));
                 // It is now located inside the text inside
-                // the label which marks the start of the TEI
+                // the label which marks the end of the TEI
                 // element.
                 caretCheck(editor, last_gui, 0, "moved once");
                 editor.moveCaretLeft();

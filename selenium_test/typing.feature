@@ -7,6 +7,11 @@ Scenario: deleting all text letter by letter in an element.
   When the user deletes all text letter by letter in an element
   Then a placeholder is present in the element
 
+Scenario: inserting text in an empty element.
+  Given that the user has deleted all the text in an element
+  When the user types "A"
+  Then "A" is in the text
+
 #
 # This just does not work
 #

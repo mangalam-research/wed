@@ -17,7 +17,8 @@
     } ],
     "dependencies": {
         "amd-loader": "~0.0.4",
-        "salve": "~0.16.0",
+        "salve": "~0.18.0",
+        "lodash-amd": ">=2.4.1 <3",
         "pubsub-js": "git+https://github.com/codio/PubSubJS.git#a5a738f1e272b71b007514ba82c3ed7075d95f45"
     },
     "devDependencies": {

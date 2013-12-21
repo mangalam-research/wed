@@ -19,11 +19,20 @@ def step_impl(context):
     element = util.find_element((By.CSS_SELECTOR,
                                  ".__start_label._title_label"))
     context.emptied_element = element.find_element_by_xpath("..")
+    context.element_to_test_for_text = context.emptied_element
     keys = [Keys.ARROW_RIGHT] + [Keys.DELETE] * 20
     ActionChains(driver)\
         .click(element)\
         .send_keys(*keys)\
         .perform()
+
+
+@given(u'that the user has deleted all the text in an element')
+def step_impl(context):
+    context.execute_steps(u"""
+    When the user deletes all text letter by letter in an element
+    Then a placeholder is present in the element
+    """)
 
 
 #

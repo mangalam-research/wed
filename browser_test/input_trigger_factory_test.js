@@ -15,7 +15,12 @@ var options = {
     mode: {
         path: 'test',
         options: {
-            meta: 'wed/modes/generic/metas/tei_meta'
+            meta: {
+                path: 'wed/modes/generic/metas/tei_meta',
+                options: {
+                    metadata: '../../../../../schemas/tei-metadata.json'
+                }
+            }
         }
     }
 };

@@ -113,8 +113,6 @@ for(i = 0; i < members.length; ++i) {
     member.name = member.ident;
     member.desc = member.desc;
     delete member.ident;
-    if ("ns" in member)
-        throw Error("input contains namespaces");
 }
 
 output.elements = members;

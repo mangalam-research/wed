@@ -81,6 +81,10 @@ HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
 SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json build/schemas/tei-doc
 SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_documents/*.xml))
 
+# The list of files and directories to grab from lodash.
+LODASH_FILES:=main.js modern package.json
+LODASH_BUILD_FILES:=$(addprefix build/standalone/lib/external/lodash/,$(LODASH_FILES))
+
 .DELETE_ON_ERROR:
 
 .PHONY: all build-dir build
@@ -154,7 +158,7 @@ build/config/nginx.conf:
 
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/wed/build-info.js
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js
 
 ifndef NO_NEW_BUILDINFO
 # Force rebuilding
@@ -339,21 +343,27 @@ endif
 build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js
 	cp $< $@
 
+build/standalone/lib/external/xregexp.js: node_modules/salve/node_modules/xregexp/xregexp-all.js
+	cp $< $@
+
+build/standalone/lib/external/lodash:
+	mkdir -p $@
+
+build/standalone/lib/external/lodash/%: node_modules/lodash-amd/% | build/standalone/lib/external/lodash
+	cp -rp $< $@
+
+
 # The following targets need to have an order dependency on the top
 # directories so that when a new version is installed, the target is
 # rebuilt. This is necessary because npm preserves the modification
 # times of the files *inside* the packages.
 
-build/standalone/lib/salve: node_modules/salve/build/lib/salve | node_modules/salve/build
+build/standalone/lib/salve: node_modules/salve/lib/salve
 	rm -rf $@
 	cp -rp $< $@
 # Sometimes the modification date on the top directory does not
 # get updated, so:
 	touch $@
-
-node_modules/salve/build: node_modules/salve
-	(cd $<; npm install)
-	(cd $<; grunt)
 
 build/ks:
 	mkdir $@
