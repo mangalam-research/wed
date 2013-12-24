@@ -48,9 +48,11 @@ def before_scenario(context, _scenario):
     if size != context.initial_window_size:
         driver.set_window_size(context.initial_window_size["width"],
                                context.initial_window_size["height"])
+    context.initial_window_handle = driver.current_window_handle
 
 
 def after_scenario(context, _scenario):
+    driver = context.driver
     util = context.util
     #
     # Make sure we did not trip a fatal error.
@@ -58,6 +60,13 @@ def after_scenario(context, _scenario):
     with util.local_timeout(0.5):
         assert_raises(TimeoutException, util.find_element,
                       (By.CLASS_NAME, "wed-fatal-modal"))
+
+    # Close all extra tabs.
+    for handle in driver.window_handles:
+        if handle != context.initial_window_handle:
+            driver.switch_to_window(handle)
+            driver.close()
+    driver.switch_to_window(context.initial_window_handle)
 
 
 def before_step(context, _step):

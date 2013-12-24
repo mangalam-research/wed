@@ -152,7 +152,7 @@ def context_menu_on_start_label_of_element(context):
 
     clicked = context.clicked_element
     button = util.find_element((By.CSS_SELECTOR,
-                                ".__start_label._title_label"))
+                                ".__end_label._sourceDesc_label"))
 
     assert_not_equal(clicked, button)
     ActionChains(driver)\
