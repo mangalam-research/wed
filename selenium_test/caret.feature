@@ -54,3 +54,10 @@ Scenario: Cutting text.
   When the user selects the whole text of an element
   And the user cuts
   Then the text is cut
+
+Scenario: restoring the selection
+  When the user selects text
+  And the user brings up the context menu on the selection
+  Then a context menu is visible close to where the user invoked it
+  When the user types ESCAPE
+  Then the selection is restored to what it was before the context menu appeared

@@ -232,6 +232,16 @@ def step_impl(context):
     # It may take a bit.
     util.wait(lambda *_: not len(util.get_text_excluding_children(parent)))
 
+
+@then(ur"^the selection is restored to what it was before the context menu "
+      "appeared\.?$")
+def step_impl(context):
+    util = context.util
+
+    util.wait(lambda *_: util.get_selection_text() ==
+              context.expected_selection)
+
+
 step_matcher("parse")
 
 
