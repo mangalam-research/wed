@@ -1,29 +1,67 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(["mocha/mocha", "chai", "jquery", "wed/tree_updater", "wed/dloc"],
-function (mocha, chai, $, tree_updater, dloc) {
 'use strict';
-
+var requirejs = require("requirejs");
+var jsdomfw = require("./jsdomfw");
+var chai = require("chai");
 var assert = chai.assert;
-var TreeUpdater = tree_updater.TreeUpdater;
-var makeDLoc = dloc.makeDLoc;
+var path = require("path");
+var fs = require("fs");
 
-var source = "../../test-files/tree_updater_test_data/source_converted.xml";
-var $root = $("#domroot");
-var tu;
+function defined(x) {
+    assert.isDefined(x[0]);
+    return x;
+}
 
 describe("TreeUpdater", function () {
-    beforeEach(function (done) {
-        $root.empty();
-        require(["requirejs/text!" + source], function(data) {
-            $root.html(data);
-            dloc.markRoot($root);
-            tu = new TreeUpdater($root.get(0));
-            done();
+    var window;
+    var document;
+    var fw;
+    var $root;
+    var dloc;
+    var $;
+    var TreeUpdater;
+    var makeDLoc;
+
+    before(function (done) {
+        fw = new jsdomfw.FW();
+        fw.create(function () {
+            window = fw.window;
+            document = window.document;
+            window.require(["wed/dloc", "jquery", "wed/tree_updater"],
+                           function (_dloc, _$, tree_updater) {
+                try {
+                    assert.isUndefined(window.document.errors);
+                    dloc = _dloc;
+                    $ = _$;
+                    $root = defined($("#root"));
+                    TreeUpdater = tree_updater.TreeUpdater;
+                    makeDLoc = dloc.makeDLoc;
+                    done();
+                }
+                catch (e) {
+                    done(e);
+                    throw e;
+                }
+            }, done);
         });
+    });
+
+
+    // This path must be relative to the top dir of wed.
+    var source =
+        "build/test-files/tree_updater_test_data/source_converted.xml";
+    var tu;
+    var data = fs.readFileSync(source).toString();
+
+    beforeEach(function () {
+        $root.empty();
+        $root.html(data);
+        dloc.markRoot($root);
+        tu = new TreeUpdater($root.get(0));
     });
 
     afterEach(function () {
@@ -67,7 +105,8 @@ describe("TreeUpdater", function () {
             var node = document.createDocumentFragment();
             assert.Throw(
                 tu.insertNodeAt.bind(tu, top, 0, node),
-                Error, "document fragments cannot be passed to insertNodeAt");
+                window.Error,
+                "document fragments cannot be passed to insertNodeAt");
         });
     });
 
@@ -77,14 +116,16 @@ describe("TreeUpdater", function () {
             var node = $root.find(".title").get(0);
             assert.Throw(
                 tu.splitAt.bind(tu, top, node, 0),
-                Error, "split location is not inside top");
+                window.Error,
+                "split location is not inside top");
         });
 
         it("fails if splitting would denormalize an element", function () {
             var node = $root.find(".title").get(0);
             assert.Throw(
                 tu.splitAt.bind(tu, node.childNodes[0], node.childNodes[0], 2),
-                Error, "splitAt called in a way that would result in " +
+                window.Error,
+                "splitAt called in a way that would result in " +
                     "two adjacent text nodes");
         });
 
@@ -280,7 +321,8 @@ describe("TreeUpdater", function () {
         it("fails on non-text node", function () {
             var node = $root.find(".title");
             assert.Throw(tu.deleteText.bind(tu, node, 0, "t"),
-                         Error, "deleteText called on non-text");
+                         window.Error,
+                         "deleteText called on non-text");
         });
 
         it("generates appropriate events when it modifies a text node",
@@ -322,13 +364,15 @@ describe("TreeUpdater", function () {
         it("fails on non-text node", function () {
             var node = $root.find(".title").get(0);
             assert.Throw(tu.insertIntoText.bind(tu, node, 0, node),
-                         Error, "insertIntoText called on non-text");
+                         window.Error,
+                         "insertIntoText called on non-text");
         });
 
         it("fails on undefined node to insert", function () {
             var node = $root.find(".title").get(0).childNodes[0];
             assert.Throw(tu.insertIntoText.bind(tu, node, 0, undefined),
-                         Error, "must pass an actual node to insert");
+                         window.Error,
+                         "must pass an actual node to insert");
         });
 
 
@@ -449,7 +493,8 @@ describe("TreeUpdater", function () {
         it("fails on non-text node", function () {
             var node = $root.find(".title").get(0);
             assert.Throw(tu.setTextNode.bind(tu, node, "test"),
-                         Error, "setTextNode called on non-text");
+                         window.Error,
+                         "setTextNode called on non-text");
         });
 
         it("generates appropriate events when setting text",
@@ -571,7 +616,7 @@ describe("TreeUpdater", function () {
                 children(".quote").get(0);
             var parent = node.parentNode;
             assert.Throw(tu.removeNodes.bind(tu, [node, node.parentNode]),
-                         Error,
+                         window.Error,
                          "nodes are not immediately contiguous in " +
                          "document order");
         });
@@ -739,15 +784,15 @@ describe("TreeUpdater", function () {
             assert.equal(ret.length, nodes.length, "result length");
             for(var i = 0; i < nodes.length; ++i) {
                 assert.equal(ret[i].nodeType, nodes[i].nodeType);
-                assert.isTrue(ret[i].nodeType === Node.TEXT_NODE ||
-                              ret[i].nodeType === Node.ELEMENT_NODE,
+                assert.isTrue(ret[i].nodeType === window.Node.TEXT_NODE ||
+                              ret[i].nodeType === window.Node.ELEMENT_NODE,
                               "node type");
                 switch(ret.nodeType) {
-                case Node.TEXT_NODE:
+                case window.Node.TEXT_NODE:
                     assert(ret[i].nodeValue, nodes[i].nodeValue,
                            "text node at " + i);
                     break;
-                case Node.ELEMENT_NODE:
+                case window.Node.ELEMENT_NODE:
                     assert(ret[i].outerHTML, nodes[i].outerHTML,
                            "element node at " + i);
                     break;
@@ -855,8 +900,6 @@ describe("TreeUpdater", function () {
         });
 
     });
-
-});
 
 });
 
