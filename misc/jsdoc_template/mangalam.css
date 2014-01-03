@@ -39,8 +39,13 @@ section {
 }
 
 code {
-    background-color:#eeeeee;
+    background-color:#eee;
     padding: 2px;
+}
+
+header h2
+{
+    color: #999;
 }
 
 article h1, article h2, article h3, article h4
