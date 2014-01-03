@@ -25,7 +25,7 @@ var options = {
     }
 };
 
-var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
+var wedroot = $("#wedframe-invisible").contents().find("#wedroot")[0];
 var $wedroot = $(wedroot);
 // Yes, we use *input_trigger* test data.
 var src_stack =
@@ -61,17 +61,15 @@ describe("input_trigger_factory", function () {
 
             // Synthetic event
             editor.setDataCaret(
-                editor.$data_root.find(".p").last().get(0).childNodes[0], 4);
+                editor.$data_root.find(".p").get(-1).childNodes[0], 4);
             editor.type(";");
 
             var $ps = editor.$data_root.find(".body .p");
             assert.equal($ps.length, 2);
-            assert.equal($ps.get(0).outerHTML,
-                         '<div class="p _real">Blah</div>');
+            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
             assert.equal($ps.length, 2);
-            assert.equal($ps.get(0).outerHTML,
-                         '<div class="p _real">Blah</div>');
-            assert.equal($ps.get(1).outerHTML,
+            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
+            assert.equal($ps[1].outerHTML,
                          '<div class="p _real"> blah '+
                          '<div class="term _real">blah</div>'+
                          '<div class="term _real">blah2</div> blah.</div>');
@@ -85,17 +83,15 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setDataCaret(
-                editor.$data_root.find(".p").last().get(0).childNodes[0], 4);
+                editor.$data_root.find(".p").get(-1).childNodes[0], 4);
             editor.type(key_constants.ENTER);
 
             var $ps = editor.$data_root.find(".body .p");
             assert.equal($ps.length, 2);
-            assert.equal($ps.get(0).outerHTML,
-                         '<div class="p _real">Blah</div>');
+            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
             assert.equal($ps.length, 2);
-            assert.equal($ps.get(0).outerHTML,
-                         '<div class="p _real">Blah</div>');
-            assert.equal($ps.get(1).outerHTML,
+            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
+            assert.equal($ps[1].outerHTML,
                          '<div class="p _real"> blah '+
                          '<div class="term _real">blah</div>'+
                          '<div class="term _real">blah2</div> blah.</div>');
@@ -123,16 +119,14 @@ describe("input_trigger_factory", function () {
                     }
                 }
             };
-            editor.setDataCaret($ps.get(0), 0);
+            editor.setDataCaret($ps[0], 0);
             editor.$gui_root.trigger(event);
 
             $ps = editor.$data_root.find(".body .p");
             assert.equal($ps.length, 3);
-            assert.equal($ps.get(0).outerHTML,
-                         '<div class="p _real">ab</div>');
-            assert.equal($ps.get(1).outerHTML,
-                         '<div class="p _real">cd</div>');
-            assert.equal($ps.get(2).outerHTML,
+            assert.equal($ps[0].outerHTML, '<div class="p _real">ab</div>');
+            assert.equal($ps[1].outerHTML, '<div class="p _real">cd</div>');
+            assert.equal($ps[2].outerHTML,
                          '<div class="p _real">efBlah blah '+
                          '<div class="term _real">blah</div>'+
                          '<div class="term _real">blah2</div> blah.</div>');

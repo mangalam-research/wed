@@ -68,8 +68,7 @@ describe("jqutil", function () {
         it("converts a > sequence",
                  function () {
             assert.equal(
-                jqutil.selectorToElements("p > term > foreign").get(0).
-                    outerHTML,
+                jqutil.selectorToElements("p > term > foreign")[0].outerHTML,
                 '<div class="p _real"><div class="term _real">'+
                     '<div class="foreign _real"></div></div></div>');
         });

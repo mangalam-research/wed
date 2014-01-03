@@ -1,13 +1,20 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(function () {
+
+//
+// Cannot be moved to jsdom because mutation_domlistener needs a
+// MutationObserver and jsdom does not support it yet.
+//
+define(function (require) {
 'use strict';
+var chai = require("chai");
+var $ = require("jquery");
 
 // This is not as generic as it could be but this will do for now.
-return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
+return function (domlistener, class_name, tree_updater_class) {
     //
     // (The method processImmediately did not exist when this test
     // suite was first created. At any rate testing the asynchronous
@@ -34,7 +41,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
     function Mark(total_expected, counts, listener, tree_updater, $root, done) {
         this._count = 0;
         this._counts_expected = counts;
-        this._counts = {};
+        this._counts = Object.create(null);
         this._total_expected = total_expected;
         this._$root = $root;
         this._tree_updater = tree_updater;
@@ -54,8 +61,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                          this._counts_expected[k], "count for " + k);
         }.bind(this));
         Object.keys(this._counts).forEach(function (k) {
-            assert.equal(this._counts[k],
-                         this._counts_expected[k]);
+            assert.equal(this._counts[k], this._counts_expected[k]);
         }.bind(this));
 
         assert.equal(this._count, this._total_expected, "total mark count");
@@ -92,12 +98,11 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                   "<div class='_real li'>B</div></div>");
             $root.empty();
             if (tree_updater_class) {
-                tree_updater = new tree_updater_class($root.get(0));
-                listener = new Listener(
-                    $root.get(0), tree_updater);
+                tree_updater = new tree_updater_class($root[0]);
+                listener = new Listener($root[0], tree_updater);
             }
             else
-                listener = new Listener($root.get(0));
+                listener = new Listener($root[0]);
         });
         afterEach(function () {
             listener.stopListening();
@@ -106,9 +111,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
         function makeIncludedHandler(name) {
             return function ($this_root, $tree, $parent, $previous_sibling,
                              $next_sibling, $element) {
-                assert.equal($this_root.get(0), $root.get(0));
-                assert.equal($element.get(0).className,
-                             "_real " + name);
+                assert.equal($this_root[0], $root[0]);
+                assert.equal($element[0].className, "_real " + name);
                 assert.equal($element.length, 1);
                 mark.mark("included " + name);
             };
@@ -117,9 +121,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
         function makeExcludedHandler(name) {
             return function ($this_root, $tree, $parent, $previous_sibling,
                              $next_sibling, $element) {
-                assert.equal($this_root.get(0), $root.get(0));
-                assert.equal($element.get(0).className,
-                             "_real " + name);
+                assert.equal($this_root[0], $root[0]);
+                assert.equal($element[0].className, "_real " + name);
                 assert.equal($element.length, 1);
                 mark.mark("excluded " + name);
             };
@@ -142,10 +145,9 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             function addedHandler($this_root, $parent,
                                   $previous_sibling,
                                   $next_sibling, $element) {
-                assert.equal($this_root.get(0), $root.get(0));
-                assert.equal($this_root.get(0), $parent.get(0));
-                assert.equal($element.get(0),
-                             $fragment_to_add.get(0));
+                assert.equal($this_root[0], $root[0]);
+                assert.equal($this_root[0], $parent[0]);
+                assert.equal($element[0], $fragment_to_add[0]);
                 mark.mark("added ul");
             }
             listener.addHandler("added-element", "._real.ul",
@@ -155,24 +157,22 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                                     $element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added.get(0) === $marker.get(0))
+                if ($added[0] === $marker[0])
                     return;
-                assert.equal($this_root.get(0), $element.get(0));
+                assert.equal($this_root[0], $element[0]);
                 assert.equal($removed.length, 0);
                 assert.equal($added.length, 1);
-                assert.equal($added.get(0),
-                             $fragment_to_add.get(0));
-                assert.isUndefined($previous_sibling.get(0));
-                assert.isUndefined($next_sibling.get(0));
+                assert.equal($added[0], $fragment_to_add[0]);
+                assert.isUndefined($previous_sibling[0]);
+                assert.isUndefined($next_sibling[0]);
                 mark.mark("children root");
             }
             listener.addHandler("children-changed", "*",
                                 changedHandler);
             listener.startListening($root);
             if (tree_updater) {
-                tree_updater.insertNodeAt($root.get(0),
-                                          $root.get(0).childNodes.length,
-                                          $fragment_to_add.get(0));
+                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                          $fragment_to_add[0]);
                 mark.check();
             }
             else
@@ -187,10 +187,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             function addedHandler($this_root, $parent,
                                   $previous_sibling,
                                   $next_sibling, $element) {
-                assert.equal($previous_sibling.get(0),
-                             $element.get(0).previousSibling);
-                assert.equal($next_sibling.get(0),
-                             $element.get(0).nextSibling);
+                assert.equal($previous_sibling[0], $element[0].previousSibling);
+                assert.equal($next_sibling[0], $element[0].nextSibling);
                 mark.mark("added li");
             }
             listener.addHandler("added-element", "._real.li",
@@ -200,7 +198,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             $li.remove();
             listener.startListening($root);
             if (tree_updater) {
-                var parent = $root.find(".ul").get(0);
+                var parent = $root.find(".ul")[0];
                 $li.each(function () {
                     tree_updater.insertNodeAt(parent,
                                               parent.childNodes.length,
@@ -221,23 +219,22 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             function removedHandler($this_root, $parent,
                                     $previous_sibling,
                                     $next_sibling, $element) {
-                var text = $element.get(0).childNodes[0].nodeValue;
+                var text = $element[0].childNodes[0].nodeValue;
                 if (text === "A") {
-                    assert.isUndefined($previous_sibling.get(0),
+                    assert.isUndefined($previous_sibling[0],
                                        "previous sibling of A");
-                    assert.equal($next_sibling.get(0), $li.get(1),
+                    assert.equal($next_sibling[0], $li[1],
                                  "next sibling of A");
                 }
                 else {
                     if (tree_updater)
                         // By the time we get here, B is alone.
-                        assert.isUndefined($previous_sibling.get(0),
+                        assert.isUndefined($previous_sibling[0],
                                            "previous sibling of B");
                     else {
-                        assert.equal($previous_sibling.get(0),
-                                     $li.get(0),
+                        assert.equal($previous_sibling[0], $li[0],
                                      "previous sibling of B");
-                        assert.isUndefined($next_sibling.get(0),
+                        assert.isUndefined($next_sibling[0],
                                            "next sibling of B");
                     }
                 }
@@ -256,7 +253,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                 mark.check();
             }
             else
-                $ul.get(0).innerHTML = '';
+                $ul[0].innerHTML = '';
         });
 
         it("fires excluded-element, removed-element and " +
@@ -278,10 +275,9 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                                     $previous_sibling,
                                     $next_sibling,
                                     $element) {
-                assert.equal($this_root.get(0), $root.get(0));
-                assert.equal($this_root.get(0), $parent.get(0));
-                assert.equal($element.get(0),
-                             $fragment_to_add.get(0));
+                assert.equal($this_root[0], $root[0]);
+                assert.equal($this_root[0], $parent[0]);
+                assert.equal($element[0], $fragment_to_add[0]);
                 mark.mark("removed ul");
             }
             listener.addHandler("removed-element", "._real.ul",
@@ -291,22 +287,21 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                                     $next_sibling, $element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added.get(0) === $marker.get(0))
+                if ($added[0] === $marker[0])
                     return;
-                assert.equal($this_root.get(0), $element.get(0));
+                assert.equal($this_root[0], $element[0]);
                 assert.equal($added.length, 0);
                 assert.equal($removed.length, 1);
-                assert.equal($removed.get(0),
-                             $fragment_to_add.get(0));
-                assert.isUndefined($previous_sibling.get(0));
-                assert.isUndefined($next_sibling.get(0));
+                assert.equal($removed[0], $fragment_to_add[0]);
+                assert.isUndefined($previous_sibling[0]);
+                assert.isUndefined($next_sibling[0]);
                 mark.mark("children root");
             }
             listener.addHandler("children-changed", "*",
                                 changedHandler);
             listener.startListening($root);
             if (tree_updater) {
-                tree_updater.deleteNode($fragment_to_add.get(0));
+                tree_updater.deleteNode($fragment_to_add[0]);
                 mark.check();
             }
             else
@@ -322,7 +317,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                 "trigger",
                 "test",
                 function ($this_root) {
-                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($this_root[0], $root[0]);
                 mark.mark("triggered test");
             });
             listener.addHandler(
@@ -330,18 +325,16 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                 "._real.li",
                 function ($this_root, $tree, $parent, $previous_sibling,
                           $next_sibling, $element) {
-                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($this_root[0], $root[0]);
                 assert.equal($element.length, 1);
-                assert.equal($element.get(0).className,
-                             "_real li");
+                assert.equal($element[0].className, "_real li");
                 listener.trigger("test");
                 mark.mark("included li");
             });
             listener.startListening($root);
             if (tree_updater) {
-                tree_updater.insertNodeAt($root.get(0),
-                                          $root.get(0).childNodes.length,
-                                          $fragment_to_add.get(0));
+                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                          $fragment_to_add[0]);
                 // We have to allow for triggers to run.
                 window.setTimeout(function () {
                     mark.check();
@@ -361,7 +354,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                 "trigger",
                 "test",
                 function ($this_root) {
-                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($this_root[0], $root[0]);
                 listener.trigger("test2");
                 mark.mark("triggered test");
             });
@@ -369,7 +362,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                 "trigger",
                 "test2",
                 function ($this_root) {
-                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($this_root[0], $root[0]);
                 mark.mark("triggered test2");
             });
 
@@ -378,18 +371,16 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                 "._real.li",
                 function ($this_root, $tree, $parent, $previous_sibling,
                           $next_sibling, $element) {
-                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($this_root[0], $root[0]);
                 assert.equal($element.length, 1);
-                assert.equal($element.get(0).className,
-                             "_real li");
+                assert.equal($element[0].className, "_real li");
                 listener.trigger("test");
                 mark.mark("included li");
             });
             listener.startListening($root);
             if (tree_updater) {
-                tree_updater.insertNodeAt($root.get(0),
-                                          $root.get(0).childNodes.length,
-                                          $fragment_to_add.get(0));
+                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                          $fragment_to_add[0]);
                 // We have to allow for triggers to run.
                 window.setTimeout(function () {
                     mark.check();
@@ -404,11 +395,10 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             mark = new Mark(1, {"text-changed": 1},
                             listener, tree_updater, $root, done);
             function textChanged($this_root, $element, old_value) {
-                assert.equal($this_root.get(0), $root.get(0));
+                assert.equal($this_root[0], $root[0]);
                 assert.equal($element.length, 1);
-                assert.equal($element.parent().get(0).className,
-                             "_real li");
-                assert.equal($element.get(0).nodeValue, "Q");
+                assert.equal($element.parent()[0].className, "_real li");
+                assert.equal($element[0].nodeValue, "Q");
                 assert.equal(old_value, "A");
                 mark.mark("text-changed");
             }
@@ -418,11 +408,11 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             listener.startListening($root);
             if (tree_updater) {
                 tree_updater.setTextNodeValue(
-                    $root.find("._real.li").get(0).childNodes[0], "Q");
+                    $root.find("._real.li")[0].childNodes[0], "Q");
                 mark.check();
             }
             else
-                $root.find("._real.li").get(0).childNodes[0].nodeValue = "Q";
+                $root.find("._real.li")[0].childNodes[0].nodeValue = "Q";
         });
 
         it("fires children-changed when adding a text node",
@@ -440,20 +430,20 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                                     $element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added.get(0) === $marker.get(0))
+                if ($added[0] === $marker[0])
                     return;
-                assert.equal($this_root.get(0), $root.get(0));
-                assert.equal($element.get(0), $li.get(0));
+                assert.equal($this_root[0], $root[0]);
+                assert.equal($element[0], $li[0]);
                 assert.equal($added.length, change_no === 0 ? 0 : 1,
                              "added elements");
                 assert.equal($removed.length, change_no === 0 ? 1 : 0,
                              "removed elements");
-                assert.isUndefined($previous_sibling.get(0));
-                assert.isUndefined($next_sibling.get(0));
+                assert.isUndefined($previous_sibling[0]);
+                assert.isUndefined($next_sibling[0]);
                 if (change_no === 0)
-                    assert.equal($removed.get(0).nodeValue, "A");
+                    assert.equal($removed[0].nodeValue, "A");
                 else
-                    assert.equal($added.get(0).nodeValue, "Q");
+                    assert.equal($added[0].nodeValue, "Q");
                 change_no++;
                 mark.mark("children li");
             }
@@ -465,8 +455,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             if (tree_updater) {
                 // We'll simulate what jQuery does:
                 // remove the text node and add a new one.
-                tree_updater.deleteNode($li.get(0).firstChild);
-                tree_updater.insertText($li.get(0), 0, "Q");
+                tree_updater.deleteNode($li[0].firstChild);
+                tree_updater.insertText($li[0], 0, "Q");
                 mark.check();
             }
             else {
@@ -484,10 +474,10 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                                     $element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added.get(0) === $marker.get(0))
+                if ($added[0] === $marker[0])
                     return;
-                assert.equal($previous_sibling.get(0), $li.get(0));
-                assert.equal($next_sibling.get(0), $li.get(1));
+                assert.equal($previous_sibling[0], $li[0]);
+                assert.equal($next_sibling[0], $li[1]);
                 mark.mark("children ul");
             }
             listener.addHandler("children-changed", "._real.ul",
@@ -496,12 +486,12 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             listener.startListening($root);
             var $li = $root.find("._real.li");
             if (tree_updater) {
-                var li = $li.get(0);
+                var li = $li[0];
                 var $new = $("<li>Q</li>");
                 tree_updater.insertNodeAt(li.parentNode,
                                           Array.prototype.indexOf.call(
                                               li.parentNode.childNodes, li) + 1,
-                                          $new.get(0));
+                                          $new[0]);
                 mark.check();
             }
             else
@@ -525,9 +515,9 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                     "._real.li",
                     function ($this_root, $tree, $parent, $previous_sibling,
                               $next_sibling, $element) {
-                    assert.equal($this_root.get(0), $root.get(0), "root");
+                    assert.equal($this_root[0], $root[0], "root");
                     assert.equal($element.length, 1, "element length");
-                    assert.equal($element.get(0).className,
+                    assert.equal($element[0].className,
                                  "_real li", "element class");
                     assert.equal($tree.length, 1, "tree length");
                     // The following tests are against
@@ -537,24 +527,20 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                     // empty!
 
                     assert.equal($parent.length, 1, "parent length");
-                    if ($tree.get(0) === $fragment.get(0)) {
+                    if ($tree[0] === $fragment[0]) {
                         mark.mark(incex + " li at root");
-                        assert.equal($parent.get(0), $root.get(0),
-                                     "parent value");
-                        assert.isUndefined($previous_sibling.get(0),
+                        assert.equal($parent[0], $root[0], "parent value");
+                        assert.isUndefined($previous_sibling[0],
                                            "previous sibling");
-                        assert.isUndefined($next_sibling.get(0),
-                                           "next sibling");
+                        assert.isUndefined($next_sibling[0], "next sibling");
                     }
                     else {
-                        assert.equal($tree.get(0),
-                                     $fragment.find(".ul").get(0),
+                        assert.equal($tree[0], $fragment.find(".ul")[0],
                                     "tree value");
-                        assert.equal($parent.get(0), $fragment.get(0));
-                        assert.equal($previous_sibling.get(0),
-                                     $fragment.find("p").get(0));
-                        assert.equal($next_sibling.get(0),
-                                     $fragment.find("p").get(1));
+                        assert.equal($parent[0], $fragment[0]);
+                        assert.equal($previous_sibling[0],
+                                     $fragment.find("p")[0]);
+                        assert.equal($next_sibling[0], $fragment.find("p")[1]);
                         assert.equal($previous_sibling.length, 1);
                         assert.equal($next_sibling.length, 1);
                         mark.mark(incex + " li at ul");
@@ -571,17 +557,16 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                   "<p>after</p></div>");
             var $ul;
             if (tree_updater) {
-                tree_updater.insertNodeAt($root.get(0),
-                                          $root.get(0).childNodes.length,
-                                          $fragment.get(0));
+                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                          $fragment[0]);
                 $ul = $root.find(".ul");
-                tree_updater.deleteNode($ul.get(0));
-                var p = $root.find("p").first().get(0);
+                tree_updater.deleteNode($ul[0]);
+                var p = $root.find("p")[0];
                 var p_parent = p.parentNode;
                 tree_updater.insertNodeAt(p_parent,
                                           Array.prototype.indexOf.call(
                                               p_parent.childNodes, p) + 1,
-                                          $ul.get(0));
+                                          $ul[0]);
                 $root.contents().each(function () {
                     tree_updater.deleteNode(this);
                 });
@@ -605,7 +590,7 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
             function changedHandler($this_root, $added, $removed,
                                     $previous_sibling, $next_sibling,
                                     $element) {
-                if ($added.get(0) === $marker.get(0))
+                if ($added[0] === $marker[0])
                     return;
                 mark.mark("children root");
             }
@@ -613,9 +598,8 @@ return function (mocha, chai, $, domlistener, class_name, tree_updater_class) {
                                 changedHandler);
             listener.startListening($root);
             if (tree_updater) {
-                tree_updater.insertNodeAt($root.get(0),
-                                          $root.get(0).childNodes.length,
-                                          $fragment_to_add.get(0));
+                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                          $fragment_to_add[0]);
                 mark.check();
             }
             else

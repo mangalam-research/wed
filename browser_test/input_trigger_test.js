@@ -27,7 +27,7 @@ var options = {
     }
 };
 
-var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
+var wedroot = $("#wedframe-invisible").contents().find("#wedroot")[0];
 var $wedroot = $(wedroot);
 var source = "../../test-files/input_trigger_test_data/source_converted.xml";
 
@@ -57,7 +57,7 @@ describe("InputTrigger", function () {
         var $p = editor.$data_root.find(".p").last();
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "paste");
-            assert.equal($el.get(0), $p.get(0));
+            assert.equal($el[0], $p[0]);
             seen++;
         });
         // Synthetic event
@@ -71,7 +71,7 @@ describe("InputTrigger", function () {
                 }
             }
         };
-        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").get(-1), 0);
         editor.$gui_root.trigger(event);
         assert.equal(seen, 1);
     });
@@ -82,14 +82,13 @@ describe("InputTrigger", function () {
         input_trigger.addKeyHandler(key_constants.ENTER,
                                     function (type, $el, ev) {
             assert.equal(type, "keydown");
-            assert.equal($el.get(0),
-                         editor.$data_root.find(".p").last().get(0));
+            assert.equal($el[0], editor.$data_root.find(".p").get(-1));
             ev.stopImmediatePropagation();
             seen++;
         });
 
         // Synthetic event
-        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").get(-1), 0);
         editor.type(key_constants.ENTER);
         assert.equal(seen, 1);
     });
@@ -100,14 +99,13 @@ describe("InputTrigger", function () {
         input_trigger.addKeyHandler(key.makeKey(";"),
                                     function (type, $el, ev) {
             assert.equal(type, "keypress");
-            assert.equal($el.get(0),
-                         editor.$data_root.find(".p").last().get(0));
+            assert.equal($el[0], editor.$data_root.find(".p").get(-1));
             ev.stopImmediatePropagation();
             seen++;
         });
 
         // Synthetic event
-        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").get(-1), 0);
         editor.type(";");
         assert.equal(seen, 1);
     });
@@ -119,7 +117,7 @@ describe("InputTrigger", function () {
         var $p = editor.$data_root.find(".p").last();
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "children-changed");
-            assert.equal($el.get(0), $p.get(0));
+            assert.equal($el[0], $p[0]);
             seen++;
         });
         var text = document.createTextNode("abcdef");
@@ -132,13 +130,12 @@ describe("InputTrigger", function () {
         var seen = 0;
         input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
             assert.equal(type, "keydown");
-            assert.equal($el.get(0),
-                         editor.$data_root.find(".p").last().get(0));
+            assert.equal($el[0], editor.$data_root.find(".p").get(-1));
             seen++;
         });
 
         // Synthetic event
-        editor.setGUICaret(editor.$gui_root.find(".p").last().get(0), 0);
+        editor.setGUICaret(editor.$gui_root.find(".p").get(-1), 0);
         editor.type(":");
         assert.equal(seen, 0);
     });
@@ -153,7 +150,7 @@ describe("InputTrigger", function () {
            });
 
            var $p = editor.$data_root.find(".p").last();
-           var text = $p.get(0).lastChild;
+           var text = $p[0].lastChild;
            // Make sure we're looking at the right thing.
            assert.equal(text.nodeValue, " blah.");
 
@@ -186,8 +183,8 @@ describe("InputTrigger", function () {
             key_constants.BACKSPACE, key_constants.DELETE);
         var $ps = editor.$data_root.find(".body .p");
         assert.equal($ps.length, 1);
-        editor.setDataCaret($ps.get(0), 0);
-        var text = $ps.get(0).firstChild;
+        editor.setDataCaret($ps[0], 0);
+        var text = $ps[0].firstChild;
         // Synthetic event
         var event = new $.Event("paste");
         // Provide a skeleton of clipboard data
@@ -203,11 +200,9 @@ describe("InputTrigger", function () {
 
         $ps = editor.$data_root.find(".body .p");
         assert.equal($ps.length, 3);
-        assert.equal($ps.get(0).outerHTML,
-                     '<div class="p _real">ab</div>');
-        assert.equal($ps.get(1).outerHTML,
-                     '<div class="p _real">cd</div>');
-        assert.equal($ps.get(2).outerHTML,
+        assert.equal($ps[0].outerHTML, '<div class="p _real">ab</div>');
+        assert.equal($ps[1].outerHTML, '<div class="p _real">cd</div>');
+        assert.equal($ps[2].outerHTML,
                      '<div class="p _real">efBlah blah '+
                      '<div class="term _real">blah</div>'+
                      '<div class="term _real">blah2</div> blah.</div>',
@@ -216,7 +211,7 @@ describe("InputTrigger", function () {
         editor.undo();
         $ps = editor.$data_root.find(".body .p");
         assert.equal($ps.length, 1);
-        assert.equal($ps.get(0).outerHTML,
+        assert.equal($ps[0].outerHTML,
                      '<div class="p _real">Blah blah '+
                      '<div class="term _real">blah</div>'+
                      '<div class="term _real">blah2</div> blah.</div>',
@@ -225,13 +220,11 @@ describe("InputTrigger", function () {
         editor.redo();
         $ps = editor.$data_root.find(".body .p");
         assert.equal($ps.length, 3, "after redo: length");
-        assert.equal($ps.get(0).outerHTML,
-                     '<div class="p _real">ab</div>',
+        assert.equal($ps[0].outerHTML, '<div class="p _real">ab</div>',
                      "after redo: 1st part");
-        assert.equal($ps.get(1).outerHTML,
-                     '<div class="p _real">cd</div>',
+        assert.equal($ps[1].outerHTML, '<div class="p _real">cd</div>',
                      "after redo: 2nd part");
-        assert.equal($ps.get(2).outerHTML,
+        assert.equal($ps[2].outerHTML,
                      '<div class="p _real">efBlah blah '+
                      '<div class="term _real">blah</div>'+
                      '<div class="term _real">blah2</div> blah.</div>',
