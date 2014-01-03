@@ -72,7 +72,8 @@ describe("TreeUpdater", function () {
         this.expected = {
             insertNodeAt: 0,
             setTextNodeValue: 0,
-            deleteNode: 0
+            deleteNode: 0,
+            setAttribute: 0
         };
         this._events = {};
         tu.addEventListener("*", function (name, ev) {
@@ -319,7 +320,7 @@ describe("TreeUpdater", function () {
 
     describe("deleteText", function () {
         it("fails on non-text node", function () {
-            var node = $root.find(".title");
+            var node = $root.find(".title")[0];
             assert.Throw(tu.deleteText.bind(tu, node, 0, "t"),
                          window.Error,
                          "deleteText called on non-text");
@@ -358,6 +359,59 @@ describe("TreeUpdater", function () {
             listener.check();
         });
 
+    });
+
+    describe("setAttribute", function () {
+        it("fails on non-element node", function () {
+            var node = $root.find(".title")[0].childNodes[0];
+            assert.Throw(tu.setAttribute.bind(tu, node, "q", "ab"),
+                         window.Error,
+                         "setAttribute called on non-element");
+        });
+
+        it("generates appropriate events when changing an attribute",
+           function () {
+            var node = $root.find(".title")[0];
+
+            // Check that the attribute is not set yet.
+            assert.equal($(node).attr("q"), undefined);
+
+            var listener = new Listener(tu);
+            tu.addEventListener("setAttribute", function (ev) {
+                assert.equal(ev.node, node);
+                assert.equal(ev.attribute, "q");
+                assert.equal(ev.value, "ab");
+            });
+            listener.expected.setAttribute = 1;
+
+            tu.setAttribute(node, "q", "ab");
+
+            // Check that we're doing what we think we're doing.
+            assert.equal($(node).attr("q"), "ab");
+            listener.check();
+        });
+
+        it("generates appropriate events when removing an attribute",
+           function () {
+            var node = $root.find(".title")[0];
+
+            // Set the attribute
+            $(node).attr("q", "ab");
+
+            var listener = new Listener(tu);
+            tu.addEventListener("setAttribute", function (ev) {
+                assert.equal(ev.node, node);
+                assert.equal(ev.attribute, "q");
+                assert.equal(ev.value, null);
+            });
+            listener.expected.setAttribute = 1;
+
+            tu.setAttribute(node, "q", null);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal($(node).attr("q"), undefined);
+            listener.check();
+        });
     });
 
     describe("insertIntoText", function () {
