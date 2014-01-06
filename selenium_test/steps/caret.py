@@ -7,11 +7,56 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 import wedutil
+import selenic.util
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
 step_matcher("re")
+
+
+@when(u"^an element's label has been clicked$")
+def step_impl(context):
+    context.execute_steps(u"""
+    When the user clicks on an element's label
+    Then the label changes to show it is selected
+    And the caret disappears
+    """)
+
+
+@when(u"^the user clicks on text$")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+    element = util.find_element((By.CSS_SELECTOR, ".title"))
+
+    rect = driver.execute_script("""
+    var title = arguments[0];
+    var text = title.childNodes[1]; // At index 0 is the opening label.
+    var range = title.ownerDocument.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, 1);
+    return range.getBoundingClientRect();
+    """, element)
+
+    last_click = {"left": int(rect["left"]), "top": int(rect["top"])}
+    ActionChains(driver) \
+        .move_to_element_with_offset(context.origin_object, last_click["left"],
+                                     last_click["top"]) \
+        .click() \
+        .perform()
+
+    context.last_click = last_click
+
+
+@then(u"^the caret is at the last click's position\.?$")
+def step_impl(context):
+    driver = context.driver
+
+    last_click = context.last_click
+    caret_pos = wedutil.caret_pos(driver)
+
+    assert_equal(selenic.util.locations_within(caret_pos, last_click, 0), "")
 
 
 @when(u"^the user clicks on "

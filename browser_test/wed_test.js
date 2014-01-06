@@ -85,55 +85,6 @@ describe("wed", function () {
         assert.equal(editor.getGUICaret(), undefined, "no caret");
     });
 
-    it("clicking moves the caret", function (done) {
-        editor.whenCondition(
-            "first-validation-complete",
-            function () {
-            // Text node inside title.
-            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
-            editor.setGUICaret(initial, initial.nodeValue.length);
-            editor.moveCaretRight();
-            // It is now inside the final gui element.
-            caretCheck(editor, lastGUI($(initial.parentNode)),
-                       0, "initial caret position");
-
-            // We have to set the selection manually and
-            // generate a click event because just generating
-            // the event won't move the caret.
-            var r = rangy.createRange();
-            r.setStart(initial, 0);
-            var scroll_top = editor.my_window.document.body.scrollTop;
-            var scroll_left = editor.my_window.document.body.scrollLeft;
-            rangy.getSelection(editor.my_window).setSingleRange(r);
-            // We have to take the offset of the parent because
-            // initial is a text node.
-            var initial_offset = $(initial.parentNode).offset();
-            var init = {
-                target: initial,
-                clientX: initial_offset.left - scroll_left,
-                clientY: initial_offset.top - scroll_top,
-                pageX: initial_offset.left,
-                pageY: initial_offset.top
-            };
-            var ev = $.Event("mousedown", init);
-            $(initial.parentNode).trigger(ev);
-            ev = $.Event("mouseup", init);
-            $(initial.parentNode).trigger(ev);
-
-            // We need to do this because setting the caret
-            // through a click is not instantaneous. wed
-            // internally sets a timeout of 0 length to deal with
-            // browser incompatibilities. We need to do the same
-            // so that wed's timeout runs before we query the
-            // value.
-            editor.my_window.setTimeout(function () {
-                caretCheck(editor, initial, 0, "final caret position");
-
-                done();
-            }, 1);
-        });
-    });
-
     it("typing text works", function (done) {
         editor.whenCondition(
             "first-validation-complete",

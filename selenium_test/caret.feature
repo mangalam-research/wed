@@ -4,6 +4,11 @@ Feature: caret
 Background: a simple document.
   Given a document containing a top level element, a p element, and text.
 
+Scenario: Clicking moves the caret.
+  When an element's label has been clicked
+  And the user clicks on text
+  Then the caret is at the last click's position.
+
 Scenario: Clicking on an element's label.
   When the user clicks on an element's label
   Then the label changes to show it is selected
