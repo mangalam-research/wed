@@ -19,9 +19,9 @@
             exclude: [
                 "jquery",
                 "bootstrap",
-                "rangy",
-                "jquery.bootstrap-growl",
                 "log4javascript",
+                "jquery.bootstrap-growl",
+                "pubsub-js",
                 "lodash"
             ]
         }
