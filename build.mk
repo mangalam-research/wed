@@ -33,6 +33,10 @@ MOCHA_PARAMS?=
 # Parameters to pass to behave
 BEHAVE_PARAMS?=
 
+# The TEI hierarchy to use. This is the default location on
+# Debian-type systems.
+TEI?=/usr/share/xml/tei/stylesheet
+
 # Skip the semver check. You should NOT set this in local.mk but use
 # it on the command line:
 #
@@ -200,7 +204,12 @@ build/schemas/%: schemas/% | build/schemas
 	cp $< $@
 
 schemas/out/myTEI.xml.compiled: schemas/myTEI.xml
-	roma2 --compile --nodtd --noxsd $< schemas/out
+	roma2 --xsl=$(TEI) --compile --nodtd --noxsd $< schemas/out
+# Deal with a bug in roma. This should eventually be removed once roma is fixed.
+	if [ -e schemas/out/schemas/myTEI.xml.compiled ]; then \
+		mv schemas/out/schemas/myTEI.xml.compiled $@; \
+		rm -rf schemas/out/schemas; \
+	fi
 
 schemas/out/myTEI.json: schemas/out/myTEI.xml.compiled
 	saxon -xsl:/usr/share/xml/tei/stylesheet/odds/odd2json.xsl -s:$< -o:$@ callback=''
