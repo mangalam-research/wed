@@ -402,12 +402,15 @@ $(JSDOC3_TEMPLATE_TARGETS): build/jsdoc_template/%: $(JSDOC3_DEFAULT_TEMPLATE)/%
 	cp $< $@
 
 build/jsdoc_template/static/styles/mangalam.css: misc/jsdoc_template/mangalam.css
+	-mkdir -p $(dir $@)
 	cp $< $@
 
 build/jsdoc_template/tmpl/layout.tmpl:  misc/jsdoc_template/layout.tmpl
+	-mkdir -p $(dir $@)
 	cp $< $@
 
 build/jsdoc_template/publish.js:  misc/jsdoc_template/publish.js
+	-mkdir -p $(dir $@)
 	cp $< $@
 
 rst-doc: $(HTML_TARGETS)
