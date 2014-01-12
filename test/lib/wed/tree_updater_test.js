@@ -73,7 +73,7 @@ describe("TreeUpdater", function () {
             insertNodeAt: 0,
             setTextNodeValue: 0,
             deleteNode: 0,
-            setAttribute: 0
+            setAttributeNS: 0
         };
         this._events = {};
         tu.addEventListener("*", function (name, ev) {
@@ -377,12 +377,14 @@ describe("TreeUpdater", function () {
             assert.equal($(node).attr("q"), undefined);
 
             var listener = new Listener(tu);
-            tu.addEventListener("setAttribute", function (ev) {
+            tu.addEventListener("setAttributeNS", function (ev) {
                 assert.equal(ev.node, node);
+                assert.equal(ev.ns, "");
                 assert.equal(ev.attribute, "q");
-                assert.equal(ev.value, "ab");
+                assert.equal(ev.old_value, undefined);
+                assert.equal(ev.new_value, "ab");
             });
-            listener.expected.setAttribute = 1;
+            listener.expected.setAttributeNS = 1;
 
             tu.setAttribute(node, "q", "ab");
 
@@ -399,17 +401,18 @@ describe("TreeUpdater", function () {
             $(node).attr("q", "ab");
 
             var listener = new Listener(tu);
-            tu.addEventListener("setAttribute", function (ev) {
+            tu.addEventListener("setAttributeNS", function (ev) {
                 assert.equal(ev.node, node);
+                assert.equal(ev.ns, "");
                 assert.equal(ev.attribute, "q");
-                assert.equal(ev.value, null);
+                assert.equal(ev.old_value, "ab");
+                assert.equal(ev.new_value, null);
             });
-            listener.expected.setAttribute = 1;
+            listener.expected.setAttributeNS = 1;
 
             tu.setAttribute(node, "q", null);
 
-            // Check that we're doing what we think we're doing.
-            assert.equal($(node).attr("q"), undefined);
+            assert.equal($(node).attr("q"), undefined, "value after");
             listener.check();
         });
     });

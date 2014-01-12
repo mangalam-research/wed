@@ -464,6 +464,66 @@ return function (domlistener, class_name, tree_updater_class) {
             }
         });
 
+        it("fires attribute-changed when changing an attribute",
+           function (done) {
+            mark = new Mark(1, {"attribute-changed": 1},
+                            listener, tree_updater, $root, done);
+            function attributeChanged($this_root, $element, ns, name,
+                                      old_value) {
+                assert.equal($this_root[0], $root[0]);
+                assert.equal($element.length, 1);
+                assert.equal($element[0].className, "_real li");
+                assert.equal(ns, "http://foo.foo/foo");
+                assert.equal(name, "X");
+                assert.equal(old_value, null);
+                mark.mark("attribute-changed");
+            }
+            listener.addHandler("attribute-changed", "._real.li",
+                                attributeChanged);
+            $root.append($fragment_to_add);
+            listener.startListening($root);
+            if (tree_updater) {
+                tree_updater.setAttributeNS(
+                    $root.find("._real.li")[0], "http://foo.foo/foo", "X",
+                    "ttt");
+                mark.check();
+            }
+            else
+                $root.find("._real.li")[0].setAttributeNS("http://foo.foo/foo",
+                                                          "X", "ttt");
+        });
+
+        it("fires attribute-changed when deleting an attribute",
+           function (done) {
+            mark = new Mark(1, {"attribute-changed": 1},
+                            listener, tree_updater, $root, done);
+            function attributeChanged($this_root, $element, ns, name,
+                                      old_value) {
+                assert.equal($this_root[0], $root[0]);
+                assert.equal($element.length, 1);
+                assert.equal($element[0].className, "_real li");
+                assert.equal(ns, "http://foo.foo/foo");
+                assert.equal(name, "X");
+                assert.equal(old_value, "ttt");
+                mark.mark("attribute-changed");
+            }
+            listener.addHandler("attribute-changed", "._real.li",
+                                attributeChanged);
+            $root.append($fragment_to_add);
+            $root.find("._real.li")[0].setAttributeNS("http://foo.foo/foo",
+                                                      "X", "ttt");
+            listener.startListening($root);
+            if (tree_updater) {
+                tree_updater.setAttributeNS(
+                    $root.find("._real.li")[0], "http://foo.foo/foo", "X",
+                    null);
+                mark.check();
+            }
+            else
+                $root.find("._real.li")[0].setAttributeNS("http://foo.foo/foo",
+                                                          "X", null);
+        });
+
         it("generates children-changed with the right previous and " +
            "next siblings",
            function (done) {

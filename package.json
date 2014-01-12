@@ -30,7 +30,7 @@
         "semver-sync": ">=1.2.0 <2",
         "express": ">=3.4.0 <4",
         "requirejs": ">=2.1.9 <3",
-        "jsdom": ">=0.8.8 <1",
+        "jsdom": "git+https://github.com/lddubeau/jsdom.git#bugfix/attribute-handling-of-empty-namespace",
         "sinon": ">=1.7.3 <2"
     },
     "scripts": {
