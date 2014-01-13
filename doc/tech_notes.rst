@@ -614,6 +614,32 @@ HTML:
   ``data-wed--[name]``. An XML attribute name or prefix may not begin
   with a dash, so there cannot be a clash.
 
+Classes Used by Wed
+===================
+
+``_phantom``:
+  All elements added by wed for representing the data to the user are of
+  this class.
+
+``_phantom _gui``:
+  All elements that are more that just uneditable text.
+
+``_phantom _text``:
+  All elements that are text added to represent some XML data. That
+  is, there is some node in the data tree that corresponds
+  specifically to this element.
+
+``_phantom _decoration_text``:
+  All elements that are text added for purely decorative purposes. The
+  difference between these elements and those which are ``_phantom
+  _text`` is that the latter represents some contents whereas the
+  former is purely decorating the data. For instance if an ``<img>``
+  element which points to the image of a cow is represented on screen
+  by the word "cow" then this text should be ``_phantom _text``. On
+  the other hand if a period is added after numbers in a list so that
+  they look nice on screen, these periods should be ``_phantom
+  _decoration_text`` elements.
+
 Browser Issues
 ==============
 
