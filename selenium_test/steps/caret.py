@@ -360,11 +360,11 @@ def step_impl(context):
 @then("the caret moves up relative to the browser window.")
 def step_impl(context):
     driver = context.driver
+    util = context.util
     prev_pos = context.caret_position
 
-    pos = wedutil.caret_pos(driver)
-
-    assert_equal(prev_pos["top"] - context.scrolled_editor_pane_by, pos["top"])
+    util.wait(lambda *_: wedutil.caret_pos(driver)["top"] ==
+              prev_pos["top"] - context.scrolled_editor_pane_by)
 
 
 @when("the user selects a region that is malformed")
