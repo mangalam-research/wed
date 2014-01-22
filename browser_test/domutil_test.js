@@ -761,6 +761,11 @@ describe("domutil", function () {
                          Error, "node is not a descendant of root");
         });
 
+        it("returns an empty path if node === root",
+           function () {
+            assert.equal(domutil.nodeToPath(root, root), "");
+        });
+
         it("fails on invalid root",
            function () {
             var node = $("link").get(-1);
