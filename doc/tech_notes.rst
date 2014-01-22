@@ -132,6 +132,8 @@ to create your own element for editing, like ``<my:custom-element>``,
 which is then created in the right context by the mode you create for
 your project.
 
+.. _remote_logging:
+
 Remote Logging
 --------------
 
@@ -151,6 +153,8 @@ log messages. The ``headers`` parameter specifies additional headers
 to send. In particular this is useful when the receiver is an
 installation requiring that some anti-CSRF token be set on HTTP
 headers.
+
+.. _saving:
 
 Saving
 ------
@@ -225,6 +229,18 @@ these are not set::
         license: "MPL 2.0",
         copyright: "2013 Ty Coon Industries"
     };
+
+
+Modes may set other options on the ``_wed_options`` property:
+
++ ``label_levels``: an object with two fields:
+
+  - ``max``: determines the maximum level of
+    :ref:`label visibility <label_visiblity>`,
+
+  - ``initial`` determines the initial level of label visibility; must
+    be ``1 <= initial <= max``. (Level 0 exists. It is just not valid
+    to start at that level.)
 
 Testing
 =======

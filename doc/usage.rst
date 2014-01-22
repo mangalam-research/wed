@@ -8,8 +8,9 @@ to change until we hit version 1.0.0.
 
 Known limitations:
 
-* Wed currently only understands a subset of Relax NG (through the
-  `salve <https://github.com/mangalam-research/salve/>`_ package).
+* Wed currently does understand a large subset of Relax NG, but some
+  constructs are not supported. See the `salve
+  <https://github.com/mangalam-research/salve/>`_ package for details.
 
 * Wed does not currently support editing attributes in a
   generic way *as attributes*. The functionality just has not been
@@ -18,11 +19,30 @@ Known limitations:
   through domain-specific abstractions rather than directly, as
   attributes. Other features are more pressing.
 
-* Eventually the plan is to handle XML namespace
-  changes completely, and there is incipient code to deal with this; for now
-  the safe thing to do if you have a file using multiple namespaces is
-  to declare them once and for all on the top element, and never
-  change them throughout the document. Otherwise, problems are likely.
+* Empty elements appear in the editor as if they had an opening and
+  closing tag, irrespective of how they are encoded in the original
+  document. So ``<foo/>`` and ``<foo></foo>`` are treated the
+  same. Part of this problem is due to the fact that wed sees the
+  document as a DOM tree, not as a serialization. In a DOM tree,
+  ``<foo/>`` and ``<foo></foo>`` are the same.
+
+* Elements that *cannot* contain anything appear in the editor as if
+  they *could*. The validator raises an error if these elements are
+  filled with any contents but it would be nicer if they were
+  displayed in a way that distinguished them from the elements that
+  *can* be filled with contents. We worked on a prototype that would
+  check whether an element *can* contain anything and display it
+  differently if it could not. However, this required that the
+  rendering engine query the validating engine during rendering, which
+  made rendering extremely slow. Since the editor will raise an error
+  if an element that should be empty is filled erroneously, we've
+  decided that a solution to this problem can wait.
+
+* Eventually the plan is to handle XML namespace changes completely,
+  and there is incipient code to deal with this; for now the safe
+  thing to do if you have a file using multiple namespaces is to
+  declare them once and for all on the top element, and never change
+  them throughout the document. Otherwise, problems are likely.
 
 * We've not tested a setup in which more than one wed instance appears
   on the same page.
@@ -328,6 +348,11 @@ To include wed in a web page you must:
     ``foo``. If this fails, it will try to load ``modes/foo/foo``.  If
     this fails, it will try to load ``modes/foo/foo_mode``. These
     paths are all relative to the ``wed/`` root directory.
+
+  + ``ajaxlog``: See the documentation about :ref:`remote logging
+    <remote_logging>`.
+
+  + ``save``: See the documentation about :ref:`saving <saving>`.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS
