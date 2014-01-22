@@ -96,8 +96,8 @@ FW.prototype.create = function (done) {
                 me.window = w;
 
                 // Replace default log to record what is going on.
-                w.console.log = function (msg) {
-                    me.log_buffer.push(msg);
+                w.console.log = function () {
+                    me.log_buffer.push.apply(me.log_buffer, arguments);
                 };
                 // Replace the default alert.
                 w.alert = function () {
