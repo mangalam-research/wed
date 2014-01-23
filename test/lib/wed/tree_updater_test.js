@@ -38,6 +38,7 @@ describe("TreeUpdater", function () {
                     dloc = _dloc;
                     $ = _$;
                     $root = defined($("#root"));
+                    new dloc.DLocRoot($root[0]);
                     TreeUpdater = tree_updater.TreeUpdater;
                     makeDLoc = dloc.makeDLoc;
                     done();
@@ -60,7 +61,6 @@ describe("TreeUpdater", function () {
     beforeEach(function () {
         $root.empty();
         $root.html(data);
-        dloc.markRoot($root);
         tu = new TreeUpdater($root.get(0));
     });
 

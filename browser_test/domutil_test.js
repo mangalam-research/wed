@@ -716,11 +716,11 @@ describe("domutil", function () {
 
     });
 
-    describe("nodeToPath", function () {
+    describe("correspondingNode", function () {
         var source = '../../test-files/domutil_test_data/source_converted.xml';
         var $root = $("#domroot");
         var root = $root[0];
-        beforeEach(function (done) {
+        before(function (done) {
             $root.empty();
             require(["requirejs/text!" + source], function(data) {
                 $root.html(data);
@@ -728,115 +728,26 @@ describe("domutil", function () {
             });
         });
 
-        afterEach(function () {
+        after(function () {
             $root.empty();
         });
 
-        it("returns an empty string on root", function () {
-            assert.equal(domutil.nodeToPath(root, root), "");
+        it("returns the corresponding node", function () {
+            var clone = $root.clone()[0];
+            var corresp = domutil.correspondingNode($root[0],
+                                                    clone,
+                                                    $root.find(".quote")[1]);
+            assert.equal(corresp, $(clone).find(".quote")[1]);
         });
 
-        it("returns a correct path on text node", function () {
-            var node = $root.find(".title")[0].childNodes[0];
-            assert.equal(domutil.nodeToPath(root, node), "0/0/0/0/0/0");
-        });
-
-        it("returns a correct path on later text node", function () {
-            var node = $root.find(".body>.p").get(-1).childNodes[2];
-            assert.equal(domutil.nodeToPath(root, node), "0/1/0/1/2");
-        });
-
-        it("returns a correct path on phantom_wrap nodes", function () {
-
-            $root.find(".p").wrap("<div class='_phantom_wrap'>");
-            var node = $root.find(".p").get(-1);
-            assert.equal(domutil.nodeToPath(root, node), "0/1/0/1/0");
-        });
-
-
-        it("fails on a node which is not a descendant of its root",
-           function () {
-            var node = $("link").get(-1);
-            assert.Throw(domutil.nodeToPath.bind(undefined, root, node),
-                         Error, "node is not a descendant of root");
-        });
-
-        it("returns an empty path if node === root",
-           function () {
-            assert.equal(domutil.nodeToPath(root, root), "");
-        });
-
-        it("fails on invalid root",
-           function () {
-            var node = $("link").get(-1);
-            assert.Throw(domutil.nodeToPath.bind(undefined, null, node),
-                         Error, "invalid root parameter");
-
-            assert.Throw(domutil.nodeToPath.bind(undefined, undefined, node),
-                         Error, "invalid root parameter");
-
-        });
-
-        it("fails on invalid node",
-           function () {
-            assert.Throw(domutil.nodeToPath.bind(undefined, root, null),
-                         Error, "invalid node parameter");
-
-            assert.Throw(domutil.nodeToPath.bind(undefined, root, undefined),
-                         Error, "invalid node parameter");
-
-        });
-
-    });
-
-    describe("pathToNode", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
-        var $root = $("#domroot");
-        var root = $root[0];
-        beforeEach(function (done) {
-            $root.empty();
-            require(["requirejs/text!" + source], function(data) {
-                $root.html(data);
-                done();
-            });
-        });
-
-        afterEach(function () {
-            $root.empty();
-        });
-
-        it("returns root when passed an empty string", function () {
-            assert.equal(domutil.pathToNode(root, ""), root);
-        });
-
-        it("returns a correct node on a text path", function () {
-            var node = $root.find(".title")[0].childNodes[0];
-            assert.equal(domutil.pathToNode(root, "0/0/0/0/0/0"), node);
-        });
-
-        it("returns a correct node on a later text path", function () {
-            var node = $root.find(".body>.p").get(-1).childNodes[2];
-            assert.equal(domutil.pathToNode(root, "0/1/0/1/2"), node);
-        });
-
-        it("returns a correct node when path contains _phantom_wrap",
-           function () {
-            $root.find(".p").wrap("<div class='_phantom_wrap'>");
-            var node = $root.find(".p").get(-1);
-            assert.equal(domutil.pathToNode(root, "0/1/0/1/0"), node);
-        });
-
-        it("accepts more than one digit per path step",
-           function () {
-            $root.find(".p").wrap("<div class='_phantom_wrap'>");
-            var node = $root.find(".p").get(-1);
-            // There was a stupid bug in an earlier version of domutil
-            // which would make this fail with an exception
-            // complaining that the path was malformed due to the
-            // presence of "10". The null return value is fine since
-            // there is no such element, but at least it should not
-            // generate an exception.
-            assert.equal(domutil.pathToNode(root, "0/10"), null);
+        it("fails if the node is not in the tree", function () {
+            var clone = $root.clone()[0];
+            assert.Throw(domutil.correspondingNode.bind(domutil,
+                                                        $root[0],
+                                                        clone,
+                                                        $("body")[0]),
+                         Error,
+                         "node_in_a is not tree_a or a child of tree_a");
         });
     });
 
