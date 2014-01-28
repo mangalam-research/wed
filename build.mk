@@ -11,6 +11,9 @@ SAXON?=saxon
 # jsdoc command.
 JSDOC3?=jsdoc
 
+# wget command.
+WGET?=wget
+
 # jsdoc3 templates
 JSDOC3_DEFAULT_TEMPLATE?=$(dir $(JSDOC3))/templates/default
 
@@ -52,6 +55,9 @@ OPTIMIZE_BY_DEFAULT?=1
 #
 # End of customizable variables.
 #
+
+
+WGET:=$(WGET) --no-use-server-timestamps
 
 # Should be the last part of the URL beginning with
 # https://rangy.googlecode.com/files/
@@ -259,28 +265,28 @@ downloads:
 	mkdir $@
 
 downloads/$(RANGY_FILE): | downloads
-	(cd downloads; wget 'https://rangy.googlecode.com/files/$(RANGY_FILE)' )
+	(cd downloads; $(WGET) 'https://rangy.googlecode.com/files/$(RANGY_FILE)' )
 
 downloads/$(JQUERY_FILE): | downloads
-	(cd downloads; wget 'http://code.jquery.com/$(JQUERY_FILE)' )
+	(cd downloads; $(WGET) 'http://code.jquery.com/$(JQUERY_FILE)' )
 
 downloads/$(BOOTSTRAP_BASE): | downloads
-	(cd downloads; wget -O $(BOOTSTRAP_BASE) '$(BOOTSTRAP_URL)')
+	(cd downloads; $(WGET) -O $(BOOTSTRAP_BASE) '$(BOOTSTRAP_URL)')
 
 downloads/$(FONTAWESOME_BASE): | downloads
-	(cd downloads; wget '$(FONTAWESOME_PATH)')
+	(cd downloads; $(WGET) '$(FONTAWESOME_PATH)')
 
 downloads/$(TEXT_PLUGIN_BASE): | downloads
-	(cd downloads; wget $(TEXT_PLUGIN_FILE))
+	(cd downloads; $(WGET) $(TEXT_PLUGIN_FILE))
 
 downloads/$(LOG4JAVASCRIPT_BASE): | downloads
-	(cd downloads; wget $(LOG4JAVASCRIPT_FILE))
+	(cd downloads; $(WGET) $(LOG4JAVASCRIPT_FILE))
 
 downloads/$(BOOTSTRAP_GROWL_BASE): | downloads
-	(cd downloads; wget -O $(BOOTSTRAP_GROWL_BASE) $(BOOTSTRAP_GROWL_FILE))
+	(cd downloads; $(WGET) -O $(BOOTSTRAP_GROWL_BASE) $(BOOTSTRAP_GROWL_FILE))
 
 downloads/$(PURL_BASE): | downloads
-	(cd downloads; wget -O $(PURL_BASE) $(PURL_URL))
+	(cd downloads; $(WGET) -O $(PURL_BASE) $(PURL_URL))
 
 node_modules/%:
 	npm install
