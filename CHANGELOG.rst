@@ -71,7 +71,7 @@ Only salient changes are recorded here.
   - API change: Modes must now emit a ``pubsub.WED_MODE_READY`` event
     when they are ready to be used by the editor.
 
-  - Moved the build to Bootstrap 3.0.2 and jQuery 1.10.2.
+  - Moved the build to Bootstrap 3.0.3 and jQuery 1.11.0.
 
 * 0.10.0:
 

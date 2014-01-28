@@ -63,9 +63,9 @@ WGET:=$(WGET) --no-use-server-timestamps
 # https://rangy.googlecode.com/files/
 RANGY_FILE=rangy-1.3alpha.772.tar.gz
 
-JQUERY_FILE=jquery-1.10.2.js
+JQUERY_FILE=jquery-1.11.0.js
 
-BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.0.2/bootstrap-3.0.2-dist.zip
+BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.0.3/bootstrap-3.0.3-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fontawesome.io/3.2.1/assets/font-awesome.zip
 FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
