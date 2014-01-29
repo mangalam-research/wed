@@ -331,6 +331,9 @@ describe("wed", function () {
 
             window.setTimeout(log.wrap(function () {
                 event = new $.Event("click");
+                var offset = $(last_gui_span).offset();
+                event.pageX = offset.left;
+                event.pageY = offset.top;
                 event.target = last_gui_span;
                 $(last_gui_span).trigger(event);
                 done();
