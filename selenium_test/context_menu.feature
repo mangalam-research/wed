@@ -78,3 +78,8 @@ Scenario: bringing up the context menu on a malformed selection
   When the user selects a region that is malformed
   And the user brings up the context menu on the selection
   Then a context menu is not visible
+
+Scenario: bringing up the context menu with the keyboard on an element's label
+  When the user clicks on the start label of an element
+  And the user uses the keyboard to bring up the context menu
+  Then a context menu is visible close to where the user invoked it

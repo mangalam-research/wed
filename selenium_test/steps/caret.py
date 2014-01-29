@@ -9,6 +9,8 @@ from selenium.webdriver.common.keys import Keys
 import wedutil
 import selenic.util
 
+from selenium_test.util import Trigger
+
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
@@ -97,6 +99,8 @@ def step_impl(context, choice):
     ActionChains(driver)\
         .click(button)\
         .perform()
+
+    context.context_menu_trigger = Trigger(util, button)
 
 
 @then(u'^the label changes to show it is selected$')
