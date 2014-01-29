@@ -82,8 +82,8 @@ below, we have started testing wed on SauceLab's server under their
 OpenSauce program so support for various platforms should improve.
 
 Wed is primarily developed using a recent version of Chrome (version
-30; versions 26-29 have also been used earlier) and a recent version
-of Firefox (version 25; versions 20-24 have also been used earlier)
+32; versions 26-31 have also been used earlier) and a recent version
+of Firefox (version 26; versions 20-25 have also been used earlier)
 for testing. Ideally wed should work with recent versions of other
 browsers but since it is not routinely tested with those browsers
 there may be bugs specific to running wed in those browsers. File an
@@ -127,26 +127,11 @@ suite, is located in :github:`config/requirejs-config-dev.js`.
              it to the ``<local_config>`` directory and edit it
              *there*. This directory is not tracked by git.
 
-In all cases Wed requires the following packages:
-
-* jquery 1.9.1 or higher
-* Bootstrap version 3.0.0 or a later version in the version 3 series.
-* `salve <https://github.com/mangalam-research/salve/>`_
-* rangy, together with its ``selectionsaverestore`` module.
-* bootstrap-growl
-
-Loading wed in a Node.js environment requires installing the
-following node package:
-
-* node-amd-loader
-
-Building wed **additionally** requires the following node packages:
-
-* less
-
-Since wed is not yet distributed in a pre-compiled form, you
-effectively need these packages installed if you want to use wed
-because you have to build it first.
+Please see the :github:`package.json`,
+:github:`config/requirejs-config-dev.js`, :github:`Makefile` and
+:github:`build.mk` files for details regarding run-time and
+development dependencies. Running the test suite also requires that
+`saxon <http://saxon.sourceforge.net/>`_ be installed.
 
 Building wed's documentation **additionally** requires the following
 packages:
@@ -154,20 +139,6 @@ packages:
 * jsdoc3
 * rst2html
 * perl (a stop-gap measure which we plan to get rid of eventually)
-
-Running wed's tests **additionally** requires the following node
-packages:
-
-* mocha
-* chai
-* semver-sync
-* express
-* jsdom
-
-Please see the :github:`package.json`, :github:`config/requirejs-config-dev.js`,
-:github:`Makefile` and :github:`build.mk` files for details regarding these
-dependencies. Running the test suite also requires that `saxon
-<http://saxon.sourceforge.net/>`_ be installed.
 
 Running wed's selenium-based tests **additionally** requires the
 following:
