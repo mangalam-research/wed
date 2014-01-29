@@ -47,7 +47,6 @@ def step_impl(context):
     context.execute_steps(u"""
     When the user clicks on an element's label
     Then the label changes to show it is selected
-    And the caret disappears
     """)
 
 
@@ -143,7 +142,6 @@ def step_impl(context, what):
     ActionChains(driver)\
         .click(button)\
         .perform()
-    context.context_menu_trigger = Trigger(util, button)
     context.context_menu_for = None
 
 
@@ -170,13 +168,19 @@ def step_impl(context, choice, element=None):
         .click(button)\
         .perform()
 
-    context.context_menu_trigger = Trigger(util, button)
-
 
 @then(u'^the label changes to show it is selected$')
 def step_impl(context):
     button = context.clicked_element
     assert_true("_label_clicked" in button.get_attribute("class").split())
+
+
+@then(u'^the caret is in the element name in the label$')
+def step_impl(context):
+    util = context.util
+    button = context.clicked_element
+    en = button.find_element_by_class_name("_element_name")
+    wedutil.wait_for_caret_to_be_in(util, en)
 
 
 @when(u"^(?:the user )?hits the (?P<choice>right|left) arrow$")
@@ -203,13 +207,6 @@ def step_impl(context):
     util = context.util
     util.wait_until_not(EC.presence_of_element_located(
         (By.CLASS_NAME, "_label_clicked")))
-
-
-@then(u'^the caret disappears$')
-def step_impl(context):
-    driver = context.driver
-    WebDriverWait(driver, 2).until_not(EC.presence_of_element_located(
-        (By.CLASS_NAME, "_wed_caret")))
 
 
 # This is also our default for when a mechanism is not specified.

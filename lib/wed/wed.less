@@ -164,13 +164,15 @@ div.wed-frame {
         margin: 0.25em 0em;
     }
 
-    ._gui._label, ._gui._label._owns_caret {
+    @background-color-clicked: #f0ad4e;
+    ._gui._label {
+        @background-color: #3a87ad;
         text-indent: 0em;
         /* This restores the bootstrap 2 style. */
         font-size: 12px;
         font-weight: bold;
         display: inline-block;
-        background-color: #3a87ad;
+        background-color: @background-color;
         color: white;
 
         line-height: 1;
@@ -179,11 +181,12 @@ div.wed-frame {
         vertical-align: middle;
         border-radius: .25em;
         border-style: none;
+
+        &._label_clicked {
+            background-color: @background-color-clicked;
+        }
     }
 
-    ._gui._label._label_clicked {
-        background-color: #f0ad4e;
-    }
 
     ._gui._invisible {
         display: none;

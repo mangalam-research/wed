@@ -21,6 +21,9 @@
       <p>abcdefghij</p>
       <p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<hi>aaaaaaaa aaaaaaaaaaa</hi>abcd</p>
       <p>abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd</p>
+      <p rend="rend_value" style="style_value">Blah</p>
+      <p rend="abc">Blah</p>
+      <p rend="">Blah</p>
     </body>
   </text>
 </TEI>
