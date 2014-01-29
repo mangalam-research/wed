@@ -316,7 +316,7 @@ describe("wed", function () {
             editor.getDOMSelection().setSingleRange(caret.makeRange());
 
             // This simulates the movement of the caret after the
-            // mousedown event is process. This will be processed
+            // mousedown event is processed. This will be processed
             // after the mousedown handler but before _seekCaret is
             // run.
             window.setTimeout(log.wrap(function () {
