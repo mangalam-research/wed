@@ -61,7 +61,7 @@ describe("TreeUpdater", function () {
     beforeEach(function () {
         $root.empty();
         $root.html(data);
-        tu = new TreeUpdater($root.get(0));
+        tu = new TreeUpdater($root[0]);
     });
 
     afterEach(function () {
@@ -102,7 +102,7 @@ describe("TreeUpdater", function () {
 
     describe("insertNodeAt", function () {
         it("fails on fragments", function () {
-            var top = $root.find(".p").get(0);
+            var top = $root.find(".p")[0];
             var node = document.createDocumentFragment();
             assert.Throw(
                 tu.insertNodeAt.bind(tu, top, 0, node),
@@ -113,8 +113,8 @@ describe("TreeUpdater", function () {
 
     describe("splitAt", function () {
         it("fails on node which is not child of the top", function () {
-            var top = $root.find(".p").get(0);
-            var node = $root.find(".title").get(0);
+            var top = $root.find(".p")[0];
+            var node = $root.find(".title")[0];
             assert.Throw(
                 tu.splitAt.bind(tu, top, node, 0),
                 window.Error,
@@ -122,9 +122,9 @@ describe("TreeUpdater", function () {
         });
 
         it("fails if splitting would denormalize an element", function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
             assert.Throw(
-                tu.splitAt.bind(tu, node.childNodes[0], node.childNodes[0], 2),
+                tu.splitAt.bind(tu, node.firstChild, node.firstChild, 2),
                 window.Error,
                 "splitAt called in a way that would result in " +
                     "two adjacent text nodes");
@@ -132,7 +132,7 @@ describe("TreeUpdater", function () {
 
         it("splitting recursively, one level of depth generates "+
            "appropriate events", function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
             var parent = node.parentNode;
 
             var listener = new Listener(tu);
@@ -157,10 +157,10 @@ describe("TreeUpdater", function () {
             });
             listener.expected.deleteNode = 1;
 
-            tu.splitAt(node, node.childNodes[0], 2);
+            tu.splitAt(node, node.firstChild, 2);
 
             // Check that we're doing what we think we're doing.
-            assert.equal(parent.childNodes[0].outerHTML,
+            assert.equal(parent.firstChild.outerHTML,
                          '<div class="title _real">ab</div>', "first half");
             var next = node.nextSibling;
             assert.equal(parent.childNodes[1].outerHTML,
@@ -171,9 +171,9 @@ describe("TreeUpdater", function () {
 
         it("spliting recursively, at multiple levels does the right work",
            function () {
-            var node = $root.find(".quote").get(0).childNodes[0];
-            var top = $root.find(".text").get(0);
-            var body = $(top).find(".body").get(0);
+            var node = $root.find(".quote")[0].firstChild;
+            var top = $root.find(".text")[0];
+            var body = $(top).find(".body")[0];
             // Drop the nodes from 3 onwards so that future additions don't
             // change this test.
             while(body.childNodes[3])
@@ -182,8 +182,8 @@ describe("TreeUpdater", function () {
 
             var pair = tu.splitAt(top, node, 3);
 
-            var first_text = $(parent).children('.text').get(0);
-            var next_text = $(parent).children('.text').get(1);
+            var first_text = $(parent).children('.text')[0];
+            var next_text = $(parent).children('.text')[1];
             // Check that we're doing what we think we're doing.
             assert.equal(
                 first_text.outerHTML,
@@ -208,7 +208,7 @@ describe("TreeUpdater", function () {
         it("does the right thing if spliting at end an element",
            function () {
             var top = $root.find(".body>.p")[0];
-            var node = top.childNodes[0];
+            var node = top.firstChild;
             // Make sure we're looking at the right stuff.
             assert.equal(node.nodeValue.length, 4);
             var pair = tu.splitAt(top, node, 4);
@@ -220,7 +220,7 @@ describe("TreeUpdater", function () {
     describe("insertText", function () {
         it("generates appropriate events when it modifies a text node",
            function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var listener = new Listener(tu);
             tu.addEventListener("setTextNodeValue", function (ev) {
                 assert.equal(ev.node, node);
@@ -238,10 +238,10 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when it uses the next text node",
            function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
             var listener = new Listener(tu);
             tu.addEventListener("setTextNodeValue", function (ev) {
-                assert.equal(ev.node, node.childNodes[0]);
+                assert.equal(ev.node, node.firstChild);
                 assert.equal(ev.value, "Qabcd");
             });
             listener.expected.setTextNodeValue = 1;
@@ -249,8 +249,8 @@ describe("TreeUpdater", function () {
             var pair = tu.insertText(node, 0, "Q");
 
             // Check that we're doing what we think we're doing.
-            assert.equal(pair[0], node.childNodes[0]);
-            assert.equal(pair[1], node.childNodes[0]);
+            assert.equal(pair[0], node.firstChild);
+            assert.equal(pair[1], node.firstChild);
             assert.equal(pair[0].nodeValue, "Qabcd");
 
             listener.check();
@@ -259,11 +259,11 @@ describe("TreeUpdater", function () {
         it("generates appropriate events when it uses the previous text " +
            "node",
            function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
 
             var listener = new Listener(tu);
             tu.addEventListener("setTextNodeValue", function (ev) {
-                assert.equal(ev.node, node.childNodes[0]);
+                assert.equal(ev.node, node.firstChild);
                 assert.equal(ev.value, "abcdQ");
             });
             listener.expected.setTextNodeValue = 1;
@@ -271,8 +271,8 @@ describe("TreeUpdater", function () {
             var pair = tu.insertText(node, 1, "Q");
 
             // Check that we're doing what we think we're doing.
-            assert.equal(pair[0], node.childNodes[0]);
-            assert.equal(pair[1], node.childNodes[0]);
+            assert.equal(pair[0], node.firstChild);
+            assert.equal(pair[1], node.firstChild);
             assert.equal(pair[0].nodeValue, "abcdQ");
 
             listener.check();
@@ -280,7 +280,7 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when it creates a text node",
            function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
             $(node).empty();
 
             var listener = new Listener(tu);
@@ -295,21 +295,21 @@ describe("TreeUpdater", function () {
 
             // Check that we're doing what we think we're doing.
             assert.isUndefined(pair[0]);
-            assert.equal(pair[1], node.childNodes[0]);
+            assert.equal(pair[1], node.firstChild);
             assert.equal(pair[1].nodeValue, "test");
 
             listener.check();
         });
 
         it("does nothing if passed an empty string", function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
             var listener = new Listener(tu);
 
-            assert.equal(node.childNodes[0].nodeValue, "abcd");
+            assert.equal(node.firstChild.nodeValue, "abcd");
             var pair = tu.insertText(node, 1, "");
 
             // Check that we're doing what we think we're doing.
-            assert.equal(node.childNodes[0].nodeValue, "abcd");
+            assert.equal(node.firstChild.nodeValue, "abcd");
             assert.isUndefined(pair[0]);
             assert.isUndefined(pair[1]);
 
@@ -328,7 +328,7 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when it modifies a text node",
            function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var listener = new Listener(tu);
             tu.addEventListener("setTextNodeValue", function (ev) {
                 assert.equal(ev.node, node);
@@ -345,7 +345,7 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when it deletes an empty text " +
            "node", function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var listener = new Listener(tu);
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
@@ -363,7 +363,7 @@ describe("TreeUpdater", function () {
 
     describe("setAttribute", function () {
         it("fails on non-element node", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             assert.Throw(tu.setAttribute.bind(tu, node, "q", "ab"),
                          window.Error,
                          "setAttribute called on non-element");
@@ -419,14 +419,14 @@ describe("TreeUpdater", function () {
 
     describe("insertIntoText", function () {
         it("fails on non-text node", function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
             assert.Throw(tu.insertIntoText.bind(tu, node, 0, node),
                          window.Error,
                          "insertIntoText called on non-text");
         });
 
         it("fails on undefined node to insert", function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             assert.Throw(tu.insertIntoText.bind(tu, node, 0, undefined),
                          window.Error,
                          "must pass an actual node to insert");
@@ -435,8 +435,8 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when inserting a new element",
            function () {
-            var parent = $root.find(".title").get(0);
-            var node = parent.childNodes[0];
+            var parent = $root.find(".title")[0];
+            var node = parent.firstChild;
             var $el = $("<span>");
             var listener = new Listener(tu);
             tu.addEventListener("deleteNode", function (ev) {
@@ -458,23 +458,23 @@ describe("TreeUpdater", function () {
             listener.expected.insertNodeAt = 3;
 
 
-            var pair = tu.insertIntoText(node, 2, $el.get(0));
+            var pair = tu.insertIntoText(node, 2, $el[0]);
 
             // Check that we're doing what we think we're doing.
             assert.equal(pair[0].node.nodeValue, "ab");
-            assert.equal(pair[0].node.nextSibling, $el.get(0));
+            assert.equal(pair[0].node.nextSibling, $el[0]);
             assert.equal(pair[0].offset, 2);
             assert.equal(pair[1].node.nodeValue, "cd");
-            assert.equal(pair[1].node.previousSibling, $el.get(0));
+            assert.equal(pair[1].node.previousSibling, $el[0]);
             assert.equal(pair[1].offset, 0);
-            assert.equal($root.find(".title").get(0).childNodes.length, 3);
-            assert.equal($root.find(".title").get(0).childNodes[1], $el.get(0));
+            assert.equal($root.find(".title")[0].childNodes.length, 3);
+            assert.equal($root.find(".title")[0].childNodes[1], $el[0]);
 
             listener.check();
         });
 
         it("works fine with negative offset", function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var parent = node.parentNode;
             var $el = $("<span>");
 
@@ -496,21 +496,21 @@ describe("TreeUpdater", function () {
             });
             listener.expected.insertNodeAt = 2;
 
-            var pair = tu.insertIntoText(node, -1, $el.get(0));
+            var pair = tu.insertIntoText(node, -1, $el[0]);
 
             // Check that we're doing what we think we're doing.
             assert.equal(pair[0].node, parent);
             assert.equal(pair[0].offset, 0);
             assert.equal(pair[1].node.nodeValue, "abcd");
-            assert.equal(pair[1].node.previousSibling, $el.get(0));
-            assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            assert.equal(pair[1].node.previousSibling, $el[0]);
+            assert.equal($root.find(".title")[0].childNodes.length, 2);
 
             listener.check();
         });
 
         it("works fine with offset beyond text length",
            function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var parent = node.parentNode;
             var $el = $("<span>");
 
@@ -533,14 +533,14 @@ describe("TreeUpdater", function () {
             listener.expected.insertNodeAt = 2;
 
             var pair = tu.insertIntoText(node, node.nodeValue.length,
-                                         $el.get(0));
+                                         $el[0]);
 
                 // Check that we're doing what we think we're doing.
             assert.equal(pair[0].node.nodeValue, "abcd");
-            assert.equal(pair[0].node.nextSibling, $el.get(0));
+            assert.equal(pair[0].node.nextSibling, $el[0]);
             assert.equal(pair[1].node, parent);
             assert.equal(pair[1].offset, 2);
-            assert.equal($root.find(".title").get(0).childNodes.length, 2);
+            assert.equal($root.find(".title")[0].childNodes.length, 2);
             listener.check();
 
         });
@@ -548,7 +548,7 @@ describe("TreeUpdater", function () {
 
     describe("setTextNodeValue", function () {
         it("fails on non-text node", function () {
-            var node = $root.find(".title").get(0);
+            var node = $root.find(".title")[0];
             assert.Throw(tu.setTextNode.bind(tu, node, "test"),
                          window.Error,
                          "setTextNode called on non-text");
@@ -556,7 +556,7 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when setting text",
            function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var listener = new Listener(tu);
             tu.addEventListener("setTextNodeValue", function (ev) {
                 assert.equal(ev.node, node);
@@ -574,7 +574,7 @@ describe("TreeUpdater", function () {
 
         it("generates appropriate events when setting text to an empty string",
            function () {
-            var node = $root.find(".title").get(0).childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var listener = new Listener(tu);
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
@@ -593,8 +593,7 @@ describe("TreeUpdater", function () {
     describe("removeNode", function () {
         it("generates appropriate events when removing a node",
            function () {
-            var node = $($root.find(".body>.p").get(2)).children(".quote").
-                get(1);
+            var node = $root.find(".body>.p").eq(2).children(".quote")[1];
             var parent = node.parentNode;
             assert.equal(parent.childNodes.length, 3);
             var listener = new Listener(tu);
@@ -616,8 +615,7 @@ describe("TreeUpdater", function () {
         });
 
         it("generates appropriate events when merging text", function () {
-            var node = $($root.find(".body>.p").get(1)).
-                children(".quote").get(0);
+            var node = $root.find(".body>.p").eq(1).children(".quote")[0];
             var parent = node.parentNode;
             var prev = node.previousSibling;
             var next = node.nextSibling;
@@ -656,8 +654,7 @@ describe("TreeUpdater", function () {
         it("does not bork on missing previous text", function () {
             // An earlier bug would cause an unhandled exception on this
             // test.
-            var node = $($root.find(".body>.p").get(2)).
-                children(".quote").get(0);
+            var node = $root.find(".body>.p").eq(2).children(".quote")[0];
             var parent = node.parentNode;
             var ret = tu.removeNode(node);
             assert.equal(ret.node, parent);
@@ -669,8 +666,7 @@ describe("TreeUpdater", function () {
         it("fails on nodes of different parents", function () {
             // An earlier bug would cause an unhandled exception on this
             // test.
-            var node = $($root.find(".body>.p").get(2)).
-                children(".quote").get(0);
+            var node = $root.find(".body>.p").eq(2).children(".quote")[0];
             var parent = node.parentNode;
             assert.Throw(tu.removeNodes.bind(tu, [node, node.parentNode]),
                          window.Error,
@@ -679,10 +675,10 @@ describe("TreeUpdater", function () {
         });
 
         it("generates appropriate events when merging text", function () {
-            var p = $root.find(".body>.p").get(1);
+            var p = $root.find(".body>.p")[1];
             var $p = $(p);
-            var first_node = $p.children(".quote").get(0);
-            var last_node = $p.children(".quote").last().get(0);
+            var first_node = $p.children(".quote")[0];
+            var last_node = $p.children(".quote").last()[0];
             var nodes = Array.prototype.slice.call(
                 p.childNodes,
                 Array.prototype.indexOf.call(p.childNodes, first_node),
@@ -722,8 +718,7 @@ describe("TreeUpdater", function () {
         it("does not bork on missing previous text", function () {
             // An earlier bug would cause an unhandled exception on this
             // test.
-            var node = $($root.find(".body>.p").get(2)).
-                children(".quote").get(0);
+            var node = $root.find(".body>.p").eq(2).children(".quote")[0];
             var parent = node.parentNode;
             var ret = tu.removeNodes([node]);
             assert.equal(ret.node, parent);
@@ -734,11 +729,11 @@ describe("TreeUpdater", function () {
 
     describe("mergeTextNodes", function () {
         it("generates appropriate events when merging text", function () {
-            var $p = $($root.find(".body>.p").get(1));
+            var $p = $root.find(".body>.p").eq(1);
             // Remove the first quote so that we have two text
             // nodes adjacent.
             $p.children('.quote').first().remove();
-            var node = $p.get(0).childNodes[0];
+            var node = $p[0].firstChild;
             var parent = node.parentNode;
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 4);
@@ -766,8 +761,8 @@ describe("TreeUpdater", function () {
         });
 
         it("does nothing if there is nothing to do", function () {
-            var $p = $($root.find(".body>.p").get(1));
-            var node = $p.get(0).childNodes[0];
+            var $p = $root.find(".body>.p").eq(1);
+            var node = $p[0].firstChild;
             var parent = node.parentNode;
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 5);
@@ -786,11 +781,11 @@ describe("TreeUpdater", function () {
         });
 
         it("returns a proper caret value when it merges", function () {
-            var $p = $($root.find(".body>.p").get(1));
+            var $p = $root.find(".body>.p").eq(1);
             // Remove the first quote so that we have two text
             // nodes adjacent.
             $p.children('.quote').first().remove();
-            var node = $p.get(0).childNodes[0];
+            var node = $p[0].firstChild;
             var parent = node.parentNode;
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 4);
@@ -810,8 +805,8 @@ describe("TreeUpdater", function () {
 
         it("returns a proper caret value when it does nothing",
            function () {
-            var $p = $($root.find(".body>.p").get(1));
-            var node = $p.get(0).childNodes[0];
+            var $p = $root.find(".body>.p").eq(1);
+            var node = $p[0].firstChild;
             var parent = node.parentNode;
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 5);
@@ -857,8 +852,8 @@ describe("TreeUpdater", function () {
             }
         }
         it("generates appropriate events when merging text", function () {
-            var p = $root.find(".body>.p").get(1);
-            var start = makeDLoc($root[0], p.childNodes[0], 4);
+            var p = $root.find(".body>.p")[1];
+            var start = makeDLoc($root[0], p.firstChild, 4);
             var end = makeDLoc($root[0], p.childNodes[4], 3);
             assert.equal(p.childNodes.length, 5);
 
@@ -905,9 +900,9 @@ describe("TreeUpdater", function () {
         });
 
         it("returns proper nodes when merging a single node", function () {
-            var p = $root.find(".body>.p").get(1);
-            var start = makeDLoc($root[0], p.childNodes[0], 4);
-            var end = makeDLoc($root[0], p.childNodes[0], 6);
+            var p = $root.find(".body>.p")[1];
+            var start = makeDLoc($root[0], p.firstChild, 4);
+            var end = makeDLoc($root[0], p.firstChild, 6);
             assert.equal(p.childNodes.length, 5);
 
             var nodes = [p.ownerDocument.createTextNode("re")];
@@ -915,17 +910,17 @@ describe("TreeUpdater", function () {
 
             // Check that we're doing what we think we're doing.
             assert.equal(p.childNodes.length, 5);
-            assert.equal(p.childNodes[0].nodeValue, 'befo ');
+            assert.equal(p.firstChild.nodeValue, 'befo ');
 
             assert.isTrue(ret.length > 0);
             checkNodes(ret[1], nodes);
-            assert.equal(ret[0].node, p.childNodes[0]);
+            assert.equal(ret[0].node, p.firstChild);
             assert.equal(ret[0].offset, 4);
         });
 
         it("returns proper nodes when merging text", function () {
-            var p = $root.find(".body>.p").get(1);
-            var start = makeDLoc($root[0], p.childNodes[0], 4);
+            var p = $root.find(".body>.p")[1];
+            var start = makeDLoc($root[0], p.firstChild, 4);
             var end = makeDLoc($root[0], p.childNodes[4], 3);
             assert.equal(p.childNodes.length, 5);
 
@@ -949,7 +944,7 @@ describe("TreeUpdater", function () {
 
             assert.isTrue(ret.length > 0);
             checkNodes(ret[1], nodes);
-            assert.equal(ret[0].node, p.childNodes[0]);
+            assert.equal(ret[0].node, p.firstChild);
             assert.equal(ret[0].offset, 4);
         });
 
