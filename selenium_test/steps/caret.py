@@ -41,7 +41,9 @@ def step_impl(context):
     return range.getBoundingClientRect();
     """, element)
 
-    last_click = {"left": int(rect["left"]), "top": int(rect["top"])}
+    last_click = {"left": int(rect["left"] + 1),
+                  "top": int(rect["top"] + rect["height"] / 2)}
+
     ActionChains(driver) \
         .move_to_element_with_offset(context.origin_object, last_click["left"],
                                      last_click["top"]) \
@@ -56,9 +58,9 @@ def step_impl(context):
     driver = context.driver
 
     last_click = context.last_click
-    caret_pos = wedutil.caret_pos(driver)
+    caret_pos = wedutil.caret_selection_pos(driver)
 
-    assert_equal(selenic.util.locations_within(caret_pos, last_click, 0), "")
+    assert_equal(selenic.util.locations_within(caret_pos, last_click, 2), "")
 
 
 @when(u"^the user clicks on "
