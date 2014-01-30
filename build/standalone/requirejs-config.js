@@ -17,16 +17,19 @@ require.config({
     ],
     "shim": {
         "xregexp": {
-            "exports": "XRegExp"
+            "exports": "XRegExp",
+            "init": function () { return {XRegExp: XRegExp}; }
         },
         "bootstrap": {
             "deps": [
                 "jquery"
             ],
-            "exports": "jQuery.fn.popover"
+            "exports": "jQuery.fn.popover",
+            "init": function () { jQuery.noConflict() }
         },
         "external/rangy/rangy-core": {
-            "exports": "rangy"
+            "exports": "rangy",
+            "init": function () { return this.rangy; }
         },
         "external/rangy/rangy-selectionsaverestore": {
             "deps": [
