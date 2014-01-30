@@ -858,7 +858,6 @@ describe("TreeUpdater", function () {
         }
         it("generates appropriate events when merging text", function () {
             var p = $root.find(".body>.p").get(1);
-            var $p = $(p);
             var start = makeDLoc($root[0], p.childNodes[0], 4);
             var end = makeDLoc($root[0], p.childNodes[4], 3);
             assert.equal(p.childNodes.length, 5);
@@ -907,7 +906,6 @@ describe("TreeUpdater", function () {
 
         it("returns proper nodes when merging a single node", function () {
             var p = $root.find(".body>.p").get(1);
-            var $p = $(p);
             var start = makeDLoc($root[0], p.childNodes[0], 4);
             var end = makeDLoc($root[0], p.childNodes[0], 6);
             assert.equal(p.childNodes.length, 5);
@@ -927,7 +925,6 @@ describe("TreeUpdater", function () {
 
         it("returns proper nodes when merging text", function () {
             var p = $root.find(".body>.p").get(1);
-            var $p = $(p);
             var start = makeDLoc($root[0], p.childNodes[0], 4);
             var end = makeDLoc($root[0], p.childNodes[4], 3);
             assert.equal(p.childNodes.length, 5);
@@ -956,6 +953,25 @@ describe("TreeUpdater", function () {
             assert.equal(ret[0].offset, 4);
         });
 
+        it("empties an element without problem", function () {
+            var p = $root.find(".body>.p")[1];
+            var start = makeDLoc($root[0], p, 0);
+            var end = makeDLoc($root[0], p, p.childNodes.length);
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = Array.prototype.slice.call(p.childNodes);
+            var ret = tu.cut(start, end);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 0);
+
+            assert.isTrue(ret.length > 0);
+            // Check the caret position.
+            assert.equal(ret[0].node, p);
+            assert.equal(ret[0].offset, 0);
+            // Check that the nodes are those we expected.
+            checkNodes(ret[1], nodes);
+        });
     });
 
 });

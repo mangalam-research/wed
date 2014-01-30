@@ -16,6 +16,8 @@
     <body>
       <p>blah</p>
       <p>before <quote type="foo">quoted</quote> between <quote>quoted2</quote> after</p>
+      <p><quote>quoted</quote><quote>quoted2</quote><quote>quoted3</quote></p>
+      <p><quoted>blah</quoted>blah</p>
     </body>
   </text>
 </TEI>

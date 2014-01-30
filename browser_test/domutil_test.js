@@ -805,6 +805,124 @@ describe("domutil", function () {
                     "an element.");
         });
     });
+
+    describe("genericCutFunction", function () {
+        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var $root = $("#domroot");
+        var root = $root[0];
+        beforeEach(function (done) {
+            $root.empty();
+            require(["requirejs/text!" + source], function(data) {
+                $root.html(data);
+                done();
+            });
+        });
+
+        after(function () {
+            $root.empty();
+        });
+
+        function checkNodes (ret, nodes) {
+            assert.equal(ret.length, nodes.length, "result length");
+            for(var i = 0; i < nodes.length; ++i) {
+                assert.equal(ret[i].nodeType, nodes[i].nodeType);
+                assert.isTrue(ret[i].nodeType === window.Node.TEXT_NODE ||
+                              ret[i].nodeType === window.Node.ELEMENT_NODE,
+                              "node type");
+                switch(ret.nodeType) {
+                case window.Node.TEXT_NODE:
+                    assert(ret[i].nodeValue, nodes[i].nodeValue,
+                           "text node at " + i);
+                    break;
+                case window.Node.ELEMENT_NODE:
+                    assert(ret[i].outerHTML, nodes[i].outerHTML,
+                           "element node at " + i);
+                    break;
+                }
+            }
+        }
+
+        var cut;
+        before(function() {
+            cut = domutil.genericCutFunction.bind({
+                deleteText: domutil.deleteText,
+                deleteNode: domutil.deleteNode,
+                mergeTextNodes: domutil.mergeTextNodes
+            });
+        });
+
+        it("removes nodes and merges text", function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p.firstChild, 4];
+            var end_caret = [p.childNodes[4], 3];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = Array.prototype.slice.call(
+                p.childNodes,
+                Array.prototype.indexOf.call(p.childNodes,
+                                             start_caret[0].nextSibling),
+                Array.prototype.indexOf.call(p.childNodes,
+                                             end_caret[0].previousSibling) + 1);
+            nodes.unshift(p.ownerDocument.createTextNode("re "));
+            nodes.push(p.ownerDocument.createTextNode(" af"));
+
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 1);
+            assert.equal(
+                p.outerHTML,
+                ('<div class="p _real">befoter</div>'));
+
+            assert.isTrue(ret.length > 0);
+            assert.equal(ret[0][0], p.firstChild);
+            assert.equal(ret[0][1], 4);
+            checkNodes(ret[1], nodes);
+        });
+
+        it("returns proper nodes when merging a single node", function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p.firstChild, 4];
+            var end_caret = [p.firstChild, 6];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = [p.ownerDocument.createTextNode("re")];
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 5);
+            assert.equal(p.firstChild.nodeValue, 'befo ');
+
+            assert.isTrue(ret.length > 0);
+            // Check the caret position.
+            assert.equal(ret[0][0], p.firstChild);
+            assert.equal(ret[0][1], 4);
+
+            // Check that the nodes are those we expected.
+            checkNodes(ret[1], nodes);
+        });
+
+        it("empties an element without problem", function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p, 0];
+            var end_caret = [p, p.childNodes.length];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = Array.prototype.slice.call(p.childNodes);
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 0);
+
+            assert.isTrue(ret.length > 0);
+            // Check the caret position.
+            assert.equal(ret[0][0], p);
+            assert.equal(ret[0][1], 0);
+            // Check that the nodes are those we expected.
+            checkNodes(ret[1], nodes);
+        });
+    });
+
 });
 
 });
