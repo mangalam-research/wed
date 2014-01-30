@@ -1,0 +1,140 @@
+html
+{
+    margin: 0px;
+    padding: 0px;
+    background-color: #133f52;
+    height: 95%
+}
+
+body {
+    font: 14px "Trebuchet MS", sans-serif,
+    "DejaVu Sans Condensed", "Liberation Sans",
+    "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue",
+    Helvetica, Arial, sans serif;
+    background-color: #1c4e63;
+    height: 98%;
+}
+
+h1,h2,h3
+{
+    color: white;
+}
+
+h4
+{
+    color: #20435c;
+}
+
+#main {
+    float: right;
+    height:100%;
+    width: 75%;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+section {
+    margin-right: 0;
+}
+
+code {
+    background-color:#eee;
+    padding: 2px;
+}
+
+header h2
+{
+    color: #999;
+}
+
+article h1, article h2, article h3, article h4
+{
+    color: black;
+}
+
+.class-description {
+    font-style: normal;
+}
+
+nav {
+    float: left;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    width: 25%;
+    height: 100%;
+    border-left: 0;
+}
+
+nav ul {
+    font-family: 'Trebuchet MS', sans-serif, 'Lucida Grande', 'Lucida Sans Unicode', arial, sans-serif;
+}
+
+nav h2 a, nav h2 a:visited {
+    color: white;
+}
+
+nav h3, nav li, nav a, nav a:visited, nav a:active {
+    color: #98dbcc;
+}
+
+footer {
+    float: right;
+    margin-top: 0;
+    color: white;
+}
+
+footer a, footer a:visited, footer a:active {
+    color: #98dbcc;
+}
+
+
+.params .name, .props .name, .name code {
+    color: #20435c;
+}
+
+.description table,
+.class-description table,
+.param-desc table,
+.params,
+.props
+{
+    border-spacing: 0;
+    border: 0;
+    border-collapse: collapse;
+}
+
+.description td, .description th,
+.class-description td, .class-description th,
+.param-desc td, .param-desc th,
+.params td, .params th,
+.props td, .props th
+{
+    border: 1px solid #ddd;
+    margin: 0px;
+    text-align: left;
+    vertical-align: top;
+    padding: 4px 6px;
+    display: table-cell;
+}
+
+.description thead tr,
+.class-description tr,
+.param-desc tr,
+.params thead tr,
+.props thead tr
+{
+    background-color: #ddd;
+    font-weight: bold;
+}
+
+.description .description thead tr,
+.class-description .class-description thead tr,
+.param-desc .param-desc tr,
+.params .params thead tr,
+.props .props thead tr
+{
+    background-color: #fff;
+    font-weight: bold;
+}

@@ -4,18 +4,90 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.11.0:
+
+  - Wed now has a notion of label level, which allows showing more or
+    less labels. See `this
+    <http://mangalam-research.github.io/wed/usage.html#label-visibility>`_
+
+  - Wed is now able to show tooltips for start and end labels that
+    mark the start and end of elements. To support this, modes must
+    implement a ``shortDescriptionFor`` method that returns a string
+    to be used for the tooltips.
+
+  - Global API change. Most functions that used to take an Array as a
+    caret position or general location now require ``DLoc`` objects or
+    return ``DLoc`` objects. A non-exclusive list of methods affected.
+
+    + Most methods on the ``TreeUpdater`` class.
+
+    + ``Editor.getGUICaret``
+
+    + ``Editor.setGUICaret``
+
+    + ``Editor.getDataCaret``
+
+    + ``Editor.setDataCaret``
+
+    + ``Editor.toDataLocation``.
+
+    + ``Editor.fromDataLocation``
+
+    + ``GUIUpdater.fromDataLocation``
+
+    + The ``move_caret_to`` parameter in transformation data must now
+      be a ``DLoc`` object.
+
+  - ``editor.getCaret`` is now ``Editor.getGUICaret``.
+
+  - ``Editor.setCaret`` is now ``Editor.setGUICaret``
+
+  - ``Editor.toDataCaret`` is now ``Editor.toDataLocation``.
+
+  - ``Editor.fromDataCaret`` is now ``Editor.fromDataLocation``.
+
+  - ``GUIUpdater.fromDataCaret`` is now ``GUIUpdater.fromDataLocation``
+
+  - API change for ``Decorator.elementDecorator`` and
+    ``GenericDecorator.elementDecorator``: a new parameter has been
+    added in third position, which gives the level of the labels added
+    to the element.
+
+  - API change for transformations:
+
+    + New signature: ``fireTransformation(editor, data)``
+
+    + Transformation handlers have the same signature.
+
+    + The ``data`` parameter now contains fields that correspond to
+      what used to be ``node`` and ``element_name``.
+
+  - API change: modes based on the generic mode should have a meta
+    that defines ``getNamespaceMappings()``.
+
+  - API change: Modes no longer need to provide ``optionResolver``
+    class methods.
+
+  - API change: Modes must now emit a ``pubsub.WED_MODE_READY`` event
+    when they are ready to be used by the editor.
+
+  - Moved the build to Bootstrap 3.0.3 and jQuery 1.11.0.
+
 * 0.10.0:
 
-.. warning:: The changes to the build system are substantial enough
-             that if you update the sources in place (through a ``git
-             pull``, for instance) we recommend rebuilding wed from
-             scratch: ``make clean`` then ``make``. Just to be on the
-             safe side.
+  .. warning:: The changes to the build system are substantial enough
+               that if you update the sources in place (through a ``git
+               pull``, for instance) we recommend rebuilding wed from
+               scratch: ``make clean`` then ``make``. Just to be on the
+               safe side.
 
-.. warning:: The location of the files to use for the demo and the
-             in-browser tests has changed. See the documentation on
-             the `demo <README.rst#demo>`_ and the documentation on
-             `testing <tech_notes.rst#in-browser-tests>`_.
+  .. warning:: The location of the files to use for the demo and the
+               in-browser tests has changed. See the documentation on
+               the `demo
+               <http://mangalam-research.github.io/wed/usage.html#local-demo>`_
+               and the documentation on `testing
+               <http://mangalam-research.github.io/wed/tech_notes.html#
+               in-browser-tests>`_.
 
   - Internals: wed now requires salve 0.14.1 or later, which means
     smaller schema files, faster loading and faster running. Yippee!
@@ -45,7 +117,8 @@ Only salient changes are recorded here.
     this.
 
   - API: the protocol for saving to a server was redesigned. See
-    `<tech_notes.rst>`_.
+    the `tech notes <http://mangalam-research.github.io/wed/
+    tech_notes.html>`_.
 
   - API: The ``Editor`` methods ``setSelectionRange`` and
     ``getSelectionRange`` have been renamed ``setDOMSelectionRange``
@@ -170,4 +243,5 @@ Only salient changes are recorded here.
 ..  LocalWords:  getTransformationRegistry fireTransformation init
 ..  LocalWords:  html ibus rst setSelectionRange getSelectionRange
 ..  LocalWords:  setDOMSelectionRange getDOMSelectionRange README
-..  LocalWords:  getSelection getDOMSelection
+..  LocalWords:  getSelection getDOMSelection Github reStructuredText
+..  LocalWords:  getNamespaceMappings addHandlers startListening

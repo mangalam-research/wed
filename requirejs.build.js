@@ -5,17 +5,24 @@
     findNestedDependencies: true,
     removeCombined: true,
     skipDirOptimize: true,
-    useStrict: true,
+    useStrict: false,
+    paths: {
+        "browser_test": "empty:"
+    },
     modules: [
         {
             name: "wed/wed",
-            include: [ "wed/modes/generic/generic" ],
+            include: [
+                "wed/modes/generic/generic",
+                "wed/modes/generic/generic_meta"
+            ],
             exclude: [
                 "jquery",
                 "bootstrap",
-                "rangy",
+                "log4javascript",
                 "jquery.bootstrap-growl",
-                "log4javascript"
+                "pubsub-js",
+                "lodash"
             ]
         }
     ]

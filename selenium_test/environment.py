@@ -1,6 +1,8 @@
 import os
+import time
 
-from nose.tools import assert_raises  # pylint: disable=E0611
+# pylint: disable=E0611
+from nose.tools import assert_raises, assert_true
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
 
@@ -22,14 +24,31 @@ config = conf["Config"](local_conf_path)
 
 
 def before_all(context):
-    context.driver = config.get_driver()
-    context.util = selenic.util.Util(context.driver)
+    driver = config.get_driver()
+    context.driver = driver
+    context.util = selenic.util.Util(driver)
     context.selenic_config = config
+    # Without this, window sizes vary depending on the actual browser
+    # used.
+    context.initial_window_size = {"width": 1020, "height": 560}
+    driver.set_window_size(context.initial_window_size["width"],
+                           context.initial_window_size["height"])
+    assert_true(driver.desired_capabilities["nativeEvents"],
+                "Wed's test suite require that native events be available; "
+                "you may have to use a different version of your browser, "
+                "one for which Selenium supports native events.")
+
+    behave_wait = os.environ.get("BEHAVE_WAIT_BETWEEN_STEPS")
+    context.behave_wait = behave_wait and float(behave_wait)
 
 
 def before_scenario(context, _scenario):
     driver = context.driver
-    context.before_scenario_window_size = driver.get_window_size()
+    size = driver.get_window_size()
+    if size != context.initial_window_size:
+        driver.set_window_size(context.initial_window_size["width"],
+                               context.initial_window_size["height"])
+    context.initial_window_handle = driver.current_window_handle
 
 
 def after_scenario(context, _scenario):
@@ -39,19 +58,26 @@ def after_scenario(context, _scenario):
     # Make sure we did not trip a fatal error.
     #
     with util.local_timeout(0.5):
-        assert_raises(TimeoutException,
-                      util.find_element,
+        assert_raises(TimeoutException, util.find_element,
                       (By.CLASS_NAME, "wed-fatal-modal"))
 
-    window_size = driver.get_window_size()
-    if window_size != context.before_scenario_window_size:
-        wedutil.set_window_size(util,
-                                context.before_scenario_window_size["width"],
-                                context.before_scenario_window_size["height"])
+    # Close all extra tabs.
+    for handle in driver.window_handles:
+        if handle != context.initial_window_handle:
+            driver.switch_to_window(handle)
+            driver.close()
+    driver.switch_to_window(context.initial_window_handle)
+
+
+def before_step(context, _step):
+    if context.behave_wait:
+        time.sleep(context.behave_wait)
 
 
 def after_all(context):
     driver = context.driver
     config.set_test_status(driver.session_id, not context.failed)
-    if not context.failed and "BEHAVE_NO_QUIT" not in os.environ:
+    selenium_quit = os.environ.get("SELENIUM_QUIT")
+    if not ((selenium_quit == "never") or
+            (context.failed and selenium_quit == "on-success")):
         driver.quit()

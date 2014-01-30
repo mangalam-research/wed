@@ -4,7 +4,7 @@ Wed
 Caret Management
 ----------------
 
-* Generally refactor the caret and selection management.
+* Generally refactor selection management.
 
 * Caret management right now is a complicated affair. Wed should try
   to follow the blur and focus events so that whenever the caret moves
@@ -13,9 +13,6 @@ Caret Management
   push/popSelection are used to prevent the caret to be lost when GUI
   elements that overlay the editing area are displayed but we should
   be able to get rid of this.
-
-* Have real caret objects rather than the Array nonsense currently in
-  effect.
 
 Other
 -----

@@ -4,6 +4,11 @@ Feature: caret
 Background: a simple document.
   Given a document containing a top level element, a p element, and text.
 
+Scenario: Clicking moves the caret.
+  When an element's label has been clicked
+  And the user clicks on text
+  Then the caret is at the last click's position.
+
 Scenario: Clicking on an element's label.
   When the user clicks on an element's label
   Then the label changes to show it is selected
@@ -35,3 +40,29 @@ Scenario: Scrolling moves the caret.
   When the user selects text
   And the user scrolls the editor pane down
   Then the caret moves up relative to the browser window.
+
+Scenario: Selecting text and ending on an element label.
+  When the user selects text and ends on an element label
+  Then the text is selected
+  And no label is selected
+
+Scenario: Bringing up the context menu on an element label selects the element.
+  When the user uses the mouse to bring up the context menu on the start label of an element
+  Then the label of the element that has the context menu is selected.
+
+Scenario: Bringing up the context menu on an element label after another element has been selected selects the element that has the context menu.
+  When the user clicks on the start label of an element
+  And the user uses the mouse to bring up the context menu on the start label of another element
+  Then the label of the element that has the context menu is selected.
+
+Scenario: Cutting text.
+  When the user selects the whole text of an element
+  And the user cuts
+  Then the text is cut
+
+Scenario: restoring the selection
+  When the user selects text
+  And the user brings up the context menu on the selection
+  Then a context menu is visible close to where the user invoked it
+  When the user types ESCAPE
+  Then the selection is restored to what it was before the context menu appeared

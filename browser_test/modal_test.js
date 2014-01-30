@@ -1,7 +1,7 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "jquery", "wed/gui/modal"],
        function (mocha, chai, $, modal) {
@@ -21,14 +21,14 @@ describe("Modal", function () {
             assert.equal($title.text(), "Untitled", "initial title");
             modal.setTitle($("<b>foo</b>"));
             $title = modal.getTopLevel().find(".modal-header>h3");
-            assert.equal($title.get(0).innerHTML, "<b>foo</b>", "new title");
+            assert.equal($title[0].innerHTML, "<b>foo</b>", "new title");
 
         });
     });
 
     describe("setBody", function () {
         it("sets the body", function () {
-            var body = modal.getTopLevel().find(".modal-body").get(0);
+            var body = modal.getTopLevel().find(".modal-body")[0];
             assert.equal(body.innerHTML.trim(), "<p>No body.</p>",
                          "initial body");
             modal.setBody($("<p>A body.</p>"));
@@ -39,7 +39,7 @@ describe("Modal", function () {
 
     describe("setFooter", function () {
         it("sets the footer", function () {
-            var footer = modal.getTopLevel().find(".modal-footer").get(0);
+            var footer = modal.getTopLevel().find(".modal-footer")[0];
             assert.equal(footer.innerHTML.trim(), "", "initial footer");
             modal.setFooter($("<p>A footer.</p>"));
             assert.equal(footer.innerHTML, "<p>A footer.</p>", "new footer");
@@ -49,7 +49,7 @@ describe("Modal", function () {
 
     describe("addButton", function () {
         it("adds a button", function () {
-            var footer = modal.getTopLevel().find(".modal-footer").get(0);
+            var footer = modal.getTopLevel().find(".modal-footer")[0];
             assert.equal(footer.innerHTML.trim(), "", "initial footer");
             var $button = modal.addButton("test");
             assert.isTrue($button.closest(footer).length > 0,
@@ -59,7 +59,7 @@ describe("Modal", function () {
         });
 
         it("adds a primary button", function () {
-            var footer = modal.getTopLevel().find(".modal-footer").get(0);
+            var footer = modal.getTopLevel().find(".modal-footer")[0];
             assert.equal(footer.innerHTML.trim(), "", "initial footer");
             var $button = modal.addButton("test", true);
             assert.isTrue($button.closest(footer).length > 0,
@@ -72,12 +72,12 @@ describe("Modal", function () {
     describe("getPrimary", function () {
         it("returns an empty set if there is no primary", function () {
             var $button = modal.addButton("test");
-            assert.equal(modal.getPrimary().get(0), undefined);
+            assert.equal(modal.getPrimary()[0], undefined);
         });
 
         it("returns the primary", function () {
             var $button = modal.addButton("test", true);
-            assert.equal(modal.getPrimary().get(0), $button.get(0));
+            assert.equal(modal.getPrimary()[0], $button[0]);
         });
     });
 
@@ -85,7 +85,7 @@ describe("Modal", function () {
         describe("add" + first + second, function () {
             it("adds " + first + " and " + second + " button, "+
                first + " is primary", function () {
-                var footer = modal.getTopLevel().find(".modal-footer").get(0);
+                var footer = modal.getTopLevel().find(".modal-footer")[0];
                 assert.equal(footer.innerHTML.trim(), "", "initial footer");
                 var buttons = modal["add" + first + second].call(modal);
                 assert.isTrue(buttons[0].closest(footer).length > 0,
@@ -129,7 +129,7 @@ describe("Modal", function () {
 
             modal.modal(function () {
                 assert.isTrue(clicked);
-                assert.equal(modal.getClicked().get(0), ok_cancel[0].get(0));
+                assert.equal(modal.getClicked()[0], ok_cancel[0][0]);
                 done();
             });
         });
@@ -184,7 +184,7 @@ describe("Modal", function () {
             modal.modal(function (ev) {
                 assert.equal(ev.type, "hidden");
                 assert.equal(ev.namespace, "bs.modal");
-                assert.equal(ev.currentTarget, $dom.get(0));
+                assert.equal(ev.currentTarget, $dom[0]);
                 assert.isTrue(clicked);
                 done();
             });

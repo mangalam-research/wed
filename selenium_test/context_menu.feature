@@ -23,12 +23,12 @@ Scenario: bringing up the context menu with a mouse on the end label of the top 
 Scenario: bringing up the context menu with a mouse on the start label of an element.
   When the user uses the mouse to bring up the context menu on the start label of an element
   Then a context menu is visible close to where the user invoked it
-  And the context menu contains choices for inserting new elements
+  And the context menu contains choices for creating elements before the selected element
 
 Scenario: bringing up the context menu with a mouse on the end label of an element.
   When the user uses the mouse to bring up the context menu on the end label of an element
   Then a context menu is visible close to where the user invoked it
-  And the context menu contains choices for inserting new elements
+  And the context menu contains choices for creating elements after the selected element
 
 Scenario: bringing up the context menu with a mouse on text.
   When the user uses the mouse to bring up the context menu on text
@@ -51,14 +51,15 @@ Scenario: clicking an option of the context menu makes it disappear.
 
 Scenario: bringing up the context menu with a mouse when the main editor pane is scrolled off screen
   When the user resizes the window so that the editor pane has a vertical scrollbar
-  And the user scrolls the window completely down
+  And the user scrolls the window down by 20
   And the user uses the mouse to bring up the context menu on a placeholder
   Then a context menu is visible close to where the user invoked it
 
 Scenario: bringing up the context menu with a keyboard when the main editor pane is scrolled off screen
   When the user resizes the window so that the editor pane has a vertical scrollbar
+  And the user clicks on a placeholder that will serve to bring up a context menu
   And the user scrolls the window completely down
-  And the user uses the keyboard to bring up the context menu on a placeholder
+  And the user uses the keyboard to bring up the context menu
   Then a context menu is visible close to where the user invoked it
 
 Scenario: closing the context menu with the ESC key
@@ -67,3 +68,18 @@ Scenario: closing the context menu with the ESC key
   When the user types ESCAPE
   Then a context menu is not visible
   And the editor pane has focus
+
+Scenario: bringing up the context menu next to the right side of the window
+ When the user resizes the window so that the end titleStmt label is next to the right side of the window
+ And the user brings up the context menu on the end titleStmt label
+ Then a context menu is visible and completely inside the window
+
+Scenario: bringing up the context menu on a malformed selection
+  When the user selects a region that is malformed
+  And the user brings up the context menu on the selection
+  Then a context menu is not visible
+
+Scenario: bringing up the context menu with the keyboard on an element's label
+  When the user clicks on the start label of an element
+  And the user uses the keyboard to bring up the context menu
+  Then a context menu is visible close to where the user invoked it

@@ -36,7 +36,7 @@
          standard and cannot be otherwise. -->
     <xsl:variable name="prefixes"
                   as="xs:string *"
-                  select="(if ($at-root) then in-scope-prefixes(.) else in-scope-prefixes(.)[namespace-uri-for-prefix(., $current-node) != namespace-uri-for-prefix(., $current-node/..)])[. != 'xml']"/>
+                  select="(if ($at-root) then in-scope-prefixes(.) else in-scope-prefixes(.)[not(namespace-uri-for-prefix(., $current-node) = namespace-uri-for-prefix(., $current-node/..))])[. != 'xml']"/>
     <xsl:for-each select="$prefixes">
       <!-- Here we generate the attributes which will contain
            namespace information. -->

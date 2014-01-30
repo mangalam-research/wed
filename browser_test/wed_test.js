@@ -1,7 +1,7 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
@@ -11,47 +11,50 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
 'use strict';
 
 var options = {
-    schema: 'browser_test/tei-simplified-rng.js',
+    schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
         path: 'test',
         options: {
-            meta: 'wed/modes/generic/metas/tei_meta'
+            meta: {
+                path: 'wed/modes/generic/metas/tei_meta',
+                options: {
+                    metadata: '../../../../../schemas/tei-metadata.json'
+                }
+            }
         }
     }
 };
 var assert = chai.assert;
 
-var wedroot = $("#wedframe-invisible").contents().find("#wedroot").get(0);
-var $wedroot = $(wedroot);
+var $wedroot = $("#wedframe-invisible").contents().find("#wedroot");
+var wedroot = $wedroot[0];
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 
 function caretCheck(editor, container, offset, msg) {
-    assert.equal(editor._raw_caret[0], container, msg + " (container)");
-    assert.equal(editor._raw_caret[1], offset, msg + " (offset)");
+    assert.equal(editor._raw_caret.node, container, msg + " (container)");
+    assert.equal(editor._raw_caret.offset, offset, msg + " (offset)");
 }
 
 function dataCaretCheck(editor, container, offset, msg) {
     var data_caret = editor.getDataCaret();
-    assert.equal(data_caret[0], container, msg + " (container)");
-    assert.equal(data_caret[1], offset, msg + " (offset)");
+    assert.equal(data_caret.node, container, msg + " (container)");
+    assert.equal(data_caret.offset, offset, msg + " (offset)");
 }
 
-
 function firstGUI($container) {
-    return $container.children("._gui").get(0);
+    return $container.children("._gui")[0];
 }
 
 function lastGUI($container) {
-    return $container.children("._gui").last().get(0);
+    return $container.children("._gui").get(-1);
 }
 
 function firstPH($container) {
-    return $container.children("._placeholder").get(0).childNodes[0];
+    return $container.children("._placeholder")[0].childNodes[0];
 }
 
 function lastPH($container) {
-    return $container.children("._placeholder").last().
-        get(0).childNodes[0];
+    return $container.children("._placeholder").get(-1).childNodes[0];
 }
 
 describe("wed", function () {
@@ -79,57 +82,7 @@ describe("wed", function () {
     });
 
     it("starts with an undefined caret", function () {
-        assert.equal(editor.getCaret(), undefined, "no caret");
-    });
-
-    it("clicking moves the caret", function (done) {
-        editor.whenCondition(
-            "first-validation-complete",
-            function () {
-            // Text node inside title.
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
-            editor.setCaret(initial, initial.nodeValue.length);
-            editor.moveCaretRight();
-            // It is now inside the final gui element.
-            caretCheck(editor, lastGUI($(initial.parentNode)),
-                       0, "initial caret position");
-
-            // We have to set the selection manually and
-            // generate a click event because just generating
-            // the event won't move the caret.
-            var r = rangy.createRange();
-            r.setStart(initial, 0);
-            var scroll_top = editor.my_window.document.body.scrollTop;
-            var scroll_left = editor.my_window.document.body.scrollLeft;
-            rangy.getSelection(editor.my_window).setSingleRange(r);
-            // We have to take the offset of the parent because
-            // initial is a text node.
-            var initial_offset = $(initial.parentNode).offset();
-            var init = {
-                target: initial,
-                clientX: initial_offset.left - scroll_left,
-                clientY: initial_offset.top - scroll_top,
-                pageX: initial_offset.left,
-                pageY: initial_offset.top
-            };
-            var ev = $.Event("mousedown", init);
-            $(initial.parentNode).trigger(ev);
-            ev = $.Event("mouseup", init);
-            $(initial.parentNode).trigger(ev);
-
-            // We need to do this because setting the caret
-            // through a click is not instantaneous. wed
-            // internally sets a timeout of 0 length to deal with
-            // browser incompatibilities. We need to do the same
-            // so that wed's timeout runs before we query the
-            // value.
-            editor.my_window.setTimeout(function () {
-                caretCheck(editor, initial, 0, "final caret position");
-
-                done();
-            }, 1);
-        });
+        assert.equal(editor.getGUICaret(), undefined, "no caret");
     });
 
     it("typing text works", function (done) {
@@ -137,10 +90,9 @@ describe("wed", function () {
             "first-validation-complete",
             function () {
             // Text node inside title.
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
             var parent = initial.parentNode;
-            editor.setCaret(initial, 0);
+            editor.setGUICaret(initial, 0);
 
             // There was a version of wed which would fail this
             // test. The fake caret would be inserted inside the
@@ -214,10 +166,9 @@ describe("wed", function () {
             "first-validation-complete",
             function () {
             // Text node inside title.
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
             var parent = initial.parentNode;
-            editor.setCaret(initial, 0);
+            editor.setGUICaret(initial, 0);
 
             var text =  new Array(editor._text_undo_max_length + 1).join("a");
             editor.type(text);
@@ -231,7 +182,7 @@ describe("wed", function () {
         editor.whenCondition(
             "first-validation-complete",
             function () {
-            var initial = $(editor.data_root).find(".body>.p").get(1);
+            var initial = $(editor.data_root).find(".body>.p")[1];
             var parent = initial.parentNode;
             editor.setDataCaret(initial, 1);
 
@@ -245,14 +196,14 @@ describe("wed", function () {
         editor.whenCondition(
             "first-validation-complete",
             function () {
-            var ref = $(editor.$gui_root.find(".body>.p")[2]
-                                              ).children(".ref")[0];
+            var ref = $(editor.$gui_root.find(".body>.p")[2])
+                .children(".ref")[0];
             var initial = ref.childNodes[0];
 
             // Make sure we're looking at the right thing.
             assert.isTrue($(initial).is("._phantom"), " initial is phantom");
             assert.equal($(initial).text(), "(", "initial's value");
-            editor.setCaret(initial, 1);
+            editor.setGUICaret(initial, 1);
 
             editor.type(" ");
             assert.equal($(initial).text(), "(", "initial's value after");
@@ -266,10 +217,9 @@ describe("wed", function () {
             "first-validation-complete",
             function () {
             // Text node inside title.
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
             var parent = initial.parentNode;
-            editor.setCaret(initial, 0);
+            editor.setGUICaret(initial, 0);
 
             // There was a version of wed which would fail this
             // test. The fake caret would be inserted inside the
@@ -289,10 +239,9 @@ describe("wed", function () {
             "first-validation-complete",
             function () {
             // Text node inside title.
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
             var parent = initial.parentNode;
-            editor.setCaret(initial, 0);
+            editor.setGUICaret(initial, 0);
 
             // There was a version of wed which would fail this
             // test. The fake caret would be inserted inside the
@@ -316,10 +265,9 @@ describe("wed", function () {
             "first-validation-complete",
             function () {
             // Text node inside title.
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
             var parent = initial.parentNode;
-            editor.setCaret(initial, 0);
+            editor.setGUICaret(initial, 0);
 
             // There was a version of wed which would fail this
             // test. The fake caret would be inserted inside the
@@ -348,15 +296,15 @@ describe("wed", function () {
             "initialized",
             function () {
             // Text node inside paragraph.
-            var initial = $(editor.data_root).find(".body>.p").get(0);
+            var initial = $(editor.data_root).find(".body>.p")[0];
             var parent = initial.parentNode;
             editor.setDataCaret(initial.childNodes[0], 1);
 
             editor.type(" ");
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
-            var caret = editor.getCaret();
-            var $last_gui = $(caret).closest(".p").children().last();
+            var caret = editor.getGUICaret();
+            var $last_gui = $(caret.node).closest(".p").children().last();
             assert.isTrue($last_gui.is("._gui"));
             var last_gui_span = $last_gui.children()[0];
 
@@ -365,12 +313,10 @@ describe("wed", function () {
             // the mousedown event is processed.
             var event = new $.Event("mousedown");
             event.target = last_gui_span;
-            var range = rangy.createRange(editor.my_window.document);
-            range.setStart(caret[0], caret[1]);
-            editor.getDOMSelection().setSingleRange(range);
+            editor.getDOMSelection().setSingleRange(caret.makeRange());
 
             // This simulates the movement of the caret after the
-            // mousedown event is process. This will be processed
+            // mousedown event is processed. This will be processed
             // after the mousedown handler but before _seekCaret is
             // run.
             window.setTimeout(log.wrap(function () {
@@ -385,6 +331,9 @@ describe("wed", function () {
 
             window.setTimeout(log.wrap(function () {
                 event = new $.Event("click");
+                var offset = $(last_gui_span).offset();
+                event.pageX = offset.left;
+                event.pageY = offset.top;
                 event.target = last_gui_span;
                 $(last_gui_span).trigger(event);
                 done();
@@ -398,28 +347,26 @@ describe("wed", function () {
             function () {
             // We create a special phantom element because the generic
             // mode does not create any.
-            var title = editor.$gui_root.find(".title").get(0);
-            var phantom = $("<span class='_phantom'>phantom</span>").get(0);
+            var title = editor.$gui_root.find(".title")[0];
+            var phantom = $("<span class='_phantom'>phantom</span>")[0];
             title.insertBefore(phantom, null);
 
             // Text node inside paragraph.
-            var initial = $(editor.data_root).find(".body>.p").get(0);
+            var initial = $(editor.data_root).find(".body>.p")[0];
             var parent = initial.parentNode;
             editor.setDataCaret(initial.childNodes[0], 1);
 
             editor.type(" ");
             assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
 
-            var caret = editor.getCaret();
+            var caret = editor.getGUICaret();
 
             // We're simulating how Chrome would handle it. When a
             // mousedown event occurs, Chrome moves the caret *after*
             // the mousedown event is processed.
             var event = new $.Event("mousedown");
             event.target = phantom;
-            var range = rangy.createRange(editor.my_window.document);
-            range.setStart(caret[0], caret[1]);
-            editor.getDOMSelection().setSingleRange(range);
+            editor.getDOMSelection().setSingleRange(caret.makeRange());
 
             // This simulates the movement of the caret after the
             // mousedown event is process. This will be processed
@@ -450,22 +397,22 @@ describe("wed", function () {
             "first-validation-complete",
             function () {
             // Text node inside title.
-            var initial = $(editor.data_root).find(".title").get(0);
+            var initial = $(editor.data_root).find(".title")[0];
             var parent = initial.parentNode;
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
             assert.equal(initial.childNodes[0].nodeValue, "abcd");
             editor.setDataCaret(initial, 0);
-            var caret = editor.getCaret();
-            assert.equal(caret[0].childNodes[caret[1]].nodeValue, "abcd");
+            var caret = editor.getGUICaret();
+            assert.equal(caret.node.childNodes[caret.offset].nodeValue, "abcd");
 
             // Delete all contents.
             editor.data_updater.removeNode(initial.childNodes[0]);
 
             // We should have a placeholder now, between the two labels.
-            assert.equal(caret[0].childNodes.length, 3);
-            assert.isTrue($(caret[0].childNodes[1]).is("._placeholder"));
+            assert.equal(caret.node.childNodes.length, 3);
+            assert.isTrue($(caret.node.childNodes[1]).is("._placeholder"));
             done();
         });
     });
@@ -475,25 +422,24 @@ describe("wed", function () {
             "first-validation-complete",
             function () {
             // Text node inside title.
-            var initial = $(editor.data_root).find(".title").get(0);
+            var initial = $(editor.data_root).find(".title")[0];
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
             assert.equal(initial.childNodes[0].nodeValue, "abcd");
             editor.setDataCaret(initial, 0);
-            var caret = editor.getCaret();
-            assert.equal(caret[0].childNodes[caret[1]].nodeValue, "abcd");
+            var caret = editor.getGUICaret();
+            assert.equal(caret.node.childNodes[caret.offset].nodeValue, "abcd");
 
             var trs = editor.mode.getContextualActions(
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
             var data = {node: undefined, element_name: "hi"};
-            var range = rangy.createRange(editor.my_window.document);
             editor.setDataCaret(initial.childNodes[0], 1);
-            caret = editor.getCaret();
-            range.setStart(caret[0], caret[1]);
-            range.setEnd(caret[0], caret[1] + 2);
+            caret = editor.getGUICaret();
+            var range = caret.makeRange();
+            range.setEnd(caret.node, caret.offset + 2);
             editor.setSelectionRange(range);
 
             tr.execute(data);
@@ -526,12 +472,11 @@ describe("wed", function () {
 
             var tr = trs[0];
             var data = {node: undefined, element_name: "hi"};
-            var range = rangy.createRange(editor.my_window.document);
             editor.setDataCaret(initial.firstChild, 3);
-            var caret = editor.getCaret();
-            range.setStart(caret[0], caret[1]);
-            range.setEnd(caret[0], caret[1] + 2);
-            editor.setSelectionRange(range);
+            var caret = editor.getGUICaret();
+            editor.setSelectionRange(
+                caret.makeRange(caret.make(caret.node,
+                                           caret.offset + 2)).range);
 
             tr.execute(data);
 
@@ -540,11 +485,10 @@ describe("wed", function () {
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
 
-            caret = editor.fromDataCaret(initial.firstChild, 0);
-            range.setStart(caret[0], caret[1]);
-            caret = editor.fromDataCaret(initial.lastChild, 0);
-            range.setEnd(caret[0], caret[1]);
-            editor.setSelectionRange(range);
+            caret = editor.fromDataLocation(initial.firstChild, 0);
+            editor.setSelectionRange(
+                caret.makeRange(editor.fromDataLocation(initial.lastChild, 0))
+                    .range);
 
             tr.execute(data);
 
@@ -575,11 +519,10 @@ describe("wed", function () {
 
             var tr = trs[0];
             var data = {node: undefined, element_name: "hi"};
-            var range = rangy.createRange(editor.my_window.document);
-            var caret = editor.fromDataCaret(initial.firstChild, 3);
-            range.setStart(caret[0], caret[1]);
-            range.setEnd(caret[0], caret[1] + 2);
-            editor.setSelectionRange(range);
+            var caret = editor.fromDataLocation(initial.firstChild, 3);
+            editor.setSelectionRange(
+                caret.makeRange(caret.make(caret.node, caret.offset + 2))
+                    .range);
 
             tr.execute(data);
 
@@ -591,15 +534,10 @@ describe("wed", function () {
             // We can't set this to the full length of the node value
             // on Chrome because Chrome will move the range into the
             // <div> that you see above in the innerHTML test. :-/
-            caret = editor.fromDataCaret(initial.firstChild,
-                                         initial.firstChild.nodeValue.length -
-                                         1);
-            range.setStart(caret[0], caret[1]);
-            // This tests the condition we're interested in.
-            caret = editor.fromDataCaret(initial.lastChild,
-                                         initial.lastChild.nodeValue.length);
-            range.setEnd(caret[0], caret[1]);
-            editor.setSelectionRange(range);
+            caret = editor.fromDataLocation(
+                initial.firstChild, initial.firstChild.nodeValue.length - 1);
+            editor.setSelectionRange(caret.makeRange(editor.fromDataLocation(
+                initial.lastChild, initial.lastChild.nodeValue.length)).range);
 
             tr.execute(data);
 
@@ -629,11 +567,9 @@ describe("wed", function () {
 
             var tr = trs[0];
             var data = {node: undefined, element_name: "hi"};
-            var range = rangy.createRange(editor.my_window.document);
-            var caret = editor.fromDataCaret(initial.firstChild, 3);
-            range.setStart(caret[0], caret[1]);
-            range.setEnd(caret[0], caret[1] + 2);
-            editor.setSelectionRange(range);
+            var caret = editor.fromDataLocation(initial.firstChild, 3);
+            editor.setSelectionRange(caret.makeRange(
+                caret.make(caret.node, caret.offset + 2)).range);
 
             tr.execute(data);
 
@@ -642,11 +578,9 @@ describe("wed", function () {
             assert.equal(initial.innerHTML,
                          'abc<div class="hi _real">de</div>fghij');
 
-            caret = editor.fromDataCaret(initial.firstChild, 2);
-            range.setStart(caret[0], caret[1]);
-            caret = editor.fromDataCaret(initial.lastChild, 2);
-            range.setEnd(caret[0], caret[1]);
-            editor.setSelectionRange(range);
+            caret = editor.fromDataLocation(initial.firstChild, 2);
+            editor.setSelectionRange(caret.makeRange(
+                editor.fromDataLocation(initial.lastChild, 2)).range);
 
             tr.execute(data);
 
@@ -662,26 +596,34 @@ describe("wed", function () {
 
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
-        var offset = editor.$gui_root.offset();
+        var $title = editor.$gui_root.find(".title");
+        var offset = $title.offset();
+        offset.left += $title.width() / 2;
+        offset.top += $title.height() / 2;
+        var scroll_top = editor.my_window.document.body.scrollTop;
+        var scroll_left = editor.my_window.document.body.scrollLeft;
         event.which = 3;
         event.pageX = offset.left;
         event.pageY = offset.top;
+        event.clientX = offset.left - scroll_left,
+        event.clientY = offset.top - scroll_top,
+        event.target = editor.$gui_root[0];
         editor.$gui_root.trigger(event);
     }
 
-    it("does not bring up a contextual menu when there is no caret",
+    it("brings up a contextual menu even when there is no caret",
        function (done) {
         editor.whenCondition(
             "first-validation-complete",
             function () {
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
-            assert.isUndefined(editor.getCaret());
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
+            assert.isUndefined(editor.getGUICaret());
             activateContextMenu(editor);
             window.setTimeout(function () {
-                assert.isUndefined(editor._current_dropdown);
+                assert.isDefined(editor._current_dropdown, "dropdown defined");
+                assert.isDefined(editor.getGUICaret(), "caret defined");
                 done();
-            }, 1);
+            }, 100);
         });
     });
 
@@ -693,12 +635,12 @@ describe("wed", function () {
             function () {
             // Set the range on the first hyperlink in the page.
             var range = rangy.createRange(editor.my_window.document);
-            range.selectNode($("div", editor.my_window.document).get(0));
+            range.selectNode($("div", editor.my_window.document)[0]);
             rangy.getSelection(editor.my_window).setSingleRange(range);
-            assert.isUndefined(editor.getCaret());
+            assert.isUndefined(editor.getGUICaret());
             activateContextMenu(editor);
             window.setTimeout(function () {
-                assert.isUndefined(editor._current_dropdown);
+                assert.isDefined(editor._current_dropdown);
                 done();
             }, 1);
         });
@@ -709,9 +651,8 @@ describe("wed", function () {
         editor.whenCondition(
             "first-validation-complete",
             function () {
-            var initial = $(editor.gui_root).find(".title").
-                get(0).childNodes[1];
-            editor.setCaret(initial, 0);
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
+            editor.setGUICaret(initial, 0);
 
             activateContextMenu(editor);
             window.setTimeout(function () {
@@ -723,9 +664,9 @@ describe("wed", function () {
 
     describe("moveCaretRight", function () {
         it("works even if there is no caret defined", function () {
-            assert.equal(editor.getCaret(), undefined, "no caret");
+            assert.equal(editor.getGUICaret(), undefined, "no caret");
             editor.moveCaretRight();
-            assert.equal(editor.getCaret(), undefined, "no caret");
+            assert.equal(editor.getGUICaret(), undefined, "no caret");
         });
 
         it("moves right into gui elements",
@@ -734,7 +675,7 @@ describe("wed", function () {
                 "first-validation-complete",
                 function () {
                 var initial = editor.gui_root.childNodes[0];
-                editor.setCaret(initial, 0);
+                editor.setGUICaret(initial, 0);
                 caretCheck(editor, initial, 0, "initial");
                 editor.moveCaretRight();
                 var first_gui = firstGUI($(initial));
@@ -763,8 +704,8 @@ describe("wed", function () {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                var initial = $(editor.gui_root).find(".title").first().get(0);
-                editor.setCaret(initial, 0);
+                var initial = $(editor.gui_root).find(".title")[0];
+                editor.setGUICaret(initial, 0);
                 caretCheck(editor, initial, 0, "initial");
                 editor.moveCaretRight();
                 // It is now located inside the text inside
@@ -772,22 +713,20 @@ describe("wed", function () {
                 // element.
                 caretCheck(editor, firstGUI($(initial)), 0, "moved once");
                 editor.moveCaretRight();
-                editor.moveCaretRight();
                 // It is now inside the text
-                var text_node = $(initial).children("._gui").
-                    get(0).nextSibling;
-                caretCheck(editor, text_node, 0, "moved 3 times");
+                var text_node = $(initial).children("._gui")[0].nextSibling;
+                caretCheck(editor, text_node, 0, "moved 2 times");
                 editor.moveCaretRight();
                 // move through text
-                caretCheck(editor, text_node, 1, "moved 4 times");
+                caretCheck(editor, text_node, 1, "moved 3 times");
                 editor.moveCaretRight();
                 editor.moveCaretRight();
                 editor.moveCaretRight();
                 // move through text
-                caretCheck(editor, text_node, 4, "moved 7 times");
+                caretCheck(editor, text_node, 4, "moved 6 times");
                 editor.moveCaretRight();
                 // It is now inside the final gui element.
-                caretCheck(editor, lastGUI($(initial)), 0, "moved 8 times");
+                caretCheck(editor, lastGUI($(initial)), 0, "moved 7 times");
 
                 done();
             });
@@ -797,14 +736,13 @@ describe("wed", function () {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                var term = $(editor.gui_root).find(".body>.p>.term").
-                    first().get(0);
+                var term = $(editor.gui_root).find(".body>.p>.term")[0];
                 var initial = term.previousSibling;
                 // Make sure we are on the right element.
                 assert.equal(initial.nodeType, Node.TEXT_NODE);
                 assert.equal(initial.nodeValue, "Blah blah ");
 
-                editor.setCaret(initial, initial.nodeValue.length - 1);
+                editor.setGUICaret(initial, initial.nodeValue.length - 1);
                 caretCheck(editor, initial,
                            initial.nodeValue.length - 1, "initial");
 
@@ -813,7 +751,8 @@ describe("wed", function () {
                            "moved once");
 
                 editor.moveCaretRight();
-                caretCheck(editor, term.childNodes[0], 0, "moved twice");
+                // The first child node is an invisible element label.
+                caretCheck(editor, term.childNodes[1], 0, "moved twice");
                 done();
             });
         });
@@ -824,9 +763,9 @@ describe("wed", function () {
                 "first-validation-complete",
                 function () {
                 // Text node inside title.
-                var initial = $(editor.gui_root).find(".title").
-                    get(0).childNodes[1];
-                editor.setCaret(initial, initial.nodeValue.length);
+                var initial = $(editor.gui_root).find(".title")[0]
+                    .childNodes[1];
+                editor.setGUICaret(initial, initial.nodeValue.length);
                 caretCheck(editor, initial,
                            initial.nodeValue.length, "initial");
                 editor.moveCaretRight();
@@ -853,7 +792,7 @@ describe("wed", function () {
                 "first-validation-complete",
                 function () {
                 var initial = lastGUI($(editor.gui_root).children(".TEI"));
-                editor.setCaret(initial, 0);
+                editor.setGUICaret(initial, 0);
                 caretCheck(editor, initial, 0, "initial");
                 editor.moveCaretRight();
                 // Same position
@@ -865,9 +804,9 @@ describe("wed", function () {
 
     describe("moveCaretLeft", function () {
         it("works even if there is no caret defined", function () {
-            assert.equal(editor.getCaret(), undefined, "no caret");
+            assert.equal(editor.getGUICaret(), undefined, "no caret");
             editor.moveCaretLeft();
-            assert.equal(editor.getCaret(), undefined, "no caret");
+            assert.equal(editor.getGUICaret(), undefined, "no caret");
         });
 
         it("moves left into gui elements",
@@ -877,12 +816,12 @@ describe("wed", function () {
                 function () {
                 var initial = editor.gui_root.childNodes[0];
                 var offset = initial.childNodes.length;
-                editor.setCaret(initial, offset);
+                editor.setGUICaret(initial, offset);
                 caretCheck(editor, initial, offset, "initial");
                 editor.moveCaretLeft();
                 var last_gui =  lastGUI($(initial));
                 // It is now located inside the text inside
-                // the label which marks the start of the TEI
+                // the label which marks the end of the TEI
                 // element.
                 caretCheck(editor, last_gui, 0, "moved once");
                 editor.moveCaretLeft();
@@ -908,9 +847,8 @@ describe("wed", function () {
                 function () {
                 var initial = lastGUI($(editor.gui_root).find(".title").
                                       first());
-                editor.setCaret(initial, 1);
+                editor.setGUICaret(initial, 1);
                 caretCheck(editor, initial, 1, "initial");
-                editor.moveCaretLeft();
                 editor.moveCaretLeft();
                 // It is now inside the text
                 var text_node = initial.previousSibling;
@@ -941,7 +879,7 @@ describe("wed", function () {
                 function () {
                 var initial =
                     firstGUI($(editor.gui_root).find(".title"));
-                editor.setCaret(initial, 0);
+                editor.setGUICaret(initial, 0);
                 caretCheck(editor, initial, 0, "initial");
                 editor.moveCaretLeft();
                 // It is now after the gui element at start of
@@ -960,22 +898,21 @@ describe("wed", function () {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                var term = $(editor.gui_root).find(".body>.p>.term").
-                    first().get(0);
+                var term = $(editor.gui_root).find(".body>.p>.term")[0];
                 var initial = term.nextSibling;
                 // Make sure we are on the right element.
                 assert.equal(initial.nodeType, Node.TEXT_NODE);
                 assert.equal(initial.nodeValue, " blah.");
 
-                editor.setCaret(initial, 1);
+                editor.setGUICaret(initial, 1);
                 caretCheck(editor, initial, 1, "initial");
 
                 editor.moveCaretLeft();
                 caretCheck(editor, initial, 0, "moved once");
 
                 editor.moveCaretLeft();
-                caretCheck(editor, term.childNodes[0],
-                           term.childNodes[0].nodeValue.length,
+                caretCheck(editor, term.childNodes[1],
+                           term.childNodes[1].nodeValue.length,
                            "moved twice");
 
                 done();
@@ -988,7 +925,7 @@ describe("wed", function () {
                 "first-validation-complete",
                 function () {
                 var initial = firstGUI($(editor.gui_root).children(".TEI"));
-                editor.setCaret(initial, 0);
+                editor.setGUICaret(initial, 0);
                 caretCheck(editor, initial, 0, "initial");
                 editor.moveCaretLeft();
                 // Same position
@@ -1000,7 +937,7 @@ describe("wed", function () {
     });
 
     it("handles pasting simple text", function () {
-        var initial = editor.$data_root.find(".body>.p").get(0).childNodes[0];
+        var initial = editor.$data_root.find(".body>.p")[0].childNodes[0];
         editor.setDataCaret(initial, 0);
         var initial_value = initial.nodeValue;
 
@@ -1017,15 +954,14 @@ describe("wed", function () {
         };
         editor.$gui_root.trigger(event);
         assert.equal(initial.nodeValue, "abcdef" + initial_value);
-        var final_caret = editor.getDataCaret();
         dataCaretCheck(editor, initial, 6, "final position");
     });
 
     it("handles pasting structured text", function () {
         var $p = editor.$data_root.find(".body>.p").first();
-        var initial = $p.get(0).childNodes[0];
+        var initial = $p[0].childNodes[0];
         editor.setDataCaret(initial, 0);
-        var initial_value = $p.get(0).innerHTML;
+        var initial_value = $p[0].innerHTML;
 
         // Synthetic event
         var event = new $.Event("paste");
@@ -1034,22 +970,21 @@ describe("wed", function () {
             clipboardData: {
                 types: ["text/html", "text/plain"],
                 getData: function (type) {
-                    return $p.get(0).innerHTML;
+                    return $p[0].innerHTML;
                 }
             }
         };
         editor.$gui_root.trigger(event);
-        assert.equal($p.get(0).innerHTML, initial_value + initial_value);
-        dataCaretCheck(editor, $p.get(0).childNodes[2], 6,
-                       "final position");
+        assert.equal($p[0].innerHTML, initial_value + initial_value);
+        dataCaretCheck(editor, $p[0].childNodes[2], 6, "final position");
     });
 
     it("handles pasting structured text: invalid, decline pasting as text",
        function (done) {
         var $p = editor.$data_root.find(".body>.p").first();
-        var initial = $p.get(0).childNodes[0];
+        var initial = $p[0].childNodes[0];
         editor.setDataCaret(initial, 0);
-        var initial_value = $p.get(0).innerHTML;
+        var initial_value = $p[0].innerHTML;
 
         // Synthetic event
         var event = new $.Event("paste");
@@ -1058,7 +993,7 @@ describe("wed", function () {
             clipboardData: {
                 types: ["text/html", "text/plain"],
                 getData: function (type) {
-                    return $p.get(0).outerHTML;
+                    return $p[0].outerHTML;
                 }
             }
         };
@@ -1068,25 +1003,25 @@ describe("wed", function () {
             // run after the callback that wed sets on the modal.
             $top.one("hidden.bs.modal",
                      function () {
-                assert.equal($p.get(0).innerHTML, initial_value);
+                assert.equal($p[0].innerHTML, initial_value);
                 dataCaretCheck(editor, initial, 0, "final position");
                 done();
             });
         });
         editor.$gui_root.trigger(event);
         // This clicks "No".
-        editor._paste_modal._$footer.find(".btn").get(1).click();
+        editor._paste_modal._$footer.find(".btn")[1].click();
     });
 
     it("handles pasting structured text: invalid, accept pasting as text",
        function (done) {
         var $p = editor.$data_root.find(".body>.p").first();
-        var initial = $p.get(0).childNodes[0];
+        var initial = $p[0].childNodes[0];
         editor.setDataCaret(initial, 0);
-        var initial_value = $p.get(0).innerHTML;
-        var initial_outer = $p.get(0).outerHTML;
+        var initial_value = $p[0].innerHTML;
+        var initial_outer = $p[0].outerHTML;
         var $x = $("<div>").append(document.createTextNode(initial_outer));
-        var initial_outer_from_text_to_html = $x.get(0).innerHTML;
+        var initial_outer_from_text_to_html = $x[0].innerHTML;
 
         // Synthetic event
         var event = new $.Event("paste");
@@ -1104,26 +1039,24 @@ describe("wed", function () {
             // Wait until visible to add this handler so that it is
             // run after the callback that wed sets on the modal.
             $top.one("hidden.bs.modal", function () {
-                assert.equal($p.get(0).innerHTML,
+                assert.equal($p[0].innerHTML,
                              initial_outer_from_text_to_html + initial_value);
-                dataCaretCheck(editor, $p.get(0).childNodes[0],
+                dataCaretCheck(editor, $p[0].childNodes[0],
                                initial_outer.length, "final position");
                 done();
             });
         });
         editor.$gui_root.trigger(event);
         // This clicks "Yes".
-        editor._paste_modal._$footer.find(".btn-primary").get(0).click();
+        editor._paste_modal._$footer.find(".btn-primary")[0].click();
     });
 
     it("handles cutting a well formed selection", function (done) {
-        var p = editor.$data_root.find(".body>.p").get(0);
-        var gui_start = editor.fromDataCaret(p.childNodes[0], 4);
-        var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
-        editor.setCaret(gui_start);
-        var range = rangy.createRange(editor.my_window.document);
-        range.setStart(gui_start[0], gui_start[1]);
-        range.setEnd(gui_end[0], gui_end[1]);
+        var p = editor.$data_root.find(".body>.p")[0];
+        var gui_start = editor.fromDataLocation(p.childNodes[0], 4);
+        editor.setGUICaret(gui_start);
+        var range = gui_start.makeRange(
+            editor.fromDataLocation(p.childNodes[2], 5)).range;
         rangy.getSelection(editor.my_window).setSingleRange(range);
 
         // Synthetic event
@@ -1136,15 +1069,14 @@ describe("wed", function () {
     });
 
     it("handles cutting a bad selection", function (done) {
-        var p = editor.$data_root.find(".body>.p").get(0);
+        var p = editor.$data_root.find(".body>.p")[0];
         var original_inner_html = p.innerHTML;
         // Start caret is inside the term element.
-        var gui_start = editor.fromDataCaret(p.childNodes[1].childNodes[0], 1);
-        var gui_end = editor.fromDataCaret(p.childNodes[2], 5);
-        editor.setCaret(gui_end);
-        var range = rangy.createRange(editor.my_window.document);
-        range.setStart(gui_start[0], gui_start[1]);
-        range.setEnd(gui_end[0], gui_end[1]);
+        var gui_start = editor.fromDataLocation(p.childNodes[1].childNodes[0],
+                                                1);
+        var gui_end = editor.fromDataLocation(p.childNodes[2], 5);
+        editor.setGUICaret(gui_end);
+        var range = gui_start.makeRange(gui_end).range;
         rangy.getSelection(editor.my_window).setSingleRange(range);
 
         assert.equal(p.innerHTML, original_inner_html);
@@ -1155,7 +1087,7 @@ describe("wed", function () {
             $top.one("hidden.bs.modal",
                      function () {
                 assert.equal(p.innerHTML, original_inner_html);
-                caretCheck(editor, gui_end[0], gui_end[1],
+                caretCheck(editor, gui_end.node, gui_end.offset,
                            "final position");
                 done();
             });
@@ -1164,7 +1096,7 @@ describe("wed", function () {
         var event = new $.Event("cut");
         editor.$gui_root.trigger(event);
         // This clicks dismisses the modal
-        editor.straddling_modal._$footer.find(".btn-primary").get(0).click();
+        editor.straddling_modal._$footer.find(".btn-primary")[0].click();
     });
 
     describe("interacts with the server:", function () {

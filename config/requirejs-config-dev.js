@@ -1,20 +1,32 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 require.config({
- baseUrl: '/build/standalone/lib/',
+ baseUrl: 'lib/',
  paths: {
-   'browser_test': '../../../browser_test',
-   'jquery': 'external/jquery-1.9.1',
-   'bootstrap': 'external/bootstrap/js/bootstrap.min',
-   'log4javascript': 'external/log4javascript',
+   browser_test: '../../../browser_test',
+   jquery: 'external/jquery-1.11.0',
+   bootstrap: 'external/bootstrap/js/bootstrap.min',
+   log4javascript: 'external/log4javascript',
    'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
-   'font-awesome': 'external/font-awesome'
+   'font-awesome': 'external/font-awesome',
+   'pubsub-js': 'external/pubsub',
+   xregexp: 'external/xregexp'
  },
+ packages: [
+     {
+         name: "lodash",
+         location: "external/lodash"
+     }
+ ],
  shim: {
-   'bootstrap': {
+   xregexp: {
+     exports: "XRegExp",
+     init: function () { return {XRegExp: XRegExp}; }
+   },
+   bootstrap: {
      deps: ["jquery"],
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
@@ -31,17 +43,22 @@ require.config({
      deps: ["jquery", "bootstrap"],
      exports: "jQuery.bootstrapGrowl"
    },
-   'log4javascript': {
+   log4javascript: {
        exports: "log4javascript"
    }
  },
  config: {
      'wed/wed': {
-         schema: 'browser_test/tei-simplified-rng.js',
+         schema: '../../../schemas/tei-simplified-rng.js',
          mode: {
              path: 'wed/modes/generic/generic',
              options: {
-                 meta: 'wed/modes/generic/metas/tei_meta'
+                 meta: {
+                     path: 'wed/modes/generic/metas/tei_meta',
+                     options: {
+                         metadata: '../../../../../schemas/tei-metadata.json'
+                     }
+                 }
              }
          },
          // You certainly do not want this in actual deployment.

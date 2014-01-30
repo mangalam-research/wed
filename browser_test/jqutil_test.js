@@ -1,7 +1,7 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "jquery", "wed/jqutil"],
        function (mocha, chai, $, jqutil) {
@@ -68,8 +68,7 @@ describe("jqutil", function () {
         it("converts a > sequence",
                  function () {
             assert.equal(
-                jqutil.selectorToElements("p > term > foreign").get(0).
-                    outerHTML,
+                jqutil.selectorToElements("p > term > foreign")[0].outerHTML,
                 '<div class="p _real"><div class="term _real">'+
                     '<div class="foreign _real"></div></div></div>');
         });

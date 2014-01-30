@@ -1,9 +1,29 @@
-Please note that Github currently does not implement all
-reStructuredText directives, so some links in this document
-may not work correctly when viewed there.
+Advanced Usage Notes
+====================
 
-Usage Notes
-===========
+Build Information
+-----------------
+
+Every time a build is performed, the building process stores
+information about the build into a file which at run time is available
+as a module at the ``lib/wed/build-info`` location relative to the
+root of the build directory. This module contains two fields:
+
+* ``desc`` is a description of the build. This string is created by
+  running ``git describe`` and adding to the result the string
+  ``-unclean`` if the build was done with an unclean working tree.
+
+* ``date`` is the date of the build. (To be precise, it is the date at
+  which the build ``build-info`` module was generated.)
+
+This information was added to wed as of version 0.11.0. If you happen
+to use wed's development code that was produced after version 0.10.0
+was released but before version 0.11.0 was released, then the version
+number you'll get in the ``desc`` field will start with
+"v0.10.0-x". The additional "-x" is a special case to work around a
+bug in gitflow.
+
+.. _tech_notes_deployment_considerations:
 
 Deployment Considerations
 -------------------------
@@ -15,15 +35,15 @@ Deployment Considerations
              question is documented `here
              <https://github.com/mangalam-research/wed/issues/8>`_.
 
-It is possible to deploy wed using the `<build/standalone>`_ file tree
+It is possible to deploy wed using the ``build/standalone/`` file tree
 but you will pay in execution time and bandwidth because the files in
 this tree are not optimized.
 
-The `<build/standalone-optimized>`_ file tree is optimized. This
+The ``build/standalone-optimized/`` file tree is optimized. This
 optimization exists primarily for illustration purposes and for
 testing wed, but it could be used for deployment too, as long as you
 understand how it is constructed. The build file driving how ``r.js``
-created the optimized tree is `<requirejs.build.js>`_. Here are the
+created the optimized tree is ``requirejs.build.js``. Here are the
 major characteristics of this optimization:
 
 * All of wed's JavaScript is combined into one file. The only part of
@@ -47,7 +67,7 @@ configuration is updated to look for the external libraries at the
 right places.
 
 Wed's build process creates a configuration for the optimized bundle
-at `<build/standalone-optimized/requirejs-config.js>`_. This
+at ``build/standalone-optimized/requirejs-config.js``. This
 configuration allows an external custom mode to load individual
 modules of wed, because it has mappings like these::
 
@@ -68,7 +88,7 @@ for code external to wed to load parts of wed in an arbitrary
 order. The ``wed.js`` file has to be loaded first, and then wed's
 modules become accessible. Note that this way of operating should work
 for the vast majority of cases because the typical usage scenario for
-wed is to first created a ``wed.Editor`` instance which dynamically
+wed is to first create a ``wed.Editor`` instance which dynamically
 loads a mode. Since the mode is loaded after ``wed.Editor`` is
 created, it is guaranteed that by the time the mode runs, all of wed's
 modules are available.
@@ -103,7 +123,7 @@ like::
 
 The solution here is to represent the
 ``<term><foreign></foreign></term>`` structure as one element, for
-editing purposes. If it so happens that all instance of ``<foreign>``
+editing purposes. If it so happens that all instances of ``<foreign>``
 are always to be interpreted as ``<term><foreign></foreign></term>``
 for interchange purposes, then you might as well make your editing
 structure ``<foreign>`` and convert it to the interchange structure
@@ -112,11 +132,13 @@ to create your own element for editing, like ``<my:custom-element>``,
 which is then created in the right context by the mode you create for
 your project.
 
+.. _remote_logging:
+
 Remote Logging
 --------------
 
 Wed uses log4javascript to log anything worth logging. By default, wed
-does not log anything to a remote server, however if the ``ajaxlog``
+does not log anything to a remote server; however, if the ``ajaxlog``
 option is passed to wed, it will add an ``AjaxAppender`` to the logger
 and log messages using ``XmlLayout``. The ``ajaxlog`` option is of the
 form::
@@ -131,6 +153,8 @@ log messages. The ``headers`` parameter specifies additional headers
 to send. In particular this is useful when the receiver is an
 installation requiring that some anti-CSRF token be set on HTTP
 headers.
+
+.. _saving:
 
 Saving
 ------
@@ -170,15 +194,15 @@ The replies are sent as JSON-encoded data. Each reply is a single
 object with a single field named ``messages`` which is a list of
 messages. Each message has a ``type`` field which determines its
 meaning and what other fields may be present in the message. The
-possible messages types are:
+possible message types are:
 
 * ``version_too_old_error`` indicates that the version of wed trying to
   access the server is too old.
 
 * ``save_transient_error`` indicates that the save operation cannot
   happen for some transient reason. The ``msg`` parameter on the
-  message should give a user-understandable message indicating what
-  the problem is, and to the extent possible, how to resolve it.
+  message should give a user-friendly message indicating what
+  the problem is and, to the extent possible, how to resolve it.
 
 * ``save_fatal_error`` indicates that the save operation failed
   fatally. This is used for cases where the user cannot reasonably do
@@ -189,13 +213,42 @@ possible messages types are:
 
 * ``save_successful`` indicates that the save was successful.
 
+Creating a Mode
+===============
+
+We recommend creating new modes by inheriting from the generic
+mode. The first thing you must do is set the metadata on the
+``_wed_options`` object because wed will refuse to load your mode if
+these are not set::
+
+    this._wed_options.metadata = {
+        name: "Foo",
+        authors: ["Ty Coon"],
+        description:
+           "This mode does foo!",
+        license: "MPL 2.0",
+        copyright: "2013 Ty Coon Industries"
+    };
+
+
+Modes may set other options on the ``_wed_options`` property:
+
++ ``label_levels``: an object with two fields:
+
+  - ``max``: determines the maximum level of
+    :ref:`label visibility <label_visiblity>`,
+
+  - ``initial`` determines the initial level of label visibility; must
+    be ``1 <= initial <= max``. (Level 0 exists. It is just not valid
+    to start at that level.)
+
 Testing
 =======
 
 Note that due to the asynchronous nature of the JavaScript environments
 used to run the tests, if the test suites are run on a system
 experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. I've witnessed this
+the hard disk, they may fail some or all tests. We've witnessed this
 happen, for instance, due to RequireJS timing out on a ``require()``
 call because the OS was busy loading things into memory from
 swap. The solution is to run the test suites again.
@@ -229,22 +282,26 @@ To run the tests that are not browser-dependent do::
 
     $ make test
 
-These tests are located in `<test>`_. You can also run ``mocha``
+These tests are located in the ``test/`` directory off the wed
+root. You can also run ``mocha``
 directly from the command line but having ``make`` build the ``test``
 target will trigger a build to ensure that the tests are run against
 the latest code.
 
 .. warning:: Keep in mind that tests are **always** run against the
-             code present in `<build/standalone>`_. If you modify your
+             code present in ``build/standalone/``. If you modify your
              source and fail to rebuild before running the test suite,
              the suite will run against **old code!**
+
+.. _tech_notes_in_browser_tests:
 
 In-Browser Tests
 ----------------
 
-The browser-dependent tests are located in `<browser_test>`_. To run
-the tests that run in the browser, you must run `<server.js>`_, a
-basic web server::
+The browser-dependent tests are located in the ``browser_test/`` directory
+off the wed root. To run
+the tests that run in the browser, you must run ``server.js``, a
+basic web server, from the root of the wed source::
 
     $ ./server.js
 
@@ -269,9 +326,9 @@ Selenium-Based Tests
 Everything that follows is specific to wed. You need to have `selenic
 <http://github.com/mangalam-research/selenic>`_ installed and
 available on your ``PYTHONPATH``. Read its documentation. Then you
-need to create a `<config/selenium_local_config.py>`_ file. Use one of
+need to create a ``config/selenium_local_config.py`` file. Use one of
 the example files provided with selenic. Add the following
-variable to your `<local_config/selenium_local_config.py>`_ file::
+variable to your ``local_config/selenium_local_config.py`` file::
 
     # Location of our server
     WED_SERVER = "http://localhost:8888/build/standalone/kitchen-sink.html"
@@ -284,24 +341,24 @@ You also need to have `wedutil
 available on your ``PYTHONPATH``.
 
 To run the Selenium-based tests, you can run either
-`<server.js>`_ *or* an nginx-based server. The latter option is
+``server.js`` *or* an nginx-based server. The latter option is
 recommended if you run your browser on a provisioning service like
 SauceLabs *and* you want to maximize performance. Running
-`<server.js>`_ has been explained above. To run nginx, just issue::
+``server.js`` has been explained above. To run nginx, just issue::
 
     $ misc/start_nginx
 
 This will launch an nginx server listening on localhost:8888. It will
 handle all the requests to static resources itself, but will forward
-all Ajax stuff to an instance of `<server.js>`_ (which is started by
+all Ajax stuff to an instance of ``server.js`` (which is started by
 the ``start_nginx`` script to listen on localhost:9999). This server
-puts all of the things that would go in ``/var`` if it was started by
-the OS in the `<var>`_ directory that sits at the top of the code
+puts all of the things that would go in ``/var/`` if it was started by
+the OS in the ``var/`` directory that sits at the top of the code
 tree. Look there for logs. This nginx instance uses the configuration
-built at `<build/config/nginx.conf>`_ from
-`<config/nginx.conf>`_. Remember that if you want to override the
+built at ``build/config/nginx.conf`` from
+``config/nginx.conf``. Remember that if you want to override the
 configuration, the proper way to do it is to copy the configuration
-file into `<local_config>`_ and edit it there. Run ``make`` again after
+file into ``local_config/`` and edit it there. Run ``make`` again after
 you have made modifications. The only processing done on nginx's file is to
 replace instances of ``@PWD@`` with the top of the code tree.
 
@@ -313,8 +370,16 @@ To run the suite while using the SauceLab servers, run::
 
     $ make SELENIUM_SAUCELABS=1 selenium-test
 
-Behind the scenes, this will launch behave. See `<Makefile>`_ for
-information about how behave is run.
+Behind the scenes, this will launch behave. See the makefile
+:github:`build.mk` for information about how behave is run.
+
+The environment variable ``BEHAVE_WAIT_BETWEEN_STEPS`` can be set to a
+numerical value in seconds to get behave to stop between steps. It
+makes the Selenium test unfold more slowly. The environment variable
+``SELENIUM_QUIT`` can be set to ``never`` to prevent Selenium from
+quitting the browser after the suite is run. It can be set to
+``on-success`` so that the Selenium quits only if the suite is
+successful.
 
 Q. Why is Python required to run the Selenium-based tests? You've
    introduced a dependency on an additional language!
@@ -342,6 +407,18 @@ A. We've found that JavaScript is poorly supported by the various
 
 Internals
 =========
+
+The Tag v0.10.0-x
+-----------------
+
+The git repository contains tags v0.10.0 and v0.10.0-x. What's the
+deal? Both tags represent the same state of development. The first
+points into the master branch, the second into the develop branch. The
+second tag was created to work around a bug that prevents using ``git
+describe`` when using the `nvie edition
+<https://github.com/nvie/gitflow>`__ of gitflow. If you use gitflow
+with wed, use the `AVH edition
+<https://github.com/petervanderdoes/gitflow>`__.
 
 JavaScript Event Handling
 -------------------------
@@ -399,6 +476,18 @@ JavaScript event that caused the custom event to be triggered.
   processing.
 
 * The paste event has no wed-global-* event associated with it.
+
+Wed also uses the custom events ``wed-click`` and ``wed-unclick`` to
+inform element labels that they should change their status to clicked
+or unclicked. These events are used (``wed-click`` specifically) so
+that if the status must change due to an event not caused by a mouse
+operation, then wed won't cause a mouse event to happen. A ``click``
+event would trickle up the handler chain, etc.
+
+Modes that define elements in the GUI tree that want to have their own
+custom context menu handler must listen for ``wed-context-menu``
+**and** define a data field named ``wed-custom-context-menu`` set to a
+truthy value.
 
 Selections
 ----------
@@ -502,7 +591,7 @@ Conversion for Editing
 
 Wed operates on an HTML structure constructed as follows:
 
-* All elements from the XML document become HTML div elements.
+* All elements from the XML document become HTML ``div`` elements.
 
 * The original element's qualified name is stored as the first class in @class.
 
@@ -541,11 +630,64 @@ HTML:
   ``data-wed--[name]``. An XML attribute name or prefix may not begin
   with a dash, so there cannot be a clash.
 
+Classes Used by Wed
+===================
+
+``_phantom``:
+  All elements added by wed for representing the data to the user are of
+  this class.
+
+``_phantom _gui``:
+  All elements that are more that just uneditable text.
+
+``_phantom _text``:
+  All elements that are text added to represent some XML data. That
+  is, there is some node in the data tree that corresponds
+  specifically to this element.
+
+``_phantom _decoration_text``:
+  All elements that are text added for purely decorative purposes. The
+  difference between these elements and those which are ``_phantom
+  _text`` is that the latter represents some contents whereas the
+  former is purely decorating the data. For instance if an ``<img>``
+  element which points to the image of a cow is represented on screen
+  by the word "cow" then this text should be ``_phantom _text``. On
+  the other hand if a period is added after numbers in a list so that
+  they look nice on screen, these periods should be ``_phantom
+  _decoration_text`` elements.
+
 Browser Issues
 ==============
 
 The sad fact is that browsers are limited in functionality, buggy, or
 incompatible with each other. This section documents such issues.
+
+Cut, Paste, Copy
+----------------
+
+Copying and pasting don't present any special difficulties. However,
+cutting is problematic, because:
+
+1. Browsers don't allow JavaScript to initiate cuts. So it is not
+   possible to intercept a ``cut`` event and then cause the browser to
+   cut by using a *different* event.
+
+2. A cut modifies the DOM directly. This is a problem because wed
+   wants modifications to go through ``TreeUpdater`` objects. An
+   earlier version of wed was letting ``cut`` events go through and
+   updated the data tree but this caused the GUI tree to become
+   stale. (An additional complication is that there is no undoing.)
+
+It is possible to listen to ``cut`` events and let them go through or
+veto them, but this is about the maximum level of control that can be
+achieved cross-browser.
+
+As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
+Linux. It is unknown whether it would work on other
+platforms. Unfortunately, it is not possible to automatically test for
+cutting functionality because JavaScript cannot initiate a cut
+operation by itself.
+
 
 Contenteditable
 ---------------
@@ -602,7 +744,7 @@ it comes to simulating key presses in contenteditable elements, the
 simulation is very imperfect. Cursory testing sending BACKSPACE using
 sendkeys and BACKSPACE using the keyboard shows inconsistent behavior.
 
-.. _sendkeys: http://bililite.com/inc/jquery.sendkeys.js
+.. _sendkeys: http://bililite.com/blog/2011/01/23/improved-sendkeys/
 
 Vetoing Mutations
 -----------------
@@ -638,7 +780,10 @@ of a good explanation for the leak.
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
 ..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
 ..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
-..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText
+..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText js
 ..  LocalWords:  RequireJS setTimeout localhost selenic addr config
-..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM
-..  LocalWords:  getSelection namespace programmatically profiler
+..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM desc
+..  LocalWords:  getSelection namespace programmatically profiler CSS
+..  LocalWords:  gitflow oop wedutil SauceLabs nvie AVH deployable py
+..  LocalWords:  requirejs unoptimized conf gui LocalWords github
+..  LocalWords:  unclick unclicked truthy
