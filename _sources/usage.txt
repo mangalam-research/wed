@@ -8,8 +8,9 @@ to change until we hit version 1.0.0.
 
 Known limitations:
 
-* Wed currently only understands a subset of Relax NG (through the
-  `salve <https://github.com/mangalam-research/salve/>`_ package).
+* Wed currently does understand a large subset of Relax NG, but some
+  constructs are not supported. See the `salve
+  <https://github.com/mangalam-research/salve/>`_ package for details.
 
 * Wed does not currently support editing attributes in a
   generic way *as attributes*. The functionality just has not been
@@ -18,11 +19,30 @@ Known limitations:
   through domain-specific abstractions rather than directly, as
   attributes. Other features are more pressing.
 
-* Eventually the plan is to handle XML namespace
-  changes completely, and there is incipient code to deal with this; for now
-  the safe thing to do if you have a file using multiple namespaces is
-  to declare them once and for all on the top element, and never
-  change them throughout the document. Otherwise, problems are likely.
+* Empty elements appear in the editor as if they had an opening and
+  closing tag, irrespective of how they are encoded in the original
+  document. So ``<foo/>`` and ``<foo></foo>`` are treated the
+  same. Part of this problem is due to the fact that wed sees the
+  document as a DOM tree, not as a serialization. In a DOM tree,
+  ``<foo/>`` and ``<foo></foo>`` are the same.
+
+* Elements that *cannot* contain anything appear in the editor as if
+  they *could*. The validator raises an error if these elements are
+  filled with any contents but it would be nicer if they were
+  displayed in a way that distinguished them from the elements that
+  *can* be filled with contents. We worked on a prototype that would
+  check whether an element *can* contain anything and display it
+  differently if it could not. However, this required that the
+  rendering engine query the validating engine during rendering, which
+  made rendering extremely slow. Since the editor will raise an error
+  if an element that should be empty is filled erroneously, we've
+  decided that a solution to this problem can wait.
+
+* Eventually the plan is to handle XML namespace changes completely,
+  and there is incipient code to deal with this; for now the safe
+  thing to do if you have a file using multiple namespaces is to
+  declare them once and for all on the top element, and never change
+  them throughout the document. Otherwise, problems are likely.
 
 * We've not tested a setup in which more than one wed instance appears
   on the same page.
@@ -62,8 +82,8 @@ below, we have started testing wed on SauceLab's server under their
 OpenSauce program so support for various platforms should improve.
 
 Wed is primarily developed using a recent version of Chrome (version
-30; versions 26-29 have also been used earlier) and a recent version
-of Firefox (version 25; versions 20-24 have also been used earlier)
+32; versions 26-31 have also been used earlier) and a recent version
+of Firefox (version 26; versions 20-25 have also been used earlier)
 for testing. Ideally wed should work with recent versions of other
 browsers but since it is not routinely tested with those browsers
 there may be bugs specific to running wed in those browsers. File an
@@ -107,26 +127,11 @@ suite, is located in :github:`config/requirejs-config-dev.js`.
              it to the ``<local_config>`` directory and edit it
              *there*. This directory is not tracked by git.
 
-In all cases Wed requires the following packages:
-
-* jquery 1.9.1 or higher
-* Bootstrap version 3.0.0 or a later version in the version 3 series.
-* `salve <https://github.com/mangalam-research/salve/>`_
-* rangy, together with its ``selectionsaverestore`` module.
-* bootstrap-growl
-
-Loading wed in a Node.js environment requires installing the
-following node package:
-
-* node-amd-loader
-
-Building wed **additionally** requires the following node packages:
-
-* less
-
-Since wed is not yet distributed in a pre-compiled form, you
-effectively need these packages installed if you want to use wed
-because you have to build it first.
+Please see the :github:`package.json`,
+:github:`config/requirejs-config-dev.js`, :github:`Makefile` and
+:github:`build.mk` files for details regarding run-time and
+development dependencies. Running the test suite also requires that
+`saxon <http://saxon.sourceforge.net/>`_ be installed.
 
 Building wed's documentation **additionally** requires the following
 packages:
@@ -134,20 +139,6 @@ packages:
 * jsdoc3
 * rst2html
 * perl (a stop-gap measure which we plan to get rid of eventually)
-
-Running wed's tests **additionally** requires the following node
-packages:
-
-* mocha
-* chai
-* semver-sync
-* express
-* jsdom
-
-Please see the :github:`package.json`, :github:`config/requirejs-config-dev.js`,
-:github:`Makefile` and :github:`build.mk` files for details regarding these
-dependencies. Running the test suite also requires that `saxon
-<http://saxon.sourceforge.net/>`_ be installed.
 
 Running wed's selenium-based tests **additionally** requires the
 following:
@@ -328,6 +319,11 @@ To include wed in a web page you must:
     ``foo``. If this fails, it will try to load ``modes/foo/foo``.  If
     this fails, it will try to load ``modes/foo/foo_mode``. These
     paths are all relative to the ``wed/`` root directory.
+
+  + ``ajaxlog``: See the documentation about :ref:`remote logging
+    <remote_logging>`.
+
+  + ``save``: See the documentation about :ref:`saving <saving>`.
 
   If ``options`` is absent, wed will attempt getting its configuration
   from RequireJS by calling ``module.config()``. See the RequireJS

@@ -3,7 +3,7 @@
  * @desc Model for DOM locations.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:dloc */function (require, exports, module) {
 'use strict';
@@ -12,6 +12,8 @@ var $ = require("jquery");
 var rangy = require("rangy");
 var domutil = require("./domutil");
 var oop = require("./oop");
+
+var _indexOf = Array.prototype.indexOf;
 
 /**
  * @classdesc ``DLoc`` objects model locations in a DOM tree. Although
@@ -24,6 +26,9 @@ var oop = require("./oop");
  * which they are positioned. A root must be marked using {@link
  * module:dloc~markRoot markRoot} before ``DLoc`` objects using this
  * root can be created.
+ *
+ * A DLoc object can point to an offset inside an Element, inside a
+ * Text node or inside an Attr node.
  *
  * Use {@link module:dloc~makeDLoc makeDLoc} to make ``DLoc``
  * objects. Calling this constructor directly is not legal.
@@ -91,14 +96,20 @@ DLoc.prototype.toArray = function () {
  * reversed, that is, if the end comes before the start.
  */
 DLoc.prototype.makeRange = function (other) {
+    if (this.node.nodeType === Node.ATTRIBUTE_NODE)
+        throw new Error("cannot make range from attribute node");
+
     if (!other) {
         var range = rangy.createRange(this.node.ownerDocument);
         range.setStart(this.node, this.offset);
         return range;
     }
-    else
+    else {
+        if (other.node.nodeType === Node.ATTRIBUTE_NODE)
+            throw new Error("cannot make range from attribute node");
         return domutil.rangeFromPoints(this.node, this.offset,
                                        other.node, other.offset);
+    }
 };
 
 // The real constructor.
@@ -165,7 +176,11 @@ function makeDLoc(root, node, offset) {
     else
         $root = $(root);
 
-    if ($node.closest(root).length === 0)
+    if (node.nodeType === Node.ATTRIBUTE_NODE) {
+        if (!$(node.ownerElement).closest(root).length)
+            throw new Error("node not in root");
+    }
+    else if (!$node.closest(root).length)
         throw new Error("node not in root");
 
     if (!$root.data("wed-dloc-root"))
@@ -176,15 +191,6 @@ function makeDLoc(root, node, offset) {
 }
 
 /**
- * Marks a node as a root for purpose of creating DOM locations.
- *
- * @param {Node|jQuery} node The node to mark.
- */
-function markRoot(node) {
-    $(node).data("wed-dloc-root", true);
-}
-
-/**
  * Finds the root under which a node resides. Note that in cases where
  * an undefined result is useless, you should use {@link
  * module:dloc~getRoot getRoot} instead.
@@ -192,14 +198,15 @@ function markRoot(node) {
  * @param {Node|jQuery} node The node whose root we want. If a
  * ``jQuery`` object, only the first element in the object will be
  * used.
- * @returns {Node|undefined} The root node, or ``undefined`` if the
+ * @returns {module:dloc~DLocRoot} The root object, or ``undefined`` if the
  * root can't be found.
  */
 function findRoot(node) {
     node = (node instanceof $) ? node[0]: node;
     while(node) {
-        if ($(node).data("wed-dloc-root"))
-            return node;
+        var root = $(node).data("wed-dloc-root");
+        if (root)
+            return root;
         node = node.parentNode;
     }
     return undefined;
@@ -221,11 +228,140 @@ function getRoot(node) {
     return ret;
 }
 
-exports.markRoot = markRoot;
+/**
+ * @classdesc A class for objects that are used to mark DOM nodes as
+ * roots for the purpose of using DLoc objects.
+ *
+ * @param {Node} node The DOM node to which this object is associated.
+ */
+function DLocRoot(node) {
+    // The underscore in the name throws off jshint.
+    /* jshint validthis: true */
+
+    var $node = $(node);
+
+    if ($node.data("wed-dloc-root"))
+        throw new Error("node already marked as root");
+
+    $node.data("wed-dloc-root", this);
+
+    this.node = $node[0];
+}
+
+/**
+ * Converts a node to a path. A path is a string representation of the
+ * location of a node relative to the root.
+ *
+ * @param {Node} node The node for which to construct a path.
+ *
+ * @returns {string} The path.
+ */
+DLocRoot.prototype.nodeToPath = function (node) {
+    if (node === null || node === undefined)
+        throw new Error("invalid node parameter");
+
+    var root = this.node;
+    if (root === node)
+        return "";
+
+    var check_node = node;
+    if (node.nodeType === Node.ATTRIBUTE_NODE)
+        check_node = node.ownerElement;
+
+    if (!$(check_node).closest(root).length)
+        throw new Error("node is not a descendant of root");
+
+    var ret = [];
+    while (node !== root) {
+        var parent;
+        if (node.nodeType === Node.ATTRIBUTE_NODE) {
+            parent = node.ownerElement;
+            ret.unshift("@" + node.name);
+        }
+        else {
+            var $node = $(node);
+
+            var location;
+            var offset = 0;
+            var i;
+
+            parent = node.parentNode;
+
+            location = _indexOf.call(parent.childNodes, node);
+            for (i = 0; i < location; ++i) {
+                if ((parent.childNodes[i].nodeType === Node.TEXT_NODE) ||
+                    (parent.childNodes[i].nodeType === Node.ELEMENT_NODE))
+                    offset++;
+            }
+
+            ret.unshift("" + offset);
+        }
+        node = parent;
+    }
+
+    return ret.join("/");
+};
+
+/**
+ * This function recovers a DOM node on the basis of a path previously
+ * created by {@link module:dloc~DLocRoot#nodeToPath nodeToPath}.
+ *
+ * @param {string} path The path to interpret.
+ *
+ * @returns {Node} The node corresponding to the path, or
+ * ``null`` if no such node exists.
+ * @throws {Error} If given a malformed ``path``.
+ */
+DLocRoot.prototype.pathToNode = function (path) {
+    var root = this.node;
+
+    if (path === "")
+        return root;
+
+    var parts = path.split(/\//);
+    var parent = root;
+
+    var attribute;
+    // Set aside the last part if it is an attribute.
+    if (parts[parts.length - 1][0] === "@")
+        attribute = parts.pop();
+
+    for(var part_ix = 0, part; (part = parts[part_ix]) !== undefined;
+        ++part_ix) {
+        var index;
+        var node;
+        var match = /^(\d+)$/.exec(part);
+        if (match) {
+            index = match[1] >> 0; // Convert to Number.
+            var found = null;
+            for(var i = 0; !found && (i < parent.childNodes.length); i++) {
+                node = parent.childNodes[i];
+                if ((node.nodeType === Node.TEXT_NODE ||
+                     (node.nodeType === Node.ELEMENT_NODE)) && --index < 0)
+                    found = node;
+            }
+
+            if (!found)
+                return null;
+
+            parent = found;
+        }
+        else
+            throw new Error("malformed path expression");
+    }
+
+    if (attribute)
+        parent = parent.getAttributeNode(attribute.slice(1));
+
+    return parent;
+};
+
+
 exports.makeDLoc = makeDLoc;
 exports.DLoc = DLoc;
 exports.findRoot = findRoot;
 exports.getRoot = getRoot;
+exports.DLocRoot = DLocRoot;
 
 });
 

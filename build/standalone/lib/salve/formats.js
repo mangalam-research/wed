@@ -4,7 +4,7 @@
  * schema format that salve uses natively.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:formats */ function (require, exports, module) {
 'use strict';
@@ -66,25 +66,12 @@ var OPTION_NO_PATHS = 1;
 // var OPTION_WHATEVER_PLUS_1 = 4;
 // etc...
 
-
-/**
- * Resolves an array according to format V0. For each element, if the
- * element is an array, it is resolved. If the element is an object,
- * then the object is constructed. Otherwise, the element remains as
- * is.
- *
- * @private
- * @param {Array} arr The array to resolve.
- */
-function _resolveArray(arr) {
-    for (var el_ix = 0, el; (el = arr[el_ix]) !== undefined; el_ix++) {
-        if (el instanceof Array)
-            _resolveArray(el);
-        else if (typeof el === "object")
-            arr[el_ix] = _constructObject(el);
-        // else leave as is
-    }
+function OldFormatError() {
+    Error.call(this, "your schema file must be recreated with a newer " +
+               "version of salve-convert");
 }
+
+inherit(OldFormatError, Error);
 
 /**
  * Applies a constructor.
@@ -103,34 +90,6 @@ function _applyConstructor(ctor, args) {
 }
 
 /**
- * Constructs an object according to format V0. In effect, converts
- * the Object created from the JSON representation to a JavaScript
- * Object of the proper class.
- *
- * @private
- * @param {Object} obj The object read from the JSON string.
- * @returns {Object} An object of the proper class.
- * @throws {Error} If the object is malformed, or has a type unknown
- * to salve.
- */
-function _constructObject(obj) {
-    var type = obj.type;
-    if (type === undefined)
-        throw new Error("object without type: " + obj);
-
-    var ctor = name_to_constructor[type];
-    if (ctor === undefined)
-        throw new Error("undefined type: " + type);
-
-    // It is possible to have objects without argument list.
-    var args = obj.args;
-    if (args !== undefined)
-        _resolveArray(args);
-
-    return _applyConstructor(ctor, args);
-}
-
-/**
  * A class for walking the JSON object representing a schema.
  *
  * @private
@@ -138,20 +97,20 @@ function _constructObject(obj) {
  * @param {Object} options The options object from the file that
  * contains the schema.
  */
-function V1JSONWalker(options) {
+function V2JSONWalker(options) {
     this.options = options;
 }
 
 /**
- * Walks a V1 representation of a JavaScript object.
+ * Walks a V2 representation of a JavaScript object.
  *
  * @private
  * @param {Array} array The array representing the object.
  * @throws {Error} If the object is malformed.
  * @returns {Object} The return value of {@link
- * module:formats~V1JSONWalker#_processObject _processObject}.
+ * module:formats~V2JSONWalker#_proxcessObject _processObject}.
  */
-V1JSONWalker.prototype.walkObject = function(array) {
+V2JSONWalker.prototype.walkObject = function(array) {
     if (array.length < 1)
         throw new Error("array too small to contain object");
 
@@ -164,7 +123,7 @@ V1JSONWalker.prototype.walkObject = function(array) {
         throw new Error("undefined type: " + type);
 
     if (ctor === Array)
-        throw new Error("trying to build array with _constructObjectV1");
+        throw new Error("trying to build array with _constructObjectV2");
 
     var add_path = (this.options & OPTION_NO_PATHS) && ctor !== pro.EName;
 
@@ -192,13 +151,13 @@ V1JSONWalker.prototype.walkObject = function(array) {
  * @param {Function} ctor The object's constructor.
  * @param {Array} args The arguments that should be passed to the
  * constructor.
- * @returns {Object|undefined} If the <code>V1JSONWalker</code>
+ * @returns {Object|undefined} If the <code>V2JSONWalker</code>
  * instance is meant to convert the JSON data, then this method should
- * return an Object. If the <code>V1JSONWalker</code> instance is
+ * return an Object. If the <code>V2JSONWalker</code> instance is
  * meant to check the JSON data, then it should return
  * <code>undefined</code>.
  */
-V1JSONWalker.prototype._processObject = function(array, ctor, args) {
+V2JSONWalker.prototype._processObject = function(array, ctor, args) {
     return undefined; // Do nothing
 };
 
@@ -210,14 +169,14 @@ V1JSONWalker.prototype._processObject = function(array, ctor, args) {
  * @throws {Error} If the array is malformed.
  * @returns {Array} The processed array.
  */
-V1JSONWalker.prototype._processArrayForCtor = function (arr) {
+V2JSONWalker.prototype._processArrayForCtor = function (arr) {
     // Drop the array type indicator.
     return this._walkArray(arr).slice(1);
 };
 
 
 /**
- * Resolve an array according to format V1. For each element, if the
+ * Resolve an array according to format V2. For each element, if the
  * element is an array, it is resolved. If the element is an object,
  * then the object is constructed. Otherwise, the element remains as
  * is.
@@ -227,12 +186,12 @@ V1JSONWalker.prototype._processArrayForCtor = function (arr) {
  * @throws {Error} If the array is malformed.
  * @returns {Array} The processed array.
  */
-V1JSONWalker.prototype._processArray = function (arr) {
+V2JSONWalker.prototype._processArray = function (arr) {
     // Drop the array type indicator.
     return this._walkArray(arr).slice(1);
 };
 
-V1JSONWalker.prototype._walkArray = function (arr) {
+V2JSONWalker.prototype._walkArray = function (arr) {
     if (arr[0] !== 0)
         throw new Error("array type not 0, but " + arr[0] +
                         " for array " + arr);
@@ -256,14 +215,26 @@ V1JSONWalker.prototype._walkArray = function (arr) {
  * object.
  *
  * @private
- * @extends module:formats~V1JSONWalker
+ * @extends module:formats~V2JSONWalker
  */
-function V1Constructor() {
-    V1JSONWalker.apply(this, arguments);
+function V2Constructor() {
+    V2JSONWalker.apply(this, arguments);
 }
-inherit(V1Constructor, V1JSONWalker);
+inherit(V2Constructor, V2JSONWalker);
 
-V1Constructor.prototype._processObject = function (array, ctor, args) {
+V2Constructor.prototype._processObject = function (array, ctor, args) {
+    if (ctor === pro.Data && args.length >= 4) {
+        // Parameters are represented as an array of strings in the
+        // file. Transform this array of strings into an array of objects.
+        var params = args[3];
+        if (params.length % 2 !== 0)
+            throw new Error("parameter array length not a multiple of 2");
+
+        var new_params = [];
+        for(var i = 0; i < params.length; i += 2)
+            new_params.push({name: params[i], value: params[i+1]});
+        args[3] = new_params;
+    }
     return _applyConstructor(ctor, args);
 };
 
@@ -276,24 +247,22 @@ V1Constructor.prototype._processObject = function (array, ctor, args) {
  * the original RNG and then converting it with the
  * <code>rng-to-js.xsl</code> transformation provided with salve.
  *
- * @param {String} code The JSON representation.
+ * @param {string} code The JSON representation.
  * @throws {Error} When the version of the JSON representation is not
  * supported.
  * @returns {module:validate~Pattern} The tree.
  */
 function constructTree(code) {
     var parsed = JSON.parse(code);
-    if (typeof(parsed) === 'object' && !parsed.v) {
-        return _constructObject(parsed);
-    }
-    else {
-        var version = parsed.v;
-        var options = parsed.o;
-        if (version === 1)
-            return new V1Constructor(options).walkObject(parsed.d, options);
-        else
-            throw new Error("unknown version: " + version);
-    }
+    if (typeof(parsed) === 'object' && !parsed.v)
+        throw new OldFormatError(); // version 0
+
+    var version = parsed.v;
+    var options = parsed.o;
+    if (version === 2)
+        return new V2Constructor(options).walkObject(parsed.d, options);
+    else
+        throw new Error("unknown version: " + version);
 }
 
 exports.constructTree = constructTree;
@@ -305,7 +274,7 @@ exports.constructTree = constructTree;
 // YOU'VE BEEN WARNED!
 //
 exports.__protected = {
-    V1JSONWalker: V1JSONWalker,
+    V2JSONWalker: V2JSONWalker,
     name_to_constructor: name_to_constructor,
     OPTION_NO_PATHS: OPTION_NO_PATHS
 };

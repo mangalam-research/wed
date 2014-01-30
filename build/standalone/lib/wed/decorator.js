@@ -3,7 +3,7 @@
   * @desc Basic decoration facilities.
   * @author Louis-Dominique Dubeau
   * @license MPL 2.0
-  * @copyright 2013 Mangalam Research Center for Buddhist Languages
+  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
   */
 define(/** @lends module:decorator */ function (require, exports, module) {
 'use strict';
@@ -93,16 +93,19 @@ Decorator.prototype.listDecorator = function (el, sep) {
     var tag_name = tags[0];
 
     // If sep is a string, create an appropriate div.
+    var $sep;
     if (typeof sep === "string")
-        sep = $('<div class="_text">' + sep + "</div>");
+        $sep = $('<div class="_text">' + sep + "</div>");
+    else
+        $sep = $(sep);
 
-    $(sep).addClass('_phantom');
-    $(sep).attr('data-wed--separator-for', tag_name);
+    $sep.addClass('_phantom');
+    $sep[0].setAttribute('data-wed--separator-for', tag_name);
 
     var first = true;
     $(el).children('._real').each(function () {
         if (!first)
-            me._gui_updater.insertBefore(this.parentNode, sep.clone().get(0),
+            me._gui_updater.insertBefore(this.parentNode, $sep.clone()[0],
                                          this);
         else
             first = false;
@@ -147,12 +150,15 @@ Decorator.prototype.includeListHandler = function (
  */
 Decorator.prototype.contentEditableHandler = function (
     $root, $parent, $previous_sibling, $next_sibling, $element) {
-    $element.findAndSelf('._phantom').attr("contenteditable", "false");
-    $element.findAndSelf('._phantom_wrap').attr("contenteditable", "false");
-    $element.findAndSelf('._real').attr("contenteditable", "true");
-    // All element that may get a selection must be focusable to work
-    // around bug: https://bugzilla.mozilla.org/show_bug.cgi?id=921444
-    $element.findAndSelf('*').attr("tabindex", "-1");
+    var $all = $element.findAndSelf('*');
+    for(var i = $all.length - 1; i >= 0; --i) {
+        var it = $all[i];
+        // All elements that may get a selection must be focusable to
+        // work around bug:
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
+        it.setAttribute("tabindex", "-1");
+        it.setAttribute("contenteditable", $(it).is("._real"));
+    }
 };
 
 /**
@@ -212,6 +218,22 @@ Decorator.prototype.elementDecorator = function (
         $post.on('wed-context-menu', post_context_handler);
     else
         $post.on('wed-context-menu', false);
+
+    // Get tooltips from the current mode
+    var self = this;
+    var options = {
+        title: function () {
+            if (!self._editor.preferences.get("tooltips"))
+                return undefined;
+            return self._editor.mode.shortDescriptionFor(orig_name);
+        },
+        container: $pre,
+        delay: { show: 1000 },
+        placement: "auto top"
+    };
+    $pre.tooltip(options);
+    options.container = $post;
+    $post.tooltip(options);
 };
 
 /**
@@ -265,6 +287,14 @@ Decorator.prototype._contextMenuHandler = function (
         // node to which the label belongs.
 
         var orig = util.getOriginalName(node);
+
+        var doc_url = this._editor.mode.documentationLinkFor(orig);
+        if (doc_url) {
+            var a = this._editor.makeDocumentationLink(doc_url);
+            menu_items.push($("<li></li>").append(a)[0]);
+        }
+
+
         var trs = mode.getContextualActions(
             ["unwrap", "delete-element"], orig, node, 0);
         if (trs !== undefined) {

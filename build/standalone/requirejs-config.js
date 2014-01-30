@@ -1,13 +1,24 @@
 require.config({
     "baseUrl": "lib/",
     "paths": {
-        "jquery": "external/jquery-1.10.2",
+        "jquery": "external/jquery-1.11.0",
         "bootstrap": "external/bootstrap/js/bootstrap.min",
         "log4javascript": "external/log4javascript",
         "jquery.bootstrap-growl": "external/jquery.bootstrap-growl",
-        "font-awesome": "external/font-awesome"
+        "font-awesome": "external/font-awesome",
+        "pubsub-js": "external/pubsub",
+        "xregexp": "external/xregexp"
     },
+    "packages": [
+        {
+            "name": "lodash",
+            "location": "external/lodash"
+        }
+    ],
     "shim": {
+        "xregexp": {
+            "exports": "XRegExp"
+        },
         "bootstrap": {
             "deps": [
                 "jquery"
@@ -40,7 +51,12 @@ require.config({
             "mode": {
                 "path": "wed/modes/generic/generic",
                 "options": {
-                    "meta": "wed/modes/generic/metas/tei_meta"
+                    "meta": {
+                        "path": "wed/modes/generic/metas/tei_meta",
+                        "options": {
+                            "metadata": "../../../../../schemas/tei-metadata.json"
+                        }
+                    }
                 }
             }
         }

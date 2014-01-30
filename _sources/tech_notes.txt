@@ -132,6 +132,8 @@ to create your own element for editing, like ``<my:custom-element>``,
 which is then created in the right context by the mode you create for
 your project.
 
+.. _remote_logging:
+
 Remote Logging
 --------------
 
@@ -151,6 +153,8 @@ log messages. The ``headers`` parameter specifies additional headers
 to send. In particular this is useful when the receiver is an
 installation requiring that some anti-CSRF token be set on HTTP
 headers.
+
+.. _saving:
 
 Saving
 ------
@@ -225,6 +229,18 @@ these are not set::
         license: "MPL 2.0",
         copyright: "2013 Ty Coon Industries"
     };
+
+
+Modes may set other options on the ``_wed_options`` property:
+
++ ``label_levels``: an object with two fields:
+
+  - ``max``: determines the maximum level of
+    :ref:`label visibility <label_visiblity>`,
+
+  - ``initial`` determines the initial level of label visibility; must
+    be ``1 <= initial <= max``. (Level 0 exists. It is just not valid
+    to start at that level.)
 
 Testing
 =======
@@ -613,6 +629,32 @@ HTML:
   correspond to any XML attributes. They are encoded as
   ``data-wed--[name]``. An XML attribute name or prefix may not begin
   with a dash, so there cannot be a clash.
+
+Classes Used by Wed
+===================
+
+``_phantom``:
+  All elements added by wed for representing the data to the user are of
+  this class.
+
+``_phantom _gui``:
+  All elements that are more that just uneditable text.
+
+``_phantom _text``:
+  All elements that are text added to represent some XML data. That
+  is, there is some node in the data tree that corresponds
+  specifically to this element.
+
+``_phantom _decoration_text``:
+  All elements that are text added for purely decorative purposes. The
+  difference between these elements and those which are ``_phantom
+  _text`` is that the latter represents some contents whereas the
+  former is purely decorating the data. For instance if an ``<img>``
+  element which points to the image of a cow is represented on screen
+  by the word "cow" then this text should be ``_phantom _text``. On
+  the other hand if a period is added after numbers in a list so that
+  they look nice on screen, these periods should be ``_phantom
+  _decoration_text`` elements.
 
 Browser Issues
 ==============

@@ -4,7 +4,7 @@
  * response to changes.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:gui_updater */ function (require, exports, module) {
@@ -40,6 +40,8 @@ function GUIUpdater (gui_tree, tree_updater) {
         "setTextNodeValue", this._setTextNodeValueHandler.bind(this));
     this._tree_updater.addEventListener(
         "deleteNode", this._deleteNodeHandler.bind(this));
+    this._tree_updater.addEventListener(
+        "setAttributeNS", this._setAttributeNSHandler.bind(this));
 }
 
 oop.inherit(GUIUpdater, TreeUpdater);
@@ -95,6 +97,18 @@ GUIUpdater.prototype._deleteNodeHandler = function (ev) {
 };
 
 /**
+ * Handles {@link module:tree_updater~TreeUpdater#event:setAttributeNS
+ * setAttributeNS} events.
+ * @private
+ * @param {module:tree_updater~TreeUpdater#event:setAttributeNS} ev The
+ * event.
+ */
+GUIUpdater.prototype._setAttributeNSHandler = function (ev) {
+    var gui_caret = this.fromDataLocation(ev.node, 0);
+    this.setAttributeNS(gui_caret.node, ev.ns, ev.attribute, ev.new_value);
+};
+
+/**
  * Converts a data location to a GUI location.
  *
  * @param {module:dloc~DLoc} loc The location.
@@ -109,8 +123,7 @@ GUIUpdater.prototype.fromDataLocation = function (loc, offset) {
     else
         node = loc;
 
-    var gui_node = domutil.pathToNode(
-        this._gui_tree, this._tree_updater.nodeToPath(node));
+    var gui_node = this.pathToNode(this._tree_updater.nodeToPath(node));
 
     if (node.nodeType === Node.TEXT_NODE)
         return makeDLoc(this._gui_tree, gui_node, offset);
@@ -121,8 +134,7 @@ GUIUpdater.prototype.fromDataLocation = function (loc, offset) {
     if (offset >= node.childNodes.length)
         return makeDLoc(this._gui_tree, gui_node, gui_node.childNodes.length);
 
-    var gui_child = domutil.pathToNode(
-        this._gui_tree, this._tree_updater.nodeToPath(node.childNodes[offset]));
+    var gui_child = this.pathToNode(this._tree_updater.nodeToPath(node.childNodes[offset]));
     if (gui_child === null)
         // This happens if for instance node has X children but the
         // corresponding node in _gui_tree has X-1 children.

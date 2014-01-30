@@ -3,7 +3,7 @@
  * @desc Decorator for the test mode.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:modes/test/test_decorator */
 function (require, exports, module) {
@@ -45,7 +45,8 @@ function TestDecorator(mode, meta, options) {
     // elements are decorated.
     this._element_level = {
         "term": 2,
-        "ref": 2
+        "ref": 2,
+        "text": 1
     };
 }
 

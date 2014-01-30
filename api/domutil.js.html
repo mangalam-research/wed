@@ -11,7 +11,7 @@
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
     <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-    <link type="text/css" rel="stylesheet" href="styles/wed.css">
+    <link type="text/css" rel="stylesheet" href="styles/mangalam.css">
 </head>
 
 <body>
@@ -32,7 +32,7 @@
  * @desc Utilities that manipulate or query the DOM tree.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:domutil */ function (require, exports, module) {
 "use strict";
@@ -303,147 +303,35 @@ function prevCaretPosition(caret, container, no_text) {
 }
 
 /**
- * This function provides a representation of a node's location
- * relative to its parent. The return value can be passed to
- * &lt;code>pathToNode&lt;/code>.
+ * Given two trees A and B of DOM nodes, this function finds the node
+ * in tree B which corresponds to a node in tree A. The two trees must
+ * be structurally identical. If tree B is cloned from tree A, it will
+ * satisfy this requirement. This function does not work with
+ * attribute nodes.
  *
- * @param {Node} root The node from which to calculate paths.
- *
- * @param {Node} node The node whose path must be calculated. Must be
- * a descendant of &lt;code>root&lt;/code>.
- * @throws {Error} If &lt;code>root&lt;/code> or &lt;code>node&lt;/code> is
- * undefined, if &lt;code>node&lt;/code> is an invalid type of node (a gui,
- * placeholder or phantom node), or if &lt;code>node&lt;/code> is not a
- * descendant of &lt;code>root&lt;/code>
- * @returns This function returns a representation of
- * &lt;code>node&lt;/code>'s location relative to
- * &lt;code>root&lt;/code>. Provided that no significant change has occurred
- * between a call to &lt;code>nodeToPath&lt;/code> and
- * &lt;code>pathToNode&lt;/code>, and given &lt;code>var path =
- * nodeToPath(root, node)&lt;/code>, then the following is true
- * &lt;code>pathToNode(root, path) === node&lt;/code>. The representation is
- * purposely not documented. In particular, the representation is not
- * guaranteed to refer to the same node across multiple sessions of
- * wed, even if the document has not changed at all.
+ * @param {Node} tree_a The root of the first tree.
+ * @param {Node} tree_b The root of the second tree.
+ * @param {Node} node_in_a A node in the first tree.
+ * @returns {Node} The node which corresponds to ``node_in_a`` in
+ * ``tree_b``.
+ * @throws {Error} If ``node_in_a`` is not ``tree_a`` or a child of ``tree_a``.
  */
-
-function nodeToPath(root, node) {
-    if (root === null || root === undefined)
-        throw new Error("invalid root parameter");
-
-    if (node === null || node === undefined)
-        throw new Error("invalid node parameter");
-
-    var $node = $(node);
-    if ($node.closest("._gui, ._placeholder, ._phantom").length > 0)
-        throw new Error("cannot provide path to node because it is a "+
-                        "gui, placeholder or phantom node");
-
-    if (root === node)
-        return "";
-
-    if ($node.closest(root).length === 0 ||
-        // This is also not a descendant...
-        node === root)
-        throw new Error("node is not a descendant of root");
-
-    return _nodeToPath(root, node);
-}
-
-/**
- * Converts a node to a path.
- * @private
- *
- * @param {Node} root The root where the path starts.
- * @param {Node} node The node for which to construct a path.
- *
- * @returns {string} The path.
- */
-function _nodeToPath(root, node)
-{
-    var $node = $(node);
-    var parent = node.parentNode;
-
-    var location;
-    var offset = 0;
-    var ret;
-    var i;
-
-    if (!$node.is("._real, ._phantom_wrap") && node.nodeType !== Node.TEXT_NODE)
-        throw new Error("only nodes of class ._real and ._phantom_wrap " +
-                        "are supported by nodeToPath");
-
-
-    location = _indexOf.call(parent.childNodes, node);
-    for (i = 0; i &lt; location; ++i) {
-        if ((parent.childNodes[i].nodeType === Node.TEXT_NODE) ||
-            (parent.childNodes[i].nodeType === Node.ELEMENT_NODE &&
-             $(parent.childNodes[i]).is("._real, ._phantom_wrap")))
-            offset++;
+function correspondingNode(tree_a, tree_b, node_in_a) {
+    var path = [];
+    var current = node_in_a;
+    while(current !== tree_a) {
+        var parent = current.parentNode;
+        if (!parent)
+            throw new Error("node_in_a is not tree_a or a child of tree_a");
+        path.unshift(_indexOf.call(parent.childNodes, current));
+        current = parent;
     }
 
-    ret = "" + offset;
+    var ret = tree_b;
+    while(path.length)
+        ret = ret.childNodes[path.shift()];
 
-    if (parent === root)
-        return ret;
-    else
-        return _nodeToPath(root, parent) + "/" + ret;
-}
-
-/**
- * This function recovers a DOM node on the basis of a path previously
- * created by &lt;code>nodeToPath&lt;/code> and a root node from which to
- * interpret the path.
- *
- * @param {Node} root The node from which to interpret the path
- *
- * @param {string} path The path to interpret.
- *
- * @returns {Node} The node corresponding to the path, or
- * &lt;code>null&lt;/code> if no such node exists.
- * @throws {Error} If given a malformed &lt;code>path&lt;/code>.
- */
-function pathToNode(root, path) {
-    if (!root)
-        return null;
-
-    if (path === "")
-        return root;
-
-    var parts = path.split(/\//, 1);
-    var first;
-    var last;
-
-    if (parts.length === 0)
-        first = path;
-    else {
-        first = parts[0];
-        last = path.slice(first.length + 1);
-    }
-
-    var index;
-    var node;
-    var i;
-    var found = null;
-    var match = /^(\d+)$/.exec(first);
-    if (match) {
-        index = match[1] >> 0;
-        for(i = 0; !found && (i &lt; root.childNodes.length); i++) {
-            node = root.childNodes[i];
-            if ((node.nodeType === Node.TEXT_NODE ||
-                 (node.nodeType === Node.ELEMENT_NODE &&
-                  $(node).is("._real, ._phantom_wrap"))) && --index &lt; 0)
-                found = node;
-        }
-    }
-    else
-        throw new Error("malformed path expression");
-
-    // We did the whole path.
-    if (!last)
-        return found;
-
-    return pathToNode(found, last);
+    return ret;
 }
 
 /**
@@ -1104,8 +992,6 @@ exports.getSelectionRange = getSelectionRange;
 exports.nextCaretPosition = nextCaretPosition;
 exports.prevCaretPosition = prevCaretPosition;
 exports.makePlaceholder = makePlaceholder;
-exports.nodeToPath = nodeToPath;
-exports.pathToNode = pathToNode;
 exports.splitTextNode = splitTextNode;
 exports.insertIntoText = insertIntoText;
 exports.insertText = insertText;
@@ -1124,6 +1010,7 @@ exports.focusNode = focusNode;
 exports.dumpCurrentSelection = dumpCurrentSelection;
 exports.dumpRange = dumpRange;
 exports.pointInContents = pointInContents;
+exports.correspondingNode = correspondingNode;
 
 });
 
@@ -1145,13 +1032,13 @@ exports.pointInContents = pointInContents;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Sat Nov 23 2013 16:19:55 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Jan 30 2014 07:23:57 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

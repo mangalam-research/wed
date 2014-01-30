@@ -3,7 +3,7 @@
  * @desc A mixin class for objects that can emit events.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:lib/simple_event_emitter */ function (require, exports,
                                                            module) {
@@ -45,7 +45,7 @@ function SimpleEventEmitter () {
  * added matters. An earlier event listener returning
  * <code>false</code> will prevent later listeners from being called.
  *
- * @param {String} event_name The name of the event to listen to.
+ * @param {string} event_name The name of the event to listen to.
  * @param {Function} listener The function that will be called when
  * the event occurs.
  */
@@ -65,7 +65,7 @@ SimpleEventEmitter.prototype.addEventListener = function (event_name,
  * earlier event listener returning <code>false</code> will prevent
  * later listeners from being called.
  *
- * @param {String} event_name The name of the event to listen to.
+ * @param {string} event_name The name of the event to listen to.
  * @param {Function} listener The function that will be called when
  * the event occurs.
  *
@@ -92,7 +92,7 @@ SimpleEventEmitter.prototype.addOneTimeEventListener =  function (event_name,
  * Removes a listener. Calling this method on a listener that is not
  * actually listening to events is a noop.
  *
- * @param {String} event_name The name of the event that was listened to.
+ * @param {string} event_name The name of the event that was listened to.
  * @param {Function} listener The handler to remove.
  */
 SimpleEventEmitter.prototype.removeEventListener = function (event_name,
@@ -109,7 +109,7 @@ SimpleEventEmitter.prototype.removeEventListener = function (event_name,
 /**
  * Removes all listeners for a specific event.
  *
- * @param {String} event_name The event whose listeners must all be
+ * @param {string} event_name The event whose listeners must all be
  * removed.
  */
 SimpleEventEmitter.prototype.removeAllListeners = function(event_name) {
@@ -121,7 +121,7 @@ SimpleEventEmitter.prototype.removeAllListeners = function(event_name) {
  * indicate that an event has occurred.
  *
  * @private
- * @param {String} event_name The name of the event to emit.
+ * @param {string} event_name The name of the event to emit.
  * @param ev The event data to provide to handlers. The type can be
  * anything.
  */

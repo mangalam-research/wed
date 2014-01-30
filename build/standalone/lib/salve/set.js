@@ -3,7 +3,7 @@
  * @desc Naive set implementation.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:set */function (require, exports, module) {
 'use strict';
@@ -128,14 +128,14 @@ Set.prototype.forEach = function (f) {
 /**
  * Converts the set to a string.
  *
- * @returns {String} All the values, joined with ", ".
+ * @returns {string} All the values, joined with ", ".
  */
 Set.prototype.toString = function () {
     return this.b.join(", ");
 };
 
 /**
- * @returns {Integer} The number of values stored.
+ * @returns {integer} The number of values stored.
  */
 Set.prototype.size = function () {
     return this.b.length;
@@ -147,7 +147,7 @@ Set.prototype.size = function () {
  *
  * @param obj The object which we want to look for.
  *
- * @returns {Boolean} True if the object is present, false if not.
+ * @returns {boolean} True if the object is present, false if not.
  */
 Set.prototype.has = function(obj) {
     return this.b.indexOf(obj) >= 0;

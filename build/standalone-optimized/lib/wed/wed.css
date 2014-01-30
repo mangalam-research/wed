@@ -144,6 +144,9 @@ div.wed-frame div.wed-document div._phantom._gui {
 div.wed-frame div.wed-document div._phantom._text {
   display: inline;
 }
+div.wed-frame div.wed-document div._phantom._decoration_text {
+  display: inline;
+}
 div.wed-frame div.wed-document div._real {
   display: block;
   background-color: white;
@@ -220,9 +223,10 @@ div.wed-frame div.wed-document ._placeholder._owns_caret {
   }
 }
 .tooltip {
-  font-size: 24px;
-  max-width: 100em;
+  font-size: 16px;
   line-height: 1.2em;
+  white-space: normal;
+  font-weight: normal;
 }
 .tooltip-inner {
   background-color: #FFEF93;

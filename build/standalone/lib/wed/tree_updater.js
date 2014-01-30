@@ -4,7 +4,7 @@
  * on changes.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:tree_updater */ function (require, exports, module) {
@@ -58,6 +58,7 @@ function TreeUpdater (tree) {
     // Call the constructor for our mixin
     SimpleEventEmitter.call(this);
     this._tree = tree;
+    this._dloc_root = dloc.findRoot(tree);
 }
 
 oop.implement(TreeUpdater, SimpleEventEmitter);
@@ -173,9 +174,9 @@ TreeUpdater.prototype.splitAt = function (top, loc, index) {
     if ($(node).closest(top).length === 0)
         throw new Error("split location is not inside top");
 
-    var cloned_top = $(top).clone().get(0);
-    var cloned_node = domutil.pathToNode(cloned_top,
-                                         domutil.nodeToPath(top, node));
+    var cloned_top = $(top).clone()[0];
+    var cloned_node = domutil.correspondingNode(top, cloned_top, node);
+
     var pair = this._splitAt(cloned_top, cloned_node, index);
 
     var parent = top.parentNode;
@@ -620,6 +621,72 @@ TreeUpdater.prototype.deleteNode = function (node) {
 };
 
 /**
+ * A complex method. Sets an attribute to a value. Setting to the
+ * value ``null`` or ``undefined`` deletes the attribute. This method
+ * sets attributes outside of any namespace.
+ *
+ * @param {Node} node The node to modify.
+ * @param {string} attribute The name of the attribute to modify.
+ * @param {string|null|undefined} value The value to give to the attribute.
+ *
+ * @emits module:tree_updater~TreeUpdater#setAttributeNS
+ */
+TreeUpdater.prototype.setAttribute = function (node, attribute, value) {
+    this.setAttributeNS(node, "", attribute, value);
+};
+
+
+/**
+ * A primitive method. Sets an attribute to a value. Setting to the
+ * value ``null`` or ``undefined`` deletes the attribute.
+ *
+ * @param {Node} node The node to modify.
+ * @param {string} ns The URI of the namespace of the attribute.
+ * @param {string} attribute The name of the attribute to modify.
+ * @param {string|null|undefined} value The value to give to the attribute.
+ *
+ * @emits module:tree_updater~TreeUpdater#setAttributeNS
+ */
+TreeUpdater.prototype.setAttributeNS = function (node, ns, attribute, value) {
+    // Normalize to null.
+    if (value === undefined)
+        value = null;
+
+    var del = (value === null);
+    /**
+     * @event module:tree_updater~TreeUpdater#setAttributeNS
+     * @type {Object}
+     * @property {Node} node
+     * @property {string} ns The URI of the namespace of the attribute.
+     * @property {string} attribute The name of the attribute to modify.
+     * @property {string} old_value The old value of the attribute.
+     * @property {string} new_value The new value of the attribute.
+     */
+
+    if (node.nodeType !== Node.ELEMENT_NODE)
+        throw new Error("setAttribute called on non-element");
+
+    var old_value = node.getAttributeNS(ns, attribute);
+
+    // Chrome 32 returns an empty string if the attribute is not present,
+    // so normalize.
+    if (old_value === "" && !node.hasAttributeNS(ns, attribute))
+        old_value = null;
+
+    // If adding or changing, we modify *before* emitting.
+    if (!del)
+        node.setAttributeNS(ns, attribute, value);
+
+    this._emit("setAttributeNS", {node: node, ns: ns, attribute: attribute,
+                                  old_value: old_value, new_value: value});
+
+    // If deleting, we modify *after* emitting.
+    if (del)
+        node.removeAttributeNS(ns, attribute);
+};
+
+
+/**
  * Converts a node to a path.
  *
  * @param {Node} node The node for which to return a path.
@@ -627,7 +694,7 @@ TreeUpdater.prototype.deleteNode = function (node) {
  * tree we are updating.
  */
 TreeUpdater.prototype.nodeToPath = function (node) {
-    return domutil.nodeToPath(this._tree, node);
+    return this._dloc_root.nodeToPath(node);
 };
 
 /**
@@ -637,7 +704,7 @@ TreeUpdater.prototype.nodeToPath = function (node) {
  * @returns {Node} The node corresponding to the path passed.
  */
 TreeUpdater.prototype.pathToNode = function (path) {
-    return domutil.pathToNode(this._tree, path);
+    return this._dloc_root.pathToNode(path);
 };
 
 

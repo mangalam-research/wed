@@ -3,7 +3,7 @@
  * @desc Implements a name resolver for handling namespace changes in XML.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:name_resolver */function (require, exports, module) {
 "use strict";
@@ -21,6 +21,7 @@ var XML1_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
  * @constructor
  */
 function NameResolver() {
+    this.id = "N" + this.__newID();
     this._context_stack = [];
 
     // Create a default context.
@@ -29,6 +30,41 @@ function NameResolver() {
     // Mandated by XML 1.x which is the only XML which exists now.
     this.definePrefix("xml", XML1_NAMESPACE);
 }
+
+/**
+ * The next id to associate to the next NameResolver object to be
+ * created. This is used so that {@link module:name_resolver~NameResolver#hash
+ * hash} can return unique values.
+ *
+ * @private
+ */
+NameResolver.__id=0;
+
+/**
+ * Gets a new Pattern id.
+ *
+ * @private
+ * @returns {integer} The new id.
+ */
+NameResolver.prototype.__newID = function () {
+    return NameResolver.__id++;
+};
+
+/**
+ * <p>This method is mainly used to be able to use NameResolver objects in a
+ * {@link module:hashstructs~HashSet HashSet} or a {@link
+ * module:hashstructs~HashMap HashMap}.</p>
+ *
+ * <p>Returns a hash guaranteed to be unique to this object. There are
+ * some limitations. First, if this module is instantiated twice, the
+ * objects created by the two instances cannot mix without violating
+ * the uniqueness guarantee. Second, the hash is a monotonically
+ * increasing counter, so when it reaches beyond the maximum integer
+ * that the JavaScript vm can handle, things go kaboom.</p>
+ *
+ * @returns {integer} A number unique to this object.
+ */
+NameResolver.prototype.hash = function () { return this.id; };
 
 /**
  * Makes a deep copy.
@@ -42,11 +78,13 @@ NameResolver.prototype.clone = function() {
     return ret;
 };
 
+
+
 /**
  * Defines a (prefix, URI) mapping.
  *
- * @param {String} prefix The namespace prefix to associate with the URI.
- * @param {String} uri The namespace URI associated with the prefix.
+ * @param {string} prefix The namespace prefix to associate with the URI.
+ * @param {string} uri The namespace URI associated with the prefix.
  */
 NameResolver.prototype.definePrefix = function (prefix, uri) {
     this._context_stack[0].forward[prefix] = uri;
@@ -104,8 +142,8 @@ NameResolver.prototype.leaveContext = function () {
  * without a prefix, and "xml:lang" is a name with the "xml"
  * prefix. An expanded name is a (URI, name) pair.
  *
- * @param {String} name The name to resolve.
- * @param {Boolean} attribute Whether this name appears as an attribute.
+ * @param {string} name The name to resolve.
+ * @param {boolean} attribute Whether this name appears as an attribute.
  * @throws {Error} If the name is malformed. For instance, a name with
  * two colons would be malformed.
  * @returns {module:validate~EName|undefined} The expanded name, or
@@ -156,12 +194,12 @@ NameResolver.prototype.resolveName = function (name, attribute) {
  * would happen if two prefixes map to the same URI. In such case the
  * prefix provided in the return value is arbitrarily chosen.</p>
  *
- * @param {String} uri The URI part of the expanded name. An empty
+ * @param {string} uri The URI part of the expanded name. An empty
  * string is valid, and basically means "no namespace". This occurrs
  * for unprefixed attributes but could also happen if the default
  * namespace is undeclared.
- * @param {String} name The name part.
- * @returns {String|undefined} The qualified name that corresponds to
+ * @param {string} name The name part.
+ * @returns {string|undefined} The qualified name that corresponds to
  * the expanded name, or <code>undefined</code> if it cannot be resolved.
  */
 NameResolver.prototype.unresolveName = function (uri, name) {
@@ -190,8 +228,8 @@ NameResolver.prototype.unresolveName = function (uri, name) {
  * that satisfies the requirement, starting from the innermost
  * context.
  *
- * @param {String} uri A URI for which to get a prefix.
- * @returns {String|undefined} A prefix that maps to this
+ * @param {string} uri A URI for which to get a prefix.
+ * @returns {string|undefined} A prefix that maps to this
  * URI. Undefined if there is no prefix available.
  */
 NameResolver.prototype.prefixFromURI = function (uri) {
@@ -207,7 +245,6 @@ NameResolver.prototype.prefixFromURI = function (uri) {
     var pre = prefixes[0];
     return pre;
 };
-
 
 exports.NameResolver = NameResolver;
 exports.XML1_NAMESPACE = XML1_NAMESPACE;

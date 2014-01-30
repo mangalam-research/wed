@@ -3,7 +3,7 @@
  * @desc Transformation framework.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:transformation */function (require, exports, module) {
@@ -164,7 +164,7 @@ function Transformation(editor, desc, abbreviated_desc, icon, handler) {
  *   etc.  (Could be different from the name of the ``node``.)
  *
  * - ``move_caret_to``: A position to which the caret is moved before
- *   the transformation is fired. **Wed performs the move.**.
+ *   the transformation is fired. **Wed performs the move.**
  */
 
 oop.inherit(Transformation, Action);
@@ -222,12 +222,13 @@ function insertElement(data_updater, parent, index, name, attrs,
  */
 function makeElement(name, attrs) {
     var $e = $("<div class='" + name + " _real'>");
+    var e = $e[0];
     if (attrs !== undefined)
     {
         // Create attributes
         var keys = Object.keys(attrs);
         for(var keys_ix = 0, key; (key = keys[keys_ix++]) !== undefined; ) {
-            $e.attr(util.encodeAttrName(key), attrs[key]);
+            e.setAttribute(util.encodeAttrName(key), attrs[key]);
         }
     }
     return $e;

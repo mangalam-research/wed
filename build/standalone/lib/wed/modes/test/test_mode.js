@@ -3,7 +3,7 @@
  * @desc A mode for testing.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:modes/test/test_mode*/
 function (require, exports, module) {
@@ -40,7 +40,8 @@ function TestMode () {
         authors: ["Louis-Dominique Dubeau"],
         description: "TEST MODE. DO NOT USE IN PRODUCTION!",
         license: "MPL 2.0",
-        copyright: "2013 Mangalam Research Center for Buddhist Languages"
+        copyright:
+        "2013, 2014 Mangalam Research Center for Buddhist Languages"
     };
     this._wed_options.label_levels = {
         max: 2,
@@ -49,8 +50,6 @@ function TestMode () {
 }
 
 oop.inherit(TestMode, Mode);
-
-TestMode.optionResolver = Mode.optionResolver;
 
 TestMode.prototype.makeDecorator = function () {
     var obj = Object.create(TestDecorator.prototype);

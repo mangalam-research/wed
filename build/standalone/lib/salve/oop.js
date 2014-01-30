@@ -3,7 +3,7 @@
  * @desc OOP utilities
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:oop */ function (require, exports, module) {
 'use strict';

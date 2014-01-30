@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.10.0-x-132-g16eeb61 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.11.0-1-gc9ddb7d documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     'v0.10.0-x-132-g16eeb61',
+        URL_ROOT:    './',
+        VERSION:     'v0.11.0-1-gc9ddb7d',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.10.0-x-132-g16eeb61 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.11.0-1-gc9ddb7d documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.10.0-x-132-g16eeb61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.11.0-1-gc9ddb7d documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -51,19 +49,36 @@ is alpha software. We aim to make it extensible, but the API is likely
 to change until we hit version 1.0.0.</p>
 <p>Known limitations:</p>
 <ul class="simple">
-<li>Wed currently only understands a subset of Relax NG (through the
-<a class="reference external" href="https://github.com/mangalam-research/salve/">salve</a> package).</li>
+<li>Wed currently does understand a large subset of Relax NG, but some
+constructs are not supported. See the <a class="reference external" href="https://github.com/mangalam-research/salve/">salve</a> package for details.</li>
 <li>Wed does not currently support editing attributes in a
 generic way <em>as attributes</em>. The functionality just has not been
 implemented <strong>yet</strong> because wed is developed in the context of a
 project where all attributes are set by software or are edited
 through domain-specific abstractions rather than directly, as
 attributes. Other features are more pressing.</li>
-<li>Eventually the plan is to handle XML namespace
-changes completely, and there is incipient code to deal with this; for now
-the safe thing to do if you have a file using multiple namespaces is
-to declare them once and for all on the top element, and never
-change them throughout the document. Otherwise, problems are likely.</li>
+<li>Empty elements appear in the editor as if they had an opening and
+closing tag, irrespective of how they are encoded in the original
+document. So <tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> and <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt> are treated the
+same. Part of this problem is due to the fact that wed sees the
+document as a DOM tree, not as a serialization. In a DOM tree,
+<tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> and <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt> are the same.</li>
+<li>Elements that <em>cannot</em> contain anything appear in the editor as if
+they <em>could</em>. The validator raises an error if these elements are
+filled with any contents but it would be nicer if they were
+displayed in a way that distinguished them from the elements that
+<em>can</em> be filled with contents. We worked on a prototype that would
+check whether an element <em>can</em> contain anything and display it
+differently if it could not. However, this required that the
+rendering engine query the validating engine during rendering, which
+made rendering extremely slow. Since the editor will raise an error
+if an element that should be empty is filled erroneously, we&#8217;ve
+decided that a solution to this problem can wait.</li>
+<li>Eventually the plan is to handle XML namespace changes completely,
+and there is incipient code to deal with this; for now the safe
+thing to do if you have a file using multiple namespaces is to
+declare them once and for all on the top element, and never change
+them throughout the document. Otherwise, problems are likely.</li>
 <li>We&#8217;ve not tested a setup in which more than one wed instance appears
 on the same page.</li>
 <li>Keyboard navigation in contextual menus works. However, if the mouse
@@ -97,8 +112,8 @@ still there, waiting for you to type text.</li>
 below, we have started testing wed on SauceLab&#8217;s server under their
 OpenSauce program so support for various platforms should improve.</p>
 <p>Wed is primarily developed using a recent version of Chrome (version
-30; versions 26-29 have also been used earlier) and a recent version
-of Firefox (version 25; versions 20-24 have also been used earlier)
+32; versions 26-31 have also been used earlier) and a recent version
+of Firefox (version 26; versions 20-25 have also been used earlier)
 for testing. Ideally wed should work with recent versions of other
 browsers but since it is not routinely tested with those browsers
 there may be bugs specific to running wed in those browsers. File an
@@ -138,26 +153,11 @@ experimentation or to match your local setup, please copy
 it to the <tt class="docutils literal"><span class="pre">&lt;local_config&gt;</span></tt> directory and edit it
 <em>there</em>. This directory is not tracked by git.</p>
 </div>
-<p>In all cases Wed requires the following packages:</p>
-<ul class="simple">
-<li>jquery 1.9.1 or higher</li>
-<li>Bootstrap version 3.0.0 or a later version in the version 3 series.</li>
-<li><a class="reference external" href="https://github.com/mangalam-research/salve/">salve</a></li>
-<li>rangy, together with its <tt class="docutils literal"><span class="pre">selectionsaverestore</span></tt> module.</li>
-<li>bootstrap-growl</li>
-</ul>
-<p>Loading wed in a Node.js environment requires installing the
-following node package:</p>
-<ul class="simple">
-<li>node-amd-loader</li>
-</ul>
-<p>Building wed <strong>additionally</strong> requires the following node packages:</p>
-<ul class="simple">
-<li>less</li>
-</ul>
-<p>Since wed is not yet distributed in a pre-compiled form, you
-effectively need these packages installed if you want to use wed
-because you have to build it first.</p>
+<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/package.json">package.json</a>,
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/Makefile">Makefile</a> and
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> files for details regarding run-time and
+development dependencies. Running the test suite also requires that
+<a class="reference external" href="http://saxon.sourceforge.net/">saxon</a> be installed.</p>
 <p>Building wed&#8217;s documentation <strong>additionally</strong> requires the following
 packages:</p>
 <ul class="simple">
@@ -165,18 +165,6 @@ packages:</p>
 <li>rst2html</li>
 <li>perl (a stop-gap measure which we plan to get rid of eventually)</li>
 </ul>
-<p>Running wed&#8217;s tests <strong>additionally</strong> requires the following node
-packages:</p>
-<ul class="simple">
-<li>mocha</li>
-<li>chai</li>
-<li>semver-sync</li>
-<li>express</li>
-<li>jsdom</li>
-</ul>
-<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/package.json">package.json</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>,
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/Makefile">Makefile</a> and <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> files for details regarding these
-dependencies. Running the test suite also requires that <a class="reference external" href="http://saxon.sourceforge.net/">saxon</a> be installed.</p>
 <p>Running wed&#8217;s selenium-based tests <strong>additionally</strong> requires the
 following:</p>
 <ul class="simple">
@@ -202,7 +190,8 @@ itself. You might want to create a <tt class="docutils literal"><span class="pre
 settings specific to your own build environment. See the start of the
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> to see what variables you can set. When everything
 is set, run:</p>
-<div class="highlight-python"><pre>$ make</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ make
+</pre></div>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -295,7 +284,7 @@ instance the URL
 <a class="reference external" href="http://localhost:8888/web/kitchen-sink.html?mode=tei">http://localhost:8888/web/kitchen-sink.html?mode=tei</a> would tell
 the kitchen sink to load the tei mode.</p>
 <div class="section" id="label-visibility">
-<span id="id2"></span><h2>Label Visibility<a class="headerlink" href="#label-visibility" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Label Visibility<a class="headerlink" href="#label-visibility" title="Permalink to this headline">¶</a></h2>
 <p>Wed allows the user to reduce or increase the number of element
 labeled on the screen. How this works is dependent in part on the
 specific mode that the user has selected. For instance, the default
@@ -320,9 +309,10 @@ import <a class="reference external" href="https://github.com/mangalam-research/
 <li><p class="first">Require <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/wed.js">lib/wed/wed.js</a></p>
 </li>
 <li><p class="first">Instantiate an <tt class="docutils literal"><span class="pre">Editor</span></tt> object of that module as follows:</p>
-<div class="highlight-python"><pre>var editor = new wed.Editor();
+<div class="highlight-python"><div class="highlight"><pre>var editor = new wed.Editor();
 [...]
-editor.init(widget, options);</pre>
+editor.init(widget, options);
+</pre></div>
 </div>
 <p>Between the creation of the <tt class="docutils literal"><span class="pre">Editor</span></tt> object and the call to
 <tt class="docutils literal"><span class="pre">init</span></tt>, there conceivably could be some calls to add event
@@ -347,6 +337,10 @@ given the path <tt class="docutils literal"><span class="pre">&quot;foo&quot;</s
 <tt class="docutils literal"><span class="pre">foo</span></tt>. If this fails, it will try to load <tt class="docutils literal"><span class="pre">modes/foo/foo</span></tt>.  If
 this fails, it will try to load <tt class="docutils literal"><span class="pre">modes/foo/foo_mode</span></tt>. These
 paths are all relative to the <tt class="docutils literal"><span class="pre">wed/</span></tt> root directory.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">ajaxlog</span></tt>: See the documentation about <a class="reference internal" href="tech_notes.html#remote-logging"><em>remote logging</em></a>.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">save</span></tt>: See the documentation about <a class="reference internal" href="tech_notes.html#saving"><em>saving</em></a>.</p>
 </li>
 </ul>
 <p>If <tt class="docutils literal"><span class="pre">options</span></tt> is absent, wed will attempt getting its configuration
@@ -466,12 +460,12 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.10.0-x-132-g16eeb61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.11.0-1-gc9ddb7d documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Mangalam Research Center for Buddhist Languages.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+        &copy; Copyright 2013, 2014 Mangalam Research Center for Buddhist Languages.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
   </body>
 </html>

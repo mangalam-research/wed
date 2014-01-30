@@ -3,7 +3,7 @@
  * @desc Classes that model RNG patterns.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:patterns */ function (require, exports, module) {
@@ -67,6 +67,14 @@ var util = require("./util");
 var hashstructs = require("./hashstructs");
 var oop = require("./oop");
 var Set = require("./set").Set;
+var datatypes = require("./datatypes");
+var errors = require("./errors");
+var ValidationError = errors.ValidationError;
+var ElementNameError = errors.ElementNameError;
+var AttributeNameError = errors.AttributeNameError;
+var AttributeValueError = errors.AttributeValueError;
+var ChoiceError = errors.ChoiceError;
+var registry = datatypes.registry;
 var inherit = oop.inherit;
 var implement = oop.implement;
 var HashSet = hashstructs.HashSet;
@@ -155,7 +163,7 @@ if (DEBUG) {
      *
      * @private
      * @param {Object} me The object to modify.
-     * @param {String} name The field name to modify in the object.
+     * @param {string} name The field name to modify in the object.
      * @param {Function} f The function that should serve as wrapper.
      *
      */
@@ -177,9 +185,9 @@ if (DEBUG) {
  */
 function addWalker(el_cls, walker_cls)
 {
-    el_cls.prototype.newWalker = function () {
+    el_cls.prototype.newWalker = function (name_resolver) {
         /* jshint newcap: false */
-        return new walker_cls(this);
+        return new walker_cls(this, name_resolver);
     };
 }
 
@@ -226,15 +234,15 @@ var EventSet = Set;
  * @classdesc Immutable objects modeling XML Expanded Names.
  * @constructor
  *
- * @param {String} ns The namespace URI.
- * @param {String} name The local name of the entity.
+ * @param {string} ns The namespace URI.
+ * @param {string} name The local name of the entity.
  */
 function EName(ns, name) {
     this.ns = ns;
     this.name = name;
 }
 /**
- * @returns {String} A string representing the expanded name.
+ * @returns {string} A string representing the expanded name.
  */
 EName.prototype.toString = function () {
     return "{" + this.ns + "}" + this.name;
@@ -246,7 +254,7 @@ EName.prototype.toString = function () {
  * @param {module:patterns~EName} other The other object to compare
  * this object with.
  *
- * @returns {Boolean} <code>true</code> if this object equals the other.
+ * @returns {boolean} <code>true</code> if this object equals the other.
  */
 EName.prototype.equal = function (other) {
     return this.ns === other.ns && this.name === other.name;
@@ -257,7 +265,7 @@ EName.prototype.equal = function (other) {
  *
  * @private
  * @param {Object} o An object that implements <code>hash()</code>.
- * @returns {Boolean} The return value of <code>hash()</code>.
+ * @returns {boolean} The return value of <code>hash()</code>.
  */
 function hashHelper(o) { return o.hash(); }
 
@@ -272,11 +280,11 @@ function hashHelper(o) { return o.hash(); }
  *
  * @constructor
  *
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
  */
 function Pattern(xml_path) {
-    this.id = this.__newID();
+    this.id = "P" + this.__newID();
     this.xml_path = xml_path;
 }
 
@@ -295,7 +303,7 @@ Pattern.__id=0;
  * Gets a new Pattern id.
  *
  * @private
- * @returns {Integer} The new id.
+ * @returns {integer} The new id.
  */
 Pattern.prototype.__newID = function () {
     return Pattern.__id++;
@@ -310,10 +318,10 @@ Pattern.prototype.__newID = function () {
  * some limitations. First, if this module is instantiated twice, the
  * objects created by the two instances cannot mix without violating
  * the uniqueness guarantee. Second, the hash is a monotonically
- * increasing counter, so when it reaches beyond the maximum Integer
+ * increasing counter, so when it reaches beyond the maximum integer
  * that the JavaScript vm can handle, things go kaboom.</p>
  *
- * @returns {Integer} A number unique to this object.
+ * @returns {integer} A number unique to this object.
  */
 Pattern.prototype.hash = function () { return this.id; };
 
@@ -494,7 +502,7 @@ Pattern.prototype._elementDefinitions = function (memo) {
  * @private
  *
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
  */
 function PatternOnePattern(xml_path) {
@@ -557,7 +565,7 @@ PatternOnePattern.prototype._elementDefinitions = function (memo) {
  *
  * @constructor
  * @private
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
  */
 function PatternTwoPatterns(xml_path) {
@@ -638,7 +646,7 @@ PatternTwoPatterns.prototype._cleanAttrs = function () {
     var pats = cleaned[0];
 
     // After modifications we don't allow anything...
-    if ((pats.length == 1) && (pats[0] instanceof Empty))
+    if ((pats.length === 1) && (pats[0] instanceof Empty))
         return undefined;
 
     this.pat_a = pats[0];
@@ -651,157 +659,6 @@ PatternTwoPatterns.prototype._elementDefinitions = function (memo) {
     this.pat_a._elementDefinitions(memo);
     this.pat_b._elementDefinitions(memo);
 };
-
-/**
- * @classdesc The fireEvent methods return an array of objects of this
- * class to notify the caller of errors in the file being validated.
- *
- * @constructor
- *
- * @param {String} msg The error message.
- */
-function ValidationError(msg) {
-    this.msg = msg;
-    // May be useful for debugging:
-    // this.stack_trace = new Error().stack;
-}
-
-/**
- * @returns {String} The text representation of the error.
- */
-ValidationError.prototype.toString = function() { return this.msg; };
-
-/**
- * This method provides the caller with the list of all names that
- * are used in the error message.
- *
- * @returns {Array.<module:patterns~EName>} The list of names used in the
- * error message.
- */
-ValidationError.prototype.getNames = function () {
-    return [];
-};
-
-/**
- * <p>This method transforms the ValidationError object to a string
- * but uses the names in the parameter passed to it to format the
- * string.</p>
- *
- * <p>Since salve does not support namespaces, someone using salve
- * would typically use this method so as to replace the Expanded
- * Names passed in error messages with qualified names.</p>
- *
- * @param {Array.<String>} names The array of names to use. This
- * should be an array of the same length as that returned by
- * <code>getNames()</code>, with each name replaced with a corresponding string.
- *
- * @returns {String} The object formatted as a string.
- */
-ValidationError.prototype.toStringWithNames = function (names) {
-    // We do not have names in ValidationError
-    return this.msg;
-};
-
-
-/**
- * @classdesc This class serves as a base for all those errors that
- * have only one name involved.
- *
- * @constructor
- * @extends module:patterns~ValidationError
- * @param {String} msg The error message.
- * @param {module:patterns~EName} name The name of the XML entity at stake.
- */
-function SingleNameError(msg, name) {
-    ValidationError.call(this, msg);
-    this.name = name;
-}
-inherit(SingleNameError, ValidationError);
-
-SingleNameError.prototype.toString = function() {
-    return this.toStringWithNames([this.name]);
-};
-
-SingleNameError.prototype.getNames = function () {
-    return [this.name];
-};
-
-SingleNameError.prototype.toStringWithNames = function (names) {
-    return this.msg + ": " + names[0];
-};
-
-
-/**
- * @classdesc Error returned when an attribute name is invalid.
- *
- * @constructor
- * @extends module:patterns~SingleNameError
- * @param {String} msg The error message.
- * @param {module:patterns~EName} name The name of the attribute at stake.
- */
-function AttributeNameError() {
-    SingleNameError.apply(this, arguments);
-}
-inherit(AttributeNameError, SingleNameError);
-
-/**
- * @classdesc Error returned when an attribute value is invalid.
- *
- * @constructor
- * @extends module:patterns~SingleNameError
- * @param {String} msg The error message.
- * @param {module:patterns~EName} name The name of the attribute at stake.
- */
-function AttributeValueError() {
-    SingleNameError.apply(this, arguments);
-}
-inherit(AttributeValueError, SingleNameError);
-
-/**
- * @classdesc Error returned when an element is invalid.
- *
- * @constructor
- * @extends module:patterns~SingleNameError
- * @param {String} msg The error message.
- * @param {module:patterns~EName} name The name of the element at stake.
- */
-function ElementNameError() {
-    SingleNameError.apply(this, arguments);
-}
-inherit(ElementNameError, SingleNameError);
-
-/**
- * @classdesc Error returned when choice was not satisfied.
- *
- * @constructor
- * @extends module:patterns~ValidationError
- * @param {Array.<module:patterns~EName>} names_a The name of the first
- * XML entities at stake.
- * @param {Array.<module:patterns~EName>} names_b The name of the second
- * XML entities at stake.
- */
-function ChoiceError(names_a, names_b) {
-    ValidationError.call(this, "");
-    this.names_a = names_a;
-    this.names_b = names_b;
-}
-inherit(ChoiceError, ValidationError);
-
-ChoiceError.prototype.toString = function() {
-    return this.toStringWithNames(this.names_a.concat(this.names_b));
-};
-
-ChoiceError.prototype.getNames = function () {
-    return this.names_a.concat(this.names_b);
-};
-
-ChoiceError.prototype.toStringWithNames = function (names) {
-    var first = names.slice(0, this.names_a.length);
-    var second = names.slice(this.names_a.length);
-    return "must choose either " + first.join(", ") +
-        " or " + second.join(", ");
-};
-
 
 /**
  * @classdesc <p>This class modelizes events occurring during parsing. Upon
@@ -840,6 +697,7 @@ function Event() {
     this.key = key;
 
     Event.__cache[key] = this;
+    return this;
 }
 
 /**
@@ -848,7 +706,7 @@ function Event() {
  *
  * @private
  */
-Event.__cache = {};
+Event.__cache = Object.create(null);
 
 /**
  * The next id to associate to the next Event object to be
@@ -863,7 +721,7 @@ Event.__id=0;
  * Gets a new Event id.
  *
  * @private
- * @returns {Integer} The new id.
+ * @returns {integer} The new id.
  */
 Event.prototype.__newID = function () {
     return Event.__id++;
@@ -878,44 +736,26 @@ Event.prototype.__newID = function () {
  * some limitations. First, if this module is instantiated twice, the
  * objects created by the two instances cannot mix without violating
  * the uniqueness guarantee. Second, the hash is a monotonically
- * increasing counter, so when it reaches beyond the maximum Integer
+ * increasing counter, so when it reaches beyond the maximum integer
  * that the JavaScript vm can handle, things go kaboom.</p>
  *
- * @returns {Integer} A number unique to this object.
+ * @returns {integer} A number unique to this object.
  */
 Event.prototype.hash = function () { return this.id; };
 
 /**
- * We have a very primitive form of pattern matching. Right now
- * the only special case is a form of attributeValue events
- * expecting anything. This form has "*" as the second parameter
- * that forms the event. So the event Event("attributeValue",
- * "blah") would also match Event("attributeValue", "*") and
- * calling this method on Event("attributeValue", "blah") would
- * return the two events.
- *
- * @returns {Array} The events that would match this event.
- *
- */
-Event.prototype.matchingEvents = function () {
-    if (this.params[0] === "attributeValue")
-        return [this, new Event("attributeValue", "*")];
-    return [this];
-};
-
-/**
  * Is this Event an attribute event?
  *
- * @returns {Boolean} <code>true</code> if the event is an attribute
+ * @returns {boolean} <code>true</code> if the event is an attribute
  * event, <code>false</code> otherwise.
  */
 Event.prototype.isAttributeEvent = function () {
-    return  (this.params[0] == "attributeName" ||
-             this.params[0] == "attributeValue");
+    return  (this.params[0] === "attributeName" ||
+             this.params[0] === "attributeValue");
 };
 
 /**
- * @returns {String} A string representation of the event.
+ * @returns {string} A string representation of the event.
  */
 Event.prototype.toString = function () {
     return "Event: " + this.params.join(", ");
@@ -948,7 +788,7 @@ Event.prototype.toString = function () {
  * and two in the "uri B" namespace.
  *
  * @param {module:set~Set} evs Events to turn into a string.
- * @returns {String} A string which contains the tree described above.
+ * @returns {string} A string which contains the tree described above.
  */
 function eventsToTreeString(evs) {
     var hash_f = function (x) { return x; };
@@ -960,7 +800,7 @@ function eventsToTreeString(evs) {
 
         var node = hash;
         for(var i = 0; i < params.length; ++i) {
-            if (i == params.length - 1)
+            if (i === params.length - 1)
                 // Our HashSet/Map cannot deal with undefined values.
                 // So we mark leaf elements with the value false.
                 node.add(params[i], false);
@@ -1003,20 +843,45 @@ function eventsToTreeString(evs) {
 }
 
 /**
- * @classdesc <p>Roughly speaking each {@link module:patterns~Pattern
+ * Special event to which only the EmptyWalker responds positively.
+ * @private
+ */
+var empty_event = new Event("<empty>");
+
+/**
+ * Return value for ``fireEvent`` methods. It is returned only for
+ * text values and indicates that part of the text was matched. These
+ * objects are immutable by convention.
+ *
+ * @private
+ * @constructor
+ * @param {integer} length The length of the part that was matched.
+ * @property {integer} length The length that was passed during construction.
+ */
+function PartialMatch(length) {
+    this.length = length;
+}
+
+/**
+ * @classdesc Roughly speaking each {@link module:patterns~Pattern
  * Pattern} object has a corresponding Walker class that modelizes
  * an object which is able to walk the pattern to which it belongs. So
  * an Element has an ElementWalker and an Attribute has an
  * AttributeWalker. A Walker object responds to parsing events and
  * reports whether the structure represented by these events is
- * valid.</p>
+ * valid.
  *
- * <p>Note that users of this API do not instantiate Walker objects
- * themselves.</p>
+ * This base class records only keeps a minimal number of properties
+ * so that child classes can avoid keeping useless properties. A prime
+ * example is the walker for &ltempty> which is a terminal walker (it
+ * has no subwalker) so does not need to record the name resolver.
+ *
+ * Note that users of this API do not instantiate Walker objects
+ * themselves.
  * @constructor
  */
 function Walker() {
-    this.id = this.__newID();
+    this.id = "W" + this.__newID();
     this.possible_cached = undefined;
     this.suppressed_attributes = false;
     // if (DEBUG) {
@@ -1041,7 +906,7 @@ Walker.__id=0;
  * Gets a new Walker id.
  *
  * @private
- * @returns {Integer} The new id.
+ * @returns {integer} The new id.
  */
 Walker.prototype.__newID = function () {
     return Walker.__id++;
@@ -1056,10 +921,10 @@ Walker.prototype.__newID = function () {
  * some limitations. First, if this module is instantiated twice, the
  * objects created by the two instances cannot mix without violating
  * the uniqueness guarantee. Second, the hash is a monotonically
- * increasing counter, so when it reaches beyond the maximum Integer
+ * increasing counter, so when it reaches beyond the maximum integer
  * that the JavaScript vm can handle, things go kaboom.</p>
  *
- * @returns {Integer} A number unique to this object.
+ * @returns {integer} A number unique to this object.
  */
 Walker.prototype.hash = function () { return this.id; };
 
@@ -1098,9 +963,13 @@ Walker.prototype._possible = function () {
  * event.
  *
  * @param ev The event to handle.
- * @returns {false|undefined|Array.<module:patterns~ValidationError>} The value
- * <code>false</code> if there was no error. The value
- * <code>undefined</code> if no walker matches the pattern. Otherwise,
+ * @returns
+ * {false|undefined|module:patterns~PartialMatch|
+    Array.<module:errors~ValidationError>}
+ * The value <code>false</code> if there was no error. The value
+ * <code>undefined</code> if no walker matches the pattern. A
+ * ``PartialMatch`` object if a chunk of text was partially
+ * matched. (Note that this value is used only internally.) Otherwise,
  * an array of {@link module:patterns~ValidationError ValidationError}
  * objects.
  */
@@ -1111,7 +980,7 @@ Walker.prototype.fireEvent = function (ev) {
 /**
  * Can this Walker validly end after the previous event fired?
  *
- * @return {Boolean} <code>true</code> if the walker can validly end
+ * @return {boolean} <code>true</code> if the walker can validly end
  * here. <code>false</code> otherwise.
  */
 Walker.prototype.canEnd = function () {
@@ -1122,7 +991,7 @@ Walker.prototype.canEnd = function () {
  * This method ends the Walker processing. It should not see any
  * further events after end is called.
  *
- * @returns {Boolean|Array.<module:patterns~ValidationError>}
+ * @returns {boolean|Array.<module:patterns~ValidationError>}
  * <code>false</code> if the walker ended without error. Otherwise, a
  * list of {@link module:patterns~ValidationError ValidationError}
  * objects.
@@ -1165,6 +1034,36 @@ Walker.prototype._clone = function (memo) {
     this._copyInto(other, memo);
     return other;
 };
+
+/**
+ * Helper method for ``_copyInto``. This method should be called to
+ * clone objects that do not participate in the ``clone``, ``_clone``,
+ * ``_copyInto`` protocol. This typically means instance properties
+ * that are not ``Walker`` objects and not immutable.
+ *
+ * This method will call a ``clone`` method on ``obj``, when it
+ * determines that cloning must happen.
+ *
+ * @private
+ * @param {Object} obj The object to clone.
+ * @param {Object} memo A mapping of old object to copy object. As a
+ * tree of patterns is being cloned, this memo is populated. So if A
+ * is cloned to B then a mapping from A to B is stored in the memo. If
+ * A is seen again in the same cloning operation, then it will be
+ * substituted with B instead of creating a new object. This should be
+ * the same object as the one passed to ``_clone`` and ``_copyInto``.
+ * @returns {Object} A clone of ``obj``.
+ */
+Walker.prototype._cloneIfNeeded = function (obj, memo) {
+    var other = memo.has(obj);
+    if (other !== undefined)
+        return other;
+    other = obj.clone();
+    memo.add(obj, other);
+    return other;
+};
+
+
 
 /**
  * Helper method for clone() and _clone(). All classes deriving
@@ -1302,8 +1201,10 @@ addWalker(Empty, EmptyWalker);
  * @private
  * @param {module:patterns~Empty} el The pattern for which this walker
  * was created.
+ * @param {module:name_resolver~NameResolver} name_resolver Ignored by
+ * this walker.
  */
-function EmptyWalker (el) {
+function EmptyWalker(el) {
     Walker.call(this);
     this.possible_cached = new EventSet();
 }
@@ -1319,26 +1220,341 @@ EmptyWalker.prototype._possible = function () {
     return this.possible_cached;
 };
 
-EmptyWalker.prototype.fireEvent = function () {
-    // Never matches anything.
+EmptyWalker.prototype.fireEvent = function (ev) {
+    if ((ev === empty_event) ||
+        ((ev.params[0] === "text") && (ev.params[1].trim() === "")))
+        return false;
+
     return undefined;
 };
-
-var Data = makeSingletonConstructor(Pattern);
-inherit(Data, Pattern);
-addWalker(Data, TextWalker); // Cheat until we have a real Data library.
-
-var List = makeSingletonConstructor(Pattern);
-inherit(List, Pattern);
-addWalker(List, TextWalker); // Cheat until we have a real Data library.
 
 var Param = makeSingletonConstructor(Pattern);
 inherit(Param, Pattern);
 addWalker(Param, TextWalker); // Cheat until we have a real Data library.
 
-var Value = makeSingletonConstructor(Pattern);
+/**
+ * @classdesc List pattern.
+ * @extends module:patterns~PatternOnePattern
+ * @private
+ * @constructor
+ * @param {string} xml_path This is a string which uniquely identifies
+ * the element from the simplified RNG tree. Used in debugging.
+ * @param {module:patterns~Pattern} pat The single child pattern.
+ */
+function List(xml_path, pat) {
+    PatternOnePattern.call(this, xml_path);
+    this.pat = pat;
+}
+inherit(List, PatternOnePattern);
+addWalker(List, ListWalker);
+
+/**
+ * @classdesc Walker for {@link module:patterns~List List}.
+ *
+ * @extends module:patterns~Walker
+ * @mixes module:patterns~SingleSubwalker
+ * @private
+ * @constructor
+ * @param {module:patterns~List} el The pattern for which this
+ * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
+ */
+function ListWalker(el, name_resolver) {
+    Walker.call(this);
+    this.el = el;
+    this.name_resolver = name_resolver;
+    this.subwalker = (el !== undefined) ? el.pat.newWalker(this.name_resolver)
+        : undefined;
+    this.seen_tokens = false;
+    this.matched = false;
+}
+
+inherit(ListWalker, Walker);
+implement(ListWalker, SingleSubwalker);
+
+ListWalker.prototype._copyInto = function (obj, memo) {
+    Walker.prototype._copyInto.call(this, obj, memo);
+    obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
+    obj.subwalker = this.subwalker._clone(memo);
+    obj.seen_tokens = this.seen_tokens;
+    obj.matched = this.matched;
+};
+
+
+ListWalker.prototype.fireEvent = function (ev) {
+    // Only these two types can match.
+    if (ev.params[0] !== "text")
+        return undefined;
+
+    var trimmed = ev.params[1].trim();
+
+    // The list walker cannot send empty strings to its children
+    // because it validates a list of **tokens**.
+    if (trimmed === '')
+        return false;
+
+    this.seen_tokens = true;
+
+    var tokens = trimmed.split(/\s+/);
+
+    for(var i = 0; i < tokens.length; ++i) {
+        var ret = this.subwalker.fireEvent(new Event(ev.params[0],
+                                                     tokens[i]));
+        if (ret !== false)
+            return ret;
+    }
+
+    this.matched = true;
+    return false;
+};
+
+ListWalker.prototype._suppressAttributes = function () {
+    // Lists cannot contain attributes.
+};
+
+ListWalker.prototype.canEnd = function () {
+    if (!this.seen_tokens)
+        return (this.subwalker.fireEvent(empty_event) === false);
+    return this.subwalker.canEnd();
+};
+
+ListWalker.prototype.end = function () {
+    var ret = this.subwalker.end();
+    if (ret !== false)
+        return ret;
+
+    if (this.canEnd())
+        return false;
+
+    return [new ValidationError("unfulfilled list")];
+};
+
+/**
+ * @classdesc Value pattern.
+ * @extends module:patterns~Pattern
+ * @private
+ * @constructor
+ * @param {string} xml_path This is a string which uniquely identifies
+ * the element from the simplified RNG tree. Used in debugging.
+ * @param {string} value The value expected in the document.
+ * @param {string|undefined} type The type of value. ``undefined``
+ * means ``"token"``.
+ * @param {string|undefined} datatype_library The URI of the datatype
+ * library to use. ``undefined`` means use the builtin library.
+ * @param {string|ns} ns The namespace in which to interpret the value.
+ */
+function Value(xml_path, value, type, datatype_library, ns) {
+    Pattern.call(this, xml_path);
+    this.type = type || "token";
+    this.datatype_library = datatype_library || "";
+    this.ns = ns || "";
+    this.datatype = registry.get(this.datatype_library).types[this.type];
+    if (!this.datatype)
+        throw new Error("unkown type: " + type);
+    this.raw_value = value;
+    // We construct a pseudo-context representing the context in the
+    // schema file.
+    var context;
+    if (this.datatype.needs_context) {
+        var nr = new name_resolver.NameResolver();
+        nr.definePrefix("", this.ns);
+        context = {resolver: nr};
+    }
+    this.value = this.datatype.parseValue(value, context);
+}
+
 inherit(Value, Pattern);
-addWalker(Value, TextWalker); // Cheat until we have a real Data library.
+addWalker(Value, ValueWalker);
+
+Value.prototype._copyInto = function (obj, memo) {
+    Pattern.prototype._copyInto.call(this, obj, memo);
+    obj.value = this.value;
+    obj.raw_value = this.raw_value;
+    obj.type = this.type;
+    obj.datatype_library = this.datatype_library;
+    obj.ns = this.ns;
+    obj.datatype = this.datatype; // Immutable.
+};
+
+/**
+ * @classdesc Walker for {@link module:patterns~Value Value}.
+ *
+ * @extends module:patterns~Walker
+ * @private
+ * @constructor
+ * @param {module:patterns~Value} el The pattern for which this
+ * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
+ */
+function ValueWalker(el, name_resolver) {
+    Walker.call(this);
+    this.el = el;
+    this.name_resolver = name_resolver;
+    this.matched = false;
+    this.possible_cached = new EventSet(new Event("text", el.raw_value));
+    this.context = (this.el.datatype.needs_context) ?
+        {resolver: this.name_resolver}: undefined;
+}
+inherit(ValueWalker, Walker);
+
+ValueWalker.prototype._copyInto = function (obj, memo) {
+    Walker.prototype._copyInto.call(this, obj, memo);
+    obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
+    obj.context = this.context ? {resolver: obj.name_resolver}: undefined;
+    obj.matched = this.matched;
+    // possible_cached taken care of by Walker
+};
+
+ValueWalker.prototype._possible = function () {
+    return this.possible_cached;
+};
+
+ValueWalker.prototype.fireEvent = function(ev) {
+    if (this.matched)
+        return undefined;
+
+    if (ev.params[0] !== "text")
+        return undefined;
+
+    if (!this.el.datatype.equal(ev.params[1], this.el.value, this.context))
+        return undefined;
+
+    this.matched = true;
+    this.possible_cached = new EventSet();
+    return false;
+};
+
+ValueWalker.prototype.canEnd = function () {
+    return this.matched || this.el.raw_value === "";
+};
+
+ValueWalker.prototype.end = function () {
+    if (this.canEnd())
+        return false;
+
+    return [new ValidationError("value required: " + this.el.raw_value)];
+};
+
+ValueWalker.prototype._suppressAttributes = function () {
+    // No child attributes.
+};
+
+/**
+ * @classdesc Data pattern.
+ * @extends module:patterns~Pattern
+ * @private
+ * @constructor
+ * @param {string} xml_path This is a string which uniquely identifies
+ * the element from the simplified RNG tree. Used in debugging.
+ * @param {string|undefined} type The type of value. ``undefined``
+ * means ``"token"``.
+ * @param {string|undefined} datatype_library The URI of the datatype
+ * library to use. ``undefined`` means use the builtin library.
+ * @param {Array.<{name: string, value: string}>} params The parameters.
+ * @param {module:patterns~Except} except The exception pattern.
+ */
+function Data(xml_path, type, datatype_library, params, except) {
+    Pattern.call(this, xml_path);
+    this.type = type || "token";
+    this.datatype_library = datatype_library || "";
+    this.except = except;
+    this.datatype = registry.get(this.datatype_library).types[this.type];
+    if (!this.datatype)
+        throw new Error("unkown type: " + type);
+    this.params = this.datatype.parseParams(xml_path, params || []);
+}
+
+inherit(Data, Pattern);
+addWalker(Data, DataWalker);
+
+Data.prototype._copyInto = function (obj, memo) {
+    Pattern.prototype._copyInto.call(this, obj, memo);
+    obj.type = this.type;
+    obj.datatype_library = this.datatype_library;
+    obj.params = this.params; // Immutable
+    obj.except = this.except && this.except._clone(memo);
+    obj.datatype = this.datatype; // Immutable
+};
+
+/**
+ * @classdesc Walker for {@link module:patterns~Data Data}.
+ *
+ * @extends module:patterns~Walker
+ * @private
+ * @constructor
+ * @param {module:patterns~Data} el The pattern for which this
+ * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
+ */
+function DataWalker(el, name_resolver) {
+    Walker.call(this);
+    this.el = el;
+    this.name_resolver = name_resolver;
+
+    // An undefined el can happen when cloning.
+    if (this.el) {
+        this.possible_cached =
+            new EventSet(new Event("text", this.el.datatype.regexp));
+        this.context = (this.el.datatype.needs_context) ?
+            {resolver: this.name_resolver}: undefined;
+    }
+
+}
+inherit(DataWalker, Walker);
+
+DataWalker.prototype._copyInto = function (obj, memo) {
+    Walker.prototype._copyInto.call(this, obj, memo);
+    obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
+    obj.context = this.context ? {resolver: obj.name_resolver}: undefined;
+    obj.matched = this.matched;
+    // possible_cached taken care of by Walker
+};
+
+DataWalker.prototype._possible = function () {
+    return this.possible_cached;
+};
+
+DataWalker.prototype.fireEvent = function(ev) {
+    if (this.matched)
+        return undefined;
+
+    if (ev.params[0] !== "text")
+        return undefined;
+
+    if (this.el.datatype.disallows(ev.params[1], this.el.params, this.context))
+        return undefined;
+
+    this.matched = true;
+    this.possible_cached = new EventSet();
+    return false;
+};
+
+DataWalker.prototype.canEnd = function () {
+    return this.matched || !this.el.datatype.disallows("", this.el.params,
+                                                       this.context);
+};
+
+DataWalker.prototype.end = function () {
+    if (this.canEnd())
+        return false;
+
+    return [new ValidationError("value required")];
+};
+
+DataWalker.prototype._suppressAttributes = function () {
+    // No child attributes.
+};
+
+
 
 /**
  * @classdesc Pattern for <code>&lt;notAllowed/></code>.
@@ -1349,7 +1565,44 @@ addWalker(Value, TextWalker); // Cheat until we have a real Data library.
  */
 var NotAllowed = makeSingletonConstructor(Pattern);
 inherit(NotAllowed, Pattern);
-// NotAllowed has no walker.
+addWalker(NotAllowed, NotAllowedWalker);
+
+/**
+ * @classdesc Walker for {@link module:patterns~NotAllowed NotAllowed}.
+ *
+ * @extends module:patterns~Walker
+ * @private
+ * @constructor
+ * @param {module:patterns~NotAllowed} el The pattern for which this
+ * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver Ignored by
+ * this class.
+ */
+function NotAllowedWalker(el) {
+    Walker.call(this);
+    this.el = el;
+    this.possible_cached = new EventSet();
+}
+inherit(NotAllowedWalker, Walker);
+
+NotAllowedWalker.prototype._copyInto = function (obj, memo) {
+    Walker.prototype._copyInto.call(this, obj, memo);
+    obj.el = this.el;
+    // possible_cached taken care of by Walker
+};
+
+NotAllowedWalker.prototype.possible = function () {
+    // Save some time by avoiding calling _possible
+    return new EventSet();
+};
+
+NotAllowedWalker.prototype._possible = function () {
+    return this.possible_cached;
+};
+
+NotAllowedWalker.prototype.fireEvent = function (ev) {
+    return undefined; // we never match!
+};
 
 /**
  * @classdesc Pattern for <code>&lt;text/></code>.
@@ -1381,15 +1634,14 @@ inherit(TextWalker, Walker);
 implement(TextWalker, NoSubwalker);
 
 // Events are constant so create the one we need just once.
-TextWalker._text_event = new Event("text");
+TextWalker._text_event = new Event("text", "*");
 
 TextWalker.prototype._possible = function () {
     return this.possible_cached;
 };
 
 TextWalker.prototype.fireEvent = function (ev) {
-    return  (ev.params.length === 1 && ev.params[0] == "text") ? false:
-        undefined;
+    return (ev.params[0] === "text") ? false: undefined;
 };
 
 /**
@@ -1397,9 +1649,9 @@ TextWalker.prototype.fireEvent = function (ev) {
  * @extends module:patterns~Pattern
  * @private
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
- * @param {String} name The reference name.
+ * @param {string} name The reference name.
  */
 function Ref(xml_path, name) {
     Pattern.call(this, xml_path);
@@ -1431,32 +1683,8 @@ Ref.prototype._resolve = function (definitions) {
 // This completely skips the creation of RefWalker and
 // DefineWalker. This returns the walker for whatever it is that
 // the Define element this refers to ultimately contains.
-Ref.prototype.newWalker = function () {
-    return this.resolves_to.pat.newWalker();
-};
-
-/**
- * @classdesc Walker for {@link module:patterns~Ref Ref}
- * @extends module:patterns~Walker
- * @mixes module:patterns~SingleSubwalker
- * @private
- * @constructor
- * @param {module:patterns~Ref} el The pattern for which this walker
- * was created.
- */
-function RefWalker(el) {
-    Walker.call(this);
-    this.el = el;
-    this.subwalker = (el !== undefined) ? el.resolves_to.newWalker(): undefined;
-}
-inherit(RefWalker, Walker);
-
-implement(RefWalker, SingleSubwalker);
-
-RefWalker.prototype._copyInto = function (obj, memo) {
-    Walker.prototype._copyInto.call(this, obj, memo);
-    obj.el = this.el;
-    obj.subwalker = this.subwalker._clone(memo);
+Ref.prototype.newWalker = function (name_resolver) {
+    return this.resolves_to.pat.newWalker(name_resolver);
 };
 
 /**
@@ -1465,7 +1693,7 @@ RefWalker.prototype._copyInto = function (obj, memo) {
  *
  * @private
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
  * @param {Array.<module:patterns~Pattern>} pats The pattern contained
  * by this one.
@@ -1496,12 +1724,16 @@ OneOrMore.prototype._cleanAttrs = function () {
  * @constructor
  * @param {module:patterns~OneOrMore} el The pattern for which this
  * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
  */
-function OneOrMoreWalker(el)
+function OneOrMoreWalker(el, name_resolver)
 {
     Walker.call(this);
     this.seen_once = false;
     this.el = el;
+    this.name_resolver = name_resolver;
     this.current_iteration = undefined;
     this.next_iteration = undefined;
 }
@@ -1511,6 +1743,7 @@ OneOrMoreWalker.prototype._copyInto = function (obj, memo) {
     Walker.prototype._copyInto.call(this, obj, memo);
     obj.seen_once = this.seen_once;
     obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
     obj.current_iteration = (this.current_iteration !== undefined) ?
         this.current_iteration._clone(memo) : undefined;
     obj.next_iteration = (this.next_iteration !== undefined) ?
@@ -1522,17 +1755,17 @@ OneOrMoreWalker.prototype._possible = function() {
         return this.possible_cached;
 
     if (this.current_iteration === undefined)
-        this.current_iteration = this.el.pat.newWalker();
+        this.current_iteration = this.el.pat.newWalker(this.name_resolver);
 
     this.possible_cached = this.current_iteration._possible();
 
     if (this.current_iteration.canEnd()) {
         this.possible_cached = new EventSet(this.possible_cached);
         if (this.next_iteration === undefined) {
-            this.next_iteration = this.el.pat.newWalker();
+            this.next_iteration = this.el.pat.newWalker(this.name_resolver);
         }
 
-        var next_possible = this.next_iteration._possible();
+        var next_possible = this.next_iteration._possible(this.name_resolver);
 
         this.possible_cached.union(next_possible);
     }
@@ -1544,7 +1777,7 @@ OneOrMoreWalker.prototype.fireEvent = function(ev) {
     this.possible_cached = undefined;
 
     if (this.current_iteration === undefined)
-        this.current_iteration = this.el.pat.newWalker();
+        this.current_iteration = this.el.pat.newWalker(this.name_resolver);
 
     var ret = this.current_iteration.fireEvent(ev);
     if (ret === false)
@@ -1560,7 +1793,7 @@ OneOrMoreWalker.prototype.fireEvent = function(ev) {
                             "true but end() fails");
 
         if (this.next_iteration === undefined)
-            this.next_iteration = this.el.pat.newWalker();
+            this.next_iteration = this.el.pat.newWalker(this.name_resolver);
 
         var next_ret = this.next_iteration.fireEvent(ev);
         if (next_ret === false) {
@@ -1583,7 +1816,7 @@ OneOrMoreWalker.prototype.canEnd = function () {
 OneOrMoreWalker.prototype.end = function () {
     // Undefined current_iteration can happen in rare case.
     if (this.current_iteration === undefined)
-        this.current_iteration = this.el.pat.newWalker();
+        this.current_iteration = this.el.pat.newWalker(this.name_resolver);
 
     // Release next_iteration, which we won't need anymore.
     this.next_iteration = undefined;
@@ -1595,7 +1828,7 @@ OneOrMoreWalker.prototype.end = function () {
  * @extends module:patterns~Pattern
  * @private
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
  * @param {Array.<module:patterns~Pattern>} pats The patterns
  * contained by this one.
@@ -1605,7 +1838,7 @@ function Choice(xml_path, pats) {
     PatternTwoPatterns.call(this, xml_path);
     // Undefined happens when cloning.
     if (pats !== undefined) {
-        if (pats.length != 2)
+        if (pats.length !== 2)
             throw new Error(
                 "ChoiceWalker does not work with " +
                     "Choices that have not exactly 2 elements");
@@ -1646,10 +1879,14 @@ Choice.prototype._cleanAttrs = function () {
  * @constructor
  * @param {module:patterns~Choice} el The pattern for which this
  * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
  */
-function ChoiceWalker(el) {
+function ChoiceWalker(el, name_resolver) {
     Walker.call(this);
     this.el = el;
+    this.name_resolver = name_resolver;
     this.chosen = false;
 
     this.walker_a = this.walker_b = undefined;
@@ -1663,6 +1900,7 @@ inherit(ChoiceWalker, Walker);
 ChoiceWalker.prototype._copyInto = function (obj, memo) {
     Walker.prototype._copyInto.call(this, obj, memo);
     obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
     obj.chosen = this.chosen;
     obj.walker_a = (this.walker_a !== undefined) ?
         this.walker_a._clone(memo):undefined;
@@ -1683,8 +1921,8 @@ ChoiceWalker.prototype._instantiateWalkers = function () {
     if (!this.instantiated_walkers) {
         this.instantiated_walkers = true;
 
-        this.walker_a = this.el.pat_a.newWalker();
-        this.walker_b = this.el.pat_b.newWalker();
+        this.walker_a = this.el.pat_a.newWalker(this.name_resolver);
+        this.walker_b = this.el.pat_b.newWalker(this.name_resolver);
     }
 };
 
@@ -1827,7 +2065,7 @@ ChoiceWalker.prototype.end = function () {
  *
  * @private
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
  * @param {Array.<module:patterns~Pattern>} pats The patterns
  * contained by this one.
@@ -1837,7 +2075,7 @@ function Group(xml_path, pats) {
     PatternTwoPatterns.call(this, xml_path);
     // Undefined happens when cloning.
     if (pats !== undefined) {
-        if (pats.length != 2)
+        if (pats.length !== 2)
             throw new Error("GroupWalkers walk only groups of two elements!");
         this.pat_a = pats[0];
         this.pat_b = pats[1];
@@ -1873,10 +2111,14 @@ Group.prototype._cleanAttrs = function () {
  * @constructor
  * @param {module:patterns~Group} el The pattern for which this walker
  * was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
  */
-function GroupWalker(el) {
+function GroupWalker(el, name_resolver) {
     Walker.call(this);
     this.el = el;
+    this.name_resolver = name_resolver;
 
     this.hit_a = false;
     this.ended_a = false;
@@ -1888,6 +2130,7 @@ inherit(GroupWalker, Walker);
 GroupWalker.prototype._copyInto = function (obj, memo) {
     Walker.prototype._copyInto.call(this, obj, memo);
     obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
     obj.hit_a = this.hit_a;
     obj.ended_a = this.ended_a;
     obj.hit_b = this.hit_b;
@@ -1906,8 +2149,8 @@ GroupWalker.prototype._copyInto = function (obj, memo) {
  */
 GroupWalker.prototype._instantiateWalkers = function () {
     if (this.walker_a === undefined) {
-        this.walker_a = this.el.pat_a.newWalker();
-        this.walker_b = this.el.pat_b.newWalker();
+        this.walker_a = this.el.pat_a.newWalker(this.name_resolver);
+        this.walker_b = this.el.pat_b.newWalker(this.name_resolver);
     }
 };
 
@@ -2022,9 +2265,9 @@ GroupWalker.prototype.end = function () {
  *
  * @private
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
- * @param {String} name The qualified name of the attribute.
+ * @param {string} name The qualified name of the attribute.
  * @param {Array.<module:patterns~Pattern>} pats The pattern
  * contained by this one.
  * @throws {Error} If <code>pats</code> is not of length 1.
@@ -2044,6 +2287,7 @@ addWalker(Attribute, AttributeWalker);
 Attribute.prototype._copyInto = function (obj, memo) {
     Pattern.prototype._copyInto.call(this, obj, memo);
     obj.name = this.name;
+    obj.pat = this.pat;
 };
 
 Attribute.prototype._prepare = function (namespaces) {
@@ -2068,12 +2312,17 @@ Attribute.prototype._cleanAttrs = function () {
  * @constructor
  * @param {module:patterns~Attribute} el The pattern for which this
  * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
  */
-function AttributeWalker(el) {
+function AttributeWalker(el, name_resolver) {
     Walker.call(this);
     this.el = el;
+    this.name_resolver = name_resolver;
     this.seen_name = false;
     this.seen_value = false;
+    this.subwalker = undefined;
 
     if (el !== undefined) {
         this.attr_name_event = new Event("attributeName",
@@ -2088,8 +2337,10 @@ inherit(AttributeWalker, Walker);
 AttributeWalker.prototype._copyInto = function (obj, memo) {
     Walker.prototype._copyInto.call(this, obj, memo);
     obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
     obj.seen_name = this.seen_name;
     obj.seen_value = this.seen_value;
+    obj.subwalker = this.subwalker && this.subwalker._clone(memo);
 
     // No need to clone; values are immutable.
     obj.attr_name_event = this.attr_name_event;
@@ -2098,12 +2349,25 @@ AttributeWalker.prototype._copyInto = function (obj, memo) {
 
 AttributeWalker.prototype._possible = function () {
     // We've been suppressed!
-    if (this.suppressed_attributes) return new EventSet();
+    if (this.suppressed_attributes)
+        return new EventSet();
 
     if (!this.seen_name)
         return new EventSet(this.attr_name_event);
-    else if (!this.seen_value)
-        return new EventSet(this.attr_value_event);
+    else if (!this.seen_value) {
+        if (this.subwalker === undefined)
+            this.subwalker = this.el.pat.newWalker(this.name_resolver);
+
+        var sub = this.subwalker._possible();
+        var ret = new EventSet();
+        // Convert text events to attributeValue events.
+        sub.forEach(function (ev) {
+            if (ev.params[0] !== "text")
+                throw new Error("unexpected event type: " + ev.params[0]);
+            ret.add(new Event("attributeValue", ev.params[1]));
+        });
+        return ret;
+    }
     else
         return new EventSet();
 };
@@ -2116,15 +2380,33 @@ AttributeWalker.prototype.fireEvent = function (ev) {
         return undefined;
 
     if (this.seen_name) {
-        if (!this.seen_value && ev.params[0] == "attributeValue")
-        {
+        if (!this.seen_value && ev.params[0] === "attributeValue") {
             this.seen_value = true;
-            return false;
+
+            if (!this.subwalker)
+                this.subwalker = this.el.pat.newWalker(this.name_resolver);
+
+            // Convert the attributeValue event to a text event.
+            var text_ev = new Event("text", ev.params[1]);
+            var ret = this.subwalker.fireEvent(text_ev);
+
+            if (ret === undefined)
+                return [new AttributeValueError("invalid attribute value",
+                                                this.el.name)];
+            else if (ret instanceof PartialMatch)
+                return [new AttributeValueError("invalid attribute value",
+                                               this.el.name)];
+
+            // Attributes end immediately.
+            if (ret === false)
+                ret = this.subwalker.end();
+
+            return ret;
         }
     }
-    else if (ev.params[0] == "attributeName" &&
-             ev.params[1] == this.el.name.ns &&
-             ev.params[2] == this.el.name.name) {
+    else if (ev.params[0] === "attributeName" &&
+             ev.params[1] === this.el.name.ns &&
+             ev.params[2] === this.el.name.name) {
         this.seen_name = true;
         return false;
     }
@@ -2157,9 +2439,9 @@ AttributeWalker.prototype.end = function () {
  * @extends module:patterns~PatternOnePattern
  * @private
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
- * @param {String} name The qualified name of the element.
+ * @param {string} name The qualified name of the element.
  * @param {Array.<module:patterns~Pattern>} pats The pattern
  * contained by this one.
  * @throws {Error} If <code>pats</code> is not of length 1.
@@ -2209,11 +2491,11 @@ Element.prototype._prepare = function (namespaces) {
     }
 };
 
-Element.prototype.newWalker = function () {
+Element.prototype.newWalker = function (name_resolver) {
     if (this.pat instanceof NotAllowed)
-        return new DisallowedElementWalker(this);
+        return this.pat.newWalker(name_resolver);
 
-    return new ElementWalker(this);
+    return new ElementWalker(this, name_resolver);
 };
 
 Element.prototype._keepAttrs = function () {
@@ -2236,10 +2518,14 @@ Element.prototype._elementDefinitions = function (memo) {
  * @constructor
  * @param {module:patterns~Element} el The pattern for which this
  * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
  */
-function ElementWalker(el) {
+function ElementWalker(el, name_resolver) {
     Walker.call(this);
     this.el = el;
+    this.name_resolver = name_resolver;
     this.seen_name = false;
     this.ended_start_tag = false;
     this.closed = false;
@@ -2261,6 +2547,7 @@ ElementWalker._leaveStartTag_event = new Event("leaveStartTag");
 ElementWalker.prototype._copyInto = function (obj, memo) {
     Walker.prototype._copyInto.call(this, obj, memo);
     obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
     obj.seen_name = this.seen_name;
     obj.ended_start_tag = this.ended_start_tag;
     obj.closed = this.closed;
@@ -2324,16 +2611,17 @@ ElementWalker.prototype.fireEvent = function (ev) {
     var ret;
     if (!this.ended_start_tag) {
         if (!this.seen_name) {
-            if (ev.params[0] == "enterStartTag" &&
-                ev.params[1] == this.el.name.ns &&
-                ev.params[2] == this.el.name.name) {
+            if (ev.params[0] === "enterStartTag" &&
+                ev.params[1] === this.el.name.ns &&
+                ev.params[2] === this.el.name.name) {
                 if (this.el.attr_pat !== undefined)
-                    this.walker = this.el.attr_pat.newWalker();
+                    this.walker = this.el.attr_pat.newWalker(
+                        this.name_resolver);
                 this.seen_name = true;
                 return false;
             }
         }
-        else if (ev.params[0] == "leaveStartTag") {
+        else if (ev.params[0] === "leaveStartTag") {
             this.ended_start_tag = true;
 
             if (this.walker !== undefined)
@@ -2341,7 +2629,7 @@ ElementWalker.prototype.fireEvent = function (ev) {
 
             // We've left the start tag, create a new walker and hit it
             // with the attributes we've seen.
-            this.walker = this.el.pat.newWalker();
+            this.walker = this.el.pat.newWalker(this.name_resolver);
             var me = this;
             this.captured_attr_events.forEach(function (ev) {
                 me.walker.fireEvent(ev);
@@ -2364,14 +2652,14 @@ ElementWalker.prototype.fireEvent = function (ev) {
         if (ret === undefined) {
             // Our subwalker did not handle the event, so we must
             // do it here.
-            if  (ev.params[0] == "endTag") {
-                if (ev.params[1] == this.el.name.ns &&
-                    ev.params[2] == this.el.name.name) {
+            if  (ev.params[0] === "endTag") {
+                if (ev.params[1] === this.el.name.ns &&
+                    ev.params[2] === this.el.name.name) {
                     this.closed = true;
                     return this.walker.end();
                 }
             }
-            else if (ev.params[0] == "leaveStartTag")
+            else if (ev.params[0] === "leaveStartTag")
                 return [new ValidationError(
                     "unexpected leaveStartTag event; " +
                         "it is likely that "+
@@ -2417,45 +2705,13 @@ ElementWalker.prototype.end = function (ev) {
 
 
 /**
- * @classdesc Walker for {@link module:patterns~Element Element}. An
- * instance of this class is used when an Element happens to not allow
- * any contents.
- *
- * @extends module:patterns~Walker
- * @private
- * @constructor
- * @param {module:patterns~Element} el The pattern for which this
- * walker was created.
- */
-function DisallowedElementWalker(el) {
-    Walker.call(this);
-    this.el = el;
-    this.possible_cached = new EventSet();
-}
-inherit(DisallowedElementWalker, Walker);
-
-DisallowedElementWalker.prototype._copyInto = function (obj, memo) {
-    Walker.prototype._copyInto.call(this, obj, memo);
-    obj.el = this.el;
-    // possible_cached taken care of by Walker
-};
-
-DisallowedElementWalker.prototype._possible = function () {
-    return this.possible_cached;
-};
-
-DisallowedElementWalker.prototype.fireEvent = function (ev) {
-    return undefined; // we never match!
-};
-
-/**
  * @classdesc A pattern for &lt;define>.
  * @extends module:patterns~PatternOnePattern
  * @private
  * @constructor
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
- * @param {String} name The name of the definition.
+ * @param {string} name The name of the definition.
  * @param {Array.<module:patterns~Pattern>} pats The pattern
  * contained by this one.
  * @throws {Error} If <code>pats</code> is not of length 1.
@@ -2500,11 +2756,16 @@ Define.prototype._prepare = function (namespaces) {
  * @constructor
  * @param {module:patterns~Define} el The pattern for which this
  * walker was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
  */
-function DefineWalker(el) {
+function DefineWalker(el, name_resolver) {
     Walker.call(this);
     this.el = el;
-    this.subwalker = (el !== undefined) ? el.pat.newWalker() : undefined;
+    this.name_resolver = name_resolver;
+    this.subwalker = (el !== undefined) ? el.pat.newWalker(this.name_resolver)
+        : undefined;
 }
 inherit(DefineWalker, Walker);
 implement(DefineWalker, SingleSubwalker);
@@ -2512,6 +2773,7 @@ implement(DefineWalker, SingleSubwalker);
 DefineWalker.prototype._copyInto = function (obj, memo) {
     Walker.prototype._copyInto.call(this, obj, memo);
     obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
     obj.subwalker = this.subwalker._clone(memo);
 };
 
@@ -2537,7 +2799,7 @@ function ReferenceError(references) {
 inherit(ReferenceError, Error);
 
 /**
- * @returns {String} A string representation of the error.
+ * @returns {string} A string representation of the error.
  */
 ReferenceError.prototype.toString = function () {
     return "Cannot resolve the following references: " +
@@ -2551,7 +2813,7 @@ ReferenceError.prototype.toString = function () {
  *
  * @constructor
  * @private
- * @param {String} xml_path This is a string which uniquely identifies
+ * @param {string} xml_path This is a string which uniquely identifies
  * the element from the simplified RNG tree. Used in debugging.
  * @param {module:patterns~Pattern} start The start pattern of this
  * grammar.
@@ -2567,12 +2829,14 @@ function Grammar(xml_path, start, definitions) {
     this.xml_path = xml_path;
     this.start = start;
     this.definitions = [];
-    this.element_definitions = {};
+    this.element_definitions = Object.create(null);
     this._namespaces = Object.create(null);
     var me = this;
-    definitions.forEach(function (x) {
-        me.add(x);
-    });
+    if (definitions) {
+        definitions.forEach(function (x) {
+            me.add(x);
+        });
+    }
     this._resolve();
     this._prepare(this._namespaces);
 }
@@ -2604,7 +2868,7 @@ Grammar.prototype._resolve = function () {
  */
 Grammar.prototype.add = function (d) {
     this.definitions[d.name] = d;
-    if (d.name == "start")
+    if (d.name === "start")
         this.start = d;
 };
 
@@ -2646,7 +2910,7 @@ Grammar.prototype._elementDefinitions = function (memo) {
 };
 
 /**
- * @returns {Boolean} <code>true</code> if the schema is wholly context
+ * @returns {boolean} <code>true</code> if the schema is wholly context
  * independent. This means that each element in the schema can be
  * validated purely on the basis of knowing its expanded
  * name. <code>false</code> otherwise.
@@ -2663,7 +2927,7 @@ Grammar.prototype.whollyContextIndependent = function () {
 
 /**
  *
- * @returns {Array.<String>} An array of all namespaces used in
+ * @returns {Array.<string>} An array of all namespaces used in
  * the schema.
  */
 Grammar.prototype.getNamespaces = function () {
@@ -2685,11 +2949,15 @@ addWalker(Grammar, GrammarWalker);
 function GrammarWalker(el) {
     Walker.call(this);
     this.el = el;
-    this.subwalker = (el !== undefined) ? el.start.newWalker() : undefined;
+    this._name_resolver = new name_resolver.NameResolver();
+    this.subwalker = (el !== undefined) ?
+        el.start.newWalker(this._name_resolver) : undefined;
     this._foreign_stack = [];
     this._swallow_attribute_value = false;
-    this._name_resolver = undefined;
+    this.suspended_ws = undefined;
+    this.ignore_next_ws = false;
 }
+
 inherit(GrammarWalker, Walker);
 implement(GrammarWalker, SingleSubwalker);
 
@@ -2700,38 +2968,20 @@ GrammarWalker.prototype._copyInto = function (obj, memo) {
     obj.subwalker = this.subwalker._clone(memo);
     obj._foreign_stack = this._foreign_stack.concat([]);
     obj._swallow_attribute_value = this.swallow_attribute_value;
-    if (this._name_resolver)
-        obj._name_resolver = this._name_resolver.clone();
-};
-
-/**
- * Instructs the walker to create its own name resolver to handle
- * namespace declarations.
- *
- * @throws {Error} If this function has previously been called on the
- * current walker
- */
-
-GrammarWalker.prototype.useNameResolver = function() {
-    if (this._name_resolver)
-        throw new Error("called useNameResolver twice on the same walker");
-    this._name_resolver = new name_resolver.NameResolver();
+    obj._name_resolver = this._cloneIfNeeded(this._name_resolver, memo);
+    obj.suspended_ws = this.suspended_ws;
+    obj.ignore_next_ws = this.ignore_next_ws;
 };
 
 /**
  * Resolves a name using the walker's own name resolver.
- * @param {String} name A qualified name.
- * @param {Boolean} attribute Whether this qualified name refers to an
+ * @param {string} name A qualified name.
+ * @param {boolean} attribute Whether this qualified name refers to an
  * attribute.
  * @returns {module:patterns~EName|undefined} An expanded name, or
  * undefined if the name cannot be resolved.
- * @throws {Error} If {@link
- * module:patterns~GrammarWalker#useNameResolver useNameResolver} was
- * not called to create a resolver, or if the name is malformed.
  */
 GrammarWalker.prototype.resolveName = function (name, attribute) {
-    if (!this._name_resolver)
-        throw new Error("resolveName needs a name resolver");
     return this._name_resolver.resolveName(name, attribute);
 };
 
@@ -2739,17 +2989,12 @@ GrammarWalker.prototype.resolveName = function (name, attribute) {
  * See {@link module:name_resolver~NameResolver.unresolveName
  * NameResolver.unresolveName} for the details.
  *
- * @param {String} uri The URI part of the expanded name.
- * @param {String} name The name part.
- * @returns {String|undefined} The qualified name that corresponds to
+ * @param {string} uri The URI part of the expanded name.
+ * @param {string} name The name part.
+ * @returns {string|undefined} The qualified name that corresponds to
  * the expanded name, or <code>undefined</code> if it cannot be resolved.
- * @throws {Error} If {@link
- * module:patterns~GrammarWalker.useNameResolver useNameResolver} was
- * not called to create a resolver.
  */
 GrammarWalker.prototype.unresolveName = function (uri, name) {
-    if (!this._name_resolver)
-        throw new Error("unresolveName needs a name resolver");
     return this._name_resolver.unresolveName(uri, name);
 };
 
@@ -2770,6 +3015,83 @@ GrammarWalker.prototype.unresolveName = function (uri, name) {
  * process an event type unknown to salve.
  */
 GrammarWalker.prototype.fireEvent = function (ev) {
+
+    function combineWsErrWith(x) {
+        if (ws_err === undefined)
+            ws_err = [new ValidationError("text not allowed here")];
+
+        if (ws_err === false)
+            return x;
+
+        if (x === false)
+            return ws_err;
+
+        if (x === undefined)
+            throw new Error("undefined x");
+
+        return ws_err.concat(x);
+    }
+
+    if (ev.params[0] === "enterContext" ||
+        ev.params[0] === "leaveContext" ||
+        ev.params[0] === "definePrefix")
+    {
+        switch (ev.params[0])
+        {
+        case "enterContext":
+            this._name_resolver.enterContext();
+            break;
+        case "leaveContext":
+            this._name_resolver.leaveContext();
+            break;
+        case "definePrefix":
+            this._name_resolver.definePrefix(ev.params[1], ev.params[2]);
+            break;
+        }
+        return false;
+    }
+
+    // Process whitespace nodes
+    if (ev.params[0] === "text" && ev.params[1].trim() === "") {
+        if (this.suspended_ws)
+            this.suspended_ws += ev.params[1];
+        else
+            this.suspended_ws = ev.params[1];
+        return false;
+    }
+
+    var ignore_next_ws_now = this.ignore_next_ws;
+    this.ignore_next_ws = false;
+    var ws_err = false;
+    switch(ev.params[0]) {
+    case "enterStartTag":
+        // Absorb the whitespace: poof, gone!
+        this.suspended_ws = undefined;
+        break;
+    case "text":
+        if (this.ignore_next_ws) {
+            this.suspended_ws = undefined;
+            var trimmed = ev.params[1].replace(/^\s+/, '');
+            if (trimmed.length !== ev.params[1].length)
+                ev = new Event("text", trimmed);
+        }
+        else if (this.suspended_ws) {
+            ws_err = this.subwalker.fireEvent(new Event("text",
+                                                        this.suspended_ws));
+            this.suspended_ws = undefined;
+        }
+        break;
+    case "endTag":
+        this.ignore_next_ws = true;
+        /* falls through */
+    default:
+        // Process the whitespace that was suspended.
+        if (this.suspended_ws && !ignore_next_ws_now)
+            ws_err = this.subwalker.fireEvent(new Event("text",
+                                                        this.suspended_ws));
+        this.suspended_ws = undefined;
+    }
+
     //
     // The foreign stack allows salve to avoid outputting a whole
     // slew of errors when a document contains a tag which is not
@@ -2788,6 +3110,7 @@ GrammarWalker.prototype.fireEvent = function (ev) {
     // Well-formedness checks should be done by the parser which
     // feeds events to salve.
     //
+
     if (this._foreign_stack.length > 0) {
         switch(ev.params[0]) {
         case "enterStartTag":
@@ -2800,6 +3123,10 @@ GrammarWalker.prototype.fireEvent = function (ev) {
         return false;
     }
 
+    // This would happen if the user puts an attribute on a tag that
+    // does not allow one. Instead of generating errors for both the
+    // attribute name and value, we generate an error for the name and
+    // ignore the value.
     if (this.swallow_attribute_value) {
         // Swallow only one event.
         this.swallow_attribute_value = false;
@@ -2809,30 +3136,16 @@ GrammarWalker.prototype.fireEvent = function (ev) {
             return [new ValidationError("attribute value required")];
     }
 
-    if (ev.params[0] === "enterContext" ||
-        ev.params[0] === "leaveContext" ||
-        ev.params[0] === "definePrefix")
-    {
-        if (!this._name_resolver)
-            throw new Error("event " + ev.params[0] +
-                            " needs a name resolver");
-        switch (ev.params[0])
-        {
-        case "enterContext":
-            this._name_resolver.enterContext();
-            break;
-        case "leaveContext":
-            this._name_resolver.leaveContext();
-            break;
-        case "definePrefix":
-            this._name_resolver.definePrefix(ev.params[1], ev.params[2]);
-            break;
-        }
-        return false;
-    }
-
     var ret = this.subwalker.fireEvent(ev);
-    if (ret === undefined) {
+    if (ret instanceof PartialMatch) {
+        if (ev.params[0] !== "text")
+            throw new Error("got PartialMatch when firing a non-text event");
+
+        // Create a new event with the rest of the text and fire it.
+        var rest = new Event("text", ev.params[1].slice(ret.length));
+        return this.fireEvent(rest);
+    }
+    else if (ret === undefined) {
         switch(ev.params[0]) {
         case "enterStartTag":
             ret = [new ElementNameError(
@@ -2879,7 +3192,7 @@ GrammarWalker.prototype.fireEvent = function (ev) {
                             ev.params[0]);
         }
     }
-    return ret;
+    return combineWsErrWith(ret);
 };
 
 GrammarWalker.prototype._suppressAttributes = function () {

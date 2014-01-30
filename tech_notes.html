@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced Usage Notes &mdash; Wed v0.10.0-x-132-g16eeb61 documentation</title>
+    <title>Advanced Usage Notes &mdash; Wed v0.11.0-1-gc9ddb7d documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     'v0.10.0-x-132-g16eeb61',
+        URL_ROOT:    './',
+        VERSION:     'v0.11.0-1-gc9ddb7d',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.10.0-x-132-g16eeb61 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.11.0-1-gc9ddb7d documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.10.0-x-132-g16eeb61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.11.0-1-gc9ddb7d documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -106,10 +104,11 @@ right places.</p>
 at <tt class="docutils literal"><span class="pre">build/standalone-optimized/requirejs-config.js</span></tt>. This
 configuration allows an external custom mode to load individual
 modules of wed, because it has mappings like these:</p>
-<div class="highlight-python"><pre>"wed/log": "wed/wed",
-"wed/oop": "wed/wed",
-"wed/lib/simple_event_emitter": "wed/wed",
-[...]</pre>
+<div class="highlight-python"><div class="highlight"><pre>&quot;wed/log&quot;: &quot;wed/wed&quot;,
+&quot;wed/oop&quot;: &quot;wed/wed&quot;,
+&quot;wed/lib/simple_event_emitter&quot;: &quot;wed/wed&quot;,
+[...]
+</pre></div>
 </div>
 <p>which map each individual module forming wed to the single bundle file
 created during the optimization process. If you base your own run time
@@ -140,16 +139,18 @@ concerns rather than your interchange concerns or your standard
 conformance concerns. Here&#8217;s an example. Suppose that you use a schema
 based on the TEI markup, and that for interchange purposes with
 another system it makes sense to encode something like:</p>
-<div class="highlight-python"><pre>&lt;p&gt;&lt;term&gt;&lt;foreign xml:lang="fr"&gt;Étranger&lt;/foreign&gt;&lt;/term&gt; is a foreign
-term.&lt;/p&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>&lt;p&gt;&lt;term&gt;&lt;foreign xml:lang=&quot;fr&quot;&gt;Étranger&lt;/foreign&gt;&lt;/term&gt; is a foreign
+term.&lt;/p&gt;
+</pre></div>
 </div>
 <p>However, you do not want to allow your users to insert text inside the
 <tt class="docutils literal"><span class="pre">&lt;term&gt;</span></tt> element but outside <tt class="docutils literal"><span class="pre">&lt;foreign&gt;</span></tt> because that encoding is
 meaningless in your project. Wed is not designed to easily enforce
 this restriction. Wed will allow your users to create something
 like:</p>
-<div class="highlight-python"><pre>&lt;p&gt;&lt;term&gt;The term &lt;foreign xml:lang="fr"&gt;étranger&lt;/foreign&gt;
-&lt;/term&gt;is a foreign term.&lt;/p&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>&lt;p&gt;&lt;term&gt;The term &lt;foreign xml:lang=&quot;fr&quot;&gt;étranger&lt;/foreign&gt;
+&lt;/term&gt;is a foreign term.&lt;/p&gt;
+</pre></div>
 </div>
 <p>The solution here is to represent the
 <tt class="docutils literal"><span class="pre">&lt;term&gt;&lt;foreign&gt;&lt;/foreign&gt;&lt;/term&gt;</span></tt> structure as one element, for
@@ -163,16 +164,17 @@ which is then created in the right context by the mode you create for
 your project.</p>
 </div>
 <div class="section" id="remote-logging">
-<h2>Remote Logging<a class="headerlink" href="#remote-logging" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Remote Logging<a class="headerlink" href="#remote-logging" title="Permalink to this headline">¶</a></h2>
 <p>Wed uses log4javascript to log anything worth logging. By default, wed
 does not log anything to a remote server; however, if the <tt class="docutils literal"><span class="pre">ajaxlog</span></tt>
 option is passed to wed, it will add an <tt class="docutils literal"><span class="pre">AjaxAppender</span></tt> to the logger
 and log messages using <tt class="docutils literal"><span class="pre">XmlLayout</span></tt>. The <tt class="docutils literal"><span class="pre">ajaxlog</span></tt> option is of the
 form:</p>
-<div class="highlight-python"><pre>ajaxlog: {
-    url: "...",
+<div class="highlight-python"><div class="highlight"><pre>ajaxlog: {
+    url: &quot;...&quot;,
     headers: { ... }
-}</pre>
+}
+</pre></div>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">url</span></tt> parameter is the URL where log4javascript will send the
 log messages. The <tt class="docutils literal"><span class="pre">headers</span></tt> parameter specifies additional headers
@@ -181,13 +183,14 @@ installation requiring that some anti-CSRF token be set on HTTP
 headers.</p>
 </div>
 <div class="section" id="saving">
-<h2>Saving<a class="headerlink" href="#saving" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Saving<a class="headerlink" href="#saving" title="Permalink to this headline">¶</a></h2>
 <p>Wed saves documents using Ajax queries to a server. Where wed saves is
 determined by the <tt class="docutils literal"><span class="pre">save</span></tt> option. It is of the form:</p>
-<div class="highlight-python"><pre>save: {
-    url: "...",
+<div class="highlight-python"><div class="highlight"><pre>save: {
+    url: &quot;...&quot;,
     headers: { ... ]
-}</pre>
+}
+</pre></div>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">url</span></tt> parameter is the URL where wed will send the Ajax queries
 for saving. The <tt class="docutils literal"><span class="pre">headers</span></tt> parameter is as described above for
@@ -244,6 +247,17 @@ these are not set:</p>
 <span class="p">};</span>
 </pre></div>
 </div>
+<p>Modes may set other options on the <tt class="docutils literal"><span class="pre">_wed_options</span></tt> property:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">label_levels</span></tt>: an object with two fields:<ul>
+<li><tt class="docutils literal"><span class="pre">max</span></tt>: determines the maximum level of
+<em class="xref std std-ref">label visibility</em>,</li>
+<li><tt class="docutils literal"><span class="pre">initial</span></tt> determines the initial level of label visibility; must
+be <tt class="docutils literal"><span class="pre">1</span> <span class="pre">&lt;=</span> <span class="pre">initial</span> <span class="pre">&lt;=</span> <span class="pre">max</span></tt>. (Level 0 exists. It is just not valid
+to start at that level.)</li>
+</ul>
+</li>
+</ul>
 </div>
 <div class="section" id="testing">
 <h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
@@ -276,7 +290,8 @@ to control a browser.</li>
 <div class="section" id="browser-independent-tests">
 <h2>Browser-Independent Tests<a class="headerlink" href="#browser-independent-tests" title="Permalink to this headline">¶</a></h2>
 <p>To run the tests that are not browser-dependent do:</p>
-<div class="highlight-python"><pre>$ make test</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ make test
+</pre></div>
 </div>
 <p>These tests are located in the <tt class="docutils literal"><span class="pre">test/</span></tt> directory off the wed
 root. You can also run <tt class="docutils literal"><span class="pre">mocha</span></tt>
@@ -297,7 +312,8 @@ the suite will run against <strong>old code!</strong></p>
 off the wed root. To run
 the tests that run in the browser, you must run <tt class="docutils literal"><span class="pre">server.js</span></tt>, a
 basic web server, from the root of the wed source:</p>
-<div class="highlight-python"><pre>$ ./server.js</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ ./server.js
+</pre></div>
 </div>
 <p>The server will serve on localhost:8888 by default. Give it an
 <tt class="docutils literal"><span class="pre">addr:port</span></tt> parameter if you want another address and port. Some
@@ -333,7 +349,8 @@ available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</spa
 recommended if you run your browser on a provisioning service like
 SauceLabs <em>and</em> you want to maximize performance. Running
 <tt class="docutils literal"><span class="pre">server.js</span></tt> has been explained above. To run nginx, just issue:</p>
-<div class="highlight-python"><pre>$ misc/start_nginx</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ misc/start_nginx
+</pre></div>
 </div>
 <p>This will launch an nginx server listening on localhost:8888. It will
 handle all the requests to static resources itself, but will forward
@@ -349,10 +366,12 @@ file into <tt class="docutils literal"><span class="pre">local_config/</span></t
 you have made modifications. The only processing done on nginx&#8217;s file is to
 replace instances of <tt class="docutils literal"><span class="pre">&#64;PWD&#64;</span></tt> with the top of the code tree.</p>
 <p>Finally, to run the suite issue:</p>
-<div class="highlight-python"><pre>$ make selenium-test</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ make selenium-test
+</pre></div>
 </div>
 <p>To run the suite while using the SauceLab servers, run:</p>
-<div class="highlight-python"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test
+</pre></div>
 </div>
 <p>Behind the scenes, this will launch behave. See the makefile
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> for information about how behave is run.</p>
@@ -616,6 +635,30 @@ correspond to any XML attributes. They are encoded as
 with a dash, so there cannot be a clash.</li>
 </ul>
 </div>
+<div class="section" id="classes-used-by-wed">
+<h1>Classes Used by Wed<a class="headerlink" href="#classes-used-by-wed" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">_phantom</span></tt>:</dt>
+<dd>All elements added by wed for representing the data to the user are of
+this class.</dd>
+<dt><tt class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_gui</span></tt>:</dt>
+<dd>All elements that are more that just uneditable text.</dd>
+<dt><tt class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_text</span></tt>:</dt>
+<dd>All elements that are text added to represent some XML data. That
+is, there is some node in the data tree that corresponds
+specifically to this element.</dd>
+<dt><tt class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_decoration_text</span></tt>:</dt>
+<dd>All elements that are text added for purely decorative purposes. The
+difference between these elements and those which are <tt class="docutils literal"><span class="pre">_phantom</span>
+<span class="pre">_text</span></tt> is that the latter represents some contents whereas the
+former is purely decorating the data. For instance if an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt>
+element which points to the image of a cow is represented on screen
+by the word &#8220;cow&#8221; then this text should be <tt class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_text</span></tt>. On
+the other hand if a period is added after numbers in a list so that
+they look nice on screen, these periods should be <tt class="docutils literal"><span class="pre">_phantom</span>
+<span class="pre">_decoration_text</span></tt> elements.</dd>
+</dl>
+</div>
 <div class="section" id="browser-issues">
 <h1>Browser Issues<a class="headerlink" href="#browser-issues" title="Permalink to this headline">¶</a></h1>
 <p>The sad fact is that browsers are limited in functionality, buggy, or
@@ -657,8 +700,9 @@ contenteditable element.)</p>
 <div class="section" id="successive-elements-and-the-caret">
 <h3>Successive Elements and the Caret<a class="headerlink" href="#successive-elements-and-the-caret" title="Permalink to this headline">¶</a></h3>
 <p>Suppose the structure:</p>
-<div class="highlight-python"><pre>&lt;p contenteditable="true"&gt;foo &lt;button contenteditable="false"&gt;A&lt;/button&gt;
-&lt;button contenteditable="false"&gt;B&lt;/button&gt; bar&lt;/p&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>&lt;p contenteditable=&quot;true&quot;&gt;foo &lt;button contenteditable=&quot;false&quot;&gt;A&lt;/button&gt;
+&lt;button contenteditable=&quot;false&quot;&gt;B&lt;/button&gt; bar&lt;/p&gt;
+</pre></div>
 </div>
 <p>If you place the caret just before the space before &#8220;bar&#8221; and hit the
 left arrow to move it back between buttons A and B, various browsers
@@ -752,6 +796,7 @@ of a good explanation for the leak.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#conversion-for-editing">Conversion for Editing</a></li>
+<li><a class="reference internal" href="#classes-used-by-wed">Classes Used by Wed</a></li>
 <li><a class="reference internal" href="#browser-issues">Browser Issues</a><ul>
 <li><a class="reference internal" href="#cut-paste-copy">Cut, Paste, Copy</a></li>
 <li><a class="reference internal" href="#contenteditable">Contenteditable</a><ul>
@@ -794,12 +839,12 @@ of a good explanation for the leak.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.10.0-x-132-g16eeb61 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.11.0-1-gc9ddb7d documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Mangalam Research Center for Buddhist Languages.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+        &copy; Copyright 2013, 2014 Mangalam Research Center for Buddhist Languages.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
   </body>
 </html>

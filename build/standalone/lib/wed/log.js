@@ -3,7 +3,7 @@
  * @desc Logging facilities
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:log */function (require, exports, module) {
 'use strict';
@@ -69,6 +69,7 @@ function Handled(original) {
 function unhandled(e) {
     if (!(e instanceof Handled)) {
         log.fatal("Unhandled exception", e);
+        console.log(e.stack);
         return new Handled(e);
     }
     return e;

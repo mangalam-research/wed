@@ -3,7 +3,7 @@
  * @desc RNG-based validator.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:validate */ function (require, exports, module) {
@@ -12,7 +12,7 @@ define(/** @lends module:validate */ function (require, exports, module) {
 var patterns = require("./patterns");
 var formats = require("./formats");
 
-exports.version = "0.15.1";
+exports.version = "0.18.2";
 
 for(var prop in patterns) {
     exports[prop] = patterns[prop];

@@ -3,7 +3,7 @@
  * @desc Facility to listen to changes to a DOM tree.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:mutation_domlistener */
@@ -40,9 +40,9 @@ Listener.prototype.startListening = function() {
     this._observer.observe(this._$root.get(0), {
         subtree: true,
         childList: true,
-        attributes: false,
+        attributes: true,
         // Reminder: following option can't be true if 'attributes' false.
-        attributeOldValue: false,
+        attributeOldValue: true,
         characterData: true,
         // Reminder: following option can't be true if 'characterData' false.
         characterDataOldValue: true
@@ -149,6 +149,26 @@ Listener.prototype._processMutations = function (mutations) {
                 if ($parent.is(sel))
                         this._callHandler(pair[1], $target, mut.oldValue);
             }
+        }
+        else if (mut.type === "attributes") {
+            //
+            // attribute-changed
+            //
+            pairs = this._event_handlers["attribute-changed"];
+            // Go over all the elements for which we have
+            // handlers
+            for (pair_ix = 0, pair_ix_limit = pairs.length;
+                 pair_ix < pair_ix_limit; ++pair_ix) {
+                pair = pairs[pair_ix];
+                sel = pair[0];
+
+                // Check whether any of the nodes contains an
+                // element we care about.
+                if ($target.is(sel))
+                    this._callHandler(pair[1], $target, mut.attributeNamespace,
+                                      mut.attributeName, mut.oldValue);
+            }
+
         }
     }
 };

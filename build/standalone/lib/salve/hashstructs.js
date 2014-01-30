@@ -4,7 +4,7 @@
  * module:hashstructs~HashMap HashMap} implementations.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:hashstructs */ function (require, exports, module) {
 'use strict';
@@ -118,7 +118,7 @@ HashBase.prototype.forEach = function (f) {
 };
 
 /**
- * @returns {Integer} The number of values stored.
+ * @returns {integer} The number of values stored.
  */
 HashBase.prototype.size = function () {
     return this._size;
@@ -157,7 +157,7 @@ HashBase.prototype.filter = function (f) {
  * method is called.
  *
  * @param obj The value for which to test.
- * @returns {Boolean} <code>true</code> if the value is present,
+ * @returns {boolean} <code>true</code> if the value is present,
  * <code>false</code> if not.
  */
 HashBase.prototype.has = function(obj) {
@@ -168,7 +168,7 @@ HashBase.prototype.has = function(obj) {
 /**
  * Converts the object on which this method is called to a string.
  *
- * @returns {String} All the values, joined with ", ".
+ * @returns {string} All the values, joined with ", ".
  */
 HashBase.prototype.toString = function () {
     return this.toArray().join(", ");
