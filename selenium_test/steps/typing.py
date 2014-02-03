@@ -82,7 +82,7 @@ def step_impl(context, text):
 step_matcher('re')
 
 
-@when(u'^the user types (?P<choice>ESCAPE|DELETE|BACKSPACE)$')
+@when(u'^the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE)$')
 def step_impl(context, choice):
     driver = context.driver
     key = getattr(Keys, choice)

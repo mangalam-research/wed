@@ -14,6 +14,16 @@ Scenario: wrapping the selected text
   When the user clicks a choice for wrapping text in new elements
   Then the selection is wrapped in a new element.
 
+Scenario: selecting a context menu item with the keyboard
+  Given that the user has brought up the context menu over a selection
+  When the user moves with the keyboard to a choice for wrapping text in new elements
+  And the user types ENTER
+  Then the selection is wrapped in a new element.
+# This last item was added to make sure that the caret is in a
+# sensible position after the transformation.
+  And the user can bring up a context menu with the keyboard
+
+
 # This test fails on Selenium 2.35.0, using FF 22. Why??? Note that
 # the failure cannot be replicated manually. It does not seem to be a
 # timeout issue.
