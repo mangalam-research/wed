@@ -312,15 +312,37 @@ def step_impl(context, choice):
     context.context_menu_for = where if choice == "a placeholder" else None
 
 
-@When(ur"^the user uses the keyboard to bring up the context menu$")
+@when(ur"^the user uses the keyboard to bring up the context menu$")
 def step_impl(context):
     driver = context.driver
+
+    pos = wedutil.caret_selection_pos(driver)
 
     ActionChains(driver) \
         .key_down(Keys.CONTROL) \
         .send_keys("/") \
         .key_up(Keys.CONTROL) \
         .perform()
+
+    # Set it only if we don't already have one.
+    if not getattr(context, "context_menu_trigger", None):
+        trigger = Trigger(location={"left": int(pos["left"]),
+                                    "top": int(pos["top"])},
+                          size={'width': 0, 'height': 0})
+        context.context_menu_trigger = trigger
+        context.context_menu_for = None
+
+
+@then(ur"^the user can bring up a context menu with the keyboard\.?$")
+def step_impl(context):
+
+    # Reset the trigger so that we pick up a new trigger.
+    context.context_menu_trigger = None
+
+    context.execute_steps(u"""
+    When the user uses the keyboard to bring up the context menu
+    Then a context menu is visible close to where the user invoked it
+    """)
 
 
 @when(u'the user brings up the context menu on the selection')
@@ -409,6 +431,28 @@ def step_impl(context, choice):
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
     link.click()
+
+
+@when(u'^the user moves with the keyboard to a choice '
+      u'for wrapping text in new elements$')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    link = util.wait(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,
+                                                 "Wrap in ")))
+
+    while not (driver.switch_to_active_element() == link):
+        ActionChains(driver) \
+            .send_keys(Keys.ARROW_DOWN) \
+            .perform()
+
+    context.clicked_context_menu_item = \
+        util.get_text_excluding_children(link).strip()
+
+    ActionChains(driver) \
+        .send_keys(Keys.ENTER) \
+        .perform()
 
 
 @When(ur"the user clicks on a placeholder that will serve to bring up "

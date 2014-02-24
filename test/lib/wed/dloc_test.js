@@ -75,13 +75,13 @@ describe("dloc", function () {
 
             it("returns a correct path on later text node", function () {
                 var node =
-                    defined($root.find(".body>.p").get(-1).childNodes[2]);
+                    defined($root.find(".body>.p").get(1).childNodes[2]);
                 assert.equal(root_obj.nodeToPath(node), "0/1/0/1/2");
             });
 
             it("returns a correct path on attribute", function () {
                 var node =
-                    defined($root.find(".body>.p").get(-1).attributes["class"]);
+                    defined($root.find(".body>.p").get(1).attributes["class"]);
                 assert.equal(root_obj.nodeToPath(node), "0/1/0/1/@class");
             });
 
@@ -115,20 +115,20 @@ describe("dloc", function () {
 
             it("returns a correct node on a later text path", function () {
                 var node =
-                    defined($root.find(".body>.p").get(-1).childNodes[2]);
+                    defined($root.find(".body>.p").get(1).childNodes[2]);
                 assert.equal(root_obj.pathToNode("0/1/0/1/2"), node);
 
             });
 
             it("returns a correct node on attribute path", function () {
                 var node =
-                    defined($root.find(".body>.p").get(-1).attributes["class"]);
+                    defined($root.find(".body>.p").get(1).attributes["class"]);
                 assert.equal(root_obj.pathToNode("0/1/0/1/@class"), node);
             });
 
             it("accepts more than one digit per path step",
                function () {
-                var node = defined($root.find(".p").get(-1));
+                var node = defined($root.find(".p").get(1));
                 // There was a stupid bug in an earlier version which
                 // would make this fail with an exception complaining
                 // that the path was malformed due to the presence of

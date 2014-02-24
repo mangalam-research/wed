@@ -63,10 +63,9 @@ describe("domutil", function () {
             beforeEach(function () {
                 $root.empty();
                 $root.append($data);
-                caret = [$data[0].childNodes[0], 2];
+                caret = [$data[0].firstChild, 2];
             });
-            testPair([$data[0], 0],
-                     [$data[0].childNodes[0], 3]);
+            testPair([$data[0], 0], [$data[0].firstChild, 3]);
         });
 
         describe("move into child from text", function () {
@@ -76,11 +75,11 @@ describe("domutil", function () {
                 $root.append($data);
                 // This puts the caret at the end of the first
                 // text node in <span>.
-                caret = [$data[0].childNodes[0], undefined];
+                caret = [$data[0].firstChild, undefined];
                 caret[1] = caret[0].nodeValue.length;
             });
             testPair([$data.children("b")[0], 0],
-                     [$data.children("b")[0].childNodes[0], 0]);
+                     [$data.children("b")[0].firstChild, 0]);
         });
 
         describe("move to parent", function () {
@@ -90,7 +89,7 @@ describe("domutil", function () {
                 $root.append($data);
                 // This puts the caret at the end of the first b
                 // element.
-                caret = [$data.children("b")[0].childNodes[0], undefined];
+                caret = [$data.children("b")[0].firstChild, undefined];
                 caret[1] = caret[0].nodeValue.length;
             });
             // This position is between the two b elements.
@@ -116,7 +115,7 @@ describe("domutil", function () {
                 $root.append($data);
                 // This is just after the "test" string in the
                 // first s element.
-                caret = [$data.children("s")[0].childNodes[0], 4];
+                caret = [$data.children("s")[0].firstChild, 4];
             });
             // Ends between the two s elements.
             testPair([$data[0], 1]);
@@ -132,10 +131,10 @@ describe("domutil", function () {
                 $root.append($data);
                 // This is just after the "test" string in the top
                 // element, before the space.
-                caret = [$data[0].childNodes[0], 4];
+                caret = [$data[0].firstChild, 4];
             });
             // Ends after the space
-            testPair([$data[0], 0], [$data[0].childNodes[0], 5]);
+            testPair([$data[0], 0], [$data[0].firstChild, 5]);
         });
 
         describe("white-space: pre", function () {
@@ -148,11 +147,11 @@ describe("domutil", function () {
             beforeEach(function () {
                 $root.empty();
                 $root.append($data);
-                caret = [$data.children("s")[1].childNodes[0], 4];
+                caret = [$data.children("s")[1].firstChild, 4];
             });
 
             testPair([$data.children("s")[1], 0],
-                     [$data.children("s")[1].childNodes[0], 5]);
+                     [$data.children("s")[1].firstChild, 5]);
         });
 
         describe("does not move out of text container", function () {
@@ -160,9 +159,9 @@ describe("domutil", function () {
             beforeEach(function () {
                 $root.empty();
                 $root.append($data);
-                caret = [$data[0].childNodes[0], 4];
+                caret = [$data[0].firstChild, 4];
             });
-            testPair(null, null, $data[0].childNodes[0]);
+            testPair(null, null, $data[0].firstChild);
         });
 
         describe("does not move out of element container", function () {
@@ -235,9 +234,9 @@ describe("domutil", function () {
             beforeEach(function () {
                 $root.empty();
                 $root.append($data);
-                caret = [$data[0].childNodes[0], 2];
+                caret = [$data[0].firstChild, 2];
             });
-            testPair([$data[0], 0], [$data[0].childNodes[0], 1]);
+            testPair([$data[0], 0], [$data[0].firstChild, 1]);
         });
 
         describe("move into child", function () {
@@ -248,10 +247,10 @@ describe("domutil", function () {
                 var node = $data[0];
                 // This puts the caret at the start of the
                 // last text node.
-                caret = [node.childNodes[node.childNodes.length - 1], 0];
+                caret = [node.lastChild, 0];
             });
             testPair([$data.children("b")[0], 0],
-                     [$data.children("b")[0].childNodes[0], 4]);
+                     [$data.children("b")[0].firstChild, 4]);
         });
 
         describe("move to parent", function () {
@@ -261,7 +260,7 @@ describe("domutil", function () {
                 $root.append($data);
                 // This puts the caret at the start of the text
                 // node in <b>
-                caret = [$data.children("b")[0].childNodes[0], 0];
+                caret = [$data.children("b")[0].firstChild, 0];
             });
             testPair([$data[0], 1]);
         });
@@ -286,7 +285,7 @@ describe("domutil", function () {
                 $root.append($data);
                 // Place the caret just after the whitespace
                 // in the 2nd <s> node.
-                caret = [$data.children("s")[1].childNodes[0], 3];
+                caret = [$data.children("s")[1].firstChild, 3];
             });
             testPair([$data[0], 1]);
         });
@@ -318,10 +317,10 @@ describe("domutil", function () {
                 $root.append($data);
                 // Place the caret just after the white space
                 // in the 2nd <s> node.
-                caret = [$data.children("s")[1].childNodes[0], 3];
+                caret = [$data.children("s")[1].firstChild, 3];
                 });
             testPair([$data.children("s")[1], 0],
-                     [$data.children("s")[1].childNodes[0], 2]);
+                     [$data.children("s")[1].firstChild, 2]);
         });
 
         describe("does not move out of text container", function () {
@@ -329,9 +328,9 @@ describe("domutil", function () {
             beforeEach(function () {
                 $root.empty();
                 $root.append($data);
-                caret = [$data[0].childNodes[0], 0];
+                caret = [$data[0].firstChild, 0];
             });
-            testPair(null, null, $data[0].childNodes[0]);
+            testPair(null, null, $data[0].firstChild);
         });
 
         describe("does not move out of element container", function () {
@@ -375,7 +374,7 @@ describe("domutil", function () {
         });
 
         it("splits a text node", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var pair = domutil.splitTextNode(node, 2);
             assert.equal(pair[0].nodeValue, "ab");
             assert.equal(pair[1].nodeValue, "cd");
@@ -383,7 +382,7 @@ describe("domutil", function () {
         });
 
         it("works fine with negative offset", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var pair = domutil.splitTextNode(node, -1);
             assert.equal(pair[0].nodeValue, "");
             assert.equal(pair[1].nodeValue, "abcd");
@@ -391,7 +390,7 @@ describe("domutil", function () {
         });
 
         it("works fine with offset beyond text length", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var pair = domutil.splitTextNode(node, node.nodeValue.length);
             assert.equal(pair[0].nodeValue, "abcd");
             assert.equal(pair[1].nodeValue, "");
@@ -422,14 +421,14 @@ describe("domutil", function () {
         });
 
         it("fails on undefined node to insert", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             assert.Throw(
                 domutil.insertIntoText.bind(undefined, node, 0, undefined),
                 Error, "must pass an actual node to insert");
         });
 
         it("inserts the new element", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var $el = $("<span>");
             var pair = domutil.insertIntoText(node, 2, $el[0]);
             assert.equal(pair[0][0].nodeValue, "ab");
@@ -443,7 +442,7 @@ describe("domutil", function () {
         });
 
         it("works fine with negative offset", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var $el = $("<span>");
             var pair = domutil.insertIntoText(node, -1, $el[0]);
             assert.equal(pair[0][0], $el[0].parentNode,
@@ -453,12 +452,12 @@ describe("domutil", function () {
             assert.equal(pair[1][0].previousSibling, $el[0]);
             assert.equal(pair[1][1], 0);
             assert.equal($root.find(".title")[0].childNodes.length, 2);
-            assert.equal($root.find(".title")[0].childNodes[0], $el[0]);
+            assert.equal($root.find(".title")[0].firstChild, $el[0]);
         });
 
         it("works fine with negative offset and fragment", function () {
             var parent = $root.find(".title")[0];
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var frag = document.createDocumentFragment();
             frag.appendChild(document.createTextNode("first"));
             frag.appendChild($("<span>blah</span>")[0]);
@@ -475,13 +474,13 @@ describe("domutil", function () {
         it("works fine with negative offset and fragment containing " +
            "only text", function () {
             var parent = $root.find(".title")[0];
-            var node = parent.childNodes[0];
+            var node = parent.firstChild;
             var frag = document.createDocumentFragment();
             frag.appendChild(document.createTextNode("first"));
             var pair = domutil.insertIntoText(node, -1, frag);
             assert.equal(pair[0][0], parent);
             assert.equal(pair[0][1], 0);
-            assert.equal(pair[1][0], parent.childNodes[0]);
+            assert.equal(pair[1][0], parent.firstChild);
             assert.equal(pair[1][1], 5);
             assert.equal($root.find(".title")[0].childNodes.length, 1);
             assert.equal(parent.innerHTML, "firstabcd");
@@ -491,12 +490,12 @@ describe("domutil", function () {
         it("works fine with offset beyond text length",
            function () {
             var parent = $root.find(".title")[0];
-            var node = parent.childNodes[0];
+            var node = parent.firstChild;
             var $el = $("<span>");
             var pair = domutil.insertIntoText(node, node.nodeValue.length,
                                               $el[0]);
             assert.equal(pair[0][0].nodeValue, "abcd");
-            assert.equal(pair[0][0], parent.childNodes[0]);
+            assert.equal(pair[0][0], parent.firstChild);
             assert.equal(pair[0][0].nextSibling, $el[0]);
             assert.equal(pair[0][1], 4);
             assert.equal(pair[1][0], parent);
@@ -508,14 +507,14 @@ describe("domutil", function () {
         it("works fine with offset beyond text length and fragment",
            function () {
             var parent = $root.find(".title")[0];
-            var node = parent.childNodes[0];
+            var node = parent.firstChild;
             var frag = document.createDocumentFragment();
             frag.appendChild(document.createTextNode("first"));
             frag.appendChild($("<span>blah</span>")[0]);
             frag.appendChild(document.createTextNode("last"));
             var pair = domutil.insertIntoText(node, node.nodeValue.length,
                                               frag);
-            assert.equal(pair[0][0], parent.childNodes[0]);
+            assert.equal(pair[0][0], parent.firstChild);
             assert.equal(pair[0][0].nodeValue, "abcdfirst");
             assert.equal(pair[0][1], 4);
             assert.equal(pair[1][0], parent);
@@ -528,12 +527,12 @@ describe("domutil", function () {
            "containing only text",
            function () {
             var parent = $root.find(".title")[0];
-            var node = parent.childNodes[0];
+            var node = parent.firstChild;
             var frag = document.createDocumentFragment();
             frag.appendChild(document.createTextNode("first"));
             var pair = domutil.insertIntoText(node, node.nodeValue.length,
                                               frag);
-            assert.equal(pair[0][0], parent.childNodes[0]);
+            assert.equal(pair[0][0], parent.firstChild);
             assert.equal(pair[0][1], 4);
             assert.equal(pair[1][0], parent);
             assert.equal(pair[1][1], parent.childNodes.length);
@@ -543,7 +542,7 @@ describe("domutil", function () {
 
         it("cleans up after inserting a text node",
            function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var text = document.createTextNode("test");
             var pair = domutil.insertIntoText(node, 2, text);
             assert.equal(pair[0][0].nodeValue, "abtestcd");
@@ -555,7 +554,7 @@ describe("domutil", function () {
 
         it("cleans up after inserting a fragment with text",
            function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var frag = document.createDocumentFragment();
             frag.appendChild(document.createTextNode("first"));
             frag.appendChild($("<span>blah</span>")[0]);
@@ -587,7 +586,7 @@ describe("domutil", function () {
         });
 
         it("modifies a text node", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             var pair = domutil.insertText(node, 2, "Q");
             assert.equal(pair[0], node);
             assert.equal(pair[1], node);
@@ -597,16 +596,16 @@ describe("domutil", function () {
         it("uses the next text node if possible", function () {
             var node = $root.find(".title")[0];
             var pair = domutil.insertText(node, 0, "Q");
-            assert.equal(pair[0], node.childNodes[0]);
-            assert.equal(pair[1], node.childNodes[0]);
+            assert.equal(pair[0], node.firstChild);
+            assert.equal(pair[1], node.firstChild);
             assert.equal(pair[0].nodeValue, "Qabcd");
         });
 
         it("uses the previous text node if possible", function () {
             var node = $root.find(".title")[0];
             var pair = domutil.insertText(node, 1, "Q");
-            assert.equal(pair[0], node.childNodes[0]);
-            assert.equal(pair[1], node.childNodes[0]);
+            assert.equal(pair[0], node.firstChild);
+            assert.equal(pair[1], node.firstChild);
             assert.equal(pair[0].nodeValue, "abcdQ");
         });
 
@@ -615,15 +614,15 @@ describe("domutil", function () {
             $(node).empty();
             var pair = domutil.insertText(node, 0, "test");
             assert.isUndefined(pair[0]);
-            assert.equal(pair[1], node.childNodes[0]);
+            assert.equal(pair[1], node.firstChild);
             assert.equal(pair[1].nodeValue, "test");
         });
 
         it("does nothing if passed an empty string", function () {
             var node = $root.find(".title")[0];
-            assert.equal(node.childNodes[0].nodeValue, "abcd");
+            assert.equal(node.firstChild.nodeValue, "abcd");
             var pair = domutil.insertText(node, 1, "");
-            assert.equal(node.childNodes[0].nodeValue, "abcd");
+            assert.equal(node.firstChild.nodeValue, "abcd");
             assert.isUndefined(pair[0]);
             assert.isUndefined(pair[1]);
         });
@@ -662,13 +661,13 @@ describe("domutil", function () {
         });
 
         it("modifies a text node", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             domutil.deleteText(node, 2, 2);
             assert.equal(node.nodeValue, "ab");
         });
 
         it("deletes an empty text node", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             domutil.deleteText(node, 0, 4);
             assert.isNull(node.parentNode);
         });
@@ -700,7 +699,7 @@ describe("domutil", function () {
         });
 
         it("returns the node when it has no descendants", function () {
-            var node = $root.find(".title")[0].childNodes[0];
+            var node = $root.find(".title")[0].firstChild;
             assert.isNotNull(node); // make sure we got something
             assert.isDefined(node); // make sure we got something
             assert.equal(domutil.firstDescendantOrSelf(node), node);
@@ -711,7 +710,7 @@ describe("domutil", function () {
             assert.isNotNull(node); // make sure we got something
             assert.isDefined(node); // make sure we got something
             assert.equal(domutil.firstDescendantOrSelf(node),
-                         $root.find(".title")[0].childNodes[0]);
+                         $root.find(".title")[0].firstChild);
         });
 
     });
@@ -805,6 +804,124 @@ describe("domutil", function () {
                     "an element.");
         });
     });
+
+    describe("genericCutFunction", function () {
+        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var $root = $("#domroot");
+        var root = $root[0];
+        beforeEach(function (done) {
+            $root.empty();
+            require(["requirejs/text!" + source], function(data) {
+                $root.html(data);
+                done();
+            });
+        });
+
+        after(function () {
+            $root.empty();
+        });
+
+        function checkNodes (ret, nodes) {
+            assert.equal(ret.length, nodes.length, "result length");
+            for(var i = 0; i < nodes.length; ++i) {
+                assert.equal(ret[i].nodeType, nodes[i].nodeType);
+                assert.isTrue(ret[i].nodeType === window.Node.TEXT_NODE ||
+                              ret[i].nodeType === window.Node.ELEMENT_NODE,
+                              "node type");
+                switch(ret.nodeType) {
+                case window.Node.TEXT_NODE:
+                    assert(ret[i].nodeValue, nodes[i].nodeValue,
+                           "text node at " + i);
+                    break;
+                case window.Node.ELEMENT_NODE:
+                    assert(ret[i].outerHTML, nodes[i].outerHTML,
+                           "element node at " + i);
+                    break;
+                }
+            }
+        }
+
+        var cut;
+        before(function() {
+            cut = domutil.genericCutFunction.bind({
+                deleteText: domutil.deleteText,
+                deleteNode: domutil.deleteNode,
+                mergeTextNodes: domutil.mergeTextNodes
+            });
+        });
+
+        it("removes nodes and merges text", function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p.firstChild, 4];
+            var end_caret = [p.childNodes[4], 3];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = Array.prototype.slice.call(
+                p.childNodes,
+                Array.prototype.indexOf.call(p.childNodes,
+                                             start_caret[0].nextSibling),
+                Array.prototype.indexOf.call(p.childNodes,
+                                             end_caret[0].previousSibling) + 1);
+            nodes.unshift(p.ownerDocument.createTextNode("re "));
+            nodes.push(p.ownerDocument.createTextNode(" af"));
+
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 1);
+            assert.equal(
+                p.outerHTML,
+                ('<div class="p _real">befoter</div>'));
+
+            assert.isTrue(ret.length > 0);
+            assert.equal(ret[0][0], p.firstChild);
+            assert.equal(ret[0][1], 4);
+            checkNodes(ret[1], nodes);
+        });
+
+        it("returns proper nodes when merging a single node", function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p.firstChild, 4];
+            var end_caret = [p.firstChild, 6];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = [p.ownerDocument.createTextNode("re")];
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 5);
+            assert.equal(p.firstChild.nodeValue, 'befo ');
+
+            assert.isTrue(ret.length > 0);
+            // Check the caret position.
+            assert.equal(ret[0][0], p.firstChild);
+            assert.equal(ret[0][1], 4);
+
+            // Check that the nodes are those we expected.
+            checkNodes(ret[1], nodes);
+        });
+
+        it("empties an element without problem", function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p, 0];
+            var end_caret = [p, p.childNodes.length];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = Array.prototype.slice.call(p.childNodes);
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 0);
+
+            assert.isTrue(ret.length > 0);
+            // Check the caret position.
+            assert.equal(ret[0][0], p);
+            assert.equal(ret[0][1], 0);
+            // Check that the nodes are those we expected.
+            checkNodes(ret[1], nodes);
+        });
+    });
+
 });
 
 });

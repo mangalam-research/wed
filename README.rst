@@ -23,7 +23,7 @@ Wed is designed and developed by Louis-Dominique Dubeau, Director of
 Software Development for the Buddhist Translators Workbench project,
 Mangalam Research Center for Buddhist Languages.
 
-Jesse Bethel maintains wed's documentation, and the `github.io
+Jesse Bethel has worked on wed's documentation, and on the `github.io
 <http://mangalam-research.github.io/wed/>`_ site for wed.
 
 .. image:: https://secure.gravatar.com/avatar/7fc4e7a64d9f789a90057e7737e39b2a

@@ -1,12 +1,11 @@
 {
     "name": "wed",
     "description": "Wed is a schema-aware editor for XML documents.",
-    "version": "0.11.0",
+    "version": "0.11.1",
     "versionedSources": "lib/wed/wed.js",
     "keywords": ["RelaxNG", "rng", "XML", "editor"],
     "homepage" : "https://github.com/mangalam-research/wed",
     "author": "Louis-Dominique Dubeau <louisd@mangalamresearch.org>",
-    "main": "lib/wed/wed.js",
     "repository" : {
         "type" : "git",
         "url" : "https://github.com/mangalam-research/wed.git"
@@ -16,22 +15,22 @@
         "url": "https://www.mozilla.org/MPL/2.0/"
     } ],
     "dependencies": {
+        "argparse": ">=0.1.15 <1"
+    },
+    "devDependencies": {
         "amd-loader": "~0.0.4",
         "salve": "~0.18.2",
         "lodash-amd": ">=2.4.1 <3",
-        "pubsub-js": "git+https://github.com/codio/PubSubJS.git#a5a738f1e272b71b007514ba82c3ed7075d95f45"
-    },
-    "devDependencies": {
+        "pubsub-js": ">=1.4.2 <2",
         "semver": ">=2.2.x <3",
-        "argparse": ">=0.1.15 <1",
-        "less": ">=1.4.0 <2",
-        "mocha": ">=1.9.0 <2",
-        "chai": ">=1.6.0 <2",
+        "less": ">=1.6.2 <2",
+        "mocha": ">=1.17.1 <2",
+        "chai": ">=1.9.0 <2",
         "semver-sync": ">=1.2.0 <2",
-        "express": ">=3.4.0 <4",
-        "requirejs": ">=2.1.9 <3",
-        "jsdom": "git+https://github.com/lddubeau/jsdom.git#bugfix/attribute-handling-of-empty-namespace",
-        "sinon": ">=1.7.3 <2"
+        "express": ">=3.4.8 <4",
+        "requirejs": ">=2.1.11 <3",
+        "jsdom": ">=0.10.1 <1",
+        "sinon": ">=1.8.2 <2"
     },
     "scripts": {
         "test": "make test"

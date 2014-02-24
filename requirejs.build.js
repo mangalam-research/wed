@@ -14,7 +14,8 @@
             name: "wed/wed",
             include: [
                 "wed/modes/generic/generic",
-                "wed/modes/generic/generic_meta"
+                "wed/modes/generic/generic_meta",
+                "wed/modes/generic/metas/tei_meta"
             ],
             exclude: [
                 "jquery",
