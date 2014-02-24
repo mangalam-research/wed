@@ -6,7 +6,6 @@
     "keywords": ["RelaxNG", "rng", "XML", "editor"],
     "homepage" : "https://github.com/mangalam-research/wed",
     "author": "Louis-Dominique Dubeau <louisd@mangalamresearch.org>",
-    "main": "lib/wed/wed.js",
     "repository" : {
         "type" : "git",
         "url" : "https://github.com/mangalam-research/wed.git"
@@ -16,14 +15,14 @@
         "url": "https://www.mozilla.org/MPL/2.0/"
     } ],
     "dependencies": {
+        "argparse": ">=0.1.15 <1"
+    },
+    "devDependencies": {
         "amd-loader": "~0.0.4",
         "salve": "~0.18.2",
         "lodash-amd": ">=2.4.1 <3",
-        "pubsub-js": ">=1.4.2 <2"
-    },
-    "devDependencies": {
+        "pubsub-js": ">=1.4.2 <2",
         "semver": ">=2.2.x <3",
-        "argparse": ">=0.1.15 <1",
         "less": ">=1.4.0 <2",
         "mocha": ">=1.9.0 <2",
         "chai": ">=1.6.0 <2",
