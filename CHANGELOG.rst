@@ -4,6 +4,18 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.12.0:
+
+  - Wed no longer loads Font Awesome's and Bootstrap's CSS files by
+    itself. The application in which wed is used has the
+    repsonsibility to add the necessary HTML to load these files.
+
+    Having wed do it by itself was useful in early versions, for
+    development purposes, but in the general case this causes more
+    problems than it solves.
+
+  - Salve is included in wed's npm package.
+
 * 0.11.0:
 
   - Wed now has a notion of label level, which allows showing more or
