@@ -26,7 +26,9 @@ config = conf["Config"](local_conf_path)
 def before_all(context):
     driver = config.get_driver()
     context.driver = driver
-    context.util = selenic.util.Util(driver)
+    context.util = selenic.util.Util(driver,
+                                     # Give more time if we are remote.
+                                     4 if config.remote else 2)
     context.selenic_config = config
     # Without this, window sizes vary depending on the actual browser
     # used.
