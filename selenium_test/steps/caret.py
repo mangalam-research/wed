@@ -38,7 +38,13 @@ def step_impl(context):
     var range = title.ownerDocument.createRange();
     range.setStart(text, 0);
     range.setEnd(text, 1);
-    return range.getBoundingClientRect();
+    // Just returning does not work with IEDriver...
+    // return range.getBoundingClientRect();
+    var rect = range.getBoundingClientRect();
+    var ret = {};
+    for (var x in rect)
+        ret[x] = rect[x];
+    return ret;
     """, element)
 
     last_click = {"left": int(rect["left"] + 1),
