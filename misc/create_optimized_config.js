@@ -29,11 +29,29 @@
 //
 var path = require("path");
 var util = require("./util");
+var ArgumentParser = require("argparse").ArgumentParser;
+
 var captureConfigObject = util.captureConfigObject;
 var fileAsString = util.fileAsString;
 
-var config_file_path = process.argv[2];
-var build_file_path = process.argv[3];
+var parser = new ArgumentParser({
+    version: "0.0.1",
+    addHelp: true,
+    description: 'Creates an optimized configuration from a base' +
+        ' configuration and the optimizer\'s build file.'});
+
+parser.addArgument(["-k", "--skip"],
+                   { help: "Skip a module from processing.",
+                     action: "append",
+                     dest: "skip"});
+
+parser.addArgument(["config"]);
+parser.addArgument(["build"]);
+
+var args = parser.parseArgs();
+
+var config_file_path = args.config;
+var build_file_path = args.build;
 var config_file_text = fileAsString(config_file_path);
 var build_file_text = fileAsString(build_file_path);
 
@@ -45,6 +63,8 @@ var build = eval(build_file_text);
 var path_config = config.paths;
 if (build.modules) {
     build.modules.forEach(function (module) {
+        if (args.skip.indexOf(module))
+            return;
         //
         // Scan each module for:
         //
