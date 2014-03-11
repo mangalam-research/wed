@@ -11,6 +11,9 @@
     },
     modules: [
         {
+            name: "lodash"
+        },
+        {
             name: "wed/wed",
             include: [
                 "wed/modes/generic/generic",

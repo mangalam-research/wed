@@ -197,7 +197,7 @@ build/standalone-optimized/%.html: web/%.html
 	cp $< $@
 
 build/config/requirejs-config-optimized.js: misc/create_optimized_config.js build/config/requirejs-config-dev.js requirejs.build.js
-	node $(word 1,$^) $(word 2,$^) $(word 3,$^) requirejs.build.js > build/config/requirejs-config-optimized.js
+	node $(word 1,$^) --skip lodash $(word 2,$^) $(word 3,$^) > build/config/requirejs-config-optimized.js
 
 build-ks-files: build/ks/purl.js
 
