@@ -29,5 +29,17 @@
                 "lodash"
             ]
         }
-    ]
+    ],
+    // This prevents a problem in rangy 1.3alpha804 and later. We
+    // basically do not want it to use its internal AMD support
+    // because it cannot be optimized.
+    onBuildWrite: function (moduleName, path, contents) {
+        if (moduleName === "external/rangy/rangy-core") {
+            // This temporary undefines define.
+            return "(function () { var __wed_saved_define = define; \n" +
+                "define = undefined;" + contents +
+                "define = __wed_saved_define; })()";
+        }
+        return contents;
+    }
 })

@@ -61,7 +61,7 @@ WGET:=$(WGET) --no-use-server-timestamps
 
 # Should be the last part of the URL beginning with
 # https://rangy.googlecode.com/files/
-RANGY_FILE=rangy-1.3alpha.772.tar.gz
+RANGY_FILE=rangy-1.3alpha.804.tar.gz
 
 JQUERY_FILE=jquery-1.11.0.js
 
