@@ -10,7 +10,7 @@ from nose.tools import assert_equal, assert_true, \
 
 import wedutil
 
-from selenium_test.util import Trigger
+from selenium_test.util import Trigger, get_element_parent_and_parent_text
 
 step_matcher("re")
 
@@ -45,12 +45,13 @@ def context_menu_on_start_label_of_top_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CLASS_NAME, "__start_label"))
+    button, parent, _ = get_element_parent_and_parent_text(
+        driver, ".__start_label")
     ActionChains(driver)\
         .context_click(button)\
         .perform()
     context.context_menu_trigger = Trigger(util, button)
-    context.context_menu_for = button.find_element_by_xpath("..")
+    context.context_menu_for = parent
 
 
 @When("^the user (?:uses the mouse to bring|brings) up the context "
@@ -60,12 +61,13 @@ def context_menu_on_start_label_of_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, ".__start_label._p_label"))
+    button, parent, _ = get_element_parent_and_parent_text(
+        driver, ".__start_label._p_label")
     ActionChains(driver)\
         .context_click(button)\
         .perform()
     context.context_menu_trigger = Trigger(util, button)
-    context.context_menu_for = button.find_element_by_xpath("..")
+    context.context_menu_for = parent
 
 
 @When("^the user brings up the context menu on the end titleStmt label$")
@@ -74,13 +76,13 @@ def context_menu_on_start_label_of_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR,
-                                ".__end_label._titleStmt_label"))
+    button, parent, _ = get_element_parent_and_parent_text(
+        driver, ".__end_label._titleStmt_label")
     ActionChains(driver)\
         .context_click(button)\
         .perform()
     context.context_menu_trigger = Trigger(util, button)
-    context.context_menu_for = button.find_element_by_xpath("..")
+    context.context_menu_for = parent
 
 
 @given(u'^that the user has brought up the context menu over the '
@@ -100,15 +102,15 @@ def context_menu_on_start_label_of_element(context):
     util = context.util
 
     clicked = context.clicked_element
-    button = util.find_element((By.CSS_SELECTOR,
-                                ".__end_label._sourceDesc_label"))
+    button, parent, _ = get_element_parent_and_parent_text(
+        driver, ".__end_label._sourceDesc_label")
 
     assert_not_equal(clicked, button)
     ActionChains(driver)\
         .context_click(button)\
         .perform()
     context.context_menu_trigger = Trigger(util, button)
-    context.context_menu_for = button.find_element_by_xpath("..")
+    context.context_menu_for = parent
 
 
 @When("^the user uses the mouse to bring up the context menu on the end label "
@@ -117,15 +119,16 @@ def context_menu_on_end_label_of_top_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_elements((By.CLASS_NAME, "__end_label"))[-1]
-    driver.execute_script("""
-    arguments[0].scrollIntoView();
-    """, button)
+    button, parent = driver.execute_script("""
+    var button = jQuery(".__end_label").get(-1);
+    button.scrollIntoView();
+    return [button, button.parentNode];
+    """)
     ActionChains(driver)\
         .context_click(button)\
         .perform()
     context.context_menu_trigger = Trigger(util, button)
-    context.context_menu_for = button.find_element_by_xpath("..")
+    context.context_menu_for = parent
 
 
 @When("^the user (?:uses the mouse to bring|brings) up the context menu on "
@@ -134,12 +137,13 @@ def context_menu_on_end_label_of_element(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, ".__end_label._p_label"))
+    button, parent, _ = get_element_parent_and_parent_text(
+        driver, ".__end_label._p_label")
     ActionChains(driver)\
         .context_click(button)\
         .perform()
     context.context_menu_trigger = Trigger(util, button)
-    context.context_menu_for = button.find_element_by_xpath("..")
+    context.context_menu_for = parent
 
 
 @When("the user uses the mouse to bring up the context menu on text")
@@ -161,14 +165,15 @@ def context_menu_on_uneditable_text(context):
     driver = context.driver
     util = context.util
 
-    element = util.find_element((By.CSS_SELECTOR, ".ref>._phantom"))
+    element, parent, _ = get_element_parent_and_parent_text(
+        driver, ".ref>._phantom")
     ActionChains(driver)\
         .move_to_element(element)\
         .context_click()\
         .perform()
 
     context.context_menu_trigger = Trigger(util, element)
-    context.context_menu_for = element.find_element_by_xpath("..")
+    context.context_menu_for = parent
 
     context.execute_steps(u"""
     Then a context menu is visible close to where the user invoked it
@@ -263,8 +268,9 @@ def step_impl(context):
     # The click was in the middle of the trigger.
     trigger = context.context_menu_trigger
     target = trigger.location
-    target["left"] += trigger.size["width"] / 2
-    target["top"] += trigger.size["height"] / 2
+    size = trigger.size  # Read just once = 1 network roundtrip.
+    target["left"] += size["width"] / 2
+    target["top"] += size["height"] / 2
     assert_equal(selenic.util.locations_within(
         util.element_screen_position(menu), target, 10), '')
 
@@ -301,11 +307,7 @@ def step_impl(context, choice):
         .click(where) \
         .perform()
 
-    ActionChains(driver) \
-        .key_down(Keys.CONTROL) \
-        .send_keys("/") \
-        .key_up(Keys.CONTROL) \
-        .perform()
+    util.ctrl_x("/")
 
     # THIS TRIGGER WORKS ONLY BECAUSE OF .click(where) above.
     context.context_menu_trigger = Trigger(util, where)
@@ -315,14 +317,11 @@ def step_impl(context, choice):
 @when(ur"^the user uses the keyboard to bring up the context menu$")
 def step_impl(context):
     driver = context.driver
+    util = context.util
 
     pos = wedutil.caret_selection_pos(driver)
 
-    ActionChains(driver) \
-        .key_down(Keys.CONTROL) \
-        .send_keys("/") \
-        .key_up(Keys.CONTROL) \
-        .perform()
+    util.ctrl_x("/")
 
     # Set it only if we don't already have one.
     if not getattr(context, "context_menu_trigger", None):

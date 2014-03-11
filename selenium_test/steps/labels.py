@@ -9,19 +9,28 @@ import selenic.util
 step_matcher("re")
 
 
+def get_labels_stats(driver):
+    return driver.execute_script("""
+    var $labels = jQuery(".wed-document ._label");
+    return [$labels.length, $labels.filter(function () {
+        return this.style['display'] != "none";
+    }).length];
+    """)
+
+
 @Given(ur"^the label visiblity level is at (?P<level>\d+).?$")
 def step_impl(context, level):
+    driver = context.driver
     util = context.util
 
     level = int(level)
     assert_equal(wedutil.get_label_visibility_level(util), level)
 
-    labels = util.find_elements((By.CSS_SELECTOR, ".wed-document ._label"))
-    assert_true(len(labels))
+    n_labels, n_displayed = get_labels_stats(driver)
+    assert_true(n_labels)
     # Saving the labels themselves is pointless because redecoration
     # can destroy the elements that are now in the GUI.
-    context.number_of_visible_labels = sum(1 for x in labels
-                                           if x.is_displayed())
+    context.number_of_visible_labels = n_displayed
 
 
 @When(ur"^(?:the user )?(?P<choice>decreases|increases) the label visibility "
@@ -41,11 +50,7 @@ def step_impl(context, choice):
     context.caret_position_before_label_visibility_change = \
         wedutil.caret_pos(driver)
 
-    ActionChains(driver) \
-        .key_down(Keys.CONTROL) \
-        .send_keys(key) \
-        .key_up(Keys.CONTROL) \
-        .perform()
+    util.ctrl_x(key)
 
     # We don't allow the increase or decrease to do nothing.
     if choice == "decreases":
@@ -62,20 +67,23 @@ def step_impl(context, choice):
 def step_impl(context):
     util = context.util
 
-    labels = util.find_elements((By.CSS_SELECTOR, ".wed-document ._label"))
-    assert_true(len(labels))
+    def cond(*_):
+        n_labels, n_displayed = get_labels_stats(context.driver)
+        assert_true(n_labels)
+        return n_displayed == 0
 
-    util.wait(lambda *_: all(not el.is_displayed() for el in labels))
+    util.wait(cond)
 
 
 @Then("^more labels are visible$")
 def step_impl(context):
     util = context.util
-    labels = util.find_elements((By.CSS_SELECTOR, ".wed-document ._label"))
-    number_of_visible_labels = sum(1 for x in labels if x.is_displayed())
 
-    util.wait(lambda *_: number_of_visible_labels >
-              context.number_of_visible_labels)
+    def cond(*_):
+        _, n_displayed = get_labels_stats(context.driver)
+        return n_displayed > context.number_of_visible_labels
+
+    util.wait(cond)
 
 
 @Then("^the caret is at the same position on the screen.?$")
