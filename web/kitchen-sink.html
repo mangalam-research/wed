@@ -15,21 +15,21 @@
   <body>
     <div class="wed-widget container" id="widget"></div>
     <script>
-    require(["wed/wed", "jquery"], function (wed, $) {
-        $(function () {
-            var mode = purl().param('mode');
-            var file = purl().param('file');
-            function init() {
-                var options = mode ? {mode: { path: mode}} : undefined;
-                window.wed_editor = new wed.Editor();
-                window.wed_editor.init($("#widget").get(0), options);
-            }
-            if (file)
-                $("#widget").load(file, init);
-            else
-                init();
-        });
-    });
+      var mode = purl().param('mode');
+      var file = purl().param('file');
+      var req = ["wed/wed", "jquery"];
+      if (file)
+          req.push("text!" + file);
+      require(req, function (wed, $, text) {
+          $(function () {
+              var $widget = $("#widget");
+              if (text !== undefined)
+                  $widget.html(text);
+              var options = mode ? {mode: { path: mode}} : undefined;
+              window.wed_editor = new wed.Editor();
+              window.wed_editor.init($widget[0], options);
+          });
+      });
     </script>
   </body>
 </html>

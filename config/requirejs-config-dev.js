@@ -13,7 +13,8 @@ require.config({
    'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
    'font-awesome': 'external/font-awesome',
    'pubsub-js': 'external/pubsub',
-   xregexp: 'external/xregexp'
+   xregexp: 'external/xregexp',
+   text: 'requirejs/text'
  },
  packages: [
      {
