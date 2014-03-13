@@ -65,13 +65,14 @@ function dumpData(request, callback) {
 
     request.on('end', function() {
         var body = chunks.join('');
-        var writable = fs.createWriteStream(filename, {'flags': 'a'});
-        writable.write("\n***\n");
         var decoded = querystring.parse(body);
-        if (verbose)
-            console.log('decoded body', decoded);
-        writable.write(JSON.stringify(decoded));
-        writable.end();
+        var writable = fs.createWriteStream(filename, {'flags': 'a'});
+        writable.write("\n***\n", function () {
+            if (verbose)
+                console.log('decoded body', decoded);
+            writable.write(JSON.stringify(decoded));
+            writable.end();
+        });
         if (callback)
             callback(decoded);
     });
