@@ -16,6 +16,8 @@ Only salient changes are recorded here.
 
   - Salve is included in wed's npm package.
 
+  - Several bug fixes that prevented running wed in IE 9, 10, 11.
+
 * 0.11.0:
 
   - Wed now has a notion of label level, which allows showing more or

@@ -82,7 +82,7 @@ below, we have started testing wed on SauceLab's server under their
 OpenSauce program so support for various platforms should improve.
 
 Wed is primarily developed using a recent version of Chrome (version
-32; versions 26-31 have also been used earlier) and a recent version
+33; versions 26-31 have also been used earlier) and a recent version
 of Firefox (version 26; versions 20-25 have also been used earlier)
 for testing. Ideally wed should work with recent versions of other
 browsers but since it is not routinely tested with those browsers
@@ -106,12 +106,38 @@ likelihood, the following cases are unlikely to ever be supported:
 * Operating systems or browsers no longer supported by their own
   vendors.
 
-Wed does not require any specific OS facilities. However, keyboard
-support on Macs in JavaScript has some peculiarities. Unfortunately,
-since this project has not so far benefited from access to a Mac for
-testing, users of Mac-based browsers may experience issues that do not
-exist on other platforms. File an issue in github if you find a
-problem with a relatively recent Mac-based browser.
+Safari
+------
+
+Safari is a vexing case. Wed may or may not work on Safari. We
+currently cannot run the automated test suite with Safari. Manual
+testing is out of the question.
+
+We would like to have wed be supported on recent versions of Safari to
+the same extent it is supported on recent versions of Chrome, Firefox
+and IE. The tool we use to test it is Selenium. For better or for
+worse this is the go-to tool to do the kind of test wed
+needs. Selenium's support for Chrome and Firefox benefits from
+collaboration from developers who are responsible for developing these
+two browsers. In the case of IE, it appears (from reading bug reports)
+that Microsoft is communicating with the Selenium developers to
+resolve issues. However, we've not seen evidence of any collaboration
+between the Selenium project and Apple. Thus testing support for
+Safari is deficient, and it is not something that we here have the
+resources to fix.
+
+If you desire that wed be actually tested on Safari and are in a
+position to contribute substantial monetary or technical resources
+towards this goal, you are welcome to contact us. In particular,
+immediate problem we've run into when trying to test on Safari is this
+[Selenium
+issue](http://code.google.com/p/selenium/issues/detail?id=4136). If
+you want fix it, then this would bring us one step closer to being
+able to test wed on Safari.
+
+If you feel the urge to write an email saying "You should just...",
+then please abstain because there is nothing "just" about testing web
+applications.
 
 Dependencies
 ============
