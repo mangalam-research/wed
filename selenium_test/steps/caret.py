@@ -225,7 +225,7 @@ def step_impl(context, direction):
         .click(element)\
         .perform()
 
-    util.send_keys(keys)
+    util.send_keys(element, keys)
 
     assert_true(util.is_something_selected(), "something must be selected")
 
@@ -244,11 +244,11 @@ def step_impl(context):
         .click(element) \
         .perform()
 
-    util.send_keys(
-        # From the label to before the first letter.
-        [Keys.ARROW_RIGHT] +
-        # This moves 4 characters to the right
-        [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 4 + [Keys.SHIFT])
+    util.send_keys(element,
+                   # From the label to before the first letter.
+                   [Keys.ARROW_RIGHT] +
+                   # This moves 4 characters to the right
+                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 4 + [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
     text = util.get_selection_text()
