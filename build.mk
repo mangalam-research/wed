@@ -65,7 +65,7 @@ RANGY_FILE=rangy-1.3alpha.804.tar.gz
 
 JQUERY_FILE=jquery-1.11.0.js
 
-BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.0.3/bootstrap-3.0.3-dist.zip
+BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-dist.zip #https://github.com/twbs/bootstrap/releases/download/v3.0.3/bootstrap-3.0.3-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fontawesome.io/3.2.1/assets/font-awesome.zip
 FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
@@ -307,10 +307,10 @@ build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/s
 build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
 	-rm -rf $@
 	-mkdir $@
-	-rm -rf downloads/dist/
+	-rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
 	unzip -d downloads/ $<
-	mv downloads/dist/* $@
-	rm -rf downloads/dist/
+	mv downloads/$(BOOTSTRAP_BASE:.zip=)/* $@
+	rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
 # unzip preserves the creation date of the bootstrap directory. Which
 # means that downloads/bootstrap.zip would likely be more recent than
 # the top level directory. This would trigger this target needlessly
