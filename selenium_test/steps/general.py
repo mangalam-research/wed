@@ -12,7 +12,8 @@ from ..util import get_element_parent_and_parent_text
 
 
 def no_before_unload(context):
-    context.driver.execute_script("window.onbeforeunload = undefined;")
+    # IE 9 does not like setting onbeforeunload to undefined. So...
+    context.driver.execute_script("window.onbeforeunload = function () {};")
 
 
 def load_and_wait_for_editor(context, text=None):

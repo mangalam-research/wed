@@ -13,10 +13,12 @@ def step_impl(context):
     if not item.startswith("Wrap in "):
         raise ValueError("unexpected item value: " + item)
 
-    element_name = item[len("Wrap in"):]
+    element_name = item[len("Wrap in "):]
     parent = context.selection_parent
 
-    child = parent.find_element_by_class_name(element_name)
+    child = util.wait(lambda *_:
+                      parent.find_element_by_class_name(element_name))
+
     assert_equal(util.get_text_excluding_children(child),
                  context.expected_selection)
 

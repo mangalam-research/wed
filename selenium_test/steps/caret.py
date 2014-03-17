@@ -369,18 +369,19 @@ def step_impl(context):
     element = util.find_element((By.CSS_SELECTOR,
                                  ".__start_label._title_label"))
 
-    # From the label to before the first letter and then past the
-    # first letter.
     ActionChains(driver)\
         .click(element)\
-        .send_keys(*[Keys.ARROW_RIGHT] * 3)\
         .perform()
 
-    # This moves 9 caracters to the right with shift down.
-    ActionChains(driver)\
-        .key_down(Keys.SHIFT)\
-        .send_keys(*[Keys.ARROW_RIGHT] * 9)\
-        .key_up(Keys.SHIFT)\
-        .perform()
+    # On IE, sending the keys to the element itself does not work.
+    send_to = element if driver.name != "internet explorer" else \
+        util.find_element((By.CSS_SELECTOR, ".wed-document"))
+
+    util.send_keys(send_to,
+                   # From the label to before the first letter and then past
+                   # the first letter.
+                   [Keys.ARROW_RIGHT] * 3 +
+                   # This moves 9 caracters to the right with shift down.
+                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 9 + [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
