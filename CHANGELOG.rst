@@ -4,6 +4,35 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.12.0:
+
+  - Wed's test suite now passes in IE 10 and 11.
+
+  - IE 9 is not unsupported but not supported either. See wed's
+    documentation for dtails.
+
+  - The versions of Bootstrap and Rangy that are included in the
+    standalone build have been upgraded.
+
+  - In the optimized build, lodash is now also optimized. This
+    considerably reduces the number of file requests over the network.
+
+  - The Selenium test suite has been optimized for speed. Test time is
+    now one third of what it was!
+
+  - A newer version of salve is now required to take advantage of
+    its speed improvements.
+
+  - Salve is included in wed's npm package.
+
+  - Wed no longer loads Font Awesome's and Bootstrap's CSS files by
+    itself. The application in which wed is used has the
+    repsonsibility to add the necessary HTML to load these files.
+
+    Having wed do it by itself was useful in early versions, for
+    development purposes, but in the general case this causes more
+    problems than it solves.
+
 * 0.11.0:
 
   - Wed now has a notion of label level, which allows showing more or

@@ -77,26 +77,28 @@ Known bugs:
 Browser Requirements
 ====================
 
-While potential users of wed should definitely heed the warnings
-below, we have started testing wed on SauceLab's server under their
-OpenSauce program so support for various platforms should improve.
-
 Wed is primarily developed using a recent version of Chrome (version
-32; versions 26-31 have also been used earlier) and a recent version
+33; versions 26-32 have also been used earlier) and a recent version
 of Firefox (version 26; versions 20-25 have also been used earlier)
-for testing. Ideally wed should work with recent versions of other
-browsers but since it is not routinely tested with those browsers
-there may be bugs specific to running wed in those browsers. File an
-issue in github if you find a problem with IE 9 or higher or a
-relatively recent other kind of desktop browser or (obviously) with
-the browsers used for testing wed.  We would like to support phone and
-tablet browsers but due to a lack of development resources, such
-support is unlikely to materialize soon. In decreasing order of
-likelihood, the following cases are unlikely to ever be supported:
+for testing. Here is the list of officially supported browsers, in
+order of decreasing priority:
+
+* Chrome 33 and higher and Firefox 26 and over, about equally.
+
+* IE 10 and 11, about equally.
+
+File an issue on github if you find a problem with one of the
+supported browsers above. IE 9 is neither supported nor
+unsupported. See the section on `IE 9`_ below for an explanation.
+
+We would like to support phone and tablet browsers but due to a lack
+of development resources, such support is unlikely to materialize
+soon. In decreasing order of likelihood, the following cases are
+unlikely to ever be supported:
 
 * Versions of Chrome and Firefox older than those mentioned above.
 
-* Versions of IE older than 9.
+* IE 8 and earlier.
 
 * Antique browsers.
 
@@ -106,12 +108,64 @@ likelihood, the following cases are unlikely to ever be supported:
 * Operating systems or browsers no longer supported by their own
   vendors.
 
-Wed does not require any specific OS facilities. However, keyboard
-support on Macs in JavaScript has some peculiarities. Unfortunately,
-since this project has not so far benefited from access to a Mac for
-testing, users of Mac-based browsers may experience issues that do not
-exist on other platforms. File an issue in github if you find a
-problem with a relatively recent Mac-based browser.
+IE 9
+----
+
+Is it safe to use wed with IE 9? Probably.
+
+Some work has been done to support IE 9. However, as of 2013-03-20
+three tests of the Selenium test suite fail intermitently in IE 9. It
+is not possible to reproduce the failures manually, which makes it
+really hard to debug. Since the failures only occur in Selenium, some
+sort of logging at the JavaScript level must be performed to figure
+out what is going on. However, IE 9 does not seem to have any facility
+that readily allows producing stack traces. Methods that work on
+Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method I
+am aware of for IE 9 relies on using the ``caller`` argument, which is
+turned off when strict mode is in use. Using this method would mean
+turning off strict mode in wed **and** in any third-party library that
+happens to be on the stack when the trace is produced. Not a trivial
+matter. So for now IE 9 is not officially supported.
+
+You may use it. And we will listen to bug reports concerning it. But
+there are no guarantees.
+
+If you are in a position to contribute substantial monetary or
+technical resources towards making IE 9 officially supported, you are
+welcome to contact us.
+
+Safari
+------
+
+Safari is a vexing case. Wed may or may not work on Safari. We
+currently cannot run the automated test suite with Safari. Manual
+testing is out of the question.
+
+We would like to have wed be supported on recent versions of Safari to
+the same extent it is supported on recent versions of Chrome, Firefox
+and IE. The tool we use to test it is Selenium. For better or for
+worse this is the go-to tool to do the kind of test wed
+needs. Selenium's support for Chrome and Firefox benefits from
+collaboration from developers who are responsible for developing these
+two browsers. In the case of IE, it appears (from reading bug reports)
+that Microsoft is communicating with the Selenium developers to
+resolve issues. However, we've not seen evidence of any collaboration
+between the Selenium project and Apple. Thus testing support for
+Safari is deficient, and it is not something that we here have the
+resources to fix.
+
+If you desire that wed be actually tested on Safari and are in a
+position to contribute substantial monetary or technical resources
+towards this goal, you are welcome to contact us. In particular,
+immediate problem we've run into when trying to test on Safari is this
+[Selenium
+issue](http://code.google.com/p/selenium/issues/detail?id=4136). If
+you want fix it, then this would bring us one step closer to being
+able to test wed on Safari.
+
+If you feel the urge to write an email saying "You should just...",
+then please abstain because there is nothing "just" about testing web
+applications.
 
 Dependencies
 ============

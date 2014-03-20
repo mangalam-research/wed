@@ -5,13 +5,15 @@ import selenium.webdriver.support.expected_conditions as EC
 from nose.tools import assert_true, assert_equal  # pylint: disable=E0611
 
 import wedutil
+from ..util import get_element_parent_and_parent_text
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
 
 
 def no_before_unload(context):
-    context.driver.execute_script("window.onbeforeunload = undefined;")
+    # IE 9 does not like setting onbeforeunload to undefined. So...
+    context.driver.execute_script("window.onbeforeunload = function () {};")
 
 
 def load_and_wait_for_editor(context, text=None):
@@ -27,27 +29,20 @@ def load_and_wait_for_editor(context, text=None):
 
     wedutil.wait_for_editor(util)
 
-    # This is bullshit to work around a Selenium limitation.
-    driver.execute_script("""
+    context.origin_object = \
+        driver.execute_script("""
+    // Turn off tooltips
+    wed_editor.preferences.set("tooltips", false);
+
+    // Delete all tooltips.
+    jQuery(".tooltip").remove();
+
+    // This is bullshit to work around a Selenium limitation.
     jQuery("body").append(
       '<div id="origin-object" ' +
       'style=' +
       '"position: fixed; top: 0px; left: 0px; width:1px; height:1px;"/>');
-    """)
-    context.origin_object = driver.find_element_by_id("origin-object")
-
-    # Make sure we are off any element that requires a tooltip...
-    ActionChains(driver) \
-        .move_to_element(context.origin_object) \
-        .perform()
-
-    # ... and that tooltips are not displayed. Otherwise, a tooltip
-    # may still be visible after we set the preference to ``false``.
-    wedutil.wait_until_no_tooltip(util)
-
-    # Turning off tooltips makes the tests much easier to handle.
-    driver.execute_script("""
-    wed_editor.preferences.set("tooltips", false);
+    return jQuery("#origin-object")[0];
     """)
 
 
@@ -84,13 +79,12 @@ def step_impl(context, text):
 @when('the user clicks on the start label of an element that does not '
       'contain "{text}"')
 def step_impl(context, text):
-    util = context.util
+    driver = context.driver
 
-    button = util.find_element((By.CSS_SELECTOR,
-                                ".__start_label._title_label"))
+    button, parent, parent_text = get_element_parent_and_parent_text(
+        driver, ".__start_label._title_label")
     button.click()
-    parent = button.find_element_by_xpath("..")
-    assert_true(util.get_text_excluding_children(parent).find(text) == -1)
+    assert_true(parent_text.find(text) == -1)
     context.element_to_test_for_text = parent
 
 

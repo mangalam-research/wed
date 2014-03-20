@@ -4,6 +4,11 @@ Wed
 Caret Management
 ----------------
 
+* _seekCaret needs a 400 ms timeout on IE, which is not small. If we
+   can, we should drop _seekCaret and determine caret position
+   ourselves without relying on the browsers default mechanisms. This
+   would probably also mean completely dropping contenteditable.
+
 * Generally refactor selection management.
 
 * Caret management right now is a complicated affair. Wed should try

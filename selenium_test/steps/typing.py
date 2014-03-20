@@ -14,11 +14,11 @@ import wedutil
 @when(u'the user deletes all text letter by letter in an element')
 def step_impl(context):
     driver = context.driver
-    util = context.util
+    element, context.emptied_element = driver.execute_script("""
+    var el = jQuery(".__start_label._title_label")[0];
+    return [el, el.parentNode];
+    """)
 
-    element = util.find_element((By.CSS_SELECTOR,
-                                 ".__start_label._title_label"))
-    context.emptied_element = element.find_element_by_xpath("..")
     context.element_to_test_for_text = context.emptied_element
     keys = [Keys.ARROW_RIGHT] + [Keys.DELETE] * 20
     ActionChains(driver)\

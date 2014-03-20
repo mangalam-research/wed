@@ -9,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 import wedutil
 import selenic.util
 
-from selenium_test.util import Trigger
+from selenium_test.util import Trigger, get_element_parent_and_parent_text
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
@@ -38,7 +38,13 @@ def step_impl(context):
     var range = title.ownerDocument.createRange();
     range.setStart(text, 0);
     range.setEnd(text, 1);
-    return range.getBoundingClientRect();
+    // Just returning does not work with IEDriver...
+    // return range.getBoundingClientRect();
+    var rect = range.getBoundingClientRect();
+    var ret = {};
+    for (var x in rect)
+        ret[x] = rect[x];
+    return ret;
     """, element)
 
     last_click = {"left": int(rect["left"] + 1),
@@ -69,13 +75,19 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    button = util.find_element((By.CSS_SELECTOR, ".__end_label._title_label"))
-    parent = button.find_element_by_xpath("..")
+    # Faster than using 4 Selenium operations.
+    button, parent, button_class, parent_text = driver.execute_script("""
+    var button = jQuery(".__end_label._title_label")[0];
+    var parent = button.parentNode;
+    var parent_text = jQuery(parent).contents().filter(function() {
+       return this.nodeType == Node.TEXT_NODE;
+    }).text();
+    return [button, parent, button.className, parent_text];
+    """)
     context.clicked_element = button
     context.clicked_element_parent = parent
-    context.clicked_element_parent_initial_text = \
-        util.get_text_excluding_children(parent)
-    assert_true("_label_clicked" not in button.get_attribute("class").split())
+    context.clicked_element_parent_initial_text = parent_text
+    assert_true("_label_clicked" not in button_class.split())
     ActionChains(driver)\
         .click(button)\
         .perform()
@@ -152,9 +164,8 @@ def step_impl(context, direction):
 
     direction = direction.strip()
 
-    element = util.find_element((By.CSS_SELECTOR,
-                                 ".__start_label._title_label"))
-    parent = element.find_element_by_xpath("..")
+    element, parent, parent_text = get_element_parent_and_parent_text(
+        driver, ".__start_label._title_label")
     element.click()
     wedutil.wait_for_caret_to_be_in(util, parent)
 
@@ -179,10 +190,7 @@ def step_impl(context, direction):
     else:
         raise ValueError("unexpected direction: " + direction)
 
-    assert_true(util.is_something_selected(), "something must be selected")
-
-    text = util.get_text_excluding_children(parent)
-    context.expected_selection = text[1:3]
+    context.expected_selection = parent_text[1:3]
     context.selection_parent = parent
     context.caret_position = wedutil.caret_pos(driver)
 
@@ -193,45 +201,35 @@ def step_impl(context, direction):
     driver = context.driver
     util = context.util
 
-    element = util.find_element((By.CSS_SELECTOR,
-                                 ".__start_label._title_label"))
-
     if direction == "":
-        # From the label to before the first letter and then past the
-        # first letter.
-        ActionChains(driver)\
-            .click(element)\
-            .send_keys(*[Keys.ARROW_RIGHT] * 2)\
-            .perform()
-
-         # This moves two caracters to the right with shift down.
-        ActionChains(driver)\
-            .key_down(Keys.SHIFT)\
-            .send_keys(*[Keys.ARROW_RIGHT] * 2)\
-            .key_up(Keys.SHIFT)\
-            .perform()
+        keys = (
+            # From the label to before the first letter and then past the
+            # first letter.
+            [Keys.ARROW_RIGHT] * 2 +
+            # This moves two caracters to the right with shift down.
+            [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 2 + [Keys.SHIFT])
     elif direction == "backwards":
-        # From the label to before the first letter and then past the
-        # first letter, and then two more to the right.
-        ActionChains(driver)\
-            .click(element)\
-            .send_keys(*[Keys.ARROW_RIGHT] * (2 + 2))\
-            .perform()
-
-         # This moves two caracters to the left with shift down.
-        ActionChains(driver)\
-            .key_down(Keys.SHIFT)\
-            .send_keys(*[Keys.ARROW_LEFT] * 2)\
-            .key_up(Keys.SHIFT)\
-            .perform()
+        keys = (
+            # From the label to before the first letter and then past the
+            # first letter, and then two more to the right.
+            [Keys.ARROW_RIGHT] * (2 + 2) +
+            # This moves two caracters to the left with shift down.
+            [Keys.SHIFT] + [Keys.ARROW_LEFT] * 2 + [Keys.SHIFT])
     else:
         raise ValueError("unexpected direction: " + direction)
 
+    element, _, parent_text = get_element_parent_and_parent_text(
+        driver, ".__start_label._title_label")
+
+    ActionChains(driver)\
+        .click(element)\
+        .perform()
+
+    util.send_keys(element, keys)
+
     assert_true(util.is_something_selected(), "something must be selected")
 
-    parent = element.find_element_by_xpath("..")
-    text = util.get_text_excluding_children(parent)
-    context.expected_selection = text[1:3]
+    context.expected_selection = parent_text[1:3]
 
 
 @when(u'^the user selects the whole text of an element$')
@@ -239,22 +237,18 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    element = util.find_element((By.CSS_SELECTOR,
-                                 ".__start_label._title_label"))
-    parent = element.find_element_by_xpath("..")
+    element, parent, _ = get_element_parent_and_parent_text(
+        driver, ".__start_label._title_label")
 
-    # From the label to before the first letter.
     ActionChains(driver)\
         .click(element) \
-        .send_keys(*[Keys.ARROW_RIGHT] * 1)\
         .perform()
 
-    # This moves 4 characters to the right
-    ActionChains(driver)\
-        .key_down(Keys.SHIFT)\
-        .send_keys(*[Keys.ARROW_RIGHT] * 4)\
-        .key_up(Keys.SHIFT)\
-        .perform()
+    util.send_keys(element,
+                   # From the label to before the first letter.
+                   [Keys.ARROW_RIGHT] +
+                   # This moves 4 characters to the right
+                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 4 + [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
     text = util.get_selection_text()
@@ -267,12 +261,7 @@ def step_impl(context):
 
 @when(u'^the user cuts$')
 def step_impl(context):
-    driver = context.driver
-    ActionChains(driver)\
-        .key_down(Keys.CONTROL) \
-        .send_keys("x") \
-        .key_up(Keys.CONTROL) \
-        .perform()
+    context.util.ctrl_x("x")
 
 
 @then(u'^the text is cut$')
@@ -302,13 +291,13 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    element = util.find_element((By.CSS_SELECTOR,
-                                 ".__start_label._title_label"))
+    element, parent, parent_text = get_element_parent_and_parent_text(
+        driver, ".__start_label._title_label")
+
     # This is where our selection will end
     end = util.element_screen_center(element)
     end["left"] += 2  # Move it off-center for this test
 
-    parent = element.find_element_by_xpath("..")
     element.click()
     wedutil.wait_for_caret_to_be_in(util, parent)
 
@@ -325,8 +314,7 @@ def step_impl(context):
 
     assert_true(util.is_something_selected(), "something must be selected")
 
-    text = util.get_text_excluding_children(parent)
-    context.expected_selection = text[0:1]
+    context.expected_selection = parent_text[0:1]
     context.selection_parent = parent
     context.caret_position = wedutil.caret_pos(driver)
 
@@ -381,18 +369,19 @@ def step_impl(context):
     element = util.find_element((By.CSS_SELECTOR,
                                  ".__start_label._title_label"))
 
-    # From the label to before the first letter and then past the
-    # first letter.
     ActionChains(driver)\
         .click(element)\
-        .send_keys(*[Keys.ARROW_RIGHT] * 3)\
         .perform()
 
-    # This moves 9 caracters to the right with shift down.
-    ActionChains(driver)\
-        .key_down(Keys.SHIFT)\
-        .send_keys(*[Keys.ARROW_RIGHT] * 9)\
-        .key_up(Keys.SHIFT)\
-        .perform()
+    # On IE, sending the keys to the element itself does not work.
+    send_to = element if driver.name != "internet explorer" else \
+        util.find_element((By.CSS_SELECTOR, ".wed-document"))
+
+    util.send_keys(send_to,
+                   # From the label to before the first letter and then past
+                   # the first letter.
+                   [Keys.ARROW_RIGHT] * 3 +
+                   # This moves 9 caracters to the right with shift down.
+                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 9 + [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")

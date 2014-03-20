@@ -49,3 +49,18 @@ class Trigger(object):
             return self._size
         else:
             return self.el.size
+
+
+def get_element_parent_and_parent_text(driver, selector):
+    """
+    Given a CSS selector, return the element found, its parent and the
+    text of the parent, excluding any children.
+    """
+    return driver.execute_script("""
+    var button = jQuery(arguments[0])[0];
+    var parent = button.parentNode;
+    var parent_text = jQuery(parent).contents().filter(function() {
+       return this.nodeType == Node.TEXT_NODE;
+    }).text();
+    return [button, parent, parent_text];
+    """, selector)
