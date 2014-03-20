@@ -449,10 +449,6 @@ def step_impl(context):
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
 
-    ActionChains(driver) \
-        .send_keys(Keys.ENTER) \
-        .perform()
-
 
 @When(ur"the user clicks on a placeholder that will serve to bring up "
       ur"a context menu")
