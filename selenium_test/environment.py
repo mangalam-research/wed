@@ -52,6 +52,16 @@ def before_scenario(context, _scenario):
 def after_scenario(context, _scenario):
     driver = context.driver
     util = context.util
+
+    logs = driver.execute_script("""
+    return window.selenium_log;
+    """)
+    if logs:
+        print
+        print "JavaScript log:"
+        print "\n".join(repr(x) for x in logs)
+        print
+
     #
     # Make sure we did not trip a fatal error.
     #
