@@ -82,6 +82,9 @@ BOOTSTRAP_GROWL_BASE=bootstrap-growl-$(notdir $(BOOTSTRAP_GROWL_FILE))
 PURL_URL=https://github.com/allmarkedup/purl/archive/v2.3.1.zip
 PURL_BASE=purl-$(notdir $(PURL_URL))
 
+CLASSLIST_URL=https://github.com/eligrey/classList.js/archive/master.zip
+CLASSLIST_BASE=classList.zip
+
 LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
 STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
@@ -168,7 +171,7 @@ build/config/nginx.conf:
 
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js
 
 ifndef NO_NEW_BUILDINFO
 # Force rebuilding
@@ -288,6 +291,11 @@ downloads/$(BOOTSTRAP_GROWL_BASE): | downloads
 downloads/$(PURL_BASE): | downloads
 	(cd downloads; $(WGET) -O $(PURL_BASE) $(PURL_URL))
 
+downloads/$(CLASSLIST_BASE): | downloads
+	(cd downloads; $(WGET) -O $(CLASSLIST_BASE) $(CLASSLIST_URL))
+
+
+
 node_modules/%:
 	npm install
 
@@ -367,6 +375,12 @@ build/standalone/lib/external/lodash:
 build/standalone/lib/external/lodash/%: node_modules/lodash-amd/% | build/standalone/lib/external/lodash
 	cp -rp $< $@
 
+build/standalone/lib/external/classList.js: downloads/$(CLASSLIST_BASE)
+	-mkdir $(dir $@)
+	unzip -d $(dir $@) $< classList.js-*/*.js
+	mv $(dir $@)/classList.js-*/classList.js $@
+	rm -rf $(dir $@)/classList.js-*
+	touch $@
 
 # The following targets need to have an order dependency on the top
 # directories so that when a new version is installed, the target is
