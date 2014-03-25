@@ -132,12 +132,58 @@ function newGenericID() {
 
 /**
  * @param {Event} ev A DOM event.
- * @returns {boolean} <code>true</code> if Contrl, Alt or Meta were
+ * @returns {boolean} <code>true</code> if Control, Alt or Meta were
  * held when the event was created. Otherwise, <code>false</code>.
  */
 function anySpecialKeyHeld(ev) {
     return ev.altKey || ev.ctrlKey || ev.metaKey;
 }
+
+/**
+ * **This function is meant to be used in debugging.** It creates a
+ * ``selenium_log`` object on ``window`` which is an array that
+ * contains the series of ``obj`` passed to this function. Remember
+ * that ultimately ``selenium_log`` is going to be serialized by
+ * Selenium. So go easy on what you put in there and be aware that
+ * Selenium may have bugs that prevent serialization of certain
+ * objects.
+ *
+ * @param {...Object} obj Objects to log.
+ */
+function seleniumLog() {
+    if (!window.selenium_log)
+        window.selenium_log = [];
+
+    window.selenium_log.push.apply(window.selenium_log, arguments);
+}
+
+/**
+ * **This function is meant to be used in debugging.** Gets a stack
+ * trace. This is only as cross-platform as needed for the platforms
+ * we support.
+ *
+ * Support for IE 9 is missing because it was designed by baboons.
+ */
+function stackTrace() {
+    var err = new Error();
+    if (err.stack)
+        return err.stack;
+
+    // If the stack is not filled already (true of IE 10, 11) then
+    // raise an exception to fill it.
+    return _exceptionStackTrace(err);
+}
+
+function _exceptionStackTrace(err) {
+    try {
+        throw err;
+    }
+    catch(e) {
+        return e.stack;
+    }
+}
+
+
 
 exports.escapeCSSClass = escapeCSSClass;
 exports.getOriginalName = getOriginalName;
@@ -148,6 +194,8 @@ exports.newGenericID = newGenericID;
 exports.anySpecialKeyHeld = anySpecialKeyHeld;
 exports.distFromDeltas = distFromDeltas;
 exports.distFromRect = distFromRect;
+exports.seleniumLog = seleniumLog;
+exports.stackTrace = stackTrace;
 });
 
-//  LocalWords:  Mangalam MPL Dubeau util
+//  LocalWords:  Mangalam MPL Dubeau util CSS wed's unencoded

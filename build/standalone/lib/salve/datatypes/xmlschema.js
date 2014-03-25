@@ -177,11 +177,19 @@ var multi_char_escapes = [
     /\\W/g, "[\\p{P}\\p{Z}\\p{C}]"
 ];
 
+var re_cache = Object.create(null);
+
 var pattern_p = {
     name: "pattern",
     repeatable: "combine",
     convert: function (value) {
-        return {rng: value, internal: regexp.parse(value)};
+        var internal = re_cache[value];
+        if (internal === undefined)
+            internal = re_cache[value] = regexp.parse(value);
+        return {
+            rng: value,
+            internal: internal
+        };
     },
     combine: function (values) {
         return _.map(values, this.convert);

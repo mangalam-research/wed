@@ -98,11 +98,13 @@ Validator.prototype.start = function () {
     if (!this._initialized)
         this.initialize(function () {
             this._setWorkingState(WORKING, this._part_done);
-            this._workWrapper();
+            this._timeout_id = window.setTimeout(this._bound_wrapper,
+                                                 this._timeout);
         }.bind(this));
     else {
         this._setWorkingState(WORKING, this._part_done);
-        this._workWrapper();
+        this._timeout_id = window.setTimeout(this._bound_wrapper,
+                                             this._timeout);
     }
 };
 

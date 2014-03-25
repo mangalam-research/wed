@@ -2,29 +2,35 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
+    <link href="lib/external/font-awesome/css/font-awesome.min.css"
+          type="text/css" media="screen" rel="stylesheet"/>
+    <link href="lib/external/bootstrap/css/bootstrap.min.css"
+          type="text/css" media="screen" rel="stylesheet"/>
+    <link href="lib/wed/wed.css" type="text/css" media="screen"
+          rel="stylesheet" />
     <script type="text/javascript" src="../ks/purl.js"></script>
+    <script type="text/javascript" src="lib/external/classList.js"></script>
     <script type="text/javascript" src="lib/requirejs/require.js"></script>
     <script type="text/javascript" src="requirejs-config.js"></script>
-    <link href="lib/wed/wed.css" type="text/css" media="screen" rel="stylesheet" />
   </head>
   <body>
     <div class="wed-widget container" id="widget"></div>
     <script>
-    require(["wed/wed", "jquery"], function (wed, $) {
-        $(function () {
-            var mode = purl().param('mode');
-            var file = purl().param('file');
-            function init() {
-                var options = mode ? {mode: { path: mode}} : undefined;
-                window.wed_editor = new wed.Editor();
-                window.wed_editor.init($("#widget").get(0), options);
-            }
-            if (file)
-                $("#widget").load(file, init);
-            else
-                init();
-        });
-    });
+      var mode = purl().param('mode');
+      var file = purl().param('file');
+      var req = ["wed/wed", "jquery"];
+      if (file)
+          req.push("text!" + file);
+      require(req, function (wed, $, text) {
+          $(function () {
+              var $widget = $("#widget");
+              if (text !== undefined)
+                  $widget.html(text);
+              var options = mode ? {mode: { path: mode}} : undefined;
+              window.wed_editor = new wed.Editor();
+              window.wed_editor.init($widget[0], options);
+          });
+      });
     </script>
   </body>
 </html>

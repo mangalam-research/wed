@@ -696,7 +696,7 @@ function deleteNode(node) {
  * @param {Node} node The node to insert.
  */
 function insertNodeAt(parent, index, node) {
-    parent.insertBefore(node, parent.childNodes[index]);
+    parent.insertBefore(node, parent.childNodes[index] || null);
 }
 
 /**
@@ -715,7 +715,7 @@ function mergeTextNodes(node) {
         next && next.nodeType === Node.TEXT_NODE) {
         var offset = node.nodeValue.length;
         node.nodeValue += next.nodeValue;
-        next.parent.removeChild(next);
+        next.parentNode.removeChild(next);
         return [node, offset];
     }
 
@@ -793,6 +793,8 @@ function genericCutFunction (start_caret, end_caret) {
             start_container_offset;
         start_container = parent;
     }
+    else
+        final_caret = [start_container, start_offset];
 
     var end_text;
     if (end_container.nodeType === Node.TEXT_NODE) {
@@ -830,9 +832,9 @@ function genericCutFunction (start_caret, end_caret) {
         return_nodes.push(end_text);
 
     // At this point, end_offset points to the node that is before the
-    // list of nodes removed. The browser cut on the gui tree did not
-    // merge text nodes so use the tree_updater to perform this merge.
-    this.mergeTextNodes(end_container.childNodes[end_offset]);
+    // list of nodes removed.
+    if (end_container.childNodes[end_offset])
+        this.mergeTextNodes(end_container.childNodes[end_offset]);
     return [final_caret, return_nodes];
 }
 
@@ -932,6 +934,27 @@ function dumpRange(msg, range) {
 
 
 /**
+ * Dumps a range to a string.
+ *
+ * @param {string} msg A message to output in front of the range
+ * information.
+ * @param {Window} range The range.
+ */
+function dumpRangeToString(msg, range) {
+    var ret;
+    if (!range)
+        ret = [msg, "no range"];
+    else
+        ret = [msg,
+               range.startContainer.outerHTML,
+               range.startOffset,
+               range.endContainer.outerHTML,
+               range.endOffset];
+    return ret.join(", ");
+}
+
+
+/**
  * Checks whether a point is in the element's contents. This means
  * inside the element and <strong>not</strong> inside one of the
  * scrollbars that the element may have. The coordinates passed must
@@ -980,6 +1003,7 @@ exports.rangeFromPoints = rangeFromPoints;
 exports.focusNode = focusNode;
 exports.dumpCurrentSelection = dumpCurrentSelection;
 exports.dumpRange = dumpRange;
+exports.dumpRangeToString = dumpRangeToString;
 exports.pointInContents = pointInContents;
 exports.correspondingNode = correspondingNode;
 

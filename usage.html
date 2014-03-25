@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -6,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.11.0-2-g22a33c7 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.12.1-1-g2c4a427 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     'v0.11.0-2-g22a33c7',
+        URL_ROOT:    '',
+        VERSION:     'v0.12.1-1-g2c4a427',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.11.0-2-g22a33c7 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.12.1-1-g2c4a427 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -32,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.11.0-2-g22a33c7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.12.1-1-g2c4a427 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -108,36 +110,82 @@ still there, waiting for you to type text.</li>
 </div>
 <div class="section" id="browser-requirements">
 <h1>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h1>
-<p>While potential users of wed should definitely heed the warnings
-below, we have started testing wed on SauceLab&#8217;s server under their
-OpenSauce program so support for various platforms should improve.</p>
 <p>Wed is primarily developed using a recent version of Chrome (version
-32; versions 26-31 have also been used earlier) and a recent version
+33; versions 26-32 have also been used earlier) and a recent version
 of Firefox (version 26; versions 20-25 have also been used earlier)
-for testing. Ideally wed should work with recent versions of other
-browsers but since it is not routinely tested with those browsers
-there may be bugs specific to running wed in those browsers. File an
-issue in github if you find a problem with IE 9 or higher or a
-relatively recent other kind of desktop browser or (obviously) with
-the browsers used for testing wed.  We would like to support phone and
-tablet browsers but due to a lack of development resources, such
-support is unlikely to materialize soon. In decreasing order of
-likelihood, the following cases are unlikely to ever be supported:</p>
+for testing. Here is the list of officially supported browsers, in
+order of decreasing priority:</p>
+<ul class="simple">
+<li>Chrome 33 and higher and Firefox 26 and over, about equally.</li>
+<li>IE 10 and 11, about equally.</li>
+</ul>
+<p>File an issue on github if you find a problem with one of the
+supported browsers above. IE 9 is neither supported nor
+unsupported. See the section on <a class="reference internal" href="#ie-9">IE 9</a> below for an explanation.</p>
+<p>We would like to support phone and tablet browsers but due to a lack
+of development resources, such support is unlikely to materialize
+soon. In decreasing order of likelihood, the following cases are
+unlikely to ever be supported:</p>
 <ul class="simple">
 <li>Versions of Chrome and Firefox older than those mentioned above.</li>
-<li>Versions of IE older than 9.</li>
+<li>IE 8 and earlier.</li>
 <li>Antique browsers.</li>
 <li>Oddball browsers or other software or hardware systems that present
 web pages. (E.g. gaming consoles, smart TVs.)</li>
 <li>Operating systems or browsers no longer supported by their own
 vendors.</li>
 </ul>
-<p>Wed does not require any specific OS facilities. However, keyboard
-support on Macs in JavaScript has some peculiarities. Unfortunately,
-since this project has not so far benefited from access to a Mac for
-testing, users of Mac-based browsers may experience issues that do not
-exist on other platforms. File an issue in github if you find a
-problem with a relatively recent Mac-based browser.</p>
+<div class="section" id="ie-9">
+<h2>IE 9<a class="headerlink" href="#ie-9" title="Permalink to this headline">¶</a></h2>
+<p>Is it safe to use wed with IE 9? Probably.</p>
+<p>Some work has been done to support IE 9. However, as of 2013-03-20
+three tests of the Selenium test suite fail intermitently in IE 9. It
+is not possible to reproduce the failures manually, which makes it
+really hard to debug. Since the failures only occur in Selenium, some
+sort of logging at the JavaScript level must be performed to figure
+out what is going on. However, IE 9 does not seem to have any facility
+that readily allows producing stack traces. Methods that work on
+Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method I
+am aware of for IE 9 relies on using the <tt class="docutils literal"><span class="pre">caller</span></tt> argument, which is
+turned off when strict mode is in use. Using this method would mean
+turning off strict mode in wed <strong>and</strong> in any third-party library that
+happens to be on the stack when the trace is produced. Not a trivial
+matter. So for now IE 9 is not officially supported.</p>
+<p>You may use it. And we will listen to bug reports concerning it. But
+there are no guarantees.</p>
+<p>If you are in a position to contribute substantial monetary or
+technical resources towards making IE 9 officially supported, you are
+welcome to contact us.</p>
+</div>
+<div class="section" id="safari">
+<h2>Safari<a class="headerlink" href="#safari" title="Permalink to this headline">¶</a></h2>
+<p>Safari is a vexing case. Wed may or may not work on Safari. We
+currently cannot run the automated test suite with Safari. Manual
+testing is out of the question.</p>
+<p>We would like to have wed be supported on recent versions of Safari to
+the same extent it is supported on recent versions of Chrome, Firefox
+and IE. The tool we use to test it is Selenium. For better or for
+worse this is the go-to tool to do the kind of test wed
+needs. Selenium&#8217;s support for Chrome and Firefox benefits from
+collaboration from developers who are responsible for developing these
+two browsers. In the case of IE, it appears (from reading bug reports)
+that Microsoft is communicating with the Selenium developers to
+resolve issues. However, we&#8217;ve not seen evidence of any collaboration
+between the Selenium project and Apple. Thus testing support for
+Safari is deficient, and it is not something that we here have the
+resources to fix.</p>
+<p>If you desire that wed be actually tested on Safari and are in a
+position to contribute substantial monetary or technical resources
+towards this goal, you are welcome to contact us. In particular,
+immediate problem we&#8217;ve run into when trying to test on Safari is this
+[Selenium
+issue](<a class="reference external" href="http://code.google.com/p/selenium/issues/detail?id=4136">http://code.google.com/p/selenium/issues/detail?id=4136</a>). If
+you want fix it, then this would bring us one step closer to being
+able to test wed on Safari.</p>
+<p>If you feel the urge to write an email saying &#8220;You should just...&#8221;,
+then please abstain because there is nothing &#8220;just&#8221; about testing web
+applications.</p>
+</div>
 </div>
 <div class="section" id="dependencies">
 <h1>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h1>
@@ -190,8 +238,7 @@ itself. You might want to create a <tt class="docutils literal"><span class="pre
 settings specific to your own build environment. See the start of the
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> to see what variables you can set. When everything
 is set, run:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ make
-</pre></div>
+<div class="highlight-python"><pre>$ make</pre>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -309,10 +356,9 @@ import <a class="reference external" href="https://github.com/mangalam-research/
 <li><p class="first">Require <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/wed.js">lib/wed/wed.js</a></p>
 </li>
 <li><p class="first">Instantiate an <tt class="docutils literal"><span class="pre">Editor</span></tt> object of that module as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>var editor = new wed.Editor();
+<div class="highlight-python"><pre>var editor = new wed.Editor();
 [...]
-editor.init(widget, options);
-</pre></div>
+editor.init(widget, options);</pre>
 </div>
 <p>Between the creation of the <tt class="docutils literal"><span class="pre">Editor</span></tt> object and the call to
 <tt class="docutils literal"><span class="pre">init</span></tt>, there conceivably could be some calls to add event
@@ -419,7 +465,11 @@ work.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Basic Usage</a></li>
-<li><a class="reference internal" href="#browser-requirements">Browser Requirements</a></li>
+<li><a class="reference internal" href="#browser-requirements">Browser Requirements</a><ul>
+<li><a class="reference internal" href="#ie-9">IE 9</a></li>
+<li><a class="reference internal" href="#safari">Safari</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li><a class="reference internal" href="#building">Building</a></li>
 <li><a class="reference internal" href="#testing">Testing</a></li>
@@ -460,12 +510,12 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.11.0-2-g22a33c7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.12.1-1-g2c4a427 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2013, 2014 Mangalam Research Center for Buddhist Languages.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

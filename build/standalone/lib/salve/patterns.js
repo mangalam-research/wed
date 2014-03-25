@@ -333,13 +333,12 @@ Pattern.prototype.hash = function () { return this.id; };
  * @param {Array} definitions The definitions that exist in this
  * grammar.
  *
- * @returns {module:set~Set} The set of references that cannot be
- * resolved. This should be empty if everything has been
- * resolved. The caller is free to modify the value returned as
- * needed.
+ * @returns {Array|undefined} The references that cannot be resolved,
+ * or ``undefined`` if no references cannot be resolved. The caller is
+ * free to modify the value returned as needed.
  */
 Pattern.prototype._resolve = function (definitions) {
-    return new Set();
+    return undefined;
 };
 
 /**
@@ -423,60 +422,19 @@ Pattern.prototype._copyInto = function (obj, memo) {
     obj.xml_path = this.xml_path;
 };
 
-
 /**
- * Helper method for _prepare(). This method will remove all
- * non-attribute children among the patterns of this object,
- * recursively. So after returning, this object contains only
- * attributes and the Patterns necessary to contain them.
+ * This method tests whether a pattern is an attribute pattern or
+ * contains attribute patterns. This method does not cross element
+ * boundaries. That is, if element X cannot have attributes of its own
+ * but can contain elements that can have attributes, the return value
+ * if this method is called on the pattern contained by element X's
+ * pattern will be ``false``.
  *
- * This is a destructive operation: it modifies the object on
- * which it is called. Expected to be called on patterns that have
- * been cloned from the original tree.
- *
- * This method crosses the ref-define boundaries.
- *
- * @private
- *
- * @returns {undefined|module:patterns~Pattern} The pattern itself, if after
- * transformation it has attributes among its patterns. Undefined if
- * the pattern needs to be tossed because it does not contain any
- * attributes.
+ * @returns {boolean} True if the pattern is or has attributes. False
+ * if not.
  */
-
-Pattern.prototype._keepAttrs = function () {
-    // No children, toss.
-    return undefined;
-};
-
-/**
- * <p>Helper method for _prepare(). This method goes through the
- * children of this object to clean out Patterns that are no longer
- * needed once non-attribute Patterns have been removed. For instance,
- * a group which used to contain an element and an attribute will
- * contain only an attribute once the element has been removed. This
- * group has effectively become meaningless so _cleanAttrs would
- * modify the tree to replace the group with its child. Supposing that
- * <code>a</code> and <code>c</code> are attributes, <code>b</code> is
- * an element:</p>
- *
- * <pre><code>Group(Group(a, b), c) -> Group(a, c)</code></pre>
- *
- * <p>This is a destructive operation: it modifies the object on which
- * it is called. Expected to be called on patterns that have been
- * cloned from the original tree.</p>
- *
- * @private
- *
- * @returns {undefined|Array} A report of the form <code>[el,
- * flag]</code>. The <code>el</code> element is the pattern which
- * replaces the pattern on which the method was called. The
- * <code>flag</code> element tells whether there has been a
- * modification inside <code>el</code>. The return value is undefined
- * when the pattern needs to be tossed.
- */
-Pattern.prototype._cleanAttrs = function () {
-    return undefined;
+Pattern.prototype._hasAttrs = function () {
+    return false;
 };
 
 /**
@@ -512,7 +470,7 @@ function PatternOnePattern(xml_path) {
 inherit(PatternOnePattern, Pattern);
 
 PatternOnePattern.prototype._resolve = function (definitions) {
-    return new Set(this.pat._resolve(definitions));
+    return this.pat._resolve(definitions);
 };
 
 PatternOnePattern.prototype._copyInto = function (obj, memo) {
@@ -524,33 +482,8 @@ PatternOnePattern.prototype._prepare = function(namespaces)  {
     this.pat._prepare(namespaces);
 };
 
-PatternOnePattern.prototype._keepAttrs = function () {
-    var pats = [];
-    var atts = this.pat._keepAttrs();
-    if (atts !== undefined) {
-        this.pat = atts;
-        return this;
-    }
-
-    // No children, toss.
-    return undefined;
-};
-
-PatternOnePattern.prototype._cleanAttrs = function () {
-    var modified = false;
-
-    var atts = this.pat._cleanAttrs();
-
-    if (atts !== undefined) {
-        if (atts[0] instanceof Empty)
-            return undefined;
-
-        this.pat = atts[0];
-        modified = atts[1];
-        return [this, modified];
-    }
-
-    return undefined;
+PatternOnePattern.prototype._hasAttrs = function () {
+    return this.pat._hasAttrs();
 };
 
 PatternOnePattern.prototype._elementDefinitions = function (memo) {
@@ -576,9 +509,15 @@ function PatternTwoPatterns(xml_path) {
 inherit(PatternTwoPatterns, Pattern);
 
 PatternTwoPatterns.prototype._resolve = function (definitions) {
-    var set = this.pat_a._resolve(definitions);
-    set.union(this.pat_b._resolve(definitions));
-    return set;
+    var a = this.pat_a._resolve(definitions);
+    var b = this.pat_b._resolve(definitions);
+    if (a && b)
+        return a.concat(b);
+
+    if (a)
+        return a;
+
+    return b;
 };
 
 PatternTwoPatterns.prototype._copyInto = function (obj, memo) {
@@ -592,68 +531,10 @@ PatternTwoPatterns.prototype._prepare = function(namespaces)  {
     this.pat_b._prepare(namespaces);
 };
 
-PatternTwoPatterns.prototype._keepAttrs = function () {
-    var pats = [];
-    var atts = this.pat_a._keepAttrs();
-    if (atts !== undefined)
-        pats.push(atts);
-
-    atts = this.pat_b._keepAttrs();
-    if (atts !== undefined)
-        pats.push(atts);
-
-    if (pats.length > 0)
-    {
-        this.pats = pats;
-        return this;
-    }
-
-    // No children, toss.
-    return undefined;
+PatternTwoPatterns.prototype._hasAttrs = function () {
+    return this.pat_a._hasAttrs() || this.pat_b._hasAttrs();
 };
 
-/**
- * Cleans the attributes in the two patterns contained by this one.
- *
- * @private
- * @returns {undefined|Array} A value to be interpreted as in the same way as
- * the return value of {@link module:~validate~Pattern#_cleanAttrs _cleanAttrs}.
- */
-PatternTwoPatterns.prototype._cleanAttrsFromPat = function () {
-    var modified = false;
-    var pats = [];
-    var atts = this.pat_a._cleanAttrs();
-    if (atts !== undefined) {
-        pats.push(atts[0]);
-        modified = atts[1];
-    }
-    atts = this.pat_b._cleanAttrs();
-    if (atts !== undefined) {
-        pats.push(atts[0]);
-        modified = modified || atts[1];
-    }
-
-    if (pats.length === 0)
-        return undefined;
-
-    return [pats, modified];
-};
-
-PatternTwoPatterns.prototype._cleanAttrs = function () {
-    var cleaned = this._cleanAttrsFromPat();
-    if (cleaned === undefined)
-        return undefined;
-    var pats = cleaned[0];
-
-    // After modifications we don't allow anything...
-    if ((pats.length === 1) && (pats[0] instanceof Empty))
-        return undefined;
-
-    this.pat_a = pats[0];
-    this.pat_b = pats[1];
-
-    return [this, cleaned[1]];
-};
 
 PatternTwoPatterns.prototype._elementDefinitions = function (memo) {
     this.pat_a._elementDefinitions(memo);
@@ -980,10 +861,13 @@ Walker.prototype.fireEvent = function (ev) {
 /**
  * Can this Walker validly end after the previous event fired?
  *
+ * @param {boolean} attribute ``true`` if calling this method while
+ * processing attributes, ``false`` otherwise.
+ *
  * @return {boolean} <code>true</code> if the walker can validly end
  * here. <code>false</code> otherwise.
  */
-Walker.prototype.canEnd = function () {
+Walker.prototype.canEnd = function (attribute) {
     return true;
 };
 
@@ -991,12 +875,15 @@ Walker.prototype.canEnd = function () {
  * This method ends the Walker processing. It should not see any
  * further events after end is called.
  *
+ * @param {boolean} attribute ``true`` if calling this method while
+ * processing attributes, ``false`` otherwise.
+ *
  * @returns {boolean|Array.<module:patterns~ValidationError>}
  * <code>false</code> if the walker ended without error. Otherwise, a
  * list of {@link module:patterns~ValidationError ValidationError}
  * objects.
  */
-Walker.prototype.end = function () {
+Walker.prototype.end = function (attribute) {
     return false;
 };
 
@@ -1016,21 +903,18 @@ Walker.prototype.clone = function () {
  *
  * @private
  * @param {module:hashstructs~HashMap} memo A mapping of old object to
- * copy object. As a tree of patterns is being cloned, this memo is
- * populated. So if A is cloned to B then a mapping from A to B is
- * stored in the memo. If A is seen again in the same cloning
- * operation, then it will be substituted with B instead of creating a
- * new object.
+ * copy object, passed to ``_copyInto``.
  *
  * @returns An new object of the same class as the one being
  * cloned. The new object is a clone.
  */
 Walker.prototype._clone = function (memo) {
-    var other = memo.has(this);
-    if (other !== undefined)
-        return other;
-    other = new this.constructor();
-    memo.add(this, other);
+    // _clone does not need to use the memo because Walker objects
+    // form a tree. There are no cycles so we can't see the same
+    // object twice. However, all Walkers have a reference to a name
+    // resolver and need to clone it too, only once. So the memo is
+    // still needed.
+    var other = new this.constructor();
     this._copyInto(other, memo);
     return other;
 };
@@ -1133,12 +1017,12 @@ SingleSubwalker.prototype._suppressAttributes = function () {
     }
 };
 
-SingleSubwalker.prototype.canEnd = function () {
-    return this.subwalker.canEnd();
+SingleSubwalker.prototype.canEnd = function (attribute) {
+    return this.subwalker.canEnd(attribute);
 };
 
-SingleSubwalker.prototype.end = function () {
-    return this.subwalker.end();
+SingleSubwalker.prototype.end = function (attribute) {
+    return this.subwalker.end(attribute);
 };
 
 
@@ -1161,11 +1045,11 @@ NoSubwalker.prototype._suppressAttributes = function () {
     this.suppressed_attributes = true;
 };
 
-NoSubwalker.prototype.canEnd = function () {
+NoSubwalker.prototype.canEnd = function (attribute) {
     return true;
 };
 
-NoSubwalker.prototype.end = function () {
+NoSubwalker.prototype.end = function (attribute) {
     return false;
 };
 
@@ -1181,14 +1065,6 @@ var Empty = makeSingletonConstructor(Pattern);
 inherit(Empty, Pattern);
 
 // No need for _copyInto
-
-Empty.prototype._keepAttrs = function () {
-    return this;
-};
-
-Empty.prototype._cleanAttrs = function () {
-    return [this, false];
-};
 
 addWalker(Empty, EmptyWalker);
 
@@ -1315,18 +1191,18 @@ ListWalker.prototype._suppressAttributes = function () {
     // Lists cannot contain attributes.
 };
 
-ListWalker.prototype.canEnd = function () {
+ListWalker.prototype.canEnd = function (attribute) {
     if (!this.seen_tokens)
         return (this.subwalker.fireEvent(empty_event) === false);
-    return this.subwalker.canEnd();
+    return this.subwalker.canEnd(attribute);
 };
 
-ListWalker.prototype.end = function () {
-    var ret = this.subwalker.end();
+ListWalker.prototype.end = function (attribute) {
+    var ret = this.subwalker.end(attribute);
     if (ret !== false)
         return ret;
 
-    if (this.canEnd())
+    if (this.canEnd(attribute))
         return false;
 
     return [new ValidationError("unfulfilled list")];
@@ -1355,15 +1231,7 @@ function Value(xml_path, value, type, datatype_library, ns) {
     if (!this.datatype)
         throw new Error("unkown type: " + type);
     this.raw_value = value;
-    // We construct a pseudo-context representing the context in the
-    // schema file.
-    var context;
-    if (this.datatype.needs_context) {
-        var nr = new name_resolver.NameResolver();
-        nr.definePrefix("", this.ns);
-        context = {resolver: nr};
-    }
-    this.value = this.datatype.parseValue(value, context);
+    this._value = undefined;
 }
 
 inherit(Value, Pattern);
@@ -1377,7 +1245,28 @@ Value.prototype._copyInto = function (obj, memo) {
     obj.datatype_library = this.datatype_library;
     obj.ns = this.ns;
     obj.datatype = this.datatype; // Immutable.
+    obj._value = this._value;
 };
+
+Object.defineProperty(Value.prototype, "value", {
+    get: function () {
+        var ret = this._value;
+        if (ret)
+            return ret;
+
+        // We construct a pseudo-context representing the context in the
+        // schema file.
+        var context;
+        if (this.datatype.needs_context) {
+            var nr = new name_resolver.NameResolver();
+            nr.definePrefix("", this.ns);
+            context = {resolver: nr};
+        }
+        ret = this._value = this.datatype.parseValue(this.raw_value, context);
+
+        return ret;
+    }
+});
 
 /**
  * @classdesc Walker for {@link module:patterns~Value Value}.
@@ -1430,12 +1319,12 @@ ValueWalker.prototype.fireEvent = function(ev) {
     return false;
 };
 
-ValueWalker.prototype.canEnd = function () {
+ValueWalker.prototype.canEnd = function (attribute) {
     return this.matched || this.el.raw_value === "";
 };
 
-ValueWalker.prototype.end = function () {
-    if (this.canEnd())
+ValueWalker.prototype.end = function (attribute) {
+    if (this.canEnd(attribute))
         return false;
 
     return [new ValidationError("value required: " + this.el.raw_value)];
@@ -1456,7 +1345,8 @@ ValueWalker.prototype._suppressAttributes = function () {
  * means ``"token"``.
  * @param {string|undefined} datatype_library The URI of the datatype
  * library to use. ``undefined`` means use the builtin library.
- * @param {Array.<{name: string, value: string}>} params The parameters.
+ * @param {Array.<{name: string, value: string}>} params The
+ * parameters from the RNG file.
  * @param {module:patterns~Except} except The exception pattern.
  */
 function Data(xml_path, type, datatype_library, params, except) {
@@ -1467,7 +1357,8 @@ function Data(xml_path, type, datatype_library, params, except) {
     this.datatype = registry.get(this.datatype_library).types[this.type];
     if (!this.datatype)
         throw new Error("unkown type: " + type);
-    this.params = this.datatype.parseParams(xml_path, params || []);
+    this.rng_params = params || [];
+    this._params = undefined;
 }
 
 inherit(Data, Pattern);
@@ -1477,10 +1368,24 @@ Data.prototype._copyInto = function (obj, memo) {
     Pattern.prototype._copyInto.call(this, obj, memo);
     obj.type = this.type;
     obj.datatype_library = this.datatype_library;
-    obj.params = this.params; // Immutable
     obj.except = this.except && this.except._clone(memo);
     obj.datatype = this.datatype; // Immutable
+    obj.rng_params = this.rng_params; // Immutable
+    obj._params = this._params; // Immutable
 };
+
+Object.defineProperty(Data.prototype, "params", {
+    get: function () {
+        var ret = this._params;
+        if (ret)
+            return ret;
+
+        ret = this._params = this.datatype.parseParams(
+            this.xml_path, this.rng_params);
+
+        return ret;
+    }
+});
 
 /**
  * @classdesc Walker for {@link module:patterns~Data Data}.
@@ -1538,13 +1443,13 @@ DataWalker.prototype.fireEvent = function(ev) {
     return false;
 };
 
-DataWalker.prototype.canEnd = function () {
+DataWalker.prototype.canEnd = function (attribute) {
     return this.matched || !this.el.datatype.disallows("", this.el.params,
                                                        this.context);
 };
 
-DataWalker.prototype.end = function () {
-    if (this.canEnd())
+DataWalker.prototype.end = function (attribute) {
+    if (this.canEnd(attribute))
         return false;
 
     return [new ValidationError("value required")];
@@ -1676,8 +1581,8 @@ Ref.prototype._copyInto = function (obj, memo) {
 Ref.prototype._resolve = function (definitions) {
     this.resolves_to = definitions[this.name];
     if (this.resolves_to === undefined)
-        return new Set(this);
-    return new Set();
+        return [this];
+    return undefined;
 };
 
 // This completely skips the creation of RefWalker and
@@ -1711,9 +1616,6 @@ function OneOrMore(xml_path, pats) {
 
 inherit(OneOrMore, PatternOnePattern);
 addWalker(OneOrMore, OneOrMoreWalker);
-OneOrMore.prototype._cleanAttrs = function () {
-    return [this.pat, true];
-};
 
 /**
  *
@@ -1809,18 +1711,30 @@ OneOrMoreWalker.prototype._suppressAttributes = function () {
     // A oneOrMore element cannot have an attribute as a child.
 };
 
-OneOrMoreWalker.prototype.canEnd = function () {
+OneOrMoreWalker.prototype.canEnd = function (attribute) {
+    if (attribute) {
+        if (!this.el.pat._hasAttrs())
+            return true;
+
+        if (this.current_iteration === undefined)
+            this.current_iteration = this.el.pat.newWalker(this.name_resolver);
+
+        return this.current_iteration.canEnd(true);
+    }
     return this.seen_once && this.current_iteration.canEnd();
 };
 
-OneOrMoreWalker.prototype.end = function () {
+OneOrMoreWalker.prototype.end = function (attribute) {
+    if (this.canEnd(attribute))
+        return false;
+
     // Undefined current_iteration can happen in rare case.
     if (this.current_iteration === undefined)
         this.current_iteration = this.el.pat.newWalker(this.name_resolver);
 
     // Release next_iteration, which we won't need anymore.
     this.next_iteration = undefined;
-    return this.current_iteration.end();
+    return this.current_iteration.end(attribute);
 };
 
 /**
@@ -1850,28 +1764,6 @@ function Choice(xml_path, pats) {
 inherit(Choice, PatternTwoPatterns);
 addWalker(Choice, ChoiceWalker);
 
-Choice.prototype._cleanAttrs = function () {
-    var cleaned = this._cleanAttrsFromPat();
-    if (cleaned === undefined)
-        return undefined;
-    var pats = cleaned[0];
-
-    if (pats.length === 1) {
-        // After modifications we don't allow anything...
-        if (pats[0] instanceof Empty)
-            return undefined;
-
-        // The remaining element had a partner that disappeared.
-        return [new Choice(this.xml_path + " %CLEAN ATTRS%",
-                           [pats[0], new Empty()]), true];
-    }
-
-    this.pat_a = pats[0];
-    this.pat_b = pats[1];
-
-    return [this, cleaned[1]];
-};
-
 /**
  * @classdesc Walker for {@link module:patterns~Choice Choice}
  * @extends module:patterns~Walker
@@ -1891,7 +1783,6 @@ function ChoiceWalker(el, name_resolver) {
 
     this.walker_a = this.walker_b = undefined;
     this.instantiated_walkers = false;
-    this.done = false;
 
 }
 
@@ -1907,7 +1798,6 @@ ChoiceWalker.prototype._copyInto = function (obj, memo) {
     obj.walker_b = (this.walker_b !== undefined) ?
         this.walker_b._clone(memo): undefined;
     obj.instantiated_walkers = this.instantiated_walkers;
-    obj.done = this.done;
 };
 
 /**
@@ -1947,9 +1837,6 @@ ChoiceWalker.prototype._possible = function () {
 };
 
 ChoiceWalker.prototype.fireEvent = function(ev) {
-    if (this.done)
-        return undefined;
-
     this._instantiateWalkers();
 
     this.possible_cached = undefined;
@@ -1991,13 +1878,20 @@ ChoiceWalker.prototype._suppressAttributes = function () {
     }
 };
 
-ChoiceWalker.prototype.canEnd = function () {
+ChoiceWalker.prototype.canEnd = function (attribute) {
     this._instantiateWalkers();
 
-    var walker_a_ret = (this.walker_a !== undefined) ?
-            this.walker_a.canEnd() : true;
-    var walker_b_ret = (this.walker_b !== undefined) ?
-            this.walker_b.canEnd() : true;
+    var walker_a_ret = false;
+    var walker_b_ret = false;
+    if (attribute) {
+        walker_a_ret = !this.el.pat_a._hasAttrs();
+        walker_b_ret = !this.el.pat_b._hasAttrs();
+    }
+
+    walker_a_ret = walker_a_ret || ((this.walker_a !== undefined) ?
+            this.walker_a.canEnd(attribute) : true);
+    walker_b_ret = walker_b_ret || ((this.walker_b !== undefined) ?
+            this.walker_b.canEnd(attribute) : true);
 
     // Before any choice has been made, a ChoiceWalker can end if
     // any subwalker can end. Once a choice has been made, the
@@ -2007,18 +1901,16 @@ ChoiceWalker.prototype.canEnd = function () {
         (walker_a_ret || walker_b_ret);
 };
 
-ChoiceWalker.prototype.end = function () {
-    this.done = true;
-
+ChoiceWalker.prototype.end = function (attribute) {
     this._instantiateWalkers();
 
-    if (this.canEnd()) return false;
+    if (this.canEnd(attribute)) return false;
 
     var walker_a_ret = (this.walker_a !== undefined) ?
-            this.walker_a.end() : false;
+            this.walker_a.end(attribute) : false;
 
     var walker_b_ret = (this.walker_b !== undefined) ?
-            this.walker_b.end() : false;
+            this.walker_b.end(attribute) : false;
 
     if (!walker_a_ret && !walker_b_ret)
         return false;
@@ -2084,25 +1976,6 @@ function Group(xml_path, pats) {
 
 inherit(Group, PatternTwoPatterns);
 addWalker(Group, GroupWalker);
-
-Group.prototype._cleanAttrs = function () {
-    var cleaned = this._cleanAttrsFromPat();
-    if (cleaned === undefined)
-        return undefined;
-    var pats = cleaned[0];
-
-    if (pats.length === 1) {
-        if (pats[0] instanceof Empty)
-            return undefined;
-
-        return [pats[0], true];
-    }
-
-    this.pat_a = pats[0];
-    this.pat_b = pats[1];
-
-    return [this, cleaned[1]];
-};
 
 /**
  * @classdesc Walker for {@link module:patterns~Group Group}
@@ -2237,22 +2110,38 @@ GroupWalker.prototype._suppressAttributes = function () {
     }
 };
 
-GroupWalker.prototype.canEnd = function () {
+GroupWalker.prototype.canEnd = function (attribute) {
     this._instantiateWalkers();
-    return this.walker_a.canEnd() && this.walker_b.canEnd();
+    if (attribute) {
+        var a_has = this.el.pat_a._hasAttrs();
+        var b_has = this.el.pat_b._hasAttrs();
+        if (a_has && b_has)
+            return this.walker_a.canEnd(attribute) &&
+            this.walker_b.canEnd(attribute);
+        else if (a_has)
+            return this.walker_a.canEnd(true);
+        else if (b_has)
+            return this.walker_b.canEnd(true);
+        else
+            return true;
+    }
+
+    return this.walker_a.canEnd(attribute) && this.walker_b.canEnd(attribute);
 };
 
-GroupWalker.prototype.end = function () {
-    this._instantiateWalkers();
+GroupWalker.prototype.end = function (attribute) {
+    if (this.canEnd())
+        return false;
+
     var ret;
 
     if (!this.ended_a) { // Don't end it more than once.
-        ret = this.walker_a.end();
+        ret = this.walker_a.end(attribute);
         if (ret)
             return ret;
     }
 
-    ret = this.walker_b.end();
+    ret = this.walker_b.end(attribute);
     if (ret)
         return ret;
 
@@ -2296,12 +2185,8 @@ Attribute.prototype._prepare = function (namespaces) {
         namespaces[this.name.ns] = 1;
 };
 
-Attribute.prototype._keepAttrs = function () {
-    return this;
-};
-
-Attribute.prototype._cleanAttrs = function () {
-    return [this, false];
+Attribute.prototype._hasAttrs = function () {
+    return true;
 };
 
 /**
@@ -2418,11 +2303,11 @@ AttributeWalker.prototype._suppressAttributes = function () {
     this.suppressed_attributes = true;
 };
 
-AttributeWalker.prototype.canEnd = function () {
+AttributeWalker.prototype.canEnd = function (attribute) {
     return this.suppressed_attributes || this.seen_value;
 };
 
-AttributeWalker.prototype.end = function () {
+AttributeWalker.prototype.end = function (attribute) {
     if (this.suppressed_attributes)
         return false;
 
@@ -2454,10 +2339,6 @@ function Element(xml_path, name, pats) {
             throw new Error("Element requires exactly one pattern.");
         this.pat = pats[0];
     }
-    // Initialized to undefined. Once set to something else, it
-    // remains immutable.
-    this.attr_pat = undefined;
-    this.attr_pat_valid = false;
 }
 
 inherit(Element, PatternOnePattern);
@@ -2465,30 +2346,11 @@ inherit(Element, PatternOnePattern);
 Element.prototype._copyInto = function (obj, memo) {
     PatternOnePattern.prototype._copyInto.call(this, obj, memo);
     obj.name = this.name;
-    obj.attr_pat = this.attr_pat;
-    obj.attr_pat_valid = this.attr_pat_valid;
 };
 
 Element.prototype._prepare = function (namespaces) {
     namespaces[this.name.ns] = 1;
-    // Do it only if we've not done it.
-    if (!this.attr_pat_valid) {
-        // We must clone our pats into attr_pats
-        this.pat._prepare(namespaces);
-        var attrs = this.pat.clone()._keepAttrs();
-        if (attrs !== undefined) {
-            var me = this;
-            // We must clean as long as the tree is modified...
-            var cleaned = [undefined, true];
-            while (cleaned && cleaned[1])
-            {
-                cleaned = attrs._cleanAttrs();
-                attrs = cleaned && cleaned[0];
-            }
-            me.attr_pat = attrs;
-        }
-        this.attr_pat_valid = true;
-    }
+    this.pat._prepare(namespaces);
 };
 
 Element.prototype.newWalker = function (name_resolver) {
@@ -2498,8 +2360,8 @@ Element.prototype.newWalker = function (name_resolver) {
     return new ElementWalker(this, name_resolver);
 };
 
-Element.prototype._keepAttrs = function () {
-    return undefined;
+Element.prototype._hasAttrs = function () {
+    return false;
 };
 
 Element.prototype._elementDefinitions = function (memo) {
@@ -2530,7 +2392,6 @@ function ElementWalker(el, name_resolver) {
     this.ended_start_tag = false;
     this.closed = false;
     this.walker = undefined;
-    this.captured_attr_events = [];
     if (el !== undefined) {
         this.start_tag_event = new Event("enterStartTag", el.name.ns,
                                          el.name.name);
@@ -2553,7 +2414,6 @@ ElementWalker.prototype._copyInto = function (obj, memo) {
     obj.closed = this.closed;
     obj.walker = (this.walker !== undefined) ?
         this.walker._clone(memo) : undefined;
-    obj.captured_attr_events = this.captured_attr_events.concat([]);
 
     // No cloning needed since these are immutable.
     obj.start_tag_event = this.start_tag_event;
@@ -2565,31 +2425,26 @@ ElementWalker.prototype._possible = function () {
         return new EventSet(this.start_tag_event);
     }
     else if (!this.ended_start_tag) {
-        // If we can have attributes, then...
-        if (this.el.attr_pat !== undefined) {
-            var all = this.walker._possible();
-            var ret = new EventSet();
-            // We use value_ev to record whether an attributeValue
-            // is a possibility. If so, we must only return this
-            // possibility and no other.
-            var value_ev;
-            all.forEach(function (poss) {
-                if (poss.params[0] === "attributeValue")
-                    value_ev = poss;
-                if (poss.isAttributeEvent())
-                    ret.add(poss);
-            });
+        var all = this.walker._possible();
+        var ret = new EventSet();
+        // We use value_ev to record whether an attributeValue
+        // is a possibility. If so, we must only return this
+        // possibility and no other.
+        var value_ev;
+        all.forEach(function (poss) {
+            if (poss.params[0] === "attributeValue")
+                value_ev = poss;
+            if (poss.isAttributeEvent())
+                ret.add(poss);
+        });
 
-            if (value_ev)
-                ret = new EventSet(value_ev);
+        if (value_ev)
+            ret = new EventSet(value_ev);
 
-            if (this.walker.canEnd())
-                ret.add(ElementWalker._leaveStartTag_event);
+        if (this.walker.canEnd(true))
+            ret.add(ElementWalker._leaveStartTag_event);
 
-            return ret;
-        }
-        // No attributes possible.
-        return new EventSet(ElementWalker._leaveStartTag_event);
+        return ret;
     }
     else if (!this.closed)
     {
@@ -2604,7 +2459,7 @@ ElementWalker.prototype._possible = function () {
     }
 };
 
-// _possible always return new sets
+// _possible always returns new sets
 ElementWalker.prototype.possible = ElementWalker.prototype._possible;
 
 ElementWalker.prototype.fireEvent = function (ev) {
@@ -2614,9 +2469,8 @@ ElementWalker.prototype.fireEvent = function (ev) {
             if (ev.params[0] === "enterStartTag" &&
                 ev.params[1] === this.el.name.ns &&
                 ev.params[2] === this.el.name.name) {
-                if (this.el.attr_pat !== undefined)
-                    this.walker = this.el.attr_pat.newWalker(
-                        this.name_resolver);
+                this.walker = this.el.pat.newWalker(
+                    this.name_resolver);
                 this.seen_name = true;
                 return false;
             }
@@ -2624,25 +2478,23 @@ ElementWalker.prototype.fireEvent = function (ev) {
         else if (ev.params[0] === "leaveStartTag") {
             this.ended_start_tag = true;
 
-            if (this.walker !== undefined)
-                ret = this.walker.end();
+            var errs = this.walker.end(true);
+            ret = [];
+            for(var i = 0; i < errs.length; ++i) {
+                var err = errs[i];
+                if (err instanceof AttributeValueError ||
+                    err instanceof AttributeNameError)
+                    ret.push(err);
+            }
+            if (ret.length === 0)
+                ret = false;
 
-            // We've left the start tag, create a new walker and hit it
-            // with the attributes we've seen.
-            this.walker = this.el.pat.newWalker(this.name_resolver);
-            var me = this;
-            this.captured_attr_events.forEach(function (ev) {
-                me.walker.fireEvent(ev);
-            });
             // And suppress the attributes.
             this.walker._suppressAttributes();
 
             // We do not return undefined here
             return ret || false;
         }
-
-        if (ev.isAttributeEvent())
-            this.captured_attr_events.push(ev);
 
         return (this.walker !== undefined) ?
             this.walker.fireEvent(ev): undefined;
@@ -2676,11 +2528,16 @@ ElementWalker.prototype._suppressAttributes = function () {
     return;
 };
 
-ElementWalker.prototype.canEnd = function () {
+ElementWalker.prototype.canEnd = function (attribute) {
+    if (attribute)
+        return true;
     return this.closed;
 };
 
-ElementWalker.prototype.end = function (ev) {
+ElementWalker.prototype.end = function (attribute) {
+    if (attribute)
+        return false;
+
     var ret = [];
     if (!this.seen_name)
         ret.push(new ElementNameError("tag required", this.el.name));
@@ -2724,8 +2581,6 @@ function Define(xml_path, name, pats) {
             throw new Error("Define needs exactly one pattern.");
         this.pat = pats[0];
     }
-    this.attr_pat = undefined;
-    this.attr_pat_valid = false;
 }
 inherit(Define, PatternOnePattern);
 addWalker(Define, DefineWalker);
@@ -2733,19 +2588,6 @@ addWalker(Define, DefineWalker);
 Define.prototype._copyInto = function (obj, memo) {
     PatternOnePattern.prototype._copyInto.call(this, obj, memo);
     obj.name = this.name;
-    obj.attr_pat = this.attr_pat;
-    obj.attr_pat_valid = this.attr_pat_valid;
-};
-
-Define.prototype._prepare = function (namespaces) {
-    // Do it only if we've not done it.
-    if (!this.attr_pat_valid) {
-        // We must clone our pats into attr_pats
-        this.pat._prepare(namespaces);
-        var attrs = this.pat.clone()._keepAttrs();
-        this.attr_pat = attrs;
-        this.attr_pat_valid = true;
-    }
 };
 
 /**
@@ -2828,7 +2670,7 @@ ReferenceError.prototype.toString = function () {
 function Grammar(xml_path, start, definitions) {
     this.xml_path = xml_path;
     this.start = start;
-    this.definitions = [];
+    this.definitions = Object.create(null);
     this.element_definitions = Object.create(null);
     this._namespaces = Object.create(null);
     var me = this;
@@ -2853,12 +2695,19 @@ Grammar.prototype.start = undefined;
  * the schema.
  */
 Grammar.prototype._resolve = function () {
-    var ret = new Set();
-    for (var d in this.definitions)
-        ret.union(this.definitions[d]._resolve(this.definitions));
-    ret.union(this.start._resolve(this.definitions));
-    if (ret.size() > 0)
-        throw new ReferenceError(ret);
+    var all = [];
+    var ret;
+    for (var d in this.definitions) {
+        ret = this.definitions[d]._resolve(this.definitions);
+        if (ret)
+            all = all.concat(ret);
+    }
+    ret = this.start._resolve(this.definitions);
+    if (ret)
+        all = all.concat(ret);
+
+    if (all.length)
+        throw new ReferenceError(all);
 };
 
 /**

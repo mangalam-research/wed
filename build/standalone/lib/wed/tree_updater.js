@@ -218,7 +218,7 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
             if (parent)
                 parent.insertBefore(parent.ownerDocument.createTextNode(
                     text_after),
-                    node.nextSibling);
+                    node.nextSibling || null);
             ret = [node, node.nextSibling];
         }
         break;
@@ -240,7 +240,7 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
             clone.removeChild(clone.childNodes[0]);
 
         if (parent)
-            parent.insertBefore(clone, node.nextSibling);
+            parent.insertBefore(clone, node.nextSibling || null);
 
         ret = [node, clone];
         break;
@@ -438,7 +438,7 @@ TreeUpdater.prototype.insertNodeAt = function (loc, index, node) {
     if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE)
         throw new Error("document fragments cannot be passed to insertNodeAt");
 
-    parent.insertBefore(node, parent.childNodes[index]);
+    parent.insertBefore(node, parent.childNodes[index] || null);
     /**
      * @event module:tree_updater~TreeUpdater#insertNodeAt
      * @type {Object}

@@ -17,6 +17,29 @@ var pro = patterns.__protected;
 //
 // MODIFICATIONS TO THIS TABLE MUST BE REFLECTED IN rng-to-js.xsl
 //
+var code_to_constructor = [
+    Array,
+    pro.Empty,
+    pro.Data,
+    pro.List,
+    pro.Param,
+    pro.Value,
+    pro.NotAllowed,
+    pro.Text,
+    pro.Ref,
+    pro.OneOrMore,
+    pro.Choice,
+    pro.Group,
+    pro.Attribute,
+    pro.Element,
+    pro.Define,
+    pro.Grammar,
+    pro.EName
+];
+
+//
+// MODIFICATIONS TO THIS TABLE MUST BE REFLECTED IN rng-to-js.xsl
+//
 var name_to_constructor = {
     // Array = 0 is hard-coded elsewhere in the conversion code so don't
     // change it.
@@ -55,7 +78,6 @@ var name_to_constructor = {
     16: pro.EName
 };
 
-
 //
 // MODIFICATIONS TO THESE VARIABLES MUST BE REFLECTED IN rng-to-js.xsl
 //
@@ -72,22 +94,6 @@ function OldFormatError() {
 }
 
 inherit(OldFormatError, Error);
-
-/**
- * Applies a constructor.
- *
- * @private
- * @param {Function} ctor The constructor to apply.
- * @param {Array} args The arguments to pass to the constructor.
- * @returns {Object} An object created by the constructor.
- */
-function _applyConstructor(ctor, args) {
-    var new_obj = Object.create(ctor.prototype);
-    var ctor_ret = ctor.apply(new_obj, args);
-
-    // Some constructors return a value; make sure to use it!
-    return ctor_ret !== undefined ? ctor_ret: new_obj;
-}
 
 /**
  * A class for walking the JSON object representing a schema.
@@ -111,16 +117,13 @@ function V2JSONWalker(options) {
  * module:formats~V2JSONWalker#_proxcessObject _processObject}.
  */
 V2JSONWalker.prototype.walkObject = function(array) {
-    if (array.length < 1)
-        throw new Error("array too small to contain object");
-
     var type = array[0];
-    if (type === undefined)
-        throw new Error("object without type: " + util.inspec(array));
-
-    var ctor = name_to_constructor[type];
-    if (ctor === undefined)
+    var ctor = code_to_constructor[type];
+    if (ctor === undefined) {
+        if (array.length < 1)
+            throw new Error("array too small to contain object");
         throw new Error("undefined type: " + type);
+    }
 
     if (ctor === Array)
         throw new Error("trying to build array with _constructObjectV2");
@@ -131,23 +134,23 @@ V2JSONWalker.prototype.walkObject = function(array) {
     if (array.length > 1) {
         args = array.slice(1);
         if (add_path)
-            args.unshift("");
-        args.unshift(0);
-        args = this._processArrayForCtor(args);
+            args.unshift(0, "");
+        else
+            args.unshift(0);
+        this._transformArray(args);
     }
     else if (add_path)
         args = [""];
     else
         args = [];
 
-    return this._processObject(array, ctor, args);
+    return this._processObject(ctor, args);
 };
 
 /**
  * Processes an object. Derived classes will want to override this
  * method to perform their work.
  *
- * @param {Array} array The object represented as an array.
  * @param {Function} ctor The object's constructor.
  * @param {Array} args The arguments that should be passed to the
  * constructor.
@@ -157,57 +160,27 @@ V2JSONWalker.prototype.walkObject = function(array) {
  * meant to check the JSON data, then it should return
  * <code>undefined</code>.
  */
-V2JSONWalker.prototype._processObject = function(array, ctor, args) {
+V2JSONWalker.prototype._processObject = function(ctor, args) {
     return undefined; // Do nothing
 };
 
-/**
- * Process an array so that it can be used by a constructor.
- *
- * @private
- * @param {Array} arr The array to resolve.
- * @throws {Error} If the array is malformed.
- * @returns {Array} The processed array.
- */
-V2JSONWalker.prototype._processArrayForCtor = function (arr) {
-    // Drop the array type indicator.
-    return this._walkArray(arr).slice(1);
-};
-
-
-/**
- * Resolve an array according to format V2. For each element, if the
- * element is an array, it is resolved. If the element is an object,
- * then the object is constructed. Otherwise, the element remains as
- * is.
- *
- * @private
- * @param {Array} arr The array to resolve.
- * @throws {Error} If the array is malformed.
- * @returns {Array} The processed array.
- */
-V2JSONWalker.prototype._processArray = function (arr) {
-    // Drop the array type indicator.
-    return this._walkArray(arr).slice(1);
-};
-
-V2JSONWalker.prototype._walkArray = function (arr) {
+V2JSONWalker.prototype._transformArray = function (arr) {
     if (arr[0] !== 0)
         throw new Error("array type not 0, but " + arr[0] +
                         " for array " + arr);
 
-    var ret = [0];
-    for (var el_ix = 1, el; (el = arr[el_ix]) !== undefined; el_ix++) {
+    arr.splice(0, 1);
+    var limit = arr.length;
+    for (var el_ix = 0; el_ix < limit; el_ix++) {
+        var el = arr[el_ix];
+
         if (el instanceof Array) {
             if (el[0] !== 0)
-                ret.push(this.walkObject(el));
+                arr[el_ix] = this.walkObject(el);
             else
-                ret.push(this._processArray(el));
+                this._transformArray(el);
         }
-        else
-            ret.push(el);
     }
-    return ret;
 };
 
 /**
@@ -222,7 +195,7 @@ function V2Constructor() {
 }
 inherit(V2Constructor, V2JSONWalker);
 
-V2Constructor.prototype._processObject = function (array, ctor, args) {
+V2Constructor.prototype._processObject = function (ctor, args) {
     if (ctor === pro.Data && args.length >= 4) {
         // Parameters are represented as an array of strings in the
         // file. Transform this array of strings into an array of objects.
@@ -230,12 +203,17 @@ V2Constructor.prototype._processObject = function (array, ctor, args) {
         if (params.length % 2 !== 0)
             throw new Error("parameter array length not a multiple of 2");
 
-        var new_params = [];
-        for(var i = 0; i < params.length; i += 2)
-            new_params.push({name: params[i], value: params[i+1]});
+        var new_params = new Array(params.length / 2);
+        for(var i = 0, limit = params.length; i < limit; i += 2)
+            new_params[i / 2] = {name: params[i], value: params[i+1]};
         args[3] = new_params;
     }
-    return _applyConstructor(ctor, args);
+    var new_obj = Object.create(ctor.prototype);
+    var ctor_ret = ctor.apply(new_obj, args);
+
+    // Some constructors return a value; make sure to use it!
+    return ctor_ret !== undefined ? ctor_ret: new_obj;
+
 };
 
 //

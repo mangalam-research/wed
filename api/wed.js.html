@@ -38,6 +38,7 @@ define(/** @lends module:wed */function (require, exports, module) {
 'use strict';
 
 var $ = require("jquery");
+var browsers = require("./browsers");
 var log = require("./log");
 var saver = require("./saver");
 var rangy = require("rangy");
@@ -46,7 +47,6 @@ var Validator = validator.Validator;
 var util = require("./util");
 var name_resolver = require("salve/name_resolver");
 var domutil = require("./domutil");
-var mutation_domlistener = require("./mutation_domlistener");
 var updater_domlistener = require("./updater_domlistener");
 var transformation = require("./transformation");
 var validate = require("salve/validate");
@@ -81,7 +81,7 @@ require("./onbeforeunload");
 
 var _indexOf = Array.prototype.indexOf;
 
-exports.version = "0.11.0";
+exports.version = "0.12.1";
 var version = exports.version;
 
 var getOriginalName = util.getOriginalName;
@@ -348,26 +348,9 @@ navigation panel brings up a contextual menu.&lt;/li>\
 
     this._selection_stack = [];
 
-    // XXX this should probably go and be replaced by a check to make
-    // sure bootstrap.css or a variant has been loaded. (Or
-    // configurable to load something else than the minified version?)
-    var fontawesome_css = require.toUrl(
-        "font-awesome/css/font-awesome.min.css");
-    this.$frame.children("head").prepend('&lt;link rel="stylesheet" href="' +
-                                         fontawesome_css +
-                                         '" type="text/css" />');
-    var bootstrap_css = require.toUrl("bootstrap/../../css/bootstrap.min.css");
-    this.$frame.children("head").prepend('&lt;link rel="stylesheet" href="' +
-                                         bootstrap_css +
-                                         '" type="text/css" />');
-
-    // This domlistener is used only for validation.
-    this.validation_domlistener =
-        new mutation_domlistener.Listener(this.$data_root);
-
-    // This domlistener is used for everything else
-    this.gui_domlistener = new updater_domlistener.Listener(this.gui_root,
+    this.domlistener = new updater_domlistener.Listener(this.gui_root,
                                                             this._gui_updater);
+
     // Setup the cleanup code.
     $(this.my_window).on('unload.wed', { editor: this }, unloadHandler);
     $(this.my_window).on('popstate.wed', function (ev) {
@@ -547,7 +530,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
     // Make the validator revalidate the structure from the point
     // where a change occurred.
-    this.validation_domlistener.addHandler(
+    this.domlistener.addHandler(
         "children-changed",
         "._real, ._phantom_wrap, .wed-document",
         function ($root, $added, $removed, $prev, $next, $target) {
@@ -560,14 +543,12 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         }
     }.bind(this));
 
-    this.validation_domlistener.startListening();
-
-    this.decorator = this.mode.makeDecorator(this.gui_domlistener,
+    this.decorator = this.mode.makeDecorator(this.domlistener,
                                              this, this._gui_updater);
 
     this.decorator.addHandlers();
 
-    this.gui_domlistener.addHandler(
+    this.domlistener.addHandler(
         "children-changed",
         "*",
         function ($root, $added, $removed, $prev, $next, $target) {
@@ -577,20 +558,20 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         // position.
         if (this._refreshing_caret)
             return;
-        this.gui_domlistener.trigger("refresh-caret");
+        this.domlistener.trigger("refresh-caret");
     }.bind(this));
 
-    this.gui_domlistener.addHandler(
+    this.domlistener.addHandler(
         "text-changed",
         "*",
         function () {
         if (this._refreshing_caret)
             return;
 
-        this.gui_domlistener.trigger("refresh-caret");
+        this.domlistener.trigger("refresh-caret");
     }.bind(this));
 
-    this.gui_domlistener.addHandler(
+    this.domlistener.addHandler(
         "included-element",
         "._label",
         function ($root, $tree, $parent, $prev, $next, $target) {
@@ -609,7 +590,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
             $target.show();
     }.bind(this));
 
-    this.gui_domlistener.addHandler(
+    this.domlistener.addHandler(
         "trigger",
         "refresh-caret",
         function () {
@@ -619,7 +600,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     // If an element is edited and contains a placeholder, delete
     // the placeholder
     this._updating_placeholder = 0;
-    this.gui_domlistener.addHandler(
+    this.domlistener.addHandler(
         "children-changed",
         "._real, ._phantom_wrap",
         function ($root, $added, $removed, $prev, $next, $target) {
@@ -653,7 +634,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         this._updating_placeholder--;
     }.bind(this));
 
-    this.gui_domlistener.addHandler(
+    this.domlistener.addHandler(
         "included-element",
         "._real, ._phantom_wrap",
         function ($root, $tree, $parent, $prev, $next, $target) {
@@ -680,7 +661,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     }.bind(this));
 
 
-    this.gui_domlistener.addHandler(
+    this.domlistener.addHandler(
         "excluded-element",
         "*",
         function ($root, $tree, $parent, $prev, $next, $element) {
@@ -777,6 +758,15 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     }.bind(this));
 
     $body.on('click.wed', function (ev) {
+        // If the click is triggered programmatically ``pageX`` and
+        // ``pageY`` won't be defined. If the click is triggered due
+        // to an ENTER key converted by the browser, one or both will
+        // be negative. Or screenX, screenY will both be zero.
+        if (ev.pageX === undefined || ev.pageX &lt; 0 ||
+            ev.pageY === undefined || ev.pageY &lt; 0 ||
+            ((ev.screenX === ev.screenY) && (ev.screenX === 0)))
+            return;
+
         var offset = this.$gui_root.offset();
         var x = ev.pageX - offset.left;
         var y = ev.pageY - offset.top;
@@ -866,13 +856,13 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         }
     }
 
-    this.validator.start();
-
-    this.gui_domlistener.processImmediately();
+    this.domlistener.processImmediately();
     // Flush whatever has happened earlier.
     this._undo = new undo.UndoList();
 
     this.$gui_root.focus();
+
+    this.validator.start();
 
     this._setCondition("initialized", {editor: this});
 });
@@ -1664,8 +1654,9 @@ Editor.prototype.scrollIntoView = function (left, top, right, bottom) {
     }
 
     // Then adjust the window.
-    var scroll_top = this.my_window.document.body.scrollTop;
-    var scroll_left = this.my_window.document.body.scrollLeft;
+    var $doc = $(this.my_window.document);
+    var scroll_top = $doc.scrollTop();
+    var scroll_left = $doc.scrollLeft();
 
     // Client coordinates of gui_root.
     var gui_pos = this.$gui_root.offset();
@@ -1817,7 +1808,7 @@ Editor.prototype._refreshFakeCaret = function () {
         domutil.insertIntoText(node, offset, mark);
         break;
     case Node.ELEMENT_NODE:
-        node.insertBefore(mark, node.childNodes[offset]);
+        node.insertBefore(mark, node.childNodes[offset] || null);
         break;
     default:
         throw new Error("unexpected node type: " + node.nodeType);
@@ -1837,7 +1828,7 @@ Editor.prototype._refreshFakeCaret = function () {
             parent.removeChild(delete_this);
             delete_this = prev ? prev.nextSibling : parent.firstChild;
         }
-        parent.insertBefore(node, next);
+        parent.insertBefore(node, next || null);
     }
     else
         $mark.remove();
@@ -1853,6 +1844,10 @@ Editor.prototype._refreshFakeCaret = function () {
         range.setEnd(
             srange.endContParent.childNodes[srange.endContOffset],
             srange.endOffset);
+        // clearDOMSelection is to work around a problem in Rangy
+        // 1.3alpha.804. See ``tech_notes.rst``.
+        if (browsers.MSIE)
+            this.clearDOMSelection();
         this.getDOMSelection().setSingleRange(range);
     }
 
@@ -2440,19 +2435,38 @@ Editor.prototype._mousemoveHandler = log.wrap(function (e) {
  */
 Editor.prototype.elementAtPointUnderLayers = function (x, y) {
     var old_display = this._$caret_layer.css("display");
-    // The css manipulation disturbs the selection on Chrome
-    // 31. Therefore, save the range.
-    var range = this.getDOMSelectionRange();
-    if (range)
-        // Detach it.
-        range = range.cloneRange();
+    //
+    // The problem that the following code was meant to fix did not
+    // happen in Chrome 30 and is irreproducible in Chrome 32, and did
+    // not happen with other browsers. So it appears to have been a
+    // bug in Chrome 31. And doing the range save and restore is
+    // computationally expensive, so it is not a workaround we want to
+    // keep in place for all browsers. (Before you blow a gasket about
+    // checking browser versions, see the editorial in the browsers
+    // module.)
+    //
+    var range;
+    if (browsers.CHROME_31) {
+        // The css manipulation disturbs the selection on Chrome
+        // 31. Therefore, save the range.
+        range = this.getDOMSelectionRange();
+        if (range)
+            // Detach it.
+            range = range.cloneRange();
+    }
 
     this._$caret_layer.css("display", "none");
     var element = this.my_window.document.elementFromPoint(x, y);
     this._$caret_layer.css("display", old_display);
-    // Restore the range.
-    if (range)
+
+    // Restore the range. See above why.
+    if (range) {
+        // clearDOMSelection is to work around a problem in Rangy
+        // 1.3alpha.804. See ``tech_notes.rst``.
+        if (browsers.MSIE)
+            this.clearDOMSelection();
         this.getDOMSelection().setSingleRange(range);
+    }
     return element;
 };
 
@@ -2479,31 +2493,67 @@ Editor.prototype._caretLayerMouseHandler = log.wrap(function (e) {
 });
 
 
-Editor.prototype._mousedownHandler = log.wrap(function(e) {
+Editor.prototype._mousedownHandler = log.wrap(function(ev) {
     // Make sure the mouse is not on a scroll bar.
-    if (!domutil.pointInContents(this.gui_root, e.pageX, e.pageY))
+    if (!domutil.pointInContents(this.gui_root, ev.pageX, ev.pageY))
         return false;
 
     this.$gui_root.one('mouseup', this._caretChangeEmitter.bind(this));
 
-    if (e.which === 1) {
-        var boundary = this._pointToCharBoundary(e.clientX, e.clientY);
-        this._sel_anchor = makeDLoc(this.gui_root,
-                                    boundary.node, boundary.offset);
-        this._sel_focus = this._sel_anchor;
-        this._prev_sel_focus = undefined;
-
-        // Don't track selections on gui elements.
-        if ($(boundary.node).closest("._gui").length === 0)
-            this.$gui_root.on('mousemove.wed',
-                              this._mousemoveHandler.bind(this));
-    }
+    var boundary = this._pointToCharBoundary(ev.clientX, ev.clientY);
+    if (!$(boundary.node).closest(this.gui_root).length)
+        return true;
 
     this.$widget.find('.wed-validation-error.selected').removeClass('selected');
     this.$error_list.find('.selected').removeClass('selected');
 
-    this.my_window.setTimeout(this._seekCaret.bind(this, e), 0);
-    return true;
+    var $target = $(ev.target);
+    var $placeholder = $target.closest("._placeholder");
+    switch(ev.which) {
+    case 1:
+        // Don't track selections on gui elements.
+        if ($(boundary.node).closest("._gui").length === 0)
+            this.$gui_root.on('mousemove.wed',
+                              this._mousemoveHandler.bind(this));
+
+        // If the caret is changing due to a click on a
+        // placeholder, then put it inside the placeholder.
+        if ($placeholder.length)
+            this.setGUICaret($target[0], 0);
+        else
+            this.setGUICaret(boundary.node, boundary.offset);
+
+        // _sel_focus and _sel_anchor were set by setGUICaret.
+        this._prev_sel_focus = undefined;
+        break;
+    case 2:
+        break;
+    case 3:
+        // If the caret is changing due to a click on a placeholder,
+        // then put it inside the placeholder.
+        if ($placeholder.length)
+            this.setGUICaret($placeholder[0].firstChild, 0);
+
+        if ($target.closest("._gui").length) {
+            // Set the caret to be in the trigger.
+            this.setGUICaret($target[0], 0);
+            $target.trigger("wed-context-menu", [ev]);
+        }
+        else {
+            // If the editor is just gaining focus with *this* click,
+            // then this._sel_focus will not be set. It also means the
+            // range is collapsed. Using setSelectionRange sets the
+            // necessary state.
+            if (!this._sel_focus)
+                this.setGUICaret(boundary.node, boundary.offset);
+
+            if ($target.data("wed-custom-context-menu"))
+                $target.trigger("wed-context-menu", [ev]);
+            else
+                this._contextMenuHandler(ev);
+        }
+    }
+    return false;
 });
 
 /**
@@ -2516,63 +2566,6 @@ Editor.prototype.insertTransientPlaceholderAt = function (loc) {
     this._gui_updater.insertNodeAt(loc, ph);
     return ph;
 };
-
-Editor.prototype._seekCaret = log.wrap(function (ev) {
-    var range, r;
-
-    var $target = $(ev.target);
-    var $placeholder = $target.closest("._placeholder");
-    if (ev.which !== 3) {
-        // If the caret is changing due to a click on a
-        // placeholder, then put it inside the placeholder.
-        if ($placeholder.length)
-            this.setGUICaret($target[0], 0);
-        else {
-            range = this._normalizeSelectionRange();
-            if (range &&
-                // Don't update the caret if outside our gui.
-                $(range.startContainer).closest(this.gui_root).length &&
-                $(range.endContainer).closest(this.gui_root).length)
-                this.setGUICaret(range.startContainer, range.startOffset);
-        }
-    }
-    else {
-        // If the caret is changing due to a click on a placeholder,
-        // then put it inside the placeholder.
-        if ($placeholder.length)
-            this.setGUICaret($placeholder[0].firstChild, 0);
-
-        if ($target.closest("._gui").length) {
-            // Set the caret to be in the trigger.
-            this.setGUICaret($target[0], 0);
-            $target.trigger("wed-context-menu", [ev]);
-        }
-        else {
-            range = this._normalizeSelectionRange();
-
-            // If there's no range we ought to set a caret somewhere.
-            if (!range) {
-                var boundary = this._pointToCharBoundary(
-                    ev.clientX, ev.clientY);
-                this.setGUICaret(boundary.node, boundary.offset);
-            }
-            // If the editor is just gaining focus with *this* click,
-            // then this._sel_focus will not be set. It also means the
-            // range is collapsed. Using setSelectionRange sets the
-            // necessary state.
-            else if (!this._sel_focus)
-                    this.setSelectionRange(range, false);
-
-            if ($target.data("wed-custom-context-menu")) {
-                $target.trigger("wed-context-menu", [ev]);
-                return false;
-            }
-
-            return this._contextMenuHandler(ev);
-        }
-    }
-    return true;
-});
 
 /**
  * This method returns the current position of the GUI caret. However, it
@@ -2967,6 +2960,10 @@ Editor.prototype.displayContextMenu = function (x, y, items) {
 
 Editor.prototype.pushSelection = function () {
     this._selection_stack.push([this._sel_anchor, this._sel_focus]);
+    // clearDOMSelection is to work around a problem in Rangy
+    // 1.3alpha.804. See ``tech_notes.rst``.
+    if (browsers.MSIE)
+        this.clearDOMSelection();
 };
 
 Editor.prototype.popSelection = function () {
@@ -3089,10 +3086,14 @@ Editor.prototype.setDOMSelectionRange = function (range, reverse) {
         this.clearDOMSelection();
         return;
     }
-    var sel = this.getDOMSelection();
     // The domutil.focusNode call is required to work around bug:
     // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
     domutil.focusNode(range.endContainer);
+    // clearDOMSelection is to work around a problem in Rangy
+    // 1.3alpha.804. See ``tech_notes.rst``.
+    if (browsers.MSIE)
+        this.clearDOMSelection();
+    var sel = this.getDOMSelection();
     sel.setSingleRange(range, reverse);
 };
 
@@ -3364,17 +3365,8 @@ Editor.prototype.destroy = function () {
     }
 
     try {
-        if (this.gui_domlistener !== undefined)
-            this.gui_domlistener.stopListening();
-    }
-    catch(ex) {
-        log.unhandled(ex);
-    }
-
-
-    try {
-        if (this.validation_domlistener !== undefined)
-            this.validation_domlistener.stopListening();
+        if (this.domlistener !== undefined)
+            this.domlistener.stopListening();
     }
     catch(ex) {
         log.unhandled(ex);
@@ -3436,13 +3428,13 @@ exports.Editor = Editor;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Jan 30 2014 09:38:44 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Mar 25 2014 16:30:09 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>
