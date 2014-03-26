@@ -83,3 +83,7 @@ Scenario: bringing up the context menu with the keyboard on an element's label
   When the user clicks on the start label of an element
   And the user uses the keyboard to bring up the context menu
   Then a context menu is visible close to where the user invoked it
+
+Scenario: bringing up the context menu when there is no caret
+  When the user uses the keyboard to bring up the context menu
+  Then a context menu is not visible
