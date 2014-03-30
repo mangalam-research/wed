@@ -495,6 +495,69 @@ describe("validator", function () {
             });
         });
     });
+
+    describe("getErrorsFor", function () {
+        var p;
+        beforeEach(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data) {
+                $data.html(data);
+                done();
+            });
+        });
+
+        after(function () {
+            $data.empty();
+        });
+
+        function makeTest(name, pre_fn, stop_fn) {
+            it(name, function (done) {
+
+                pre_fn();
+
+                p = new validator.Validator(schema, $data[0]);
+                p._max_timespan = 0; // Work forever.
+                var old_stop = p.stop;
+                p.stop = function () {
+                    old_stop.call(p);
+                    stop_fn();
+                    done();
+                };
+                p.start();
+            });
+        }
+
+        makeTest("with actual contents, no errors", function () {},
+                 function () {
+            assert.equal(p._errors.length, 0, "no errors");
+            assert.sameMembers(p.getErrorsFor($data.find(".em")[0]), []);
+        });
+
+
+        makeTest("with actual contents, errors in the tag examined",
+                 function () {
+            var $em = $data.find(".em").first();
+            $em.prepend("<div class='foo _real'></foo>");
+        },
+                 function () {
+            var errors = p.getErrorsFor($data.find(".em")[0]);
+            assert.equal(errors.length, 1);
+            assert.equal(errors[0].error.toString(),
+                         "tag not allowed here: {}foo");
+        });
+
+        makeTest("with actual contents, errors but not in the tag examined",
+                 function () {
+            var $em = $data.find(".em").first();
+            $em.prepend("<div class='foo _real'></foo>");
+        },
+                 function () {
+            var errors = p.getErrorsFor($data.find(".em")[1]);
+            assert.equal(errors.length, 0);
+        });
+
+
+    });
 });
 
 });
