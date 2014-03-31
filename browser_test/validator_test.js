@@ -346,6 +346,7 @@ describe("validator", function () {
         });
     });
 
+    // We test speculativelyValidateFragment through speculativelyValidate
     describe("speculativelyValidate", function () {
         var p;
 
@@ -447,6 +448,41 @@ describe("validator", function () {
             });
         });
     });
+
+    // speculativelyValidateFragment is largely tested through
+    // speculativelyValidate above.
+    describe("speculativelyValidateFragment", function () {
+        var p;
+
+        before(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data) {
+                $data.html(data);
+                p = new validator.Validator(schema, $data[0]);
+                p._max_timespan = 0; // Work forever.
+                done();
+            });
+        });
+
+        after(function () {
+            $data.empty();
+        });
+
+        it("throws an error if to_parse is not an element", function (done) {
+            var body = $data.find(".body")[0];
+            var container = body.parentNode;
+            var index = Array.prototype.indexOf.call(container.childNodes,
+                                                     body);
+            p.initialize(function () {
+                assert.Throw(p.speculativelyValidateFragment.bind(
+                    p, container, index,
+                    document.createTextNode("blah")),
+                             Error, "to_parse is not an element");
+                done();
+            });
+        });
+    });
+
 
     describe("getDocumentNamespaces", function () {
         beforeEach(function (done) {
