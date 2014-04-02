@@ -216,6 +216,13 @@ def open_simple_doc(context):
         text="/build/test-files/wed_test_data/source_converted.xml")
 
 
+@given(ur"^a complex document without errors?$")
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        text="/build/test-files/wed_test_data/complex_converted.xml")
+
+
 @when(ur"^the user scrolls the window (?P<choice>completely down|down "
       ur"by (?P<by>\d+))$")
 def step_impl(context, choice, by):
