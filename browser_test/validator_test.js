@@ -328,7 +328,7 @@ describe("validator", function () {
             var el = $data.find("._real.body")[0];
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "em"));
-            assert.sameMembers(locs, [0, 1, 2]);
+            assert.sameMembers(locs, [0, 1, 2, 3]);
         });
 
         makeTest("no locations", function () {
@@ -344,6 +344,14 @@ describe("validator", function () {
                 "enterStartTag", "", "body"));
                 assert.sameMembers(locs, [2, 3]);
         });
+
+        makeTest("empty element", function () {
+            var el = $data.find("._real.em ._real.em")[0];
+            var locs = p.possibleWhere(el, new validate.Event(
+                "enterStartTag", "", "em"));
+                assert.sameMembers(locs, [0]);
+        });
+
     });
 
     // We test speculativelyValidateFragment through speculativelyValidate
