@@ -4,6 +4,19 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.13.0:
+
+  - GUI: hitting ``DELETE`` while on an element now deletes the whole
+    element.
+
+  - ``validator.Validator`` has gained the following methods:
+
+    * ``getErrorsFor``
+
+    * ``speculativelyValidateFragment``
+
+  - Various bug fixes.
+
 * 0.12.0:
 
   - Wed's test suite now passes in IE 10 and 11.
