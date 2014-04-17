@@ -307,7 +307,7 @@ def step_impl(context, choice):
         .click(where) \
         .perform()
 
-    util.ctrl_x("/")
+    util.ctrl_equivalent_x("/")
 
     # THIS TRIGGER WORKS ONLY BECAUSE OF .click(where) above.
     context.context_menu_trigger = Trigger(util, where)
@@ -321,7 +321,7 @@ def step_impl(context):
 
     pos = wedutil.caret_selection_pos(driver)
 
-    util.ctrl_x("/")
+    util.ctrl_equivalent_x("/")
 
     # Set it only if we don't already have one.
     if not getattr(context, "context_menu_trigger", None):

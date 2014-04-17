@@ -5,11 +5,21 @@
  */
 'use strict';
 var requirejs = require("requirejs");
+
+// This will be loaded instead of the read module.
+requirejs.define("wed/browsers", function () {
+    return {
+        CHROME_31: false,
+        MISE: false,
+        OSX: false
+    };
+});
+
 requirejs.config({
-    baseUrl: __dirname + '/../../../build/standalone/lib',
-    nodeRequire: require
+    baseUrl: __dirname + '/../../../build/standalone/lib'
 });
 var key = requirejs("wed/key");
+var browsers = requirejs("wed/browsers");
 var chai = require("chai");
 var assert = chai.assert;
 
@@ -56,6 +66,38 @@ describe("key", function () {
             assert.equal(k.keypress, false);
         });
     });
+
+    describe("makeMetaKey", function () {
+        it("makes a meta key", function () {
+            var k = key.makeMetaKey(1);
+            assert.equal(k.which, 1);
+            assert.equal(k.keyCode, 1);
+            assert.equal(k.charCode, 0);
+            assert.equal(k.ctrlKey, false);
+            assert.equal(k.altKey, false);
+            assert.equal(k.metaKey, true);
+            assert.equal(k.keypress, false);
+        });
+    });
+
+    describe("makeCtrlEqKey", function () {
+        it("makes a control key on non-OSX platforms", function () {
+            var k = key.makeCtrlEqKey(1);
+            assert.equal(k, key.makeCtrlKey(1));
+        });
+
+        it("makes a meta key on OSX platforms", function () {
+            browsers.OSX = true;
+            var k = key.makeCtrlEqKey(1);
+            assert.equal(k, key.makeMetaKey(1));
+        });
+
+        afterEach(function() {
+            browsers.OSX = false;
+        });
+
+    });
+
 
     describe("Key", function () {
         describe("anyModifier", function () {
