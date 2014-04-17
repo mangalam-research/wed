@@ -78,12 +78,12 @@ Browser Requirements
 ====================
 
 Wed is primarily developed using a recent version of Chrome (version
-33; versions 26-32 have also been used earlier) and a recent version
+34; versions 26-33 have also been used earlier) and a recent version
 of Firefox (version 26; versions 20-25 have also been used earlier)
 for testing. Here is the list of officially supported browsers, in
 order of decreasing priority:
 
-* Chrome 33 and higher and Firefox 26 and over, about equally.
+* Chrome 34 and higher and Firefox 26 and higher, about equally.
 
 * IE 10 and 11, about equally.
 
@@ -120,11 +120,11 @@ really hard to debug. Since the failures only occur in Selenium, some
 sort of logging at the JavaScript level must be performed to figure
 out what is going on. However, IE 9 does not seem to have any facility
 that readily allows producing stack traces. Methods that work on
-Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method I
-am aware of for IE 9 relies on using the ``caller`` argument, which is
-turned off when strict mode is in use. Using this method would mean
-turning off strict mode in wed **and** in any third-party library that
-happens to be on the stack when the trace is produced. Not a trivial
+Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method we
+know for IE 9 relies on using the ``caller`` argument, which is turned
+off when strict mode is in use. Using this method would mean turning
+off strict mode in wed **and** in any third-party library that happens
+to be on the stack when the trace is produced. Not a trivial
 matter. So for now IE 9 is not officially supported.
 
 You may use it. And we will listen to bug reports concerning it. But
@@ -133,6 +133,21 @@ there are no guarantees.
 If you are in a position to contribute substantial monetary or
 technical resources towards making IE 9 officially supported, you are
 welcome to contact us.
+
+OS X
+----
+
+The test suite depends on native events to do its work, but support
+for native events in OS X is spotty:
+
+* Chrome: it is possible to generate *some* native events.
+
+* Firefox reports that it does not support native events at all.
+
+* Safari does not support native events at all.
+
+Your best bet in OS X is to use Chrome because we can't run the test
+suite with Firefox or Safari.
 
 Safari
 ------
@@ -161,11 +176,17 @@ immediate problem we've run into when trying to test on Safari is this
 [Selenium
 issue](http://code.google.com/p/selenium/issues/detail?id=4136). If
 you want fix it, then this would bring us one step closer to being
-able to test wed on Safari.
+able to test wed on Safari. And regarding the state of Selenium
+support for Safari, take note this response from a Selenium project
+member:
 
-If you feel the urge to write an email saying "You should just...",
-then please abstain because there is nothing "just" about testing web
-applications.
+> Safari is not a priority, sorry. But your patches are welcome!
+
+Absent these patches, wed is unlikely to support Safari.
+
+On the other hand, if you feel the urge to write an email saying "You
+should just...", then please abstain because there is nothing "just"
+about testing web applications.
 
 Dependencies
 ============
