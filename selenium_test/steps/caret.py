@@ -261,7 +261,7 @@ def step_impl(context):
 
 @when(u'^the user cuts$')
 def step_impl(context):
-    context.util.ctrl_x("x")
+    wedutil.cut(context.util)
 
 
 @then(u'^the text is cut$')

@@ -50,7 +50,7 @@ def step_impl(context, choice):
     context.caret_position_before_label_visibility_change = \
         wedutil.caret_pos(driver)
 
-    util.ctrl_x(key)
+    util.ctrl_equivalent_x(key)
 
     # We don't allow the increase or decrease to do nothing.
     if choice == "decreases":

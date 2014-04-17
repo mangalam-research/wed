@@ -1134,7 +1134,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                     done();
                 });
             });
-            editor.type(key_constants.CTRL_S);
+            editor.type(key_constants.CTRLEQ_S);
         });
     });
 
@@ -1166,7 +1166,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                     done();
                 });
 
-                editor.type(key_constants.CTRL_S);
+                editor.type(key_constants.CTRLEQ_S);
             }
 
             global.fail_on_save(doit);
@@ -1202,7 +1202,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                     });
                 });
 
-                editor.type(key_constants.CTRL_S);
+                editor.type(key_constants.CTRLEQ_S);
             }
 
             global.fail_on_save(doit);

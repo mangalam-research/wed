@@ -99,7 +99,8 @@ def step_impl(context):
     initial_pos = util.element_screen_position(el)
     pos = initial_pos
     while pos["top"] == initial_pos["top"]:
-        wedutil.set_window_size(util, pos["left"] + el.size["width"], 741)
+        wedutil.set_window_size(util, pos["left"] + el.size["width"],
+                                context.initial_window_size["height"])
         preceding_pos = pos
         pos = util.element_screen_position(el)
 
@@ -110,7 +111,8 @@ def step_impl(context):
     # that we spend an eternity finding the size.
     new_width = preceding_pos["left"] + el.size["width"] + 5
     while pos_after_resize["top"] != initial_pos["top"]:
-        wedutil.set_window_size(util, new_width, 741)
+        wedutil.set_window_size(util, new_width,
+                                context.initial_window_size["height"])
         pos_after_resize = util.element_screen_position(el)
         new_width += 5
 
@@ -214,6 +216,13 @@ def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
         text="/build/test-files/wed_test_data/source_converted.xml")
+
+
+@given(ur"^a complex document without errors?$")
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        text="/build/test-files/wed_test_data/complex_converted.xml")
 
 
 @when(ur"^the user scrolls the window (?P<choice>completely down|down "

@@ -17,161 +17,163 @@ var assert = chai.assert;
 describe("validator", function () {
     var p;
     var $data = $("#data");
-    beforeEach(function () {
-        $data.empty();
-        p = new validator.Validator(schema, $data[0]);
-        p._max_timespan = 0; // Work forever.
-    });
-
-    afterEach(function () {
-        $data.empty();
-        p = undefined;
-    });
-
-    it("with an empty document", function (done) {
-        // Manipulate stop so that we know when the work is done.
-        var old_stop = p.stop;
-        p.stop = function () {
-            old_stop.call(p);
-            assert.equal(p._working_state, validator.INVALID);
-            assert.equal(p._errors.length, 1);
-            assert.equal(p._errors[0].toString(),
-                         "tag required: {}html");
-            done();
-        };
-
-        p.start();
-    });
-
-    it("triggers error event", function (done) {
-            // Manipulate stop so that we know when the work is done.
-        p.addEventListener("error", function (ev) {
-            assert.equal(ev.error.toString(), "tag required: {}html");
-            assert.equal(ev.node, $data[0]);
-            done();
+    var $empty_data = $("#empty-data");
+    describe("(general)", function () {
+        beforeEach(function () {
+            $data.empty();
+            p = new validator.Validator(schema, $data[0]);
+            p._max_timespan = 0; // Work forever.
         });
 
-        p.start();
-    });
+        after(function () {
+            $data.empty();
+        });
 
+        it("with an empty document", function (done) {
+            // Manipulate stop so that we know when the work is done.
+            var old_stop = p.stop;
+            p.stop = function () {
+                old_stop.call(p);
+                assert.equal(p._working_state, validator.INVALID);
+                assert.equal(p._errors.length, 1);
+                assert.equal(p._errors[0].error.toString(),
+                             "tag required: {}html");
+                done();
+            };
 
-    it("with actual contents", function (done) {
-        // Manipulate stop so that we know when the work is done.
-        var old_stop = p.stop;
-        p.stop = function () {
-            old_stop.call(p);
-            assert.equal(p._working_state, validator.VALID);
-            assert.equal(p._errors.length, 0);
-            done();
-        };
-
-        require(["requirejs/text!" + to_parse_stack[0]], function(data) {
-            $data.html(data);
             p.start();
         });
-    });
 
-    it("percent done", function (done) {
-        require(["requirejs/text!../../test-files/" +
-                 "validator_test_data/percent_to_parse_converted.xml"],
-                function(data) {
-            $data.html(data);
-            p._max_timespan = 0;
-            p.initialize(function () {
-                p._cycle(); // <html>
-                assert.equal(p._part_done, 0);
-                p._cycle(); // <head>
-                assert.equal(p._part_done, 0);
-                p._cycle(); // <title>
-                assert.equal(p._part_done, 0);
-                p._cycle(); // <title>
-                assert.equal(p._part_done, 0.5);
-                p._cycle(); // </head>
-                assert.equal(p._part_done, 0.5);
-                p._cycle(); // <body>
-                assert.equal(p._part_done, 0.5);
-                p._cycle(); // <em>
-                assert.equal(p._part_done, 0.5);
-                p._cycle(); // </em>
-                assert.equal(p._part_done, 0.75);
-                p._cycle(); // <em>
-                assert.equal(p._part_done, 0.75);
-                p._cycle(); // <em>
-                assert.equal(p._part_done, 0.75);
-                p._cycle(); // </em>
-                assert.equal(p._part_done, 0.875);
-                p._cycle(); // <em>
-                assert.equal(p._part_done, 0.875);
-                p._cycle(); // </em>
-                assert.equal(p._part_done, 1);
-                p._cycle(); // </em>
-                assert.equal(p._part_done, 1);
-                p._cycle(); // </body>
-                assert.equal(p._part_done, 1);
-                p._cycle(); // </html>
-                assert.equal(p._part_done, 1);
-                p._cycle(); // end
-                assert.equal(p._part_done, 1);
+        it("triggers error event", function (done) {
+            // Manipulate stop so that we know when the work is done.
+            p.addEventListener("error", function (ev) {
+                assert.equal(ev.error.toString(), "tag required: {}html");
+                assert.equal(ev.node, $data[0]);
+                done();
+            });
+
+            p.start();
+        });
+
+
+        it("with actual contents", function (done) {
+            // Manipulate stop so that we know when the work is done.
+            var old_stop = p.stop;
+            p.stop = function () {
+                old_stop.call(p);
                 assert.equal(p._working_state, validator.VALID);
                 assert.equal(p._errors.length, 0);
                 done();
+            };
+
+            require(["requirejs/text!" + to_parse_stack[0]], function(data) {
+                $data.html(data);
+                p.start();
             });
         });
-    });
 
-    it("restart at", function (done) {
-        // Manipulate stop so that we know when the work is done.
-        var old_stop = p.stop;
-        var first = true;
-        p.stop = function () {
-            old_stop.call(p);
-            assert.equal(p._working_state, validator.VALID);
-            assert.equal(p._errors.length, 0);
-            // Deal with first invocation and subsequent
-            // differently.
-            if (first) {
-                first = false;
-                p.restartAt($data[0]);
-            }
-            else
-                done();
-        };
-
-        require(["requirejs/text!" + to_parse_stack[0]], function(data) {
-            $data.html(data);
-            p.start();
-        });
-    });
-
-    it("restart at triggers reset-errors event", function (done) {
-        // Manipulate stop so that we know when the work is done.
-        var old_stop = p.stop;
-        var first = true;
-        var got_reset = false;
-        p.stop = function () {
-            old_stop.call(p);
-            assert.equal(p._working_state, validator.VALID);
-            assert.equal(p._errors.length, 0);
-            // Deal with first invocation and subsequent
-            // differently.
-            if (first) {
-                first = false;
-                p.restartAt($data[0]);
-            }
-            else {
-                assert.equal(got_reset, true);
-                done();
-            }
-        };
-        p.addEventListener("reset-errors", function (ev) {
-            assert.equal(ev.at, 0);
-            got_reset = true;
+        it("percent done", function (done) {
+            require(["requirejs/text!../../test-files/" +
+                     "validator_test_data/percent_to_parse_converted.xml"],
+                    function(data) {
+                $data.html(data);
+                p._max_timespan = 0;
+                p.initialize(function () {
+                    p._cycle(); // <html>
+                    assert.equal(p._part_done, 0);
+                    p._cycle(); // <head>
+                    assert.equal(p._part_done, 0);
+                    p._cycle(); // <title>
+                    assert.equal(p._part_done, 0);
+                    p._cycle(); // <title>
+                    assert.equal(p._part_done, 0.5);
+                    p._cycle(); // </head>
+                    assert.equal(p._part_done, 0.5);
+                    p._cycle(); // <body>
+                    assert.equal(p._part_done, 0.5);
+                    p._cycle(); // <em>
+                    assert.equal(p._part_done, 0.5);
+                    p._cycle(); // </em>
+                    assert.equal(p._part_done, 0.75);
+                    p._cycle(); // <em>
+                    assert.equal(p._part_done, 0.75);
+                    p._cycle(); // <em>
+                    assert.equal(p._part_done, 0.75);
+                    p._cycle(); // </em>
+                    assert.equal(p._part_done, 0.875);
+                    p._cycle(); // <em>
+                    assert.equal(p._part_done, 0.875);
+                    p._cycle(); // </em>
+                    assert.equal(p._part_done, 1);
+                    p._cycle(); // </em>
+                    assert.equal(p._part_done, 1);
+                    p._cycle(); // </body>
+                    assert.equal(p._part_done, 1);
+                    p._cycle(); // </html>
+                    assert.equal(p._part_done, 1);
+                    p._cycle(); // end
+                    assert.equal(p._part_done, 1);
+                    assert.equal(p._working_state, validator.VALID);
+                    assert.equal(p._errors.length, 0);
+                    done();
+                });
+            });
         });
 
+        it("restart at", function (done) {
+            // Manipulate stop so that we know when the work is done.
+            var old_stop = p.stop;
+            var first = true;
+            p.stop = function () {
+                old_stop.call(p);
+                assert.equal(p._working_state, validator.VALID);
+                assert.equal(p._errors.length, 0);
+                // Deal with first invocation and subsequent
+                // differently.
+                if (first) {
+                    first = false;
+                    p.restartAt($data[0]);
+                }
+                else
+                    done();
+            };
 
-        require(["requirejs/text!" + to_parse_stack[0]], function(data) {
-            $data.html(data);
-            p.start();
+            require(["requirejs/text!" + to_parse_stack[0]], function(data) {
+                $data.html(data);
+                p.start();
+            });
+        });
+
+        it("restart at triggers reset-errors event", function (done) {
+            // Manipulate stop so that we know when the work is done.
+            var old_stop = p.stop;
+            var first = true;
+            var got_reset = false;
+            p.stop = function () {
+                old_stop.call(p);
+                assert.equal(p._working_state, validator.VALID);
+                assert.equal(p._errors.length, 0);
+                // Deal with first invocation and subsequent
+                // differently.
+                if (first) {
+                    first = false;
+                    p.restartAt($data[0]);
+                }
+                else {
+                    assert.equal(got_reset, true);
+                    done();
+                }
+            };
+            p.addEventListener("reset-errors", function (ev) {
+                assert.equal(ev.at, 0);
+                got_reset = true;
+            });
+
+
+            require(["requirejs/text!" + to_parse_stack[0]], function(data) {
+                $data.html(data);
+                p.start();
+            });
         });
     });
 
@@ -179,33 +181,39 @@ describe("validator", function () {
     // depends on that function.
     describe("possibleAt", function () {
         var p;
-        beforeEach(function () {
-            $data.empty();
-            p = new validator.Validator(schema, $data[0]);
-            p._max_timespan = 0; // Work forever.
+        before(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data) {
+                $data.html(data);
+                done();
+            });
         });
 
-        afterEach(function () {
+        after(function () {
             $data.empty();
-            p = undefined;
         });
 
-        function makeTest(name, stop_fn, no_load) {
-            it(name, function () {
-                if (!no_load)
-                    require(["requirejs/text!" + to_parse_stack[0]],
-                            function(data) {
-                        $data.html(data);
-                    });
+        function makeTest(name, stop_fn, $top) {
+            $top = $top || $data;
+            it(name, function (done) {
+                p = new validator.Validator(schema, $top[0]);
+                p._max_timespan = 0; // Work forever.
+                var old_stop = p.stop;
+                p.stop = function () {
+                    old_stop.call(p);
+                    stop_fn();
+                    done();
+                };
+                p.start();
             });
         }
 
         makeTest("empty document, at root", function () {
-            var evs = p.possibleAt($data[0], 0);
+            var evs = p.possibleAt($empty_data[0], 0);
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("enterStartTag", "", "html")]);
-        }, /* no_load */ true);
+        }, $empty_data);
 
         makeTest("with actual contents, at root", function () {
             var evs = p.possibleAt($data[0], 0);
@@ -215,6 +223,7 @@ describe("validator", function () {
         });
 
         makeTest("with actual contents, at end", function () {
+            console.log($data[0]);
             var evs = p.possibleAt($data[0], 1);
             assert.sameMembers(evs.toArray(), []);
         });
@@ -243,7 +252,7 @@ describe("validator", function () {
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("endTag", "", "title"),
-                 new validate.Event("text")]);
+                 new validate.Event("text", "*")]);
         });
 
         makeTest("with actual contents, index inside text node",
@@ -255,7 +264,7 @@ describe("validator", function () {
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("endTag", "", "title"),
-                 new validate.Event("text")]);
+                 new validate.Event("text", "*")]);
         });
 
         makeTest("with actual contents, end of title", function () {
@@ -264,7 +273,7 @@ describe("validator", function () {
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("endTag", "", "title"),
-                 new validate.Event("text")]);
+                 new validate.Event("text", "*")]);
         });
 
         makeTest("with actual contents, end of head", function () {
@@ -288,57 +297,79 @@ describe("validator", function () {
 
     describe("possibleWhere", function () {
         var p;
-        beforeEach(function () {
-            $data.empty();
-            p = new validator.Validator(schema, $data[0]);
-            p._max_timespan = 0; // Work forever.
+        before(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data) {
+                $data.html(data);
+                done();
+            });
         });
 
-        afterEach(function () {
+        after(function () {
             $data.empty();
-            p = undefined;
         });
 
-        function makeTest(name, stop_fn, no_load) {
-            it(name, function () {
-                if (!no_load)
-                    require(["requirejs/text!" + to_parse_stack[0]],
-                            function(data) {
-                        $data.html(data);
-                    });
+        function makeTest(name, stop_fn, $top) {
+            $top = $top || $data;
+            it(name, function (done) {
+                p = new validator.Validator(schema, $top[0]);
+                p._max_timespan = 0; // Work forever.
+                var old_stop = p.stop;
+                p.stop = function () {
+                    old_stop.call(p);
+                    stop_fn();
+                    done();
+                };
+                p.start();
             });
         }
-
 
         makeTest("multiple locations", function () {
             var el = $data.find("._real.body")[0];
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "em"));
-            assert.sameMembers(locs.toArray(), [0, 1, 2]);
+            assert.sameMembers(locs, [0, 1, 2, 3]);
         });
 
         makeTest("no locations", function () {
             var el = $data.find("._real.body")[0];
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "impossible"));
-            assert.sameMembers(locs.toArray(), []);
+            assert.sameMembers(locs, []);
         });
 
         makeTest("one location", function () {
             var el = $data.find("._real.html")[0];
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "body"));
-                assert.sameMembers(locs.toArray(), [1]);
+                assert.sameMembers(locs, [2, 3]);
         });
+
+        makeTest("empty element", function () {
+            var el = $data.find("._real.em ._real.em")[0];
+            var locs = p.possibleWhere(el, new validate.Event(
+                "enterStartTag", "", "em"));
+                assert.sameMembers(locs, [0]);
+        });
+
     });
 
+    // We test speculativelyValidateFragment through speculativelyValidate
     describe("speculativelyValidate", function () {
-        beforeEach(function (done) {
+        var p;
+
+        before(function(done) {
             require(["requirejs/text!" + to_parse_stack[0]],
                     function(data) {
                 $data.html(data);
+                p = new validator.Validator(schema, $data[0]);
+                p._max_timespan = 0; // Work forever.
                 done();
             });
+        });
+
+        after(function () {
+            $data.empty();
         });
 
         it("does not report errors on valid fragments", function (done) {
@@ -362,7 +393,8 @@ describe("validator", function () {
                 var em = $data.find(".em").first();
                 var ret = p.speculativelyValidate(container, index, em);
                 assert.equal(ret.length, 1);
-                assert.equal(ret[0].toString(), "tag not allowed here: {}em");
+                assert.equal(ret[0].error.toString(),
+                             "tag not allowed here: {}em");
                 done();
             });
         });
@@ -425,11 +457,48 @@ describe("validator", function () {
         });
     });
 
+    // speculativelyValidateFragment is largely tested through
+    // speculativelyValidate above.
+    describe("speculativelyValidateFragment", function () {
+        var p;
+
+        before(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data) {
+                $data.html(data);
+                p = new validator.Validator(schema, $data[0]);
+                p._max_timespan = 0; // Work forever.
+                done();
+            });
+        });
+
+        after(function () {
+            $data.empty();
+        });
+
+        it("throws an error if to_parse is not an element", function (done) {
+            var body = $data.find(".body")[0];
+            var container = body.parentNode;
+            var index = Array.prototype.indexOf.call(container.childNodes,
+                                                     body);
+            p.initialize(function () {
+                assert.Throw(p.speculativelyValidateFragment.bind(
+                    p, container, index,
+                    document.createTextNode("blah")),
+                             Error, "to_parse is not an element");
+                done();
+            });
+        });
+    });
+
+
     describe("getDocumentNamespaces", function () {
         beforeEach(function (done) {
             require(["requirejs/text!" + to_parse_stack[0]],
                     function(data) {
                 $data.html(data);
+                p = new validator.Validator(schema, $data[0]);
+                p._max_timespan = 0; // Work forever.
                 done();
             });
         });
@@ -469,6 +538,69 @@ describe("validator", function () {
                                   "x": ["uri:x", "uri:x2"] });
             });
         });
+    });
+
+    describe("getErrorsFor", function () {
+        var p;
+        beforeEach(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data) {
+                $data.html(data);
+                done();
+            });
+        });
+
+        after(function () {
+            $data.empty();
+        });
+
+        function makeTest(name, pre_fn, stop_fn) {
+            it(name, function (done) {
+
+                pre_fn();
+
+                p = new validator.Validator(schema, $data[0]);
+                p._max_timespan = 0; // Work forever.
+                var old_stop = p.stop;
+                p.stop = function () {
+                    old_stop.call(p);
+                    stop_fn();
+                    done();
+                };
+                p.start();
+            });
+        }
+
+        makeTest("with actual contents, no errors", function () {},
+                 function () {
+            assert.equal(p._errors.length, 0, "no errors");
+            assert.sameMembers(p.getErrorsFor($data.find(".em")[0]), []);
+        });
+
+
+        makeTest("with actual contents, errors in the tag examined",
+                 function () {
+            var $em = $data.find(".em").first();
+            $em.prepend("<div class='foo _real'></foo>");
+        },
+                 function () {
+            var errors = p.getErrorsFor($data.find(".em")[0]);
+            assert.equal(errors.length, 1);
+            assert.equal(errors[0].error.toString(),
+                         "tag not allowed here: {}foo");
+        });
+
+        makeTest("with actual contents, errors but not in the tag examined",
+                 function () {
+            var $em = $data.find(".em").first();
+            $em.prepend("<div class='foo _real'></foo>");
+        },
+                 function () {
+            var errors = p.getErrorsFor($data.find(".em")[1]);
+            assert.equal(errors.length, 0);
+        });
+
+
     });
 });
 
