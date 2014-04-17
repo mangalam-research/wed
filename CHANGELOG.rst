@@ -9,7 +9,10 @@ Only salient changes are recorded here.
   - GUI: hitting ``DELETE`` while on an element now deletes the whole
     element.
 
-  - ``validator.Validator`` has gained the following methods:
+  - GUI: Changed the key mappings for OS X. Instead of using Ctrl, the
+    mappings now use Command.
+
+  - API: ``validator.Validator`` has gained the following methods:
 
     * ``getErrorsFor``
 

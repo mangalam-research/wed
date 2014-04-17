@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-import selenium.webdriver.support.expected_conditions as EC
+from selenium.common.exceptions import MoveTargetOutOfBoundsException
 
 step_matcher("re")
 
@@ -53,7 +53,17 @@ def step_impl(context):
         """)
 
     util.wait(lambda *_: el.is_displayed())
-    el.click()
+
+    def cond(*_):
+        ret = False
+        try:
+            el.click()
+            ret = True
+        except MoveTargetOutOfBoundsException:
+            pass
+        return ret
+
+    util.wait(cond)
 
 
 @then(ur"^the last error marker is fully visible\.?$")
@@ -62,10 +72,13 @@ def step_impl(context):
     util = context.util
 
     def cond(*_):
-        return driver.execute_script("""
+        top = driver.execute_script("""
         var $ = jQuery;
         var top = $(".wed-validation-error").last().position().top;
-        return top == 0;
+        return top;
         """)
+
+        # Sigh... Firefox will come close but not quite, so...
+        return abs(top) < 2
 
     util.wait(cond)
