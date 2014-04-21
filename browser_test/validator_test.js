@@ -175,6 +175,49 @@ describe("validator", function () {
                 p.start();
             });
         });
+
+        //
+        // This test was added to handle problem with the internal state
+        // of the validator.
+        //
+        it("restart at and getErrorsFor", function (done) {
+            // Manipulate stop so that we know when the work is done.
+            var old_stop = p.stop;
+
+            var times = 0;
+
+            //
+            // This method will be called 3 times:
+            // - Once upon first validation.
+            // - Second when p.restartAt is called a second time.
+            // - Third upon final validation.
+            //
+            p.stop = function () {
+                old_stop.call(p);
+                if (times === 0 || times === 2) {
+                    assert.equal(p._working_state, validator.VALID);
+                    assert.equal(p._errors.length, 0);
+                }
+                // Deal with first invocation and subsequent
+                // differently.
+                if (times === 0) {
+                    setTimeout(function () {
+                        p.restartAt($data[0]);
+                        p.getErrorsFor($data.find("._real.em")[0]);
+                        p.restartAt($data[0]);
+                    }, 0);
+                }
+
+                if (times === 2)
+                    done();
+                times++;
+            };
+
+            require(["requirejs/text!" + to_parse_stack[0]], function(data) {
+                $data.html(data);
+                p.start();
+            });
+        });
     });
 
     // Testing possibleAt also tests _validateUpTo because it
@@ -223,7 +266,6 @@ describe("validator", function () {
         });
 
         makeTest("with actual contents, at end", function () {
-            console.log($data[0]);
             var evs = p.possibleAt($data[0], 1);
             assert.sameMembers(evs.toArray(), []);
         });
