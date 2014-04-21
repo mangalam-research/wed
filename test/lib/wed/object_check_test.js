@@ -68,5 +68,19 @@ describe("object_check", function () {
                 extra: ["unknown"]
             });
         });
+
+        it("reports no error", function () {
+            var ret = object_check.check(template, {
+                bar: {
+                    baz: 1
+                },
+                bip: {
+                    toto: 1
+                },
+                toto: { blah: "blah" }
+            });
+            assert.deepEqual(ret, {});
+        });
+
     });
 });
