@@ -14,6 +14,7 @@ var domutil = require("wed/domutil");
 var util = require("wed/util");
 var Undo = require("wed/wundo").Undo;
 var oop = require("wed/oop");
+var validate = require("salve/validate");
 
 var transformation = require("wed/transformation");
 var insertElement = transformation.insertElement;
@@ -42,12 +43,19 @@ function Registry(editor) {
             "",
             "<i class='icon-plus icon-fixed-width'></i>",
             function (editor, data) {
-                var caret = editor.getDataCaret();
-                var $new = insertElement(editor.data_updater,
-                                         caret.node,
-                                         caret.offset,
-                                         data.element_name);
-                editor.setDataCaret($new.get(0), 0);
+
+            var caret = editor.getDataCaret();
+            var $new = insertElement(editor.data_updater,
+                                     caret.node,
+                                     caret.offset,
+                                     data.element_name);
+
+
+            var $container =  (editor.mode._options.autoinsert) ?
+                _fillRecursively($new, editor) : $new;
+
+            editor.setDataCaret($container[0], 0);
+
             }.bind(this)));
 
     this.addTagTransformations(
@@ -125,6 +133,49 @@ function Registry(editor) {
             editor.data_updater.removeNode(data.node);
             editor.setDataCaret(parent, index);
         }));
+}
+
+function _fillRecursively($new, editor) {
+    var $ret = $new;
+
+    var first = true;
+
+    while(true) {
+        var errors = editor.validator.getErrorsFor($new[0]);
+
+        errors = errors.filter(function (err) {
+            var err_msg = err.error.toString();
+            return err_msg.lastIndexOf("tag required: ", 0) ===
+                0;
+        });
+
+        if (errors.length !== 1)
+            break;
+
+        var ename = errors[0].error.getNames()[0];
+
+        var locations = editor.validator.possibleWhere(
+            $new[0],
+            new validate.Event("enterStartTag", ename.ns, ename.name));
+
+        if (locations.length !== 1)
+            break;
+
+        var $child = insertElement(
+            editor.data_updater,
+            $new[0],
+            locations[0],
+            editor.resolver.unresolveName(ename.ns, ename.name));
+
+        var $container = _fillRecursively($child, editor);
+
+        if (first) {
+            $ret = $container;
+            first = false;
+        }
+    }
+
+    return $ret;
 }
 
 oop.inherit(Registry, transformation.TransformationRegistry);

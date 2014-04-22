@@ -696,7 +696,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
 
     if (!isActive || (isActive && e.keyCode == 27)) {
       if (e.which == 27) $parent.find(toggle).focus()
-      return $this.click();
+      return $this.click()
     }
 
     var desc = ' li:not(.divider):visible a'

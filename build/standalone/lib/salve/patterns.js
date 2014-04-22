@@ -2671,7 +2671,7 @@ function Grammar(xml_path, start, definitions) {
     this.xml_path = xml_path;
     this.start = start;
     this.definitions = Object.create(null);
-    this.element_definitions = Object.create(null);
+    this._element_definitions = undefined;
     this._namespaces = Object.create(null);
     var me = this;
     if (definitions) {
@@ -2758,6 +2758,19 @@ Grammar.prototype._elementDefinitions = function (memo) {
         this.definitions[d]._elementDefinitions(memo);
 };
 
+Object.defineProperty(Grammar.prototype, "element_definitions", {
+    get: function () {
+        var ret = this._element_definitions;
+        if (ret)
+            return ret;
+
+
+        ret = this._element_definitions = Object.create(null);
+        this._elementDefinitions(ret);
+        return ret;
+    }
+});
+
 /**
  * @returns {boolean} <code>true</code> if the schema is wholly context
  * independent. This means that each element in the schema can be
@@ -2765,10 +2778,9 @@ Grammar.prototype._elementDefinitions = function (memo) {
  * name. <code>false</code> otherwise.
  */
 Grammar.prototype.whollyContextIndependent = function () {
-    var memo = this.element_definitions;
-    this._elementDefinitions(memo);
-    for (var v in memo)
-        if (memo[v].length > 1)
+    var defs = this.element_definitions;
+    for (var v in defs)
+        if (defs[v].length > 1)
             return false;
 
     return true;
@@ -2801,7 +2813,12 @@ function GrammarWalker(el) {
     this._name_resolver = new name_resolver.NameResolver();
     this.subwalker = (el !== undefined) ?
         el.start.newWalker(this._name_resolver) : undefined;
-    this._foreign_stack = [];
+    // A stack that keeps state for misplace elements. The elements of
+    // this stack are either Array or Walker objects. They are arrays
+    // when we are dealing with an element which is unknown to the
+    // schema (or which cannot be unambigiously determined. They are
+    // Walker objects when we can find a definition in the schema.
+    this._misplaced_elements = [];
     this._swallow_attribute_value = false;
     this.suspended_ws = undefined;
     this.ignore_next_ws = false;
@@ -2815,7 +2832,12 @@ GrammarWalker.prototype._copyInto = function (obj, memo) {
     Walker.prototype._copyInto.call(this, obj, memo);
     obj.el = this.el;
     obj.subwalker = this.subwalker._clone(memo);
-    obj._foreign_stack = this._foreign_stack.concat([]);
+    obj._misplaced_elements = [];
+    for(var i = 0, mpe;
+        (mpe = this._misplaced_elements[i]) !== undefined; ++i)
+        obj._misplaced_elements.push(mpe instanceof Walker ?
+                                   mpe._clone(memo) :
+                                   mpe.concat([]));
     obj._swallow_attribute_value = this.swallow_attribute_value;
     obj._name_resolver = this._cloneIfNeeded(this._name_resolver, memo);
     obj.suspended_ws = this.suspended_ws;
@@ -2864,7 +2886,6 @@ GrammarWalker.prototype.unresolveName = function (uri, name) {
  * process an event type unknown to salve.
  */
 GrammarWalker.prototype.fireEvent = function (ev) {
-
     function combineWsErrWith(x) {
         if (ws_err === undefined)
             ws_err = [new ValidationError("text not allowed here")];
@@ -2909,6 +2930,14 @@ GrammarWalker.prototype.fireEvent = function (ev) {
         return false;
     }
 
+    // This is the walker we must fire all our events on.
+    var walker = (this._misplaced_elements.length > 0 &&
+                  this._misplaced_elements[0] instanceof Walker) ?
+            // This happens if we ran into a misplaced element that we were
+            // able to infer.
+            this._misplaced_elements[0] : this.subwalker;
+
+
     var ignore_next_ws_now = this.ignore_next_ws;
     this.ignore_next_ws = false;
     var ws_err = false;
@@ -2925,8 +2954,7 @@ GrammarWalker.prototype.fireEvent = function (ev) {
                 ev = new Event("text", trimmed);
         }
         else if (this.suspended_ws) {
-            ws_err = this.subwalker.fireEvent(new Event("text",
-                                                        this.suspended_ws));
+            ws_err = walker.fireEvent(new Event("text", this.suspended_ws));
             this.suspended_ws = undefined;
         }
         break;
@@ -2936,39 +2964,28 @@ GrammarWalker.prototype.fireEvent = function (ev) {
     default:
         // Process the whitespace that was suspended.
         if (this.suspended_ws && !ignore_next_ws_now)
-            ws_err = this.subwalker.fireEvent(new Event("text",
-                                                        this.suspended_ws));
+            ws_err = walker.fireEvent(new Event("text", this.suspended_ws));
         this.suspended_ws = undefined;
     }
 
-    //
-    // The foreign stack allows salve to avoid outputting a whole
-    // slew of errors when a document contains a tag which is not
-    // allowed by the schema. If salve did not do this, then a
-    // structure like <x a="q" b="c"><z>ttt</z></x> when x is not
-    // allowed would generate errors for the presence of <x> and
-    // </x> for the presence of <z> and </z>, for the presence of
-    // a and b and for "q" and "c" and for "ttt", when the main
-    // issue is that <x> is not allowed in the first place.
-    //
-    // Salve does not check for well-formedness while the foreign
-    // stack is in effect. In the sequence <a>foo</b>, the closing
-    // tag will end the stack just as surely as if it had been
-    // </a>, and salve will resume outputting errors.
-    //
-    // Well-formedness checks should be done by the parser which
-    // feeds events to salve.
-    //
-
-    if (this._foreign_stack.length > 0) {
+    if (this._misplaced_elements.length > 0 &&
+        this._misplaced_elements[0] instanceof Array) {
+        // We are in a misplaced element which is foreign to the
+        // schema (or which cannot be infered unambiguously.
+        var mpe = this._misplaced_elements[0];
         switch(ev.params[0]) {
         case "enterStartTag":
-            this._foreign_stack.unshift(ev.params.slice(1));
+            mpe.unshift(ev.params.slice(1));
             break;
         case "endTag":
-            this._foreign_stack.shift();
+            mpe.shift();
             break;
         }
+
+        // We're done with this context.
+        if (!mpe.length)
+            this._misplaced_elements.shift();
+
         return false;
     }
 
@@ -2985,7 +3002,8 @@ GrammarWalker.prototype.fireEvent = function (ev) {
             return [new ValidationError("attribute value required")];
     }
 
-    var ret = this.subwalker.fireEvent(ev);
+    var ret = walker.fireEvent(ev);
+
     if (ret instanceof PartialMatch) {
         if (ev.params[0] !== "text")
             throw new Error("got PartialMatch when firing a non-text event");
@@ -2997,10 +3015,25 @@ GrammarWalker.prototype.fireEvent = function (ev) {
     else if (ret === undefined) {
         switch(ev.params[0]) {
         case "enterStartTag":
+            var ename = new EName(ev.params[1], ev.params[2]);
             ret = [new ElementNameError(
                 "tag not allowed here",
-                new EName(ev.params[1], ev.params[2]))];
-            this._foreign_stack = [ev.params.slice(1)];
+                ename)];
+
+            // Try to infer what element is meant by this errant
+            // tag. If we can't find a candidate, then fall back to a
+            // dumb mode.
+            var candidates = this.el.element_definitions[ename.toString()];
+            if (candidates && candidates.length === 1) {
+                var new_walker = candidates[0].newWalker(this._name_resolver);
+                this._misplaced_elements.unshift(new_walker);
+                if (new_walker.fireEvent(ev) !== false)
+                    throw new Error("internal error: the infered element " +
+                                    "does not accept its initial event");
+            }
+            else
+                // Dumb mode...
+                this._misplaced_elements.unshift([ev.params.slice(1)]);
             break;
         case "endTag":
             ret = [new ElementNameError(
@@ -3022,18 +3055,17 @@ GrammarWalker.prototype.fireEvent = function (ev) {
             ret = [new ValidationError("text not allowed here")];
             break;
         case "leaveStartTag":
-            // If the foreign stack did not exist then we would
-            // get here if a file being validated contains a tag
-            // which is not allowed. An ElementNameError will
-            // already have been issued. So rather than violate
-            // our contract (which says no undefined value may be
-            // returned) or require that callers do something
-            // special with 'undefined' as a return value, just
-            // treat this event as a non-error.
+            // If the _misplaced_elements stack did not exist then we
+            // would get here if a file being validated contains a tag
+            // which is not allowed. An ElementNameError will already
+            // have been issued. So rather than violate our contract
+            // (which says no undefined value may be returned) or
+            // require that callers do something special with
+            // 'undefined' as a return value, just treat this event as
+            // a non-error.
             //
-            // But the foreign stack exists, so we cannot get
-            // here. If we do end up here, then there is an
-            // internal error somewhere.
+            // But the stack exists, so we cannot get here. If we do
+            // end up here, then there is an internal error somewhere.
             /* falls through */
         default:
             throw new Error("unexpected event type in " +
@@ -3041,7 +3073,31 @@ GrammarWalker.prototype.fireEvent = function (ev) {
                             ev.params[0]);
         }
     }
+
+    // Check whether the context should end
+    if (this._misplaced_elements.length > 0 &&
+        this._misplaced_elements[0] instanceof Walker) {
+        walker = this._misplaced_elements[0];
+        if (walker.canEnd()) {
+            this._misplaced_elements.shift();
+            var end_ret = walker.end();
+            if (end_ret)
+                ret = ret ? ret.concat(end_ret) : end_ret;
+        }
+    }
+
     return combineWsErrWith(ret);
+};
+
+GrammarWalker.prototype.possible = function (ev) {
+    if (this._misplaced_elements.length) {
+        var mpe = this._misplaced_elements[0];
+        // Return an empty set if the tags are unknown to us.
+        return mpe instanceof Walker ? mpe.possible() : new EventSet();
+    }
+
+    // There's no point in calling this._possible.
+    return this.subwalker.possible();
 };
 
 GrammarWalker.prototype._suppressAttributes = function () {

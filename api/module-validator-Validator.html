@@ -255,7 +255,7 @@ validation machinery.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line156">line 156</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line158">line 158</a>
     </li></ul></dd>
     
     
@@ -294,6 +294,157 @@ prefixes can be redefined in a document.</p>
 	<dd>
 		
 <span class="param-type">Object</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getErrorsFor"><span class="type-signature"></span>getErrorsFor<span class="signature">(node)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="module-validator-Validator.html#event:error">module:validator~Validator#event:error</a>>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Obtain the validation errors that belong to a specific node.</p>
+<p>The term &quot;that belong to&quot; has a specific meaning here:</p>
+<ul>
+<li><p>An error in the contents of an element belongs to the element
+whose contents are incorrect. For instance if in the sequence
+<code>&lt;foo&gt;&lt;blip/&gt;&lt;/foo&gt;</code> the tag <code>&lt;blip/&gt;</code> is out of place, then
+the error belongs to the node for the element <code>foo</code>, not the
+node for the element <code>blip</code>.</p>
+</li>
+<li><p>Attribute errors belong to the element node to which the
+attributes belong.</p>
+</li>
+</ul>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The node whose errors we want to get.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line1009">line 1009</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The errors.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;<a href="module-validator-Validator.html#event:error">module:validator~Validator#event:error</a>></span>
 
 
 	</dd>
@@ -350,7 +501,7 @@ Validator.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line137">line 137</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line139">line 139</a>
     </li></ul></dd>
     
     
@@ -468,7 +619,7 @@ Validator.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line530">line 530</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line568">line 568</a>
     </li></ul></dd>
     
     
@@ -611,7 +762,7 @@ work to be done is asynchronous.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line118">line 118</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line120">line 120</a>
     </li></ul></dd>
     
     
@@ -731,7 +882,7 @@ result in a validation error.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line825">line 825</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line864">line 864</a>
     </li></ul></dd>
     
     
@@ -889,7 +1040,7 @@ result in a validation error.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line825">line 825</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line864">line 864</a>
     </li></ul></dd>
     
     
@@ -1052,7 +1203,7 @@ possible.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line844">line 844</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line883">line 883</a>
     </li></ul></dd>
     
     
@@ -1194,7 +1345,7 @@ stopped validator has the  side effect of starting it.)</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line455">line 455</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line489">line 489</a>
     </li></ul></dd>
     
     
@@ -1232,7 +1383,6 @@ stopped validator has the  side effect of starting it.)</p>
     <div class="description">
         <p>Validate a DOM fragment as if it were present at the point
 specified in the parameters in the DOM tree being validated.</p>
-
 <p>WARNING: This method will not catch unclosed elements. This is
 because the fragment is not considered to be a &quot;complete&quot;
 document. Unclosed elements or fragments that are not well-formed
@@ -1340,7 +1490,7 @@ must be caught by other means.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line878">line 878</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line917">line 917</a>
     </li></ul></dd>
     
     
@@ -1525,7 +1675,367 @@ is an error. Otherwise returns false.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line878">line 878</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line917">line 917</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>Returns an array of errors if there
+is an error. Otherwise returns false.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;Object></span>
+|
+
+<span class="param-type">false</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="speculativelyValidateFragment"><span class="type-signature"></span>speculativelyValidateFragment<span class="signature">(loc, to_parse)</span><span class="type-signature"> &rarr; {Array.&lt;Object>|false}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Validate a DOM fragment as if it were present at the point
+specified in the parameters in the DOM tree being validated.</p>
+<p>WARNING: This method will not catch unclosed elements. This is
+because the fragment is not considered to be a &quot;complete&quot;
+document. Unclosed elements or fragments that are not well-formed
+must be caught by other means.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>loc</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The location in the tree to start at.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>to_parse</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The fragment to parse. This fragment must
+not be part of the tree that the validator normally validates. (It
+can be <strong>cloned</strong> from that tree.) This fragment must contain a
+single top level element which has only one child. This child is
+the element that will actually be parsed.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line961">line 961</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>Returns an array of errors if there
+is an error. Otherwise returns false.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;Object></span>
+|
+
+<span class="param-type">false</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="speculativelyValidateFragment"><span class="type-signature"></span>speculativelyValidateFragment<span class="signature">(container, index, to_parse)</span><span class="type-signature"> &rarr; {Array.&lt;Object>|false}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>container</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The location in the tree to start at.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The location in the tree to start at.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>to_parse</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The fragment to parse. See above.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line961">line 961</a>
     </li></ul></dd>
     
     
@@ -1621,7 +2131,7 @@ is not initialized yet, this will initialize it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line91">line 91</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line93">line 93</a>
     </li></ul></dd>
     
     
@@ -1690,7 +2200,7 @@ is not initialized yet, this will initialize it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line438">line 438</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line472">line 472</a>
     </li></ul></dd>
     
     
@@ -1874,7 +2384,7 @@ is not initialized yet, this will initialize it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line551">line 551</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line590">line 590</a>
     </li></ul></dd>
     
     
@@ -2005,7 +2515,7 @@ be deleted. This error and all those after it must be deleted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line492">line 492</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line530">line 530</a>
     </li></ul></dd>
     
     
@@ -2074,7 +2584,7 @@ be deleted. This error and all those after it must be deleted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line515">line 515</a>
+        <a href="validator.js.html">validator.js</a>, <a href="validator.js.html#line553">line 553</a>
     </li></ul></dd>
     
     
@@ -2117,7 +2627,7 @@ be deleted. This error and all those after it must be deleted.</p></td>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Mar 25 2014 16:30:11 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Apr 22 2014 16:20:03 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

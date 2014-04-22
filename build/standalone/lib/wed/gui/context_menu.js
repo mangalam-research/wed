@@ -64,6 +64,7 @@ function ContextMenu(document, x, y, max_height, items, dismiss_callback) {
     // the window is width - win_width. If x is less than it, then x
     // is the value we want, but we don't want less than 0.
     $dropdown.css("left", Math.max(0, Math.min(x, win_width - width)));
+    $menu.css("max-width", win_width);
 
     // Make it visible
     $dropdown.css("visibility", "");

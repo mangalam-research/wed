@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.12.1-1-g2c4a427 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.14.0-2-gd04aca7 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.12.1-1-g2c4a427',
+        VERSION:     'v0.14.0-2-gd04aca7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.12.1-1-g2c4a427 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.14.0-2-gd04aca7 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.12.1-1-g2c4a427 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.14.0-2-gd04aca7 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -111,12 +111,12 @@ still there, waiting for you to type text.</li>
 <div class="section" id="browser-requirements">
 <h1>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h1>
 <p>Wed is primarily developed using a recent version of Chrome (version
-33; versions 26-32 have also been used earlier) and a recent version
+34; versions 26-33 have also been used earlier) and a recent version
 of Firefox (version 26; versions 20-25 have also been used earlier)
 for testing. Here is the list of officially supported browsers, in
 order of decreasing priority:</p>
 <ul class="simple">
-<li>Chrome 33 and higher and Firefox 26 and over, about equally.</li>
+<li>Chrome 34 and higher and Firefox 26 and higher, about equally.</li>
 <li>IE 10 and 11, about equally.</li>
 </ul>
 <p>File an issue on github if you find a problem with one of the
@@ -145,17 +145,29 @@ really hard to debug. Since the failures only occur in Selenium, some
 sort of logging at the JavaScript level must be performed to figure
 out what is going on. However, IE 9 does not seem to have any facility
 that readily allows producing stack traces. Methods that work on
-Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method I
-am aware of for IE 9 relies on using the <tt class="docutils literal"><span class="pre">caller</span></tt> argument, which is
-turned off when strict mode is in use. Using this method would mean
-turning off strict mode in wed <strong>and</strong> in any third-party library that
-happens to be on the stack when the trace is produced. Not a trivial
+Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method we
+know for IE 9 relies on using the <tt class="docutils literal"><span class="pre">caller</span></tt> argument, which is turned
+off when strict mode is in use. Using this method would mean turning
+off strict mode in wed <strong>and</strong> in any third-party library that happens
+to be on the stack when the trace is produced. Not a trivial
 matter. So for now IE 9 is not officially supported.</p>
 <p>You may use it. And we will listen to bug reports concerning it. But
 there are no guarantees.</p>
 <p>If you are in a position to contribute substantial monetary or
 technical resources towards making IE 9 officially supported, you are
 welcome to contact us.</p>
+</div>
+<div class="section" id="os-x">
+<h2>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h2>
+<p>The test suite depends on native events to do its work, but support
+for native events in OS X is spotty:</p>
+<ul class="simple">
+<li>Chrome: it is possible to generate <em>some</em> native events.</li>
+<li>Firefox reports that it does not support native events at all.</li>
+<li>Safari does not support native events at all.</li>
+</ul>
+<p>Your best bet in OS X is to use Chrome because we can&#8217;t run the test
+suite with Firefox or Safari.</p>
 </div>
 <div class="section" id="safari">
 <h2>Safari<a class="headerlink" href="#safari" title="Permalink to this headline">¶</a></h2>
@@ -181,10 +193,14 @@ immediate problem we&#8217;ve run into when trying to test on Safari is this
 [Selenium
 issue](<a class="reference external" href="http://code.google.com/p/selenium/issues/detail?id=4136">http://code.google.com/p/selenium/issues/detail?id=4136</a>). If
 you want fix it, then this would bring us one step closer to being
-able to test wed on Safari.</p>
-<p>If you feel the urge to write an email saying &#8220;You should just...&#8221;,
-then please abstain because there is nothing &#8220;just&#8221; about testing web
-applications.</p>
+able to test wed on Safari. And regarding the state of Selenium
+support for Safari, take note this response from a Selenium project
+member:</p>
+<p>&gt; Safari is not a priority, sorry. But your patches are welcome!</p>
+<p>Absent these patches, wed is unlikely to support Safari.</p>
+<p>On the other hand, if you feel the urge to write an email saying &#8220;You
+should just...&#8221;, then please abstain because there is nothing &#8220;just&#8221;
+about testing web applications.</p>
 </div>
 </div>
 <div class="section" id="dependencies">
@@ -467,6 +483,7 @@ work.</p>
 <li><a class="reference internal" href="#">Basic Usage</a></li>
 <li><a class="reference internal" href="#browser-requirements">Browser Requirements</a><ul>
 <li><a class="reference internal" href="#ie-9">IE 9</a></li>
+<li><a class="reference internal" href="#os-x">OS X</a></li>
 <li><a class="reference internal" href="#safari">Safari</a></li>
 </ul>
 </li>
@@ -510,7 +527,7 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.12.1-1-g2c4a427 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.14.0-2-gd04aca7 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

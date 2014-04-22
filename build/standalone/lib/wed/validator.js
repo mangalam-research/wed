@@ -57,10 +57,12 @@ function Validator(schema, root) {
     this.schema = schema;
 
     this.root = root;
+    this._cycle_entered = 0;
     this._timeout = 200;
     this._max_timespan = 100;
     this._timeout_id = undefined;
     this._initialized = false;
+    this._restarting = false;
     this._errors = [];
     this._tree = undefined;
     this._bound_wrapper = this._workWrapper.bind(this);
@@ -197,7 +199,6 @@ Validator.prototype.getDocumentNamespaces = function () {
  * @private
  */
 Validator.prototype._workWrapper = function () {
-    this._restarting = false;
     if (this._work())
         this._timeout_id = window.setTimeout(this._bound_wrapper,
                                              this._timeout);
@@ -230,6 +231,8 @@ Validator.prototype._work = function () {
     return true;
 };
 
+var cycle_entered = 0;
+
 /**
  * Performs one cycle of validation. "One cycle" is an arbitrarily
  * small unit of work.
@@ -240,12 +243,38 @@ Validator.prototype._work = function () {
  * @throws {Error} When there is an internal error.
  */
 Validator.prototype._cycle = function () {
+
+    // If we got here after a restart, then we've finished restarting.
+    // If we were not restarting, then this is a noop.
+    this._restarting = false;
+
     // Damn hoisting
     var event_result, ename, attr_ix, attr, name;
 
     var walker = this._validation_walker;
 
     var portion = this._validation_stack[0].portion;
+
+    //
+    // This check is meant to catch problems that could be hard to
+    // diagnose if wed or one of its modes had a bug such that
+    // `_cycle` is reentered from `_cycle`. This could happen during
+    // error processing, for instance. Error processing causes wed to
+    // process the errors, which causes changes in the GUI tree, which
+    // *could* (this would be a bug) cause the code of a mode to
+    // execute something like `getErrorsFor`, which could cause
+    // `_cycle` to be reentered.
+    //
+    if (this.cycle_entered > 0)
+        throw new Error("internal error: _cycle is being reentered");
+
+    //
+    // IMPORTANT: This variable must be decremented before exiting
+    // this method. A try...finally statement is not used here because
+    // it would prevent some virtual machines from optimizing this
+    // function.
+    //
+    this.cycle_entered++;
 
     stage_change:
     while (true) {
@@ -333,6 +362,7 @@ Validator.prototype._cycle = function () {
             this._validation_stage = CONTENTS;
             $cur_el.data("wed_event_index_after_start",
                                       this._events.length);
+            cycle_entered--;
             return true; // state change
             // break would be unreachable.
         case CONTENTS:
@@ -350,7 +380,7 @@ Validator.prototype._cycle = function () {
                     event_result = this._fireTextEventIfNeeded(node, walker);
                     if (event_result)
                         this._processEventResult(
-                            event_result, node,
+                            event_result, node.parentNode,
                             _indexOf.call(node.parentNode.childNodes, node));
                     break;
                 case Node.ELEMENT_NODE:
@@ -385,6 +415,7 @@ Validator.prototype._cycle = function () {
                 $(this._cur_el).data("wed_event_index_after",
                                      this._events.length);
                 this.stop();
+                this.cycle_entered--;
                 return false;
             }
 
@@ -423,6 +454,7 @@ Validator.prototype._cycle = function () {
             $(original_element).data("wed_event_index_after",
                                      this._events.length);
             this._validation_stage = CONTENTS;
+            this.cycle_entered--;
             return true; // state_change
 
             // break; would be unreachable
@@ -430,6 +462,8 @@ Validator.prototype._cycle = function () {
             throw new Error("unexpected state");
         }
     }
+
+    this.cycle_entered--;
 };
 
 /**
@@ -455,6 +489,10 @@ Validator.prototype.stop = function () {
 Validator.prototype.restartAt = function (node) {
     if (this._working_state === WORKING)
         this.stop();
+
+    // We use `this._restarting` to avoid a costly reinitialization if
+    // this method is called twice in a row before any work has had a
+    // chance to be done.
     if (this._initialized && !this._restarting) {
         this._restarting = true;
         this._resetTo(node);
@@ -547,7 +585,8 @@ Validator.prototype.getWorkingState = function () {
  */
 Validator.prototype._processEventResult = function (result, node, index) {
     for(var ix = 0, err; (err = result[ix]) !== undefined; ++ix) {
-        this._errors.push(err);
+        var error_data = { error: err, node: node, index: index};
+        this._errors.push(error_data);
         /**
          * Tells the listener that an error has occurred.
          *
@@ -557,7 +596,7 @@ Validator.prototype._processEventResult = function (result, node, index) {
          * @property {Node} node The node where the error occurred.
          * @property {integer} index The index in this node.
          */
-        this._emit("error", { error: err, node: node, index: index});
+        this._emit("error", error_data);
     }
 };
 
@@ -843,7 +882,7 @@ Validator.prototype.possibleAt = function (container, index) {
  */
 Validator.prototype.possibleWhere = function (container, event) {
     var ret = [];
-    for(var index = 0; index < container.childNodes.length; ++index) {
+    for(var index = 0; index <= container.childNodes.length; ++index) {
         var possible = this.possibleAt(container, index);
         if (possible.has(event))
             ret.push(index);
@@ -854,13 +893,13 @@ Validator.prototype.possibleWhere = function (container, event) {
 
 
 /**
- * <p>Validate a DOM fragment as if it were present at the point
- * specified in the parameters in the DOM tree being validated.</p>
+ * Validate a DOM fragment as if it were present at the point
+ * specified in the parameters in the DOM tree being validated.
  *
- * <p>WARNING: This method will not catch unclosed elements. This is
+ * WARNING: This method will not catch unclosed elements. This is
  * because the fragment is not considered to be a "complete"
  * document. Unclosed elements or fragments that are not well-formed
- * must be caught by other means.</p>
+ * must be caught by other means.
  *
  * @param {module:dloc~DLoc} loc The location in the tree to start at.
  * @param {Node} to_parse The fragment to parse.
@@ -877,6 +916,50 @@ Validator.prototype.possibleWhere = function (container, event) {
  */
 Validator.prototype.speculativelyValidate = function (container, index,
                                                       to_parse) {
+    if (!this._initialized)
+        throw new Error("uninitialized Validator");
+
+    if (container instanceof dloc.DLoc) {
+        to_parse = index;
+        index = container.offset;
+        container = container.node;
+    }
+
+    var $clone = $(to_parse).clone();
+    var $root = $("<div>");
+    $root.append($clone);
+
+    return this.speculativelyValidateFragment(container, index, $root[0]);
+};
+
+/**
+ * Validate a DOM fragment as if it were present at the point
+ * specified in the parameters in the DOM tree being validated.
+ *
+ * WARNING: This method will not catch unclosed elements. This is
+ * because the fragment is not considered to be a "complete"
+ * document. Unclosed elements or fragments that are not well-formed
+ * must be caught by other means.
+ *
+ * @param {module:dloc~DLoc} loc The location in the tree to start at.
+ * @param {Node} to_parse The fragment to parse. This fragment must
+ * not be part of the tree that the validator normally validates. (It
+ * can be **cloned** from that tree.) This fragment must contain a
+ * single top level element which has only one child. This child is
+ * the element that will actually be parsed.
+ * @returns {Array.<Object>|false} Returns an array of errors if there
+ * is an error. Otherwise returns false.
+ *
+ * @also
+ *
+ * @param {Node} container The location in the tree to start at.
+ * @param {integer} index The location in the tree to start at.
+ * @param {Node} to_parse The fragment to parse. See above.
+ * @returns {Array.<Object>|false} Returns an array of errors if there
+ * is an error. Otherwise returns false.
+ */
+Validator.prototype.speculativelyValidateFragment = function (container, index,
+                                                              to_parse) {
     if (container instanceof dloc.DLoc) {
         to_parse = index;
         index = container.offset;
@@ -886,13 +969,12 @@ Validator.prototype.speculativelyValidate = function (container, index,
     if (!this._initialized)
         throw new Error("uninitialized Validator");
 
-    var $clone = $(to_parse).clone();
-    var $root = $("<div>");
-    $root.append($clone);
+    if (to_parse.nodeType !== Node.ELEMENT_NODE)
+        throw new Error("to_parse is not an element");
 
     // We create a new validator with the proper state to parse the
     // fragment we've been given.
-    var dup = new Validator(this.schema, $root.get(0));
+    var dup = new Validator(this.schema, to_parse);
 
     dup._validation_walker = this._getWalkerAt(container, index).clone();
 
@@ -900,11 +982,41 @@ Validator.prototype.speculativelyValidate = function (container, index,
     dup._initialized = true;
 
     // This forces validating the whole fragment
-    dup._validateUpTo($root.get(0), 1);
+    dup._validateUpTo(to_parse, to_parse.childNodes.length);
     if (dup._errors.length)
         return dup._errors;
 
     return false;
+};
+
+/**
+ * Obtain the validation errors that belong to a specific node.
+ *
+ * The term "that belong to" has a specific meaning here:
+ *
+ * - An error in the contents of an element belongs to the element
+ *   whose contents are incorrect. For instance if in the sequence
+ *   ``<foo><blip/></foo>`` the tag ``<blip/>`` is out of place, then
+ *   the error belongs to the node for the element ``foo``, not the
+ *   node for the element ``blip``.
+ *
+ * - Attribute errors belong to the element node to which the
+ *   attributes belong.
+ *
+ * @param {Node} node The node whose errors we want to get.
+ * @returns {Array.<module:validator~Validator#event:error>} The errors.
+ */
+Validator.prototype.getErrorsFor = function (node) {
+    // Validate to after the closing tag of the node.
+    this._validateUpTo(node.parentNode,
+                       _indexOf.call(node.parentNode.childNodes, node) + 1);
+    var ret = [];
+    for(var i = 0, limit = this._errors.length; i < limit; ++i) {
+        var error_data = this._errors[i];
+        if (error_data.node === node)
+            ret.push(error_data);
+    }
+    return ret;
 };
 
 //

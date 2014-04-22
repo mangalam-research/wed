@@ -120,6 +120,156 @@
         <dl>
             
 <dt>
+    <h4 class="name" id="makeCtrlEqKey"><span class="type-signature">&lt;inner> </span>makeCtrlEqKey<span class="signature">(ch)</span><span class="type-signature"> &rarr; {<a href="module-key-Key.html">module:key~Key</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>This function creates a key object which represents a &quot;control
+equivalent&quot; character. A &quot;control equivalent&quot; is equivalent to a
+control key on all platforms, except in OS X where it is equivalent
+to a command key. That is if one makes a &quot;control equivalent&quot; with
+the character &quot;X&quot;, then on all platforms it would be equivalent to
+hitting Ctrl-X, except in OS X where it is equivalent to hitting
+Command-X.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ch</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>This parameter can be a string of
+length one which contains the character for which we want to create
+a Key. If a number, it is the character code of the key.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="key.js.html">key.js</a>, <a href="key.js.html#line190">line 190</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The key created.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="module-key-Key.html">module:key~Key</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="makeCtrlKey"><span class="type-signature">&lt;inner> </span>makeCtrlKey<span class="signature">(ch)</span><span class="type-signature"> &rarr; {<a href="module-key-Key.html">module:key~Key</a>}</span></h4>
     
     
@@ -215,7 +365,7 @@ a Key. If a number, it is the character code of the key.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="key.js.html">key.js</a>, <a href="key.js.html#line157">line 157</a>
+        <a href="key.js.html">key.js</a>, <a href="key.js.html#line158">line 158</a>
     </li></ul></dd>
     
     
@@ -613,7 +763,7 @@ held.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="key.js.html">key.js</a>, <a href="key.js.html#line181">line 181</a>
+        <a href="key.js.html">key.js</a>, <a href="key.js.html#line220">line 220</a>
     </li></ul></dd>
     
     
@@ -688,6 +838,151 @@ a number.
     
 </dd>
 
+        
+            
+<dt>
+    <h4 class="name" id="makeMetaKey"><span class="type-signature">&lt;inner> </span>makeMetaKey<span class="signature">(ch)</span><span class="type-signature"> &rarr; {<a href="module-key-Key.html">module:key~Key</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>This function creates a key object which represents a meta
+character (a character typed while Meta is held).</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ch</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>This parameter can be a string of
+length one which contains the character for which we want to create
+a Key. If a number, it is the character code of the key.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="key.js.html">key.js</a>, <a href="key.js.html#line172">line 172</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The key created.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="module-key-Key.html">module:key~Key</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
         </dl>
     
     
@@ -710,7 +1005,7 @@ a number.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Mar 25 2014 16:30:10 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Apr 22 2014 16:20:01 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

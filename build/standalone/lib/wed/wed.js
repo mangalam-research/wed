@@ -52,7 +52,7 @@ require("./onbeforeunload");
 
 var _indexOf = Array.prototype.indexOf;
 
-exports.version = "0.12.1";
+exports.version = "0.14.0";
 var version = exports.version;
 
 var getOriginalName = util.getOriginalName;
@@ -190,11 +190,11 @@ Editor.prototype.init = log.wrap(function (widget, options) {
     this._gui_updater = new GUIUpdater(this.gui_root, this.data_updater);
     this._undo_recorder = new UndoRecorder(this, this.data_updater);
 
-    // This is a workaround for a problem in Bootstrap 3.0.3. When
-    // removing a Node that has an tooltip associated with it and the
-    // trigger is delayed, a timeout is started which may timeout
-    // *after* the Node and its tooltip are removed from the DOM. This
-    // causes a crash.
+    // This is a workaround for a problem in Bootstrap >= 3.0.0 and <
+    // 3.2.0. When removing a Node that has an tooltip associated with
+    // it and the trigger is delayed, a timeout is started which may
+    // timeout *after* the Node and its tooltip are removed from the
+    // DOM. This causes a crash.
     this._gui_updater.addEventListener("deleteNode",
                                        function (ev) {
         var data = $(ev.node).data("bs.tooltip");
@@ -289,7 +289,9 @@ class="panel-collapse collapse">\
     this.help_modal = this.makeModal();
     this.help_modal.setTitle("Help");
     this.help_modal.setBody(
-        "<ul>\
+        "<p>The key combinations with Ctrl below are done with Command in \
+        OS X.</p>\
+         <ul>\
           <li>Clicking the right mouse button on the document contents \
 brings up a contextual menu.</li>\
           <li>Clicking the right mouse button on the links in the \
@@ -1036,6 +1038,9 @@ Editor.prototype.makeDocumentationLink = function (doc_url) {
 
 
 Editor.prototype._contextMenuHandler = function (e) {
+    if (!this._sel_focus)
+        return false;
+
     var range = this.getDOMSelectionRange();
 
     var originally_collapsed = !(range && !range.collapsed);
@@ -1690,7 +1695,7 @@ Editor.prototype._blur = function () {
     this._setFakeCaretTo(); // Removes the fake caret.
     this._sel_anchor = undefined;
     this._sel_focus = undefined;
-    this._caretChangeEmitter();
+    this._caretChangeEmitter(undefined, false, true);
 };
 
 /**
@@ -1939,22 +1944,22 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         }
         return true;
     }
-    else if (key_constants.CTRL_S.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_S.matchesEvent(e)) {
         this._saver.save();
         return terminate();
     }
-    else if (key_constants.CTRL_Z.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_Z.matchesEvent(e)) {
         this.undo();
         return terminate();
     }
-    else if (key_constants.CTRL_Y.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_Y.matchesEvent(e)) {
         this.redo();
         return terminate();
     }
-    else if (key_constants.CTRL_C.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_C.matchesEvent(e)) {
         return true;
     }
-    else if (key_constants.CTRL_X.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_X.matchesEvent(e)) {
         return true;
     }
     else if (key_constants.SPACE.matchesEvent(e)) {
@@ -1964,7 +1969,7 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
             this._handleKeyInsertingText(e);
         return terminate();
     }
-    else if (key_constants.CTRL_BACKQUOTE.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_BACKQUOTE.matchesEvent(e)) {
         this._development_mode = !this._development_mode;
         $.bootstrapGrowl(this._development_mode ? "Development mode on.":
                          "Development mode off.",
@@ -1973,15 +1978,15 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
             log.showPopup();
         return terminate();
     }
-    else if (key_constants.CTRL_OPEN_BRACKET.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_OPEN_BRACKET.matchesEvent(e)) {
         this.decreaseLabelVisiblityLevel();
         return terminate();
     }
-    else if (key_constants.CTRL_CLOSE_BRACKET.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_CLOSE_BRACKET.matchesEvent(e)) {
         this.increaseLabelVisibilityLevel();
         return terminate();
     }
-    else if (key_constants.CTRL_FORWARD_SLASH.matchesEvent(e) &&
+    else if (key_constants.CTRLEQ_FORWARD_SLASH.matchesEvent(e) &&
              this._contextMenuHandler.call(this, e) === false)
         return terminate();
 
@@ -2019,6 +2024,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
     }
 
     var raw_caret = this._raw_caret;
+    var $label = this.$gui_root.find(
+        ".__start_label._label_clicked, .__end_label._label_clicked");
 
     if (raw_caret !== undefined) {
         var $placeholders = $(raw_caret.node).closest('._placeholder');
@@ -2054,7 +2061,22 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
                 return terminate();
         }
 
-        if ($(raw_caret.node).hasClass('_phantom') ||
+
+        if ($label[0] && key_constants.DELETE.matchesEvent(e)) {
+            // The caret is currently in an element label. Delete the element!
+            var $el = $label.closest("._real");
+            var data_node =
+                    this.data_updater.pathToNode(this.nodeToPath($el[0]));
+            var orig = getOriginalName(data_node);
+            var trs = this.mode.getContextualActions(
+                "delete-parent", orig, data_node, 0);
+
+            trs[0].execute({
+                node: data_node,
+                element_name: orig
+            });
+        }
+        else if ($(raw_caret.node).hasClass('_phantom') ||
             $(raw_caret.node).hasClass('_phantom_wrap')) {
             return terminate();
         }
@@ -2724,14 +2746,25 @@ Editor.prototype.toDataNode = function (node) {
     return this.data_updater.pathToNode(this.nodeToPath(node));
 };
 
-
-Editor.prototype._caretChangeEmitter = log.wrap(function (ev, text_edit) {
+/**
+ * @private
+ * @param {Event} ev A DOM event.
+ * @param {boolean} text_edit Whether or not this caret change event
+ * is due to editing text.
+ * @param {boolean} dont_focus Whether or not the focus should be held
+ * by us after the caret change. This is required because this method
+ * is also used when blurring.
+ */
+Editor.prototype._caretChangeEmitter = log.wrap(function (ev, text_edit,
+                                                          dont_focus) {
+    // Ignore events that are outside our realm.
     if (ev && !domutil.pointInContents(this.gui_root, ev.pageX, ev.pageY))
         return;
 
     text_edit = !!text_edit; // normalize
 
     if (ev === undefined)
+        // Normalize ev so that we have something to work with no matter what.
         ev = {which: undefined, type: undefined, target: undefined};
     else if (ev.type === "mouseup") {
         if (this._sel_focus)
@@ -2791,7 +2824,7 @@ Editor.prototype._caretChangeEmitter = log.wrap(function (ev, text_edit) {
 
     var range = selection.rangeCount > 0 && selection.getRangeAt(0);
     if (range && range.collapsed)
-        this.clearDOMSelection();
+        this.clearDOMSelection(dont_focus);
 
     if (focus_node && focus_node.nodeType === Node.ELEMENT_NODE) {
         // Placeholders attract adjacent carets into them.
@@ -2969,10 +3002,16 @@ Editor.prototype.getDOMSelection = function () {
     return rangy.getSelection(this.my_window);
 };
 
-Editor.prototype.clearDOMSelection = function () {
+/**
+ * @param {boolean} [dont_focus=false] Whether or not we are keeping
+ * the focus after clearing the selection. Necessary because in some
+ * cases, we are clearing the selection when *losing* focus.
+ */
+Editor.prototype.clearDOMSelection = function (dont_focus) {
     this.getDOMSelection().removeAllRanges();
     // Make sure the focus goes back there.
-    this._focusInputField();
+    if (!dont_focus)
+        this._focusInputField();
 };
 
 Editor.prototype.getDOMSelectionRange = function () {
@@ -3154,7 +3193,7 @@ Editor.prototype._processValidationError = function (ev) {
     gui_caret = this._normalizeCaretToEditableRange(gui_caret);
 
     var link_id = util.newGenericID();
-    var $marker = $("<span class='_phantom wed-validation-error'></span>");
+    var $marker = $("<span class='_phantom wed-validation-error'>&nbsp;</span>");
     $marker.click(log.wrap(function (ev) {
         this.$error_list.parents('.panel-collapse').collapse('show');
         var $link = this.$error_list.find("#" + link_id);
