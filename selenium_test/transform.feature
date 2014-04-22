@@ -44,3 +44,19 @@ Scenario: launching a transformation when there is no caret
   And that the user has brought up the context menu on uneditable text
   When the user clicks a choice for creating an element before the selected element
   Then a new element is inserted before the selected element.
+
+Scenario: auto-inserting elements
+  Given an empty document
+  And there is no teiHeader element
+  When the user uses the keyboard to bring up the context menu on a placeholder
+  And the user clicks a choice for creating a new teiHeader
+  Then a new teiHeader is created inside the element
+  And the teiHeader has been filled as much as possible
+
+Scenario: not auto-inserting elements
+  Given an empty document with autoinsert off
+  And there is no teiHeader element
+  When the user uses the keyboard to bring up the context menu on a placeholder
+  And the user clicks a choice for creating a new teiHeader
+  Then a new teiHeader is created inside the element
+  And the teiHeader has not been filled
