@@ -16,7 +16,7 @@ def no_before_unload(context):
     context.driver.execute_script("window.onbeforeunload = function () {};")
 
 
-def load_and_wait_for_editor(context, text=None):
+def load_and_wait_for_editor(context, text=None, options=None):
     no_before_unload(context)
     driver = context.driver
     util = context.util
@@ -24,6 +24,9 @@ def load_and_wait_for_editor(context, text=None):
     server = config.WED_SERVER + "?mode=test"
     if text is not None:
         server = server + "&file=" + text
+
+    if options is not None:
+        server = server + "&options=" + options
 
     driver.get(server)
 
@@ -58,9 +61,15 @@ def doc_appears(context):
         EC.presence_of_element_located((By.CLASS_NAME, "_placeholder")))
 
 
+@given("an empty document")
 @given("an open document")
 def open_doc(context):
     load_and_wait_for_editor(context)
+
+
+@given("an empty document with autoinsert off")
+def step_impl(context):
+    load_and_wait_for_editor(context, options="noautoinsert")
 
 
 @when('the user clicks on text that does not contain "{text}"')
@@ -286,3 +295,10 @@ def step_impl(context):
 @when("the first validation is complete")
 def step_impl(context):
     wedutil.wait_for_first_validation_complete(context.util)
+
+
+@given("^there is no (?P<what>.*)\.?$")
+def step_impl(context, what):
+    assert_equal(len(context.driver.find_elements_by_css_selector(
+        ".teiHeader")),
+        0)

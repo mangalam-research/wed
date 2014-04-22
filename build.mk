@@ -458,7 +458,23 @@ rst-doc: $(HTML_TARGETS)
 # have changed.
 #
 .PHONY: dist
-dist:
+dist: test selenium-test
+	rm -rf build/wed-*.tgz
+	rm -rf build/dist
+	mkdir -p build/dist
+	cp -rp build/standalone build/dist
+	cp -rp build/standalone-optimized build/dist
+	cp -rp bin build/dist
+	cp NPM_README.md build/dist/README.md
+	cp package.json build/dist
+	(cd build; npm pack dist)
+	rm -rf build/t
+	mkdir -p build/t/node_modules
+	(cd build/t; npm install ../wed-*.tgz)
+	rm -rf build/t
+
+.PHONY: dist-notest
+dist-notest: build
 	rm -rf build/wed-*.tgz
 	rm -rf build/dist
 	mkdir -p build/dist
@@ -474,7 +490,7 @@ dist:
 	rm -rf build/t
 
 .PHONY: publish
-publish: test selenium-test dist
+publish: dist
 	npm publish build/dist
 
 .PHONY: clean

@@ -294,13 +294,16 @@ def step_impl(context, choice):
 
     class_name = None
     if choice == "a placeholder":
-        class_name = "_placeholder"
+        parent, where = driver.execute_script("""
+        var $ph = jQuery("._placeholder");
+        var $parent = $ph.closest("._real");
+        return [$parent[0], $ph[0]];
+        """)
     elif choice == "text":
-        class_name = "title"
+        where = util.find_element((By.CLASS_NAME, "title"))
+        parent = where
     else:
         raise ValueError("unknown choice: " + choice)
-
-    where = util.find_element((By.CLASS_NAME, class_name))
 
     # IF YOU CHANGE THIS, CHANGE THE TRIGGER
     ActionChains(driver)\
@@ -311,7 +314,7 @@ def step_impl(context, choice):
 
     # THIS TRIGGER WORKS ONLY BECAUSE OF .click(where) above.
     context.context_menu_trigger = Trigger(util, where)
-    context.context_menu_for = where if choice == "a placeholder" else None
+    context.context_menu_for = parent
 
 
 @when(ur"^the user uses the keyboard to bring up the context menu$")
@@ -377,9 +380,11 @@ def step_impl(context):
 @when(u'^the user clicks (?P<choice>the first context menu option|a choice '
       u'for wrapping text in new elements|'
       u'a choice for creating an element (?:before|after) the selected '
-      u'element)$')
-def step_impl(context, choice):
+      u'element|'
+      u'a choice for creating a new (?P<new>.*))$')
+def step_impl(context, choice, new):
     util = context.util
+    driver = context.driver
 
     cm = util.find_element((By.CLASS_NAME, "wed-context-menu"))
 
@@ -414,19 +419,27 @@ def step_impl(context, choice):
         def cond(*_):
             return link.is_displayed()
         util.wait(cond)
+    elif choice.startswith("a choice for creating a new"):
+        choice = "new"
+        link = util.wait(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,
+                                                     "Create new " + new)))
     else:
         raise ValueError("can't handle this type of choice: " + choice)
 
     # Record some information likely to be useful later.
     for_element = context.context_menu_for
     if for_element:
+        info = {}
+        context.context_menu_pre_transformation_info = info
         if choice in ("before", "after"):
-            info = {}
-            context.context_menu_pre_transformation_info = info
             info["preceding"] = for_element.find_elements_by_xpath(
                 "preceding-sibling::*")
             info["following"] = for_element.find_elements_by_xpath(
                 "following-sibling::*")
+        elif choice == "new":
+            info["children"] = driver.execute_script("""
+            return jQuery(arguments[0]).children("._real").toArray();
+            """, for_element)
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
     link.click()

@@ -16,17 +16,26 @@
   <body>
     <div class="wed-widget container" id="widget"></div>
     <script>
+      define("undefined", [], function () { return undefined; });
       var mode = purl().param('mode');
       var file = purl().param('file');
+      var options_param = purl().param('options');
+
       var req = ["wed/wed", "jquery"];
-      if (file)
-          req.push("text!" + file);
+      req.push(file ? "text!" + file : "undefined");
+
       require(req, function (wed, $, text) {
           $(function () {
               var $widget = $("#widget");
               if (text !== undefined)
                   $widget.html(text);
-              var options = mode ? {mode: { path: mode}} : undefined;
+              var options = {};
+              if (mode)
+                  options.mode = { path: mode };
+
+              if (options_param == "noautoinsert")
+                  options.mode.options = { autoinsert: false };
+
               window.wed_editor = new wed.Editor();
               window.wed_editor.init($widget[0], options);
           });
