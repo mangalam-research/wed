@@ -4,6 +4,17 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.14.0:
+
+  - GUI: The generic mode now does auto-insertion of elements by
+    default. It can be turned off with the new API option.
+
+  - API: The generic mode now accepts the ``autoinsert`` option. See
+    the ``generic.js`` file for details.
+
+  - Fixed a few subtle bugs introduced by 0.13.0. These were not
+    triggerable using the modes bundled with wed.
+
 * 0.13.0:
 
   - GUI: hitting ``DELETE`` while on an element now deletes the whole
