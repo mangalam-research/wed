@@ -920,6 +920,48 @@ describe("domutil", function () {
             // Check that the nodes are those we expected.
             checkNodes(ret[1], nodes);
         });
+
+        it("accepts a start caret in text and an end caret outside text",
+           function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p.childNodes[0], 0];
+            var end_caret = [p, p.childNodes.length];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = Array.prototype.slice.call(p.childNodes);
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 0);
+
+            assert.isTrue(ret.length > 0);
+            // Check the caret position.
+            assert.equal(ret[0][0], p);
+            assert.equal(ret[0][1], 0);
+            // Check that the nodes are those we expected.
+            checkNodes(ret[1], nodes);
+        });
+
+        it("accepts a start caret outside text and an end caret in text",
+           function () {
+            var p = $root.find(".body>.p")[1];
+            var start_caret = [p, 0];
+            var end_caret = [p.lastChild, p.lastChild.nodeValue.length];
+            assert.equal(p.childNodes.length, 5);
+
+            var nodes = Array.prototype.slice.call(p.childNodes);
+            var ret = cut(start_caret, end_caret);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(p.childNodes.length, 0);
+
+            assert.isTrue(ret.length > 0);
+            // Check the caret position.
+            assert.equal(ret[0][0], p);
+            assert.equal(ret[0][1], 0);
+            // Check that the nodes are those we expected.
+            checkNodes(ret[1], nodes);
+        });
     });
 
 });
