@@ -60,6 +60,13 @@ Scenario: Cutting text.
   And the user cuts
   Then the text is cut
 
+Scenario: Pasting text.
+  When the user selects the whole text of an element
+  And the user cuts
+  Then the text is cut
+  When the user pastes
+  Then the text is pasted
+
 Scenario: restoring the selection
   When the user selects text
   And the user brings up the context menu on the selection

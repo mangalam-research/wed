@@ -264,6 +264,11 @@ def step_impl(context):
     wedutil.cut(context.util)
 
 
+@when(u'^the user pastes$')
+def step_impl(context):
+    wedutil.paste(context.util)
+
+
 @then(u'^the text is cut$')
 def step_impl(context):
     util = context.util
@@ -271,6 +276,16 @@ def step_impl(context):
 
     # It may take a bit.
     util.wait(lambda *_: not len(util.get_text_excluding_children(parent)))
+
+
+@then(u'^the text is pasted$')
+def step_impl(context):
+    util = context.util
+    parent = context.selection_parent
+    text = context.expected_selection
+
+    # It may take a bit.
+    util.wait(lambda *_: util.get_text_excluding_children(parent) == text)
 
 
 @then(ur"^the selection is restored to what it was before the context menu "
