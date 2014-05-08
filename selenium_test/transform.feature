@@ -41,8 +41,9 @@ Scenario: creating an element after
 
 Scenario: launching a transformation when there is no caret
   Given a document containing a top level element, a p element, and text.
-  And that the user has brought up the context menu on uneditable text
-  When the user clicks a choice for creating an element before the selected element
+  When the user scrolls the editor pane completely down
+  And the user brings up the context menu on uneditable text
+  And the user clicks a choice for creating an element before the selected element
   Then a new element is inserted before the selected element.
 
 Scenario: auto-inserting elements

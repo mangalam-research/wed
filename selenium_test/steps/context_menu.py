@@ -160,7 +160,7 @@ def context_menu_on_text(context):
     context.context_menu_for = None
 
 
-@Given("that the user has brought up the context menu on uneditable text")
+@when("the user brings up the context menu on uneditable text")
 def context_menu_on_uneditable_text(context):
     driver = context.driver
     util = context.util
