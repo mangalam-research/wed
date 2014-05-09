@@ -1,5 +1,4 @@
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 import selenium.webdriver.support.expected_conditions as EC
 from nose.tools import assert_true, assert_equal  # pylint: disable=E0611
@@ -70,6 +69,12 @@ def open_doc(context):
 @given("an empty document with autoinsert off")
 def step_impl(context):
     load_and_wait_for_editor(context, options="noautoinsert")
+
+
+@given("an empty document with a mode that has ambiguous insertion of "
+       "fileDesc")
+def step_impl(context):
+    load_and_wait_for_editor(context, options="ambiguous_fileDesc_insert")
 
 
 @when('the user clicks on text that does not contain "{text}"')
@@ -297,7 +302,7 @@ def step_impl(context):
     wedutil.wait_for_first_validation_complete(context.util)
 
 
-@given("^there is no (?P<what>.*)\.?$")
+@given(r"^there is no (?P<what>.*)\.?$")
 def step_impl(context, what):
     assert_equal(len(context.driver.find_elements_by_css_selector(
         ".teiHeader")),

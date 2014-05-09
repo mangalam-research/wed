@@ -33,8 +33,11 @@
               if (mode)
                   options.mode = { path: mode };
 
-              if (options_param == "noautoinsert")
+              if (options_param === "noautoinsert")
                   options.mode.options = { autoinsert: false };
+
+              if (options_param === "ambiguous_fileDesc_insert")
+                  options.mode.options = { ambiguous_fileDesc_insert: true };
 
               window.wed_editor = new wed.Editor();
               window.wed_editor.init($widget[0], options);

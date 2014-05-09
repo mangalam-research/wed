@@ -54,6 +54,14 @@ Scenario: auto-inserting elements
   Then a new teiHeader is created inside the element
   And the teiHeader has been filled as much as possible
 
+Scenario: auto-inserting elements, with ambiguous insertion
+  Given an empty document with a mode that has ambiguous insertion of fileDesc
+  And there is no teiHeader element
+  When the user uses the keyboard to bring up the context menu on a placeholder
+  And the user clicks a choice for creating a new teiHeader
+  Then a new teiHeader is created inside the element
+  And the teiHeader has not been filled
+
 Scenario: not auto-inserting elements
   Given an empty document with autoinsert off
   And there is no teiHeader element

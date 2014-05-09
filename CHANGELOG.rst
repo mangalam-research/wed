@@ -4,6 +4,14 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.15.0:
+
+  - The ``autoinsert`` option now operates from the transformations
+    registered with a mode rather than insert new element directly. In
+    particular, if a given element could be inserted in more than one
+    way, then autoinsert won't insert it. The user will have to select
+    one of the methods of insertion.
+
 * 0.14.0:
 
   - GUI: The generic mode now does auto-insertion of elements by
