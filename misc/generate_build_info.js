@@ -74,7 +74,8 @@ git.on('close', function (code) {
         if (unclean_wt)
             desc += "-unclean";
 
-        var version = desc.slice(1, desc.indexOf("-"));
+        var sep_ix = desc.indexOf("-");
+        var version = (sep_ix !== -1) ? desc.slice(1, sep_ix) : desc;
         if (!semver.valid(version))
             throw new Fatal("invalid version: " + version);
 

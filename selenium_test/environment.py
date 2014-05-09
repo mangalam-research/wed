@@ -42,7 +42,17 @@ def before_all(context):
     context.behave_wait = behave_wait and float(behave_wait)
 
 
-def before_scenario(context, _scenario):
+def before_feature(context, feature):
+    # Some tests cannot be performed on some OSes due to limitations
+    # in Selenium or the browser or the OS or what-have-you. There is
+    # no real equivalent available to perform these tests so we just
+    # skip them.
+    for scenario in feature.scenarios:
+        if context.util.osx and "fails_if:osx" in scenario.tags:
+            scenario.mark_skipped()
+
+
+def before_scenario(context, scenario):
     driver = context.driver
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
