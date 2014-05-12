@@ -77,6 +77,12 @@ def step_impl(context):
     load_and_wait_for_editor(context, options="ambiguous_fileDesc_insert")
 
 
+@given("an empty document with a mode that has interactive insertion of "
+       "fileDesc")
+def step_impl(context):
+    load_and_wait_for_editor(context, options="fileDesc_insert_needs_input")
+
+
 @when('the user clicks on text that does not contain "{text}"')
 def step_impl(context, text):
     driver = context.driver

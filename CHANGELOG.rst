@@ -12,6 +12,20 @@ Only salient changes are recorded here.
     way, then autoinsert won't insert it. The user will have to select
     one of the methods of insertion.
 
+  - API: ``Action`` and ``Transformation`` objects now take a
+    ``needs_input`` parameter that indicates whether they need input
+    from the user to perform their task. Objects which have this
+    parameter set to ``true`` **cannot be used by the ``autoinsert``
+    logic** to automatically insert elements as this would require
+    input from the user but the ``autoinsert`` feature is meant to
+    work only in unambiguous cases.
+
+    For instance, if a mode is designed to present a modal dialog when
+    the user wants to insert a bibliographical reference, then the
+    transformation which inserts this reference must have
+    ``needs_input`` set to ``true`` so that when such reference is
+    *not* automatically inserted.
+
 * 0.14.0:
 
   - GUI: The generic mode now does auto-insertion of elements by

@@ -39,6 +39,9 @@
               if (options_param === "ambiguous_fileDesc_insert")
                   options.mode.options = { ambiguous_fileDesc_insert: true };
 
+              if (options_param === "fileDesc_insert_needs_input")
+                  options.mode.options = { fileDesc_insert_needs_input: true };
+
               window.wed_editor = new wed.Editor();
               window.wed_editor.init($widget[0], options);
           });
