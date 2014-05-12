@@ -26,6 +26,11 @@ Only salient changes are recorded here.
     ``needs_input`` set to ``true`` so that when such reference is
     *not* automatically inserted.
 
+  - API: ``TreeUpdater`` has gained the ``removeNodeNF`` method which
+    does not fail if the sole argument is ``null`` or
+    ``undefined``. This allows calling the method in cases where there
+    may be nothing to remove.
+
 * 0.14.0:
 
   - GUI: The generic mode now does auto-insertion of elements by

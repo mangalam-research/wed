@@ -662,6 +662,103 @@ describe("TreeUpdater", function () {
         });
     });
 
+    describe("removeNodeNF", function () {
+        it("generates appropriate events when removing a node",
+           function () {
+            var node = $root.find(".body>.p").eq(2).children(".quote")[1];
+            var parent = node.parentNode;
+            assert.equal(parent.childNodes.length, 3);
+            var listener = new Listener(tu);
+            tu.addEventListener("deleteNode", function (ev) {
+                assert.equal(ev.node, node);
+            });
+            listener.expected.deleteNode = 1;
+
+            tu.removeNodeNF(node);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(
+                parent.outerHTML,
+                ('<div class="p _real"><div class="quote _real">quoted'+
+                 '</div><div class="quote _real">quoted3</div></div>'));
+
+            assert.equal(parent.childNodes.length, 2);
+            listener.check();
+        });
+
+        it("generates appropriate events when merging text", function () {
+            var node = $root.find(".body>.p").eq(1).children(".quote")[0];
+            var parent = node.parentNode;
+            var prev = node.previousSibling;
+            var next = node.nextSibling;
+            assert.equal(parent.childNodes.length, 5);
+            var listener = new Listener(tu);
+            var first = true;
+            tu.addEventListener("deleteNode", function (ev) {
+                // Remove node will be emitted twice. Once to
+                // remove the node itself, and second to merge the
+                // text nodes.
+                if (first)
+                    assert.equal(ev.node, node);
+                else
+                    assert.equal(ev.node, next);
+                first = false;
+            });
+            listener.expected.deleteNode = 2;
+
+            tu.addEventListener("setTextNodeValue", function (ev) {
+                assert.equal(ev.node, prev);
+                assert.equal(ev.value, "before  between ");
+            });
+            listener.expected.setTextNodeValue = 1;
+
+            tu.removeNodeNF(node);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(parent.childNodes.length, 3);
+            assert.equal(
+                parent.outerHTML,
+                ('<div class="p _real">before  between ' +
+                 '<div class="quote _real">quoted2</div> after</div>'));
+            listener.check();
+        });
+
+        it("does not bork on missing previous text", function () {
+            // An earlier bug would cause an unhandled exception on this
+            // test.
+            var node = $root.find(".body>.p").eq(2).children(".quote")[0];
+            var parent = node.parentNode;
+            var ret = tu.removeNodeNF(node);
+            assert.equal(ret.node, parent);
+            assert.equal(ret.offset, 0);
+        });
+
+        it("generates no events if the node is undefined",
+           function () {
+            var listener = new Listener(tu);
+            var initial_html = $root[0].outerHTML;
+
+            assert.isUndefined(tu.removeNodeNF(undefined));
+
+            // Check that nothing changed.
+            assert.equal($root[0].outerHTML, initial_html);
+            listener.check();
+        });
+
+        it("generates no events if the node is null",
+           function () {
+            var listener = new Listener(tu);
+            var initial_html = $root[0].outerHTML;
+
+            assert.isUndefined(tu.removeNodeNF(null));
+
+            // Check that nothing changed.
+            assert.equal($root[0].outerHTML, initial_html);
+            listener.check();
+        });
+
+    });
+
     describe("removeNodes", function () {
         it("fails on nodes of different parents", function () {
             // An earlier bug would cause an unhandled exception on this
