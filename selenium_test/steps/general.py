@@ -66,6 +66,21 @@ def open_doc(context):
     load_and_wait_for_editor(context)
 
 
+@when("the user opens a new window")
+def step_impl(context):
+    driver = context.driver
+
+    driver.execute_script("window.open('http://www.google.com')")
+    driver.switch_to_window([x for x in driver.window_handles
+                             if x != context.initial_window_handle][0])
+
+
+@when("the user goes back to the initial window")
+def step_impl(context):
+    context.driver.close()
+    context.driver.switch_to.window(context.initial_window_handle)
+
+
 @given("an empty document with autoinsert off")
 def step_impl(context):
     load_and_wait_for_editor(context, options="noautoinsert")

@@ -69,6 +69,18 @@ def step_impl(context):
     assert_equal(selenic.util.locations_within(caret_pos, last_click, 2), "")
 
 
+@then(ur"^the caret is at the last position before the focus was lost\.?$")
+def step_impl(context):
+    assert_equal(context.caret_position, wedutil.caret_pos(context.driver))
+
+
+@then(u"the selection is the same as before the focus was lost")
+def step_impl(context):
+    util = context.util
+
+    assert_equal(util.get_selection_text(), context.expected_selection)
+
+
 @when(u"^the user clicks on "
       u"(?:an element's label|the end label of an element)$")
 def step_impl(context):
