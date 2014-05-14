@@ -103,24 +103,23 @@
 div.wed-document-constrainer {
     position: relative;
     overflow: hidden;
+
+    .wed-comp-field {
+        position: absolute;
+        z-index: -10;
+        top: -1000px;
+        left: -1000px;
+        width: 1em;
+    }
+
     .wed-caret-layer {
+        position: relative;
         z-index: 1;
         // The following attribute is required for IE.
         background-color: white;
 
-        >* {
-            position: absolute;
-        }
-
-        .wed-comp-field {
-            z-index: -10;
-            top: -1000px;
-            left: -1000px;
-            width: 1em;
-        }
-
         ._wed_caret {
-
+            position: absolute;
             background-color: black;
             white-space: pre;
             border-style: none;
