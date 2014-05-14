@@ -79,6 +79,6 @@ def step_impl(context):
         """)
 
         # Sigh... Firefox will come close but not quite, so...
-        return abs(top) < 2
+        return abs(top) < 5
 
     util.wait(cond)
