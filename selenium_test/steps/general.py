@@ -165,7 +165,7 @@ def step_impl(context):
     util = context.util
     term = util.find_elements((By.CLASS_NAME, "term"))[-1]
 
-    size = dict(context.before_scenario_window_size)
+    size = dict(context.initial_window_size)
 
     while util.visible_to_user(term, ".wed-caret-layer"):
         size["height"] -= 15
