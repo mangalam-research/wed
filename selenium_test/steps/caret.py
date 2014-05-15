@@ -103,6 +103,7 @@ def step_impl(context):
     ActionChains(driver)\
         .click(button)\
         .perform()
+    context.context_menu_trigger = Trigger(util, button)
 
 
 @when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
