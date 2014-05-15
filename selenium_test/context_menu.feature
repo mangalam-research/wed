@@ -36,7 +36,7 @@ Scenario: bringing up the context menu with the keyboard on the start label of a
   Then a context menu is visible close to where the user invoked it
   And the context menu contains choices for creating elements before the selected element
 
-Scenario: bringing up the context menu with the mouse on the end label of an element.
+Scenario: bringing up the context menu with the keyboard on the end label of an element.
   When the user clicks on the end label of an element
   And the user uses the keyboard to bring up the context menu
   Then a context menu is visible close to where the user invoked it

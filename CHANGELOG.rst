@@ -6,7 +6,13 @@ Only salient changes are recorded here.
 
 * 0.15.0:
 
-  - The ``autoinsert`` option now operates from the transformations
+  - GUI: In previous versions the context menu presented if a user
+    brought it up using the keyboard while an element label was
+    highlighted was different from the menu presented if the user
+    brought it up on the same label using the mouse. This has been
+    fixed.
+
+  - API: The ``autoinsert`` option now operates from the transformations
     registered with a mode rather than insert new element directly. In
     particular, if a given element could be inserted in more than one
     way, then autoinsert won't insert it. The user will have to select
