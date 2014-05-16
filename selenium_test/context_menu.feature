@@ -42,6 +42,20 @@ Scenario: bringing up the context menu with the keyboard on the end label of an 
   Then a context menu is visible close to where the user invoked it
   And the context menu contains choices for creating elements after the selected element
 
+Scenario: clicking on a menu item which appears outside the editor pane.
+  When the user clicks on the end label of the last paragraph
+  And the user uses the keyboard to bring up the context menu
+  #
+  # The menu will be moved up, so this will not be true:
+  # > Then a context menu is visible close to where the user invoked it
+  #
+  # This next step is a precondition. If this step fails, then the
+  # test has to be reworked to use a menu item that must appear under
+  # the editor window.
+  Then a choice for creating a new note after this element is below the editor pane
+  When the user clicks a choice for creating a new note
+  Then the caret is in the last note element
+
 Scenario: bringing up the context menu with the mouse on text.
   When the user uses the mouse to bring up the context menu on text
   Then a context menu is visible close to where the user invoked it

@@ -81,21 +81,38 @@ def step_impl(context):
     assert_equal(util.get_selection_text(), context.expected_selection)
 
 
-@when(u"^the user clicks on "
-      u"(?:an element's label|the end label of an element)$")
+@then(u"the caret is in the last note element")
 def step_impl(context):
+    util = context.util
+
+    wedutil.wait_for_caret_to_be_in(util, ".body .note:last")
+
+
+@when(u"^the user clicks on "
+      u"(?P<what>an element's label|the end label of an element|"
+      u"the end label of the last paragraph)$")
+def step_impl(context, what):
     driver = context.driver
     util = context.util
 
+    if what in ("an element's label", "the end label of an element"):
+        selector = ".__end_label._title_label"
+    elif what == "the end label of the last paragraph":
+        selector = ".body .__end_label._p_label:last"
+    else:
+        raise Exception("unknown choice: " + what)
+
     # Faster than using 4 Selenium operations.
     button, parent, button_class, parent_text = driver.execute_script("""
-    var button = jQuery(".__end_label._title_label")[0];
+    var selector = arguments[0];
+
+    var button = jQuery(selector)[0];
     var parent = button.parentNode;
     var parent_text = jQuery(parent).contents().filter(function() {
        return this.nodeType == Node.TEXT_NODE;
     }).text();
     return [button, parent, button.className, parent_text];
-    """)
+    """, selector)
     context.clicked_element = button
     context.clicked_element_parent = parent
     context.clicked_element_parent_initial_text = parent_text
@@ -104,6 +121,7 @@ def step_impl(context):
         .click(button)\
         .perform()
     context.context_menu_trigger = Trigger(util, button)
+    context.context_menu_for = None
 
 
 @when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'

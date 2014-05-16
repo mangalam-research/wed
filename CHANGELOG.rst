@@ -12,6 +12,13 @@ Only salient changes are recorded here.
     brought it up on the same label using the mouse. This has been
     fixed.
 
+  - GUI: Contextual menus that run are being cut off by window sides
+    adjust their position to avoid being too small to be easily
+    usable.
+
+  - API: `context_menu.ContextMenu` no longer takes a maximum
+    height. This height is computed automatically.
+
   - API: The ``autoinsert`` option now operates from the transformations
     registered with a mode rather than insert new element directly. In
     particular, if a given element could be inserted in more than one

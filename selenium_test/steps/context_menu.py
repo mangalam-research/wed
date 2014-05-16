@@ -254,6 +254,45 @@ def context_choices_insert(context, kind):
                      0, "Number of elements found")
 
 
+@Then(r'^the context menu contains a choice for creating a new '
+      r'(?P<what>.*) after this element(?:\.|$)')
+def context_choices_insert(context, what):
+    util = context.util
+
+    cm = util.find_element((By.CLASS_NAME, "wed-context-menu"))
+
+    search_for = '^Create new ' + what + ' after'
+    assert_not_equal(len(util.find_descendants_by_text_re(cm, search_for)),
+                     0, "Number of elements found")
+
+
+@Then(r'^a choice for creating a new '
+      r'note after this element is below the editor pane(?:\.|$)')
+def context_choices_insert(context):
+    util = context.util
+    driver = context.driver
+
+    cm = util.wait(EC.visibility_of_element_located(
+        (By.CLASS_NAME, "wed-context-menu")))
+
+    search_for = '^Create new note after'
+
+    items = util.find_descendants_by_text_re(cm, search_for)
+    assert_not_equal(len(items), 0, "Number of elements found")
+
+    item = items[0]
+    assert_true(driver.execute_script("""
+    var el = arguments[0];
+
+    var $element = jQuery(el);
+    var $gui_root = wed_editor.$gui_root;
+    var pos = $element.offset();
+    var gui_pos = $gui_root.offset();
+    pos.top = pos.top - gui_pos.top;
+    return pos.top > $gui_root.outerHeight();
+    """, item), "Outside editor panel")
+
+
 @Given("a context menu is not visible")
 @Then("a context menu is not visible")
 def context_menu_is_not_visible(context):
