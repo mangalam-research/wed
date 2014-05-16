@@ -63,15 +63,6 @@ def after_scenario(context, _scenario):
     driver = context.driver
     util = context.util
 
-    logs = driver.execute_script("""
-    return window.selenium_log;
-    """)
-    if logs:
-        print
-        print "JavaScript log:"
-        print "\n".join(repr(x) for x in logs)
-        print
-
     #
     # Make sure we did not trip a fatal error.
     #
@@ -90,6 +81,21 @@ def after_scenario(context, _scenario):
 def before_step(context, _step):
     if context.behave_wait:
         time.sleep(context.behave_wait)
+
+
+def after_step(context, _step):
+    driver = context.driver
+    logs = driver.execute_script("""
+    return window.selenium_log;
+    """)
+    if logs:
+        print
+        print "JavaScript log:"
+        print "\n".join(repr(x) for x in logs)
+        print
+        driver.execute_script("""
+        window.selenium_log = [];
+        """)
 
 
 def after_all(context):
