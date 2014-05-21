@@ -44,6 +44,12 @@ Only salient changes are recorded here.
     ``undefined``. This allows calling the method in cases where there
     may be nothing to remove.
 
+  - API: ``TreeUpdater`` has gained the ``mergeTextNodesNF`` method
+    which does not fail if the sole argument is ``null`` or
+    ``undefined``. This allows calling the method in cases where there
+    may be nothing to merge.
+
+
 * 0.14.0:
 
   - GUI: The generic mode now does auto-insertion of elements by

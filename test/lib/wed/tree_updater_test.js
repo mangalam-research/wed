@@ -928,6 +928,135 @@ describe("TreeUpdater", function () {
         });
     });
 
+    describe("mergeTextNodesNF", function () {
+        it("generates appropriate events when merging text", function () {
+            var $p = $root.find(".body>.p").eq(1);
+            // Remove the first quote so that we have two text
+            // nodes adjacent.
+            $p.children('.quote').first().remove();
+            var node = $p[0].firstChild;
+            var parent = node.parentNode;
+            var next = node.nextSibling;
+            assert.equal(parent.childNodes.length, 4);
+            var listener = new Listener(tu);
+            tu.addEventListener("deleteNode", function (ev) {
+                assert.equal(ev.node, next);
+            });
+            listener.expected.deleteNode = 1;
+
+            tu.addEventListener("setTextNodeValue", function (ev) {
+                assert.equal(ev.node, node);
+                assert.equal(ev.value, "before  between ");
+            });
+            listener.expected.setTextNodeValue = 1;
+
+            tu.mergeTextNodesNF(node);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(parent.childNodes.length, 3);
+            assert.equal(
+                parent.outerHTML,
+                ('<div class="p _real">before  between ' +
+                 '<div class="quote _real">quoted2</div> after</div>'));
+            listener.check();
+        });
+
+        it("does nothing if there is nothing to do", function () {
+            var $p = $root.find(".body>.p").eq(1);
+            var node = $p[0].firstChild;
+            var parent = node.parentNode;
+            var next = node.nextSibling;
+            assert.equal(parent.childNodes.length, 5);
+
+            var listener = new Listener(tu);
+            tu.mergeTextNodesNF(node);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(parent.childNodes.length, 5);
+            assert.equal(
+                parent.outerHTML,
+                ('<div class="p _real">before '+
+                 '<div class="quote _real">quoted</div> between ' +
+                 '<div class="quote _real">quoted2</div> after</div>'));
+            listener.check();
+        });
+
+        it("returns a proper caret value when it merges", function () {
+            var $p = $root.find(".body>.p").eq(1);
+            // Remove the first quote so that we have two text
+            // nodes adjacent.
+            $p.children('.quote').first().remove();
+            var node = $p[0].firstChild;
+            var parent = node.parentNode;
+            var next = node.nextSibling;
+            assert.equal(parent.childNodes.length, 4);
+            var ret = tu.mergeTextNodesNF(node);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(parent.childNodes.length, 3);
+            assert.equal(
+                parent.outerHTML,
+                ('<div class="p _real">before  between ' +
+                 '<div class="quote _real">quoted2</div> after</div>'));
+
+            // Check return value.
+            assert.equal(ret.node, node);
+            assert.equal(ret.offset, 7);
+        });
+
+        it("returns a proper caret value when it does nothing",
+           function () {
+            var $p = $root.find(".body>.p").eq(1);
+            var node = $p[0].firstChild;
+            var parent = node.parentNode;
+            var next = node.nextSibling;
+            assert.equal(parent.childNodes.length, 5);
+
+            var listener = new Listener(tu);
+            var ret = tu.mergeTextNodesNF(node);
+
+            // Check that we're doing what we think we're doing.
+            assert.equal(parent.childNodes.length, 5);
+            assert.equal(
+                parent.outerHTML,
+                ('<div class="p _real">before '+
+                 '<div class="quote _real">quoted</div> between ' +
+                 '<div class="quote _real">quoted2</div> after</div>'));
+            listener.check();
+
+            // Check the return value.
+            assert.equal(ret.node, parent);
+            assert.equal(ret.offset,
+                         Array.prototype.indexOf.call(parent.childNodes,
+                                                      node) + 1);
+        });
+
+        it("generates no events if the node is undefined",
+           function () {
+            var listener = new Listener(tu);
+            var initial_html = $root[0].outerHTML;
+
+            assert.isUndefined(tu.removeNodeNF(undefined));
+
+            // Check that nothing changed.
+            assert.equal($root[0].outerHTML, initial_html);
+            listener.check();
+        });
+
+        it("generates no events if the node is null",
+           function () {
+            var listener = new Listener(tu);
+            var initial_html = $root[0].outerHTML;
+
+            assert.isUndefined(tu.mergeTextNodesNF(null));
+
+            // Check that nothing changed.
+            assert.equal($root[0].outerHTML, initial_html);
+            listener.check();
+        });
+    });
+
+
     describe("cut", function () {
         function checkNodes (ret, nodes) {
             assert.equal(ret.length, nodes.length, "result length");
