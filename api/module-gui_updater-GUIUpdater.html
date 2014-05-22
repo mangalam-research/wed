@@ -328,7 +328,7 @@ are merged.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line568">line 568</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line590">line 590</a>
     </li></ul></dd>
     
     
@@ -506,7 +506,7 @@ of TreeUpdater and by some low-level facilities of wed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line613">line 613</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line656">line 656</a>
     </li></ul></dd>
     
     
@@ -2880,7 +2880,11 @@ node, this method will combine them.</p>
             
             
             
-            <td class="description last"><p>The node to check.</p></td>
+            <td class="description last"><p>The node to check. This method will fail with
+an exception if this parameter is <code>undefined</code> or <code>null</code>. Use
+<code>mergeTextNodesNF</code> if you want a
+method that will silently do nothing if <code>undefined</code> or <code>null</code>
+are expected values.</p></td>
         </tr>
 	
 	
@@ -2916,7 +2920,7 @@ node, this method will combine them.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line585">line 585</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line611">line 611</a>
     </li></ul></dd>
     
     
@@ -2944,6 +2948,155 @@ node, this method will combine them.</p>
     <p>A position between the two parts
 that were merged, or between the two nodes that were not merged
 (because they were not both text).</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="mergeTextNodesNF"><span class="type-signature"></span>mergeTextNodesNF<span class="signature">(node)</span><span class="type-signature"> &rarr; {<a href="module-dloc-DLoc.html">module:dloc~DLoc</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>A complex method. If the node is a text node and followed by a text
+node, this method will combine them.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The node to check. This method will do nothing
+if the node to remove is <code>undefined</code> or <code>null</code>.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-tree_updater-TreeUpdater.html#mergeTextNodesNF">module:tree_updater~TreeUpdater#mergeTextNodesNF</a>
+    </li></dd>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line637">line 637</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>A position between the two parts that
+were merged, or between the two nodes that were not merged (because
+they were not both text). This will be <code>undefined</code> if there was
+no node to remove.</p>
 </div>
 
 
@@ -3062,7 +3215,7 @@ that were merged, or between the two nodes that were not merged
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line696">line 696</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line739">line 739</a>
     </li></ul></dd>
     
     
@@ -3207,7 +3360,7 @@ tree we are updating.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line706">line 706</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line749">line 749</a>
     </li></ul></dd>
     
     
@@ -3316,7 +3469,11 @@ nodes become adjacent, they are merged.</p>
             
             
             
-            <td class="description last"><p>The node to remove</p></td>
+            <td class="description last"><p>The node to remove. This method will fail with
+an exception if this parameter is <code>undefined</code> or <code>null</code>. Use
+<code>removeNodeNF</code> if you want a
+method that will silently do nothing if <code>undefined</code> or <code>null</code>
+are expected values.</p></td>
         </tr>
 	
 	
@@ -3352,7 +3509,7 @@ nodes become adjacent, they are merged.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line513">line 513</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line517">line 517</a>
     </li></ul></dd>
     
     
@@ -3380,6 +3537,155 @@ nodes become adjacent, they are merged.</p>
     <p>A location between the two parts that
 were merged, or between the two nodes that were not merged (because
 they were not both text).</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="removeNodeNF"><span class="type-signature"></span>removeNodeNF<span class="signature">(node)</span><span class="type-signature"> &rarr; {<a href="module-dloc-DLoc.html">module:dloc~DLoc</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>A complex method. Removes a node from the DOM tree. If two text
+nodes become adjacent, they are merged.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The node to remove. This method will do nothing
+if the node to remove is <code>undefined</code> or <code>null</code>.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-tree_updater-TreeUpdater.html#removeNodeNF">module:tree_updater~TreeUpdater#removeNodeNF</a>
+    </li></dd>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line539">line 539</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>A location between the two parts that
+were merged, or between the two nodes that were not merged (because
+they were not both text). This will be <code>undefined</code> if there was
+no node to remove.</p>
 </div>
 
 
@@ -3500,7 +3806,7 @@ immediately contiguous siblings in document order.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line536">line 536</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line558">line 558</a>
     </li></ul></dd>
     
     
@@ -3727,7 +4033,7 @@ sets attributes outside of any namespace.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line634">line 634</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line677">line 677</a>
     </li></ul></dd>
     
     
@@ -3930,7 +4236,7 @@ value <code>null</code> or <code>undefined</code> deletes the attribute.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line650">line 650</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line693">line 693</a>
     </li></ul></dd>
     
     
@@ -4844,7 +5150,7 @@ second half of the split.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line614">line 614</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line657">line 657</a>
     </li></ul></dd>
     
     
@@ -5244,7 +5550,7 @@ second half of the split.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line656">line 656</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line699">line 699</a>
     </li></ul></dd>
     
     
@@ -5464,7 +5770,7 @@ second half of the split.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Apr 22 2014 16:20:00 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu May 22 2014 14:16:29 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

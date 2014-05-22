@@ -19,6 +19,10 @@ var rangy = require("rangy");
 var tei_meta = require("wed/modes/generic/metas/tei_meta");
 var domutil = require("wed/domutil");
 var TestDecorator = require("./test_decorator").TestDecorator;
+var _ = require("lodash");
+
+var LOCAL_OPTIONS = ["ambiguous_fileDesc_insert",
+                     "fileDesc_insert_needs_input"];
 
 /**
  * This mode is purely designed to help test wed, and nothing
@@ -28,9 +32,10 @@ var TestDecorator = require("./test_decorator").TestDecorator;
  * @extends module:modes/generic/generic~Mode
  * @param {Object} options The options for the mode.
  */
-function TestMode () {
-    Mode.apply(this, arguments);
-    this._contextual_menu_items = [];
+function TestMode (options) {
+    var opts = _.omit(options, LOCAL_OPTIONS);
+    Mode.call(this, opts);
+    this._test_mode_options = _.pick(options, LOCAL_OPTIONS);
 
     if (this.constructor !== TestMode)
         throw new Error("this is a test mode; don't derive from it!");
@@ -50,6 +55,29 @@ function TestMode () {
 }
 
 oop.inherit(TestMode, Mode);
+
+TestMode.prototype.init = function (editor) {
+    Mode.prototype.init.call(this, editor);
+
+    if (this._test_mode_options.ambiguous_fileDesc_insert) {
+        // We just duplicate the transformation.
+        var tr = this._tr.getTagTransformations("insert", "fileDesc");
+        this._tr.addTagTransformations("insert", "fileDesc", tr);
+    }
+};
+
+TestMode.prototype.getContextualActions = function (type, tag, container,
+                                                    offset) {
+    if (this._test_mode_options.fileDesc_insert_needs_input &&
+        tag === "fileDesc" && type === "insert")
+        return [new transformation.Transformation(
+            this._editor, "foo", undefined, undefined, true,
+            // We don't need a real handler because it will not be called.
+            function () {})];
+
+    return this._tr.getTagTransformations(type, tag);
+};
+
 
 TestMode.prototype.makeDecorator = function () {
     var obj = Object.create(TestDecorator.prototype);

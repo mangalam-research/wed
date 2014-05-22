@@ -81,7 +81,7 @@ require("./onbeforeunload");
 
 var _indexOf = Array.prototype.indexOf;
 
-exports.version = "0.14.0";
+exports.version = "0.15.0";
 var version = exports.version;
 
 var getOriginalName = util.getOriginalName;
@@ -157,12 +157,12 @@ Editor.prototype.init = log.wrap(function (widget, options) {
   &lt;div class="row">\
    &lt;div class="wed-cut-buffer" contenteditable="true">&lt;/div>\
    &lt;div class="wed-document-constrainer">\
+    &lt;input class="wed-comp-field" type="text">&lt;/input>\
     &lt;div class="wed-caret-layer">\
-     &lt;input class="wed-comp-field" type="text">&lt;/input>\
     &lt;/div>\
     &lt;div class="wed-document">&lt;span class="root-here"/>&lt;/div>\
    &lt;/div>\
-   &lt;div class="wed-location-bar">&lt;/div>\
+   &lt;div class="wed-location-bar">&lt;span>&nbsp;&lt;/span>&lt;/div>\
   &lt;/div>\
  &lt;/div>\
  &lt;div id="sidebar" class="col-sm-pull-10 col-lg-2 col-md-2 col-sm-2"/>\
@@ -403,9 +403,9 @@ navigation panel brings up a contextual menu.&lt;/li>\
 
 Editor.prototype.setMode = log.wrap(function (mode_path, options) {
     var mode;
-    var onload = function (mode_module) {
+    var onload = log.wrap(function (mode_module) {
         this._new_mode = new mode_module.Mode(options);
-    }.bind(this);
+    }).bind(this);
 
     require([mode_path], onload, function (err) {
 
@@ -781,6 +781,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     }.bind(this));
 
     $(this.my_window).on('blur.wed', this._blur.bind(this));
+    $(this.my_window).on('focus.wed', this._focus.bind(this));
 
     this._$caret_layer.on("mousedown click contextmenu",
                           this._caretLayerMouseHandler.bind(this));
@@ -970,6 +971,19 @@ Editor.prototype.dumpUndo = function () {
     console.log(this._undo.toString());
 };
 
+Editor.prototype.dumpCaretInfo = function () {
+    var data_caret = this.getDataCaret();
+    console.log("raw caret", this._raw_caret.node, this._raw_caret.offset);
+    console.log("data caret", data_caret.node, data_caret.offset);
+    console.log("fake caret", this._fake_caret.node, this._fake_caret.offset);
+    console.log("data closest real", $(data_caret.node).closest("._real"));
+    console.log("gui closest real", $(this._raw_caret.node).closest("._real"));
+    domutil.dumpRange("DOM range: ", this.getDOMSelectionRange());
+    console.log("input field location", this._$input_field.css("top"),
+                this._$input_field.css("left"));
+    console.log("document.activeElement", document.activeElement);
+};
+
 Editor.prototype.undoMarker = function (msg) {
     this.recordUndo(new wundo.MarkerUndo(msg));
 };
@@ -987,15 +1001,17 @@ Editor.prototype._resizeHandler = log.wrap(function () {
 
     function addHeight() {
         /* jshint validthis:true */
-        height_after += $(this).outerHeight(true);
+        height_after += this.scrollHeight;
     }
 
     var $examine = this.$widget;
     while($examine.length > 0) {
-        var $next = $examine.nextAll();
+        var $next = $examine.nextAll().not("script");
         $next.each(addHeight);
         $examine = $examine.parent();
     }
+
+    this._$wed_location_bar.each(addHeight);
 
     // The height is the inner height of the window:
     // a. minus what appears before it.
@@ -1006,13 +1022,16 @@ Editor.prototype._resizeHandler = log.wrap(function () {
             // This is the space after
             height_after;
 
+    height = Math.floor(height);
+
     this.$gui_root.css("max-height", height);
     this.$gui_root.css("min-height", height);
 
     var width = this.$gui_root.width();
 
     var $parent = this.$widget.find(".wed-frame");
-    var pheight = $parent.outerHeight(true);
+    var pheight = this.my_window.innerHeight -
+        $parent.offset().top - height_after;
     $parent.siblings().css("max-height", pheight).css("min-height", pheight).
         css("height", pheight);
 
@@ -1158,8 +1177,6 @@ Editor.prototype._contextMenuHandler = function (e) {
                 var trs = this.mode.getContextualActions(
                     wrap ? "wrap" : "insert", unresolved,
                     $data_node_of_interest[0], offset);
-                if (trs === undefined)
-                    return;
 
                 for(var tr_ix = 0, tr; (tr = trs[tr_ix]) !== undefined;
                     ++tr_ix) {
@@ -1169,8 +1186,7 @@ Editor.prototype._contextMenuHandler = function (e) {
                     var $a = $("&lt;a tabindex='0' href='#'>" +
                                (icon ? icon + " ": "") +
                                tr.getDescriptionFor(data) + "&lt;/a>");
-                    $a.click(data,
-                             tr.bound_handler);
+                    $a.click(data, tr.bound_terminal_handler);
                     menu_items.push($("&lt;li>&lt;/li>").append($a)[0]);
                 }
             }.bind(this));
@@ -1179,20 +1195,17 @@ Editor.prototype._contextMenuHandler = function (e) {
             var orig = getOriginalName($data_node_of_interest[0]);
             var trs = this.mode.getContextualActions(
                 "delete-parent", orig, $data_node_of_interest[0], 0);
-            if (trs !== undefined) {
-                trs.forEach(function (tr) {
-                    var data = $.extend({}, data_base,
-                                        {node: $data_node_of_interest[0],
-                                         element_name: orig });
-                    var icon = tr.getIcon();
-                    var $a = $("&lt;a tabindex='0' href='#'>" +
-                                (icon ? icon + " " : "") +
-                               tr.getDescriptionFor(data) + "&lt;/a>");
-                    $a.click(data,
-                             tr.bound_handler);
-                    menu_items.push($("&lt;li>").append($a)[0]);
-                }.bind(this));
-            }
+            trs.forEach(function (tr) {
+                var data = $.extend({}, data_base,
+                                    {node: $data_node_of_interest[0],
+                                     element_name: orig });
+                var icon = tr.getIcon();
+                var $a = $("&lt;a tabindex='0' href='#'>" +
+                           (icon ? icon + " " : "") +
+                           tr.getDescriptionFor(data) + "&lt;/a>");
+                $a.click(data, tr.bound_terminal_handler);
+                menu_items.push($("&lt;li>").append($a)[0]);
+            }.bind(this));
         }
     }
 
@@ -1220,7 +1233,7 @@ Editor.prototype._contextMenuHandler = function (e) {
                         element_name: sep_for};
             var $a = $("&lt;a tabindex='0' href='#'>" +
                        tr.getDescriptionFor(data) + "&lt;/a>");
-            $a.click(data, tr.bound_handler);
+            $a.click(data, tr.bound_terminal_handler);
             menu_items.push($("&lt;li>&lt;/li>").append($a)[0]);
         }.bind(this));
     }
@@ -1229,6 +1242,21 @@ Editor.prototype._contextMenuHandler = function (e) {
     if (menu_items.length === 0)
         return true;
 
+    var pos = this.computeContextMenuPosition(e);
+    this.displayContextMenu(pos.left, pos.top, menu_items);
+    return false;
+};
+
+/**
+ * Computes where a context menu should show up, depending on the
+ * event that triggered it.
+ *
+ * @param {Event} e The event that triggered the menu.
+ * @returns {{top: number, left: number}} The top and left coordinates
+ * where the menu should appear.
+ */
+Editor.prototype.computeContextMenuPosition = function (e) {
+    var range = this.getDOMSelectionRange();
     var pos;
     if (e.type === "mousedown" || e.type === "mouseup" || e.type === "click")
         pos = {left: e.clientX, top: e.clientY};
@@ -1274,8 +1302,16 @@ Editor.prototype._contextMenuHandler = function (e) {
             throw new Error("no position for displaying the menu");
     }
 
-    this.displayContextMenu(pos.left, pos.top, menu_items);
-    return false;
+    return pos;
+};
+
+Editor.prototype.computeContextMenuHeight = function (y) {
+    var gui_position = this.$gui_root.offset();
+    var gui_height = this.$gui_root.height();
+    // Subtract the gui_root-relative position from the total height
+    // of the gui_root.
+    var max_height = gui_height - (y - gui_position.top);
+    return max_height;
 };
 
 Editor.prototype._cutHandler = function(e) {
@@ -1314,6 +1350,14 @@ function cut(editor, data) {
     var sel = editor.my_window.getSelection();
     sel.removeAllRanges();
     sel.addRange(range);
+
+    // We've set the range to the cut buffer, which is what we want
+    // for the cut operation to work. However, the focus is also set
+    // to the cut buffer but once the cut is done we want the focus to
+    // be back to our caret, so...
+    setTimeout(function () {
+        editor._focusInputField();
+    }, 0);
 }
 
 Editor.prototype._pasteHandler = function(e) {
@@ -1717,15 +1761,28 @@ Editor.prototype._focusInputField = function () {
     this._$input_field.focus();
 };
 
-Editor.prototype._blur = function () {
+Editor.prototype._blur = log.wrap(function (ev) {
     if (!this._raw_caret)
         return;
+    this._sel_anchor_at_blur = this._sel_anchor;
+    this._sel_focus_at_blur = this._sel_focus;
 
+    this._$input_field.blur();
     this._setFakeCaretTo(); // Removes the fake caret.
     this._sel_anchor = undefined;
     this._sel_focus = undefined;
     this._caretChangeEmitter(undefined, false, true);
-};
+});
+
+Editor.prototype._focus = log.wrap(function (ev) {
+    if (this._sel_anchor_at_blur) {
+        this._sel_anchor = this._sel_anchor_at_blur;
+        this._sel_focus = this._sel_focus_at_blur;
+        this._restoreCaretAndSelection();
+        this._sel_anchor_at_blur = undefined;
+        this._sel_focus_at_blur = undefined;
+    }
+});
 
 /**
  * Sets the fake caret's position.
@@ -1749,22 +1806,14 @@ Editor.prototype._refreshFakeCaret = function () {
             this._fake_caret = undefined;
     }
 
-    if (!this._fake_caret) {
+    if (!this._fake_caret ||
+        // If we are in a _gui element, then the element itself changes to
+        // show the caret position.
+        $(node).closest("._gui").length > 0) {
         this._$fake_caret.detach();
         // Just move it offscreen.
         this._$input_field.css("top", "");
         this._$input_field.css("left", "");
-        return;
-    }
-
-    if (!this._$fake_caret.parent()[0])
-        this._$caret_layer.append(this._$fake_caret);
-
-
-    // If we are in a _gui element, then the element itself changes to
-    // show the caret position.
-    if ($(node).closest("._gui").length > 0) {
-        this._$fake_caret.detach();
         return;
     }
 
@@ -1807,7 +1856,7 @@ Editor.prototype._refreshFakeCaret = function () {
     switch (node.nodeType)
     {
     case Node.TEXT_NODE:
-            var parent = node.parentNode;
+        var parent = node.parentNode;
         var prev = node.previousSibling;
         var next = node.nextSibling;
         domutil.insertIntoText(node, offset, mark);
@@ -1819,7 +1868,24 @@ Editor.prototype._refreshFakeCaret = function () {
         throw new Error("unexpected node type: " + node.nodeType);
     }
 
-    position = $mark.position();
+    // Why use `offset()` rather than `position()`? This allows modes
+    // more flexibility with how they position their decorations. For
+    // instance, if a mode uses `position: relative`, they create
+    // through this CSS a new "offset parent" and `position()` returns
+    // values relative to this parent rather than relative to
+    // $gui_root.
+    position = $mark.offset();
+
+    //
+    // The position is relative to the *document*. We need to make it
+    // relative to the start of $gui_root. Using `position()` above
+    // would obviate the need for this adjustment. So why `offset()`?
+    // See above for the rationale.
+    //
+    var gr_position = this.$gui_root.offset();
+    position.top -= gr_position.top;
+    position.left -= gr_position.left;
+
     height = $mark.height();
 
     if (node.nodeType === Node.TEXT_NODE) {
@@ -1855,6 +1921,10 @@ Editor.prototype._refreshFakeCaret = function () {
             this.clearDOMSelection();
         this.getDOMSelection().setSingleRange(range);
     }
+
+    // The fake caret is removed from the DOM when not in use, reinsert it.
+    if (!this._$fake_caret.parent()[0])
+        this._$caret_layer.append(this._$fake_caret);
 
     this._$fake_caret.css("top", position.top);
     this._$fake_caret.css("left", position.left);
@@ -1901,28 +1971,7 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
     if (this._development_mode) {
         // F2
         if (e.which === 113) {
-            var data_caret = this.getDataCaret();
-            console.log("raw caret", this._raw_caret.node,
-                        this._raw_caret.offset);
-            console.log("data caret", data_caret.node, data_caret.offset);
-            console.log("fake caret", this._fake_caret.node,
-                        this._fake_caret.offset);
-            console.log("data closest real",
-                        $(data_caret.node).closest("._real"));
-            console.log("gui closest real",
-                        $(this._raw_caret.node).closest("._real"));
-            var range = this.getDOMSelectionRange();
-            if (range)
-                console.log("DOM range",
-                            range.startContainer,
-                            range.startOffset,
-                            range.endContainer,
-                            range.endOffset);
-            else
-                console.log("DOM range undefined");
-            console.log("input field location", this._$input_field.css("top"),
-                        this._$input_field.css("left"));
-            console.log("document.activeElement", document.activeElement);
+            this.dumpCaretInfo();
             return terminate();
         }
         // F3
@@ -1946,6 +1995,7 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         }
     }
 
+    var raw_caret = this._raw_caret;
     // Cursor movement keys: handle them.
     if (e.which >= 33 /* page up */ && e.which &lt;= 40 /* down arrow */) {
         var pos, sel; // damn hoisting
@@ -1985,10 +2035,9 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         this.redo();
         return terminate();
     }
-    else if (key_constants.CTRLEQ_C.matchesEvent(e)) {
-        return true;
-    }
-    else if (key_constants.CTRLEQ_X.matchesEvent(e)) {
+    else if (key_constants.CTRLEQ_C.matchesEvent(e) ||
+             key_constants.CTRLEQ_X.matchesEvent(e) ||
+             key_constants.CTRLEQ_V.matchesEvent(e)) {
         return true;
     }
     else if (key_constants.SPACE.matchesEvent(e)) {
@@ -2015,9 +2064,16 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         this.increaseLabelVisibilityLevel();
         return terminate();
     }
-    else if (key_constants.CTRLEQ_FORWARD_SLASH.matchesEvent(e) &&
-             this._contextMenuHandler.call(this, e) === false)
-        return terminate();
+    else if (key_constants.CTRLEQ_FORWARD_SLASH.matchesEvent(e)) {
+        var $raw_caret = $(raw_caret && raw_caret.node);
+        if ($raw_caret.is("._label_clicked")) {
+            $raw_caret.trigger("wed-context-menu", [e]);
+            return terminate();
+        }
+
+        if (this._contextMenuHandler(e) === false)
+            return terminate();
+    }
 
     range = this.getDOMSelectionRange();
 
@@ -2051,10 +2107,6 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         if (!range.collapsed)
             return terminate();
     }
-
-    var raw_caret = this._raw_caret;
-    var $label = this.$gui_root.find(
-        ".__start_label._label_clicked, .__end_label._label_clicked");
 
     if (raw_caret !== undefined) {
         var $placeholders = $(raw_caret.node).closest('._placeholder');
@@ -2091,6 +2143,8 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         }
 
 
+        var $label = this.$gui_root.find(
+            ".__start_label._label_clicked, .__end_label._label_clicked");
         if ($label[0] && key_constants.DELETE.matchesEvent(e)) {
             // The caret is currently in an element label. Delete the element!
             var $el = $label.closest("._real");
@@ -2960,7 +3014,8 @@ Editor.prototype._caretChangeHandler = log.wrap(
         $node = $node.parent();
     }
     this._$wed_location_bar.empty();
-    this._$wed_location_bar.append(steps.join("/"));
+    this._$wed_location_bar.append(steps.length ? steps.join("/") :
+                                   "&lt;span>&nbsp;&lt;/span>");
 });
 
 Editor.prototype.dismissContextMenu = function () {
@@ -2975,16 +3030,9 @@ Editor.prototype.dismissContextMenu = function () {
  */
 Editor.prototype.displayContextMenu = function (x, y, items) {
     this.dismissContextMenu();
-
-    var position = this.$gui_root.offset();
-    var height = this.$gui_root.height();
-    // Subtract the gui_root-relative position from the total height
-    // of the gui_root.
-    var max_height = height - (y - position.top);
     this.pushSelection();
     this._current_dropdown = new context_menu.ContextMenu(
-        this.my_window.document,
-        x, y, max_height, items,
+        this.my_window.document, x, y, items,
         function() {
         this._current_dropdown = undefined;
         this.popSelection();
@@ -3003,7 +3051,22 @@ Editor.prototype.popSelection = function () {
     var it = this._selection_stack.pop();
     this._sel_anchor = it[0];
     this._sel_focus = it[1];
-    if (this._sel_anchor) {
+    this._restoreCaretAndSelection();
+};
+
+/**
+ * Restores the caret and selection from the ``this._sel_anchor`` and
+ * ``this._sel_focus`` fields. This is used to deal with situations in
+ * which the caret and range may have been "damaged" due to browser
+ * operations, changes of state, etc.
+ *
+ * @private
+ */
+Editor.prototype._restoreCaretAndSelection = function () {
+    if (this._sel_anchor &&
+        // It is not impossible that the anchor has been removed
+        // after focus was lost so check for it.
+        $(this._sel_anchor.node).closest(this.gui_root).length) {
         var rr = this._sel_anchor.makeRange(this._sel_focus);
         this.setSelectionRange(rr.range, rr.reversed);
         this._setFakeCaretTo(this._sel_focus);
@@ -3473,7 +3536,7 @@ exports.Editor = Editor;
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Apr 22 2014 16:19:59 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu May 22 2014 14:16:28 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

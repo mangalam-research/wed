@@ -61,6 +61,9 @@
   animation: blink 1s infinite;
   -webkit-animation: blink 1s infinite;
 }
+.wed-widget .wed-sidebar-panel {
+  margin: 0px;
+}
 .wed-widget .wed-sidebar-panel .panel {
   overflow: visible;
 }
@@ -85,20 +88,20 @@ div.wed-document-constrainer {
   position: relative;
   overflow: hidden;
 }
-div.wed-document-constrainer .wed-caret-layer {
-  z-index: 1;
-  background-color: white;
-}
-div.wed-document-constrainer .wed-caret-layer > * {
+div.wed-document-constrainer .wed-comp-field {
   position: absolute;
-}
-div.wed-document-constrainer .wed-caret-layer .wed-comp-field {
   z-index: -10;
   top: -1000px;
   left: -1000px;
   width: 1em;
 }
+div.wed-document-constrainer .wed-caret-layer {
+  position: relative;
+  z-index: 1;
+  background-color: white;
+}
 div.wed-document-constrainer .wed-caret-layer ._wed_caret {
+  position: absolute;
   background-color: black;
   white-space: pre;
   border-style: none;

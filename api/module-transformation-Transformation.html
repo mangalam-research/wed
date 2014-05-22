@@ -45,7 +45,7 @@
     
         
 <dt>
-    <h4 class="name" id="Transformation"><span class="type-signature"></span>new Transformation<span class="signature">(editor, desc, <span class="optional">abbreviated_desc</span>, <span class="optional">icon</span>, handler)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Transformation"><span class="type-signature"></span>new Transformation<span class="signature">(editor, desc, <span class="optional">abbreviated_desc</span>, <span class="optional">icon</span>, <span class="optional">needs_input</span>, handler)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -74,6 +74,8 @@
 		<th>Argument</th>
 		
 		
+		
+		<th>Default</th>
 		
 		
 		<th class="last">Description</th>
@@ -108,6 +110,10 @@
             
             
             
+                <td class="default">
+                
+                </td>
+            
             
             <td class="description last"><p>The editor for which this
 transformation must be created.</p></td>
@@ -139,6 +145,10 @@ transformation must be created.</p></td>
                 </td>
             
             
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>The description of this transformation. A
@@ -177,6 +187,10 @@ transformation is called for the element &quot;foo&quot;.</p></td>
             
             
             
+                <td class="default">
+                
+                </td>
+            
             
             <td class="description last"><p>An abbreviated description of this
 transformation.</p></td>
@@ -211,9 +225,62 @@ transformation.</p></td>
             
             
             
+                <td class="default">
+                
+                </td>
+            
             
             <td class="description last"><p>An HTML representation of the icon
 associated with this transformation.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>needs_input</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+            
+            <td class="description last"><p>Indicates whether this action
+needs input from the user. For instance, an action which brings up
+a modal dialog to ask something of the user must have this
+parameter set to <code>true</code>. It is important to record whether an
+action needs input because, to take one example, the <code>autoinsert</code>
+logic will try to insert automatically any element it can. However,
+doing this for elements that need user input will just confuse the
+user (or could cause a crash). Therefore, it is important that the
+insertion operations for such elements be marked with
+<code>needs_input</code> set to <code>true</code> so that the <code>autoinsert</code> logic
+backs off from trying to insert these elements.</p></td>
         </tr>
 	
 	
@@ -242,6 +309,10 @@ associated with this transformation.</p></td>
                 </td>
             
             
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>The handler to call when this
@@ -276,7 +347,7 @@ transformation is executed.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line110">line 110</a>
+        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line121">line 121</a>
     </li></ul></dd>
     
     
@@ -426,7 +497,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line74">line 74</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line94">line 94</a>
     </li></ul></dd>
     
     
@@ -566,7 +637,7 @@ transformation's editor.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line183">line 183</a>
+        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line199">line 199</a>
     </li></ul></dd>
     
     
@@ -640,7 +711,7 @@ transformation's editor.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line126">line 126</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line146">line 146</a>
     </li></ul></dd>
     
     
@@ -736,7 +807,7 @@ transformation's editor.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line105">line 105</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line125">line 125</a>
     </li></ul></dd>
     
     
@@ -881,7 +952,7 @@ passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line117">line 117</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line137">line 137</a>
     </li></ul></dd>
     
     
@@ -977,7 +1048,7 @@ passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line176">line 176</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line196">line 196</a>
     </li></ul></dd>
     
     
@@ -1069,7 +1140,7 @@ passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line135">line 135</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line155">line 155</a>
     </li></ul></dd>
     
     
@@ -1214,7 +1285,7 @@ data passed as parameter.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line148">line 148</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line168">line 168</a>
     </li></ul></dd>
     
     
@@ -1363,7 +1434,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line91">line 91</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line111">line 111</a>
     </li></ul></dd>
     
     
@@ -1459,7 +1530,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line167">line 167</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line187">line 187</a>
     </li></ul></dd>
     
     
@@ -1712,7 +1783,7 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line125">line 125</a>
+        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line141">line 141</a>
     </li></ul></dd>
     
     
@@ -1792,7 +1863,7 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line36">line 36</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line55">line 55</a>
     </li></ul></dd>
     
     
@@ -1866,7 +1937,7 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line35">line 35</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line54">line 54</a>
     </li></ul></dd>
     
     
@@ -1909,7 +1980,7 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Apr 22 2014 16:20:02 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu May 22 2014 14:16:30 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

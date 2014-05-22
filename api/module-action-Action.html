@@ -48,7 +48,7 @@ state depending on whatever conditions they choose.</p></div>
     
         
 <dt>
-    <h4 class="name" id="Action"><span class="type-signature"></span>new Action<span class="signature">(editor, desc, abbreviated_desc, icon)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Action"><span class="type-signature"></span>new Action<span class="signature">(editor, desc, abbreviated_desc, icon, <span class="optional">needs_input</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -74,7 +74,11 @@ state depending on whatever conditions they choose.</p></div>
 		<th>Type</th>
 		
 		
+		<th>Argument</th>
 		
+		
+		
+		<th>Default</th>
 		
 		
 		<th class="last">Description</th>
@@ -99,7 +103,19 @@ state depending on whatever conditions they choose.</p></div>
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>The editor to which this action
@@ -123,7 +139,19 @@ belongs.</p></td>
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>A simple string description of the action.</p></td>
@@ -146,7 +174,19 @@ belongs.</p></td>
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>An abbreviated description,
@@ -170,11 +210,72 @@ suitable to put into a button, for instance.</p></td>
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>HTML code that represents an icon for this
 action. This can be a simple string or something more complex.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>needs_input</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+            
+            <td class="description last"><p>Indicates whether this action needs
+input from the user. For instance, an action which brings up a
+modal dialog to ask something of the user must have this parameter
+set to <code>true</code>. It is important to record whether an action needs
+input because, to take one example, the <code>autoinsert</code> logic will
+try to insert automatically any element it can. However, doing this
+for elements that need user input will just confuse the user (or
+could cause a crash). Therefore, it is important that the insertion
+operations for such elements be marked with <code>needs_input</code> set to
+<code>true</code> so that the <code>autoinsert</code> logic backs off from trying to
+insert these elements.</p></td>
         </tr>
 	
 	
@@ -212,6 +313,32 @@ action. This can be a simple string or something more complex.</p></td>
 	
         <tr>
             
+                <td class="name"><code>needs_input</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>See the parameter of the same
+name. This value should not be changed after the object is
+initialized. Changing this value at runtime will lead to undefined
+behavior.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
                 <td class="name"><code>bound_handler</code></td>
             
             
@@ -228,8 +355,32 @@ action. This can be a simple string or something more complex.</p></td>
             
             
             
-            <td class="description last"><p>This is an event handler
-bound to the object that contains it.</p></td>
+            <td class="description last"><p>This is an event handler bound
+to the object that contains it. See <code>eventHandler</code>.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>bound_terminal_handler</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>This is a terminal
+event handler bound to the object that contains it. See <code>terminalEventHandler</code>.</p></td>
         </tr>
 	
 	
@@ -257,7 +408,7 @@ bound to the object that contains it.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line34">line 34</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line53">line 53</a>
     </li></ul></dd>
     
     
@@ -402,7 +553,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line74">line 74</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line94">line 94</a>
     </li></ul></dd>
     
     
@@ -538,7 +689,7 @@ determined by the action.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line59">line 59</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line79">line 79</a>
     </li></ul></dd>
     
     
@@ -607,7 +758,7 @@ determined by the action.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line126">line 126</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line146">line 146</a>
     </li></ul></dd>
     
     
@@ -698,7 +849,7 @@ determined by the action.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line105">line 105</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line125">line 125</a>
     </li></ul></dd>
     
     
@@ -838,7 +989,7 @@ passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line117">line 117</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line137">line 137</a>
     </li></ul></dd>
     
     
@@ -929,7 +1080,7 @@ passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line176">line 176</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line196">line 196</a>
     </li></ul></dd>
     
     
@@ -1016,7 +1167,7 @@ passed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line135">line 135</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line155">line 155</a>
     </li></ul></dd>
     
     
@@ -1156,7 +1307,7 @@ data passed as parameter.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line148">line 148</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line168">line 168</a>
     </li></ul></dd>
     
     
@@ -1300,7 +1451,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line91">line 91</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line111">line 111</a>
     </li></ul></dd>
     
     
@@ -1391,7 +1542,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line167">line 167</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line187">line 187</a>
     </li></ul></dd>
     
     
@@ -1486,7 +1637,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line36">line 36</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line55">line 55</a>
     </li></ul></dd>
     
     
@@ -1555,7 +1706,7 @@ the event passed to it.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line35">line 35</a>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line54">line 54</a>
     </li></ul></dd>
     
     
@@ -1598,7 +1749,7 @@ the event passed to it.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Apr 22 2014 16:19:59 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu May 22 2014 14:16:28 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>
