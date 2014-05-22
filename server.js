@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 var express = require("express");
+var compress = require("compression");
+var serve_static = require("serve-static");
 var path = require("path");
 var url = require("url");
 var fs = require("fs");
@@ -25,8 +27,8 @@ var app = express();
 
 if (verbose)
     app.use(express.logger());
-app.use(express.compress());
-app.use(express.static(cwd));
+app.use(compress());
+app.use(serve_static(cwd));
 
 function writeResponse(response, status, data, type) {
     if (verbose)

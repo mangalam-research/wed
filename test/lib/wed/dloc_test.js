@@ -184,6 +184,22 @@ describe("dloc", function () {
             assert.equal(loc.root, $root[0]);
         });
 
+        it("returns a valid DLoc when the root is a Node", function () {
+            var a = defined($(".p")[0]);
+            var loc = dloc.makeDLoc($root[0], a, 0);
+            assert.equal(loc.node, a);
+            assert.equal(loc.offset, 0);
+            assert.equal(loc.root, $root[0]);
+        });
+
+        it("returns a valid DLoc when the root is a DLocRoot", function () {
+            var a = defined($(".p")[0]);
+            var loc = dloc.makeDLoc(root_obj, a, 0);
+            assert.equal(loc.node, a);
+            assert.equal(loc.offset, 0);
+            assert.equal(loc.root, $root[0]);
+        });
+
         it("returns a valid DLoc on an attribute node", function () {
             var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
             var loc = dloc.makeDLoc($root, a, 0);

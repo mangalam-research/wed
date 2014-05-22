@@ -4,6 +4,52 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.15.0:
+
+  - GUI: In previous versions the context menu presented if a user
+    brought it up using the keyboard while an element label was
+    highlighted was different from the menu presented if the user
+    brought it up on the same label using the mouse. This has been
+    fixed.
+
+  - GUI: Contextual menus that run are being cut off by window sides
+    adjust their position to avoid being too small to be easily
+    usable.
+
+  - API: `context_menu.ContextMenu` no longer takes a maximum
+    height. This height is computed automatically.
+
+  - API: The ``autoinsert`` option now operates from the transformations
+    registered with a mode rather than insert new element directly. In
+    particular, if a given element could be inserted in more than one
+    way, then autoinsert won't insert it. The user will have to select
+    one of the methods of insertion.
+
+  - API: ``Action`` and ``Transformation`` objects now take a
+    ``needs_input`` parameter that indicates whether they need input
+    from the user to perform their task. Objects which have this
+    parameter set to ``true`` **cannot be used by the ``autoinsert``
+    logic** to automatically insert elements as this would require
+    input from the user but the ``autoinsert`` feature is meant to
+    work only in unambiguous cases.
+
+    For instance, if a mode is designed to present a modal dialog when
+    the user wants to insert a bibliographical reference, then the
+    transformation which inserts this reference must have
+    ``needs_input`` set to ``true`` so that when such reference is
+    *not* automatically inserted.
+
+  - API: ``TreeUpdater`` has gained the ``removeNodeNF`` method which
+    does not fail if the sole argument is ``null`` or
+    ``undefined``. This allows calling the method in cases where there
+    may be nothing to remove.
+
+  - API: ``TreeUpdater`` has gained the ``mergeTextNodesNF`` method
+    which does not fail if the sole argument is ``null`` or
+    ``undefined``. This allows calling the method in cases where there
+    may be nothing to merge.
+
+
 * 0.14.0:
 
   - GUI: The generic mode now does auto-insertion of elements by

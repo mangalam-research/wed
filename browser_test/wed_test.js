@@ -597,6 +597,7 @@ describe("wed", function () {
     function activateContextMenu(editor) {
         var event = new $.Event("mousedown");
         var $title = editor.$gui_root.find(".title");
+        $title[0].scrollIntoView();
         var offset = $title.offset();
         offset.left += $title.width() / 2;
         offset.top += $title.height() / 2;
