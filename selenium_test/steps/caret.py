@@ -290,6 +290,41 @@ def step_impl(context):
     context.caret_position = wedutil.caret_pos(driver)
 
 
+@when(u'^the user selects the "abcd" of the first title$')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    parent = util.find_element((By.CSS_SELECTOR, ".title"))
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(parent, 0, 0) \
+        .click() \
+        .perform()
+
+    start = wedutil.caret_selection_pos(driver)
+
+    util.send_keys(parent,
+                   # This moves 4 characters to the right
+                   [Keys.ARROW_RIGHT] * 4)
+
+    end = wedutil.caret_selection_pos(driver)
+
+    wedutil.select_text(driver, start, end)
+
+    assert_true(util.is_something_selected(), "something must be selected")
+    context.selection_parent = parent
+    context.caret_position = wedutil.caret_pos(driver)
+
+
+@then(u'^the text "abcd" is selected$')
+def step_impl(context):
+    util = context.util
+
+    text = util.get_selection_text()
+    assert_equal(text, "abcd", "expected selection")
+
+
 @when(u'^the user cuts$')
 def step_impl(context):
     wedutil.cut(context.util)

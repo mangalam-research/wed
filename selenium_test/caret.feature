@@ -74,3 +74,8 @@ Scenario: restoring the selection
   Then a context menu is visible close to where the user invoked it
   When the user types ESCAPE
   Then the selection is restored to what it was before the context menu appeared
+
+Scenario: select text when there is no label
+  When the user decreases the label visibility level
+  And the user selects the "abcd" of the first title
+  Then the text "abcd" is selected
