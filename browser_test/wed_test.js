@@ -10,6 +10,8 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
                 onerror, log, key) {
 'use strict';
 
+var _indexOf = Array.prototype.indexOf;
+
 var options = {
     schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
@@ -198,7 +200,7 @@ describe("wed", function () {
             function () {
             var ref = $(editor.$gui_root.find(".body>.p")[2])
                 .children(".ref")[0];
-            var initial = ref.childNodes[0];
+            var initial = ref.childNodes[1];
 
             // Make sure we're looking at the right thing.
             assert.isTrue($(initial).is("._phantom"), " initial is phantom");
@@ -787,6 +789,56 @@ describe("wed", function () {
             });
         });
 
+        it("moves past the initial nodes around editable contents",
+           function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                var child = $(editor.gui_root).find(".ref")[0];
+                var initial = child.parentNode;
+                var offset = _indexOf.call(initial.childNodes, child);
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
+
+                editor.moveCaretRight();
+
+                var final_offset = 2;
+                var $caret_node = $(child.childNodes[final_offset]);
+                assert.isTrue($caret_node.prev().is("._text._phantom"));
+                assert.isTrue($caret_node.is("._text._phantom"));
+                caretCheck(editor, child, final_offset, "moved once");
+                done();
+
+            });
+        });
+
+        it("moves out of an element when past the last node around " +
+           "editable contents",
+           function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                var initial = $(editor.gui_root).find(".ref")[0];
+                // Check that what we are expecting to be around the caret
+                // is correct.
+                var offset = 2;
+                var $caret_node = $(initial.childNodes[offset]);
+                assert.isTrue($caret_node.prev().is("._text._phantom"));
+                assert.isTrue($caret_node.is("._text._phantom"));
+
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
+
+                editor.moveCaretRight();
+
+                caretCheck(editor, initial.parentNode,
+                           _indexOf.call(initial.parentNode.childNodes,
+                                         initial) + 1, "moved once");
+                done();
+
+            });
+        });
+
         it("does not move when at end of document",
            function (done) {
             editor.whenCondition(
@@ -919,6 +971,57 @@ describe("wed", function () {
                 done();
             });
         });
+
+        it("moves past the final nodes around editable contents",
+           function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                var child = $(editor.gui_root).find(".ref")[0];
+                var initial = child.parentNode;
+                var offset = _indexOf.call(initial.childNodes, child) + 1;
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
+
+                editor.moveCaretLeft();
+
+                var final_offset = 2;
+                var $caret_node = $(child.childNodes[final_offset]);
+                assert.isTrue($caret_node.prev().is("._text._phantom"));
+                assert.isTrue($caret_node.is("._text._phantom"));
+                caretCheck(editor, child, final_offset, "moved once");
+                done();
+
+            });
+        });
+
+        it("moves out of an element when past the first node around " +
+           "editable contents",
+           function (done) {
+            editor.whenCondition(
+                "first-validation-complete",
+                function () {
+                var initial = $(editor.gui_root).find(".ref")[0];
+                // Check that what we are expecting to be around the caret
+                // is correct.
+                var offset = 2;
+                var $caret_node = $(initial.childNodes[offset]);
+                assert.isTrue($caret_node.prev().is("._text._phantom"));
+                assert.isTrue($caret_node.is("._text._phantom"));
+
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
+
+                editor.moveCaretLeft();
+
+                caretCheck(editor, initial.parentNode,
+                           _indexOf.call(initial.parentNode.childNodes,
+                                         initial), "moved once");
+                done();
+
+            });
+        });
+
 
         it("does not move when at start of document",
            function (done) {

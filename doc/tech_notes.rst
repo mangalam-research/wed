@@ -661,6 +661,30 @@ Classes Used by Wed
   they look nice on screen, these periods should be ``_phantom
   _decoration_text`` elements.
 
+``__start_label``:
+  In combination with ``_gui``, indicates a label that marks the start
+  of an element.
+
+``__end_label``:
+  In combination with ``_gui``, indicates a label that marks the end
+  of an element.
+
+``_<id>_label``:
+  The ``<id>`` part is the name of an element. This class marks a
+  label as belonging to an ``<id>`` element. For instance, a label for
+  a ``p`` element will have the class ``_p_label``. The full set of
+  classes for such a label which happens to mark the start of ``p``
+  will be ``_gui _phantom __start_label _p_label``.
+
+``_start_wrapper``:
+  Marks an element which wraps the editable content of an
+  element. There may be many such elements at the start of an
+  element. For instance a ``ref`` could contain an element label and
+  then the phantom text ``(``. Both would be marked with this class.
+
+``_end_wrapper``:
+  Like ``_start_wrapper`` but marks the end.
+
 Browser Issues
 ==============
 

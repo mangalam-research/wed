@@ -4,6 +4,14 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.16.0:
+
+  - GUI: Improved the caret movement logic to deal with cases where an
+    element's editable content is wrapped by more than one element.
+
+  - API: Introduced ``_start_wrapper`` and ``_end_wrapper`` classes to
+    mark the wrapping elements.
+
 * 0.15.0:
 
   - GUI: In previous versions the context menu presented if a user

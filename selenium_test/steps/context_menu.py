@@ -166,7 +166,7 @@ def context_menu_on_uneditable_text(context):
     util = context.util
 
     element, parent, _ = get_element_parent_and_parent_text(
-        driver, ".ref>._phantom")
+        driver, ".ref>._phantom._text")
     ActionChains(driver)\
         .move_to_element(element)\
         .context_click()\

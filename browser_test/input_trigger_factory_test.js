@@ -163,7 +163,8 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setGUICaret(
-                editor.$gui_root.find(".p>.ref")[0].lastChild, 0);
+                editor.$gui_root.find(".p>.ref")[0].lastChild.previousSibling,
+                0);
             editor.type(key_constants.DELETE);
 
             var $ps = editor.$data_root.find(".body>.p");
