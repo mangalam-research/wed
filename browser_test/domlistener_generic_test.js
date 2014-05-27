@@ -219,7 +219,7 @@ return function (domlistener, class_name, tree_updater_class) {
             function removedHandler($this_root, $parent,
                                     $previous_sibling,
                                     $next_sibling, $element) {
-                var text = $element[0].childNodes[0].nodeValue;
+                var text = $element[0].firstChild.nodeValue;
                 if (text === "A") {
                     assert.isUndefined($previous_sibling[0],
                                        "previous sibling of A");
@@ -408,11 +408,11 @@ return function (domlistener, class_name, tree_updater_class) {
             listener.startListening($root);
             if (tree_updater) {
                 tree_updater.setTextNodeValue(
-                    $root.find("._real.li")[0].childNodes[0], "Q");
+                    $root.find("._real.li")[0].firstChild, "Q");
                 mark.check();
             }
             else
-                $root.find("._real.li")[0].childNodes[0].nodeValue = "Q";
+                $root.find("._real.li")[0].firstChild.nodeValue = "Q";
         });
 
         it("fires children-changed when adding a text node",

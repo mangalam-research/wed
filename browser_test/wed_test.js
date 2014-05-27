@@ -52,11 +52,11 @@ function lastGUI($container) {
 }
 
 function firstPH($container) {
-    return $container.children("._placeholder")[0].childNodes[0];
+    return $container.children("._placeholder")[0].firstChild;
 }
 
 function lastPH($container) {
-    return $container.children("._placeholder").get(-1).childNodes[0];
+    return $container.children("._placeholder").get(-1).firstChild;
 }
 
 describe("wed", function () {
@@ -299,10 +299,10 @@ describe("wed", function () {
             // Text node inside paragraph.
             var initial = $(editor.data_root).find(".body>.p")[0];
             var parent = initial.parentNode;
-            editor.setDataCaret(initial.childNodes[0], 1);
+            editor.setDataCaret(initial.firstChild, 1);
 
             editor.type(" ");
-            assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
+            assert.equal(initial.firstChild.nodeValue, "B lah blah ");
 
             var caret = editor.getGUICaret();
             var $last_gui = $(caret.node).closest(".p").children().last();
@@ -355,10 +355,10 @@ describe("wed", function () {
             // Text node inside paragraph.
             var initial = $(editor.data_root).find(".body>.p")[0];
             var parent = initial.parentNode;
-            editor.setDataCaret(initial.childNodes[0], 1);
+            editor.setDataCaret(initial.firstChild, 1);
 
             editor.type(" ");
-            assert.equal(initial.childNodes[0].nodeValue, "B lah blah ");
+            assert.equal(initial.firstChild.nodeValue, "B lah blah ");
 
             var caret = editor.getGUICaret();
 
@@ -403,13 +403,13 @@ describe("wed", function () {
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
-            assert.equal(initial.childNodes[0].nodeValue, "abcd");
+            assert.equal(initial.firstChild.nodeValue, "abcd");
             editor.setDataCaret(initial, 0);
             var caret = editor.getGUICaret();
             assert.equal(caret.node.childNodes[caret.offset].nodeValue, "abcd");
 
             // Delete all contents.
-            editor.data_updater.removeNode(initial.childNodes[0]);
+            editor.data_updater.removeNode(initial.firstChild);
 
             // We should have a placeholder now, between the two labels.
             assert.equal(caret.node.childNodes.length, 3);
@@ -427,7 +427,7 @@ describe("wed", function () {
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
-            assert.equal(initial.childNodes[0].nodeValue, "abcd");
+            assert.equal(initial.firstChild.nodeValue, "abcd");
             editor.setDataCaret(initial, 0);
             var caret = editor.getGUICaret();
             assert.equal(caret.node.childNodes[caret.offset].nodeValue, "abcd");
@@ -437,7 +437,7 @@ describe("wed", function () {
 
             var tr = trs[0];
             var data = {node: undefined, element_name: "hi"};
-            editor.setDataCaret(initial.childNodes[0], 1);
+            editor.setDataCaret(initial.firstChild, 1);
             caret = editor.getGUICaret();
             var range = caret.makeRange();
             range.setEnd(caret.node, caret.offset + 2);
@@ -676,7 +676,7 @@ describe("wed", function () {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                var initial = editor.gui_root.childNodes[0];
+                var initial = editor.gui_root.firstChild;
                 editor.setGUICaret(initial, 0);
                 caretCheck(editor, initial, 0, "initial");
                 editor.moveCaretRight();
@@ -866,7 +866,7 @@ describe("wed", function () {
             editor.whenCondition(
                 "first-validation-complete",
                 function () {
-                var initial = editor.gui_root.childNodes[0];
+                var initial = editor.gui_root.firstChild;
                 var offset = initial.childNodes.length;
                 editor.setGUICaret(initial, offset);
                 caretCheck(editor, initial, offset, "initial");
@@ -1040,7 +1040,7 @@ describe("wed", function () {
     });
 
     it("handles pasting simple text", function () {
-        var initial = editor.$data_root.find(".body>.p")[0].childNodes[0];
+        var initial = editor.$data_root.find(".body>.p")[0].firstChild;
         editor.setDataCaret(initial, 0);
         var initial_value = initial.nodeValue;
 
@@ -1062,7 +1062,7 @@ describe("wed", function () {
 
     it("handles pasting structured text", function () {
         var $p = editor.$data_root.find(".body>.p").first();
-        var initial = $p[0].childNodes[0];
+        var initial = $p[0].firstChild;
         editor.setDataCaret(initial, 0);
         var initial_value = $p[0].innerHTML;
 
@@ -1085,7 +1085,7 @@ describe("wed", function () {
     it("handles pasting structured text: invalid, decline pasting as text",
        function (done) {
         var $p = editor.$data_root.find(".body>.p").first();
-        var initial = $p[0].childNodes[0];
+        var initial = $p[0].firstChild;
         editor.setDataCaret(initial, 0);
         var initial_value = $p[0].innerHTML;
 
@@ -1119,7 +1119,7 @@ describe("wed", function () {
     it("handles pasting structured text: invalid, accept pasting as text",
        function (done) {
         var $p = editor.$data_root.find(".body>.p").first();
-        var initial = $p[0].childNodes[0];
+        var initial = $p[0].firstChild;
         editor.setDataCaret(initial, 0);
         var initial_value = $p[0].innerHTML;
         var initial_outer = $p[0].outerHTML;
@@ -1144,7 +1144,7 @@ describe("wed", function () {
             $top.one("hidden.bs.modal", function () {
                 assert.equal($p[0].innerHTML,
                              initial_outer_from_text_to_html + initial_value);
-                dataCaretCheck(editor, $p[0].childNodes[0],
+                dataCaretCheck(editor, $p[0].firstChild,
                                initial_outer.length, "final position");
                 done();
             });
@@ -1156,7 +1156,7 @@ describe("wed", function () {
 
     it("handles cutting a well formed selection", function (done) {
         var p = editor.$data_root.find(".body>.p")[0];
-        var gui_start = editor.fromDataLocation(p.childNodes[0], 4);
+        var gui_start = editor.fromDataLocation(p.firstChild, 4);
         editor.setGUICaret(gui_start);
         var range = gui_start.makeRange(
             editor.fromDataLocation(p.childNodes[2], 5)).range;
@@ -1175,8 +1175,7 @@ describe("wed", function () {
         var p = editor.$data_root.find(".body>.p")[0];
         var original_inner_html = p.innerHTML;
         // Start caret is inside the term element.
-        var gui_start = editor.fromDataLocation(p.childNodes[1].childNodes[0],
-                                                1);
+        var gui_start = editor.fromDataLocation(p.childNodes[1].firstChild, 1);
         var gui_end = editor.fromDataLocation(p.childNodes[2], 5);
         editor.setGUICaret(gui_end);
         var range = gui_start.makeRange(gui_end).range;

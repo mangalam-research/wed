@@ -61,7 +61,7 @@ describe("input_trigger_factory", function () {
 
             // Synthetic event
             editor.setDataCaret(
-                editor.$data_root.find(".p").get(-1).childNodes[0], 4);
+                editor.$data_root.find(".p").get(-1).firstChild, 4);
             editor.type(";");
 
             var $ps = editor.$data_root.find(".body .p");
@@ -83,7 +83,7 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setDataCaret(
-                editor.$data_root.find(".p").get(-1).childNodes[0], 4);
+                editor.$data_root.find(".p").get(-1).firstChild, 4);
             editor.type(key_constants.ENTER);
 
             var $ps = editor.$data_root.find(".body .p");
@@ -149,7 +149,7 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setGUICaret(
-                editor.$gui_root.find(".p>.ref")[0].childNodes[0], 1);
+                editor.$gui_root.find(".p>.ref")[0].firstChild, 1);
             editor.type(key_constants.BACKSPACE);
 
             var $ps = editor.$data_root.find(".body>.p");
