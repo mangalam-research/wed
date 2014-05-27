@@ -130,8 +130,7 @@ describe("wed", function () {
             // We put the caret just after the last <hi>, which means
             // it is just before the last text node.
             editor.setDataCaret(
-                initial,
-                Array.prototype.indexOf.call(initial.childNodes, $hi[0]) + 1);
+                initial, _indexOf.call(initial.childNodes, $hi[0]) + 1);
 
             var initial_length = initial.childNodes.length;
 
