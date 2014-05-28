@@ -79,3 +79,8 @@ Scenario: select text when there is no label
   When the user decreases the label visibility level
   And the user selects the "abcd" of the first title
   Then the text "abcd" is selected
+
+Scenario: clicking on uneditable text
+  When the user clicks on uneditable text whose parent does not contain "A"
+  And the user types "A"
+  Then the uneditable text's parent contains "A"

@@ -466,3 +466,26 @@ def step_impl(context):
                    [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 9 + [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
+
+
+@when(ur'the user clicks on uneditable text whose parent does not contain "A"')
+def step_impl(context):
+    driver = context.driver
+
+    el, _, parent_text = get_element_parent_and_parent_text(driver, ".ref")
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(el, 1, 1)\
+        .click()\
+        .perform()
+
+    assert_true(parent_text.find("A") == -1)
+
+
+@then(u'the uneditable text\'s parent contains "A"')
+def step_impl(context):
+    driver = context.driver
+
+    _, _, parent_text = get_element_parent_and_parent_text(driver, ".ref")
+
+    assert_true(parent_text.find("A") != -1)
