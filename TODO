@@ -4,20 +4,9 @@ Wed
 Caret Management
 ----------------
 
-* _seekCaret needs a 400 ms timeout on IE, which is not small. If we
-   can, we should drop _seekCaret and determine caret position
-   ourselves without relying on the browsers default mechanisms. This
-   would probably also mean completely dropping contenteditable.
+* _raw_caret can probably be eliminated.
 
-* Generally refactor selection management.
-
-* Caret management right now is a complicated affair. Wed should try
-  to follow the blur and focus events so that whenever the caret moves
-  out of the editing area, its location is stored and when the user
-  moves back to the editing area, the location is restored. Right now,
-  push/popSelection are used to prevent the caret to be lost when GUI
-  elements that overlay the editing area are displayed but we should
-  be able to get rid of this.
+* We should not ever have to read the DOM selection to check its status.
 
 Other
 -----
