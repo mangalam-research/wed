@@ -489,3 +489,33 @@ def step_impl(context):
     _, _, parent_text = get_element_parent_and_parent_text(driver, ".ref")
 
     assert_true(parent_text.find("A") != -1)
+
+
+@when(ur"the user selects text on an element's label")
+def step_impl(context):
+    driver = context.driver
+    selector = ".__end_label._title_label"
+
+    # Faster than using 4 Selenium operations.
+    label, start, end = driver.execute_script("""
+    var selector = arguments[0];
+
+    var el = jQuery(selector)[0];
+    var text = el.firstChild.firstChild;
+    var range = document.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, text.nodeValue.length);
+    var rect = range.getBoundingClientRect();
+    return [el, {left: rect.left + 5, top: rect.top + rect.height / 2},
+            {left: rect.right - 5, top: rect.top + rect.height / 2}];
+    """, selector)
+
+    context.clicked_element = label
+
+    wedutil.select_text(driver, start, end, True)
+
+
+@then(ur"no text is selected")
+def step_impl(context):
+    util = context.util
+    assert_false(util.is_something_selected(), "nothing must be selected")

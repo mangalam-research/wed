@@ -84,3 +84,8 @@ Scenario: clicking on uneditable text
   When the user clicks on uneditable text whose parent does not contain "A"
   And the user types "A"
   Then the uneditable text's parent contains "A"
+
+Scenario: selecting text on a label
+  When the user selects text on an element's label
+  Then no text is selected
+  And the label changes to show it is selected
