@@ -12,6 +12,11 @@ Only salient changes are recorded here.
   - API: Introduced ``_start_wrapper`` and ``_end_wrapper`` classes to
     mark the wrapping elements.
 
+  - API: ``nodesAroundEditableContents`` now has a default
+    implementation in the base ``Mode`` class. Modes that use
+    ``_start_wrapper`` and ``_end_wrapper`` properly should not have
+    to override it.
+
 * 0.15.0:
 
   - GUI: In previous versions the context menu presented if a user
