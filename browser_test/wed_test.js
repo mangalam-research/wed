@@ -93,6 +93,16 @@ describe("wed", function () {
             assert.equal(editor.getGUICaret(), undefined, "no caret");
         });
 
+        it("typing BACKSPACE without caret does not crash", function () {
+            assert.equal(editor.getGUICaret(), undefined, "no caret");
+            editor.type(key_constants.BACKSPACE);
+        });
+
+        it("typing DELETE without caret does not crash", function () {
+            assert.equal(editor.getGUICaret(), undefined, "no caret");
+            editor.type(key_constants.DELETE);
+        });
+
         it("typing text works", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
             // Text node inside title.

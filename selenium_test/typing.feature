@@ -38,3 +38,6 @@ Scenario: moving from an element's end label and deleting
   And the user hits the left arrow
   And the user types BACKSPACE
   Then the last letter of the element's text is deleted
+
+Scenario: typing text without caret does not crash
+  When the user types "A"
