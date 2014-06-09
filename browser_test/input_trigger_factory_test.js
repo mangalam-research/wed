@@ -171,6 +171,58 @@ describe("input_trigger_factory", function () {
             assert.equal($ps.length, 1);
         });
     });
+
+    describe("makeSplitMergeInputTrigger", function () {
+        before(function () {
+            src_stack.unshift("../../test-files/input_trigger_test_data" +
+                              "/source3_converted.xml");
+        });
+        after(function () {
+            src_stack.shift();
+        });
+
+        it("creates an InputTrigger that merges on BACKSPACE",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                         "there should be 2 paragraphs before backspacing");
+
+            editor.setDataCaret($ps[1].firstChild, 0);
+            editor.type(key_constants.BACKSPACE);
+
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1,
+                        "there should be 1 paragraph after backspacing");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">BarFoo</div>');
+        });
+
+        it("creates an InputTrigger that merges on DELETE",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                         "there should be 2 paragraphs before backspacing");
+
+            editor.setDataCaret($ps[0].lastChild,
+                                $ps[0].lastChild.nodeValue.length);
+            editor.type(key_constants.DELETE);
+
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1,
+                        "there should be 1 paragraph after backspacing");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">BarFoo</div>');
+        });
+    });
+
 });
 
 });
