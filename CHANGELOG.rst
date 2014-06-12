@@ -17,6 +17,14 @@ Only salient changes are recorded here.
     ``_start_wrapper`` and ``_end_wrapper`` properly should not have
     to override it.
 
+  - API: Added ``Editor.excludeFromBlur``. This is for modes that add
+    things like toolbars or menu items that launch
+    transformations. These DOM elements must be excluded from causing
+    a blur, otherwise a) clicking these DOM elements will cause a
+    transformation to occur without a caret being active (and wed will
+    raise an exception), b) from the user's perspective, the caret
+    appears to be lost.
+
 * 0.15.0:
 
   - GUI: In previous versions the context menu presented if a user

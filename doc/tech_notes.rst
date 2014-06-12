@@ -532,6 +532,35 @@ Data caret
   The caret in the data tree that corresponds to the GUI caret. It may or may
   not correspond to a DOM caret. Modes usually want to work with this caret.
 
+Support for GUI Controls Outside Wed
+------------------------------------
+
+By default, wed does not provide any kind of drop down menus or
+toolbar to perform actions like undo/redo, etc. The application that
+embeds wed into it, however, might need such tools. Now, the problem
+is that as far as wed is concerned, these items are not part of the
+editing pane and thus, manipulating them should cause a blurring of
+the editor. This is undesirable because:
+
+- It means that a GUI control that fires a transformation would fire
+  it when the caret is not defined (because of the blur). This causes
+  wed to raise an exception.
+
+- Even if the previous point could somehow be worked around because
+  wed keeps enough state to know where the caret was before the blur
+  happened, the user would still **see** the focus leave the editor
+  pane.
+
+Consequently, such elements must be made known to wed so that it does
+not consider clicks in them to cause a loss of
+focus. ``Editor.excludeFromBlur`` is the method to use to register
+these elements with wed.
+
+.. warning:: These elements must also have ``mousedown`` and ``click``
+             handlers that do not cause the **browser** to change the
+             focus. This typically means that handlers for these two
+             events should prevent the default browser behavior.
+
 IM Support
 ----------
 

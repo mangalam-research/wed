@@ -24,3 +24,9 @@ Scenario: typing text after recovering focus
   And the user goes back to the initial window
   And the user types "A"
   Then "A" is in the text
+
+Scenario: clicking in an element excluded from blur
+  When the user clicks on text that does not contain "A"
+  And the user clicks in an element excluded from blur
+  And the user types "A"
+  Then "A" is in the text

@@ -328,3 +328,21 @@ def step_impl(context, what):
     assert_equal(len(context.driver.find_elements_by_css_selector(
         ".teiHeader")),
         0)
+
+
+@when("the user clicks in an element excluded from blur")
+def step_impl(context):
+    driver = context.driver
+
+    el = driver.execute_script("""
+    var $button = jQuery("<button>Foo</button>");
+
+    // Necessary to prevent the browser from moving the focus.
+    $button.mousedown(false);
+    $button.click(false);
+    jQuery(document.body).append($button);
+    wed_editor.excludeFromBlur($button);
+    return $button[0];
+    """)
+
+    el.click()
