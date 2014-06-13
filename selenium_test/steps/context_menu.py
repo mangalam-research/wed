@@ -345,9 +345,13 @@ def step_impl(context, choice):
         raise ValueError("unknown choice: " + choice)
 
     # IF YOU CHANGE THIS, CHANGE THE TRIGGER
-    ActionChains(driver)\
-        .click(where) \
-        .perform()
+    while True:
+        ActionChains(driver)\
+            .click(where) \
+            .perform()
+
+        if wedutil.is_caret_in(util, where):
+            break
 
     util.ctrl_equivalent_x("/")
 

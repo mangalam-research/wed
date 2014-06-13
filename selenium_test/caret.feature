@@ -76,7 +76,9 @@ Scenario: restoring the selection
   Then the selection is restored to what it was before the context menu appeared
 
 Scenario: select text when there is no label
-  When the user decreases the label visibility level
+  # This step is needed to acquire focus in FF.
+  When the user clicks on text
+  And the user decreases the label visibility level
   And the user selects the "abcd" of the first title
   Then the text "abcd" is selected
 

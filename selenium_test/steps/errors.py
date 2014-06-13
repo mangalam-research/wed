@@ -23,14 +23,14 @@ def step_impl(context):
     """)
 
 
-@then(ur"^additional errors appear in the error panel$")
+@then(ur"^2 errors appear in the error panel$")
 def step_impl(context):
     driver = context.driver
     util = context.util
 
     def cond(*_):
         return driver.execute_script("""
-        return jQuery("#sb-errorlist").children().length !== 0;
+        return jQuery("#sb-errorlist").children().length === 2;
         """)
 
     util.wait(cond)
@@ -52,9 +52,18 @@ def step_impl(context):
         return $last[0];
         """)
 
-    util.wait(lambda *_: el.is_displayed())
-
     def cond(*_):
+        # Wait until it is fully opened. Otherwise, the click may hit
+        # the screen at a location through which the element is
+        # transiting.
+        if not driver.execute_script("""
+        return jQuery("#sb-errors-collapse").is(".in");
+        """):
+            return False
+
+        if not el.is_displayed():
+            return False
+
         ret = False
         try:
             el.click()

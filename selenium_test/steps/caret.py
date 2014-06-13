@@ -303,6 +303,9 @@ def step_impl(context):
         .perform()
 
     start = wedutil.caret_selection_pos(driver)
+    # On FF there's an off-by 1 issue in the CSS rendering which causes
+    # a problem unless we perform this adjustment.
+    start["left"] += 1
 
     util.send_keys(parent,
                    # This moves 4 characters to the right
