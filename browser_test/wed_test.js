@@ -568,6 +568,34 @@ describe("wed", function () {
                          'de</div>fg</div>hij');
         });
 
+
+        it("wraps text in elements (no limit case)", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var initial = $(editor.data_root).find(".body>.p")[4];
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.childNodes.length, 1);
+            assert.equal(initial.firstChild.data, "abcdefghij");
+
+            var trs = editor.mode.getContextualActions(
+                ["wrap"], "hi", initial, 0);
+
+            var tr = trs[0];
+            var data = {node: undefined, element_name: "hi"};
+            var caret = editor.fromDataLocation(initial.firstChild, 0);
+            editor.setSelectionRange(caret.makeRange(
+                caret.make(caret.node, initial.firstChild.length)).range);
+
+            tr.execute(data);
+
+            assert.equal(initial.childNodes.length, 1, "length after wrap");
+            assert.equal(initial.innerHTML,
+                         '<div class="hi _real">abcdefghij</div>');
+        });
+
+
         function activateContextMenu(editor) {
             var event = new $.Event("mousedown");
             var $title = editor.$gui_root.find(".title");
