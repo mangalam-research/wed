@@ -91,3 +91,7 @@ Scenario: selecting text on a label
   When the user selects text on an element's label
   Then no text is selected
   And the label changes to show it is selected
+
+Scenario: selecting text on a phantom text
+  When the user selects text on phantom text
+  Then no text is selected
