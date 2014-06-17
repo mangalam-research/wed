@@ -524,3 +524,12 @@ def step_impl(context):
 def step_impl(context):
     util = context.util
     assert_false(util.is_something_selected(), "nothing must be selected")
+
+
+@when(ur"the user clicks outside the editor pane")
+def step_impl(context):
+    body = context.driver.find_element_by_tag_name("body")
+    ActionChains(context.driver) \
+        .move_to_element_with_offset(body, 1, 1) \
+        .click() \
+        .perform()

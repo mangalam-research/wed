@@ -6,8 +6,15 @@ Only salient changes are recorded here.
 
 * 0.16.0:
 
+  - GUI: Hitting escape when a tooltip is displayed closes the tooltip.
+
   - GUI: Improved the caret movement logic to deal with cases where an
     element's editable content is wrapped by more than one element.
+
+  - API: Tooltips that appear in the editing pane now must be created
+    using the ``tooltip`` method of the ``tooltip`` module. If they
+    are not created this way, then they will not respond to the escape
+    key and won't be closed.
 
   - API: Introduced ``_start_wrapper`` and ``_end_wrapper`` classes to
     mark the wrapping elements.

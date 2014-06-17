@@ -111,5 +111,6 @@ Scenario: bringing up the context menu with the keyboard on an element's label
   Then a context menu is visible close to where the user invoked it
 
 Scenario: bringing up the context menu when there is no caret
-  When the user uses the keyboard to bring up the context menu
+  When the user clicks outside the editor pane
+  And the user uses the keyboard to bring up the context menu
   Then a context menu is not visible

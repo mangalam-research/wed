@@ -1,5 +1,6 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 import selenium.webdriver.support.expected_conditions as EC
 from nose.tools import assert_true, assert_equal  # pylint: disable=E0611
 
@@ -15,7 +16,7 @@ def no_before_unload(context):
     context.driver.execute_script("window.onbeforeunload = function () {};")
 
 
-def load_and_wait_for_editor(context, text=None, options=None):
+def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
     no_before_unload(context)
     driver = context.driver
     util = context.util
@@ -31,21 +32,31 @@ def load_and_wait_for_editor(context, text=None, options=None):
 
     wedutil.wait_for_editor(util)
 
-    context.origin_object = \
-        driver.execute_script("""
-    // Turn off tooltips
-    wed_editor.preferences.set("tooltips", false);
+    context.origin_object = driver.execute_script("""
+    var tooltips = arguments[0];
+    if (!tooltips) {
+        // Turn off tooltips
+        wed_editor.preferences.set("tooltips", false);
 
-    // Delete all tooltips.
-    jQuery(".tooltip").remove();
+        // Delete all tooltips.
+        jQuery(".tooltip").remove();
+    }
 
     // This is bullshit to work around a Selenium limitation.
     jQuery("body").append(
-      '<div id="origin-object" ' +
-      'style=' +
-      '"position: fixed; top: 0px; left: 0px; width:1px; height:1px;"/>');
+        '<div id="origin-object" style=' +
+        '"position: fixed; top: 0px; left: 0px; width:1px; height:1px;"/>');
     return jQuery("#origin-object")[0];
-    """)
+    """, tooltips)
+
+    # For some reason, FF does not get focus automatically.
+    # This counters the problem.
+    if config.BROWSER == "FIREFOX":
+        body = driver.find_element_by_css_selector(".wed-document")
+        ActionChains(driver) \
+            .move_to_element_with_offset(body, 1, 1) \
+            .click() \
+            .perform()
 
 
 @when("the user loads the page")
@@ -251,6 +262,14 @@ def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
         text="/build/test-files/wed_test_data/source_converted.xml")
+
+
+@given(ur"^a document with tooltips on")
+def step_impl(context):
+    load_and_wait_for_editor(
+        context,
+        text="/build/test-files/wed_test_data/source_converted.xml",
+        tooltips=True)
 
 
 @given(ur"^a complex document without errors?$")
