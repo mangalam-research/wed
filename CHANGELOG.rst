@@ -41,6 +41,10 @@ Only salient changes are recorded here.
     raise an exception), b) from the user's perspective, the caret
     appears to be lost.
 
+  - API: The data field ``data-wed-custom-context-menu`` that is used
+    to set custom menus must be set in the DOM and not just by using
+    jQuery's ``data()`` method.
+
 * 0.15.0:
 
   - GUI: In previous versions the context menu presented if a user
