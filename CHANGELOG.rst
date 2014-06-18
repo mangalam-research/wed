@@ -11,10 +11,19 @@ Only salient changes are recorded here.
   - GUI: Improved the caret movement logic to deal with cases where an
     element's editable content is wrapped by more than one element.
 
+  - GUI: The navigation panel is not shown unless it is actually
+    filled with something.
+
   - API: Tooltips that appear in the editing pane now must be created
     using the ``tooltip`` method of the ``tooltip`` module. If they
     are not created this way, then they will not respond to the escape
     key and won't be closed.
+
+  - API: Mode that want to fill the navigation panel must use
+    ``Editor.setNavigationList``.
+
+  - API: ``Editor`` no longer has a public field named
+    ``$navigation_list``. (It is now private.)
 
   - API: Introduced ``_start_wrapper`` and ``_end_wrapper`` classes to
     mark the wrapping elements.

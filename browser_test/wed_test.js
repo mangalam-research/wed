@@ -999,6 +999,16 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
             onerror.__test.reset();
         });
 
+        describe("setNavigationList", function () {
+            it("makes the navigation list appear", function () {
+                assert.equal(editor._$navigation_panel.css("display"), "none",
+                            "the list is not displayed");
+                editor.setNavigationList("foo");
+                assert.equal(editor._$navigation_panel.css("display"), "block",
+                            "the list is displayed");
+            });
+        });
+
         describe("moveCaretRight", function () {
             it("works even if there is no caret defined", function () {
                 editor._blur();
