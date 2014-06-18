@@ -71,7 +71,8 @@ def step_impl(context):
 
 @then(ur"^the caret is at the last position before the focus was lost\.?$")
 def step_impl(context):
-    assert_equal(context.caret_position, wedutil.caret_pos(context.driver))
+    context.util.wait(lambda driver: context.caret_position ==
+                      wedutil.caret_pos(driver))
 
 
 @then(u"the selection is the same as before the focus was lost")
