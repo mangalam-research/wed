@@ -164,12 +164,16 @@ determined by the ``save`` option. It is of the form::
 
   save: {
       url: "...",
-      headers: { ... ]
+      headers: { ... }
+      autosave: ...
   }
 
 The ``url`` parameter is the URL where wed will send the Ajax queries
 for saving. The ``headers`` parameter is as described above for
-logging.
+logging. The ``autosave`` parameter is a number of seconds between
+autosaves. Setting it to 0 will turn off autosaving. Wed will autosave
+only if it detects that the document has been changed since the last
+save.
 
 Queries are sent as POST requests with the following parameters:
 

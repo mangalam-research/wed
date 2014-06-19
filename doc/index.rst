@@ -28,6 +28,8 @@ Here are some limitations of the demo:
   functionality works, but it needs a server able to handle AJAX
   calls. Github.io is not able to do this.
 
+* Autosave is turned off, for the reason given above.
+
 * You cannot edit attributes in a generic way, as attributes. The
   functionality just has not been implemented yet because wed is
   developed in the context of a project where all attributes are set

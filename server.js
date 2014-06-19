@@ -93,6 +93,7 @@ app.post("/build/ajax/save.txt", function (request, response) {
         case 'check':
             break;
         case 'save':
+        case 'autosave':
             if (!fail_on_save)
                 messages.push({type: 'save_successful'});
             else

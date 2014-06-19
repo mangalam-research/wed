@@ -6,6 +6,8 @@ Only salient changes are recorded here.
 
 * 0.16.0:
 
+  - Wed is now able to autosave at regular intervals.
+
   - GUI: Hitting escape when a tooltip is displayed closes the tooltip.
 
   - GUI: Improved the caret movement logic to deal with cases where an
@@ -47,6 +49,13 @@ Only salient changes are recorded here.
 
   - API: ``Editor`` gained a ``save`` method that allows modes to
     trigger manual saves.
+
+  - API: The protocol for saving to a server now emits ``autosave``
+    messages besides ``save``. These messages work the same as
+    ``save`` messages.
+
+  - API: The ``save`` option now accepts an ``autosave`` sub-option to
+    set the interval at which autosaves are invoked.
 
 * 0.15.0:
 
