@@ -56,6 +56,8 @@ function unlinkIfExists(path) {
 
 var fail_on_save = false;
 var fail_on_recover = false;
+var no_response_on_save = false;
+var no_response_on_recover = false;
 
 function dumpData(request, callback) {
     var uri = url.parse(request.url).pathname;
@@ -94,16 +96,20 @@ app.post("/build/ajax/save.txt", function (request, response) {
             break;
         case 'save':
         case 'autosave':
-            if (!fail_on_save)
-                messages.push({type: 'save_successful'});
-            else
-                status = 400;
+            if (!no_response_on_save) {
+                if (!fail_on_save)
+                    messages.push({type: 'save_successful'});
+                else
+                    status = 400;
+            }
             break;
         case 'recover':
-            if (!fail_on_recover)
-                messages.push({type: 'save_successful'});
-            else
-                status = 400;
+            if (!no_response_on_recover) {
+                if (!fail_on_recover)
+                    messages.push({type: 'save_successful'});
+                else
+                    status = 400;
+            }
             break;
         default:
             status = 400;
@@ -124,12 +130,20 @@ app.post("/build/ajax/control", function(request, response) {
             unlinkIfExists(path.join(cwd, "/build/ajax/control"));
             fail_on_save = false;
             fail_on_recover = false;
+            no_response_on_save = false;
+            no_response_on_recover = false;
             break;
         case 'fail_on_save':
             fail_on_save = decoded.value;
             break;
         case 'fail_on_recover':
             fail_on_recover = decoded.value;
+            break;
+        case 'no_response_on_save':
+            no_response_on_save = decoded.value;
+            break;
+        case 'no_response_on_recover':
+            no_response_on_recover = decoded.value;
             break;
         default:
             status = 400;

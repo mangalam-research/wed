@@ -8,6 +8,9 @@ Only salient changes are recorded here.
 
   - Wed is now able to autosave at regular intervals.
 
+  - GUI: Wed now freezes editing if a save fails, be it a manual save
+    or autosave. The editing remains frozen util a save works.
+
   - GUI: Hitting escape when a tooltip is displayed closes the tooltip.
 
   - GUI: Improved the caret movement logic to deal with cases where an

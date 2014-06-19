@@ -965,18 +965,42 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 global.reset(done);
             });
 
-            afterEach(function () {
-                onerror.__test.reset();
-            });
-
-            it("tells the user to reload when save fails", function (done) {
+            it("tells the user to reload when save fails hard",
+               function (done) {
                 function doit() {
                     var $modal = onerror.__test.$modal;
                     $modal.on('shown.bs.modal', function () {
                         // Prevent a reload.
                         $modal.off('hide.bs.modal.modal');
                         $modal.modal('hide');
+                        onerror.__test.reset();
                         done();
+                    });
+
+                    editor.type(key_constants.CTRLEQ_S);
+                }
+
+                global.no_response_on_save(doit);
+            });
+
+            it("warns of disconnection when the server returns a bad status",
+               function (done) {
+                function doit() {
+                    var $modal = editor._disconnect_modal.getTopLevel();
+                    $modal.on('shown.bs.modal', function () {
+                        editor.addEventListener("saved", function () {
+                            // Was saved on retry!
+
+                            // This allows us to let the whole save
+                            // process run its course before we
+                            // declare it done.
+                            setTimeout(done, 0);
+                        });
+                        // Reset so that the next save works.
+                        global.reset(function () {
+                            // This triggers a retry.
+                            $modal.modal('hide');
+                        });
                     });
 
                     editor.type(key_constants.CTRLEQ_S);
@@ -986,7 +1010,8 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 
             });
 
-            it("does not attempt recovery when save fails", function (done) {
+            it("does not attempt recovery when save fails hard",
+               function (done) {
                 function doit() {
                     var $modal = onerror.__test.$modal;
                     $modal.on('shown.bs.modal', function () {
@@ -1012,6 +1037,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                             };
                             var expected = "\n***\n" + JSON.stringify(obj);
                             assert.equal(data, expected);
+                            onerror.__test.reset();
                             done();
                         });
                     });
@@ -1019,7 +1045,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                     editor.type(key_constants.CTRLEQ_S);
                 }
 
-                global.fail_on_save(doit);
+                global.no_response_on_save(doit);
 
             });
 
@@ -1048,6 +1074,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                             };
                             var expected = "\n***\n" + JSON.stringify(obj);
                             assert.equal(data, expected);
+                            onerror.__test.reset();
                             done();
                         });
                     }, 500);
