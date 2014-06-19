@@ -45,6 +45,9 @@ Only salient changes are recorded here.
     to set custom menus must be set in the DOM and not just by using
     jQuery's ``data()`` method.
 
+  - API: ``Editor`` gained a ``save`` method that allows modes to
+    trigger manual saves.
+
 * 0.15.0:
 
   - GUI: In previous versions the context menu presented if a user
