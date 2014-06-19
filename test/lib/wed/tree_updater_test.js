@@ -73,7 +73,8 @@ describe("TreeUpdater", function () {
             insertNodeAt: 0,
             setTextNodeValue: 0,
             deleteNode: 0,
-            setAttributeNS: 0
+            setAttributeNS: 0,
+            changed: undefined
         };
         this._events = {};
         tu.addEventListener("*", function (name, ev) {
@@ -85,8 +86,20 @@ describe("TreeUpdater", function () {
     }
 
     Listener.prototype.check = function () {
+        // The event "changed" is special. We should get one "changed"
+        // event per other event.
         var keys = Object.keys(this.expected);
         var i, k;
+        if (this.expected.change === undefined) {
+            var total = 0;
+            for(i = 0, k; (k = keys[i]) !== undefined; ++i) {
+                if (k === "changed")
+                    continue;
+                total += this.expected[k];
+            }
+            this.expected.changed = total;
+        }
+
         for(i = 0, k; (k = keys[i]) !== undefined; ++i) {
             var actual = this._events[k];
             if (actual === undefined)
