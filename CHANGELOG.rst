@@ -8,6 +8,10 @@ Only salient changes are recorded here.
 
   - Wed is now able to autosave at regular intervals.
 
+  - GUI: Wed now has indicators on the screen showing whether a
+    document has bee changed since the last save and showing its save
+    status.
+
   - GUI: Wed now freezes editing if a save fails, be it a manual save
     or autosave. The editing remains frozen util a save works.
 

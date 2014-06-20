@@ -93,6 +93,93 @@ describe("wed", function () {
             assert.equal(editor.getGUICaret(), undefined, "no caret");
         });
 
+        it("has a modification status showing an unmodified document " +
+           "when starting", function () {
+            assert.isTrue(
+                editor._$modification_status.hasClass("label-success"));
+        });
+
+        it("has a modification status showing an modified document " +
+           "when the document is modified", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
+            editor.setGUICaret(initial, 0);
+            editor.type(" ");
+
+            assert.isTrue(
+                editor._$modification_status.hasClass("label-warning"));
+        });
+
+        it("has a modification status showing an unmodified document " +
+           "when the document is modified but saved", function (done) {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
+            editor.setGUICaret(initial, 0);
+            editor.type(" ");
+
+            assert.isTrue(
+                editor._$modification_status.hasClass("label-warning"));
+            editor.addEventListener("saved", function () {
+                assert.isTrue(
+                    editor._$modification_status.hasClass("label-success"));
+                done();
+            });
+            editor.type(key_constants.CTRLEQ_S);
+        });
+
+        it("has a save status showing an unsaved document " +
+           "when starting", function () {
+            assert.isTrue(
+                editor._$save_status.hasClass("label-default"));
+            assert.equal(
+                editor._$save_status.children('span').text(), "");
+
+        });
+
+        it("has a save status showing a saved document " +
+           "after a save", function (done) {
+            assert.isTrue(
+                editor._$save_status.hasClass("label-default"));
+            assert.equal(
+                editor._$save_status.children('span').text(), "");
+
+            editor.addEventListener("saved", function () {
+                assert.isTrue(
+                    editor._$save_status.hasClass("label-success"));
+                assert.equal(
+                    editor._$save_status.children('span').text(),
+                    "moments ago");
+                done();
+            });
+            editor.type(key_constants.CTRLEQ_S);
+        });
+
+        it("has a save status showing a saved document " +
+           "after an autosave", function (done) {
+            assert.isTrue(
+                editor._$save_status.hasClass("label-default"));
+            assert.equal(
+                editor._$save_status.children('span').text(), "");
+
+            editor.addEventListener("autosaved", function () {
+                assert.isTrue(
+                    editor._$save_status.hasClass("label-info"));
+                assert.equal(
+                    editor._$save_status.children('span').text(),
+                    "moments ago");
+                done();
+            });
+
+            editor.validator._validateUpTo(editor.data_root, -1);
+            // Text node inside title.
+            var initial = $(editor.gui_root).find(".title")[0].childNodes[1];
+            editor.setGUICaret(initial, 0);
+            editor.type(" ");
+            editor._saver.setAutosaveInterval(50);
+        });
+
         it("typing BACKSPACE without caret does not crash", function () {
             assert.equal(editor.getGUICaret(), undefined, "no caret");
             editor.type(key_constants.BACKSPACE);
