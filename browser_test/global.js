@@ -46,6 +46,20 @@ function no_response_on_save(done) {
 
 exports.no_response_on_save = no_response_on_save;
 
+function precondition_fail_on_save(done) {
+    reset(function () {
+        $.post('/build/ajax/control',
+               {command: 'precondition_fail_on_save', value: 1},
+               function (data) {
+            assert.deepEqual(data, {});
+            done();
+        }).fail(function () {
+            throw new Error("failed to set precondition_fail_on_save"); });
+    });
+}
+
+exports.precondition_fail_on_save = precondition_fail_on_save;
+
 });
 
 //  LocalWords:  Mangalam MPL Dubeau jQuery jquery ajax chai

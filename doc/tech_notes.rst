@@ -165,7 +165,8 @@ determined by the ``save`` option. It is of the form::
   save: {
       url: "...",
       headers: { ... }
-      autosave: ...
+      autosave: ...,
+      initial_etag: ...,
   }
 
 The ``url`` parameter is the URL where wed will send the Ajax queries
@@ -173,7 +174,8 @@ for saving. The ``headers`` parameter is as described above for
 logging. The ``autosave`` parameter is a number of seconds between
 autosaves. Setting it to 0 will turn off autosaving. Wed will autosave
 only if it detects that the document has been changed since the last
-save.
+save. The ``initial_etag`` parameter is the ``ETag`` of the document being
+loaded.
 
 Queries are sent as POST requests with the following parameters:
 
@@ -189,6 +191,8 @@ The possible commands are:
 * ``check``: This is a mere version check.
 
 * ``save``: Sent when the user manually requests a save.
+
+* ``autosave``: Sent when an autosave occurs.
 
 * ``recover``: Sent when wed detects a fatal condition requiring
   reloading the editor from scratch. The server must save the data
@@ -216,6 +220,35 @@ possible message types are:
   is locked.
 
 * ``save_successful`` indicates that the save was successful.
+
+The protocol uses ``If-Match`` to check that the document being saved
+has not been edited by some other user. Therefore, it needs an
+``ETag`` to be generated. It acquires its initial ``ETag`` from the
+``save`` option described above. Subsequent successful save operations
+must provide an ``ETag`` value representing the saved document.
+
+The meaning of the ``ETag`` value is generally ambiguous. See the
+following documents for some discussions of the issue:
+
+- https://datatracker.ietf.org/doc/draft-whitehead-http-etag/
+- https://datatracker.ietf.org/doc/draft-reschke-http-etag-on-write/
+
+The current code handles the lack of precision such that ``ETag``
+values returned on error conditions are ignored. Otherwise, the
+following could happen:
+
+1. Alice loads document, grabs initial ``ETag``.
+2. Bob loads same document, grabs initial ``ETag``.
+3. Bob saves new version, creates new ``ETag``.
+4. Alice tries to save with an ``If-Match`` that has the old
+   ``ETag``. This fails and returns an ``ETag`` with the response.
+
+This last ``ETag`` would have to be the one that matches what is
+*currently* stored in the server. Alice's wed instance **must not**
+use this ``ETag`` to update the ``ETag`` it associates with its
+document, otherwise a subsequent save will (erroneously) go through.
+
+This may not correspond to how other systems use ``ETag``.
 
 Creating a Mode
 ===============

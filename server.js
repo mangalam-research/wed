@@ -8,6 +8,7 @@ var url = require("url");
 var fs = require("fs");
 var Buffer = require("buffer").Buffer;
 var querystring = require("querystring");
+var crypto = require("crypto");
 
 var verbose = false;
 
@@ -30,13 +31,14 @@ if (verbose)
 app.use(compress());
 app.use(serve_static(cwd));
 
-function writeResponse(response, status, data, type) {
+function writeResponse(response, status, data, type, headers) {
     if (verbose)
         console.log('response message:', data);
 
     type = type || "text/plain";
 
-    var headers = {"Content-Type": type};
+    headers = headers || {};
+    headers["Content-Type"] = type;
 
     response.writeHead(status, headers);
 
@@ -56,6 +58,7 @@ function unlinkIfExists(path) {
 
 var fail_on_save = false;
 var fail_on_recover = false;
+var precondition_fail_on_save = false;
 var no_response_on_save = false;
 var no_response_on_recover = false;
 
@@ -89,6 +92,13 @@ app.post("/build/ajax/log.txt", function (request, response) {
 
 app.post("/build/ajax/save.txt", function (request, response) {
     dumpData(request, function (decoded) {
+        var headers = undefined;
+        function success() {
+            messages.push({type: 'save_successful'});
+            var hash = crypto.createHash('sha1');
+            hash.update(decoded.data);
+            headers = {ETag: hash.digest('base64')};
+        }
         var status = 200;
         var messages = [];
         switch(decoded.command) {
@@ -97,16 +107,18 @@ app.post("/build/ajax/save.txt", function (request, response) {
         case 'save':
         case 'autosave':
             if (!no_response_on_save) {
-                if (!fail_on_save)
-                    messages.push({type: 'save_successful'});
-                else
+                if (precondition_fail_on_save)
+                    status = 412;
+                else if (fail_on_save)
                     status = 400;
+                else
+                    success();
             }
             break;
         case 'recover':
             if (!no_response_on_recover) {
                 if (!fail_on_recover)
-                    messages.push({type: 'save_successful'});
+                    success();
                 else
                     status = 400;
             }
@@ -116,7 +128,8 @@ app.post("/build/ajax/save.txt", function (request, response) {
         }
         var msg = {messages: messages};
         var stringified = JSON.stringify(msg);
-        writeResponse(response, status, stringified, "application/json");
+        writeResponse(response, status, stringified, "application/json",
+                      headers);
     });
 });
 
@@ -130,11 +143,15 @@ app.post("/build/ajax/control", function(request, response) {
             unlinkIfExists(path.join(cwd, "/build/ajax/control"));
             fail_on_save = false;
             fail_on_recover = false;
+            precondition_fail_on_save = false;
             no_response_on_save = false;
             no_response_on_recover = false;
             break;
         case 'fail_on_save':
             fail_on_save = decoded.value;
+            break;
+        case 'precondition_fail_on_save':
+            precondition_fail_on_save = decoded.value;
             break;
         case 'fail_on_recover':
             fail_on_recover = decoded.value;

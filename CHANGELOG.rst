@@ -61,8 +61,11 @@ Only salient changes are recorded here.
     messages besides ``save``. These messages work the same as
     ``save`` messages.
 
-  - API: The ``save`` option now accepts an ``autosave`` sub-option to
-    set the interval at which autosaves are invoked.
+  - API: The protocol for saving to a server now uses ``If-Match`` and
+    ``ETag`` to prevent undetected updates from third parties.
+
+  - API: The ``Editor``'s ``save`` option now accepts an ``autosave``
+    sub-option to set the interval at which autosaves are invoked.
 
 * 0.15.0:
 

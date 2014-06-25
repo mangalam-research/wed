@@ -1058,8 +1058,6 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                     var $modal = onerror.__test.$modal;
                     $modal.on('shown.bs.modal', function () {
                         // Prevent a reload.
-                        $modal.off('hide.bs.modal.modal');
-                        $modal.modal('hide');
                         onerror.__test.reset();
                         done();
                     });
@@ -1097,14 +1095,30 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 
             });
 
+            it("brings up an error when the document was edited by someone "+
+               "else",
+               function (done) {
+                function doit() {
+                    var $modal = editor._edited_by_other_modal.getTopLevel();
+                    $modal.on('shown.bs.modal', function () {
+                        // Prevent a reload.
+                        $modal.off('hidden.bs.modal.modal');
+                        $modal.modal('hide');
+                        done();
+                    });
+
+                    editor.type(key_constants.CTRLEQ_S);
+                }
+
+                global.precondition_fail_on_save(doit);
+
+            });
+
             it("does not attempt recovery when save fails hard",
                function (done) {
                 function doit() {
                     var $modal = onerror.__test.$modal;
                     $modal.on('shown.bs.modal', function () {
-                        // Prevent a reload.
-                        $modal.off('hide.bs.modal.modal');
-                        $modal.modal('hide');
                         // The data was saved even though the server
                         // replied with an HTTP error code.
                         $.get("/build/ajax/save.txt", function (data) {
@@ -1124,6 +1138,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                             };
                             var expected = "\n***\n" + JSON.stringify(obj);
                             assert.equal(data, expected);
+                            // Prevent a reload.
                             onerror.__test.reset();
                             done();
                         });

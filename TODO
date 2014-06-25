@@ -22,6 +22,12 @@ TreeUpdater
   these better performing methods can be used instead of doing
   ``node.data =``.
 
+Saving Protocol
+---------------
+
+* The procotol could be redesigned to use HTTP error codes for error
+   conditions.
+
 Other
 -----
 
