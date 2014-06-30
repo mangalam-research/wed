@@ -270,6 +270,13 @@ def step_impl(context):
         context,
         text="/build/test-files/wed_test_data/source_converted.xml",
         tooltips=True)
+    if context.util.ie:
+        # For most browsers, this is not needed. However, in IE10, IE11,
+        # some tooltip tests can fail if we do not move the mouse out of
+        # the way first.
+        ActionChains(context.driver) \
+            .move_to_element_with_offset(context.origin_object, 0, 0) \
+            .perform()
 
 
 @given(ur"^a complex document without errors?$")
