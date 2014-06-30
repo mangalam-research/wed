@@ -299,7 +299,7 @@ def step_impl(context):
     parent = util.find_element((By.CSS_SELECTOR, ".title"))
 
     ActionChains(driver)\
-        .move_to_element_with_offset(parent, 0, 0) \
+        .move_to_element_with_offset(parent, 1, 1) \
         .click() \
         .perform()
 
