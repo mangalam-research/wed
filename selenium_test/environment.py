@@ -42,14 +42,26 @@ def before_all(context):
     context.behave_wait = behave_wait and float(behave_wait)
 
 
+def skip_if_needed(context, entity):
+    if (context.util.osx and "fails_if:osx" in entity.tags) or \
+       (context.util.windows and context.util.firefox and
+            "fails_if:win,ff" in entity.tags):
+        entity.mark_skipped()
+
+
 def before_feature(context, feature):
     # Some tests cannot be performed on some OSes due to limitations
     # in Selenium or the browser or the OS or what-have-you. There is
     # no real equivalent available to perform these tests so we just
     # skip them.
-    for scenario in feature.scenarios:
-        if context.util.osx and "fails_if:osx" in scenario.tags:
-            scenario.mark_skipped()
+
+    skip_if_needed(context, feature)
+
+    # If we're already skipping the feature, we don't need to check
+    # individual scenarios.
+    if not feature.should_skip:
+        for scenario in feature.scenarios:
+            skip_if_needed(context, scenario)
 
 
 def before_scenario(context, scenario):
