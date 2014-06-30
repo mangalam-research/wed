@@ -1,10 +1,5 @@
 from selenium.webdriver.common.action_chains import ActionChains
-# pylint: disable=E0611
-from nose.tools import assert_true, assert_equal, assert_false
-from selenium.webdriver.support.ui import WebDriverWait
-import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
