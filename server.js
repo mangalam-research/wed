@@ -9,6 +9,7 @@ var fs = require("fs");
 var Buffer = require("buffer").Buffer;
 var querystring = require("querystring");
 var crypto = require("crypto");
+var morgan = require("morgan");
 
 var verbose = false;
 
@@ -26,10 +27,13 @@ var cwd = process.cwd();
 
 var app = express();
 
-if (verbose)
-    app.use(express.logger());
 app.use(compress());
 app.use(serve_static(cwd));
+if (verbose) {
+    // var log_file = fs.createWriteStream("./server.log");
+    var log_file = process.stdout;
+    app.use(morgan({stream: log_file}));
+}
 
 function writeResponse(response, status, data, type, headers) {
     if (verbose)
