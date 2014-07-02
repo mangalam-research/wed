@@ -89,8 +89,13 @@ describe("wed", function () {
             onerror.__test.reset();
         });
 
-        it("starts with an undefined caret", function () {
-            assert.equal(editor.getGUICaret(), undefined, "no caret");
+        it("starts with undefined carets and selection ranges", function () {
+            assert.isUndefined(editor.getGUICaret(), "no gui caret");
+            assert.isUndefined(editor.getDataCaret(), "no data caret");
+            assert.isUndefined(editor.getSelectionRange(),
+                               "no gui selection range");
+            assert.isUndefined(editor.getDataSelectionRange(),
+                               "no data selection range");
         });
 
         it("has a modification status showing an unmodified document " +
