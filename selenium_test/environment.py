@@ -41,6 +41,8 @@ def before_all(context):
     behave_wait = os.environ.get("BEHAVE_WAIT_BETWEEN_STEPS")
     context.behave_wait = behave_wait and float(behave_wait)
 
+    context.behave_captions = os.environ.get("BEHAVE_CAPTIONS")
+
 
 def skip_if_needed(context, entity):
     if (context.util.osx and "fails_if:osx" in entity.tags) or \
@@ -66,6 +68,11 @@ def before_feature(context, feature):
 
 def before_scenario(context, scenario):
     driver = context.driver
+
+    if context.behave_captions:
+        # We send a comment as a "script" so that we get something
+        # in the record of Selenium commands.
+        driver.execute_script("// SCENARIO: " + scenario.name + "\n")
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
     context.initial_window_handle = driver.current_window_handle
@@ -90,7 +97,13 @@ def after_scenario(context, _scenario):
     driver.switch_to_window(context.initial_window_handle)
 
 
-def before_step(context, _step):
+def before_step(context, step):
+    if context.behave_captions:
+        # We send a comment as a "script" so that we get something
+        # in the record of Selenium commands.
+        context.driver.execute_script("// STEP: " + step.keyword + " "
+                                      + step.name +
+                                      "\n")
     if context.behave_wait:
         time.sleep(context.behave_wait)
 
