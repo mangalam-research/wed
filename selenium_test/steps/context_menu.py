@@ -324,6 +324,16 @@ def step_impl(context):
     assert_true(util.completely_visible_to_user(menu),
                 "menu is completely visible")
 
+    # This is a check that without the adjustment made to show the
+    # whole menu, the menu would overflow outside the editing pane. (A
+    # freakishly small menu would not overflow, for instance, and we
+    # would not be testing what we think we are testing.)
+    gui_root = wedutil.gui_root(util)
+    assert_true(context.context_menu_trigger.location["left"] -
+                util.element_screen_position(gui_root)["left"] +
+                menu.size["width"] > gui_root.size["width"],
+                "the menu would otherwise overflow")
+
 
 @When(ur"the user uses the keyboard to bring up the context menu on "
       ur"(?P<choice>a placeholder|text)")
