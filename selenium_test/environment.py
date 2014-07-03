@@ -75,6 +75,7 @@ def before_scenario(context, scenario):
         driver.execute_script("// SCENARIO: " + scenario.name + "\n")
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
+    driver.set_window_position(0, 0)
     context.initial_window_handle = driver.current_window_handle
 
 
