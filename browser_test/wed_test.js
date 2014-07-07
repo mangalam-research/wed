@@ -1522,6 +1522,34 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 caretCheck(editor, initial, 0, "moved once");
             });
         });
+
+        describe("the location bar", function () {
+            it("ignores placeholders", function () {
+                var ph = editor.$gui_root.find("._placeholder")[0];
+                editor.setGUICaret(ph, 0);
+                assert.equal(
+                    // Normalize all spaces to a regular space with
+                    // ``replace``.
+                    editor._$wed_location_bar.text().replace(/\s+/g, ' '),
+                    " TEI / teiHeader / fileDesc / publicationStmt / p ");
+            });
+
+            it("ignores phantom parents", function () {
+                var $p = editor.$gui_root.find(".ref>._text._phantom");
+                // We are cheating here. Instead of creating a mode
+                // what would put children elements inside of a
+                // phantom element we manually add a child.
+                $p.prepend("<span>foo</span>");
+                var child = $p[0].firstChild;
+
+                editor.setGUICaret(child, 0);
+                assert.equal(
+                    // Normalize all spaces to a regular space with
+                    // ``replace``.
+                    editor._$wed_location_bar.text().replace(/\s+/g, ' '),
+                    " TEI / text / body / p / ref ");
+            });
+        });
     });
 });
 
