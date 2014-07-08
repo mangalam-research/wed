@@ -914,6 +914,23 @@ describe("wed", function () {
             editor.straddling_modal._$footer.find(".btn-primary")[0].click();
         });
 
+        it("handles properly caret position for words that are too " +
+           "long to word wrap", function () {
+            var p = editor.$data_root.find(".p")[0];
+            editor.setDataCaret(p, 0);
+            editor.type("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
+                        "AAAAAAAAAAAAA");
+            editor.setDataCaret(p, 0);
+            var range = editor.my_window.document.createRange();
+            var gui_caret = editor.fromDataLocation(p.firstChild, 0);
+            range.selectNode(gui_caret.node);
+            var rect = range.getBoundingClientRect();
+            // The caret should not be above the rectangle around the
+            // unbreakable text.
+            assert.isTrue(rect.top <= editor._$fake_caret.offset().top);
+        });
+
         describe("interacts with the server:", function () {
             before(function () {
                 src_stack.unshift("../../test-files/wed_test_data" +
