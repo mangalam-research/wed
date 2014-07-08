@@ -23,6 +23,10 @@ Only salient changes are recorded here.
   - GUI: The navigation panel is not shown unless it is actually
     filled with something.
 
+  - GUI: The GUI indicates which element the caret is in by setting
+    the background of the element to a pale yellow color rather than
+    using an underline.
+
   - API: Tooltips that appear in the editing pane now must be created
     using the ``tooltip`` method of the ``tooltip`` module. If they
     are not created this way, then they will not respond to the escape
@@ -66,6 +70,10 @@ Only salient changes are recorded here.
 
   - API: The ``Editor``'s ``save`` option now accepts an ``autosave``
     sub-option to set the interval at which autosaves are invoked.
+
+  - API: Modes that set background colors for their elements should
+    use the variables and macros defined in the new ``wed-vars.less``
+    file to have a gradient indicate which elements has the caret.
 
 * 0.15.0:
 

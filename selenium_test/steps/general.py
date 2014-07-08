@@ -116,7 +116,9 @@ def step_impl(context, text):
     util = context.util
 
     element = util.find_clickable_element((By.CLASS_NAME, "title"))
-    element.click()
+    ActionChains(driver) \
+        .click(element) \
+        .perform()
     wedutil.wait_for_caret_to_be_in(util, element)
     context.element_to_test_for_text = element
     assert_true(
@@ -144,7 +146,9 @@ def step_impl(context):
     label = util.find_element((By.CSS_SELECTOR,
                                ".__end_label._titleStmt_label"))
     title = util.find_element((By.CSS_SELECTOR, ".titleStmt>.title"))
-    title.click()
+    ActionChains(driver)\
+        .click(title)\
+        .perform()
 
     initial_pos = util.element_screen_position(label)
     pos = initial_pos

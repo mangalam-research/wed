@@ -1,3 +1,5 @@
+@import "wed-vars.less";
+
 * {
    -webkit-box-sizing: border-box;
    -moz-box-sizing: border-box;
@@ -167,6 +169,7 @@ div.wed-frame {
     div.wed-document {
         border-style: solid;
         border-width: 1px;
+        background-color: white;
 
         div {
             word-wrap: normal;
@@ -190,7 +193,7 @@ div.wed-frame {
 
             &._real {
                 display: block;
-                background-color: white;
+                background-color: transparent;
                 white-space: normal;
                 margin-left: 1em;
 
@@ -198,15 +201,12 @@ div.wed-frame {
                     display: inline;
                     margin-left: 0em;
                 }
+
+                &._owns_caret {
+                    background-color: @owns-caret-color;
+                    background-image: none;
+                }
             }
-        }
-
-        >div._real {
-            margin-left: 0em;
-        }
-
-        ._owns_caret {
-            border-bottom-style: solid;
         }
 
         ._placeholder {
