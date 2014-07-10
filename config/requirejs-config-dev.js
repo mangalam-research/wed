@@ -72,6 +72,7 @@ require.config({
          }
      }
  },
+ waitSeconds: 12,
  enforceDefine: true
 });
 
