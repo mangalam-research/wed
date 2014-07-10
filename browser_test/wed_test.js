@@ -931,6 +931,38 @@ describe("wed", function () {
             assert.isTrue(rect.top <= editor._$fake_caret.offset().top);
         });
 
+        it("handles properly caret position for elements that span lines",
+           function () {
+            var p = editor.$data_root.find(".body>.p")[5];
+            var text_loc = editor.fromDataLocation(p.lastChild, 2);
+
+            // Check that we are testing what we want to test. The end
+            // label for the hi element must be on the next line.
+            var $hi = $(text_loc.node.parentNode).find(".hi").last();
+            var $start_l = $(firstGUI($hi));
+            var $end_l = $(lastGUI($hi));
+            $hi[0].scrollIntoView(true);
+            assert.isTrue($end_l.offset().top > $start_l.offset().top +
+                          $start_l.height(),
+                          "PRECONDITION FAILED: please update your test " +
+                          "case so that the end label of the hi element is " +
+                          "on a line under the line that has the start label " +
+                          "of this same element");
+
+            var event = new $.Event("mousedown");
+            event.target = text_loc.node;
+            var rr = text_loc.makeRange(text_loc.make(text_loc.node, 3));
+            var rect = rr.range.nativeRange.getBoundingClientRect();
+            event.pageX = rect.left;
+            event.pageY = ((rect.top + rect.bottom) / 2);
+            event.clientX = rect.left;
+            event.clientY = ((rect.top + rect.bottom) / 2);
+            event.which = 1; // First mouse button.
+            editor.$gui_root.trigger(event);
+            caretCheck(editor, text_loc.node, text_loc.offset,
+                       "the caret should be in the text node");
+        });
+
         describe("interacts with the server:", function () {
             before(function () {
                 src_stack.unshift("../../test-files/wed_test_data" +

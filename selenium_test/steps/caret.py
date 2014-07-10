@@ -47,7 +47,7 @@ def step_impl(context):
     return ret;
     """, element)
 
-    last_click = {"left": int(rect["left"] + 1),
+    last_click = {"left": round(rect["left"]) + 2,
                   "top": int(rect["top"] + rect["height"] / 2)}
 
     ActionChains(driver) \
@@ -313,6 +313,9 @@ def step_impl(context):
                    [Keys.ARROW_RIGHT] * 4)
 
     end = wedutil.caret_selection_pos(driver)
+    # On FF there's an off-by 1 issue in the CSS rendering which causes
+    # a problem unless we perform this adjustment.
+    end["left"] -= 1
 
     wedutil.select_text(driver, start, end)
 
