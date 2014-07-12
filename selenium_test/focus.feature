@@ -4,12 +4,14 @@ Feature: focus
 Background: a simple document.
   Given a document containing a top level element, a p element, and text.
 
-Scenario: losing and recovering selection when focus is lost and recovered
+Scenario: losing and recovering the selection when focus is lost and recovered
   When the user selects text with the mouse
   Then the text is selected
-  When the user opens a new window
+  When the user scrolls the editor pane completely down
+  And the user opens a new window
   And the user goes back to the initial window
   Then the selection is the same as before the focus was lost
+  And the editor pane did not scroll
 
 Scenario: losing and recovering the caret when focus is lost and recovered
   When the user selects text with the mouse

@@ -247,18 +247,34 @@ def step_impl(context, choice):
     var by = arguments[0];
     delete window.__selenic_scrolled;
     jQuery(function () {
-      var top = window.wed_editor.$gui_root.scrollTop();
-      window.wed_editor.$gui_root.scrollTop(top + by);
-      window.__selenic_scrolled = true;
+      var $gui_root = window.wed_editor.$gui_root;
+      var top = $gui_root.scrollTop();
+      $gui_root.scrollTop(top + by);
+      window.__selenic_scrolled = $gui_root.scrollTop();
     });
     """, scroll_by)
 
     def cond(*_):
-        return driver.execute_script("""
+        ret = driver.execute_script("""
         return window.__selenic_scrolled;
         """)
-    util.wait(cond)
+        # Trick to be able to return 0 if ever needed...
+        return False if ret is None else [ret]
+
+    scroll_top = util.wait(cond)
     context.scrolled_editor_pane_by = scroll_by
+    context.editor_pane_new_scroll_top = scroll_top[0]
+
+
+@then("^the editor pane did not scroll$")
+def step_impl(context):
+    scroll_top = context.editor_pane_new_scroll_top
+
+    new_scroll_top = context.driver.execute_script(
+        "return  window.wed_editor.$gui_root.scrollTop();")
+
+    assert_equal(scroll_top, new_scroll_top,
+                 "the scroll top should not have changed")
 
 
 @given(ur"^a document containing a top level element, a p element, "
