@@ -236,7 +236,6 @@ def step_impl(context, choice):
     util = context.util
 
     if choice == "completely ":
-        # We must not call it before the body is fully loaded.
         scroll_by = driver.execute_script("""
         return wed_editor.gui_root.scrollHeight;
         """)
