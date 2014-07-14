@@ -1,6 +1,30 @@
 Wed
 ===
 
+Input Triggers
+--------------
+
+At the moment input triggers are applied whenever the keys that
+trigger them are used in any of the child of the selector passed to
+the InputTrigger. This may not always be desirable.
+
+Refreshing Errors
+-----------------
+
+It might be useful to have a way to refresh validation errors without having to
+revalidate. Currently btw-mode has to use restartAt to restart
+validation after refreshing an element because error markers may be in
+the wrong place.
+
+Listeners
+---------
+
+There should be a listener on the gui_tree and a listener on the data
+tree. This way event handlers that care only about changes to the data
+tree can listen only to that and not have to filter out the gui
+stuff. This would require a change to what is given to modes because
+right now they only get a gui listener.
+
 Caret Management
 ----------------
 
