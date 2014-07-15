@@ -126,17 +126,19 @@ def step_impl(context, what):
 
 
 @when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
-      ur'the first "p" element in "body")$')
-def step_impl(context, choice):
+      ur'the first "(?P<element>.*?)" element in "body")$')
+def step_impl(context, choice, element=None):
     driver = context.driver
     util = context.util
 
     if choice == "an element":
         button = util.find_element((By.CSS_SELECTOR,
                                     ".__start_label._p_label"))
-    elif choice == 'the first "p" element in "body"':
+    elif element is not None:
+        element = element.replace(":", ur"\:")
         button = util.find_element((By.CSS_SELECTOR,
-                                    ".body .__start_label._p_label"))
+                                    ".body .__start_label._" + element +
+                                    "_label"))
     else:
         raise ValueError("unexpected choice: " + choice)
 
@@ -264,13 +266,21 @@ def step_impl(context, direction):
     context.expected_selection = parent_text[1:3]
 
 
-@when(u'^the user selects the whole text of an element$')
-def step_impl(context):
+@when(u'^the user selects the whole text of '
+      u'(?P<what>an element|the first paragraph in "body")$')
+def step_impl(context, what):
     driver = context.driver
     util = context.util
 
-    element, parent, _ = get_element_parent_and_parent_text(
-        driver, ".__start_label._title_label")
+    if what == "an element":
+        selector = ".__start_label._title_label"
+    elif what == 'the first paragraph in "body"':
+        selector = ".body .__start_label._p_label"
+    else:
+        raise ValueError("unknown value for what: " + what)
+
+    element, parent, parent_text = get_element_parent_and_parent_text(
+        driver, selector)
 
     ActionChains(driver)\
         .click(element) \
@@ -279,12 +289,13 @@ def step_impl(context):
     util.send_keys(element,
                    # From the label to before the first letter.
                    [Keys.ARROW_RIGHT] +
-                   # This moves 4 characters to the right
-                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 4 + [Keys.SHIFT])
+                   # This select the whole text of the element.
+                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * len(parent_text) +
+                   [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
     text = util.get_selection_text()
-    assert_equal(text, "abcd", "expected selection")
+    assert_equal(text, parent_text, "expected selection")
 
     context.expected_selection = text
     context.selection_parent = parent

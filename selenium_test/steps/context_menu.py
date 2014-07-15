@@ -480,7 +480,7 @@ def step_impl(context, choice, new):
         raise ValueError("can't handle this type of choice: " + choice)
 
     # Record some information likely to be useful later.
-    for_element = context.context_menu_for
+    for_element = getattr(context, "context_menu_for", None)
     if for_element:
         info = {}
         context.context_menu_pre_transformation_info = info
