@@ -899,9 +899,57 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 var interval = 50;
                 editor._saver.setAutosaveInterval(interval);
                 // This leaves ample time.
-                setTimeout(done, interval * 4);
+                setTimeout(function () {
+                    assert.isTrue(autosaved, "should have been saved");
+                    done();
+                }, interval * 4);
             });
+
+            it("autosaves when the document is modified after a " +
+               "first autosave timeout that did nothing",
+               function (done) {
+                // We're testing that autosave is not called again
+                // after the first time.
+                var autosaved = false;
+                editor.addEventListener("autosaved", function () {
+                    if (autosaved)
+                        throw new Error("autosaved more than once");
+                    autosaved = true;
+                    $.get("/build/ajax/save.txt", function (data) {
+                        var obj = {
+                            command: 'autosave',
+                            version: wed.version,
+                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
+data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
+<div class="teiHeader _real"><div class="fileDesc _real">\
+<div class="titleStmt _real"><div class="title _real">abcd</div>\
+</div><div class="publicationStmt _real"></div><div class="sourceDesc _real">\
+<div class="p _real"></div>\
+</div></div></div><div class="text _real"><div class="body _real">\
+<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
+<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                        };
+                        var expected = "\n***\n" + JSON.stringify(obj);
+                        assert.equal(data, expected);
+                    });
+                });
+                var interval = 50;
+                editor._saver.setAutosaveInterval(interval);
+                setTimeout(function () {
+                    assert.isFalse(autosaved, "should not have been saved yet");
+                    editor.data_updater.removeNode(
+                        editor.$data_root.find(".p._real")[0]);
+                }, interval * 2);
+                // This leaves ample time.
+                setTimeout(function () {
+                    assert.isTrue(autosaved, "should have been saved");
+                    done();
+                }, interval * 4);
+            });
+
         });
+
+
 
         describe("fails as needed and recovers:", function () {
             before(function () {
