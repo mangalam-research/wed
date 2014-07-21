@@ -501,7 +501,7 @@ describe("domutil", function () {
             assert.equal(pair[1][0], parent);
             assert.equal(pair[1][1], 2);
             assert.equal($root.find(".title")[0].childNodes.length, 2);
-            assert.equal($root.find(".title")[0].childNodes[1], $el[0]);
+            assert.equal($root.find(".title")[0].lastChild, $el[0]);
             });
 
         it("works fine with offset beyond text length and fragment",
@@ -633,7 +633,7 @@ describe("domutil", function () {
             $(node).contents().replaceWith("<b>q</b>");
             var pair = domutil.insertText(node, 1, "test");
             assert.isUndefined(pair[0]);
-            assert.equal(pair[1], node.childNodes[1]);
+            assert.equal(pair[1], node.lastChild);
             assert.equal(pair[1].nodeValue, "test");
         });
     });
@@ -853,7 +853,7 @@ describe("domutil", function () {
         it("removes nodes and merges text", function () {
             var p = $root.find(".body>.p")[1];
             var start_caret = [p.firstChild, 4];
-            var end_caret = [p.childNodes[4], 3];
+            var end_caret = [p.lastChild, 3];
             assert.equal(p.childNodes.length, 5);
 
             var nodes = Array.prototype.slice.call(
@@ -924,7 +924,7 @@ describe("domutil", function () {
         it("accepts a start caret in text and an end caret outside text",
            function () {
             var p = $root.find(".body>.p")[1];
-            var start_caret = [p.childNodes[0], 0];
+            var start_caret = [p.firstChild, 0];
             var end_caret = [p, p.childNodes.length];
             assert.equal(p.childNodes.length, 5);
 

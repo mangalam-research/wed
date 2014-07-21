@@ -4,6 +4,77 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.16.0:
+
+  - Wed is now able to autosave at regular intervals.
+
+  - GUI: Wed now has indicators on the screen showing whether a
+    document has bee changed since the last save and showing its save
+    status.
+
+  - GUI: Wed now freezes editing if a save fails, be it a manual save
+    or autosave. The editing remains frozen util a save works.
+
+  - GUI: Hitting escape when a tooltip is displayed closes the tooltip.
+
+  - GUI: Improved the caret movement logic to deal with cases where an
+    element's editable content is wrapped by more than one element.
+
+  - GUI: The navigation panel is not shown unless it is actually
+    filled with something.
+
+  - GUI: The GUI indicates which element the caret is in by setting
+    the background of the element to a pale yellow color rather than
+    using an underline.
+
+  - API: Tooltips that appear in the editing pane now must be created
+    using the ``tooltip`` method of the ``tooltip`` module. If they
+    are not created this way, then they will not respond to the escape
+    key and won't be closed.
+
+  - API: Mode that want to fill the navigation panel must use
+    ``Editor.setNavigationList``.
+
+  - API: ``Editor`` no longer has a public field named
+    ``$navigation_list``. (It is now private.)
+
+  - API: Introduced ``_start_wrapper`` and ``_end_wrapper`` classes to
+    mark the wrapping elements.
+
+  - API: ``nodesAroundEditableContents`` now has a default
+    implementation in the base ``Mode`` class. Modes that use
+    ``_start_wrapper`` and ``_end_wrapper`` properly should not have
+    to override it.
+
+  - API: Added ``Editor.excludeFromBlur``. This is for modes that add
+    things like toolbars or menu items that launch
+    transformations. These DOM elements must be excluded from causing
+    a blur, otherwise a) clicking these DOM elements will cause a
+    transformation to occur without a caret being active (and wed will
+    raise an exception), b) from the user's perspective, the caret
+    appears to be lost.
+
+  - API: The data field ``data-wed-custom-context-menu`` that is used
+    to set custom menus must be set in the DOM and not just by using
+    jQuery's ``data()`` method.
+
+  - API: ``Editor`` gained a ``save`` method that allows modes to
+    trigger manual saves.
+
+  - API: The protocol for saving to a server now emits ``autosave``
+    messages besides ``save``. These messages work the same as
+    ``save`` messages.
+
+  - API: The protocol for saving to a server now uses ``If-Match`` and
+    ``ETag`` to prevent undetected updates from third parties.
+
+  - API: The ``Editor``'s ``save`` option now accepts an ``autosave``
+    sub-option to set the interval at which autosaves are invoked.
+
+  - API: Modes that set background colors for their elements should
+    use the variables and macros defined in the new ``wed-vars.less``
+    file to have a gradient indicate which elements has the caret.
+
 * 0.15.0:
 
   - GUI: In previous versions the context menu presented if a user

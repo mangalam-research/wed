@@ -14,12 +14,7 @@
   </teiHeader>
   <text>
     <body>
-      <p>Blah blah <term>blah</term> blah.</p>
-      <p><term>blah</term></p>
-      <p><ref></ref></p>
-      <p><hi>a</hi><hi>b</hi>c</p>
-      <p>abcdefghij</p>
-      <p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<hi>aaaaaaaa aaaaaaaaaaa</hi>abcd</p>
+      <p>Bar</p><p>Foo</p>
     </body>
   </text>
 </TEI>

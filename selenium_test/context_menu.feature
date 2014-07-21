@@ -96,7 +96,7 @@ Scenario: closing the context menu with the ESC key
   And the editor pane has focus
 
 Scenario: bringing up the context menu next to the right side of the window
- When the user resizes the window so that the end titleStmt label is next to the right side of the window
+ When the user adds text to the title so that the titleStmt label is next to the right side of the window
  And the user brings up the context menu on the end titleStmt label
  Then a context menu is visible and completely inside the window
 
@@ -111,5 +111,6 @@ Scenario: bringing up the context menu with the keyboard on an element's label
   Then a context menu is visible close to where the user invoked it
 
 Scenario: bringing up the context menu when there is no caret
-  When the user uses the keyboard to bring up the context menu
+  When the user clicks outside the editor pane
+  And the user uses the keyboard to bring up the context menu
   Then a context menu is not visible

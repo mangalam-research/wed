@@ -1,23 +1,56 @@
 Wed
 ===
 
+Input Triggers
+--------------
+
+At the moment input triggers are applied whenever the keys that
+trigger them are used in any of the child of the selector passed to
+the InputTrigger. This may not always be desirable.
+
+Refreshing Errors
+-----------------
+
+It might be useful to have a way to refresh validation errors without having to
+revalidate. Currently btw-mode has to use restartAt to restart
+validation after refreshing an element because error markers may be in
+the wrong place.
+
+Listeners
+---------
+
+There should be a listener on the gui_tree and a listener on the data
+tree. This way event handlers that care only about changes to the data
+tree can listen only to that and not have to filter out the gui
+stuff. This would require a change to what is given to modes because
+right now they only get a gui listener.
+
 Caret Management
 ----------------
 
-* _seekCaret needs a 400 ms timeout on IE, which is not small. If we
-   can, we should drop _seekCaret and determine caret position
-   ourselves without relying on the browsers default mechanisms. This
-   would probably also mean completely dropping contenteditable.
+* _raw_caret can probably be eliminated.
 
-* Generally refactor selection management.
+* We should not ever have to read the DOM selection to check its
+   status. (That is, we should be able to check the selection by
+   looking at _sel_anchor and _sel_focus and not have to query the
+   DOM.)
 
-* Caret management right now is a complicated affair. Wed should try
-  to follow the blur and focus events so that whenever the caret moves
-  out of the editing area, its location is stored and when the user
-  moves back to the editing area, the location is restored. Right now,
-  push/popSelection are used to prevent the caret to be lost when GUI
-  elements that overlay the editing area are displayed but we should
-  be able to get rid of this.
+TreeUpdater
+-----------
+
+* Currently, TreeUpdater is designed so that the number of primitives
+  is minimal. This has for effect that setTextNodeValue is used for
+  inserting and deleting text. setTextNodeValue uses ``node.data =``
+  to set the text, which is slower than using ``deleteData`` or
+  ``insertData``. We should explore expanding the primitives so that
+  these better performing methods can be used instead of doing
+  ``node.data =``.
+
+Saving Protocol
+---------------
+
+* The procotol could be redesigned to use HTTP error codes for error
+   conditions.
 
 Other
 -----

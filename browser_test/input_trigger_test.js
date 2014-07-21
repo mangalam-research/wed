@@ -15,7 +15,7 @@ var InputTrigger = input_trigger.InputTrigger;
 var options = {
     schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
-        path: 'test',
+        path: 'generic',
         options: {
             meta: {
                 path: 'wed/modes/generic/metas/tei_meta',

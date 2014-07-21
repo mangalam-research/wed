@@ -74,3 +74,24 @@ Scenario: restoring the selection
   Then a context menu is visible close to where the user invoked it
   When the user types ESCAPE
   Then the selection is restored to what it was before the context menu appeared
+
+Scenario: select text when there is no label
+  # This step is needed to acquire focus in FF.
+  When the user clicks on text
+  And the user decreases the label visibility level
+  And the user selects the "abcd" of the first title
+  Then the text "abcd" is selected
+
+Scenario: clicking on uneditable text
+  When the user clicks on uneditable text whose parent does not contain "A"
+  And the user types "A"
+  Then the uneditable text's parent contains "A"
+
+Scenario: selecting text on a label
+  When the user selects text on an element's label
+  Then no text is selected
+  And the label changes to show it is selected
+
+Scenario: selecting text on a phantom text
+  When the user selects text on phantom text
+  Then no text is selected

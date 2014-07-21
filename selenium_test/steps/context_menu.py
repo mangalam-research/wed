@@ -166,7 +166,7 @@ def context_menu_on_uneditable_text(context):
     util = context.util
 
     element, parent, _ = get_element_parent_and_parent_text(
-        driver, ".ref>._phantom")
+        driver, ".ref>._phantom._text")
     ActionChains(driver)\
         .move_to_element(element)\
         .context_click()\
@@ -324,6 +324,16 @@ def step_impl(context):
     assert_true(util.completely_visible_to_user(menu),
                 "menu is completely visible")
 
+    # This is a check that without the adjustment made to show the
+    # whole menu, the menu would overflow outside the editing pane. (A
+    # freakishly small menu would not overflow, for instance, and we
+    # would not be testing what we think we are testing.)
+    gui_root = wedutil.gui_root(util)
+    assert_true(context.context_menu_trigger.location["left"] -
+                util.element_screen_position(gui_root)["left"] +
+                menu.size["width"] > gui_root.size["width"],
+                "the menu would otherwise overflow")
+
 
 @When(ur"the user uses the keyboard to bring up the context menu on "
       ur"(?P<choice>a placeholder|text)")
@@ -345,9 +355,13 @@ def step_impl(context, choice):
         raise ValueError("unknown choice: " + choice)
 
     # IF YOU CHANGE THIS, CHANGE THE TRIGGER
-    ActionChains(driver)\
-        .click(where) \
-        .perform()
+    while True:
+        ActionChains(driver)\
+            .click(where) \
+            .perform()
+
+        if wedutil.is_caret_in(util, where):
+            break
 
     util.ctrl_equivalent_x("/")
 
@@ -466,7 +480,7 @@ def step_impl(context, choice, new):
         raise ValueError("can't handle this type of choice: " + choice)
 
     # Record some information likely to be useful later.
-    for_element = context.context_menu_for
+    for_element = getattr(context, "context_menu_for", None)
     if for_element:
         info = {}
         context.context_menu_pre_transformation_info = info

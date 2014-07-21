@@ -103,3 +103,22 @@ def step_impl(context):
     parent = context.clicked_element_parent
     final = util.get_text_excluding_children(parent)
     assert_equal(initial[:-1], final, "edited text")
+
+
+@then(ur'^the (?P<ordinal>first|second) (?P<what>".*?"|paragraph) in body has '
+      ur'the text "(?P<text>.*)"$')
+def step_impl(context, ordinal, what, text):
+    util = context.util
+    index = 0 if ordinal == "first" else 1
+
+    if what == "paragraph":
+        what = "p"
+    else:
+        what = what[1:-1]  # drop the quotes.
+
+    els = util.find_elements((By.CSS_SELECTOR, ".body ." +
+                              what.replace(":", ur"\:")))
+
+    def cond(*_):
+        return util.get_text_excluding_children(els[index]) == text
+    util.wait(cond)

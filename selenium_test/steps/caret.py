@@ -47,7 +47,7 @@ def step_impl(context):
     return ret;
     """, element)
 
-    last_click = {"left": int(rect["left"] + 1),
+    last_click = {"left": round(rect["left"]) + 2,
                   "top": int(rect["top"] + rect["height"] / 2)}
 
     ActionChains(driver) \
@@ -71,7 +71,8 @@ def step_impl(context):
 
 @then(ur"^the caret is at the last position before the focus was lost\.?$")
 def step_impl(context):
-    assert_equal(context.caret_position, wedutil.caret_pos(context.driver))
+    context.util.wait(lambda driver: context.caret_position ==
+                      wedutil.caret_pos(driver))
 
 
 @then(u"the selection is the same as before the focus was lost")
@@ -125,17 +126,19 @@ def step_impl(context, what):
 
 
 @when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
-      ur'the first "p" element in "body")$')
-def step_impl(context, choice):
+      ur'the first "(?P<element>.*?)" element in "body")$')
+def step_impl(context, choice, element=None):
     driver = context.driver
     util = context.util
 
     if choice == "an element":
         button = util.find_element((By.CSS_SELECTOR,
                                     ".__start_label._p_label"))
-    elif choice == 'the first "p" element in "body"':
+    elif element is not None:
+        element = element.replace(":", ur"\:")
         button = util.find_element((By.CSS_SELECTOR,
-                                    ".body .__start_label._p_label"))
+                                    ".body .__start_label._" + element +
+                                    "_label"))
     else:
         raise ValueError("unexpected choice: " + choice)
 
@@ -263,13 +266,21 @@ def step_impl(context, direction):
     context.expected_selection = parent_text[1:3]
 
 
-@when(u'^the user selects the whole text of an element$')
-def step_impl(context):
+@when(u'^the user selects the whole text of '
+      u'(?P<what>an element|the first paragraph in "body")$')
+def step_impl(context, what):
     driver = context.driver
     util = context.util
 
-    element, parent, _ = get_element_parent_and_parent_text(
-        driver, ".__start_label._title_label")
+    if what == "an element":
+        selector = ".__start_label._title_label"
+    elif what == 'the first paragraph in "body"':
+        selector = ".body .__start_label._p_label"
+    else:
+        raise ValueError("unknown value for what: " + what)
+
+    element, parent, parent_text = get_element_parent_and_parent_text(
+        driver, selector)
 
     ActionChains(driver)\
         .click(element) \
@@ -278,16 +289,58 @@ def step_impl(context):
     util.send_keys(element,
                    # From the label to before the first letter.
                    [Keys.ARROW_RIGHT] +
-                   # This moves 4 characters to the right
-                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 4 + [Keys.SHIFT])
+                   # This select the whole text of the element.
+                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * len(parent_text) +
+                   [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
     text = util.get_selection_text()
-    assert_equal(text, "abcd", "expected selection")
+    assert_equal(text, parent_text, "expected selection")
 
     context.expected_selection = text
     context.selection_parent = parent
     context.caret_position = wedutil.caret_pos(driver)
+
+
+@when(u'^the user selects the "abcd" of the first title$')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    parent = util.find_element((By.CSS_SELECTOR, ".title"))
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(parent, 1, 1) \
+        .click() \
+        .perform()
+
+    start = wedutil.caret_selection_pos(driver)
+    # On FF there's an off-by 1 issue in the CSS rendering which causes
+    # a problem unless we perform this adjustment.
+    start["left"] += 1
+
+    util.send_keys(parent,
+                   # This moves 4 characters to the right
+                   [Keys.ARROW_RIGHT] * 4)
+
+    end = wedutil.caret_selection_pos(driver)
+    # On FF there's an off-by 1 issue in the CSS rendering which causes
+    # a problem unless we perform this adjustment.
+    end["left"] -= 1
+
+    wedutil.select_text(driver, start, end)
+
+    assert_true(util.is_something_selected(), "something must be selected")
+    context.selection_parent = parent
+    context.caret_position = wedutil.caret_pos(driver)
+
+
+@then(u'^the text "abcd" is selected$')
+def step_impl(context):
+    util = context.util
+
+    text = util.get_selection_text()
+    assert_equal(text, "abcd", "expected selection")
 
 
 @when(u'^the user cuts$')
@@ -326,6 +379,32 @@ def step_impl(context):
 
     util.wait(lambda *_: util.get_selection_text() ==
               context.expected_selection)
+
+
+@when(ur"the user selects text on (?P<what>an element's label|phantom text)")
+def step_impl(context, what):
+    driver = context.driver
+    selector = ".__end_label._title_label>*" if what == "an element's label" \
+               else "._text._phantom"
+
+    # Faster than using 4 Selenium operations.
+    label, start, end = driver.execute_script("""
+    var selector = arguments[0];
+
+    var el = jQuery(selector)[0];
+    var text = el.firstChild;
+    var range = document.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, text.nodeValue.length);
+    var rect = range.getBoundingClientRect();
+    return [el.parentNode,
+            {left: rect.left + 5, top: rect.top + rect.height / 2},
+            {left: rect.right - 5, top: rect.top + rect.height / 2}];
+    """, selector)
+
+    context.clicked_element = label
+
+    wedutil.select_text(driver, start, end, True)
 
 
 step_matcher("parse")
@@ -431,3 +510,41 @@ def step_impl(context):
                    [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 9 + [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
+
+
+@when(ur'the user clicks on uneditable text whose parent does not contain "A"')
+def step_impl(context):
+    driver = context.driver
+
+    el, _, parent_text = get_element_parent_and_parent_text(driver, ".ref")
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(el, 1, 1)\
+        .click()\
+        .perform()
+
+    assert_true(parent_text.find("A") == -1)
+
+
+@then(u'the uneditable text\'s parent contains "A"')
+def step_impl(context):
+    driver = context.driver
+
+    _, _, parent_text = get_element_parent_and_parent_text(driver, ".ref")
+
+    assert_true(parent_text.find("A") != -1)
+
+
+@then(ur"no text is selected")
+def step_impl(context):
+    util = context.util
+    assert_false(util.is_something_selected(), "nothing must be selected")
+
+
+@when(ur"the user clicks outside the editor pane")
+def step_impl(context):
+    body = context.driver.find_element_by_tag_name("body")
+    ActionChains(context.driver) \
+        .move_to_element_with_offset(body, 1, 1) \
+        .click() \
+        .perform()

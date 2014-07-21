@@ -85,8 +85,16 @@ PURL_BASE=purl-$(notdir $(PURL_URL))
 CLASSLIST_URL=https://github.com/eligrey/classList.js/archive/master.zip
 CLASSLIST_BASE=classList.zip
 
-LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*")
-STANDALONE_LIB_FILES:=$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,build/standalone/$f))
+# Only the less files that we compile.
+COMPILED_LESS_FILES:=$(wildcard lib/wed/*.less)
+
+# Only the less files meant to be included.
+INC_LESS_FILES:=$(shell find lib/wed/less-inc -name "*.less")
+
+LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*" -not -name "*.less") $(COMPILED_LESS_FILES)
+
+STANDALONE_LIB_FILES:=$(foreach path,$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,$f)) $(INC_LESS_FILES),build/standalone/$(path))
+
 TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
 CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
 # Use $(sort ...) to remove duplicates.
@@ -258,8 +266,8 @@ build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	cp $< $@
 
-build/standalone/lib/%.css: lib/%.less
-	lessc $< $@
+build/standalone/lib/%.css: lib/%.less lib/wed/less-inc/*
+	lessc --include-path=./lib/wed/less-inc/ $< $@
 
 build/standalone build/ajax: | build-dir
 	-mkdir $@

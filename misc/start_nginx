@@ -22,6 +22,9 @@ mkdir -p var/run || true
 mkdir -p var/log || true
 mkdir -p var/lib/nginx || true
 
+# Delete the old logs...
+rm -rf var/log/*
+
 ./server.js localhost:9999 & nginx -c `pwd`/build/config/nginx.conf
 
 wait

@@ -13,7 +13,7 @@ var assert = chai.assert;
 var options = {
     schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
-        path: 'test',
+        path: 'generic',
         options: {
             meta: {
                 path: 'wed/modes/generic/metas/tei_meta',
@@ -61,7 +61,7 @@ describe("input_trigger_factory", function () {
 
             // Synthetic event
             editor.setDataCaret(
-                editor.$data_root.find(".p").get(-1).childNodes[0], 4);
+                editor.$data_root.find(".p").get(-1).firstChild, 4);
             editor.type(";");
 
             var $ps = editor.$data_root.find(".body .p");
@@ -83,7 +83,7 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setDataCaret(
-                editor.$data_root.find(".p").get(-1).childNodes[0], 4);
+                editor.$data_root.find(".p").get(-1).firstChild, 4);
             editor.type(key_constants.ENTER);
 
             var $ps = editor.$data_root.find(".body .p");
@@ -149,7 +149,7 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setGUICaret(
-                editor.$gui_root.find(".p>.ref")[0].childNodes[0], 1);
+                editor.$gui_root.find(".p>.ref")[0].firstChild, 1);
             editor.type(key_constants.BACKSPACE);
 
             var $ps = editor.$data_root.find(".body>.p");
@@ -163,13 +163,126 @@ describe("input_trigger_factory", function () {
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setGUICaret(
-                editor.$gui_root.find(".p>.ref")[0].lastChild, 0);
+                editor.$gui_root.find(".p>.ref")[0].lastChild.previousSibling,
+                0);
             editor.type(key_constants.DELETE);
 
             var $ps = editor.$data_root.find(".body>.p");
             assert.equal($ps.length, 1);
         });
     });
+
+    describe("makeSplitMergeInputTrigger", function () {
+        before(function () {
+            src_stack.unshift("../../test-files/input_trigger_test_data" +
+                              "/source3_converted.xml");
+        });
+        after(function () {
+            src_stack.shift();
+        });
+
+        it("creates an InputTrigger that merges on BACKSPACE",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                         "there should be 2 paragraphs before backspacing");
+
+            editor.setDataCaret($ps[1].firstChild, 0);
+            editor.type(key_constants.BACKSPACE);
+
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1,
+                        "there should be 1 paragraph after backspacing");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">BarFoo</div>');
+        });
+
+        it("creates an InputTrigger that merges on BACKSPACE, and can undo",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                         "there should be 2 paragraphs before backspacing");
+
+            editor.setDataCaret($ps[1].firstChild, 0);
+            editor.type(key_constants.BACKSPACE);
+
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1,
+                        "there should be 1 paragraph after backspacing");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">BarFoo</div>');
+
+            editor.undo();
+
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                        "there should be 2 paragraphs after undo");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">Bar</div>');
+            assert.equal($ps[1].outerHTML,
+                         '<div class="p _real">Foo</div>');
+        });
+
+        it("creates an InputTrigger that merges on DELETE",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                         "there should be 2 paragraphs before backspacing");
+
+            editor.setDataCaret($ps[0].lastChild,
+                                $ps[0].lastChild.nodeValue.length);
+            editor.type(key_constants.DELETE);
+
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1,
+                        "there should be 1 paragraph after backspacing");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">BarFoo</div>');
+        });
+
+        it("creates an InputTrigger that merges on DELETE, and can undo",
+           function () {
+            input_trigger_factory.makeSplitMergeInputTrigger(
+                editor, ".p", key_constants.ENTER,
+                key_constants.BACKSPACE, key_constants.DELETE);
+
+            var $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                         "there should be 2 paragraphs before backspacing");
+
+            editor.setDataCaret($ps[0].lastChild,
+                                $ps[0].lastChild.nodeValue.length);
+            editor.type(key_constants.DELETE);
+
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 1,
+                        "there should be 1 paragraph after backspacing");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">BarFoo</div>');
+
+            editor.undo();
+            $ps = editor.$data_root.find(".body>.p");
+            assert.equal($ps.length, 2,
+                         "there should be 2 paragraphs before backspacing");
+            assert.equal($ps[0].outerHTML,
+                         '<div class="p _real">Bar</div>');
+            assert.equal($ps[1].outerHTML,
+                         '<div class="p _real">Foo</div>');
+        });
+    });
+
 });
 
 });

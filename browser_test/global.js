@@ -15,7 +15,7 @@ function reset(done) {
            function (data) {
         assert.deepEqual(data, {});
         done();
-    }).fail(function () { throw Error("failed to reset"); });
+    }).fail(function () { throw new Error("failed to reset"); });
 }
 
 exports.reset = reset;
@@ -26,11 +26,39 @@ function fail_on_save(done) {
                function (data) {
             assert.deepEqual(data, {});
             done();
-        }).fail(function () { throw Error("failed to set fail_on_save"); });
+        }).fail(function () { throw new Error("failed to set fail_on_save"); });
     });
 }
 
 exports.fail_on_save = fail_on_save;
+
+function no_response_on_save(done) {
+    reset(function () {
+        $.post('/build/ajax/control', {command: 'no_response_on_save',
+                                       value: 1},
+               function (data) {
+            assert.deepEqual(data, {});
+            done();
+        }).fail(function () {
+            throw new Error("failed to set no_response_on_save"); });
+    });
+}
+
+exports.no_response_on_save = no_response_on_save;
+
+function precondition_fail_on_save(done) {
+    reset(function () {
+        $.post('/build/ajax/control',
+               {command: 'precondition_fail_on_save', value: 1},
+               function (data) {
+            assert.deepEqual(data, {});
+            done();
+        }).fail(function () {
+            throw new Error("failed to set precondition_fail_on_save"); });
+    });
+}
+
+exports.precondition_fail_on_save = precondition_fail_on_save;
 
 });
 

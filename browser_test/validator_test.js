@@ -287,7 +287,7 @@ describe("validator", function () {
         makeTest("with actual contents, start of title "+
                  "(start of text node)",
                  function () {
-            var el = $data.find("._real.title")[0].childNodes[0];
+            var el = $data.find("._real.title")[0].firstChild;
             // Make sure we know what we are looking at.
             assert.equal(el.nodeType, Node.TEXT_NODE);
             var evs = p.possibleAt(el, 0);
@@ -299,7 +299,7 @@ describe("validator", function () {
 
         makeTest("with actual contents, index inside text node",
                  function () {
-            var el = $data.find("._real.title")[0].childNodes[0];
+            var el = $data.find("._real.title")[0].firstChild;
             // Make sure we know what we are looking at.
             assert.equal(el.nodeType, Node.TEXT_NODE);
             var evs = p.possibleAt(el, 1);

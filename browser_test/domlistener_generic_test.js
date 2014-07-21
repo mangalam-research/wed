@@ -78,7 +78,7 @@ return function (domlistener, class_name, tree_updater_class) {
 
         this._count++;
         // Trigger the handler only once.
-        if (this._count === 1 && !this._tree_updater)
+        if (this._count === this._total_expected && !this._tree_updater)
             this._$root.append($marker);
     };
 
@@ -219,7 +219,7 @@ return function (domlistener, class_name, tree_updater_class) {
             function removedHandler($this_root, $parent,
                                     $previous_sibling,
                                     $next_sibling, $element) {
-                var text = $element[0].childNodes[0].nodeValue;
+                var text = $element[0].firstChild.nodeValue;
                 if (text === "A") {
                     assert.isUndefined($previous_sibling[0],
                                        "previous sibling of A");
@@ -408,11 +408,11 @@ return function (domlistener, class_name, tree_updater_class) {
             listener.startListening($root);
             if (tree_updater) {
                 tree_updater.setTextNodeValue(
-                    $root.find("._real.li")[0].childNodes[0], "Q");
+                    $root.find("._real.li")[0].firstChild, "Q");
                 mark.check();
             }
             else
-                $root.find("._real.li")[0].childNodes[0].nodeValue = "Q";
+                $root.find("._real.li")[0].firstChild.nodeValue = "Q";
         });
 
         it("fires children-changed when adding a text node",
@@ -644,6 +644,52 @@ return function (domlistener, class_name, tree_updater_class) {
         it("processImmediately processes immediately",
            function () {
             var marked = false;
+            mark = new Mark(2, {"children root": 1,
+                                "trigger": 1},
+                            listener, tree_updater, $root,
+                            function () { marked = true; });
+            function changedHandler($this_root, $added, $removed,
+                                    $previous_sibling, $next_sibling,
+                                    $element) {
+                if ($added[0] === $marker[0])
+                    return;
+                listener.trigger("t");
+                mark.mark("children root");
+            }
+
+            function triggerHandler() {
+                mark.mark("trigger");
+            }
+
+            listener.addHandler("children-changed", "*",
+                                changedHandler);
+            listener.addHandler("trigger", "t",
+                                triggerHandler);
+            listener.startListening($root);
+
+            if (tree_updater)
+                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                          $fragment_to_add[0]);
+            else
+                $root.append($fragment_to_add);
+            listener.processImmediately();
+            if (tree_updater)
+                mark.check();
+            assert.isTrue(marked);
+        });
+
+        it("clearPending clears pending operations",
+           function () {
+            // The domlistener based on mutations does not make
+            // triggers pending, so we don't need to test it.
+
+            if (!tree_updater) {
+                // Just make sure it does not crash.
+                listener.clearPending();
+                return;
+            }
+
+            var marked = false;
             mark = new Mark(1, {"children root": 1},
                             listener, tree_updater, $root,
                             function () { marked = true; });
@@ -652,19 +698,22 @@ return function (domlistener, class_name, tree_updater_class) {
                                     $element) {
                 if ($added[0] === $marker[0])
                     return;
+                listener.trigger("t");
                 mark.mark("children root");
             }
-            listener.addHandler("children-changed", "*",
-                                changedHandler);
-            listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
-                                          $fragment_to_add[0]);
-                mark.check();
+
+            function triggerHandler() {
+                mark.mark("trigger");
             }
-            else
-                $root.append($fragment_to_add);
-            listener.processImmediately();
+
+            listener.addHandler("children-changed", "*", changedHandler);
+            listener.addHandler("trigger", "t", triggerHandler);
+            listener.startListening($root);
+
+            tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                      $fragment_to_add[0]);
+            listener.clearPending();
+            mark.check();
             assert.isTrue(marked);
         });
 

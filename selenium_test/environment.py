@@ -41,21 +41,41 @@ def before_all(context):
     behave_wait = os.environ.get("BEHAVE_WAIT_BETWEEN_STEPS")
     context.behave_wait = behave_wait and float(behave_wait)
 
+    context.behave_captions = os.environ.get("BEHAVE_CAPTIONS")
+
+
+def skip_if_needed(context, entity):
+    if (context.util.osx and "fails_if:osx" in entity.tags) or \
+       (context.util.windows and context.util.firefox and
+            "fails_if:win,ff" in entity.tags):
+        entity.mark_skipped()
+
 
 def before_feature(context, feature):
     # Some tests cannot be performed on some OSes due to limitations
     # in Selenium or the browser or the OS or what-have-you. There is
     # no real equivalent available to perform these tests so we just
     # skip them.
-    for scenario in feature.scenarios:
-        if context.util.osx and "fails_if:osx" in scenario.tags:
-            scenario.mark_skipped()
+
+    skip_if_needed(context, feature)
+
+    # If we're already skipping the feature, we don't need to check
+    # individual scenarios.
+    if not feature.should_skip:
+        for scenario in feature.scenarios:
+            skip_if_needed(context, scenario)
 
 
 def before_scenario(context, scenario):
     driver = context.driver
+
+    if context.behave_captions:
+        # We send a comment as a "script" so that we get something
+        # in the record of Selenium commands.
+        driver.execute_script("// SCENARIO: " + scenario.name + "\n")
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
+    driver.set_window_position(0, 0)
     context.initial_window_handle = driver.current_window_handle
 
 
@@ -78,7 +98,13 @@ def after_scenario(context, _scenario):
     driver.switch_to_window(context.initial_window_handle)
 
 
-def before_step(context, _step):
+def before_step(context, step):
+    if context.behave_captions:
+        # We send a comment as a "script" so that we get something
+        # in the record of Selenium commands.
+        context.driver.execute_script("// STEP: " + step.keyword + " "
+                                      + step.name +
+                                      "\n")
     if context.behave_wait:
         time.sleep(context.behave_wait)
 
