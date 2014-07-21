@@ -82,6 +82,9 @@ def open_doc(context):
 def step_impl(context):
     driver = context.driver
 
+    context.caret_screen_position_before_focus_loss = \
+        wedutil.caret_screen_pos(driver)
+
     driver.execute_script("window.open('http://www.google.com')")
     driver.switch_to_window([x for x in driver.window_handles
                              if x != context.initial_window_handle][0])
@@ -123,6 +126,7 @@ def step_impl(context, text):
     context.element_to_test_for_text = element
     assert_true(
         util.get_text_excluding_children(element).find(text) == -1)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
 @when('the user clicks on the start label of an element that does not '
@@ -234,6 +238,8 @@ step_matcher("re")
 def step_impl(context, choice):
     driver = context.driver
     util = context.util
+    pos_before = getattr(context, "caret_screen_position",
+                         None)
 
     if choice == "completely ":
         scroll_by = driver.execute_script("""
@@ -264,6 +270,14 @@ def step_impl(context, choice):
     scroll_top = util.wait(cond)
     context.scrolled_editor_pane_by = scroll_by
     context.editor_pane_new_scroll_top = scroll_top[0]
+
+    if pos_before is not None:
+        # Wait until the caret actually change position.
+        def cond2(driver):
+            pos = wedutil.caret_screen_pos(driver)
+            return pos if pos_before != pos else False
+
+        util.wait(cond2)
 
 
 @then("^the editor pane did not scroll$")

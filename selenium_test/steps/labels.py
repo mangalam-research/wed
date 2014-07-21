@@ -48,7 +48,7 @@ def step_impl(context, choice):
 
     initial_level = wedutil.get_label_visibility_level(util)
     context.caret_position_before_label_visibility_change = \
-        wedutil.caret_pos(driver)
+        wedutil.caret_screen_pos(driver)
 
     util.ctrl_equivalent_x(key)
 
@@ -92,7 +92,7 @@ def step_impl(context):
 
     before = context.caret_position_before_label_visibility_change
 
-    after = wedutil.caret_pos(driver)
+    after = wedutil.caret_screen_pos(driver)
 
     # Some platforms use float dimensions so there may be rounding off
     # errors.

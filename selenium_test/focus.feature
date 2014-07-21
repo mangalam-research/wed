@@ -16,9 +16,19 @@ Scenario: losing and recovering the selection when focus is lost and recovered
 Scenario: losing and recovering the caret when focus is lost and recovered
   When the user selects text with the mouse
   Then the text is selected
-  When the user opens a new window
+  When the user scrolls the editor pane completely down
+  And the user opens a new window
   And the user goes back to the initial window
   Then the caret is at the last position before the focus was lost
+  And the editor pane did not scroll
+
+Scenario: scrolling position when focus is lost and recovered
+  When the user clicks on text that does not contain "A"
+  And the user scrolls the editor pane completely down
+  And the user opens a new window
+  And the user goes back to the initial window
+  Then the caret is at the last position before the focus was lost
+  And the editor pane did not scroll
 
 Scenario: typing text after recovering focus
   When the user clicks on text that does not contain "A"

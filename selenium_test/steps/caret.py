@@ -71,8 +71,9 @@ def step_impl(context):
 
 @then(ur"^the caret is at the last position before the focus was lost\.?$")
 def step_impl(context):
-    context.util.wait(lambda driver: context.caret_position ==
-                      wedutil.caret_pos(driver))
+    context.util.wait(lambda driver:
+                      context.caret_screen_position_before_focus_loss ==
+                      wedutil.caret_screen_pos(driver))
 
 
 @then(u"the selection is the same as before the focus was lost")
@@ -161,7 +162,8 @@ def step_impl(context):
 def step_impl(context, choice):
     driver = context.driver
 
-    context.caret_position_before_arrow = wedutil.caret_pos(driver)
+    context.caret_position_before_arrow = wedutil.caret_screen_pos(
+        driver)
 
     key = Keys.ARROW_RIGHT if choice == "right" else Keys.ARROW_LEFT
     ActionChains(driver)\
@@ -226,7 +228,7 @@ def step_impl(context, direction):
 
     context.expected_selection = parent_text[1:3]
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
 @when(u'the user selects text(?P<direction>.*?) with the keyboard')
@@ -299,7 +301,7 @@ def step_impl(context, what):
 
     context.expected_selection = text
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
 @when(u'^the user selects the "abcd" of the first title$')
@@ -332,7 +334,7 @@ def step_impl(context):
 
     assert_true(util.is_something_selected(), "something must be selected")
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
 @then(u'^the text "abcd" is selected$')
@@ -441,7 +443,7 @@ def step_impl(context):
 
     context.expected_selection = parent_text[0:1]
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
 @then(u'the text is selected')
@@ -480,9 +482,9 @@ def step_impl(context):
 def step_impl(context):
     driver = context.driver
     util = context.util
-    prev_pos = context.caret_position
+    prev_pos = context.caret_screen_position
 
-    util.wait(lambda *_: wedutil.caret_pos(driver)["top"] ==
+    util.wait(lambda *_: wedutil.caret_screen_pos(driver)["top"] ==
               prev_pos["top"] - context.scrolled_editor_pane_by)
 
 

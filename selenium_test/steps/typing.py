@@ -97,7 +97,7 @@ def step_impl(context):
     util = context.util
     initial_pos = context.caret_position_before_arrow
 
-    util.wait(lambda *_: initial_pos != wedutil.caret_pos(driver))
+    util.wait(lambda *_: initial_pos != wedutil.caret_screen_pos(driver))
 
     initial = context.clicked_element_parent_initial_text
     parent = context.clicked_element_parent
