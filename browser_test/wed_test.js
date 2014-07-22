@@ -963,6 +963,20 @@ describe("wed", function () {
                        "the caret should be in the text node");
         });
 
+        // This test only checks that the editor does not crash.
+        it("autofills in the midst of text", function () {
+            var p = editor.$data_root.find(".body>.p")[0];
+            assert.isTrue(p.firstChild.nodeType === Node.TEXT_NODE,
+                          "we should set our caret in a text node");
+            editor.setDataCaret(p.firstChild, 3);
+            var trs = editor.mode.getContextualActions(
+                ["insert"], "biblFull", p.firstChild, 0);
+
+            var tr = trs[0];
+            var data = {node: undefined, element_name: "biblFull"};
+            tr.execute(data);
+        });
+
         describe("interacts with the server:", function () {
             before(function () {
                 src_stack.unshift("../../test-files/wed_test_data" +
