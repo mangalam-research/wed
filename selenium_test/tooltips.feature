@@ -16,3 +16,10 @@ Scenario: a tooltip disappears when the user types ESCAPE
   Then a tooltip comes up
   When the user types ESCAPE
   Then there are no tooltips
+
+Scenario: a tooltip disappears when the user deletes an element that had a tooltip
+  When the user moves the mouse over a start label
+  Then a tooltip comes up
+  When the user clicks
+  And the user types DELETE
+  Then there are no tooltips

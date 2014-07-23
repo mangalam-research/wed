@@ -19,6 +19,14 @@ def step_impl(context):
         .perform()
 
 
+@when(ur"^the user clicks$")
+def step_impl(context):
+    driver = context.driver
+    ActionChains(driver) \
+        .click() \
+        .perform()
+
+
 @then(ur"^a tooltip comes up")
 def step_impl(context):
     util = context.util
