@@ -4,6 +4,10 @@ may not work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.17.0:
+
+  - GUI: Typing when a selection is in effect replaces the selection.
+
 * 0.16.0:
 
   - Wed is now able to autosave at regular intervals.
