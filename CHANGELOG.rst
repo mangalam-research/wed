@@ -1,12 +1,22 @@
 Please note that Github currently does not implement all
-reStructuredText directives, so some links in this document
-may not work correctly when viewed there.
+reStructuredText directives, so some links in this document may not
+work correctly when viewed there.
 
 Only salient changes are recorded here.
 
 * 0.17.0:
 
   - GUI: Typing when a selection is in effect replaces the selection.
+
+  - API: made some functions that used to be public private:
+
+    * setDOMSelectionRange
+
+    * clearDOMSelection
+
+    * getDOMSelectionRange
+
+    * getDOMSelection
 
 * 0.16.0:
 

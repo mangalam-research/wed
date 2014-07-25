@@ -391,7 +391,7 @@ describe("wed", function () {
                 // the mousedown event is processed.
                 var event = new $.Event("mousedown");
                 event.target = last_gui_span;
-                editor.getDOMSelection().setSingleRange(caret.makeRange());
+                editor.setSelectionRange(caret.makeRange());
 
                 // This simulates the movement of the caret after the
                 // mousedown event is processed. This will be processed
@@ -400,7 +400,7 @@ describe("wed", function () {
                 window.setTimeout(log.wrap(function () {
                     var range = rangy.createRange(editor.my_window.document);
                     range.setStart(last_gui_span);
-                    editor.getDOMSelection().setSingleRange(range);
+                    editor.setSelectionRange(range);
                 }), 0);
 
                 // We trigger the event here so that the order specified
@@ -445,7 +445,7 @@ describe("wed", function () {
                 // the mousedown event is processed.
                 var event = new $.Event("mousedown");
                 event.target = phantom;
-                editor.getDOMSelection().setSingleRange(caret.makeRange());
+                editor.setSelectionRange(caret.makeRange());
 
                 // This simulates the movement of the caret after the
                 // mousedown event is process. This will be processed
@@ -454,7 +454,7 @@ describe("wed", function () {
                 window.setTimeout(log.wrap(function () {
                     var range = rangy.createRange(editor.my_window.document);
                     range.setStart(phantom, 0);
-                    editor.getDOMSelection().setSingleRange(range);
+                    editor.setSelectionRange(range);
                 }), 0);
 
                 // We trigger the event here so that the order specified
