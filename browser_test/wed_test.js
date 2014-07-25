@@ -33,8 +33,9 @@ var wedroot = $wedroot[0];
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 
 function caretCheck(editor, container, offset, msg) {
-    assert.equal(editor._raw_caret.node, container, msg + " (container)");
-    assert.equal(editor._raw_caret.offset, offset, msg + " (offset)");
+    var caret = editor.getGUICaret(true);
+    assert.equal(caret.node, container, msg + " (container)");
+    assert.equal(caret.offset, offset, msg + " (offset)");
 }
 
 function dataCaretCheck(editor, container, offset, msg) {
