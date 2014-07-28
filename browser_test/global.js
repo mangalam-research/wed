@@ -10,52 +10,39 @@ var $ = require("jquery");
 
 var assert = chai.assert;
 
-function reset(done) {
-    $.post('/build/ajax/control', {command: 'reset'},
+function control(command, additional, errmsg, done) {
+    var params = $.extend({command: command}, additional);
+    $.post('/build/ajax/control', params,
            function (data) {
         assert.deepEqual(data, {});
         done();
-    }).fail(function () { throw new Error("failed to reset"); });
+    }).fail(function () { throw new Error(errmsg); });
+}
+
+function reset(done) {
+    control('reset', undefined, 'failed to reset', done);
 }
 
 exports.reset = reset;
 
+function set(name, done) {
+    control(name, {value: 1}, "failed to set " + name, done);
+}
+
 function fail_on_save(done) {
-    reset(function () {
-        $.post('/build/ajax/control', {command: 'fail_on_save', value: 1},
-               function (data) {
-            assert.deepEqual(data, {});
-            done();
-        }).fail(function () { throw new Error("failed to set fail_on_save"); });
-    });
+    set('fail_on_save', done);
 }
 
 exports.fail_on_save = fail_on_save;
 
 function no_response_on_save(done) {
-    reset(function () {
-        $.post('/build/ajax/control', {command: 'no_response_on_save',
-                                       value: 1},
-               function (data) {
-            assert.deepEqual(data, {});
-            done();
-        }).fail(function () {
-            throw new Error("failed to set no_response_on_save"); });
-    });
+    set('no_response_on_save', done);
 }
 
 exports.no_response_on_save = no_response_on_save;
 
 function precondition_fail_on_save(done) {
-    reset(function () {
-        $.post('/build/ajax/control',
-               {command: 'precondition_fail_on_save', value: 1},
-               function (data) {
-            assert.deepEqual(data, {});
-            done();
-        }).fail(function () {
-            throw new Error("failed to set precondition_fail_on_save"); });
-    });
+    set('precondition_fail_on_save', done);
 }
 
 exports.precondition_fail_on_save = precondition_fail_on_save;
