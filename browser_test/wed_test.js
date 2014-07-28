@@ -1164,7 +1164,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 
             });
 
-            it("brings up an error when the document was edited by someone "+
+            it("brings up a modal when the document was edited by someone "+
                "else",
                function (done) {
                 function doit() {
@@ -1180,6 +1180,24 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 }
 
                 global.precondition_fail_on_save(doit);
+
+            });
+
+            it("brings up a modal when there is a new version of the editor",
+               function (done) {
+                function doit() {
+                    var $modal = editor._too_old_modal.getTopLevel();
+                    $modal.on('shown.bs.modal', function () {
+                        // Prevent a reload.
+                        $modal.off('hidden.bs.modal.modal');
+                        $modal.modal('hide');
+                        done();
+                    });
+
+                    editor.type(key_constants.CTRLEQ_S);
+                }
+
+                global.too_old_on_save(doit);
 
             });
 

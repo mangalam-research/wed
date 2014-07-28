@@ -47,6 +47,12 @@ function precondition_fail_on_save(done) {
 
 exports.precondition_fail_on_save = precondition_fail_on_save;
 
+function too_old_on_save(done) {
+    set('too_old_on_save', done);
+}
+
+exports.too_old_on_save = too_old_on_save;
+
 });
 
 //  LocalWords:  Mangalam MPL Dubeau jQuery jquery ajax chai
