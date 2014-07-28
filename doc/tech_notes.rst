@@ -871,6 +871,37 @@ wed stops all MutationObservers, removes all event handlers, and
 deletes the data structure of the document being edited. We do not know
 of a good explanation for the leak.
 
+Historical Notes
+================
+
+Initially wed was designed with the idea that ``contenteditable``
+would take care of caret management, selection management, text entry,
+etc. Consequently, wed would let the browser drive the management of
+these things and query the browser to know where the caret was,
+whether there was a selection, etc. However, experience soon proved
+that the browsers did not handle these functions in a way that was
+appropriate for wed. So wed had to take over the management of some of
+these functions. Since there was always some hope that at least *some*
+of these functions could *still* be delegated to the browser, these
+changes happened incrementally, changing only as much as needed to get
+the desired result. Some of these changes made earlier code obsolete
+but this was not discovered immediately. So wed evolved form this approach:
+
+ * The browser is the authority on the caret position, the selection,
+   and related things. Wed queries the browser as needed.
+
+To this approach:
+
+ * Wed is the authority on the caret position, the selection, and
+   related things. Wed updates the browser's idea of such things as
+   needed.
+
+The incremental nature of the changes made it so that overtime code
+that operated under the first approach was found right next to code
+that operated under the second approach. Version 0.17.0 cleaned up a
+good deal of the old code (first approach) that was made obsolete by
+the incremental changes, but some obsolete code may still remain.
+
 ..  LocalWords:  contenteditable MutationObserver MutationObservers
 ..  LocalWords:  keydown keypress javascript jQuery util contextmenu
 ..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
