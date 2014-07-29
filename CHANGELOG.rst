@@ -6,6 +6,9 @@ Only salient changes are recorded here.
 
 * 0.17.0:
 
+  - The internals were cleaned quite a bit which warrants a new minor
+    version.
+
   - GUI: Typing when a selection is in effect replaces the selection.
 
   - API: made some functions that used to be public private:
