@@ -74,3 +74,21 @@ Scenario: pasting text that triggers an input trigger outside an element that sh
   And the user cuts
   And the user pastes
   Then the first paragraph in body has the text "A;B"
+
+Scenario: overwriting a selection
+  Given a document containing a top level element, a p element, and text.
+  When the user selects the "bc" of the first title
+  And the user types "X"
+  Then "aXd" is in the text
+
+Scenario: typing DELETE when a selection is in effect
+  Given a document containing a top level element, a p element, and text.
+  When the user selects the "bc" of the first title
+  And the user types DELETE
+  Then "ad" is in the text
+
+Scenario: typing BACKSPACE when a selection is in effect
+  Given a document containing a top level element, a p element, and text.
+  When the user selects the "bc" of the first title
+  And the user types BACKSPACE
+  Then "ad" is in the text

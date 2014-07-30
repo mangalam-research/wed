@@ -63,6 +63,7 @@ function unlinkIfExists(path) {
 var fail_on_save = false;
 var fail_on_recover = false;
 var precondition_fail_on_save = false;
+var too_old_on_save = false;
 var no_response_on_save = false;
 var no_response_on_recover = false;
 
@@ -111,6 +112,10 @@ app.post("/build/ajax/save.txt", function (request, response) {
         case 'save':
         case 'autosave':
             if (!no_response_on_save) {
+
+                if (too_old_on_save)
+                    messages.push({type: 'version_too_old_error'});
+
                 if (precondition_fail_on_save)
                     status = 412;
                 else if (fail_on_save)
@@ -148,6 +153,7 @@ app.post("/build/ajax/control", function(request, response) {
             fail_on_save = false;
             fail_on_recover = false;
             precondition_fail_on_save = false;
+            too_old_on_save = false;
             no_response_on_save = false;
             no_response_on_recover = false;
             break;
@@ -156,6 +162,9 @@ app.post("/build/ajax/control", function(request, response) {
             break;
         case 'precondition_fail_on_save':
             precondition_fail_on_save = decoded.value;
+            break;
+        case 'too_old_on_save':
+            too_old_on_save = decoded.value;
             break;
         case 'fail_on_recover':
             fail_on_recover = decoded.value;

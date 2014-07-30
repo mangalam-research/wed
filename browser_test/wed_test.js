@@ -33,8 +33,9 @@ var wedroot = $wedroot[0];
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 
 function caretCheck(editor, container, offset, msg) {
-    assert.equal(editor._raw_caret.node, container, msg + " (container)");
-    assert.equal(editor._raw_caret.offset, offset, msg + " (offset)");
+    var caret = editor.getGUICaret(true);
+    assert.equal(caret.node, container, msg + " (container)");
+    assert.equal(caret.offset, offset, msg + " (offset)");
 }
 
 function dataCaretCheck(editor, container, offset, msg) {
@@ -390,7 +391,7 @@ describe("wed", function () {
                 // the mousedown event is processed.
                 var event = new $.Event("mousedown");
                 event.target = last_gui_span;
-                editor.getDOMSelection().setSingleRange(caret.makeRange());
+                editor.setSelectionRange(caret.makeRange());
 
                 // This simulates the movement of the caret after the
                 // mousedown event is processed. This will be processed
@@ -399,7 +400,7 @@ describe("wed", function () {
                 window.setTimeout(log.wrap(function () {
                     var range = rangy.createRange(editor.my_window.document);
                     range.setStart(last_gui_span);
-                    editor.getDOMSelection().setSingleRange(range);
+                    editor.setSelectionRange(range);
                 }), 0);
 
                 // We trigger the event here so that the order specified
@@ -444,7 +445,7 @@ describe("wed", function () {
                 // the mousedown event is processed.
                 var event = new $.Event("mousedown");
                 event.target = phantom;
-                editor.getDOMSelection().setSingleRange(caret.makeRange());
+                editor.setSelectionRange(caret.makeRange());
 
                 // This simulates the movement of the caret after the
                 // mousedown event is process. This will be processed
@@ -453,7 +454,7 @@ describe("wed", function () {
                 window.setTimeout(log.wrap(function () {
                     var range = rangy.createRange(editor.my_window.document);
                     range.setStart(phantom, 0);
-                    editor.getDOMSelection().setSingleRange(range);
+                    editor.setSelectionRange(range);
                 }), 0);
 
                 // We trigger the event here so that the order specified
@@ -963,6 +964,20 @@ describe("wed", function () {
                        "the caret should be in the text node");
         });
 
+        // This test only checks that the editor does not crash.
+        it("autofills in the midst of text", function () {
+            var p = editor.$data_root.find(".body>.p")[0];
+            assert.isTrue(p.firstChild.nodeType === Node.TEXT_NODE,
+                          "we should set our caret in a text node");
+            editor.setDataCaret(p.firstChild, 3);
+            var trs = editor.mode.getContextualActions(
+                ["insert"], "biblFull", p.firstChild, 0);
+
+            var tr = trs[0];
+            var data = {node: undefined, element_name: "biblFull"};
+            tr.execute(data);
+        });
+
         describe("interacts with the server:", function () {
             before(function () {
                 src_stack.unshift("../../test-files/wed_test_data" +
@@ -1149,7 +1164,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 
             });
 
-            it("brings up an error when the document was edited by someone "+
+            it("brings up a modal when the document was edited by someone "+
                "else",
                function (done) {
                 function doit() {
@@ -1165,6 +1180,24 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 }
 
                 global.precondition_fail_on_save(doit);
+
+            });
+
+            it("brings up a modal when there is a new version of the editor",
+               function (done) {
+                function doit() {
+                    var $modal = editor._too_old_modal.getTopLevel();
+                    $modal.on('shown.bs.modal', function () {
+                        // Prevent a reload.
+                        $modal.off('hidden.bs.modal.modal');
+                        $modal.modal('hide');
+                        done();
+                    });
+
+                    editor.type(key_constants.CTRLEQ_S);
+                }
+
+                global.too_old_on_save(doit);
 
             });
 

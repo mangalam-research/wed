@@ -17,6 +17,30 @@ from selenium_test.util import Trigger, get_element_parent_and_parent_text
 step_matcher("re")
 
 
+def select_text(context, start, end):
+    """
+    Sends commands to a Selenium driver to select text.
+
+    :param driver: The Selenium driver to operate on.
+    :param start: The start coordinates where to start the selection.
+    :type start: ``{"left": x, "top": y}`` where ``x`` and ``y`` are
+                 the coordinates.
+    :param end: The end coordinates where to end the selection.
+    :type end: ``{"left": x, "top": y}`` where ``x`` and ``y`` are
+                 the coordinates.
+    """
+
+    driver = context.driver
+    origin = context.origin_object
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(origin, start["left"], start["top"])\
+        .click_and_hold()\
+        .move_to_element_with_offset(origin, end["left"], end["top"])\
+        .release()\
+        .perform()
+
+
 @when(u"^an element's label has been clicked$")
 def step_impl(context):
     context.execute_steps(u"""
@@ -71,8 +95,9 @@ def step_impl(context):
 
 @then(ur"^the caret is at the last position before the focus was lost\.?$")
 def step_impl(context):
-    context.util.wait(lambda driver: context.caret_position ==
-                      wedutil.caret_pos(driver))
+    context.util.wait(lambda driver:
+                      context.caret_screen_position_before_focus_loss ==
+                      wedutil.caret_screen_pos(driver))
 
 
 @then(u"the selection is the same as before the focus was lost")
@@ -161,7 +186,8 @@ def step_impl(context):
 def step_impl(context, choice):
     driver = context.driver
 
-    context.caret_position_before_arrow = wedutil.caret_pos(driver)
+    context.caret_position_before_arrow = wedutil.caret_screen_pos(
+        driver)
 
     key = Keys.ARROW_RIGHT if choice == "right" else Keys.ARROW_LEFT
     ActionChains(driver)\
@@ -218,15 +244,15 @@ def step_impl(context, direction):
     end = wedutil.caret_selection_pos(driver)
 
     if direction == "":
-        wedutil.select_text(driver, start, end)
+        select_text(context, start, end)
     elif direction == "backwards":
-        wedutil.select_text(driver, end, start)
+        select_text(context, end, start)
     else:
         raise ValueError("unexpected direction: " + direction)
 
     context.expected_selection = parent_text[1:3]
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
 @when(u'the user selects text(?P<direction>.*?) with the keyboard')
@@ -299,20 +325,37 @@ def step_impl(context, what):
 
     context.expected_selection = text
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
-@when(u'^the user selects the "abcd" of the first title$')
-def step_impl(context):
+@when(u'^the user selects the "(?P<what>.*?)" of the first title$')
+def step_impl(context, what):
     driver = context.driver
     util = context.util
 
     parent = util.find_element((By.CSS_SELECTOR, ".title"))
+    label = parent.find_element_by_css_selector(".__start_label._title_label")
 
-    ActionChains(driver)\
-        .move_to_element_with_offset(parent, 1, 1) \
-        .click() \
-        .perform()
+    if label.is_displayed():
+        ActionChains(driver) \
+            .click(label) \
+            .perform()
+    else:
+        ActionChains(driver) \
+            .move_to_element_with_offset(parent, 1, 1) \
+            .click() \
+            .perform()
+
+    # We need to find the text inside the title element
+    text = util.get_text_excluding_children(parent)
+    start_index = text.find(what)
+    assert_true(start_index >= 0, "should have found the text")
+    if start_index > 0:
+        util.send_keys(parent,
+                       # Move the caret to the start of the selection
+                       # we want.
+                       [Keys.ARROW_RIGHT] * (start_index +
+                                             1 if label.is_displayed() else 0))
 
     start = wedutil.caret_selection_pos(driver)
     # On FF there's an off-by 1 issue in the CSS rendering which causes
@@ -320,19 +363,21 @@ def step_impl(context):
     start["left"] += 1
 
     util.send_keys(parent,
-                   # This moves 4 characters to the right
-                   [Keys.ARROW_RIGHT] * 4)
+                   # Move to the end of the selection we want.
+                   [Keys.ARROW_RIGHT] * len(what))
 
     end = wedutil.caret_selection_pos(driver)
     # On FF there's an off-by 1 issue in the CSS rendering which causes
     # a problem unless we perform this adjustment.
     end["left"] -= 1
 
-    wedutil.select_text(driver, start, end)
+    select_text(context, start, end)
 
-    assert_true(util.is_something_selected(), "something must be selected")
+    assert_equal(util.get_selection_text(), what,
+                 "the selected text should be what we wanted to select")
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
+    context.element_to_test_for_text = parent
 
 
 @then(u'^the text "abcd" is selected$')
@@ -392,6 +437,7 @@ def step_impl(context, what):
     var selector = arguments[0];
 
     var el = jQuery(selector)[0];
+    el.scrollIntoView();
     var text = el.firstChild;
     var range = document.createRange();
     range.setStart(text, 0);
@@ -404,7 +450,7 @@ def step_impl(context, what):
 
     context.clicked_element = label
 
-    wedutil.select_text(driver, start, end, True)
+    select_text(context, start, end)
 
 
 step_matcher("parse")
@@ -435,18 +481,17 @@ def step_impl(context):
     # We need to get the location of the caret.
     start = wedutil.caret_selection_pos(driver)
 
-    wedutil.select_text(driver, start, end)
+    select_text(context, start, end)
 
     assert_true(util.is_something_selected(), "something must be selected")
 
     context.expected_selection = parent_text[0:1]
     context.selection_parent = parent
-    context.caret_position = wedutil.caret_pos(driver)
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
 @then(u'the text is selected')
 def step_impl(context):
-    driver = context.driver
     util = context.util
 
     assert_equal(util.get_selection_text(), context.expected_selection)
@@ -480,9 +525,9 @@ def step_impl(context):
 def step_impl(context):
     driver = context.driver
     util = context.util
-    prev_pos = context.caret_position
+    prev_pos = context.caret_screen_position
 
-    util.wait(lambda *_: wedutil.caret_pos(driver)["top"] ==
+    util.wait(lambda *_: wedutil.caret_screen_pos(driver)["top"] ==
               prev_pos["top"] - context.scrolled_editor_pane_by)
 
 
