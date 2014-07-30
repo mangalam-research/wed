@@ -1,6 +1,12 @@
 Wed
 ===
 
+Warnings in Chrome:
+
+ * Chrome reports that .ownerDocument is deprecated.
+
+ * Chrome reports that .value should be used over .nodeValue.
+
 Input Triggers
 --------------
 
