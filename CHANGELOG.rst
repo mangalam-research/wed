@@ -4,6 +4,12 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.18.0:
+
+  - API: ``Mode.getContextualMenuItems`` has been removed. This was a
+    function that was added very early on and that has since been
+    subsumed by other methods, like ``Mode.getContextualActions``.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
