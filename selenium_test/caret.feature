@@ -95,3 +95,8 @@ Scenario: selecting text on a label
 Scenario: selecting text on a phantom text
   When the user selects text on phantom text
   Then no text is selected
+
+Scenario: clicking on a multi-line element
+  Given there is a paragraph that spans multiple lines
+  When the user clicks on the last character of the paragraph
+  Then the caret is set to the last character of the paragraph

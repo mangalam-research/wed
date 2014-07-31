@@ -4,6 +4,15 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.17.1:
+
+  - This release fixes a major bug that has been hiding in wed for
+    multiple releases but was triggered only when running it on
+    IE. The test suite, as extensive as it is, did not exercise wed in
+    a way that revealed the bug. And the development team does not use
+    IE for development. This allowed this major bug to remain hidden
+    for that long.
+
 * 0.17.0:
 
   - The internals were cleaned quite a bit which warrants a new minor

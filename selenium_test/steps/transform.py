@@ -1,4 +1,4 @@
- # pylint: disable=E0611
+# pylint: disable=E0611
 from nose.tools import assert_equal, assert_is_not_none
 
 
