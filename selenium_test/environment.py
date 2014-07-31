@@ -43,6 +43,8 @@ def before_all(context):
 
     context.behave_captions = os.environ.get("BEHAVE_CAPTIONS")
 
+    context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
+
 
 def skip_if_needed(context, entity):
     if (context.util.osx and "fails_if:osx" in entity.tags) or \
@@ -111,17 +113,19 @@ def before_step(context, step):
 
 def after_step(context, _step):
     driver = context.driver
-    logs = driver.execute_script("""
-    return window.selenium_log;
-    """)
-    if logs:
-        print
-        print "JavaScript log:"
-        print "\n".join(repr(x) for x in logs)
-        print
-        driver.execute_script("""
-        window.selenium_log = [];
+    # Perform this query only if SELENIUM_LOGS is on.
+    if context.selenium_logs:
+        logs = driver.execute_script("""
+        return window.selenium_log;
         """)
+        if logs:
+            print
+            print "JavaScript log:"
+            print "\n".join(repr(x) for x in logs)
+            print
+            driver.execute_script("""
+            window.selenium_log = [];
+            """)
 
 
 def after_all(context):
