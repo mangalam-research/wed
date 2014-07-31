@@ -1,6 +1,7 @@
 from selenium.webdriver.common.action_chains import ActionChains
 # pylint: disable=E0611
-from nose.tools import assert_true, assert_equal, assert_false
+from nose.tools import assert_true, assert_equal, assert_not_equal, \
+    assert_false
 from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -452,6 +453,87 @@ def step_impl(context, what):
 
     select_text(context, start, end)
 
+
+@given(ur"^there is a paragraph that spans multiple lines$")
+def step_impl(context):
+    driver = context.driver
+
+    p = driver.find_elements_by_css_selector(".body>.p")[6]
+
+    start_label = p.find_element_by_css_selector(".__start_label._p_label")
+    end_label = p.find_element_by_css_selector(".__end_label._p_label")
+    end_label.click()
+
+    # Both must be displayed.
+    assert_true(start_label.is_displayed(),
+                "the start label should be visible")
+    assert_true(end_label.is_displayed(), "the end label should be visible")
+
+    ActionChains(driver) \
+        .click(start_label) \
+        .send_keys([Keys.ARROW_RIGHT]) \
+        .perform()
+    start_pos = wedutil.caret_screen_pos(driver)
+
+    ActionChains(driver) \
+        .click(end_label) \
+        .send_keys([Keys.ARROW_LEFT]) \
+        .perform()
+    end_pos = wedutil.caret_screen_pos(driver)
+
+    assert_not_equal(start_pos["top"], end_pos["top"],
+                     "start and end should be on different lines")
+
+    # Click in the middle of the paragraph
+    p.click()
+    mid_pos = wedutil.caret_screen_pos(driver)
+
+    assert_not_equal(start_pos["top"], mid_pos["top"],
+                     "the middle should be on a different line than the start")
+    assert_not_equal(end_pos["top"], mid_pos["top"],
+                     "the end should be on a different line than the top")
+    context.multiline_paragraph = p
+
+
+@when("^the user clicks on the last character of the paragraph")
+def step_impl(context):
+    driver = context.driver
+    p = context.multiline_paragraph
+    end_label = p.find_element_by_css_selector(".__end_label._p_label")
+    end_label.click()
+    ActionChains(driver) \
+        .send_keys([Keys.ARROW_LEFT]) \
+        .perform()
+    pos = wedutil.caret_selection_pos(driver)
+    ActionChains(driver) \
+        .send_keys([Keys.ARROW_LEFT]) \
+        .perform()
+    pos2 = wedutil.caret_selection_pos(driver)
+    ActionChains(driver) \
+        .move_to_element_with_offset(context.origin_object,
+                                     round(pos["left"] + pos2["left"] / 2),
+                                     pos["top"]) \
+        .click() \
+        .perform()
+
+
+@then("^the caret is set to the last character of the paragraph")
+def step_impl(context):
+    driver = context.driver
+    p = context.multiline_paragraph
+    labels = p.find_elements_by_css_selector(
+        ".__end_label._p_label._label_clicked")
+
+    assert_equal(len(labels), 0, "the end label should not be clicked")
+
+    # Move onto the label
+    ActionChains(driver) \
+        .send_keys([Keys.ARROW_RIGHT]) \
+        .perform()
+
+    labels = p.find_elements_by_css_selector(
+        ".__end_label._p_label._label_clicked")
+    assert_equal(len(labels), 1, "the end label should be clicked")
 
 step_matcher("parse")
 

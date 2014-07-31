@@ -80,8 +80,12 @@ Browser Requirements
 Wed is primarily developed using a recent version of Chrome (version
 35; versions 26-34 have also been used earlier) and a recent version
 of Firefox (version 28; versions 20-27 have also been used earlier)
-for testing. Here is the list of officially supported browsers, in
-order of decreasing priority:
+for testing. The fact that wed is developed using these browsers
+influences the severity and frequency of bugs you can expect to run
+into.
+
+Here is the list of officially supported browsers, in order of
+decreasing priority:
 
 * Chrome 35 and higher and Firefox 28 and higher, about equally.
 
