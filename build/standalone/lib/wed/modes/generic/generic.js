@@ -178,17 +178,6 @@ GenericMode.prototype.getContextualMenuItems = function () {
     return [];
 };
 
-GenericMode.prototype.nodesAroundEditableContents = function (parent) {
-    var ret = [null, null];
-    var start = parent.childNodes[0];
-    if ($(start).is("._gui.__start_label"))
-        ret[0] = start;
-    var end = parent.childNodes[parent.childNodes.length - 1];
-    if ($(end).is("._gui.__end_label"))
-        ret[1] = end;
-    return ret;
-};
-
 /**
  * Modes that derive from this mode should override this function to
  * enable the creation of the correct registry needed by the mode.

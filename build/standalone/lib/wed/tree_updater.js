@@ -20,34 +20,39 @@ var DLoc = dloc.DLoc;
 var makeDLoc = dloc.makeDLoc;
 
 /**
- * @classdesc <p>A TreeUpdater is meant to serve as the sole point of
+ * @classdesc A TreeUpdater is meant to serve as the sole point of
  * modification for a DOM tree. As methods are invoked on the
  * TreeUpdater to modify the tree, events are issued synchronously,
- * which allows a listener to know what is happening on the tree.</p>
+ * which allows a listener to know what is happening on the tree.
  *
- * <p>Methods are divided into primitive and complex
- * methods. Primitive methods perform one and only one modification
- * and issue an event of the same name as their own name. Complex
- * methods use primitive methods to perform a series of modifications
- * on the tree. Or they delegate the actual modification work to the
- * primitive methods. They may emit one or more events of a name
- * different from their own name.</p>
+ * Methods are divided into primitive and complex methods. Primitive
+ * methods perform one and only one modification and issue an event of
+ * the same name as their own name. Complex methods use primitive
+ * methods to perform a series of modifications on the tree. Or they
+ * delegate the actual modification work to the primitive
+ * methods. They may emit one or more events of a name different from
+ * their own name.
  *
- * <p>For primitive methods, the list of events which they are
- * documented to be firing is exhaustive. For complex methods, the
- * list is not exhaustive.</p>
+ * For primitive methods, the list of events which they are documented
+ * to be firing is exhaustive. For complex methods, the list is not
+ * exhaustive.
  *
- * <p>Many events have a name identical to a corresponding
- * method. Such events are accompanied by event objects which have the
- * same properties as the parameters of the corresponding method, with
- * the same meaning. Therefore, their parameters are not further
- * documented.</p>
+ * Many events have a name identical to a corresponding method. Such
+ * events are accompanied by event objects which have the same
+ * properties as the parameters of the corresponding method, with the
+ * same meaning. Therefore, their parameters are not further
+ * documented.
  *
- * <p>Events signaling the removal of data from the DOM tree are
- * issued <strong>before</strong> their corresponding operation is
- * performed on the tree. Events signaling the addition of data to the
- * DOM tree are issued <strong>after</strong> their corresponding
- * operation is performed on the tree.</p>
+ * There is a generic ``changed`` event that is emitted with every
+ * other event. This event does not carry information about what
+ * changed exactly.
+ *
+ * Events signaling the removal of data from the DOM tree are issued
+ * **before** their corresponding operation is performed on the
+ * tree. Events signaling the addition of data to the DOM tree are
+ * issued **after** their corresponding operation is performed on the
+ * tree.
+ *
  * @mixes module:simple_event_emitter~SimpleEventEmitter
  *
  * @constructor
@@ -62,6 +67,16 @@ function TreeUpdater (tree) {
 }
 
 oop.implement(TreeUpdater, SimpleEventEmitter);
+
+var __super_emit = TreeUpdater.prototype._emit;
+
+TreeUpdater.prototype._emit = function () {
+    __super_emit.apply(this, arguments);
+    /**
+     * @event module:tree_updater~TreeUpdater#change
+     */
+    __super_emit.call(this, "changed");
+};
 
 /**
  * A complex method. This is a convenience method that will call
@@ -106,7 +121,7 @@ TreeUpdater.prototype.insertAt = function (loc, offset, what) {
     else if (what.nodeType === Node.TEXT_NODE) {
         switch(parent.nodeType) {
         case Node.TEXT_NODE:
-            this.insertText(parent, index, what.nodeValue);
+            this.insertText(parent, index, what.data);
             break;
         case Node.ELEMENT_NODE:
             this.insertNodeAt(parent, index, what);
@@ -210,11 +225,11 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
     case Node.TEXT_NODE:
         if (index === 0)
             ret = [null, node];
-        else if (index === node.nodeValue.length)
+        else if (index === node.length)
             ret = [node, null];
         else {
-            var text_after = node.nodeValue.slice(index);
-            node.nodeValue = node.nodeValue.slice(0, index);
+            var text_after = node.data.slice(index);
+            node.deleteData(index, node.length - index);
             if (parent)
                 parent.insertBefore(parent.ownerDocument.createTextNode(
                     text_after),
@@ -230,14 +245,14 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
 
         var $node = $(node);
         var $clone = $node.clone();
-        var clone = $clone.get(0);
+        var clone = $clone[0];
         // Remove all nodes at index and after.
         while (node.childNodes[index])
             node.removeChild(node.childNodes[index]);
 
         // Remove all nodes before index
         while (index--)
-            clone.removeChild(clone.childNodes[0]);
+            clone.removeChild(clone.firstChild);
 
         if (parent)
             parent.insertBefore(clone, node.nextSibling || null);
@@ -258,16 +273,15 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
 /**
  * A complex method. Inserts the specified item before another
  * one. Note that the order of operands is the same as for the
- * <code>insertBefore</code> DOM method.
+ * ``insertBefore`` DOM method.
  *
  * @param {Node} parent The node that contains the two other
  * parameters.
  * @param {Node} to_insert The node to insert.
  * @param {Node} before_this The node in front of which to insert. A
- * value of <code>null</code> results in appending to the parent node.
+ * value of ``null`` results in appending to the parent node.
  *
- * @throws {Error} If <code>before_this</code> is not a child of <code>
- * parent</code>.
+ * @throws {Error} If ``before_this`` is not a child of ``parent``.
  */
 TreeUpdater.prototype.insertBefore = function (parent, to_insert,
                                                before_this) {
@@ -290,15 +304,14 @@ TreeUpdater.prototype.insertBefore = function (parent, to_insert,
  * @param {module:dloc~DLoc} loc The location at which to insert the text.
  * @param {String} text The text to insert.
  * @returns {Array.<Node>} The first element of the array is the node
- * that was modified to insert the text. It will be
- * <code>undefined</code> if no node was modified. The second element
- * is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly
- * inserted text. They are unequal if a new text node had to be
- * created to contain the new text. A return value of
- * <code>[undefined, undefined]</code> means that no modification
- * occurred (because the text passed was "").
- * @throws {Error} If <code>node</code> is not an element or text Node type.
+ * that was modified to insert the text. It will be ``undefined`` if
+ * no node was modified. The second element is the text node which
+ * contains the new text. The two elements are defined and equal if a
+ * text node was modified to contain the newly inserted text. They are
+ * unequal if a new text node had to be created to contain the new
+ * text. A return value of ``[undefined, undefined]`` means that no
+ * modification occurred (because the text passed was "").
+ * @throws {Error} If ``node`` is not an element or text Node type.
  *
  * @also
  *
@@ -306,15 +319,14 @@ TreeUpdater.prototype.insertBefore = function (parent, to_insert,
  * @param {integer} index The location in the node at which to insert the text.
  * @param {string} text The text to insert.
  * @returns {Array.<Node>} The first element of the array is the node
- * that was modified to insert the text. It will be
- * <code>undefined</code> if no node was modified. The second element
- * is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly
- * inserted text. They are unequal if a new text node had to be
- * created to contain the new text. A return value of
- * <code>[undefined, undefined]</code> means that no modification
- * occurred (because the text passed was "").
- * @throws {Error} If <code>node</code> is not an element or text Node type.
+ * that was modified to insert the text. It will be ``undefined`` if
+ * no node was modified. The second element is the text node which
+ * contains the new text. The two elements are defined and equal if a
+ * text node was modified to contain the newly inserted text. They are
+ * unequal if a new text node had to be created to contain the new
+ * text. A return value of ``[undefined, undefined]`` means that no
+ * modification occurred (because the text passed was "").
+ * @throws {Error} If ``node`` is not an element or text Node type.
  */
 TreeUpdater.prototype.insertText = function (loc, index, text) {
     var node;
@@ -336,7 +348,7 @@ TreeUpdater.prototype.insertText = function (loc, index, text) {
  * @param {module:dloc~DLoc} loc Where to delete.
  * @param {Integer} length The length of text to delete.
  *
- * @throws {Error} If <code>node</code> is not a text Node type.
+ * @throws {Error} If ``node`` is not a text Node type.
  *
  * @also
  *
@@ -344,7 +356,7 @@ TreeUpdater.prototype.insertText = function (loc, index, text) {
  * @param {integer} index The index at which to delete text.
  * @param {integer} length The length of text to delete.
  *
- * @throws {Error} If <code>node</code> is not a text Node type.
+ * @throws {Error} If ``node`` is not a text Node type.
  */
 TreeUpdater.prototype.deleteText = function(loc, index, length) {
     var node;
@@ -359,8 +371,8 @@ TreeUpdater.prototype.deleteText = function(loc, index, length) {
     if (node.nodeType !== Node.TEXT_NODE)
         throw new Error("deleteText called on non-text");
 
-    this.setTextNode(node, node.nodeValue.slice(0, index) +
-                     node.nodeValue.slice(index + length));
+    this.setTextNode(node, node.data.slice(0, index) +
+                     node.data.slice(index + length));
 };
 
 /**
@@ -412,7 +424,8 @@ TreeUpdater.prototype.insertIntoText = function (loc, index, node) {
  * @param {Node} node The node to insert.
  *
  * @emits module:tree_updater~TreeUpdater#insertNodeAt
- * @throws {Error} If <code>node</code> is a document fragment Node type.
+ * @emits module:tree_updater~TreeUpdater#change
+ * @throws {Error} If ``node`` is a document fragment Node type.
  *
  * @also
  *
@@ -423,7 +436,8 @@ TreeUpdater.prototype.insertIntoText = function (loc, index, node) {
  * @param {Node} node The node to insert.
  *
  * @emits module:tree_updater~TreeUpdater#insertNodeAt
- * @throws {Error} If <code>node</code> is a document fragment Node type.
+ * @emits module:tree_updater~TreeUpdater#change
+ * @throws {Error} If ``node`` is a document fragment Node type.
  */
 TreeUpdater.prototype.insertNodeAt = function (loc, index, node) {
     var parent;
@@ -481,14 +495,15 @@ TreeUpdater.prototype.setTextNode = function (node, value) {
  * @param {string} value The new value of the node.
  *
  * @emits module:tree_updater~TreeUpdater#setTextNodeValue
+ * @emits module:tree_updater~TreeUpdater#change
  * @throws {Error} If called on a non-text Node type.
  */
 TreeUpdater.prototype.setTextNodeValue = function (node, value) {
     if (node.nodeType !== Node.TEXT_NODE)
         throw new Error("setTextNodeValue called on non-text");
 
-    var old_value = node.nodeValue;
-    node.nodeValue = value;
+    var old_value = node.data;
+    node.data = value;
     /**
      * @event module:tree_updater~TreeUpdater#setTextNodeValue
      * @type {Object}
@@ -612,8 +627,8 @@ TreeUpdater.prototype.mergeTextNodes = function (node) {
     var next = node.nextSibling;
     if (node.nodeType === Node.TEXT_NODE &&
         next && next.nodeType === Node.TEXT_NODE) {
-        var offset = node.nodeValue.length;
-        this.setTextNodeValue(node, node.nodeValue + next.nodeValue);
+        var offset = node.length;
+        this.setTextNodeValue(node, node.data + next.data);
         this.deleteNode(next);
         return makeDLoc(this._tree, node, offset);
     }
@@ -652,6 +667,7 @@ TreeUpdater.prototype.mergeTextNodesNF = function (node) {
  * @param {Node} node The node to remove
  *
  * @emits module:tree_updater~TreeUpdater#deleteNode
+ * @emits module:tree_updater~TreeUpdater#change
  */
 TreeUpdater.prototype.deleteNode = function (node) {
     /**
@@ -673,6 +689,7 @@ TreeUpdater.prototype.deleteNode = function (node) {
  * @param {string|null|undefined} value The value to give to the attribute.
  *
  * @emits module:tree_updater~TreeUpdater#setAttributeNS
+ * @emits module:tree_updater~TreeUpdater#change
  */
 TreeUpdater.prototype.setAttribute = function (node, attribute, value) {
     this.setAttributeNS(node, "", attribute, value);
@@ -689,6 +706,7 @@ TreeUpdater.prototype.setAttribute = function (node, attribute, value) {
  * @param {string|null|undefined} value The value to give to the attribute.
  *
  * @emits module:tree_updater~TreeUpdater#setAttributeNS
+ * @emits module:tree_updater~TreeUpdater#change
  */
 TreeUpdater.prototype.setAttributeNS = function (node, ns, attribute, value) {
     // Normalize to null.

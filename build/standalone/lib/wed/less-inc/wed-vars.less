@@ -1,0 +1,11 @@
+// The background color taken by an element which owns the caret.
+@owns-caret-color: #FFFFCC;
+
+.owns-caret-background() {
+    background-color: @owns-caret-color;
+    background-image: none;
+}
+
+.owns-caret-background(@other-color) {
+    background: linear-gradient(to top, @other-color, @owns-caret-color);
+}

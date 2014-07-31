@@ -49,13 +49,11 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
         }
         if (type === "keypress" ||
             type === "keydown")
-            editor.fireTransformation(editor.split_node_tr,
-                                      {node: $el.get(0)});
+            editor.fireTransformation(editor.split_node_tr, { node: $el[0] });
         else
             editor.fireTransformation(
                 split_node_on_tr,
-                {node: $el.get(0),
-                 sep: String.fromCharCode(split_key.which)});
+                {node: $el[0], sep: String.fromCharCode(split_key.which)});
     });
 
     ret.addKeyHandler(
@@ -69,16 +67,16 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
         // Fire it only if it the caret is at the start of the element
         // we are listening on and can't go back.
         if ((caret.offset === 0) &&
-            (caret.node === $el.get(0) ||
+            (caret.node === $el[0] ||
              (caret.node.nodeType === Node.TEXT_NODE &&
-              caret.node === $el.get(0).childNodes[0]))) {
+              caret.node === $el[0].firstChild))) {
             if (ev) {
                 ev.stopImmediatePropagation();
                 ev.preventDefault();
             }
             editor.fireTransformation(
                 editor.merge_with_previous_homogeneous_sibling_tr,
-                {node: $el.get(0), element_name: $el.get(0).tagName});
+                {node: $el[0], element_name: $el[0].tagName});
         }
     });
 
@@ -92,18 +90,18 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
 
         // Fire it only if it the caret is at the end of the element
         // we are listening on and can't actually delete text.
-        if ((caret.node === $el.get(0) &&
-             caret.offset === $el.get(0).childNodes.length) ||
+        if ((caret.node === $el[0] &&
+             caret.offset === $el[0].childNodes.length) ||
             (caret.node.nodeType === Node.TEXT_NODE &&
-             caret.node === $el.get(0).lastChild &&
-             caret.offset === $el.get(0).lastChild.nodeValue.length)) {
+             caret.node === $el[0].lastChild &&
+             caret.offset === $el[0].lastChild.length)) {
             if (ev) {
                 ev.stopImmediatePropagation();
                 ev.preventDefault();
             }
             editor.fireTransformation(
                 editor.merge_with_next_homogeneous_sibling_tr,
-                $el.get(0));
+                {node: $el[0], element_name: $el[0].tagName});
         }
     });
     return ret;
@@ -130,7 +128,7 @@ function split_node_on(editor, data) {
         var text_nodes = $node.contents().filter(jqutil.textFilter).toArray();
         for (var i = 0; !modified && i < text_nodes.length; ++i) {
             var text = text_nodes[i];
-            var offset = text.nodeValue.indexOf(sep);
+            var offset = text.data.indexOf(sep);
             if (node.firstChild === text && offset === 0) {
                 // We just drop the separator
                 editor.data_updater.deleteText(text, offset, 1);
@@ -138,10 +136,10 @@ function split_node_on(editor, data) {
             }
             else if (node.lastChild === text &&
                      offset !== -1 &&
-                     offset === text.nodeValue.length - 1) {
+                     offset === text.length - 1) {
                 // Just drop the separator
                 editor.data_updater.deleteText(text,
-                                               text.nodeValue.length - 1, 1);
+                                               text.length - 1, 1);
                 modified = true;
             }
             else if (offset !== -1) {

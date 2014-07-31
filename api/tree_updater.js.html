@@ -49,34 +49,39 @@ var DLoc = dloc.DLoc;
 var makeDLoc = dloc.makeDLoc;
 
 /**
- * @classdesc &lt;p>A TreeUpdater is meant to serve as the sole point of
+ * @classdesc A TreeUpdater is meant to serve as the sole point of
  * modification for a DOM tree. As methods are invoked on the
  * TreeUpdater to modify the tree, events are issued synchronously,
- * which allows a listener to know what is happening on the tree.&lt;/p>
+ * which allows a listener to know what is happening on the tree.
  *
- * &lt;p>Methods are divided into primitive and complex
- * methods. Primitive methods perform one and only one modification
- * and issue an event of the same name as their own name. Complex
- * methods use primitive methods to perform a series of modifications
- * on the tree. Or they delegate the actual modification work to the
- * primitive methods. They may emit one or more events of a name
- * different from their own name.&lt;/p>
+ * Methods are divided into primitive and complex methods. Primitive
+ * methods perform one and only one modification and issue an event of
+ * the same name as their own name. Complex methods use primitive
+ * methods to perform a series of modifications on the tree. Or they
+ * delegate the actual modification work to the primitive
+ * methods. They may emit one or more events of a name different from
+ * their own name.
  *
- * &lt;p>For primitive methods, the list of events which they are
- * documented to be firing is exhaustive. For complex methods, the
- * list is not exhaustive.&lt;/p>
+ * For primitive methods, the list of events which they are documented
+ * to be firing is exhaustive. For complex methods, the list is not
+ * exhaustive.
  *
- * &lt;p>Many events have a name identical to a corresponding
- * method. Such events are accompanied by event objects which have the
- * same properties as the parameters of the corresponding method, with
- * the same meaning. Therefore, their parameters are not further
- * documented.&lt;/p>
+ * Many events have a name identical to a corresponding method. Such
+ * events are accompanied by event objects which have the same
+ * properties as the parameters of the corresponding method, with the
+ * same meaning. Therefore, their parameters are not further
+ * documented.
  *
- * &lt;p>Events signaling the removal of data from the DOM tree are
- * issued &lt;strong>before&lt;/strong> their corresponding operation is
- * performed on the tree. Events signaling the addition of data to the
- * DOM tree are issued &lt;strong>after&lt;/strong> their corresponding
- * operation is performed on the tree.&lt;/p>
+ * There is a generic ``changed`` event that is emitted with every
+ * other event. This event does not carry information about what
+ * changed exactly.
+ *
+ * Events signaling the removal of data from the DOM tree are issued
+ * **before** their corresponding operation is performed on the
+ * tree. Events signaling the addition of data to the DOM tree are
+ * issued **after** their corresponding operation is performed on the
+ * tree.
+ *
  * @mixes module:simple_event_emitter~SimpleEventEmitter
  *
  * @constructor
@@ -91,6 +96,16 @@ function TreeUpdater (tree) {
 }
 
 oop.implement(TreeUpdater, SimpleEventEmitter);
+
+var __super_emit = TreeUpdater.prototype._emit;
+
+TreeUpdater.prototype._emit = function () {
+    __super_emit.apply(this, arguments);
+    /**
+     * @event module:tree_updater~TreeUpdater#change
+     */
+    __super_emit.call(this, "changed");
+};
 
 /**
  * A complex method. This is a convenience method that will call
@@ -135,7 +150,7 @@ TreeUpdater.prototype.insertAt = function (loc, offset, what) {
     else if (what.nodeType === Node.TEXT_NODE) {
         switch(parent.nodeType) {
         case Node.TEXT_NODE:
-            this.insertText(parent, index, what.nodeValue);
+            this.insertText(parent, index, what.data);
             break;
         case Node.ELEMENT_NODE:
             this.insertNodeAt(parent, index, what);
@@ -239,11 +254,11 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
     case Node.TEXT_NODE:
         if (index === 0)
             ret = [null, node];
-        else if (index === node.nodeValue.length)
+        else if (index === node.length)
             ret = [node, null];
         else {
-            var text_after = node.nodeValue.slice(index);
-            node.nodeValue = node.nodeValue.slice(0, index);
+            var text_after = node.data.slice(index);
+            node.deleteData(index, node.length - index);
             if (parent)
                 parent.insertBefore(parent.ownerDocument.createTextNode(
                     text_after),
@@ -259,14 +274,14 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
 
         var $node = $(node);
         var $clone = $node.clone();
-        var clone = $clone.get(0);
+        var clone = $clone[0];
         // Remove all nodes at index and after.
         while (node.childNodes[index])
             node.removeChild(node.childNodes[index]);
 
         // Remove all nodes before index
         while (index--)
-            clone.removeChild(clone.childNodes[0]);
+            clone.removeChild(clone.firstChild);
 
         if (parent)
             parent.insertBefore(clone, node.nextSibling || null);
@@ -287,16 +302,15 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
 /**
  * A complex method. Inserts the specified item before another
  * one. Note that the order of operands is the same as for the
- * &lt;code>insertBefore&lt;/code> DOM method.
+ * ``insertBefore`` DOM method.
  *
  * @param {Node} parent The node that contains the two other
  * parameters.
  * @param {Node} to_insert The node to insert.
  * @param {Node} before_this The node in front of which to insert. A
- * value of &lt;code>null&lt;/code> results in appending to the parent node.
+ * value of ``null`` results in appending to the parent node.
  *
- * @throws {Error} If &lt;code>before_this&lt;/code> is not a child of &lt;code>
- * parent&lt;/code>.
+ * @throws {Error} If ``before_this`` is not a child of ``parent``.
  */
 TreeUpdater.prototype.insertBefore = function (parent, to_insert,
                                                before_this) {
@@ -319,15 +333,14 @@ TreeUpdater.prototype.insertBefore = function (parent, to_insert,
  * @param {module:dloc~DLoc} loc The location at which to insert the text.
  * @param {String} text The text to insert.
  * @returns {Array.&lt;Node>} The first element of the array is the node
- * that was modified to insert the text. It will be
- * &lt;code>undefined&lt;/code> if no node was modified. The second element
- * is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly
- * inserted text. They are unequal if a new text node had to be
- * created to contain the new text. A return value of
- * &lt;code>[undefined, undefined]&lt;/code> means that no modification
- * occurred (because the text passed was "").
- * @throws {Error} If &lt;code>node&lt;/code> is not an element or text Node type.
+ * that was modified to insert the text. It will be ``undefined`` if
+ * no node was modified. The second element is the text node which
+ * contains the new text. The two elements are defined and equal if a
+ * text node was modified to contain the newly inserted text. They are
+ * unequal if a new text node had to be created to contain the new
+ * text. A return value of ``[undefined, undefined]`` means that no
+ * modification occurred (because the text passed was "").
+ * @throws {Error} If ``node`` is not an element or text Node type.
  *
  * @also
  *
@@ -335,15 +348,14 @@ TreeUpdater.prototype.insertBefore = function (parent, to_insert,
  * @param {integer} index The location in the node at which to insert the text.
  * @param {string} text The text to insert.
  * @returns {Array.&lt;Node>} The first element of the array is the node
- * that was modified to insert the text. It will be
- * &lt;code>undefined&lt;/code> if no node was modified. The second element
- * is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly
- * inserted text. They are unequal if a new text node had to be
- * created to contain the new text. A return value of
- * &lt;code>[undefined, undefined]&lt;/code> means that no modification
- * occurred (because the text passed was "").
- * @throws {Error} If &lt;code>node&lt;/code> is not an element or text Node type.
+ * that was modified to insert the text. It will be ``undefined`` if
+ * no node was modified. The second element is the text node which
+ * contains the new text. The two elements are defined and equal if a
+ * text node was modified to contain the newly inserted text. They are
+ * unequal if a new text node had to be created to contain the new
+ * text. A return value of ``[undefined, undefined]`` means that no
+ * modification occurred (because the text passed was "").
+ * @throws {Error} If ``node`` is not an element or text Node type.
  */
 TreeUpdater.prototype.insertText = function (loc, index, text) {
     var node;
@@ -365,7 +377,7 @@ TreeUpdater.prototype.insertText = function (loc, index, text) {
  * @param {module:dloc~DLoc} loc Where to delete.
  * @param {Integer} length The length of text to delete.
  *
- * @throws {Error} If &lt;code>node&lt;/code> is not a text Node type.
+ * @throws {Error} If ``node`` is not a text Node type.
  *
  * @also
  *
@@ -373,7 +385,7 @@ TreeUpdater.prototype.insertText = function (loc, index, text) {
  * @param {integer} index The index at which to delete text.
  * @param {integer} length The length of text to delete.
  *
- * @throws {Error} If &lt;code>node&lt;/code> is not a text Node type.
+ * @throws {Error} If ``node`` is not a text Node type.
  */
 TreeUpdater.prototype.deleteText = function(loc, index, length) {
     var node;
@@ -388,8 +400,8 @@ TreeUpdater.prototype.deleteText = function(loc, index, length) {
     if (node.nodeType !== Node.TEXT_NODE)
         throw new Error("deleteText called on non-text");
 
-    this.setTextNode(node, node.nodeValue.slice(0, index) +
-                     node.nodeValue.slice(index + length));
+    this.setTextNode(node, node.data.slice(0, index) +
+                     node.data.slice(index + length));
 };
 
 /**
@@ -441,7 +453,8 @@ TreeUpdater.prototype.insertIntoText = function (loc, index, node) {
  * @param {Node} node The node to insert.
  *
  * @emits module:tree_updater~TreeUpdater#insertNodeAt
- * @throws {Error} If &lt;code>node&lt;/code> is a document fragment Node type.
+ * @emits module:tree_updater~TreeUpdater#change
+ * @throws {Error} If ``node`` is a document fragment Node type.
  *
  * @also
  *
@@ -452,7 +465,8 @@ TreeUpdater.prototype.insertIntoText = function (loc, index, node) {
  * @param {Node} node The node to insert.
  *
  * @emits module:tree_updater~TreeUpdater#insertNodeAt
- * @throws {Error} If &lt;code>node&lt;/code> is a document fragment Node type.
+ * @emits module:tree_updater~TreeUpdater#change
+ * @throws {Error} If ``node`` is a document fragment Node type.
  */
 TreeUpdater.prototype.insertNodeAt = function (loc, index, node) {
     var parent;
@@ -510,14 +524,15 @@ TreeUpdater.prototype.setTextNode = function (node, value) {
  * @param {string} value The new value of the node.
  *
  * @emits module:tree_updater~TreeUpdater#setTextNodeValue
+ * @emits module:tree_updater~TreeUpdater#change
  * @throws {Error} If called on a non-text Node type.
  */
 TreeUpdater.prototype.setTextNodeValue = function (node, value) {
     if (node.nodeType !== Node.TEXT_NODE)
         throw new Error("setTextNodeValue called on non-text");
 
-    var old_value = node.nodeValue;
-    node.nodeValue = value;
+    var old_value = node.data;
+    node.data = value;
     /**
      * @event module:tree_updater~TreeUpdater#setTextNodeValue
      * @type {Object}
@@ -641,8 +656,8 @@ TreeUpdater.prototype.mergeTextNodes = function (node) {
     var next = node.nextSibling;
     if (node.nodeType === Node.TEXT_NODE &&
         next && next.nodeType === Node.TEXT_NODE) {
-        var offset = node.nodeValue.length;
-        this.setTextNodeValue(node, node.nodeValue + next.nodeValue);
+        var offset = node.length;
+        this.setTextNodeValue(node, node.data + next.data);
         this.deleteNode(next);
         return makeDLoc(this._tree, node, offset);
     }
@@ -681,6 +696,7 @@ TreeUpdater.prototype.mergeTextNodesNF = function (node) {
  * @param {Node} node The node to remove
  *
  * @emits module:tree_updater~TreeUpdater#deleteNode
+ * @emits module:tree_updater~TreeUpdater#change
  */
 TreeUpdater.prototype.deleteNode = function (node) {
     /**
@@ -702,6 +718,7 @@ TreeUpdater.prototype.deleteNode = function (node) {
  * @param {string|null|undefined} value The value to give to the attribute.
  *
  * @emits module:tree_updater~TreeUpdater#setAttributeNS
+ * @emits module:tree_updater~TreeUpdater#change
  */
 TreeUpdater.prototype.setAttribute = function (node, attribute, value) {
     this.setAttributeNS(node, "", attribute, value);
@@ -718,6 +735,7 @@ TreeUpdater.prototype.setAttribute = function (node, attribute, value) {
  * @param {string|null|undefined} value The value to give to the attribute.
  *
  * @emits module:tree_updater~TreeUpdater#setAttributeNS
+ * @emits module:tree_updater~TreeUpdater#change
  */
 TreeUpdater.prototype.setAttributeNS = function (node, ns, attribute, value) {
     // Normalize to null.
@@ -801,13 +819,13 @@ exports.TreeUpdater = TreeUpdater;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:change">gui_updater~GUIUpdater#change</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:change">tree_updater~TreeUpdater#change</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu May 22 2014 14:16:28 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Jul 31 2014 15:35:26 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -223,7 +223,7 @@ function insertElement(data_updater, parent, index, name, attrs,
     if (contents !== undefined)
         $new.append(contents);
 
-    data_updater.insertAt(parent, index, $new.get(0));
+    data_updater.insertAt(parent, index, $new[0]);
     return $new;
 }
 
@@ -268,8 +268,10 @@ function makeElement(name, attrs) {
  */
 function wrapTextInElement (data_updater, node, offset, end_offset,
                             name, attrs) {
-    var original_text = node.nodeValue;
-    var text_to_wrap = node.nodeValue.slice(offset, end_offset);
+    var text_to_wrap = node.data.slice(offset, end_offset);
+
+    var parent = node.parentNode;
+    var node_offset = _indexOf.call(parent.childNodes, node);
 
     data_updater.deleteText(node, offset, text_to_wrap.length);
     var $new_element = makeElement(name, attrs);
@@ -279,7 +281,11 @@ function wrapTextInElement (data_updater, node, offset, end_offset,
     // tree. That is the case here.
     $new_element.append(text_to_wrap);
 
-    data_updater.insertAt(node, offset, $new_element.get(0));
+    if (!node.parentNode)
+        // The entire node was removed.
+        data_updater.insertAt(parent, node_offset, $new_element[0]);
+    else
+        data_updater.insertAt(node, offset, $new_element[0]);
 
     return $new_element;
 }
@@ -305,12 +311,11 @@ function _wie_splitTextNode(data_updater, container, offset) {
     // useless empty text node.
     if (offset === 0)
         offset = container_offset;
-    else if (offset >= container.nodeValue.length)
+    else if (offset >= container.length)
         offset = container_offset + 1;
     else {
-        var text = container.nodeValue.slice(offset);
-        data_updater.setTextNode(container,
-                                 container.nodeValue.slice(0, offset));
+        var text = container.data.slice(offset);
+        data_updater.setTextNode(container, container.data.slice(0, offset));
         data_updater.insertNodeAt(
             parent, container_offset + 1,
             container.ownerDocument.createTextNode(text));
@@ -378,7 +383,7 @@ function wrapInElement (data_updater, start_container, start_offset,
         $new_element.prepend(end_node);
     }
 
-    data_updater.insertAt(start_container, start_offset, $new_element.get(0));
+    data_updater.insertAt(start_container, start_offset, $new_element[0]);
 
     return $new_element;
 }
@@ -468,23 +473,21 @@ function mergeWithPreviousHomogeneousSibling (editor, node) {
     var name = util.getOriginalName(node);
     if ($prev.is(util.classFromOriginalName(name))) {
         // We need to record these to set the caret to a good position.
-        var caret_pos = $prev.get(0).childNodes.length;
-        var was_text = $prev.get(0).lastChild.nodeType === Node.TEXT_NODE;
-        var text_len = (was_text) ?
-                $prev.get(0).lastChild.nodeValue.length : 0;
+        var caret_pos = $prev[0].childNodes.length;
+        var was_text = $prev[0].lastChild.nodeType === Node.TEXT_NODE;
+        var text_len = (was_text) ? $prev[0].lastChild.length : 0;
 
-        var prev = $prev.get(0);
+        var prev = $prev[0];
         var insertion_point = prev.childNodes.length;
         // Reverse order
-        for (var i = node.childNodes.length; i >= 0; --i)
+        for (var i = node.childNodes.length - 1; i >= 0; --i)
             editor.data_updater.insertAt(prev, insertion_point,
-                                         node.childNodes[i]);
+                                         $(node.childNodes[i]).clone()[0]);
 
         if (was_text)
-            editor.setDataCaret($prev.get(0).childNodes[caret_pos - 1],
-                                text_len);
+            editor.setDataCaret($prev[0].childNodes[caret_pos - 1], text_len);
         else
-            editor.setDataCaret($prev.get(0), caret_pos);
+            editor.setDataCaret($prev[0], caret_pos);
         editor.data_updater.removeNode(node);
     }
 }
@@ -504,7 +507,7 @@ function mergeWithNextHomogeneousSibling(editor, node) {
     var $next = $node.next();
     var name = util.getOriginalName(node);
     if ($next.is(util.classFromOriginalName(name)))
-        mergeWithPreviousHomogeneousSibling(editor, $next.get(0));
+        mergeWithPreviousHomogeneousSibling(editor, $next[0]);
 }
 
 /**

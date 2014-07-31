@@ -38,30 +38,29 @@
 modification for a DOM tree. As methods are invoked on the
 TreeUpdater to modify the tree, events are issued synchronously,
 which allows a listener to know what is happening on the tree.</p>
-
-<p>Methods are divided into primitive and complex
-methods. Primitive methods perform one and only one modification
-and issue an event of the same name as their own name. Complex
-methods use primitive methods to perform a series of modifications
-on the tree. Or they delegate the actual modification work to the
-primitive methods. They may emit one or more events of a name
-different from their own name.</p>
-
-<p>For primitive methods, the list of events which they are
-documented to be firing is exhaustive. For complex methods, the
-list is not exhaustive.</p>
-
-<p>Many events have a name identical to a corresponding
-method. Such events are accompanied by event objects which have the
-same properties as the parameters of the corresponding method, with
-the same meaning. Therefore, their parameters are not further
+<p>Methods are divided into primitive and complex methods. Primitive
+methods perform one and only one modification and issue an event of
+the same name as their own name. Complex methods use primitive
+methods to perform a series of modifications on the tree. Or they
+delegate the actual modification work to the primitive
+methods. They may emit one or more events of a name different from
+their own name.</p>
+<p>For primitive methods, the list of events which they are documented
+to be firing is exhaustive. For complex methods, the list is not
+exhaustive.</p>
+<p>Many events have a name identical to a corresponding method. Such
+events are accompanied by event objects which have the same
+properties as the parameters of the corresponding method, with the
+same meaning. Therefore, their parameters are not further
 documented.</p>
-
-<p>Events signaling the removal of data from the DOM tree are
-issued <strong>before</strong> their corresponding operation is
-performed on the tree. Events signaling the addition of data to the
-DOM tree are issued <strong>after</strong> their corresponding
-operation is performed on the tree.</p></div>
+<p>There is a generic <code>changed</code> event that is emitted with every
+other event. This event does not carry information about what
+changed exactly.</p>
+<p>Events signaling the removal of data from the DOM tree are issued
+<strong>before</strong> their corresponding operation is performed on the
+tree. Events signaling the addition of data to the DOM tree are
+issued <strong>after</strong> their corresponding operation is performed on the
+tree.</p></div>
     
 </header>  
 
@@ -157,7 +156,7 @@ operation is performed on the tree.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line57">line 57</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line62">line 62</a>
     </li></ul></dd>
     
     
@@ -323,7 +322,7 @@ are merged.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line590">line 590</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line605">line 605</a>
     </li></ul></dd>
     
     
@@ -496,7 +495,7 @@ of TreeUpdater and by some low-level facilities of wed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line656">line 656</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line672">line 672</a>
     </li></ul></dd>
     
     
@@ -512,6 +511,8 @@ of TreeUpdater and by some low-level facilities of wed.</p>
     <h5>Fires:</h5>
     <ul>
         <li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">module:tree_updater~TreeUpdater#event:deleteNode</a></li>
+    
+        <li><a href="module-tree_updater-TreeUpdater.html#event:change">module:tree_updater~TreeUpdater#event:change</a></li>
     </ul>
     
 
@@ -642,7 +643,7 @@ becomes empty, it is deleted.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line349">line 349</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line361">line 361</a>
     </li></ul></dd>
     
     
@@ -668,7 +669,7 @@ becomes empty, it is deleted.</p>
 <dl>
     <dt>
         <div class="param-desc">
-        If <code>node</code> is not a text Node type.
+        If ``node`` is not a text Node type.
         </div>
     </dt>
     <dt>
@@ -828,7 +829,7 @@ becomes empty, it is deleted.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line349">line 349</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line361">line 361</a>
     </li></ul></dd>
     
     
@@ -854,7 +855,7 @@ becomes empty, it is deleted.</p>
 <dl>
     <dt>
         <div class="param-desc">
-        If <code>node</code> is not a text Node type.
+        If ``node`` is not a text Node type.
         </div>
     </dt>
     <dt>
@@ -994,7 +995,7 @@ TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line88">line 88</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line103">line 103</a>
     </li></ul></dd>
     
     
@@ -1178,7 +1179,7 @@ TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line88">line 88</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line103">line 103</a>
     </li></ul></dd>
     
     
@@ -1373,7 +1374,7 @@ value of <code>null</code> results in appending to the parent node.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line272">line 272</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line286">line 286</a>
     </li></ul></dd>
     
     
@@ -1399,8 +1400,7 @@ value of <code>null</code> results in appending to the parent node.</p></td>
 <dl>
     <dt>
         <div class="param-desc">
-        If <code>before_this</code> is not a child of <code>
-parent</code>.
+        If ``before_this`` is not a child of ``parent``.
         </div>
     </dt>
     <dt>
@@ -1543,7 +1543,7 @@ the DOM tree only once.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line395">line 395</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line407">line 407</a>
     </li></ul></dd>
     
     
@@ -1760,7 +1760,7 @@ the new element is to be inserted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line395">line 395</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line407">line 407</a>
     </li></ul></dd>
     
     
@@ -1949,7 +1949,7 @@ the new element is to be inserted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line428">line 428</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line442">line 442</a>
     </li></ul></dd>
     
     
@@ -1965,6 +1965,8 @@ the new element is to be inserted.</p></td>
     <h5>Fires:</h5>
     <ul>
         <li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">module:tree_updater~TreeUpdater#event:insertNodeAt</a></li>
+    
+        <li><a href="module-tree_updater-TreeUpdater.html#event:change">module:tree_updater~TreeUpdater#event:change</a></li>
     </ul>
     
 
@@ -1980,7 +1982,7 @@ the new element is to be inserted.</p></td>
 <dl>
     <dt>
         <div class="param-desc">
-        If <code>node</code> is a document fragment Node type.
+        If ``node`` is a document fragment Node type.
         </div>
     </dt>
     <dt>
@@ -2142,7 +2144,7 @@ into the parent.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line428">line 428</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line442">line 442</a>
     </li></ul></dd>
     
     
@@ -2158,6 +2160,8 @@ into the parent.</p></td>
     <h5>Fires:</h5>
     <ul>
         <li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">module:tree_updater~TreeUpdater#event:insertNodeAt</a></li>
+    
+        <li><a href="module-tree_updater-TreeUpdater.html#event:change">module:tree_updater~TreeUpdater#event:change</a></li>
     </ul>
     
 
@@ -2173,7 +2177,7 @@ into the parent.</p></td>
 <dl>
     <dt>
         <div class="param-desc">
-        If <code>node</code> is a document fragment Node type.
+        If ``node`` is a document fragment Node type.
         </div>
     </dt>
     <dt>
@@ -2316,7 +2320,7 @@ new text node.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line319">line 319</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line331">line 331</a>
     </li></ul></dd>
     
     
@@ -2342,7 +2346,7 @@ new text node.</p>
 <dl>
     <dt>
         <div class="param-desc">
-        If <code>node</code> is not an element or text Node type.
+        If ``node`` is not an element or text Node type.
         </div>
     </dt>
     <dt>
@@ -2369,14 +2373,13 @@ new text node.</p>
             
 <div class="param-desc">
     <p>The first element of the array is the node
-that was modified to insert the text. It will be
-<code>undefined</code> if no node was modified. The second element
-is the text node which contains the new text. The two elements are
-defined and equal if a text node was modified to contain the newly
-inserted text. They are unequal if a new text node had to be
-created to contain the new text. A return value of
-<code>[undefined, undefined]</code> means that no modification
-occurred (because the text passed was &quot;&quot;).</p>
+that was modified to insert the text. It will be <code>undefined</code> if
+no node was modified. The second element is the text node which
+contains the new text. The two elements are defined and equal if a
+text node was modified to contain the newly inserted text. They are
+unequal if a new text node had to be created to contain the new
+text. A return value of <code>[undefined, undefined]</code> means that no
+modification occurred (because the text passed was &quot;&quot;).</p>
 </div>
 
 
@@ -2532,7 +2535,7 @@ occurred (because the text passed was &quot;&quot;).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line319">line 319</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line331">line 331</a>
     </li></ul></dd>
     
     
@@ -2558,7 +2561,7 @@ occurred (because the text passed was &quot;&quot;).</p>
 <dl>
     <dt>
         <div class="param-desc">
-        If <code>node</code> is not an element or text Node type.
+        If ``node`` is not an element or text Node type.
         </div>
     </dt>
     <dt>
@@ -2585,14 +2588,13 @@ occurred (because the text passed was &quot;&quot;).</p>
             
 <div class="param-desc">
     <p>The first element of the array is the node
-that was modified to insert the text. It will be
-<code>undefined</code> if no node was modified. The second element
-is the text node which contains the new text. The two elements are
-defined and equal if a text node was modified to contain the newly
-inserted text. They are unequal if a new text node had to be
-created to contain the new text. A return value of
-<code>[undefined, undefined]</code> means that no modification
-occurred (because the text passed was &quot;&quot;).</p>
+that was modified to insert the text. It will be <code>undefined</code> if
+no node was modified. The second element is the text node which
+contains the new text. The two elements are defined and equal if a
+text node was modified to contain the newly inserted text. They are
+unequal if a new text node had to be created to contain the new
+text. A return value of <code>[undefined, undefined]</code> means that no
+modification occurred (because the text passed was &quot;&quot;).</p>
 </div>
 
 
@@ -2711,7 +2713,7 @@ are expected values.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line611">line 611</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line626">line 626</a>
     </li></ul></dd>
     
     
@@ -2854,7 +2856,7 @@ if the node to remove is <code>undefined</code> or <code>null</code>.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line637">line 637</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line652">line 652</a>
     </li></ul></dd>
     
     
@@ -2996,7 +2998,7 @@ no node to remove.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line739">line 739</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line757">line 757</a>
     </li></ul></dd>
     
     
@@ -3136,7 +3138,7 @@ tree we are updating.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line749">line 749</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line767">line 767</a>
     </li></ul></dd>
     
     
@@ -3280,7 +3282,7 @@ are expected values.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line517">line 517</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line532">line 532</a>
     </li></ul></dd>
     
     
@@ -3423,7 +3425,7 @@ if the node to remove is <code>undefined</code> or <code>null</code>.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line539">line 539</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line554">line 554</a>
     </li></ul></dd>
     
     
@@ -3567,7 +3569,7 @@ immediately contiguous siblings in document order.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line558">line 558</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line573">line 573</a>
     </li></ul></dd>
     
     
@@ -3789,7 +3791,7 @@ sets attributes outside of any namespace.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line677">line 677</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line694">line 694</a>
     </li></ul></dd>
     
     
@@ -3805,6 +3807,8 @@ sets attributes outside of any namespace.</p>
     <h5>Fires:</h5>
     <ul>
         <li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">module:tree_updater~TreeUpdater#event:setAttributeNS</a></li>
+    
+        <li><a href="module-tree_updater-TreeUpdater.html#event:change">module:tree_updater~TreeUpdater#event:change</a></li>
     </ul>
     
 
@@ -3987,7 +3991,7 @@ value <code>null</code> or <code>undefined</code> deletes the attribute.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line693">line 693</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line711">line 711</a>
     </li></ul></dd>
     
     
@@ -4003,6 +4007,8 @@ value <code>null</code> or <code>undefined</code> deletes the attribute.</p>
     <h5>Fires:</h5>
     <ul>
         <li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">module:tree_updater~TreeUpdater#event:setAttributeNS</a></li>
+    
+        <li><a href="module-tree_updater-TreeUpdater.html#event:change">module:tree_updater~TreeUpdater#event:change</a></li>
     </ul>
     
 
@@ -4132,7 +4138,7 @@ value <code>null</code> or <code>undefined</code> deletes the attribute.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line461">line 461</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line475">line 475</a>
     </li></ul></dd>
     
     
@@ -4304,7 +4310,7 @@ of TreeUpdater and by some low-level facilities of wed.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line486">line 486</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line501">line 501</a>
     </li></ul></dd>
     
     
@@ -4320,6 +4326,8 @@ of TreeUpdater and by some low-level facilities of wed.</p>
     <h5>Fires:</h5>
     <ul>
         <li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">module:tree_updater~TreeUpdater#event:setTextNodeValue</a></li>
+    
+        <li><a href="module-tree_updater-TreeUpdater.html#event:change">module:tree_updater~TreeUpdater#event:change</a></li>
     </ul>
     
 
@@ -4479,7 +4487,7 @@ split.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line161">line 161</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line176">line 176</a>
     </li></ul></dd>
     
     
@@ -4691,7 +4699,7 @@ above this node.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line161">line 161</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line176">line 176</a>
     </li></ul></dd>
     
     
@@ -4776,6 +4784,71 @@ second half of the split.</p>
         <h3 class="subsection-title">Events</h3>
         
         <dl>
+            
+<dt>
+    <h4 class="name" id="event:change">change</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line75">line 75</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
             
 <dt>
     <h4 class="name" id="event:deleteNode">deleteNode</h4>
@@ -4876,7 +4949,7 @@ second half of the split.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line657">line 657</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line673">line 673</a>
     </li></ul></dd>
     
     
@@ -5048,7 +5121,7 @@ second half of the split.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line442">line 442</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line456">line 456</a>
     </li></ul></dd>
     
     
@@ -5266,7 +5339,7 @@ second half of the split.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line699">line 699</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line717">line 717</a>
     </li></ul></dd>
     
     
@@ -5438,7 +5511,7 @@ second half of the split.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line492">line 492</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line507">line 507</a>
     </li></ul></dd>
     
     
@@ -5475,13 +5548,13 @@ second half of the split.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:change">gui_updater~GUIUpdater#change</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:change">tree_updater~TreeUpdater#change</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu May 22 2014 14:16:30 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Jul 31 2014 15:35:29 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

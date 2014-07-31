@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced Usage Notes &mdash; Wed v0.15.0 documentation</title>
+    <title>Advanced Usage Notes &mdash; Wed v0.17.1-1-ge625088 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.15.0',
+        VERSION:     'v0.17.1-1-ge625088',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.15.0 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.17.1-1-ge625088 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.15.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.17.1-1-ge625088 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -186,12 +186,18 @@ headers.</p>
 determined by the <tt class="docutils literal"><span class="pre">save</span></tt> option. It is of the form:</p>
 <div class="highlight-python"><pre>save: {
     url: "...",
-    headers: { ... ]
+    headers: { ... }
+    autosave: ...,
+    initial_etag: ...,
 }</pre>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">url</span></tt> parameter is the URL where wed will send the Ajax queries
 for saving. The <tt class="docutils literal"><span class="pre">headers</span></tt> parameter is as described above for
-logging.</p>
+logging. The <tt class="docutils literal"><span class="pre">autosave</span></tt> parameter is a number of seconds between
+autosaves. Setting it to 0 will turn off autosaving. Wed will autosave
+only if it detects that the document has been changed since the last
+save. The <tt class="docutils literal"><span class="pre">initial_etag</span></tt> parameter is the <tt class="docutils literal"><span class="pre">ETag</span></tt> of the document being
+loaded.</p>
 <p>Queries are sent as POST requests with the following parameters:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">command</span></tt>: the command wed is issuing.</li>
@@ -203,6 +209,7 @@ serialization of the data tree.</li>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">check</span></tt>: This is a mere version check.</li>
 <li><tt class="docutils literal"><span class="pre">save</span></tt>: Sent when the user manually requests a save.</li>
+<li><tt class="docutils literal"><span class="pre">autosave</span></tt>: Sent when an autosave occurs.</li>
 <li><tt class="docutils literal"><span class="pre">recover</span></tt>: Sent when wed detects a fatal condition requiring
 reloading the editor from scratch. The server must save the data
 received and note that it was a recovery.</li>
@@ -226,6 +233,32 @@ anything to resolve the problem.</li>
 is locked.</li>
 <li><tt class="docutils literal"><span class="pre">save_successful</span></tt> indicates that the save was successful.</li>
 </ul>
+<p>The protocol uses <tt class="docutils literal"><span class="pre">If-Match</span></tt> to check that the document being saved
+has not been edited by some other user. Therefore, it needs an
+<tt class="docutils literal"><span class="pre">ETag</span></tt> to be generated. It acquires its initial <tt class="docutils literal"><span class="pre">ETag</span></tt> from the
+<tt class="docutils literal"><span class="pre">save</span></tt> option described above. Subsequent successful save operations
+must provide an <tt class="docutils literal"><span class="pre">ETag</span></tt> value representing the saved document.</p>
+<p>The meaning of the <tt class="docutils literal"><span class="pre">ETag</span></tt> value is generally ambiguous. See the
+following documents for some discussions of the issue:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://datatracker.ietf.org/doc/draft-whitehead-http-etag/">https://datatracker.ietf.org/doc/draft-whitehead-http-etag/</a></li>
+<li><a class="reference external" href="https://datatracker.ietf.org/doc/draft-reschke-http-etag-on-write/">https://datatracker.ietf.org/doc/draft-reschke-http-etag-on-write/</a></li>
+</ul>
+<p>The current code handles the lack of precision such that <tt class="docutils literal"><span class="pre">ETag</span></tt>
+values returned on error conditions are ignored. Otherwise, the
+following could happen:</p>
+<ol class="arabic simple">
+<li>Alice loads document, grabs initial <tt class="docutils literal"><span class="pre">ETag</span></tt>.</li>
+<li>Bob loads same document, grabs initial <tt class="docutils literal"><span class="pre">ETag</span></tt>.</li>
+<li>Bob saves new version, creates new <tt class="docutils literal"><span class="pre">ETag</span></tt>.</li>
+<li>Alice tries to save with an <tt class="docutils literal"><span class="pre">If-Match</span></tt> that has the old
+<tt class="docutils literal"><span class="pre">ETag</span></tt>. This fails and returns an <tt class="docutils literal"><span class="pre">ETag</span></tt> with the response.</li>
+</ol>
+<p>This last <tt class="docutils literal"><span class="pre">ETag</span></tt> would have to be the one that matches what is
+<em>currently</em> stored in the server. Alice&#8217;s wed instance <strong>must not</strong>
+use this <tt class="docutils literal"><span class="pre">ETag</span></tt> to update the <tt class="docutils literal"><span class="pre">ETag</span></tt> it associates with its
+document, otherwise a subsequent save will (erroneously) go through.</p>
+<p>This may not correspond to how other systems use <tt class="docutils literal"><span class="pre">ETag</span></tt>.</p>
 </div>
 </div>
 <div class="section" id="creating-a-mode">
@@ -366,7 +399,7 @@ replace instances of <tt class="docutils literal"><span class="pre">&#64;PWD&#64
 <div class="highlight-python"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test</pre>
 </div>
 <p>Behind the scenes, this will launch behave. See the makefile
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> for information about how behave is run.</p>
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> for information about how behave is run.</p>
 <p>The environment variable <tt class="docutils literal"><span class="pre">BEHAVE_WAIT_BETWEEN_STEPS</span></tt> can be set to a
 numerical value in seconds to get behave to stop between steps. It
 makes the Selenium test unfold more slowly. The environment variable
@@ -495,8 +528,9 @@ operation, then wed won&#8217;t cause a mouse event to happen. A <tt class="docu
 event would trickle up the handler chain, etc.</p>
 <p>Modes that define elements in the GUI tree that want to have their own
 custom context menu handler must listen for <tt class="docutils literal"><span class="pre">wed-context-menu</span></tt>
-<strong>and</strong> define a data field named <tt class="docutils literal"><span class="pre">wed-custom-context-menu</span></tt> set to a
-truthy value.</p>
+<strong>and</strong> define a data field named <tt class="docutils literal"><span class="pre">data-wed-custom-context-menu</span></tt> set
+to a truthy value. This field must be set <strong>in the DOM</strong> as an
+attribute (and not merely using jQuery&#8217;s <tt class="docutils literal"><span class="pre">data()</span></tt> method.</p>
 </div>
 <div class="section" id="selections">
 <h2>Selections<a class="headerlink" href="#selections" title="Permalink to this headline">¶</a></h2>
@@ -535,6 +569,35 @@ concerned.</dd>
 <dd>The caret in the data tree that corresponds to the GUI caret. It may or may
 not correspond to a DOM caret. Modes usually want to work with this caret.</dd>
 </dl>
+</div>
+<div class="section" id="support-for-gui-controls-outside-wed">
+<h2>Support for GUI Controls Outside Wed<a class="headerlink" href="#support-for-gui-controls-outside-wed" title="Permalink to this headline">¶</a></h2>
+<p>By default, wed does not provide any kind of drop down menus or
+toolbar to perform actions like undo/redo, etc. The application that
+embeds wed into it, however, might need such tools. Now, the problem
+is that as far as wed is concerned, these items are not part of the
+editing pane and thus, manipulating them should cause a blurring of
+the editor. This is undesirable because:</p>
+<ul class="simple">
+<li>It means that a GUI control that fires a transformation would fire
+it when the caret is not defined (because of the blur). This causes
+wed to raise an exception.</li>
+<li>Even if the previous point could somehow be worked around because
+wed keeps enough state to know where the caret was before the blur
+happened, the user would still <strong>see</strong> the focus leave the editor
+pane.</li>
+</ul>
+<p>Consequently, such elements must be made known to wed so that it does
+not consider clicks in them to cause a loss of
+focus. <tt class="docutils literal"><span class="pre">Editor.excludeFromBlur</span></tt> is the method to use to register
+these elements with wed.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">These elements must also have <tt class="docutils literal"><span class="pre">mousedown</span></tt> and <tt class="docutils literal"><span class="pre">click</span></tt>
+handlers that do not cause the <strong>browser</strong> to change the
+focus. This typically means that handlers for these two
+events should prevent the default browser behavior.</p>
+</div>
 </div>
 <div class="section" id="im-support">
 <h2>IM Support<a class="headerlink" href="#im-support" title="Permalink to this headline">¶</a></h2>
@@ -653,6 +716,25 @@ by the word &#8220;cow&#8221; then this text should be <tt class="docutils liter
 the other hand if a period is added after numbers in a list so that
 they look nice on screen, these periods should be <tt class="docutils literal"><span class="pre">_phantom</span>
 <span class="pre">_decoration_text</span></tt> elements.</dd>
+<dt><tt class="docutils literal"><span class="pre">__start_label</span></tt>:</dt>
+<dd>In combination with <tt class="docutils literal"><span class="pre">_gui</span></tt>, indicates a label that marks the start
+of an element.</dd>
+<dt><tt class="docutils literal"><span class="pre">__end_label</span></tt>:</dt>
+<dd>In combination with <tt class="docutils literal"><span class="pre">_gui</span></tt>, indicates a label that marks the end
+of an element.</dd>
+<dt><tt class="docutils literal"><span class="pre">_&lt;id&gt;_label</span></tt>:</dt>
+<dd>The <tt class="docutils literal"><span class="pre">&lt;id&gt;</span></tt> part is the name of an element. This class marks a
+label as belonging to an <tt class="docutils literal"><span class="pre">&lt;id&gt;</span></tt> element. For instance, a label for
+a <tt class="docutils literal"><span class="pre">p</span></tt> element will have the class <tt class="docutils literal"><span class="pre">_p_label</span></tt>. The full set of
+classes for such a label which happens to mark the start of <tt class="docutils literal"><span class="pre">p</span></tt>
+will be <tt class="docutils literal"><span class="pre">_gui</span> <span class="pre">_phantom</span> <span class="pre">__start_label</span> <span class="pre">_p_label</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">_start_wrapper</span></tt>:</dt>
+<dd>Marks an element which wraps the editable content of an
+element. There may be many such elements at the start of an
+element. For instance a <tt class="docutils literal"><span class="pre">ref</span></tt> could contain an element label and
+then the phantom text <tt class="docutils literal"><span class="pre">(</span></tt>. Both would be marked with this class.</dd>
+<dt><tt class="docutils literal"><span class="pre">_end_wrapper</span></tt>:</dt>
+<dd>Like <tt class="docutils literal"><span class="pre">_start_wrapper</span></tt> but marks the end.</dd>
 </dl>
 </div>
 <div class="section" id="browser-issues">
@@ -757,6 +839,40 @@ deletes the data structure of the document being edited. We do not know
 of a good explanation for the leak.</p>
 </div>
 </div>
+<div class="section" id="historical-notes">
+<h1>Historical Notes<a class="headerlink" href="#historical-notes" title="Permalink to this headline">¶</a></h1>
+<p>Initially wed was designed with the idea that <tt class="docutils literal"><span class="pre">contenteditable</span></tt>
+would take care of caret management, selection management, text entry,
+etc. Consequently, wed would let the browser drive the management of
+these things and query the browser to know where the caret was,
+whether there was a selection, etc. However, experience soon proved
+that the browsers did not handle these functions in a way that was
+appropriate for wed. So wed had to take over the management of some of
+these functions. Since there was always some hope that at least <em>some</em>
+of these functions could <em>still</em> be delegated to the browser, these
+changes happened incrementally, changing only as much as needed to get
+the desired result. Some of these changes made earlier code obsolete
+but this was not discovered immediately. So wed evolved form this approach:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The browser is the authority on the caret position, the selection,
+and related things. Wed queries the browser as needed.</li>
+</ul>
+</div></blockquote>
+<p>To this approach:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Wed is the authority on the caret position, the selection, and
+related things. Wed updates the browser&#8217;s idea of such things as
+needed.</li>
+</ul>
+</div></blockquote>
+<p>The incremental nature of the changes made it so that overtime code
+that operated under the first approach was found right next to code
+that operated under the second approach. Version 0.17.0 cleaned up a
+good deal of the old code (first approach) that was made obsolete by
+the incremental changes, but some obsolete code may still remain.</p>
+</div>
 
 
           </div>
@@ -786,6 +902,7 @@ of a good explanation for the leak.</p>
 <li><a class="reference internal" href="#javascript-event-handling">JavaScript Event Handling</a></li>
 <li><a class="reference internal" href="#selections">Selections</a></li>
 <li><a class="reference internal" href="#carets">Carets</a></li>
+<li><a class="reference internal" href="#support-for-gui-controls-outside-wed">Support for GUI Controls Outside Wed</a></li>
 <li><a class="reference internal" href="#im-support">IM Support</a></li>
 <li><a class="reference internal" href="#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
 </ul>
@@ -804,6 +921,7 @@ of a good explanation for the leak.</p>
 <li><a class="reference internal" href="#memory-leaks">Memory Leaks</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#historical-notes">Historical Notes</a></li>
 </ul>
 
   <h3>This Page</h3>
@@ -834,7 +952,7 @@ of a good explanation for the leak.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.15.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.17.1-1-ge625088 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

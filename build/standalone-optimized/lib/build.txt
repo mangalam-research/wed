@@ -271,6 +271,7 @@ wed/preferences.js
 wed/onbeforeunload.js
 wed/wed.js
 wed/mode.js
+wed/gui/tooltip.js
 wed/decorator.js
 wed/modes/generic/generic_decorator.js
 wed/modes/generic/generic_tr.js

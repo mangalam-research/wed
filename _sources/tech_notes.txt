@@ -164,12 +164,18 @@ determined by the ``save`` option. It is of the form::
 
   save: {
       url: "...",
-      headers: { ... ]
+      headers: { ... }
+      autosave: ...,
+      initial_etag: ...,
   }
 
 The ``url`` parameter is the URL where wed will send the Ajax queries
 for saving. The ``headers`` parameter is as described above for
-logging.
+logging. The ``autosave`` parameter is a number of seconds between
+autosaves. Setting it to 0 will turn off autosaving. Wed will autosave
+only if it detects that the document has been changed since the last
+save. The ``initial_etag`` parameter is the ``ETag`` of the document being
+loaded.
 
 Queries are sent as POST requests with the following parameters:
 
@@ -185,6 +191,8 @@ The possible commands are:
 * ``check``: This is a mere version check.
 
 * ``save``: Sent when the user manually requests a save.
+
+* ``autosave``: Sent when an autosave occurs.
 
 * ``recover``: Sent when wed detects a fatal condition requiring
   reloading the editor from scratch. The server must save the data
@@ -212,6 +220,35 @@ possible message types are:
   is locked.
 
 * ``save_successful`` indicates that the save was successful.
+
+The protocol uses ``If-Match`` to check that the document being saved
+has not been edited by some other user. Therefore, it needs an
+``ETag`` to be generated. It acquires its initial ``ETag`` from the
+``save`` option described above. Subsequent successful save operations
+must provide an ``ETag`` value representing the saved document.
+
+The meaning of the ``ETag`` value is generally ambiguous. See the
+following documents for some discussions of the issue:
+
+- https://datatracker.ietf.org/doc/draft-whitehead-http-etag/
+- https://datatracker.ietf.org/doc/draft-reschke-http-etag-on-write/
+
+The current code handles the lack of precision such that ``ETag``
+values returned on error conditions are ignored. Otherwise, the
+following could happen:
+
+1. Alice loads document, grabs initial ``ETag``.
+2. Bob loads same document, grabs initial ``ETag``.
+3. Bob saves new version, creates new ``ETag``.
+4. Alice tries to save with an ``If-Match`` that has the old
+   ``ETag``. This fails and returns an ``ETag`` with the response.
+
+This last ``ETag`` would have to be the one that matches what is
+*currently* stored in the server. Alice's wed instance **must not**
+use this ``ETag`` to update the ``ETag`` it associates with its
+document, otherwise a subsequent save will (erroneously) go through.
+
+This may not correspond to how other systems use ``ETag``.
 
 Creating a Mode
 ===============
@@ -486,8 +523,9 @@ event would trickle up the handler chain, etc.
 
 Modes that define elements in the GUI tree that want to have their own
 custom context menu handler must listen for ``wed-context-menu``
-**and** define a data field named ``wed-custom-context-menu`` set to a
-truthy value.
+**and** define a data field named ``data-wed-custom-context-menu`` set
+to a truthy value. This field must be set **in the DOM** as an
+attribute (and not merely using jQuery's ``data()`` method.
 
 Selections
 ----------
@@ -531,6 +569,35 @@ GUI caret
 Data caret
   The caret in the data tree that corresponds to the GUI caret. It may or may
   not correspond to a DOM caret. Modes usually want to work with this caret.
+
+Support for GUI Controls Outside Wed
+------------------------------------
+
+By default, wed does not provide any kind of drop down menus or
+toolbar to perform actions like undo/redo, etc. The application that
+embeds wed into it, however, might need such tools. Now, the problem
+is that as far as wed is concerned, these items are not part of the
+editing pane and thus, manipulating them should cause a blurring of
+the editor. This is undesirable because:
+
+- It means that a GUI control that fires a transformation would fire
+  it when the caret is not defined (because of the blur). This causes
+  wed to raise an exception.
+
+- Even if the previous point could somehow be worked around because
+  wed keeps enough state to know where the caret was before the blur
+  happened, the user would still **see** the focus leave the editor
+  pane.
+
+Consequently, such elements must be made known to wed so that it does
+not consider clicks in them to cause a loss of
+focus. ``Editor.excludeFromBlur`` is the method to use to register
+these elements with wed.
+
+.. warning:: These elements must also have ``mousedown`` and ``click``
+             handlers that do not cause the **browser** to change the
+             focus. This typically means that handlers for these two
+             events should prevent the default browser behavior.
 
 IM Support
 ----------
@@ -661,6 +728,30 @@ Classes Used by Wed
   they look nice on screen, these periods should be ``_phantom
   _decoration_text`` elements.
 
+``__start_label``:
+  In combination with ``_gui``, indicates a label that marks the start
+  of an element.
+
+``__end_label``:
+  In combination with ``_gui``, indicates a label that marks the end
+  of an element.
+
+``_<id>_label``:
+  The ``<id>`` part is the name of an element. This class marks a
+  label as belonging to an ``<id>`` element. For instance, a label for
+  a ``p`` element will have the class ``_p_label``. The full set of
+  classes for such a label which happens to mark the start of ``p``
+  will be ``_gui _phantom __start_label _p_label``.
+
+``_start_wrapper``:
+  Marks an element which wraps the editable content of an
+  element. There may be many such elements at the start of an
+  element. For instance a ``ref`` could contain an element label and
+  then the phantom text ``(``. Both would be marked with this class.
+
+``_end_wrapper``:
+  Like ``_start_wrapper`` but marks the end.
+
 Browser Issues
 ==============
 
@@ -779,6 +870,37 @@ created still exists at the time of the second profile. Upon reload,
 wed stops all MutationObservers, removes all event handlers, and
 deletes the data structure of the document being edited. We do not know
 of a good explanation for the leak.
+
+Historical Notes
+================
+
+Initially wed was designed with the idea that ``contenteditable``
+would take care of caret management, selection management, text entry,
+etc. Consequently, wed would let the browser drive the management of
+these things and query the browser to know where the caret was,
+whether there was a selection, etc. However, experience soon proved
+that the browsers did not handle these functions in a way that was
+appropriate for wed. So wed had to take over the management of some of
+these functions. Since there was always some hope that at least *some*
+of these functions could *still* be delegated to the browser, these
+changes happened incrementally, changing only as much as needed to get
+the desired result. Some of these changes made earlier code obsolete
+but this was not discovered immediately. So wed evolved form this approach:
+
+ * The browser is the authority on the caret position, the selection,
+   and related things. Wed queries the browser as needed.
+
+To this approach:
+
+ * Wed is the authority on the caret position, the selection, and
+   related things. Wed updates the browser's idea of such things as
+   needed.
+
+The incremental nature of the changes made it so that overtime code
+that operated under the first approach was found right next to code
+that operated under the second approach. Version 0.17.0 cleaned up a
+good deal of the old code (first approach) that was made obsolete by
+the incremental changes, but some obsolete code may still remain.
 
 ..  LocalWords:  contenteditable MutationObserver MutationObservers
 ..  LocalWords:  keydown keypress javascript jQuery util contextmenu

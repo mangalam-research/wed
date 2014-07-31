@@ -233,7 +233,7 @@ function makeKey(which, keypress, keyCode, charCode, ctrlKey, altKey, metaKey) {
         keypress = !!keypress;
 
     if (keyCode === undefined || keyCode === null)
-        keyCode = which;
+        keyCode = (keypress && browsers.GECKO) ? 0 : which;
 
     if (charCode === undefined || charCode === null)
         charCode = keypress ? which : 0;

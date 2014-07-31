@@ -123,13 +123,13 @@ function nextCaretPosition(caret, container, no_text) {
         var parent = node.parentNode;
         switch(node.nodeType) {
         case Node.TEXT_NODE:
-            if (offset >= node.nodeValue.length ||
+            if (offset >= node.length ||
                 // If the parent node is set to normal whitespace
                 // handling, then moving the caret forward by one
                 // position will skip this whitespace.
-                (parent.childNodes[parent.childNodes.length - 1] === node &&
+                (parent.lastChild === node &&
                  $(parent).css("white-space") === "normal" &&
-                 /^\s+$/.test(node.nodeValue.slice(offset)))) {
+                 /^\s+$/.test(node.data.slice(offset)))) {
 
                 // We would move outside the container
                 if (container !== undefined && node === container)
@@ -220,8 +220,8 @@ function prevCaretPosition(caret, container, no_text) {
                 // handling, then moving the caret back by one
                 // position will skip this whitespace.
                 ($(node.parentNode).css("white-space") === "normal" &&
-                 parent.childNodes[0] === node &&
-                 /^\s+$/.test(node.nodeValue.slice(0, offset)))) {
+                 parent.firstChild === node &&
+                 /^\s+$/.test(node.data.slice(0, offset)))) {
 
                 // We would move outside the container
                 if (container !== undefined && node === container)
@@ -259,7 +259,7 @@ function prevCaretPosition(caret, container, no_text) {
                         found = true;
                 }
                 else
-                    offset = node.nodeValue.length + 1;
+                    offset = node.length + 1;
             }
             break;
         }
@@ -424,8 +424,8 @@ function _genericInsertIntoText(text_node, index, node, clean) {
     // Normalize
     if (index < 0)
         index = 0;
-    else if (index > text_node.nodeValue.length)
-        index = text_node.nodeValue.length;
+    else if (index > text_node.length)
+        index = text_node.length;
 
     var search_node, prev, next;
     var is_fragment = node && (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE);
@@ -438,12 +438,12 @@ function _genericInsertIntoText(text_node, index, node, clean) {
     }
     else {
         var frag = document.createDocumentFragment();
-        prev = document.createTextNode(text_node.nodeValue.slice(0, index));
+        prev = document.createTextNode(text_node.data.slice(0, index));
         frag.appendChild(prev);
         if (node)
             frag.appendChild(node);
-        next = document.createTextNode(text_node.nodeValue.slice(index));
-        var next_len = next.nodeValue.length;
+        next = document.createTextNode(text_node.data.slice(index));
+        var next_len = next.length;
         frag.appendChild(next);
 
         if (clean)
@@ -454,11 +454,10 @@ function _genericInsertIntoText(text_node, index, node, clean) {
         else
             start_caret = [frag.firstChild, index];
 
-        if (clean && index === text_node.nodeValue.length)
+        if (clean && index === text_node.length)
             end_caret = [parent, text_node_at + frag.childNodes.length];
         else
-            end_caret = [frag.lastChild, frag.lastChild.nodeValue.length -
-                         next_len];
+            end_caret = [frag.lastChild, frag.lastChild.length -  next_len];
 
         this.deleteNode(text_node);
         if (this.insertFragAt)
@@ -548,19 +547,18 @@ function genericInsertText(node, index, text) {
             if (prev && prev.nodeType === Node.TEXT_NODE) {
                 // Append to already existing text node.
                 node = prev;
-                index = node.nodeValue.length;
+                index = node.length;
                 continue work;
             }
 
             // We have to create a text node
-            text_node = document.createTextNode("");
-            text_node.nodeValue = text;
+            text_node = document.createTextNode(text);
             this.insertNodeAt(node, index, text_node);
             node = undefined;
             break work;
         case Node.TEXT_NODE:
-            var pre = node.nodeValue.slice(0, index);
-            var post = node.nodeValue.slice(index);
+            var pre = node.data.slice(0, index);
+            var post = node.data.slice(index);
             this.setTextNodeValue(node, pre + text + post);
             text_node = node;
             break work;
@@ -593,7 +591,7 @@ function genericInsertText(node, index, text) {
 var insertText = genericInsertText.bind({
     insertNodeAt: insertNodeAt,
     setTextNodeValue: function (node, value) {
-        node.nodeValue = value;
+        node.data = value;
     }
 });
 
@@ -608,9 +606,8 @@ var insertText = genericInsertText.bind({
  */
 function deleteText(node, index, length) {
     if (node.nodeType === Node.TEXT_NODE) {
-        node.nodeValue = node.nodeValue.slice(0, index) +
-            node.nodeValue.slice(index + length);
-        if (node.nodeValue.length === 0)
+        node.deleteData(index, length);
+        if (!node.length)
             node.parentNode.removeChild(node);
     }
     else
@@ -672,7 +669,7 @@ function unlinkTree(root) {
  */
 function firstDescendantOrSelf(node) {
     while (node && node.childNodes && node.childNodes.length)
-        node = node.childNodes[0];
+        node = node.firstChild;
     return node;
 }
 
@@ -713,8 +710,8 @@ function mergeTextNodes(node) {
     var next = node.nextSibling;
     if (node.nodeType === Node.TEXT_NODE &&
         next && next.nodeType === Node.TEXT_NODE) {
-        var offset = node.nodeValue.length;
-        node.nodeValue += next.nodeValue;
+        var offset = node.length;
+        node.appendData(next.data);
         next.parentNode.removeChild(next);
         return [node, offset];
     }
@@ -775,12 +772,11 @@ function genericCutFunction (start_caret, end_caret) {
             parent.childNodes, start_container);
 
         var end_text_offset = same_container ? end_offset :
-                start_container.nodeValue.length;
+                start_container.length;
 
         start_text = parent.ownerDocument.createTextNode(
-            start_container.nodeValue.slice(start_offset, end_text_offset));
-        this.deleteText(start_container, start_offset,
-                        start_text.nodeValue.length);
+            start_container.data.slice(start_offset, end_text_offset));
+        this.deleteText(start_container, start_offset, start_text.length);
 
         final_caret = (start_container.parentNode) ?
             [start_container, start_offset] :
@@ -811,7 +807,7 @@ function genericCutFunction (start_caret, end_caret) {
             parent.childNodes, end_container);
 
         end_text = parent.ownerDocument.createTextNode(
-            end_container.nodeValue.slice(0, end_offset));
+            end_container.data.slice(0, end_offset));
         this.deleteText(end_container, 0, end_offset);
 
         // Alter our end to take care of the rest

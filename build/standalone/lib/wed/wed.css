@@ -55,7 +55,9 @@
   opacity: 0.7;
   border-style: solid;
   width: 1px;
+  height: 24px;
   display: inline-block;
+  vertical-align: middle;
 }
 .wed-widget .wed-validation-error.selected {
   animation: blink 1s infinite;
@@ -139,6 +141,7 @@ div.wed-frame ._gui._label._label_clicked {
 div.wed-frame div.wed-document {
   border-style: solid;
   border-width: 1px;
+  background-color: white;
 }
 div.wed-frame div.wed-document div {
   word-wrap: normal;
@@ -158,7 +161,7 @@ div.wed-frame div.wed-document div._phantom._decoration_text {
 }
 div.wed-frame div.wed-document div._real {
   display: block;
-  background-color: white;
+  background-color: transparent;
   white-space: normal;
   margin-left: 1em;
 }
@@ -166,11 +169,9 @@ div.wed-frame div.wed-document div._real._inline {
   display: inline;
   margin-left: 0em;
 }
-div.wed-frame div.wed-document > div._real {
-  margin-left: 0em;
-}
-div.wed-frame div.wed-document ._owns_caret {
-  border-bottom-style: solid;
+div.wed-frame div.wed-document div._real._owns_caret {
+  background-color: #ffffcc;
+  background-image: none;
 }
 div.wed-frame div.wed-document ._placeholder {
   border-style: solid;

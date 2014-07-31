@@ -52,8 +52,19 @@ Listener.prototype.stopListening = function () {
 };
 
 Listener.prototype.processImmediately = function () {
-    // It is a noop for this implementation.
+    if (this._scheduled_process_triggers) {
+        this.clearPending();
+        this._processTriggers();
+    }
 };
+
+Listener.prototype.clearPending = function () {
+    if (this._scheduled_process_triggers) {
+        window.clearTimeout(this._scheduled_process_triggers);
+        this._scheduled_process_triggers = undefined;
+    }
+};
+
 
 /**
  * Handles {@link module:tree_updater~TreeUpdater#event:insertNodeAt
@@ -285,7 +296,7 @@ Listener.prototype._incExcCalls = function (name, $node, $target) {
         for(var target_ix = 0, target_ix_limit = $targets.length;
             target_ix < target_ix_limit; ++target_ix)
             ret.push([pair[1], $node, $target, $prev, $next,
-                      $($targets.get(target_ix))]);
+                      $($targets[target_ix])]);
     }
     return ret;
 };

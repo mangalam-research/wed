@@ -13,6 +13,7 @@ var $ = require("jquery");
 var domutil = require("./domutil");
 var jqutil = require("./jqutil");
 var transformation = require("./transformation");
+var tooltip = require("./gui/tooltip").tooltip;
 
 /**
  * @classdesc A decorator is responsible for adding decorations to a
@@ -58,7 +59,7 @@ Decorator.prototype.startListening = function ($root) {
     var $contents = $root.contents();
     $contents.detach();
     this._domlistener.startListening();
-    this._gui_updater.insertAt($root.get(0), 0, $contents.toArray());
+    this._gui_updater.insertAt($root[0], 0, $contents.toArray());
 };
 
 /**
@@ -150,15 +151,17 @@ Decorator.prototype.includeListHandler = function (
  */
 Decorator.prototype.contentEditableHandler = function (
     $root, $parent, $previous_sibling, $next_sibling, $element) {
-    var $all = $element.findAndSelf('*');
-    for(var i = $all.length - 1; i >= 0; --i) {
-        var it = $all[i];
+    function mod(el) {
         // All elements that may get a selection must be focusable to
         // work around bug:
         // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
-        it.setAttribute("tabindex", "-1");
-        it.setAttribute("contenteditable", $(it).is("._real"));
+        el.setAttribute("tabindex", "-1");
+        el.setAttribute("contenteditable", el.classList.contains("_real"));
+        var children = el.children;
+        for(var i = 0, limit = children.length; i < limit; ++i)
+            mod(children[i]);
     }
+    mod($element[0]);
 };
 
 /**
@@ -179,7 +182,7 @@ Decorator.prototype.elementDecorator = function (
         throw new Error("level higher than the maximum set by the mode: " +
                         level);
     var $el = $(el);
-    el = $el.get(0);
+    el = $el[0];
     var orig_name = util.getOriginalName(el);
     // _[name]_label is used locally to make the function idempotent.
     var cls = "_" + orig_name + "_label";
@@ -190,14 +193,15 @@ Decorator.prototype.elementDecorator = function (
         me._gui_updater.deleteNode(this);
     });
     cls += " _label_level_" + level;
-    var $pre = $('<span class="_gui _phantom __start_label ' + cls +
+    var $pre = $('<span class="_gui _phantom __start_label _start_wrapper ' +
+                 cls +
                  ' _label"><span class="_phantom">&nbsp;' + orig_name +
                  ' >&nbsp;</span></span>');
-    this._gui_updater.insertNodeAt(el, 0, $pre.get(0));
-    var $post = $('<span class="_gui _phantom __end_label ' + cls +
+    this._gui_updater.insertNodeAt(el, 0, $pre[0]);
+    var $post = $('<span class="_gui _phantom __end_label _end_wrapper ' + cls +
                   ' _label"><span class="_phantom">&nbsp;&lt; ' +
                   orig_name + '&nbsp;</span></span>');
-    this._gui_updater.insertBefore(el, $post.get(0), null);
+    this._gui_updater.insertBefore(el, $post[0], null);
 
     // Setup a handler so that clicking one label highlights it and
     // the other label.
@@ -227,13 +231,12 @@ Decorator.prototype.elementDecorator = function (
                 return undefined;
             return self._editor.mode.shortDescriptionFor(orig_name);
         },
-        container: $pre,
+        container: 'body',
         delay: { show: 1000 },
         placement: "auto top"
     };
-    $pre.tooltip(options);
-    options.container = $post;
-    $post.tooltip(options);
+    tooltip($pre, options);
+    tooltip($post, options);
 };
 
 /**
@@ -278,7 +281,7 @@ Decorator.prototype._elementButtonUnclickHandler = function (ev) {
  */
 Decorator.prototype._contextMenuHandler = function (
     at_start, wed_ev, ev) {
-    var node = $(wed_ev.currentTarget).parents('._real').first().get(0);
+    var node = $(wed_ev.currentTarget).parents('._real')[0];
     var menu_items = [];
     var editor = this._editor;
     var mode = editor.mode;
@@ -305,7 +308,7 @@ Decorator.prototype._contextMenuHandler = function (
                            (icon ? icon + " ": "") +
                            tr.getDescriptionFor(data) + "</a>");
                 $a.click(data, tr.bound_terminal_handler);
-                menu_items.push($("<li>").append($a).get(0));
+                menu_items.push($("<li>").append($a)[0]);
             }.bind(this));
         }
 
@@ -343,7 +346,7 @@ Decorator.prototype._contextMenuHandler = function (
                            (at_start ? " before this element":
                             " after this element") + "</a>");
                 $a.click(data, tr.bound_terminal_handler);
-                menu_items.push($("<li></li>").append($a).get(0));
+                menu_items.push($("<li></li>").append($a)[0]);
             }
         }.bind(this));
 

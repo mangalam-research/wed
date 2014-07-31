@@ -52,10 +52,21 @@ function Registry(editor) {
                                      data.element_name);
 
 
-            var $container =  (editor.mode._options.autoinsert) ?
-                _fillRecursively($new, editor) : $new;
+            if (editor.mode._options.autoinsert) {
+                _autoinsert($new, editor);
 
-            editor.setDataCaret($container[0], 0);
+                // Move the caret to the deepest first child.
+                var new_ = $new[0];
+                while(new_) {
+                    var child = new_.firstChild;
+                    if (!child)
+                        break;
+                    new_ = child;
+                }
+                editor.setDataCaret(new_, 0);
+            }
+            else
+                editor.setDataCaret($new[0], 0);
 
             }.bind(this)));
 
@@ -136,11 +147,19 @@ function Registry(editor) {
         }));
 }
 
-function _fillRecursively($new, editor) {
-    var $ret = $new;
+oop.inherit(Registry, transformation.TransformationRegistry);
 
-    var first = true;
 
+exports.Registry = Registry;
+
+/**
+ * Perform the autoinsertion algorithm on an element.
+ *
+ * @param {jQuery} $new The element that should be subject to the
+ * autoinsertion algorithm.
+ * @param {module:wed~Editor} editor The editor which own the element.
+ */
+function _autoinsert($new, editor) {
     while(true) {
         var errors = editor.validator.getErrorsFor($new[0]);
 
@@ -150,7 +169,7 @@ function _fillRecursively($new, editor) {
                 0;
         });
 
-        if (errors.length !== 1)
+        if (errors.length === 0)
             break;
 
         var ename = errors[0].error.getNames()[0];
@@ -172,35 +191,20 @@ function _fillRecursively($new, editor) {
         if (actions[0].needs_input)
             break;
 
+        //
+        // We move the caret ourselves rather than using
+        // move_caret_to. In this context, it does not matter because
+        // autoinsert is meant to be called by a transformation
+        // anyway.
+        //
+        editor.setDataCaret(dloc.makeDLoc(dloc.getRoot($new), $new,
+                                          locations[0]));
         actions[0].execute({
-            move_caret_to: dloc.makeDLoc(dloc.getRoot($new), $new,
-                                         locations[0]),
             element_name: name
         });
-
-        var $child = $($new[0].childNodes[locations[0]]);
-
-        // var $child = insertElement(
-        //     editor.data_updater,
-        //     $new[0],
-        //     locations[0],
-        //     name);
-
-        var $container = _fillRecursively($child, editor);
-
-        if (first) {
-            $ret = $container;
-            first = false;
-        }
     }
-
-    return $ret;
 }
 
-oop.inherit(Registry, transformation.TransformationRegistry);
-
-
-exports.Registry = Registry;
 });
 
 //  LocalWords:  TransformationRegistry oop wundo util domutil jquery
