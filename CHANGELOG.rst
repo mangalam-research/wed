@@ -10,6 +10,11 @@ Only salient changes are recorded here.
     function that was added very early on and that has since been
     subsumed by other methods, like ``Mode.getContextualActions``.
 
+  - API: Removed ``TransformationRegistry``, which did not provide
+    much.
+
+  - API: Consequently, the generic mode no longer has a ``_tr`` field.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
