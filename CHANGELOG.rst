@@ -15,6 +15,21 @@ Only salient changes are recorded here.
 
   - API: Consequently, the generic mode no longer has a ``_tr`` field.
 
+  - API: ``transformation.makeElement`` returns a ``Node`` rather than
+    a ``jQuery`` object.
+
+  - API: ``transformation.insertElement`` returns a ``Node`` rather
+    than a ``jQuery`` object.
+
+  - API: ``transformation.insertElement`` no longer takes a
+    ``contents`` parameter.
+
+  - API: ``transformation.wrapTextInElement'' returns a ``Node``
+    rather than a ``jQuery`` object.
+
+  - API: ``transformation.wrapInElement`` returns a ``Node`` rather
+    than a ``jQuery`` object.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
