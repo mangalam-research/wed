@@ -644,15 +644,19 @@ its corresponding data element. Update data nodes as needed.
 GUI Tree and Data Tree
 ----------------------
 
-Wed maintains two trees of DOM nodes:
+Wed maintains two trees of DOM trees:
 
 * A data tree which is not attached to the browser's document. (It is
   not visible. It does not receive events.) It is a mere
-  representation in DOM format of the data tree being edited.
+  representation in DOM format of the document being edited. You can
+  think of this tree as being a part of the model aspect of the MVC
+  pattern. (A ``TreeUpdater`` together with a data tree correspond to
+  a model.)
 
 * A GUI tree which is derived from the data tree. This GUI tree is
   attached to the browser's document. It receives events and is what
-  the user sees.
+  the user sees. You can think of this tree as being a part of the
+  view and controler aspects of the MVC pattern.
 
 The ``GUIUpdater`` object stored in ``Editor._gui_updater`` is
 responsible for inserting and deleting the nodes of the GUI tree that
