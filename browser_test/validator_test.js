@@ -432,7 +432,7 @@ describe("validator", function () {
             var index = Array.prototype.indexOf.call(container.childNodes,
                                                      body);
             p.initialize(function () {
-                var em = $data.find(".em").first();
+                var em = $data.find(".em").first()[0];
                 var ret = p.speculativelyValidate(container, index, em);
                 assert.equal(ret.length, 1);
                 assert.equal(ret[0].error.toString(),
@@ -468,7 +468,7 @@ describe("validator", function () {
             var index = Array.prototype.indexOf.call(container.childNodes,
                                                      body);
             p.initialize(function () {
-                var em = $data.find(".em").first();
+                var em = $data.find(".em").first()[0];
                 var ret = p.speculativelyValidate(container, index, em);
                 assert.equal(ret.length, 1, "the fragment is invalid");
                 // No errors after.
