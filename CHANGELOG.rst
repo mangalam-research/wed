@@ -42,6 +42,12 @@ Only salient changes are recorded here.
   - API: ``domlistener.Listener`` objects no longer accept jQuery
     selectors. They must be pure CSS now.
 
+  - API: ``domutil.makePlaceholder`` returns a ``Node`` rather than a
+    ``jQuery``.
+
+  - API: ``mode.makePlaceholderFor`` returns a ``Node`` rather than a
+    ``jQuery``.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
