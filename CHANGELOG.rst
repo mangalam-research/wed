@@ -30,6 +30,12 @@ Only salient changes are recorded here.
   - API: ``transformation.wrapInElement`` returns a ``Node`` rather
     than a ``jQuery`` object.
 
+  - API: ``Decorator.addRemListElementHandler`` and
+    ``Decorator.includeListHandler`` are gone.
+
+  - API: ``Decorator.listDecorator`` now takes a ``Node`` rather than
+    a ``jQuery``.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
