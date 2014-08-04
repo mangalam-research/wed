@@ -109,21 +109,19 @@ return function (domlistener, class_name, tree_updater_class) {
         });
 
         function makeIncludedHandler(name) {
-            return function ($this_root, $tree, $parent, $previous_sibling,
-                             $next_sibling, $element) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element[0].className, "_real " + name);
-                assert.equal($element.length, 1);
+            return function (this_root, tree, parent, previous_sibling,
+                             next_sibling, element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.className, "_real " + name);
                 mark.mark("included " + name);
             };
         }
 
         function makeExcludedHandler(name) {
-            return function ($this_root, $tree, $parent, $previous_sibling,
-                             $next_sibling, $element) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element[0].className, "_real " + name);
-                assert.equal($element.length, 1);
+            return function (this_root, tree, parent, previous_sibling,
+                             next_sibling, element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.className, "_real " + name);
                 mark.mark("excluded " + name);
             };
         }
@@ -142,29 +140,29 @@ return function (domlistener, class_name, tree_updater_class) {
                                 makeIncludedHandler("ul"));
             listener.addHandler("included-element", "._real.li",
                                 makeIncludedHandler("li"));
-            function addedHandler($this_root, $parent,
-                                  $previous_sibling,
-                                  $next_sibling, $element) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($this_root[0], $parent[0]);
-                assert.equal($element[0], $fragment_to_add[0]);
+            function addedHandler(this_root, parent,
+                                  previous_sibling,
+                                  next_sibling, element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(this_root, parent);
+                assert.equal(element, $fragment_to_add[0]);
                 mark.mark("added ul");
             }
             listener.addHandler("added-element", "._real.ul",
                                 addedHandler);
-            function changedHandler($this_root, $added, $removed,
-                                    $previous_sibling, $next_sibling,
-                                    $element) {
+            function changedHandler(this_root, added, removed,
+                                    previous_sibling, next_sibling,
+                                    element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added[0] === $marker[0])
+                if (added[0] === $marker[0])
                     return;
-                assert.equal($this_root[0], $element[0]);
-                assert.equal($removed.length, 0);
-                assert.equal($added.length, 1);
-                assert.equal($added[0], $fragment_to_add[0]);
-                assert.isUndefined($previous_sibling[0]);
-                assert.isUndefined($next_sibling[0]);
+                assert.equal(this_root, element);
+                assert.equal(removed.length, 0);
+                assert.equal(added.length, 1);
+                assert.equal(added[0], $fragment_to_add[0]);
+                assert.isNull(previous_sibling);
+                assert.isNull(next_sibling);
                 mark.mark("children root");
             }
             listener.addHandler("children-changed", "*",
@@ -184,11 +182,11 @@ return function (domlistener, class_name, tree_updater_class) {
             mark = new Mark(2,
                             {"added li": 2},
                             listener, tree_updater, $root, done);
-            function addedHandler($this_root, $parent,
-                                  $previous_sibling,
-                                  $next_sibling, $element) {
-                assert.equal($previous_sibling[0], $element[0].previousSibling);
-                assert.equal($next_sibling[0], $element[0].nextSibling);
+            function addedHandler(this_root, parent,
+                                  previous_sibling,
+                                  next_sibling, element) {
+                assert.equal(previous_sibling, element.previousSibling);
+                assert.equal(next_sibling, element.nextSibling);
                 mark.mark("added li");
             }
             listener.addHandler("added-element", "._real.li",
@@ -216,26 +214,24 @@ return function (domlistener, class_name, tree_updater_class) {
             mark = new Mark(2,
                             {"removed li": 2},
                             listener, tree_updater, $root, done);
-            function removedHandler($this_root, $parent,
-                                    $previous_sibling,
-                                    $next_sibling, $element) {
-                var text = $element[0].firstChild.nodeValue;
+            function removedHandler(this_root, parent,
+                                    previous_sibling,
+                                    next_sibling, element) {
+                var text = element.firstChild.nodeValue;
                 if (text === "A") {
-                    assert.isUndefined($previous_sibling[0],
-                                       "previous sibling of A");
-                    assert.equal($next_sibling[0], $li[1],
+                    assert.isNull(previous_sibling, "previous sibling of A");
+                    assert.equal(next_sibling, $li[1],
                                  "next sibling of A");
                 }
                 else {
                     if (tree_updater)
                         // By the time we get here, B is alone.
-                        assert.isUndefined($previous_sibling[0],
-                                           "previous sibling of B");
+                        assert.isNull(previous_sibling,
+                                      "previous sibling of B");
                     else {
-                        assert.equal($previous_sibling[0], $li[0],
+                        assert.equal(previous_sibling, $li[0],
                                      "previous sibling of B");
-                        assert.isUndefined($next_sibling[0],
-                                           "next sibling of B");
+                        assert.isNull(next_sibling, "next sibling of B");
                     }
                 }
                 mark.mark("removed li");
@@ -271,30 +267,30 @@ return function (domlistener, class_name, tree_updater_class) {
             listener.addHandler("excluded-element", "._real.li",
                                 makeExcludedHandler("li"));
 
-            function removedHandler($this_root, $parent,
-                                    $previous_sibling,
-                                    $next_sibling,
-                                    $element) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($this_root[0], $parent[0]);
-                assert.equal($element[0], $fragment_to_add[0]);
+            function removedHandler(this_root, parent,
+                                    previous_sibling,
+                                    next_sibling,
+                                    element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(this_root, parent);
+                assert.equal(element, $fragment_to_add[0]);
                 mark.mark("removed ul");
             }
             listener.addHandler("removed-element", "._real.ul",
                                 removedHandler);
-            function changedHandler($this_root, $added,
-                                    $removed, $previous_sibling,
-                                    $next_sibling, $element) {
+            function changedHandler(this_root, added,
+                                    removed, previous_sibling,
+                                    next_sibling, element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added[0] === $marker[0])
+                if (added[0] === $marker[0])
                     return;
-                assert.equal($this_root[0], $element[0]);
-                assert.equal($added.length, 0);
-                assert.equal($removed.length, 1);
-                assert.equal($removed[0], $fragment_to_add[0]);
-                assert.isUndefined($previous_sibling[0]);
-                assert.isUndefined($next_sibling[0]);
+                assert.equal(this_root, element);
+                assert.equal(added.length, 0);
+                assert.equal(removed.length, 1);
+                assert.equal(removed[0], $fragment_to_add[0]);
+                assert.isNull(previous_sibling);
+                assert.isNull(next_sibling);
                 mark.mark("children root");
             }
             listener.addHandler("children-changed", "*",
@@ -316,18 +312,17 @@ return function (domlistener, class_name, tree_updater_class) {
             listener.addHandler(
                 "trigger",
                 "test",
-                function ($this_root) {
-                assert.equal($this_root[0], $root[0]);
+                function (this_root) {
+                assert.equal(this_root, $root[0]);
                 mark.mark("triggered test");
             });
             listener.addHandler(
                 "included-element",
                 "._real.li",
-                function ($this_root, $tree, $parent, $previous_sibling,
-                          $next_sibling, $element) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element.length, 1);
-                assert.equal($element[0].className, "_real li");
+                function (this_root, tree, parent, previous_sibling,
+                          next_sibling, element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.className, "_real li");
                 listener.trigger("test");
                 mark.mark("included li");
             });
@@ -353,27 +348,26 @@ return function (domlistener, class_name, tree_updater_class) {
             listener.addHandler(
                 "trigger",
                 "test",
-                function ($this_root) {
-                assert.equal($this_root[0], $root[0]);
+                function (this_root) {
+                assert.equal(this_root, $root[0]);
                 listener.trigger("test2");
                 mark.mark("triggered test");
             });
             listener.addHandler(
                 "trigger",
                 "test2",
-                function ($this_root) {
-                assert.equal($this_root[0], $root[0]);
+                function (this_root) {
+                assert.equal(this_root, $root[0]);
                 mark.mark("triggered test2");
             });
 
             listener.addHandler(
                 "included-element",
                 "._real.li",
-                function ($this_root, $tree, $parent, $previous_sibling,
-                          $next_sibling, $element) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element.length, 1);
-                assert.equal($element[0].className, "_real li");
+                function (this_root, tree, parent, previous_sibling,
+                          next_sibling, element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.className, "_real li");
                 listener.trigger("test");
                 mark.mark("included li");
             });
@@ -394,11 +388,10 @@ return function (domlistener, class_name, tree_updater_class) {
            function (done) {
             mark = new Mark(1, {"text-changed": 1},
                             listener, tree_updater, $root, done);
-            function textChanged($this_root, $element, old_value) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element.length, 1);
-                assert.equal($element.parent()[0].className, "_real li");
-                assert.equal($element[0].nodeValue, "Q");
+            function textChanged(this_root, element, old_value) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.parentNode.className, "_real li");
+                assert.equal(element.nodeValue, "Q");
                 assert.equal(old_value, "A");
                 mark.mark("text-changed");
             }
@@ -425,25 +418,25 @@ return function (domlistener, class_name, tree_updater_class) {
                             listener, tree_updater, $root, done);
             var $li;
             var change_no = 0;
-            function changedHandler($this_root, $added, $removed,
-                                    $previous_sibling, $next_sibling,
-                                    $element) {
+            function changedHandler(this_root, added, removed,
+                                    previous_sibling, next_sibling,
+                                    element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added[0] === $marker[0])
+                if (added[0] === $marker[0])
                     return;
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element[0], $li[0]);
-                assert.equal($added.length, change_no === 0 ? 0 : 1,
+                assert.equal(this_root, $root[0]);
+                assert.equal(element, $li[0]);
+                assert.equal(added.length, change_no === 0 ? 0 : 1,
                              "added elements");
-                assert.equal($removed.length, change_no === 0 ? 1 : 0,
+                assert.equal(removed.length, change_no === 0 ? 1 : 0,
                              "removed elements");
-                assert.isUndefined($previous_sibling[0]);
-                assert.isUndefined($next_sibling[0]);
+                assert.isNull(previous_sibling);
+                assert.isNull(next_sibling);
                 if (change_no === 0)
-                    assert.equal($removed[0].nodeValue, "A");
+                    assert.equal(removed[0].nodeValue, "A");
                 else
-                    assert.equal($added[0].nodeValue, "Q");
+                    assert.equal(added[0].nodeValue, "Q");
                 change_no++;
                 mark.mark("children li");
             }
@@ -468,11 +461,10 @@ return function (domlistener, class_name, tree_updater_class) {
            function (done) {
             mark = new Mark(1, {"attribute-changed": 1},
                             listener, tree_updater, $root, done);
-            function attributeChanged($this_root, $element, ns, name,
+            function attributeChanged(this_root, element, ns, name,
                                       old_value) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element.length, 1);
-                assert.equal($element[0].className, "_real li");
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.className, "_real li");
                 assert.equal(ns, "http://foo.foo/foo");
                 assert.equal(name, "X");
                 assert.equal(old_value, null);
@@ -497,11 +489,10 @@ return function (domlistener, class_name, tree_updater_class) {
            function (done) {
             mark = new Mark(1, {"attribute-changed": 1},
                             listener, tree_updater, $root, done);
-            function attributeChanged($this_root, $element, ns, name,
+            function attributeChanged(this_root, element, ns, name,
                                       old_value) {
-                assert.equal($this_root[0], $root[0]);
-                assert.equal($element.length, 1);
-                assert.equal($element[0].className, "_real li");
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.className, "_real li");
                 assert.equal(ns, "http://foo.foo/foo");
                 assert.equal(name, "X");
                 assert.equal(old_value, "ttt");
@@ -529,15 +520,15 @@ return function (domlistener, class_name, tree_updater_class) {
            function (done) {
             mark = new Mark(1, {"children ul": 1},
                             listener, tree_updater, $root, done);
-            function changedHandler($this_root, $added, $removed,
-                                    $previous_sibling, $next_sibling,
-                                    $element) {
+            function changedHandler(this_root, added, removed,
+                                    previous_sibling, next_sibling,
+                                    element) {
                 // The marker will also trigger this
                 // handler. Ignore it.
-                if ($added[0] === $marker[0])
+                if (added[0] === $marker[0])
                     return;
-                assert.equal($previous_sibling[0], $li[0]);
-                assert.equal($next_sibling[0], $li[1]);
+                assert.equal(previous_sibling, $li[0]);
+                assert.equal(next_sibling, $li[1]);
                 mark.mark("children ul");
             }
             listener.addHandler("children-changed", "._real.ul",
@@ -573,36 +564,29 @@ return function (domlistener, class_name, tree_updater_class) {
                 listener.addHandler(
                     incex + "-element",
                     "._real.li",
-                    function ($this_root, $tree, $parent, $previous_sibling,
-                              $next_sibling, $element) {
-                    assert.equal($this_root[0], $root[0], "root");
-                    assert.equal($element.length, 1, "element length");
-                    assert.equal($element[0].className,
+                    function (this_root, tree, parent, previous_sibling,
+                              next_sibling, element) {
+                    assert.equal(this_root, $root[0], "root");
+                    assert.equal(element.className,
                                  "_real li", "element class");
-                    assert.equal($tree.length, 1, "tree length");
                     // The following tests are against
                     // $fragment rather than $root or
                     // $this_root because by the time the
                     // handler is called, the $root could be
                     // empty!
 
-                    assert.equal($parent.length, 1, "parent length");
-                    if ($tree[0] === $fragment[0]) {
+                    if (tree === $fragment[0]) {
                         mark.mark(incex + " li at root");
-                        assert.equal($parent[0], $root[0], "parent value");
-                        assert.isUndefined($previous_sibling[0],
-                                           "previous sibling");
-                        assert.isUndefined($next_sibling[0], "next sibling");
+                        assert.equal(parent, $root[0], "parent value");
+                        assert.isNull(previous_sibling, "previous sibling");
+                        assert.isNull(next_sibling, "next sibling");
                     }
                     else {
-                        assert.equal($tree[0], $fragment.find(".ul")[0],
-                                    "tree value");
-                        assert.equal($parent[0], $fragment[0]);
-                        assert.equal($previous_sibling[0],
-                                     $fragment.find("p")[0]);
-                        assert.equal($next_sibling[0], $fragment.find("p")[1]);
-                        assert.equal($previous_sibling.length, 1);
-                        assert.equal($next_sibling.length, 1);
+                        assert.equal(tree, $fragment.find(".ul")[0],
+                                     "tree value");
+                        assert.equal(parent, $fragment[0]);
+                        assert.equal(previous_sibling, $fragment.find("p")[0]);
+                        assert.equal(next_sibling, $fragment.find("p")[1]);
                         mark.mark(incex + " li at ul");
                     }
                 });
@@ -648,10 +632,10 @@ return function (domlistener, class_name, tree_updater_class) {
                                 "trigger": 1},
                             listener, tree_updater, $root,
                             function () { marked = true; });
-            function changedHandler($this_root, $added, $removed,
-                                    $previous_sibling, $next_sibling,
-                                    $element) {
-                if ($added[0] === $marker[0])
+            function changedHandler(this_root, added, removed,
+                                    previous_sibling, next_sibling,
+                                    element) {
+                if (added[0] === $marker[0])
                     return;
                 listener.trigger("t");
                 mark.mark("children root");
@@ -693,10 +677,10 @@ return function (domlistener, class_name, tree_updater_class) {
             mark = new Mark(1, {"children root": 1},
                             listener, tree_updater, $root,
                             function () { marked = true; });
-            function changedHandler($this_root, $added, $removed,
-                                    $previous_sibling, $next_sibling,
-                                    $element) {
-                if ($added[0] === $marker[0])
+            function changedHandler(this_root, added, removed,
+                                    previous_sibling, next_sibling,
+                                    element) {
+                if (added[0] === $marker[0])
                     return;
                 listener.trigger("t");
                 mark.mark("children root");

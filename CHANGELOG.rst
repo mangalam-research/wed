@@ -36,6 +36,12 @@ Only salient changes are recorded here.
   - API: ``Decorator.listDecorator`` now takes a ``Node`` rather than
     a ``jQuery``.
 
+  - API: The handlers for all ``domlistener.Listener`` objects now
+    receive DOM nodes rather than ``jQuery`` objects.
+
+  - API: ``domlistener.Listener`` objects no longer accept jQuery
+    selectors. They must be pure CSS now.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
