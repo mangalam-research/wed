@@ -48,6 +48,8 @@ Only salient changes are recorded here.
   - API: ``mode.makePlaceholderFor`` returns a ``Node`` rather than a
     ``jQuery``.
 
+  - API: The ``dloc`` API no longer accepts jQuery objects.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
