@@ -418,11 +418,15 @@ endif
 	mocha $(MOCHA_PARAMS)
 
 .PHONY: selenium-test
-selenium-test: build | build-test-files
+selenium-test: build-config
+	python misc/check_selenium_config.py
+	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: selenium_test/%.feature
-selenium_test/%.feature: build | build-test-files
+selenium_test/%.feature: build-config
+	python misc/check_selenium_config.py
+	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) $@
 
 .PHONY: doc

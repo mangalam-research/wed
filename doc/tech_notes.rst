@@ -362,20 +362,25 @@ Selenium-Based Tests
 
 Everything that follows is specific to wed. You need to have `selenic
 <http://github.com/mangalam-research/selenic>`_ installed and
-available on your ``PYTHONPATH``. Read its documentation. Then you
-need to create a ``config/selenium_local_config.py`` file. Use one of
-the example files provided with selenic. Add the following
-variable to your ``local_config/selenium_local_config.py`` file::
+available on your ``PYTHONPATH``. Read its documentation.  You also
+need to have `wedutil <http://github.com/mangalam-research/wedutil>`_
+installed and available on your ``PYTHONPATH``.
 
-    # Location of our server
-    WED_SERVER = "http://localhost:8888/build/standalone/kitchen-sink.html"
+It is very likely that you'll want to override some of the values in
+:github:`config/selenium_config.py` by creating
+``local_config/selenium_config.py`` that loads the default file but
+override or adds some values. For instance::
 
-Change ``standalone`` to ``standalone-optimized`` if you want to use
-the optimized bundle.
+    # If used, must appear before the default file is loaded. The
+    # default is to not log anything.
+    LOGS = True
 
-You also need to have `wedutil
-<http://github.com/mangalam-research/wedutil>`_ installed and
-available on your ``PYTHONPATH``.
+    # Load the default file
+    execfile("config/selenium_config.py")
+
+    # Add some local values...
+    SAUCELABS_CREDENTIALS = "foo:bar"
+    CHROMEDRIVER_PATH = ".../selenium/chromedriver"
 
 To run the Selenium-based tests, you can run either
 ``server.js`` *or* an nginx-based server. The latter option is
@@ -393,22 +398,34 @@ puts all of the things that would go in ``/var/`` if it was started by
 the OS in the ``var/`` directory that sits at the top of the code
 tree. Look there for logs. This nginx instance uses the configuration
 built at ``build/config/nginx.conf`` from
-``config/nginx.conf``. Remember that if you want to override the
-configuration, the proper way to do it is to copy the configuration
-file into ``local_config/`` and edit it there. Run ``make`` again after
-you have made modifications. The only processing done on nginx's file is to
-replace instances of ``@PWD@`` with the top of the code tree.
+``config/nginx.conf``.
+
+.. warning:: Remember that if you want to override the configuration,
+             the proper way to do it is to copy the configuration file
+             into ``local_config/`` and edit it there.
+
+Run ``make`` again after you have made modifications. The only
+processing done on nginx's file is to replace instances of ``@PWD@``
+with the top of the code tree.
 
 Finally, to run the suite issue::
 
-    $ make selenium-test
+    $ make selenium-test TEST_BROWSER=<platform>,<browser>,<version>
 
 To run the suite while using the SauceLab servers, run::
 
-    $ make SELENIUM_SAUCELABS=1 selenium-test
+    $ make SELENIUM_SAUCELABS=1 selenium-test TEST_BROWSER=...
 
 Behind the scenes, this will launch behave. See the makefile
 :github:`build.mk` for information about how behave is run.
+
+The ``TEST_BROWSER`` variable determines which browser will run the
+test. You may omit any of ``platform``, ``browser`` or ``versions`` so
+long as the parts that are specified are enough to match a **single**
+configuration defined in :github:`config/selenium_config.py`. See the
+list of configurations there to see what has been configured. If you
+want something different from the list there, you'll have to configure
+it in the copy you made into ``local_config``.
 
 The environment variable ``BEHAVE_WAIT_BETWEEN_STEPS`` can be set to a
 numerical value in seconds to get behave to stop between steps. It

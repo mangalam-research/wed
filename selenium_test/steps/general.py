@@ -21,8 +21,8 @@ def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
     no_before_unload(context)
     driver = context.driver
     util = context.util
-    config = context.selenic_config
-    server = config.WED_SERVER + "?mode=test"
+    builder = context.selenic
+    server = builder.WED_SERVER + "?mode=test"
     if text is not None:
         server = server + "&file=" + text
 
@@ -52,7 +52,7 @@ def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
 
     # For some reason, FF does not get focus automatically.
     # This counters the problem.
-    if config.BROWSER == "FIREFOX":
+    if builder.config.browser == "FIREFOX":
         body = driver.find_element_by_css_selector(".wed-document")
         ActionChains(driver) \
             .move_to_element_with_offset(body, 1, 1) \

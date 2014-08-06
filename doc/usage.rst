@@ -203,8 +203,9 @@ suite, is located in :github:`config/requirejs-config-dev.js`.
 
 .. warning:: If you want to change this configuration for
              experimentation or to match your local setup, please copy
-             it to the ``<local_config>`` directory and edit it
-             *there*. This directory is not tracked by git.
+             it to the ``local_config`` directory and edit it
+             *there*. This directory is not tracked by git. This is
+             true of all files that are stored in :github:`config/`.
 
 Please see the :github:`package.json`,
 :github:`config/requirejs-config-dev.js`, :github:`Makefile` and

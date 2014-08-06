@@ -6,30 +6,31 @@ from nose.tools import assert_raises, assert_true
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
 
+from selenic import Builder
 import selenic.util
-import wedutil
 
 _dirname = os.path.dirname(__file__)
 
-local_conf_path = os.path.join(os.path.dirname(_dirname),
-                               "build", "config", "selenium_local_config.py")
-
 conf_path = os.path.join(os.path.dirname(_dirname),
-                         "build", "config", "selenium_test_config.py")
+                         "build", "config", "selenium_config.py")
 
-conf = {"__file__": conf_path}
-execfile(conf_path, conf)
+builder = Builder(conf_path)
 
-config = conf["Config"](local_conf_path)
+
+def dump_config():
+    print "***"
+    print builder.config
+    print "***"
 
 
 def before_all(context):
-    driver = config.get_driver()
+    dump_config()
+    driver = builder.get_driver()
     context.driver = driver
     context.util = selenic.util.Util(driver,
                                      # Give more time if we are remote.
-                                     4 if config.remote else 2)
-    context.selenic_config = config
+                                     4 if builder.remote else 2)
+    context.selenic = builder
     # Without this, window sizes vary depending on the actual browser
     # used.
     context.initial_window_size = {"width": 1020, "height": 560}
@@ -130,8 +131,9 @@ def after_step(context, _step):
 
 def after_all(context):
     driver = context.driver
-    config.set_test_status(driver.session_id, not context.failed)
+    builder.set_test_status(driver.session_id, not context.failed)
     selenium_quit = os.environ.get("SELENIUM_QUIT")
     if not ((selenium_quit == "never") or
             (context.failed and selenium_quit == "on-success")):
         driver.quit()
+    dump_config()
