@@ -477,10 +477,24 @@ def step_impl(context):
     assert_equal(test_browser, config.browser)
     assert_equal(test_version, config.version)
 
+    #
     # Test that the browsers module is able to detect what it needs
-    # correctly.
-    browsers = context.driver.execute_async_script("""
-    require(["wed/browsers"], arguments[0]);
+    # correctly, and that the platform is patched as needed.
+    #
+    # Note that the tests for matches() are not meant to exhaustively
+    # test the browser.
+    #
+    browsers, match_tests = context.driver.execute_async_script("""
+    var done = arguments[0];
+    require(["wed/browsers"], function (browsers) {
+        var match_tests = [];
+        function match_test(name, result) {
+            match_tests.push({name: name, result: result});
+        }
+        match_test("positive match", document.body.matches("body"));
+        match_test("negative match", !document.body.matches("foo"));
+        done([browsers,  match_tests]);
+    });
     """)
     expected_values = _BROWSER_TO_VALUES[config.browser]
 
@@ -497,3 +511,5 @@ def step_impl(context):
         expected_values[u"OSX"] = True
 
     assert_equal(browsers, expected_values)
+    for result in match_tests:
+        assert_true(result[u"result"], result[u"name"] + " should be true")

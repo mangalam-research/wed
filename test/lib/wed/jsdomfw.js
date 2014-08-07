@@ -16,6 +16,7 @@ var html = '<html>\
   <head>\
     <base href="@BASE@"></base>\
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>\
+    <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>\
     <script type="text/javascript" src="lib/requirejs/require.js"></script>\
     <script type="text/javascript" src="requirejs-config.js"></script>\
     <link rel="stylesheet" href="lib/external/bootstrap/css/bootstrap.min.css"></link>\
