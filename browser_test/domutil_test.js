@@ -1070,6 +1070,68 @@ describe("domutil", function () {
 
     });
 
+    describe("childrenByClass", function () {
+        var root = document.getElementById("domroot");
+        var a, b, first_li, ul;
+        before(function () {
+            root.innerHTML = '<ul><li>a</li><li class="a"></li><li></li>'+
+                '<li class="b"></li><li></li><li class="a"></li></ul>';
+            ul = root.getElementsByTagName("ul")[0];
+            b = root.getElementsByClassName("b");
+            a = root.getElementsByClassName("a");
+            first_li = root.getElementsByTagName("li")[0];
+        });
+
+        it("returns [] when node is null", function () {
+            assert.sameMembers(domutil.childrenByClass(null, "foo"), []);
+        });
+
+        it("returns [] when the node is not an element", function () {
+            var text = first_li.firstChild;
+            assert.equal(text.nodeType, Node.TEXT_NODE);
+            assert.sameMembers(domutil.childrenByClass(text, "foo"), []);
+        });
+
+        it("returns [] when nothing matches", function () {
+            assert.sameMembers(domutil.childrenByClass(ul, "foo"), []);
+        });
+
+        it("returns a match", function () {
+            assert.sameMembers(domutil.childrenByClass(ul, "a"),
+                               Array.prototype.slice.call(a));
+        });
+    });
+
+    describe("childByClass", function () {
+        var root = document.getElementById("domroot");
+        var a, b, first_li, ul;
+        before(function () {
+            root.innerHTML = '<ul><li>a</li><li class="a"></li><li></li>'+
+                '<li class="b"></li><li></li><li class="a"></li></ul>';
+            ul = root.getElementsByTagName("ul")[0];
+            b = root.getElementsByClassName("b");
+            a = root.getElementsByClassName("a");
+            first_li = root.getElementsByTagName("li")[0];
+        });
+
+        it("returns null when node is null", function () {
+            assert.isNull(domutil.childByClass(null, "foo"));
+        });
+
+        it("returns null when the node is not an element", function () {
+            var text = first_li.firstChild;
+            assert.equal(text.nodeType, Node.TEXT_NODE);
+            assert.isNull(domutil.childByClass(text, "foo"));
+        });
+
+        it("returns null when nothing matches", function () {
+            assert.isNull(domutil.childByClass(ul, "foo"));
+        });
+
+        it("returns the first match when something matches", function () {
+            assert.equal(domutil.childByClass(ul, "a"), a[0]);
+        });
+    });
 });
 
 });
