@@ -1612,7 +1612,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 assert.equal(
                     // Normalize all spaces to a regular space with
                     // ``replace``.
-                    editor._$wed_location_bar.text().replace(/\s+/g, ' '),
+                    editor._wed_location_bar.textContent.replace(/\s+/g, ' '),
                     " TEI / teiHeader / fileDesc / publicationStmt / p ");
             });
 
@@ -1628,7 +1628,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 assert.equal(
                     // Normalize all spaces to a regular space with
                     // ``replace``.
-                    editor._$wed_location_bar.text().replace(/\s+/g, ' '),
+                    editor._wed_location_bar.textContent.replace(/\s+/g, ' '),
                     " TEI / text / body / p / ref ");
             });
         });
