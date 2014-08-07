@@ -127,6 +127,4 @@ FIREFOX_PROFILE = profile
 # standalone-optimized will run the tests on the non-optimized version
 # of the code.
 #
-WED_SERVER = \
-    "http://localhost:8888/forever/build/standalone-optimized/" \
-    "kitchen-sink.html"
+WED_SERVER = "http://localhost:8888/forever/build/standalone-optimized"

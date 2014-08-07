@@ -1,3 +1,5 @@
+import urllib
+
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -22,7 +24,7 @@ def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
     driver = context.driver
     util = context.util
     builder = context.selenic
-    server = builder.WED_SERVER + "?mode=test"
+    server = builder.WED_SERVER + "/kitchen-sink.html?mode=test"
     if text is not None:
         server = server + "&file=" + text
 
@@ -414,3 +416,84 @@ def step_impl(context):
     """)
 
     el.click()
+
+
+@given("the platform variation page is loaded")
+def step_impl(context):
+    no_before_unload(context)
+    config = context.selenic.config
+    context.driver.get(context.selenic.WED_SERVER +
+                       "/platform_test.html?platform=" +
+                       urllib.quote(config.platform) +
+                       "&browser=" + urllib.quote(config.browser) +
+                       "&version=" + urllib.quote(config.version))
+
+# These are the basic templates for each browser. The values are later
+# adjusted during the test to take into account version numbers or OS.
+_BROWSER_TO_VALUES = {
+    "CHROME": {
+        u"CHROME_31": False,
+        u"FIREFOX": False,
+        u"GECKO": False,
+        u"MSIE_TO_10": False,
+        u"MSIE_11_AND_UP": False,
+        u"MSIE": False,
+        u"OSX": False,
+    },
+    "FIREFOX": {
+        u"CHROME_31": False,
+        u"FIREFOX": True,
+        u"GECKO": True,
+        u"MSIE_TO_10": False,
+        u"MSIE_11_AND_UP": False,
+        u"MSIE": False,
+        u"OSX": False,
+    },
+    "INTERNETEXPLORER": {
+        u"CHROME_31": False,
+        u"FIREFOX": False,
+        u"GECKO": False,
+        u"MSIE_TO_10": False,
+        u"MSIE_11_AND_UP": False,
+        u"MSIE": True,
+        u"OSX": False,
+    }
+}
+
+
+@then("wed handles platform variations")
+def step_impl(context):
+    config = context.selenic.config
+    util = context.util
+
+    # Check that the parameters were properly passed.
+    test_platform, test_browser, test_version = \
+        context.driver.execute_script("""
+        return [window.test_platform, window.test_browser,
+                window.test_version];
+        """)
+
+    assert_equal(test_platform, config.platform)
+    assert_equal(test_browser, config.browser)
+    assert_equal(test_version, config.version)
+
+    # Test that the browsers module is able to detect what it needs
+    # correctly.
+    browsers = context.driver.execute_async_script("""
+    require(["wed/browsers"], arguments[0]);
+    """)
+    expected_values = _BROWSER_TO_VALUES[config.browser]
+
+    if config.browser == "CHROME":
+        if config.version == "31":
+            expected_values[u"CHROME_31"] = True
+    elif config.browser == "INTERNETEXPLORER":
+        if int(config.version) <= 10:
+            expected_values[u"MSIE_TO_10"] = True
+        else:
+            expected_values[u"MSIE_11_AND_UP"] = True
+
+    if config.platform.startswith("OS X "):
+        expected_values[u"OSX"] = True
+
+    assert_equal(browsers, expected_values)
