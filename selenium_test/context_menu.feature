@@ -54,7 +54,7 @@ Scenario: clicking on a menu item which appears outside the editor pane.
   # the editor window.
   Then a choice for creating a new note after this element is below the editor pane
   When the user clicks a choice for creating a new note
-  Then the caret is in the last note element
+  Then the caret is in the last "note" element
 
 Scenario: bringing up the context menu with the mouse on text.
   When the user uses the mouse to bring up the context menu on text

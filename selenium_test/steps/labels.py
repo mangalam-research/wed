@@ -13,7 +13,7 @@ def get_labels_stats(driver):
     return driver.execute_script("""
     var $labels = jQuery(".wed-document ._label");
     return [$labels.length, $labels.filter(function () {
-        return this.style['display'] != "none";
+        return window.getComputedStyle(this, null).display != "none";
     }).length];
     """)
 

@@ -108,16 +108,10 @@ def step_impl(context):
     assert_equal(util.get_selection_text(), context.expected_selection)
 
 
-@then(u"the caret is in the last note element")
-def step_impl(context):
-    util = context.util
-
-    wedutil.wait_for_caret_to_be_in(util, ".body .note:last")
-
-
 @when(u"^the user clicks on "
       u"(?P<what>an element's label|the end label of an element|"
-      u"the end label of the last paragraph)$")
+      u'the end label of the last paragraph|'
+      u'the end label of the first "addrLine" element)$')
 def step_impl(context, what):
     driver = context.driver
     util = context.util
@@ -126,6 +120,8 @@ def step_impl(context, what):
         selector = ".__end_label._title_label"
     elif what == "the end label of the last paragraph":
         selector = ".body .__end_label._p_label:last"
+    elif what == 'the end label of the first "addrLine" element':
+        selector = ".__end_label._addrLine_label"
     else:
         raise Exception("unknown choice: " + what)
 
