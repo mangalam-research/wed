@@ -1030,6 +1030,46 @@ describe("domutil", function () {
         });
     });
 
+    describe("siblingByClass", function () {
+        var root = document.getElementById("domroot");
+        var a, b, first_li;
+        before(function() {
+            root.innerHTML = '<ul><li>a</li><li class="a"></li><li></li>'+
+                '<li class="b"></li><li></li><li class="a"></li></ul>';
+            b = root.getElementsByClassName("b");
+            a = root.getElementsByClassName("a");
+            first_li = root.getElementsByTagName("li")[0];
+        });
+
+        it("returns null when node is null", function () {
+            assert.isNull(domutil.siblingByClass(null, "foo"));
+        });
+
+        it("returns null when the node is not an element", function () {
+            var text = first_li.firstChild;
+            assert.equal(text.nodeType, Node.TEXT_NODE);
+            assert.isNull(domutil.siblingByClass(text, "foo"));
+        });
+
+        it("returns null when the node has no parent", function () {
+            assert.isNull(domutil.siblingByClass(document.createElement("q"),
+                                                 "foo"));
+        });
+
+        it("returns null when nothing matches", function () {
+            assert.isNull(domutil.siblingByClass(first_li, "foo"));
+        });
+
+        it("returns a match when a preceding sibling matches", function () {
+            assert.equal(domutil.siblingByClass(b[0], "a"), a[0]);
+        });
+
+        it("returns a match when a following sibling matches", function () {
+            assert.equal(domutil.siblingByClass(a[0], "b"), b[0]);
+        });
+
+    });
+
 });
 
 });
