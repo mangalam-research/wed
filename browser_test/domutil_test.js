@@ -964,6 +964,38 @@ describe("domutil", function () {
         });
     });
 
+    describe("closest", function () {
+        var root = document.getElementById("domroot");
+        var p, text;
+        before(function () {
+            root.innerHTML = '<div class="text"><div class="body">' +
+                '<div class="p">aaa</div></div></div>';
+            p = root.getElementsByClassName("p")[0];
+            text = root.getElementsByClassName("text")[0];
+        });
+
+        it("returns null when node is null", function () {
+            assert.isNull(domutil.closest(null, "foo"));
+        });
+
+        it("returns a value when there is a match", function () {
+            assert.equal(domutil.closest(p, ".text"), text);
+        });
+
+        it("initially moves out of text nodes", function () {
+            var text_node = p.firstChild;
+            assert.equal(text_node.nodeType, Node.TEXT_NODE);
+            assert.equal(domutil.closest(text_node, ".text"), text);
+        });
+
+        it("returns null when there is no match", function () {
+            assert.isNull(domutil.closest(p, "FOO"));
+        });
+
+        it("returns null when it hits nothing before the limit", function () {
+            assert.isNull(domutil.closest(p, ".text", p.parentNode));
+        });
+    });
 });
 
 });
