@@ -55,9 +55,9 @@ describe("InputTrigger", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
         var $p = editor.$data_root.find(".p").last();
-        input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
+        input_trigger.addKeyHandler(key.makeKey(";"), function (type, el) {
             assert.equal(type, "paste");
-            assert.equal($el[0], $p[0]);
+            assert.equal(el, $p[0]);
             seen++;
         });
         // Synthetic event
@@ -80,9 +80,9 @@ describe("InputTrigger", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
         input_trigger.addKeyHandler(key_constants.ENTER,
-                                    function (type, $el, ev) {
+                                    function (type, el, ev) {
             assert.equal(type, "keydown");
-            assert.equal($el[0], editor.$data_root.find(".p").get(-1));
+            assert.equal(el, editor.$data_root.find(".p").get(-1));
             ev.stopImmediatePropagation();
             seen++;
         });
@@ -97,9 +97,9 @@ describe("InputTrigger", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
         input_trigger.addKeyHandler(key.makeKey(";"),
-                                    function (type, $el, ev) {
+                                    function (type, el, ev) {
             assert.equal(type, "keypress");
-            assert.equal($el[0], editor.$data_root.find(".p").get(-1));
+            assert.equal(el, editor.$data_root.find(".p").get(-1));
             ev.stopImmediatePropagation();
             seen++;
         });
@@ -115,9 +115,9 @@ describe("InputTrigger", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
         var $p = editor.$data_root.find(".p").last();
-        input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
+        input_trigger.addKeyHandler(key.makeKey(";"), function (type, el) {
             assert.equal(type, "children-changed");
-            assert.equal($el[0], $p[0]);
+            assert.equal(el, $p[0]);
             seen++;
         });
         var text = document.createTextNode("abcdef");
@@ -128,9 +128,9 @@ describe("InputTrigger", function () {
     it("does not trigger on unimportant input events", function () {
         var input_trigger = new InputTrigger(editor, ".p");
         var seen = 0;
-        input_trigger.addKeyHandler(key.makeKey(";"), function (type, $el) {
+        input_trigger.addKeyHandler(key.makeKey(";"), function (type, el) {
             assert.equal(type, "keydown");
-            assert.equal($el[0], editor.$data_root.find(".p").get(-1));
+            assert.equal(el, editor.$data_root.find(".p").get(-1));
             seen++;
         });
 
@@ -145,7 +145,7 @@ describe("InputTrigger", function () {
            var input_trigger = new InputTrigger(editor, ".p");
            var seen = 0;
            var DELETE = key_constants.DELETE;
-           input_trigger.addKeyHandler(DELETE, function (type, $el) {
+           input_trigger.addKeyHandler(DELETE, function (type, el) {
                seen++;
            });
 
@@ -164,7 +164,7 @@ describe("InputTrigger", function () {
            var input_trigger = new InputTrigger(editor, ".p");
            var seen = 0;
            var DELETE = key_constants.DELETE;
-           input_trigger.addKeyHandler(DELETE, function (type, $el) {
+           input_trigger.addKeyHandler(DELETE, function (type, el) {
                seen++;
            });
 

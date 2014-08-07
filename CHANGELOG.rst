@@ -50,6 +50,12 @@ Only salient changes are recorded here.
 
   - API: The ``dloc`` API no longer accepts jQuery objects.
 
+  - API: ``InputTrigger`` objects now expect CSS selectors rather than
+    jQuery selectors.
+
+  - API: ``InputTrigger`` event handlers take DOM ``Element`` objects
+    rather than ``jQuery`` objects.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
