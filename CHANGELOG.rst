@@ -6,6 +6,8 @@ Only salient changes are recorded here.
 
 * 0.18.0:
 
+  - wed now bundles with jQuery 2.1.1.
+
   - API: ``Mode.getContextualMenuItems`` has been removed. This was a
     function that was added very early on and that has since been
     subsumed by other methods, like ``Mode.getContextualActions``.
