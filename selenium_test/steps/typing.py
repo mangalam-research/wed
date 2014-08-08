@@ -15,7 +15,7 @@ import wedutil
 def step_impl(context):
     driver = context.driver
     element, context.emptied_element = driver.execute_script("""
-    var el = jQuery(".__start_label._title_label")[0];
+    var el = document.querySelector(".__start_label._title_label");
     return [el, el.parentNode];
     """)
 
