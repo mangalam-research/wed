@@ -58,6 +58,8 @@ Only salient changes are recorded here.
   - API: ``InputTrigger`` event handlers take DOM ``Element`` objects
     rather than ``jQuery`` objects.
 
+  - API: ``Editor.$sidebar`` is gone. It was never meant to be public.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
