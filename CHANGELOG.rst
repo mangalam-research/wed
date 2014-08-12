@@ -62,6 +62,14 @@ Only salient changes are recorded here.
 
   - API: Introduced the ``gui/icon`` module.
 
+  - API: ``transformation.Transformation`` now has an additional ``type``
+    parameter which indicates the type of transformation. **Code must
+    be changed to take care of this.**
+
+  - API: ``transformation.Transformation`` now computes an icon on the
+    basis of the ``type`` parameter passed to it. So in many cases it
+    is not necessary to give an icon.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
