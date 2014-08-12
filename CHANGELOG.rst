@@ -60,6 +60,8 @@ Only salient changes are recorded here.
 
   - API: ``Editor.$sidebar`` is gone. It was never meant to be public.
 
+  - API: Introduced the ``gui/icon`` module.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
