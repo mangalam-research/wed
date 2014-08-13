@@ -6,6 +6,9 @@ Only salient changes are recorded here.
 
 * 0.18.0:
 
+  - This version is a major reworking of wed. This is where old APIs
+    are broken.
+
   - wed now bundles with jQuery 2.1.1.
 
   - API: ``Mode.getContextualMenuItems`` has been removed. This was a
