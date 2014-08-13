@@ -114,3 +114,88 @@ Scenario: bringing up the context menu when there is no caret
   When the user clicks outside the editor pane
   And the user uses the keyboard to bring up the context menu
   Then a context menu is not visible
+
+Scenario: selecting an option by hitting ENTER when there is no option focused
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the first context menu option is "Element's documentation."
+  When the user types ENTER
+  Then a second window (or tab) is open
+
+Scenario: filtering on operations that add content
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains options of the kinds "add", "delete", "unwrap" and others
+  When the user clicks on the filter to show only "add" options
+  Then the context menu contains options of the kind "add"
+
+Scenario: filtering on operations that delete content
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains options of the kinds "add", "delete", "unwrap" and others
+  When the user clicks on the filter to show only "delete" options
+  Then the context menu contains options of the kind "delete"
+
+Scenario: filtering on operations that unwrap content
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains options of the kinds "add", "delete", "unwrap" and others
+  When the user clicks on the filter to show only "unwrap" options
+  Then the context menu contains options of the kind "unwrap"
+
+Scenario: filtering on other operations
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains options of the kinds "add", "delete", "unwrap" and others
+  When the user clicks on the filter to show only other options
+  Then the context menu contains options of the other kind
+
+Scenario: filtering on operations that wrap content
+  Given that the user has brought up the context menu over a selection
+  Then the context menu contains options of the kinds "delete", "wrap", "unwrap" and others
+  When the user clicks on the filter to show only "wrap" options
+  Then the context menu contains options of the kind "wrap"
+
+Scenario: filtering on element names
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains more than one option
+  When the user types "abbr"
+  Then the context menu contains only the option "Create new abbr"
+
+Scenario: BACKSPACE removes letters from the text filter
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains more than one option
+  When the user types "abbr"
+  Then the context menu contains only the option "Create new abbr"
+  When the user types BACKSPACE
+  When the user types BACKSPACE
+  When the user types BACKSPACE
+  Then the context menu contains more than one option
+
+Scenario: ESCAPE resets the text filtering
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains more than one option
+  When the user types "abbr"
+  Then the context menu contains only the option "Create new abbr"
+  When the user types ESCAPE
+  Then the context menu contains more than one option
+
+Scenario: ESCAPE resets the kind filtering
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu contains options of the kinds "add", "delete", "unwrap" and others
+  When the user clicks on the filter to show only "add" options
+  Then the context menu contains options of the kind "add"
+  When the user types ESCAPE
+  Then the context menu contains options of the kinds "add", "delete", "unwrap" and others
+
+Scenario: ESCAPE twice, when filtering, exits the menu
+  When the user uses the mouse to bring up the context menu on a placeholder
+  And the user clicks on the filter to show only "add" options
+  And the user types ESCAPE
+  Then the context menu is visible
+  When the user types ESCAPE
+  Then the context menu is not visible
+
+Scenario: filtering on element names by regular expression
+  When the user uses the mouse to bring up the context menu on a placeholder
+  Then the context menu is visible
+  When the user types "hi"
+  Then the context menu contains 3 options
+  When the user types ESCAPE
+  And the user types "^hi"
+  Then the context menu contains only the option "Create new hi"

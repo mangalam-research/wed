@@ -1,4 +1,5 @@
 @import "wed-vars.less";
+@import (less,reference) "../../build/standalone/lib/external/bootstrap/css/bootstrap.css";
 
 * {
    -webkit-box-sizing: border-box;
@@ -33,8 +34,22 @@
     z-index: 3;
 
     .dropdown-menu {
-            overflow-y: auto;
+        overflow-y: auto;
+
+        .btn-group>.btn {
+            // Bootstrap 3.x sets it to ``float: left`` by
+            // default. With the default value, a button group
+            // appearing in a menu item will be split on multiple
+            // lines. ``float: none`` prevents this.
+            float: none;
+        }
+
+        // This makes it so that the div we sometimes add to some
+        // context menu is formatted just like a regular menu
+        // item. (Same padding, etc.)
+        li>div:extend(.dropdown-menu>li>a) {}
     }
+
 
     .fa-times, .fa-caret-square-o-up {
         color: red;

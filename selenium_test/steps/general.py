@@ -4,7 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 import selenium.webdriver.support.expected_conditions as EC
-from nose.tools import assert_true, assert_equal  # pylint: disable=E0611
+# pylint: disable=E0611
+from nose.tools import assert_true, assert_equal, assert_not_equal
 from selenium.webdriver.common.keys import Keys
 
 import wedutil
@@ -90,6 +91,13 @@ def step_impl(context):
     driver.execute_script("window.open('http://www.google.com')")
     driver.switch_to_window([x for x in driver.window_handles
                              if x != context.initial_window_handle][0])
+
+
+@then("a second window (or tab) is open")
+def step_impl(context):
+    util = context.util
+
+    util.wait(lambda driver: len(driver.window_handles) == 2)
 
 
 @when("the user goes back to the initial window")

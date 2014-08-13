@@ -1,7 +1,10 @@
+import re
+
 from selenium.webdriver.common.action_chains import ActionChains
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.wait import TimeoutException
 
 import selenic.util
 
@@ -10,7 +13,8 @@ from nose.tools import assert_equal, assert_true, \
 
 import wedutil
 
-from selenium_test.util import Trigger, get_element_parent_and_parent_text
+from ..util import Trigger, get_element_parent_and_parent_text, \
+    get_real_siblings
 
 step_matcher("re")
 
@@ -293,8 +297,8 @@ def context_choices_insert(context):
     """, item), "Outside editor panel")
 
 
-@Given("a context menu is not visible")
-@Then("a context menu is not visible")
+@Given("(?:a|the) context menu is not visible")
+@Then("(?:a|the) context menu is not visible")
 def context_menu_is_not_visible(context):
     wedutil.wait_until_a_context_menu_is_not_visible(context.util)
 
@@ -312,6 +316,12 @@ def step_impl(context):
     target["top"] += size["height"] / 2
     assert_equal(selenic.util.locations_within(
         util.element_screen_position(menu), target, 10), '')
+
+
+@Then("^(?:a|the) context menu is visible$")
+def step_impl(context):
+    util = context.util
+    util.find_element((By.CLASS_NAME, "wed-context-menu"))
 
 
 @Then("a context menu is visible and completely inside the window")
@@ -477,10 +487,8 @@ def step_impl(context, choice, new):
         info = {}
         context.context_menu_pre_transformation_info = info
         if choice in ("before", "after"):
-            info["preceding"] = for_element.find_elements_by_xpath(
-                "preceding-sibling::*")
-            info["following"] = for_element.find_elements_by_xpath(
-                "following-sibling::*")
+            info["preceding"], info["following"] = \
+                get_real_siblings(driver, for_element)
         elif choice == "new":
             info["children"] = driver.execute_script("""
             return jQuery(arguments[0]).children("._real").toArray();
@@ -488,6 +496,16 @@ def step_impl(context, choice, new):
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
     link.click()
+
+
+@then(u'^the first context menu option is "(?P<text>.*?)"$')
+def step_impl(context, text):
+    driver = context.driver
+
+    actual = driver.execute_script("""
+    return document.querySelector(".wed-context-menu li>a").textContent.trim();
+    """)
+    assert_equal(actual, text)
 
 
 @when(u'^the user moves with the keyboard to a choice '
@@ -522,3 +540,105 @@ def step_impl(context):
 
     context.context_menu_trigger = Trigger(util, where)
     context.context_menu_for = where
+
+
+kinds_re = re.compile(r"(?:\s*,\s*|\s+and\s+)")
+kind_cleanup_re = re.compile(r"(?:^['\"]|['\"]$)")
+
+
+@then(ur"^the context menu contains options of the (?:kinds? (?P<ks>.*?)|"
+      ur"other kind)\.?$")
+def step_impl(context, ks=None):
+    if ks:
+        kinds_expected = set([kind_cleanup_re.sub('', k)
+                              for k in kinds_re.split(ks)])
+    else:
+        kinds_expected = set()
+        kinds_expected.add("others")
+
+    # We reuse this set for diagnosis purposes...
+    kinds = set()
+
+    def cond(driver):
+        links = driver.execute_script("""
+        var els = document.querySelectorAll(".wed-context-menu li>a");
+        var ret = [];
+        for(var i = 0, el; (el = els[i]) !== undefined; ++i)
+            ret.push(el.textContent.trim());
+        return ret;
+        """)
+
+        kinds.clear()
+        for link in links:
+            if link.startswith("Create new"):
+                kinds.add("add")
+            elif link.startswith("Delete "):
+                kinds.add("delete")
+            elif link.startswith("Element's documentation"):
+                kinds.add("others")
+            elif link.startswith("Unwrap "):
+                kinds.add("unwrap")
+            elif link.startswith("Wrap "):
+                kinds.add("wrap")
+            else:
+                raise Exception("can't analyse link: " + link)
+
+        return kinds == kinds_expected
+
+    try:
+        context.util.wait(cond)
+    except TimeoutException:
+        # This provides better diagnosis than a timeout error...
+        assert_equal(kinds, kinds_expected)
+
+KIND_TO_INDEX = ["all", "add", "delete", "wrap", "unwrap", "other"]
+
+
+@when(ur'^the user clicks on the filter to show only (?P<kind>.*?) options$')
+def step_impl(context, kind):
+    driver = context.driver
+    kind = kind_cleanup_re.sub('', kind)
+    try:
+        index = KIND_TO_INDEX.index(kind)
+    except ValueError:
+        raise ValueError("can't process kind: " + kind)
+
+    buttons = driver.find_elements_by_css_selector(
+        ".wed-context-menu li:first-child button")
+
+    buttons[index].click()
+
+
+@then(ur'^the context menu contains only the option "(?P<option>.*?)"$')
+def step_impl(context, option):
+
+    def cond(driver):
+        links = driver.execute_script("""
+        var els = document.querySelectorAll(".wed-context-menu li>a");
+        var ret = [];
+        for(var i = 0, el; (el = els[i]) !== undefined; ++i)
+            ret.push(el.textContent.trim());
+        return ret;
+        """)
+
+        return links == [option]
+
+    context.util.wait(cond)
+
+
+@then(ur'^the context menu contains (?P<choice>more than one option|'
+      '3 options)$')
+def step_impl(context, choice):
+
+    if choice == "more than one option":
+        def cond(driver):
+            els = driver.find_elements_by_css_selector(
+                ".wed-context-menu li>a")
+            return len(els) > 1
+    else:
+        def cond(driver):
+            els = driver.find_elements_by_css_selector(
+                ".wed-context-menu li>a")
+            return len(els) == 3
+
+    context.util.wait(cond)

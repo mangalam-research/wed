@@ -266,8 +266,11 @@ build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	cp $< $@
 
-build/standalone/lib/%.css: lib/%.less lib/wed/less-inc/*
-	lessc --include-path=./lib/wed/less-inc/ $< $@
+wed.css_CSS_DEPS=build/standalone/lib/external/bootstrap/css/bootstrap.css
+
+.SECONDEXPANSION:
+build/standalone/lib/%.css: lib/%.less lib/wed/less-inc/* $$($$(noddir $$@)_CSS_DEPS)
+	node_modules/.bin/lessc --include-path=./lib/wed/less-inc/ $< $@
 
 build/standalone build/ajax: | build-dir
 	-mkdir $@
