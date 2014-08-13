@@ -368,17 +368,16 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    pos = wedutil.caret_selection_pos(driver)
-
-    util.ctrl_equivalent_x("/")
-
     # Set it only if we don't already have one.
     if not getattr(context, "context_menu_trigger", None):
+        pos = wedutil.caret_selection_pos(driver)
         trigger = Trigger(location={"left": int(pos["left"]),
                                     "top": int(pos["top"])},
                           size={'width': 0, 'height': 0})
         context.context_menu_trigger = trigger
         context.context_menu_for = None
+
+    util.ctrl_equivalent_x("/")
 
 
 @then(ur"^the user can bring up a context menu with the keyboard\.?$")
