@@ -240,8 +240,6 @@ def context_menu_appears(context):
 def context_choices_insert(context, kind):
     util = context.util
 
-    cm = util.find_element((By.CLASS_NAME, "wed-context-menu"))
-
     search_for = None
     if kind == "inserting new elements":
         search_for = "^Create new [^ ]+$"
@@ -254,7 +252,8 @@ def context_choices_insert(context, kind):
     else:
         raise ValueError("can't search for choices of this kind: " + kind)
 
-    assert_not_equal(len(util.find_descendants_by_text_re(cm, search_for)),
+    assert_not_equal(len(util.find_descendants_by_text_re(".wed-context-menu",
+                                                          search_for)),
                      0, "Number of elements found")
 
 
@@ -263,10 +262,9 @@ def context_choices_insert(context, kind):
 def context_choices_insert(context, what):
     util = context.util
 
-    cm = util.find_element((By.CLASS_NAME, "wed-context-menu"))
-
     search_for = '^Create new ' + what + ' after'
-    assert_not_equal(len(util.find_descendants_by_text_re(cm, search_for)),
+    assert_not_equal(len(util.find_descendants_by_text_re(".wed-context-menu",
+                                                          search_for)),
                      0, "Number of elements found")
 
 
@@ -276,12 +274,9 @@ def context_choices_insert(context):
     util = context.util
     driver = context.driver
 
-    cm = util.wait(EC.visibility_of_element_located(
-        (By.CLASS_NAME, "wed-context-menu")))
-
     search_for = '^Create new note after'
 
-    items = util.find_descendants_by_text_re(cm, search_for)
+    items = util.find_descendants_by_text_re(".wed-context-menu", search_for)
     assert_not_equal(len(items), 0, "Number of elements found")
 
     item = items[0]
@@ -441,8 +436,6 @@ def step_impl(context, choice, new):
     util = context.util
     driver = context.driver
 
-    cm = util.find_element((By.CLASS_NAME, "wed-context-menu"))
-
     # The following branches also normalize ``choice`` to shorter values
     if choice == "the first context menu option":
         choice = "first"
@@ -455,25 +448,17 @@ def step_impl(context, choice, new):
     elif (choice ==
           "a choice for creating an element before the selected element"):
         choice = "before"
-        link = util.find_descendants_by_text_re(cm,
-                                                "^Create new .+? before")[0]
-        if link.tag_name != "a":
-            link = link.find_elements_by_xpath("descendant::a")[0]
-
-        def cond(*_):
-            return link.is_displayed()
-        util.wait(cond)
+        link = [x for x in util.find_descendants_by_text_re(
+            ".wed-context-menu", "^Create new .+? before")
+            if x.tag_name == "a"][0]
+        util.wait(lambda *_: link.is_displayed())
     elif (choice ==
           "a choice for creating an element after the selected element"):
         choice = "after"
-        link = util.find_descendants_by_text_re(cm,
-                                                "^Create new .+? after")[0]
-        if link.tag_name != "a":
-            link = link.find_elements_by_xpath("a")[0]
-
-        def cond(*_):
-            return link.is_displayed()
-        util.wait(cond)
+        link = [x for x in util.find_descendants_by_text_re(
+            ".wed-context-menu", "^Create new .+? after")
+            if x.tag_name == "a"][0]
+        util.wait(lambda *_: link.is_displayed())
     elif choice.startswith("a choice for creating a new"):
         choice = "new"
         link = util.wait(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,
