@@ -459,6 +459,23 @@ A. We've found that JavaScript is poorly supported by the various
              be added to this list as the Selenium-based tests take
              shape.
 
+Troubleshooting the Selenium Tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Symptom: All tests fail!
+````````````````````````
+
+Make sure that SauceConnect is running.
+
+Symptom: Some Firefox tests fail and I am at a loss to know why.
+````````````````````````````````````````````````````````````````
+
+Firefox is picky. Make sure you have a windows manager that manages
+FF's window. (This would come into play if you use Xephyr or Xnest for
+instance. You'd have to start a window manager running on the server
+they create.) Some tests that failed in Xephyr have also stopped
+failing once leftover windows from previous tests were closed.
+
 Internals
 =========
 
