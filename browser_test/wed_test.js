@@ -880,7 +880,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             editor.setDataCaret(initial.firstChild, 1);
             caret = editor.getGUICaret();
             var range = caret.makeRange();
@@ -913,7 +913,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             editor.setDataCaret(initial.firstChild, 3);
             var caret = editor.getGUICaret();
             editor.setSelectionRange(
@@ -957,7 +957,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             var caret = editor.fromDataLocation(initial.firstChild, 3);
             editor.setSelectionRange(
                 caret.makeRange(caret.make(caret.node, caret.offset + 2))
@@ -1005,7 +1005,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             var caret = editor.fromDataLocation(initial.firstChild, 3);
             editor.setSelectionRange(caret.makeRange(
                 caret.make(caret.node, caret.offset + 2)).range);
@@ -1045,7 +1045,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             var caret = editor.fromDataLocation(initial.firstChild, 0);
             editor.setSelectionRange(caret.makeRange(
                 caret.make(caret.node, initial.firstChild.length)).range);
@@ -1349,7 +1349,7 @@ describe("wed", function () {
                 ["insert"], "biblFull", p.firstChild, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "biblFull"};
+            var data = {node: undefined, name: "biblFull"};
             tr.execute(data);
         });
 

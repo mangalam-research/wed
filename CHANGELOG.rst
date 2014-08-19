@@ -79,6 +79,12 @@ Only salient changes are recorded here.
   - API: ``Editor.computeContextMenuHeight`` was removed as it was
     unusued.
 
+  - API: The data field named ``element_name`` that
+    ``transformation.Transformation`` objects expect in the ``data``
+    object passed to their handlers is now called ``name``. This field
+    is now referenced in description strings as ``<name>`` rather than
+    ``<element_name>``.
+
 * 0.17.2:
 
   - 0.17.1 actually introduced more problems on IE. Hopefully, this
