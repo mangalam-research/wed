@@ -76,6 +76,9 @@ Only salient changes are recorded here.
     basis of the ``type`` parameter passed to it. So in many cases it
     is not necessary to give an icon.
 
+  - API: ``Editor.computeContextMenuHeight`` was removed as it was
+    unusued.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for
