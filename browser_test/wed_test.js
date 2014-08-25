@@ -5,9 +5,9 @@
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-        "wed/key"],
+        "wed/key", "wed/dloc", "wed/util"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key) {
+                onerror, log, key, dloc, util) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -57,9 +57,40 @@ function firstGUI(container) {
     return domutil.childByClass(container, "_gui");
 }
 
+function getAttributeValuesFor(container) {
+    return firstGUI(container).getElementsByClassName("_attribute_value");
+}
+
+function getAttributeNamesFor(container) {
+    return firstGUI(container).getElementsByClassName("_attribute_name");
+}
+
+function getElementNameFor(container) {
+    return firstGUI(container).getElementsByClassName("_element_name")[0];
+}
+
+
 function lastGUI(container) {
     var children = domutil.childrenByClass(container, "_gui");
     return children[children.length - 1] || null;
+}
+
+function activateContextMenu(editor, el) {
+    var event = new $.Event("mousedown");
+    el = el || editor.gui_root.getElementsByClassName("title")[0];
+    el.scrollIntoView();
+    var rect = el.getBoundingClientRect();
+    var left = rect.left + rect.width / 2;
+    var top = rect.top + rect.height / 2;
+    var scroll_top = editor.my_window.document.body.scrollTop;
+    var scroll_left = editor.my_window.document.body.scrollLeft;
+    event.which = 3;
+    event.pageX = left + scroll_left;
+    event.pageY = top + scroll_top;
+    event.clientX = left,
+    event.clientY = top,
+    event.target = el;
+    editor.$gui_root.trigger(event);
 }
 
 describe("wed", function () {
@@ -667,7 +698,8 @@ describe("wed", function () {
             caretCheck(editor, initial, 4, "caret after redo");
         });
 
-        it("undoing in an attribute works", function () {
+        it("undoing an attribute value change undoes the value change",
+           function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             // Text node inside title.
@@ -706,6 +738,152 @@ describe("wed", function () {
 
             // Check that the data change has been undone.
             assert.equal(data_node.value, "rend_value");
+        });
+
+        it("undoing an attribute addition undoes the addition", function () {
+            var p = editor.gui_root.querySelector(".body>.p");
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+            var trs = editor.mode.getContextualActions(
+                ["add-attribute"], undefined, el_name, 0);
+            var tr = trs[0];
+            var data = {node: data_p, name: "abbr"};
+
+            editor.setGUICaret(el_name.firstChild, 0);
+            caretCheck(editor, el_name.firstChild, 0,
+                       "the caret should be in the element name");
+            tr.execute(data);
+            var attr_vals = getAttributeValuesFor(p);
+            assert.equal(attr_vals.length, 1, "one attribute");
+            caretCheck(editor, attr_vals[0].firstChild, 0,
+                       "the caret should be in the attribute value");
+
+            editor.undo();
+            assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+            // We would ideally want the caret to be back in the
+            // element name but there's currently an issue with doing
+            // this.
+            caretCheck(editor, p, 1,
+                       "the caret should be in a reasonable position");
+        });
+
+        it("undoing an attribute deletion undoes the deletion", function () {
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var p = ps[7];
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            var attr_names = getAttributeNamesFor(p);
+            var attr_values = getAttributeValuesFor(p);
+            var initial_value = attr_values[0].textContent;
+            var initial_length = attr_values.length;
+            assert.isTrue(initial_length > 0,
+                          "the paragraph should have attributes");
+            var attr = editor.toDataNode(attr_values[0]);
+            var decoded_name = attr_names[0].textContent;
+            var trs = editor.mode.getContextualActions(
+                ["delete-attribute"], decoded_name, attr);
+            var tr = trs[0];
+            var data = {node: attr, name: decoded_name};
+
+            editor.setDataCaret(attr, 0);
+            caretCheck(editor,
+                       attr_values[0].firstChild, 0,
+                       "the caret should be in the attribute");
+            tr.execute(data);
+            attr_values = getAttributeValuesFor(p);
+            assert.equal(attr_values.length, initial_length - 1,
+                         "one attribute should be gone");
+            caretCheck(editor, attr_values[0].firstChild, 0,
+                       "the caret should be in the first attribute value");
+
+            assert.isNull(attr.ownerElement,
+                          "the old attribute should not have an onwer element");
+            assert.isNull(data_p.getAttribute(attr.name));
+
+            editor.undo();
+
+            attr_values = getAttributeValuesFor(p);
+            attr_names = getAttributeNamesFor(p);
+            assert.equal(attr_values.length, initial_length,
+                         "the attribute should be back");
+            assert.equal(attr_names[0].textContent, decoded_name,
+                         "the first attribute should be the one that "+
+                         "was deleted");
+            assert.equal(attr_values[0].textContent, initial_value,
+                         "the attribute should have its initial value");
+            caretCheck(editor, attr_values[0].firstChild, 0,
+                       "the caret should be in the first attribute value");
+        });
+
+        it("doing an attribute addition changes the data", function () {
+            var p = editor.gui_root.querySelector(".body>.p");
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+            var trs = editor.mode.getContextualActions(
+                ["add-attribute"], undefined, el_name, 0);
+            var tr = trs[0];
+            var data = {node: data_p, name: "abbr"};
+
+            editor.setGUICaret(el_name.firstChild, 0);
+            caretCheck(editor, el_name.firstChild, 0,
+                       "the caret should be in the element name");
+            tr.execute(data);
+            var attr_vals = getAttributeValuesFor(p);
+            assert.equal(attr_vals.length, 1, "one attribute");
+            caretCheck(editor, attr_vals[0].firstChild, 0,
+                       "the caret should be in the attribute value");
+
+            var data_node = editor.toDataNode(attr_vals[0]);
+            assert.isTrue(!!data_node);
+            assert.equal(data_node.value, "");
+
+        });
+
+        it("doing an attribute deletion changes the data", function () {
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var p = ps[7];
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            var attr_names = getAttributeNamesFor(p);
+            var attr_values = getAttributeValuesFor(p);
+            var initial_length = attr_values.length;
+            assert.isTrue(initial_length > 0,
+                          "the paragraph should have attributes");
+            var attr = editor.toDataNode(attr_values[0]);
+            var decoded_name = attr_names[0].textContent;
+            var trs = editor.mode.getContextualActions(
+                ["delete-attribute"], decoded_name, attr);
+            var tr = trs[0];
+            var data = {node: attr, name: decoded_name};
+
+            editor.setDataCaret(attr, 0);
+            caretCheck(editor,
+                       attr_values[0].firstChild, 0,
+                       "the caret should be in the attribute");
+            tr.execute(data);
+            attr_values = getAttributeValuesFor(p);
+            assert.equal(attr_values.length, initial_length - 1,
+                         "one attribute should be gone");
+            caretCheck(editor, attr_values[0].firstChild, 0,
+                       "the caret should be in the first attribute value");
+
+            assert.isNull(attr.ownerElement,
+                          "the old attribute should not have an onwer element");
+            assert.isNull(data_p.getAttribute(attr.name));
         });
 
         it("clicking a gui element after typing text works", function (done) {
@@ -1057,24 +1235,6 @@ describe("wed", function () {
                          '<div class="hi _real">abcdefghij</div>');
         });
 
-
-        function activateContextMenu(editor) {
-            var event = new $.Event("mousedown");
-            var title = editor.gui_root.getElementsByClassName("title")[0];
-            title.scrollIntoView();
-            var rect = title.getBoundingClientRect();
-            var left = rect.left + rect.width / 2;
-            var top = rect.top + rect.height / 2;
-            var scroll_top = editor.my_window.document.body.scrollTop;
-            var scroll_left = editor.my_window.document.body.scrollLeft;
-            event.which = 3;
-            event.pageX = left + scroll_left;
-            event.pageY = top + scroll_top;
-            event.clientX = left,
-            event.clientY = top,
-            event.target = editor.gui_root;
-            editor.$gui_root.trigger(event);
-        }
 
         it("brings up a contextual menu even when there is no caret",
            function (done) {
@@ -1680,6 +1840,47 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
             onerror.__test.reset();
         });
 
+        function contextMenuHasOptionMatching(pattern) {
+            var menu = editor.my_window.document.getElementsByClassName(
+                "wed-context-menu")[0];
+            assert.isDefined(menu);
+            var items = menu.querySelectorAll("li>a");
+            var found = false;
+            for(var i = 0, item; !found && (item = items[i]) !== undefined;
+                ++i) {
+                found = pattern.test(item.textContent.trim());
+            }
+            assert.isTrue(found);
+        }
+
+        function contextMenuHasAttributeOption() {
+            contextMenuHasOptionMatching(/^Add @/);
+        }
+
+        function contextMenuHasTextOption() {
+            contextMenuHasOptionMatching(/^Insert "/);
+        }
+
+        describe("has context menus", function () {
+            it("with attribute options, when invoked on a start label",
+               function () {
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector(
+                        ".__start_label._title_label ._element_name"));
+                contextMenuHasAttributeOption();
+            });
+
+            it("with attribute options, when invoked in an attribute",
+               function () {
+                contextMenuHasAttributeOption();
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector(
+                        ".__start_label._title_label ._attribute_value"));
+            });
+        });
+
         describe("setNavigationList", function () {
             it("makes the navigation list appear", function () {
                 assert.equal(editor._$navigation_panel.css("display"), "none",
@@ -1937,6 +2138,33 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 // Same position
                 caretCheck(editor, initial, 0, "moved once");
             });
+        });
+
+        describe("positionLeft", function () {
+            it("returns the first position in the element name if it starts " +
+               "from any other position in the element name", function () {
+                var first_gui =
+                    editor.gui_root.getElementsByClassName("__start_label")[0];
+                var el_name =
+                    first_gui.getElementsByClassName("_element_name")[0];
+                var before = dloc.makeDLoc(editor.gui_root,
+                                           el_name.firstChild, 1);
+                var after = editor.positionLeft(before);
+                assert.equal(after.node, el_name);
+                assert.equal(after.offset, 0);
+            });
+            it("returns the position before the element if it starts " +
+               "in the first position in the element name", function () {
+                var first_gui = firstGUI(ps[7]);
+                var el_name = getElementNameFor(ps[7]);
+                var before = dloc.makeDLoc(editor.gui_root, el_name, 0);
+                var after = editor.positionLeft(before);
+                var parent = ps[7].parentNode;
+                assert.equal(after.node, parent);
+                assert.equal(after.offset, _indexOf.call(parent.childNodes,
+                                                        ps[7]));
+            });
+
         });
 
         describe("moveCaretLeft", function () {

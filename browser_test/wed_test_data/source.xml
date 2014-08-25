@@ -23,7 +23,7 @@
       <p>abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd</p>
       <p rend="rend_value" style="style_value">Blah</p>
       <p rend="abc">Blah</p>
-      <p rend="">Blah</p>
+      <p part="">Blah</p>
     </body>
   </text>
 </TEI>

@@ -12,12 +12,8 @@ Known limitations:
   constructs are not supported. See the `salve
   <https://github.com/mangalam-research/salve/>`_ package for details.
 
-* Wed does not currently support editing attributes in a
-  generic way *as attributes*. The functionality just has not been
-  implemented **yet** because wed is developed in the context of a
-  project where all attributes are set by software or are edited
-  through domain-specific abstractions rather than directly, as
-  attributes. Other features are more pressing.
+* Wed does not currently support ordering attributes according to some
+  preference.
 
 * Empty elements appear in the editor as if they had an opening and
   closing tag, irrespective of how they are encoded in the original
@@ -331,8 +327,10 @@ schema. Things you can do:
   functionality wed needs to be used with a server able to save the
   data and serve it intelligently.
 
-* Ctrl-` to go into development mode. This will bring up a log window
-  and allow the use of F2 to dump the element to the console.
+* Ctrl-` to go into development mode. Since this is meant only for
+  developers, you should read the source code of wed to know what this
+  allows. (In particular, search for ``this._development_mode`` in the
+  ``_globalKeydownHandler`` method.)
 
 It is possible to run the kitchen sink with a different mode than the
 default one (generic) by passing a ``mode`` parameter in the URL, for

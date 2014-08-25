@@ -1,6 +1,17 @@
 Wed
 ===
 
+Caret Paths
+-----------
+
+Caret paths currently cannot be used to note a caret position which is
+inside a label (but outside an attribute value). This means that when
+a transformation is initiated from a label and then undone, the
+caret will **NOT** be back in the label.
+
+[This is a problem which has been present in wed since the start but
+ has been thrown into focus with the addition of attribute support.]
+
 Input Triggers
 --------------
 

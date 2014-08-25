@@ -14,11 +14,15 @@ Scenario: bringing up the context menu with the mouse on a placeholder.
 
 Scenario: bringing up the context menu with the mouse on the start label of the top element.
   When the user uses the mouse to bring up the context menu on the start label of the top element
-  Then a context menu is not visible
+  # We purposely don't test position here. Other tests do it.
+  Then a context menu is visible
+  And the context menu does not contain choices for inserting new elements
 
 Scenario: bringing up the context menu with the mouse on the end label of the top element.
   When the user uses the mouse to bring up the context menu on the end label of the top element
-  Then a context menu is not visible
+  # We purposely don't test position here. Other tests do it.
+  Then a context menu is visible
+  And the context menu does not contain choices for inserting new elements
 
 Scenario: bringing up the context menu with the mouse on the start label of an element.
   When the user uses the mouse to bring up the context menu on the start label of an element

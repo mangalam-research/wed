@@ -49,13 +49,11 @@ def context_menu_on_start_label_of_top_element(context):
     driver = context.driver
     util = context.util
 
-    button, parent, _ = get_element_parent_and_parent_text(
-        driver, ".__start_label")
+    button = util.find_element((By.CSS_SELECTOR,
+                                ".__start_label ._element_name"))
     ActionChains(driver)\
         .context_click(button)\
         .perform()
-    context.context_menu_trigger = Trigger(util, button)
-    context.context_menu_for = parent
 
 
 @When("^the user (?:uses the mouse to bring|brings) up the context "
@@ -236,9 +234,12 @@ def context_menu_appears(context):
     util.find_element((By.CLASS_NAME, "wed-context-menu"))
 
 
-@Then(r'^the context menu contains choices for (?P<kind>.*?)(?:\.|$)')
-def context_choices_insert(context, kind):
+@Then(r'^the context menu (?P<exists>contains|does not contain) choices '
+      r'for (?P<kind>.*?)(?:\.|$)')
+def context_choices_insert(context, exists, kind):
     util = context.util
+
+    exists = True if exists == "contains" else False
 
     search_for = None
     if kind == "inserting new elements":
@@ -252,9 +253,17 @@ def context_choices_insert(context, kind):
     else:
         raise ValueError("can't search for choices of this kind: " + kind)
 
-    assert_not_equal(len(util.find_descendants_by_text_re(".wed-context-menu",
-                                                          search_for)),
-                     0, "Number of elements found")
+    if exists:
+        count = len(util.find_descendants_by_text_re(".wed-context-menu",
+                                                     search_for))
+        assert_not_equal(count, 0, "there should be options")
+    else:
+        # We first need to make sure the menu is up because
+        # find_descendants_by_text_re will return immediately.
+        util.find_element((By.CLASS_NAME, "wed-context-menu"))
+        count = len(util.find_descendants_by_text_re(".wed-context-menu",
+                                                     search_for, True))
+        assert_equal(count, 0, "there should not be options")
 
 
 @Then(r'^the context menu contains a choice for creating a new '
