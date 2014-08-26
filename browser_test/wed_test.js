@@ -77,7 +77,6 @@ function lastGUI(container) {
 
 function activateContextMenu(editor, el) {
     var event = new $.Event("mousedown");
-    el = el || editor.gui_root.getElementsByClassName("title")[0];
     el.scrollIntoView();
     var rect = el.getBoundingClientRect();
     var left = rect.left + rect.width / 2;
@@ -1242,7 +1241,7 @@ describe("wed", function () {
             var initial = editor.gui_root.getElementsByClassName("title")[0]
                 .childNodes[1];
             assert.isUndefined(editor.getGUICaret());
-            activateContextMenu(editor);
+            activateContextMenu(editor, initial.parentNode);
             window.setTimeout(function () {
                 assert.isDefined(editor._current_dropdown,
                                  "dropdown defined");
@@ -1262,7 +1261,9 @@ describe("wed", function () {
                              .getElementsByTagName("div")[0]);
             rangy.getSelection(editor.my_window).setSingleRange(range);
             assert.isUndefined(editor.getGUICaret());
-                activateContextMenu(editor);
+                activateContextMenu(editor,
+                                    editor.gui_root
+                                    .getElementsByClassName("title")[0]);
             window.setTimeout(function () {
                     assert.isDefined(editor._current_dropdown);
                 done();
@@ -1277,7 +1278,7 @@ describe("wed", function () {
                 .childNodes[1];
             editor.setGUICaret(initial, 0);
 
-            activateContextMenu(editor);
+            activateContextMenu(editor, initial.parentNode);
             window.setTimeout(function () {
                 assert.isDefined(editor._current_dropdown);
                 done();
@@ -1838,28 +1839,24 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                            "test caused an unhandled exception to occur");
             // We don't reload our page so we need to do this.
             onerror.__test.reset();
+            editor._dismissDropdownMenu();
         });
 
-        function contextMenuHasOptionMatching(pattern) {
+        function contextMenuHasOption(pattern) {
             var menu = editor.my_window.document.getElementsByClassName(
                 "wed-context-menu")[0];
-            assert.isDefined(menu);
+            assert.isDefined(menu, "the menu should exist");
             var items = menu.querySelectorAll("li>a");
             var found = false;
             for(var i = 0, item; !found && (item = items[i]) !== undefined;
                 ++i) {
                 found = pattern.test(item.textContent.trim());
             }
-            assert.isTrue(found);
+            assert.isTrue(found, "should have found the option");
         }
 
-        function contextMenuHasAttributeOption() {
-            contextMenuHasOptionMatching(/^Add @/);
-        }
-
-        function contextMenuHasTextOption() {
-            contextMenuHasOptionMatching(/^Insert "/);
-        }
+        var contextMenuHasAttributeOption =
+            contextMenuHasOption.bind(undefined, /^Add @/);
 
         describe("has context menus", function () {
             it("with attribute options, when invoked on a start label",
@@ -1873,11 +1870,22 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 
             it("with attribute options, when invoked in an attribute",
                function () {
-                contextMenuHasAttributeOption();
                 activateContextMenu(
                     editor,
                     editor.gui_root.querySelector(
-                        ".__start_label._title_label ._attribute_value"));
+                        ".__start_label._p_label ._attribute_value"));
+                contextMenuHasAttributeOption();
+            });
+        });
+
+        describe("has a completion menu", function () {
+            it("when the caret is in an attribute that takes completions",
+               function () {
+                var p = ps[9];
+                var attr_vals = getAttributeValuesFor(p);
+                editor.setGUICaret(attr_vals[0].firstChild, 0);
+                // This is an arbitrary menu item we check for.
+                contextMenuHasOption(/^Y$/);
             });
         });
 

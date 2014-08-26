@@ -24,6 +24,8 @@
       <p rend="rend_value" style="style_value">Blah</p>
       <p rend="abc">Blah</p>
       <p part="">Blah</p>
+      <div sample="">
+      </div>
     </body>
   </text>
 </TEI>

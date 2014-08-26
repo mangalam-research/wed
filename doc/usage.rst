@@ -13,7 +13,10 @@ Known limitations:
   <https://github.com/mangalam-research/salve/>`_ package for details.
 
 * Wed does not currently support ordering attributes according to some
-  preference.
+  set order. (The order is whatever the DOM implementation does by
+  default.)
+
+* Wed does not currently support multiline values in attributes.
 
 * Empty elements appear in the editor as if they had an opening and
   closing tag, irrespective of how they are encoded in the original

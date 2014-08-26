@@ -2,7 +2,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 # pylint: disable=E0611
 from nose.tools import assert_true, assert_equal, assert_not_equal, \
     assert_false
-from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -10,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 import wedutil
 import selenic.util
 
-from selenium_test.util import Trigger, get_element_parent_and_parent_text
+from selenium_test.util import get_element_parent_and_parent_text
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
@@ -145,6 +144,18 @@ def step_impl(context, what):
     context.context_menu_for = None
 
 
+@when(u"^the user clicks on "
+      u"(?P<what>|the start label of an element which has )"
+      u"an attribute value that takes completions$")
+def step_impl(context, what):
+    util = context.util
+
+    selector = ".body>.div:nth-of-type(11)>.__start_label._div_label " + \
+               ("._attribute_value" if what == "" else "._element_name")
+    where = util.find_element((By.CSS_SELECTOR, selector))
+    where.click()
+
+
 @when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
       ur'the first "(?P<element>.*?)" element in "body")$')
 def step_impl(context, choice, element=None):
@@ -182,15 +193,21 @@ def step_impl(context):
     en = button.find_element_by_class_name("_element_name")
     wedutil.wait_for_caret_to_be_in(util, en)
 
+_CHOICE_TO_ARROW = {
+    "down": Keys.ARROW_DOWN,
+    "right": Keys.ARROW_RIGHT,
+    "left": Keys.ARROW_LEFT
+}
 
-@when(u"^(?:the user )?hits the (?P<choice>right|left) arrow$")
+
+@when(u"^(?:the user )?hits the (?P<choice>right|left|down) arrow$")
 def step_impl(context, choice):
     driver = context.driver
 
     context.caret_position_before_arrow = wedutil.caret_screen_pos(
         driver)
 
-    key = Keys.ARROW_RIGHT if choice == "right" else Keys.ARROW_LEFT
+    key = _CHOICE_TO_ARROW[choice]
     ActionChains(driver)\
         .send_keys(key)\
         .perform()
