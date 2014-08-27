@@ -1396,10 +1396,34 @@ describe("wed", function () {
                                    initial_outer.length, "final position");
                     done();
                 });
+                // This clicks "Yes".
+                var button = editor._paste_modal._$footer[0]
+                    .getElementsByClassName("btn-primary")[0];
+                button.click();
             });
             editor.$gui_root.trigger(event);
-            // This clicks "Yes".
-            editor._paste_modal._$footer.find(".btn-primary")[0].click();
+        });
+
+        it("handles pasting simple text into an attribute", function () {
+            var p = editor.data_root.querySelector(".body>.p:nth-of-type(8)");
+            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.value;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "abcdef";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            assert.equal(initial.value, "abcdef" + initial_value);
+            dataCaretCheck(editor, initial, 6, "final position");
         });
 
         it("handles cutting a well formed selection", function (done) {
