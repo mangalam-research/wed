@@ -1473,6 +1473,26 @@ describe("wed", function () {
             editor.straddling_modal._$footer.find(".btn-primary")[0].click();
         });
 
+        it("handles cutting in attributes", function (done) {
+            var p = editor.data_root.querySelector(".body>.p:nth-of-type(8)");
+            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            var initial_value = initial.value;
+            var start = editor.fromDataLocation(initial, 2);
+            var end = editor.fromDataLocation(initial, 4);
+            var range = start.makeRange(end).range;
+
+            editor.setSelectionRange(range);
+
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            window.setTimeout(function () {
+                assert.equal(initial.value, initial_value.slice(0, 2) +
+                             initial_value.slice(4));
+                done();
+            }, 1);
+        });
+
         it("handles properly caret position for words that are too " +
            "long to word wrap", function () {
             var p = editor.data_root.getElementsByClassName("p")[0];
