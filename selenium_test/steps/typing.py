@@ -122,3 +122,24 @@ def step_impl(context, ordinal, what, text):
     def cond(*_):
         return util.get_text_excluding_children(els[index]) == text
     util.wait(cond)
+
+
+@when(ur'^the user closes the pasting modal by accepting it$')
+def step_impl(context):
+    button = context.util.find_element(
+        (By.CSS_SELECTOR, ".modal.in .btn-primary"))
+    button.click()
+
+
+@then(ur'^the text is pasted after the last paragraph$')
+def step_impl(context):
+
+    def cond(driver):
+        text = driver.execute_script("""
+        var ps = wed_editor.data_root.querySelectorAll(".body .p");
+        var p = ps[ps.length - 1];
+        return p.nextSibling.textContent;
+        """)
+        return text == context.expected_selection
+
+    context.util.wait(cond)

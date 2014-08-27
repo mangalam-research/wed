@@ -325,6 +325,21 @@ def step_impl(context, what):
     context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
+@when(u'^the user selects the whole contents of the first paragraph in '
+      ur'"body"$')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    p = util.find_element((By.CSS_SELECTOR, ".body .p"))
+
+    text = wedutil.select_contents_directly(util, p)
+
+    context.expected_selection = text
+    context.selection_parent = p
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
+
+
 @when(u'^the user selects the "(?P<what>.*?)" of the first title$')
 def step_impl(context, what):
     driver = context.driver
