@@ -266,10 +266,15 @@ build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	cp $< $@
 
+build/standalone/lib/external:
+	mkdir -p $@
+
 wed.css_CSS_DEPS=build/standalone/lib/external/bootstrap/css/bootstrap.css
 
+build/standalone/lib/external/bootstrap/css/bootstrap.css: build/standalone/lib/external/bootstrap
+
 .SECONDEXPANSION:
-build/standalone/lib/%.css: lib/%.less lib/wed/less-inc/* $$($$(noddir $$@)_CSS_DEPS)
+build/standalone/lib/wed/%.css: lib/wed/%.less lib/wed/less-inc/* $$($$(notdir $$@)_CSS_DEPS)
 	node_modules/.bin/lessc --include-path=./lib/wed/less-inc/ $< $@
 
 build/standalone build/ajax: | build-dir
@@ -310,7 +315,7 @@ downloads/$(CLASSLIST_BASE): | downloads
 node_modules/%:
 	npm install
 
-build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone
+build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone/lib/external
 	-mkdir -p $@
 	rm -rf $@/*
 	tar -xzf $< --strip-components=1 -C $@
@@ -319,11 +324,11 @@ ifneq ($(DEV),0)
 endif # ifneq ($(DEV),0)
 	rm -rf $@/uncompressed
 
-build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib
+build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib/external
 	-mkdir $(dir $@)
 	cp $< $@
 
-build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
+build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib/external
 	-rm -rf $@
 	-mkdir $@
 	-rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
@@ -336,17 +341,17 @@ build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/sta
 # so, touch it.
 	touch $@
 
-build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | build/standalone/lib/
+build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | build/standalone/lib//external
 	-rm -rf $@
 	mkdir $@
 	unzip -d downloads/ $<
 	mv downloads/$(FONTAWESOME_BASE:.zip=)/* $@
-	rm -rf downloads/$(FONTAWESOME_BASE.zip=)
+	rm -rf downloads/$(FONTAWESOME_BASE:.zip=)
 	rm -rf $@/scss
 	rm -rf $@/less
 	touch $@
 
-build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
+build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib/external
 	unzip -d $(dir $@) $<
 ifneq ($(DEV),0)
 	mv $(dir $@)/bootstrap-growl-*/jquery.bootstrap-growl.js $@
@@ -365,7 +370,7 @@ build/standalone/lib/requirejs/require.js: node_modules/requirejs/require.js | b
 build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
 	cp $< $@
 
-build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
+build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE) | build/standalone/lib/external
 	-mkdir $(dir $@)
 	unzip -d $(dir $@) $< log4javascript-*/js/*.js
 ifneq ($(DEV),0)
@@ -376,10 +381,10 @@ endif
 	rm -rf $(dir $@)/log4javascript-*
 	touch $@
 
-build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js
+build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js | build/standalone/lib/external
 	cp $< $@
 
-build/standalone/lib/external/xregexp.js: node_modules/salve/node_modules/xregexp/xregexp-all.js
+build/standalone/lib/external/xregexp.js: node_modules/salve/node_modules/xregexp/xregexp-all.js | build/standalone/lib/external
 	cp $< $@
 
 build/standalone/lib/external/lodash:
@@ -388,8 +393,8 @@ build/standalone/lib/external/lodash:
 build/standalone/lib/external/lodash/%: node_modules/lodash-amd/% | build/standalone/lib/external/lodash
 	cp -rp $< $@
 
-build/standalone/lib/external/classList.js: downloads/$(CLASSLIST_BASE)
-	-mkdir $(dir $@)
+build/standalone/lib/external/classList.js: downloads/$(CLASSLIST_BASE) | build/standalone/lib/external
+	-mkdir -p $(dir $@)
 	unzip -d $(dir $@) $< classList.js-*/*.js
 	mv $(dir $@)/classList.js-*/classList.js $@
 	rm -rf $(dir $@)/classList.js-*
