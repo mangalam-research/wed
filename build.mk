@@ -67,7 +67,7 @@ JQUERY_FILE=jquery-2.1.1.js
 
 BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-dist.zip #https://github.com/twbs/bootstrap/releases/download/v3.0.3/bootstrap-3.0.3-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
-FONTAWESOME_PATH=http://fontawesome.io/assets/font-awesome-4.1.0.zip
+FONTAWESOME_PATH=http://fontawesome.io/assets/font-awesome-4.2.0.zip
 FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
 
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
