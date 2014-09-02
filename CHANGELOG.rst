@@ -9,8 +9,9 @@ Only salient changes are recorded here.
   - This version is a major reworking of wed. This is where old APIs
     are broken.
 
-  - GUI: Context menus now support filtering operations by kind and by
-    text of the elements involved.
+  - GUI: Context menus now support filtering operations by kind of
+    operation, by type of node modified and by text of the nodes
+    involved.
 
   - wed now bundles with jQuery 2.1.1.
 

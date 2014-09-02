@@ -536,22 +536,24 @@ def step_impl(context):
     context.context_menu_for = where
 
 
-kinds_re = re.compile(r"(?:\s*,\s*|\s+and\s+)")
-kind_cleanup_re = re.compile(r"(?:^['\"]|['\"]$)")
+items_re = re.compile(r"(?:\s*,\s*|\s+and\s+)")
+items_cleanup_re = re.compile(r"(?:^['\"]|['\"]$)")
 
 
-@then(ur"^the context menu contains options of the (?:kinds? (?P<ks>.*?)|"
-      ur"other kind)\.?$")
-def step_impl(context, ks=None):
-    if ks:
-        kinds_expected = set([kind_cleanup_re.sub('', k)
-                              for k in kinds_re.split(ks)])
+@then(ur"^the context menu contains options of the (?:(?P<what>kind|type)s? "
+      ur"(?P<items>.*?)|other (?P<other>kind|type))\.?$")
+def step_impl(context, what=None, items=None, other=None):
+    if items:
+        expected = set([items_cleanup_re.sub('', i)
+                        for i in items_re.split(items)])
     else:
-        kinds_expected = set()
-        kinds_expected.add("others")
+        expected = set()
+        expected.add("others")
+
+    what = what or other
 
     # We reuse this set for diagnosis purposes...
-    kinds = set()
+    actual = set()
 
     def cond(driver):
         links = driver.execute_script("""
@@ -562,40 +564,62 @@ def step_impl(context, ks=None):
         return ret;
         """)
 
-        kinds.clear()
-        for link in links:
-            if link.startswith("Create new"):
-                kinds.add("add")
-            elif link.startswith("Delete "):
-                kinds.add("delete")
-            elif link.startswith("Element's documentation"):
-                kinds.add("others")
-            elif link.startswith("Unwrap "):
-                kinds.add("unwrap")
-            elif link.startswith("Wrap "):
-                kinds.add("wrap")
-            else:
-                raise Exception("can't analyse link: " + link)
+        actual.clear()
+        if what == "kind":
+            for link in links:
+                if link.startswith("Create new"):
+                    actual.add("add")
+                elif link.startswith("Delete "):
+                    actual.add("delete")
+                elif link.startswith("Element's documentation"):
+                    actual.add("others")
+                elif link.startswith("Unwrap "):
+                    actual.add("unwrap")
+                elif link.startswith("Wrap "):
+                    actual.add("wrap")
+                else:
+                    raise Exception("can't analyse link: " + link)
+        else:
+            for link in links:
+                if link.find("Add @") != -1 or \
+                   link == "Delete this attribute":
+                    actual.add("attribute")
+                elif link.startswith("Element's documentation"):
+                    actual.add("others")
+                elif link.startswith("Create new") or\
+                        link.startswith("Delete ") or \
+                        link.startswith("Unwrap ") or \
+                        link.startswith("Wrap "):
+                    actual.add("element")
+                else:
+                    raise Element("can't analyse link: " + link)
 
-        return kinds == kinds_expected
+        return actual == expected
 
     try:
         context.util.wait(cond)
     except TimeoutException:
         # This provides better diagnosis than a timeout error...
-        assert_equal(kinds, kinds_expected)
-
-KIND_TO_INDEX = ["all", "add", "delete", "wrap", "unwrap", "other"]
+        assert_equal(actual, expected)
 
 
-@when(ur'^the user clicks on the filter to show only (?P<kind>.*?) options$')
-def step_impl(context, kind):
+FILTER_TO_INDEX = ["add", "delete", "wrap", "unwrap",
+                   "other", "element", "attribute", "other"]
+
+
+@when(ur'^the user clicks on the filter to show only options of '
+      ur'(?P<what>kind|type) (?P<item>.*?)$')
+def step_impl(context, item, what):
     driver = context.driver
-    kind = kind_cleanup_re.sub('', kind)
+    item = items_cleanup_re.sub('', item)
     try:
-        index = KIND_TO_INDEX.index(kind)
+        index = FILTER_TO_INDEX.index(item)
     except ValueError:
-        raise ValueError("can't process kind: " + kind)
+        raise ValueError("can't process item: " + item)
+
+    # "other" appears twice in the list so...
+    if what == "type" and item == "other":
+        index = len(FILTER_TO_INDEX) - 1
 
     buttons = driver.find_elements_by_css_selector(
         ".wed-context-menu li:first-child button")
