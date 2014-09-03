@@ -149,11 +149,15 @@ def step_impl(context, what):
       u"an attribute value that takes completions$")
 def step_impl(context, what):
     util = context.util
+    driver = context.driver
 
     selector = ".body>.div:nth-of-type(11)>.__start_label._div_label " + \
                ("._attribute_value" if what == "" else "._element_name")
     where = util.find_element((By.CSS_SELECTOR, selector))
-    where.click()
+    ActionChains(driver) \
+        .move_to_element(where) \
+        .click() \
+        .perform()
 
 
 @when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
@@ -613,7 +617,7 @@ def step_impl(context):
     context.window_scroll_top = util.window_scroll_top()
     context.window_scroll_left = util.window_scroll_left()
 
-    wed = util.find_element((By.CLASS_NAME, "wed-document"))
+    wed = util.find_element((By.CLASS_NAME, "wed-scroller"))
 
     scroll_top = util.scroll_top(wed)
 

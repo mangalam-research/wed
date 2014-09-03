@@ -1515,6 +1515,7 @@ describe("wed", function () {
            function () {
             var p = editor.data_root.querySelectorAll(".body>.p")[5];
             var text_loc = editor.fromDataLocation(p.lastChild, 2);
+            assert.equal(text_loc.node.nodeType, Node.TEXT_NODE);
 
             // Check that we are testing what we want to test. The end
             // label for the hi element must be on the next line.
@@ -1531,7 +1532,7 @@ describe("wed", function () {
                           "of this same element");
 
             var event = new $.Event("mousedown");
-            event.target = text_loc.node;
+            event.target = text_loc.node.parentNode;
             var rr = text_loc.makeRange(text_loc.make(text_loc.node, 3));
             var rect = rr.range.nativeRange.getBoundingClientRect();
             event.pageX = rect.left;

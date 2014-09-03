@@ -1,6 +1,17 @@
 Wed
 ===
 
+Store the Caret as a (Path, Offset) Pair
+----------------------------------------
+
+Up to now, wed has maintained its carets as a (Node, offset)
+pair. This has worked fairly well but the changes that have been made
+to support attribute editing have complicated things. In particular
+the decorator must save the caret before decorating an element and
+refresh it afterwards. This refreshing could be avoided by storing the
+caret's node as a path. This could potentially also simplify other
+cases.
+
 Caret Paths
 -----------
 
