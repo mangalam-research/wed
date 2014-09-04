@@ -95,8 +95,8 @@ LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*" -not -name "*.less"
 
 STANDALONE_LIB_FILES:=$(foreach path,$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,$f)) $(INC_LESS_FILES),build/standalone/$(path))
 
-TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
-CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
+TEST_DATA_FILES:=$(shell find browser_test -path browser_test/convert_test_data -prune -o \( -type f -name "*.xml" -print \))
+CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f)) $(patsubst browser_test/%,build/test-files/%,$(shell find browser_test/convert_test_data -type f))
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
 SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json build/schemas/tei-doc
@@ -255,12 +255,16 @@ build/samples/%: sample_documents/% | build/samples
 
 build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
 
-build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
+build/test-files/%_converted.xml: browser_test/%.xml test/xml-to-xml-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
-		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
-		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-xml-tei.xsl; else \
+		cp $< $@; \
 	fi)
+
+build/test-files/%: browser_test/%
+	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
+	cp $< $@
 
 build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)

@@ -29,8 +29,6 @@
       require(req, function (wed, $, text) {
           $(function () {
               var $widget = $("#widget");
-              if (text !== undefined)
-                  $widget.html(text);
               var options = {};
               if (mode)
                   options.mode = { path: mode };
@@ -45,7 +43,7 @@
                   options.mode.options = { fileDesc_insert_needs_input: true };
 
               window.wed_editor = new wed.Editor();
-              window.wed_editor.init($widget[0], options);
+              window.wed_editor.init($widget[0], options, text);
           });
       });
     </script>
