@@ -100,3 +100,7 @@ Scenario: clicking on a multi-line element
   Given there is a paragraph that spans multiple lines
   When the user clicks on the last character of the paragraph
   Then the caret is set to the last character of the paragraph
+
+Scenario: clicking on a letter puts the caret next to it
+  When the user clicks in the middle of a piece of text
+  Then the caret is set next to the clicked location
