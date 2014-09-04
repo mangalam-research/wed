@@ -46,12 +46,24 @@ def before_all(context):
 
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
+FAILS_IF = "fails_if:"
+
 
 def skip_if_needed(context, entity):
-    if (context.util.osx and "fails_if:osx" in entity.tags) or \
-       (context.util.windows and context.util.firefox and
-            "fails_if:win,ff" in entity.tags):
-        entity.mark_skipped()
+    fails_if = []
+    for tag in entity.tags:
+        if tag.startswith(FAILS_IF):
+            fails_if.append(tag[len(FAILS_IF):])
+
+    for spec in fails_if:
+        if spec == "osx":
+            if context.util.osx:
+                entity.mark_skipped()
+        elif spec == "win,ff":
+            if context.util.windows and context.util.firefox:
+                entity.mark_skipped()
+        else:
+            raise ValueError("can't interpret fails_if:" + spec)
 
 
 def before_feature(context, feature):
