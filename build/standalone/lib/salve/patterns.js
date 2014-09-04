@@ -1285,8 +1285,9 @@ function ValueWalker(el, name_resolver) {
     this.el = el;
     this.name_resolver = name_resolver;
     this.matched = false;
-    this.possible_cached = new EventSet(new Event("text", el.raw_value));
-    this.context = (this.el.datatype.needs_context) ?
+    this.possible_cached =
+        el ? new EventSet(new Event("text", el.raw_value)): undefined;
+    this.context = (el && el.datatype.needs_context) ?
         {resolver: this.name_resolver}: undefined;
 }
 inherit(ValueWalker, Walker);
@@ -2427,19 +2428,19 @@ ElementWalker.prototype._possible = function () {
     else if (!this.ended_start_tag) {
         var all = this.walker._possible();
         var ret = new EventSet();
-        // We use value_ev to record whether an attributeValue
-        // is a possibility. If so, we must only return this
-        // possibility and no other.
-        var value_ev;
+        // We use value_evs to record whether an attributeValue
+        // is a possibility. If so, we must only return these
+        // possibilities and no other.
+        var value_evs = new EventSet();
         all.forEach(function (poss) {
             if (poss.params[0] === "attributeValue")
-                value_ev = poss;
-            if (poss.isAttributeEvent())
+                value_evs.add(poss);
+            else if (poss.isAttributeEvent())
                 ret.add(poss);
         });
 
-        if (value_ev)
-            ret = new EventSet(value_ev);
+        if (value_evs.size())
+            ret = value_evs;
 
         if (this.walker.canEnd(true))
             ret.add(ElementWalker._leaveStartTag_event);

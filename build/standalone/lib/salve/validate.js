@@ -12,7 +12,7 @@ define(/** @lends module:validate */ function (require, exports, module) {
 var patterns = require("./patterns");
 var formats = require("./formats");
 
-exports.version = "0.20.1";
+exports.version = "0.21.0";
 
 for(var prop in patterns) {
     exports[prop] = patterns[prop];

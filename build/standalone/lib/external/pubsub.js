@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010,2011,2012,2013 Morgan Roderick http://roderick.dk
+Copyright (c) 2010,2011,2012,2013,2014 Morgan Roderick http://roderick.dk
 License: MIT - http://mrgnrdrck.mit-license.org
 
 https://github.com/mroderick/PubSubJS
@@ -13,26 +13,26 @@ https://github.com/mroderick/PubSubJS
 	require,
 	window
 */
-(function(root, factory){
+(function (root, factory){
 	'use strict';
 
-	// CommonJS
-	if (typeof exports === 'object' && module){
-		module.exports = factory();
+    if (typeof define === 'function' && define.amd){
+        // AMD. Register as an anonymous module.
+        define(['exports'], factory);
 
-	// AMD
-	} else if (typeof define === 'function' && define.amd){
-		define(factory);
-	// Browser
-	} else {
-		root.PubSub = factory();
-	}
-}( ( typeof window === 'object' && window ) || this, function(){
+    } else if (typeof exports === 'object'){
+        // CommonJS
+        factory(exports);
 
+    } else {
+        // Browser globals
+        factory((root.PubSub = {}));
+
+    }
+}(( typeof window === 'object' && window ) || this, function (PubSub){
 	'use strict';
 
-	var PubSub = {},
-		messages = {},
+	var messages = {},
 		lastUid = -1;
 
 	function hasKeys(obj){
@@ -177,29 +177,55 @@ https://github.com/mroderick/PubSubJS
 		return token;
 	};
 
-	/**
-	 *	PubSub.unsubscribe( tokenOrFunction ) -> String | Boolean
-	 *  - tokenOrFunction (String|Function): The token of the function to unsubscribe or func passed in on subscribe
-	 *  Unsubscribes a specific subscriber from a specific message using the unique token
-	 *  or if using Function as argument, it will remove all subscriptions with that function
-	**/
-	PubSub.unsubscribe = function( tokenOrFunction ){
-		var isToken = typeof tokenOrFunction === 'string',
+	/* Public: Clears all subscriptions
+	 */
+	PubSub.clearAllSubscriptions = function clearSubscriptions(){
+		messages = {};
+	};
+
+	/* Public: removes subscriptions.
+	 * When passed a token, removes a specific subscription.
+	 * When passed a function, removes all subscriptions for that function
+	 * When passed a topic, removes all subscriptions for that topic (hierarchy)
+	 *
+	 * value - A token, function or topic to unsubscribe.
+	 *
+	 * Examples
+	 *
+	 *		// Example 1 - unsubscribing with a token
+	 *		var token = PubSub.subscribe('mytopic', myFunc);
+	 *		PubSub.unsubscribe(token);
+	 *
+	 *		// Example 2 - unsubscribing with a function
+	 *		PubSub.unsubscribe(myFunc);
+	 *
+	 *		// Example 3 - unsubscribing a topic
+	 *		PubSub.unsubscribe('mytopic');
+	 */
+	PubSub.unsubscribe = function(value){
+		var isTopic    = typeof value === 'string' && messages.hasOwnProperty(value),
+			isToken    = !isTopic && typeof value === 'string',
+			isFunction = typeof value === 'function',
 			result = false,
 			m, message, t, token;
+
+		if (isTopic){
+			delete messages[value];
+			return;
+		}
 
 		for ( m in messages ){
 			if ( messages.hasOwnProperty( m ) ){
 				message = messages[m];
 
-				if ( isToken && message[tokenOrFunction] ){
-					delete message[tokenOrFunction];
-					result = tokenOrFunction;
+				if ( isToken && message[value] ){
+					delete message[value];
+					result = value;
 					// tokens are unique, so we can just stop here
 					break;
-				} else if (!isToken) {
+				} else if (isFunction) {
 					for ( t in message ){
-						if (message.hasOwnProperty(t) && message[t] === tokenOrFunction){
+						if (message.hasOwnProperty(t) && message[t] === value){
 							delete message[t];
 							result = true;
 						}
@@ -210,6 +236,4 @@ https://github.com/mroderick/PubSubJS
 
 		return result;
 	};
-
-	return PubSub;
 }));

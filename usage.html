@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.17.1-1-ge625088 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.17.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.17.1-1-ge625088',
+        VERSION:     'v0.17.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.17.1-1-ge625088 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.17.2 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.17.1-1-ge625088 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.17.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -212,7 +212,7 @@ about testing web applications.</p>
 environment, you need to first load RequireJS and pass to it a
 configuration that will allow it to find wed&#8217;s code. An example of
 such configuration, which allows running the browser-dependent test
-suite, is located in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>.</p>
+suite, is located in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If you want to change this configuration for
@@ -220,9 +220,9 @@ experimentation or to match your local setup, please copy
 it to the <tt class="docutils literal"><span class="pre">&lt;local_config&gt;</span></tt> directory and edit it
 <em>there</em>. This directory is not tracked by git.</p>
 </div>
-<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/package.json">package.json</a>,
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/Makefile">Makefile</a> and
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> files for details regarding run-time and
+<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/package.json">package.json</a>,
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/Makefile">Makefile</a> and
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> files for details regarding run-time and
 development dependencies. Running the test suite also requires that
 <a class="reference external" href="http://saxon.sourceforge.net/">saxon</a> be installed.</p>
 <p>Building wed&#8217;s documentation <strong>additionally</strong> requires the following
@@ -242,7 +242,7 @@ following:</p>
 <li>nginx is highly recommended but optional.</li>
 </ul>
 <p>If you want to contribute to wed, your code will have to pass the
-checks listed in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. So you either have to
+checks listed in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. So you either have to
 install glerbl to get those checks done for you or run the checks
 through other means. See <a class="reference internal" href="#contributing">Contributing</a>.</p>
 </div>
@@ -255,7 +255,7 @@ directory.</p>
 <p>For now, wed uses a <tt class="docutils literal"><span class="pre">Makefile</span></tt> and associated <tt class="docutils literal"><span class="pre">build.mk</span></tt> to build
 itself. You might want to create a <tt class="docutils literal"><span class="pre">local.mk</span></tt> file to record
 settings specific to your own build environment. See the start of the
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> to see what variables you can set. When everything
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> to see what variables you can set. When everything
 is set, run:</p>
 <div class="highlight-python"><pre>$ make</pre>
 </div>
@@ -366,13 +366,13 @@ designed the mode.</p>
 <h1>Using<a class="headerlink" href="#using" title="Permalink to this headline">¶</a></h1>
 <p>Wed expects the XML files it uses to have been converted from XML to
 an ad-hoc HTML version. So the data passed to it must have been
-converted by <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a>. Various schemas and projects
+converted by <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a>. Various schemas and projects
 will have different needs regarding white space handling, so it is
 likely you&#8217;ll want to create your own <tt class="docutils literal"><span class="pre">xml-to-html.xsl</span></tt> file that will
-import <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a> but customize white space handling.</p>
+import <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a> but customize white space handling.</p>
 <p>To include wed in a web page you must:</p>
 <ul>
-<li><p class="first">Require <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/wed.js">lib/wed/wed.js</a></p>
+<li><p class="first">Require <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/wed.js">lib/wed/wed.js</a></p>
 </li>
 <li><p class="first">Instantiate an <tt class="docutils literal"><span class="pre">Editor</span></tt> object of that module as follows:</p>
 <div class="highlight-python"><pre>var editor = new wed.Editor();
@@ -396,7 +396,7 @@ salve&#8217;s documentation.</p>
 must have a <tt class="docutils literal"><span class="pre">path</span></tt> field set to the RequireJS path of the
 mode. An optional <tt class="docutils literal"><span class="pre">options</span></tt> field may contain options to be
 passed to the mode. Wed comes bundled with a generic mode located
-at <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/modes/generic/generic.js">lib/wed/modes/generic/generic.js</a>.</p>
+at <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/modes/generic/generic.js">lib/wed/modes/generic/generic.js</a>.</p>
 <p>The <tt class="docutils literal"><span class="pre">path</span></tt> field may be abbreviated. For instance if wed is
 given the path <tt class="docutils literal"><span class="pre">&quot;foo&quot;</span></tt>, it will try to load the module
 <tt class="docutils literal"><span class="pre">foo</span></tt>. If this fails, it will try to load <tt class="docutils literal"><span class="pre">modes/foo/foo</span></tt>.  If
@@ -411,7 +411,7 @@ paths are all relative to the <tt class="docutils literal"><span class="pre">wed
 <p>If <tt class="docutils literal"><span class="pre">options</span></tt> is absent, wed will attempt getting its configuration
 from RequireJS by calling <tt class="docutils literal"><span class="pre">module.config()</span></tt>. See the RequireJS
 documentation. The <tt class="docutils literal"><span class="pre">wed/wed</span></tt> configuration in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a> gives an example of how this can
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a> gives an example of how this can
 be used.</p>
 </li>
 </ul>
@@ -430,7 +430,7 @@ be used.</p>
 <p>The <tt class="docutils literal"><span class="pre">mode.options</span></tt> will be passed to the generic mode when it is
 created. What options are accepted and what they mean is determined by
 each mode.</p>
-<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/onerror.js">lib/wed/onerror.js</a> module installs a global onerror
+<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/onerror.js">lib/wed/onerror.js</a> module installs a global onerror
 handler. By default it calls whatever onerror handler already existed
 at the time of installation. Sometimes this is not the desired
 behavior (for instance when testing with mocha). In such cases the
@@ -449,8 +449,8 @@ wed with JavaScript code that causes onerror to fire.</p>
 </div>
 <div class="section" id="round-tripping">
 <h1>Round-Tripping<a class="headerlink" href="#round-tripping" title="Permalink to this headline">¶</a></h1>
-<p>The transformations performed by <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a> and
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/html-to-xml.xsl">lib/wed/html-to-xml.xsl</a> are not byte-for-byte reverse
+<p>The transformations performed by <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a> and
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/html-to-xml.xsl">lib/wed/html-to-xml.xsl</a> are not byte-for-byte reverse
 operations. Suppose document A is converted from xml to html, remains
 unmodified, and is converted back and saved as B, B will <strong>mean</strong> the
 same thing as A but will not necessarily be <strong>identical</strong> to A. Here are
@@ -468,7 +468,7 @@ preserved.</li>
 <div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <p>Contributions must pass the commit checks turned on in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. Use <tt class="docutils literal"><span class="pre">glerbl</span> <span class="pre">install</span></tt> to install the
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. Use <tt class="docutils literal"><span class="pre">glerbl</span> <span class="pre">install</span></tt> to install the
 hooks. Glerbl itself can be found at
 <a class="reference external" href="https://github.com/lddubeau/glerbl">https://github.com/lddubeau/glerbl</a>. It will eventually make its way to
 the Python package repository so that <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">glerbl</span></tt> will
@@ -530,7 +530,7 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.17.1-1-ge625088 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.17.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
