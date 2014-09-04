@@ -4,6 +4,11 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.17.2:
+
+  - 0.17.1 actually introduced more problems on IE. Hopefully, this
+    release fixes that.
+
 * 0.17.1:
 
   - This release fixes a major bug that has been hiding in wed for

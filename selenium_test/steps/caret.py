@@ -675,3 +675,42 @@ def step_impl(context):
         .move_to_element_with_offset(body, 1, 1) \
         .click() \
         .perform()
+
+
+@when(ur"the user clicks in the middle of a piece of text")
+def step_impl(context):
+    util = context.util
+    driver = context.driver
+    button = util.find_element(
+        (By.CSS_SELECTOR, ".body .__start_label._p_label"))
+    ActionChains(driver)\
+        .click(button)\
+        .send_keys([Keys.ARROW_RIGHT] * 6) \
+        .perform()
+
+    context.caret_path = driver.execute_script("""
+    var caret = wed_editor.getDataCaret();
+    return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
+    """)
+
+    pos = wedutil.caret_screen_pos(driver)
+    # First click away so that the caret is no longer where we left it
+    # and the subsequent click moves it again.
+    el_pos = util.element_screen_position(button)
+    ActionChains(driver) \
+        .click(button) \
+        .move_to_element_with_offset(button,
+                                     pos["left"] - el_pos["left"] + 1,
+                                     pos["top"] - el_pos["top"]) \
+        .click() \
+        .perform()
+
+
+@then(ur"the caret is set next to the clicked location")
+def step_impl(context):
+    driver = context.driver
+    caret_path = driver.execute_script("""
+    var caret = wed_editor.getDataCaret();
+    return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
+    """)
+    assert_equal(context.caret_path, caret_path)
