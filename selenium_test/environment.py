@@ -62,6 +62,9 @@ def skip_if_needed(context, entity):
         elif spec == "win,ff":
             if context.util.windows and context.util.firefox:
                 entity.mark_skipped()
+        elif spec == "ie":
+            if context.util.ie:
+                entity.mark_skipped()
         else:
             raise ValueError("can't interpret fails_if:" + spec)
 
