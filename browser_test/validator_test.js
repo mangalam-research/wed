@@ -3,8 +3,8 @@
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(["mocha/mocha", "chai", "jquery", "wed/validator", "salve/validate"],
-function (mocha, chai, $, validator, validate) {
+define(["mocha/mocha", "chai", "wed/validator", "salve/validate"],
+function (mocha, chai, validator, validate) {
 'use strict';
 
 // The test subdirectory is one of the paths required to be in the config
@@ -15,21 +15,23 @@ var to_parse_stack =
         ['../../test-files/validator_test_data/to_parse_converted.xml'];
 var assert = chai.assert;
 describe("validator", function () {
-    var p;
-    var $data = $("#data");
-    var $empty_data = $("#empty-data");
-    describe("(general)", function () {
-        beforeEach(function () {
-            $data.empty();
-            p = new validator.Validator(schema, $data[0]);
-            p._max_timespan = 0; // Work forever.
-        });
+    var parser = new window.DOMParser();
+    var frag = document.createDocumentFragment();
+    var empty_tree = document.createElement("div");
+    frag.appendChild(empty_tree);
 
-        after(function () {
-            $data.empty();
-        });
+    describe("", function () {
+        var p;
+
+        function makeValidator(tree) {
+            var p = new validator.Validator(schema, tree);
+            p._max_timespan = 0; // Work forever.
+            return p;
+        }
 
         it("with an empty document", function (done) {
+            var p = makeValidator(empty_tree);
+
             // Manipulate stop so that we know when the work is done.
             var old_stop = p.stop;
             p.stop = function () {
@@ -45,10 +47,12 @@ describe("validator", function () {
         });
 
         it("triggers error event", function (done) {
+            var p = makeValidator(empty_tree);
+
             // Manipulate stop so that we know when the work is done.
             p.addEventListener("error", function (ev) {
                 assert.equal(ev.error.toString(), "tag required: {}html");
-                assert.equal(ev.node, $data[0]);
+                assert.equal(ev.node, empty_tree);
                 done();
             });
 
@@ -57,17 +61,44 @@ describe("validator", function () {
 
 
         it("with actual contents", function (done) {
-            // Manipulate stop so that we know when the work is done.
-            var old_stop = p.stop;
-            p.stop = function () {
-                old_stop.call(p);
-                assert.equal(p._working_state, validator.VALID);
-                assert.equal(p._errors.length, 0);
-                done();
-            };
-
             require(["requirejs/text!" + to_parse_stack[0]], function(data) {
-                $data.html(data);
+                var tree = parser.parseFromString(data, "application/xml");
+                var p = makeValidator(tree);
+
+                // Manipulate stop so that we know when the work is done.
+                var old_stop = p.stop;
+                p.stop = function () {
+                    old_stop.call(p);
+                    assert.equal(p._working_state, validator.VALID);
+                    assert.equal(p._errors.length, 0);
+                    done();
+                };
+
+                p.start();
+            });
+        });
+
+        // This test was added in response to a bug that surfaced when
+        // wed moved from HTML to XML for the data tree.
+        it("with two namespaces on the same node", function (done) {
+            require(["requirejs/text!../../test-files/validator_test_data/" +
+                     "multiple_namespaces_on_same_node_converted.xml"],
+                    function(data) {
+                var tree = parser.parseFromString(data, "application/xml");
+                var p = new validator.Validator(
+                    "../../../schemas/tei-simplified-rng.js",
+                    tree);
+                p._max_timespan = 0; // Work forever.
+
+                // Manipulate stop so that we know when the work is done.
+                var old_stop = p.stop;
+                p.stop = function () {
+                    old_stop.call(p);
+                    assert.equal(p._working_state, validator.VALID);
+                    assert.equal(p._errors.length, 0);
+                    done();
+                };
+
                 p.start();
             });
         });
@@ -76,8 +107,8 @@ describe("validator", function () {
             require(["requirejs/text!../../test-files/" +
                      "validator_test_data/percent_to_parse_converted.xml"],
                     function(data) {
-                $data.html(data);
-                p._max_timespan = 0;
+                var tree = parser.parseFromString(data, "application/xml");
+                var p = makeValidator(tree);
                 p.initialize(function () {
                     p._cycle(); // <html>
                     assert.equal(p._part_done, 0);
@@ -121,57 +152,58 @@ describe("validator", function () {
         });
 
         it("restart at", function (done) {
-            // Manipulate stop so that we know when the work is done.
-            var old_stop = p.stop;
-            var first = true;
-            p.stop = function () {
-                old_stop.call(p);
-                assert.equal(p._working_state, validator.VALID);
-                assert.equal(p._errors.length, 0);
-                // Deal with first invocation and subsequent
-                // differently.
-                if (first) {
-                    first = false;
-                    p.restartAt($data[0]);
-                }
-                else
-                    done();
-            };
-
             require(["requirejs/text!" + to_parse_stack[0]], function(data) {
-                $data.html(data);
+                var tree = parser.parseFromString(data, "application/xml");
+                var p = makeValidator(tree);
+                // Manipulate stop so that we know when the work is done.
+                var old_stop = p.stop;
+                var first = true;
+                p.stop = function () {
+                    old_stop.call(p);
+                    assert.equal(p._working_state, validator.VALID);
+                    assert.equal(p._errors.length, 0);
+                    // Deal with first invocation and subsequent
+                    // differently.
+                    if (first) {
+                        first = false;
+                        p.restartAt(tree);
+                    }
+                    else
+                        done();
+                };
                 p.start();
             });
         });
 
         it("restart at triggers reset-errors event", function (done) {
-            // Manipulate stop so that we know when the work is done.
-            var old_stop = p.stop;
-            var first = true;
-            var got_reset = false;
-            p.stop = function () {
-                old_stop.call(p);
-                assert.equal(p._working_state, validator.VALID);
-                assert.equal(p._errors.length, 0);
-                // Deal with first invocation and subsequent
-                // differently.
-                if (first) {
-                    first = false;
-                    p.restartAt($data[0]);
-                }
-                else {
-                    assert.equal(got_reset, true);
-                    done();
-                }
-            };
-            p.addEventListener("reset-errors", function (ev) {
-                assert.equal(ev.at, 0);
-                got_reset = true;
-            });
-
-
             require(["requirejs/text!" + to_parse_stack[0]], function(data) {
-                $data.html(data);
+                var tree = parser.parseFromString(data, "application/xml");
+                var p = makeValidator(tree);
+
+                // Manipulate stop so that we know when the work is done.
+                var old_stop = p.stop;
+                var first = true;
+                var got_reset = false;
+                p.stop = function () {
+                    old_stop.call(p);
+                    assert.equal(p._working_state, validator.VALID);
+                    assert.equal(p._errors.length, 0);
+                    // Deal with first invocation and subsequent
+                    // differently.
+                    if (first) {
+                        first = false;
+                        p.restartAt(tree);
+                    }
+                    else {
+                        assert.equal(got_reset, true);
+                        done();
+                    }
+                };
+                p.addEventListener("reset-errors", function (ev) {
+                    assert.equal(ev.at, 0);
+                    got_reset = true;
+                });
+
                 p.start();
             });
         });
@@ -181,40 +213,41 @@ describe("validator", function () {
         // of the validator.
         //
         it("restart at and getErrorsFor", function (done) {
-            // Manipulate stop so that we know when the work is done.
-            var old_stop = p.stop;
-
-            var times = 0;
-
-            //
-            // This method will be called 3 times:
-            // - Once upon first validation.
-            // - Second when p.restartAt is called a second time.
-            // - Third upon final validation.
-            //
-            p.stop = function () {
-                old_stop.call(p);
-                if (times === 0 || times === 2) {
-                    assert.equal(p._working_state, validator.VALID);
-                    assert.equal(p._errors.length, 0);
-                }
-                // Deal with first invocation and subsequent
-                // differently.
-                if (times === 0) {
-                    setTimeout(function () {
-                        p.restartAt($data[0]);
-                        p.getErrorsFor($data.find("._real.em")[0]);
-                        p.restartAt($data[0]);
-                    }, 0);
-                }
-
-                if (times === 2)
-                    done();
-                times++;
-            };
-
             require(["requirejs/text!" + to_parse_stack[0]], function(data) {
-                $data.html(data);
+                var tree = parser.parseFromString(data, "application/xml");
+                var p = makeValidator(tree);
+                // Manipulate stop so that we know when the work is done.
+                var old_stop = p.stop;
+
+                var times = 0;
+
+                //
+                // This method will be called 3 times:
+                // - Once upon first validation.
+                // - Second when p.restartAt is called a second time.
+                // - Third upon final validation.
+                //
+                p.stop = function () {
+                    old_stop.call(p);
+                    if (times === 0 || times === 2) {
+                        assert.equal(p._working_state, validator.VALID);
+                        assert.equal(p._errors.length, 0);
+                    }
+                    // Deal with first invocation and subsequent
+                    // differently.
+                    if (times === 0) {
+                        setTimeout(function () {
+                            p.restartAt(tree);
+                            p.getErrorsFor(tree.getElementsByTagName("em")[0]);
+                            p.restartAt(tree);
+                        }, 0);
+                    }
+
+                    if (times === 2)
+                        done();
+                    times++;
+                };
+
                 p.start();
             });
         });
@@ -223,62 +256,59 @@ describe("validator", function () {
     // Testing possibleAt also tests _validateUpTo because it
     // depends on that function.
     describe("possibleAt", function () {
-        var p;
+        var data;
         before(function(done) {
             require(["requirejs/text!" + to_parse_stack[0]],
-                    function(data) {
-                $data.html(data);
+                    function(data_) {
+                data = data_;
                 done();
             });
         });
 
-        after(function () {
-            $data.empty();
-        });
-
-        function makeTest(name, stop_fn, $top) {
-            $top = $top || $data;
+        function makeTest(name, stop_fn, top) {
             it(name, function (done) {
-                p = new validator.Validator(schema, $top[0]);
+                top = top || data;
+                var tree = parser.parseFromString(top, "application/xml");
+                var p = new validator.Validator(schema, tree);
                 p._max_timespan = 0; // Work forever.
                 var old_stop = p.stop;
                 p.stop = function () {
                     old_stop.call(p);
-                    stop_fn();
+                    stop_fn(p, tree);
                     done();
                 };
                 p.start();
             });
         }
 
-        makeTest("empty document, at root", function () {
-            var evs = p.possibleAt($empty_data[0], 0);
+        makeTest("empty document, at root", function (p, tree) {
+            var evs = p.possibleAt(empty_tree, 0);
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("enterStartTag", "", "html")]);
-        }, $empty_data);
+        }, empty_tree);
 
-        makeTest("with actual contents, at root", function () {
-            var evs = p.possibleAt($data[0], 0);
+        makeTest("with actual contents, at root", function (p, tree) {
+            var evs = p.possibleAt(tree, 0);
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("enterStartTag", "", "html")]);
         });
 
-        makeTest("with actual contents, at end", function () {
-            var evs = p.possibleAt($data[0], 1);
+        makeTest("with actual contents, at end", function (p, tree) {
+            var evs = p.possibleAt(tree, 1);
             assert.sameMembers(evs.toArray(), []);
         });
 
-        makeTest("with actual contents, start of html", function () {
-            var evs = p.possibleAt($data.children("._real.html")[0], 0);
+        makeTest("with actual contents, start of html", function (p, tree) {
+            var evs = p.possibleAt(tree.getElementsByTagName("html")[0], 0);
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("enterStartTag", "", "head")]);
         });
 
-        makeTest("with actual contents, start of head", function () {
-            var evs = p.possibleAt($data.find("._real.head")[0], 0);
+        makeTest("with actual contents, start of head", function (p, tree) {
+            var evs = p.possibleAt(tree.getElementsByTagName("head")[0], 0);
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("enterStartTag", "", "title")]);
@@ -286,8 +316,8 @@ describe("validator", function () {
 
         makeTest("with actual contents, start of title "+
                  "(start of text node)",
-                 function () {
-            var el = $data.find("._real.title")[0].firstChild;
+                 function (p, tree) {
+            var el = tree.getElementsByTagName("title")[0].firstChild;
             // Make sure we know what we are looking at.
             assert.equal(el.nodeType, Node.TEXT_NODE);
             var evs = p.possibleAt(el, 0);
@@ -298,8 +328,8 @@ describe("validator", function () {
         });
 
         makeTest("with actual contents, index inside text node",
-                 function () {
-            var el = $data.find("._real.title")[0].firstChild;
+                 function (p, tree) {
+            var el = tree.getElementsByTagName("title")[0].firstChild;
             // Make sure we know what we are looking at.
             assert.equal(el.nodeType, Node.TEXT_NODE);
             var evs = p.possibleAt(el, 1);
@@ -309,8 +339,8 @@ describe("validator", function () {
                  new validate.Event("text", "*")]);
         });
 
-        makeTest("with actual contents, end of title", function () {
-            var title = $data.find("._real.title")[0];
+        makeTest("with actual contents, end of title", function (p, tree) {
+            var title = tree.getElementsByTagName("title")[0];
             var evs = p.possibleAt(title, title.childNodes.length);
             assert.sameMembers(
                 evs.toArray(),
@@ -318,16 +348,16 @@ describe("validator", function () {
                  new validate.Event("text", "*")]);
         });
 
-        makeTest("with actual contents, end of head", function () {
-            var el = $data.find("._real.head")[0];
+        makeTest("with actual contents, end of head", function (p, tree) {
+            var el = tree.getElementsByTagName("head")[0];
             var evs = p.possibleAt(el, el.childNodes.length);
             assert.sameMembers(
                 evs.toArray(),
                 [new validate.Event("endTag", "", "head")]);
         });
 
-        makeTest("with actual contents, after head", function () {
-            var el = $data.find("._real.head")[0];
+        makeTest("with actual contents, after head", function (p, tree) {
+            var el = tree.getElementsByTagName("head")[0];
             var evs = p.possibleAt(
                 el.parentNode,
                 Array.prototype.indexOf.call(el.parentNode.childNodes, el) + 1);
@@ -338,57 +368,54 @@ describe("validator", function () {
     });
 
     describe("possibleWhere", function () {
-        var p;
+        var data;
         before(function(done) {
             require(["requirejs/text!" + to_parse_stack[0]],
-                    function(data) {
-                $data.html(data);
+                    function(data_) {
+                data = data_;
                 done();
             });
         });
 
-        after(function () {
-            $data.empty();
-        });
-
-        function makeTest(name, stop_fn, $top) {
-            $top = $top || $data;
+        function makeTest(name, stop_fn, top) {
             it(name, function (done) {
-                p = new validator.Validator(schema, $top[0]);
+                top = top || data;
+                var tree = parser.parseFromString(top, "application/xml");
+                var p = new validator.Validator(schema, tree);
                 p._max_timespan = 0; // Work forever.
                 var old_stop = p.stop;
                 p.stop = function () {
                     old_stop.call(p);
-                    stop_fn();
+                    stop_fn(p, tree);
                     done();
                 };
                 p.start();
             });
         }
 
-        makeTest("multiple locations", function () {
-            var el = $data.find("._real.body")[0];
+        makeTest("multiple locations", function (p, tree) {
+            var el = tree.querySelector("body");
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "em"));
             assert.sameMembers(locs, [0, 1, 2, 3]);
         });
 
-        makeTest("no locations", function () {
-            var el = $data.find("._real.body")[0];
+        makeTest("no locations", function (p, tree) {
+            var el = tree.querySelector("body");
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "impossible"));
             assert.sameMembers(locs, []);
         });
 
-        makeTest("one location", function () {
-            var el = $data.find("._real.html")[0];
+        makeTest("one location", function (p, tree) {
+            var el = tree.querySelector("html");
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "body"));
                 assert.sameMembers(locs, [2, 3]);
         });
 
-        makeTest("empty element", function () {
-            var el = $data.find("._real.em ._real.em")[0];
+        makeTest("empty element", function (p, tree) {
+            var el = tree.querySelector("em em");
             var locs = p.possibleWhere(el, new validate.Event(
                 "enterStartTag", "", "em"));
                 assert.sameMembers(locs, [0]);
@@ -398,24 +425,20 @@ describe("validator", function () {
 
     // We test speculativelyValidateFragment through speculativelyValidate
     describe("speculativelyValidate", function () {
-        var p;
+        var p, tree;
 
         before(function(done) {
             require(["requirejs/text!" + to_parse_stack[0]],
                     function(data) {
-                $data.html(data);
-                p = new validator.Validator(schema, $data[0]);
+                tree = parser.parseFromString(data, "application/xml");
+                p = new validator.Validator(schema, tree);
                 p._max_timespan = 0; // Work forever.
                 done();
             });
         });
 
-        after(function () {
-            $data.empty();
-        });
-
         it("does not report errors on valid fragments", function (done) {
-            var body = $data.find(".body")[0];
+            var body = tree.getElementsByTagName("body")[0];
             var container = body.parentNode;
             var index = Array.prototype.indexOf.call(container.childNodes,
                                                      body);
@@ -427,12 +450,12 @@ describe("validator", function () {
         });
 
         it("reports errors on invalid fragments", function (done) {
-            var body = $data.find(".body")[0];
+            var body = tree.getElementsByTagName("body")[0];
             var container = body.parentNode;
             var index = Array.prototype.indexOf.call(container.childNodes,
                                                      body);
             p.initialize(function () {
-                var em = $data.find(".em").first()[0];
+                var em = tree.getElementsByTagName("em")[0];
                 var ret = p.speculativelyValidate(container, index, em);
                 assert.equal(ret.length, 1);
                 assert.equal(ret[0].error.toString(),
@@ -443,7 +466,7 @@ describe("validator", function () {
 
         it("on valid data, does not disturb its validator",
            function (done) {
-            var body = $data.find(".body")[0];
+            var body = tree.getElementsByTagName("body")[0];
             var container = body.parentNode;
             var index = Array.prototype.indexOf.call(container.childNodes,
                                                      body);
@@ -463,12 +486,12 @@ describe("validator", function () {
 
         it("on invalid data, does not disturb its validator",
            function (done) {
-            var body = $data.find(".body")[0];
+            var body = tree.getElementsByTagName("body")[0];
             var container = body.parentNode;
             var index = Array.prototype.indexOf.call(container.childNodes,
                                                      body);
             p.initialize(function () {
-                var em = $data.find(".em").first()[0];
+                var em = tree.getElementsByTagName("em")[0];
                 var ret = p.speculativelyValidate(container, index, em);
                 assert.equal(ret.length, 1, "the fragment is invalid");
                 // No errors after.
@@ -489,7 +512,7 @@ describe("validator", function () {
         // infinite loop.
         it("works fine if the data to validate is only text",
            function (done) {
-            var container = $data.find(".em")[0];
+            var container = tree.getElementsByTagName("em")[0];
             p.initialize(function () {
                 var to_parse = document.createTextNode("data");
                 var ret = p.speculativelyValidate(container, 0, to_parse);
@@ -502,24 +525,20 @@ describe("validator", function () {
     // speculativelyValidateFragment is largely tested through
     // speculativelyValidate above.
     describe("speculativelyValidateFragment", function () {
-        var p;
+        var p, tree;
 
         before(function(done) {
             require(["requirejs/text!" + to_parse_stack[0]],
                     function(data) {
-                $data.html(data);
-                p = new validator.Validator(schema, $data[0]);
+                tree = parser.parseFromString(data, "application/xml");
+                p = new validator.Validator(schema, tree);
                 p._max_timespan = 0; // Work forever.
                 done();
             });
         });
 
-        after(function () {
-            $data.empty();
-        });
-
         it("throws an error if to_parse is not an element", function (done) {
-            var body = $data.find(".body")[0];
+            var body = tree.getElementsByTagName("body")[0];
             var container = body.parentNode;
             var index = Array.prototype.indexOf.call(container.childNodes,
                                                      body);
@@ -535,11 +554,12 @@ describe("validator", function () {
 
 
     describe("getDocumentNamespaces", function () {
+        var p, tree;
         beforeEach(function (done) {
             require(["requirejs/text!" + to_parse_stack[0]],
                     function(data) {
-                $data.html(data);
-                p = new validator.Validator(schema, $data[0]);
+                tree = parser.parseFromString(data, "application/xml");
+                p = new validator.Validator(schema, tree);
                 p._max_timespan = 0; // Work forever.
                 done();
             });
@@ -583,30 +603,27 @@ describe("validator", function () {
     });
 
     describe("getErrorsFor", function () {
-        var p;
+        var data;
         beforeEach(function(done) {
             require(["requirejs/text!" + to_parse_stack[0]],
-                    function(data) {
-                $data.html(data);
+                    function(data_) {
+                data = data_;
                 done();
             });
-        });
-
-        after(function () {
-            $data.empty();
         });
 
         function makeTest(name, pre_fn, stop_fn) {
             it(name, function (done) {
 
-                pre_fn();
+                var tree = parser.parseFromString(data, "application/xml");
+                pre_fn(tree);
 
-                p = new validator.Validator(schema, $data[0]);
+                var p = new validator.Validator(schema, tree);
                 p._max_timespan = 0; // Work forever.
                 var old_stop = p.stop;
                 p.stop = function () {
                     old_stop.call(p);
-                    stop_fn();
+                    stop_fn(p, tree);
                     done();
                 };
                 p.start();
@@ -614,31 +631,30 @@ describe("validator", function () {
         }
 
         makeTest("with actual contents, no errors", function () {},
-                 function () {
+                 function (p, tree) {
             assert.equal(p._errors.length, 0, "no errors");
-            assert.sameMembers(p.getErrorsFor($data.find(".em")[0]), []);
+            assert.sameMembers(p.getErrorsFor(
+                tree.getElementsByTagName("em")[0]), []);
         });
 
 
         makeTest("with actual contents, errors in the tag examined",
-                 function () {
-            var $em = $data.find(".em").first();
-            $em.prepend("<div class='foo _real'></foo>");
+                 function (tree) {
+            tree.getElementsByTagName("em")[0].innerHTML += "<foo></foo>";
         },
-                 function () {
-            var errors = p.getErrorsFor($data.find(".em")[0]);
+                 function (p, tree) {
+            var errors = p.getErrorsFor(tree.getElementsByTagName("em")[0]);
             assert.equal(errors.length, 1);
             assert.equal(errors[0].error.toString(),
                          "tag not allowed here: {}foo");
         });
 
         makeTest("with actual contents, errors but not in the tag examined",
-                 function () {
-            var $em = $data.find(".em").first();
-            $em.prepend("<div class='foo _real'></foo>");
+                 function (tree) {
+            tree.getElementsByTagName("em")[0].innerHTML += "<foo></foo>";
         },
-                 function () {
-            var errors = p.getErrorsFor($data.find(".em")[1]);
+                 function (p, tree) {
+            var errors = p.getErrorsFor(tree.getElementsByTagName("em")[1]);
             assert.equal(errors.length, 0);
         });
 
