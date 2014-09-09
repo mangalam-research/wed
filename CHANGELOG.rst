@@ -86,6 +86,14 @@ Only salient changes are recorded here.
     is now referenced in description strings as ``<name>`` rather than
     ``<element_name>``.
 
+  - API: Wed now expects pure XML and saves pure XML rather than the
+    HTML format that was previously used. Related changes:
+
+    - API: InputTrigger now takes an actual element name for selector
+      rather than the class name required by the now obsolete method
+      of storing data. So to get paragraph elements for instance you
+      specify "p" rather than ".p".
+
 * 0.17.2:
 
   - 0.17.1 actually introduced more problems on IE. Hopefully, this
