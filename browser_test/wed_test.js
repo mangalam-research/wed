@@ -1815,7 +1815,7 @@ describe("wed", function () {
                             onerror.__test.reset();
                             done();
                         });
-                    }, 500);
+                    }, 1000);
                     throw new Error("I'm failing!");
                 }, 0);
             });
