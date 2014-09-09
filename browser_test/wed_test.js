@@ -1395,7 +1395,7 @@ describe("wed", function () {
 
         it("handles pasting simple text into an attribute", function () {
             var p = editor.data_root.querySelector("body>p:nth-of-type(8)");
-            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            var initial = p.getAttributeNode("rend");
             editor.setDataCaret(initial, 0);
             var initial_value = initial.value;
 
@@ -1464,7 +1464,7 @@ describe("wed", function () {
 
         it("handles cutting in attributes", function (done) {
             var p = editor.data_root.querySelector("body>p:nth-of-type(8)");
-            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            var initial = p.getAttributeNode("rend");
             var initial_value = initial.value;
             var start = editor.fromDataLocation(initial, 2);
             var end = editor.fromDataLocation(initial, 4);
@@ -1484,7 +1484,7 @@ describe("wed", function () {
 
         it("handles properly caret position for words that are too " +
            "long to word wrap", function () {
-            var p = editor.data_root.getElementsByClassName("p")[0];
+            var p = editor.data_root.getElementsByTagName("p")[0];
             editor.setDataCaret(p, 0);
             editor.type("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
@@ -1502,7 +1502,7 @@ describe("wed", function () {
 
         it("handles properly caret position for elements that span lines",
            function () {
-            var p = editor.data_root.querySelectorAll(".body>.p")[5];
+            var p = editor.data_root.querySelectorAll("body>p")[5];
             var text_loc = editor.fromDataLocation(p.lastChild, 2);
             assert.equal(text_loc.node.nodeType, Node.TEXT_NODE);
 
@@ -1536,7 +1536,7 @@ describe("wed", function () {
 
         // This test only checks that the editor does not crash.
         it("autofills in the midst of text", function () {
-            var p = editor.data_root.querySelector(".body>.p");
+            var p = editor.data_root.querySelector("body>p");
             assert.isTrue(p.firstChild.nodeType === Node.TEXT_NODE,
                           "we should set our caret in a text node");
             editor.setDataCaret(p.firstChild, 3);
@@ -1568,15 +1568,11 @@ describe("wed", function () {
                         var obj = {
                             command: 'save',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"><div class="p _real">\
-</div></div><div class="sourceDesc _real"><div class="p _real"></div>\
-</div></div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt><p></p></publicationStmt><sourceDesc><p></p></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
@@ -1606,22 +1602,18 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                         var obj = {
                             command: 'autosave',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"></div><div class="sourceDesc _real">\
-<div class="p _real"></div>\
-</div></div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt></publicationStmt><sourceDesc><p></p></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
                     });
                 });
                 editor.data_updater.removeNode(
-                    editor.data_root.querySelector(".p._real"));
+                    editor.data_root.querySelector("p"));
                 var interval = 50;
                 editor._saver.setAutosaveInterval(interval);
                 // This leaves ample time.
@@ -1645,15 +1637,11 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                         var obj = {
                             command: 'autosave',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"></div><div class="sourceDesc _real">\
-<div class="p _real"></div>\
-</div></div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt></publicationStmt><sourceDesc><p></p></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
@@ -1664,7 +1652,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 setTimeout(function () {
                     assert.isFalse(autosaved, "should not have been saved yet");
                     editor.data_updater.removeNode(
-                        editor.data_root.querySelector(".p._real"));
+                        editor.data_root.querySelector("p"));
                 }, interval * 2);
                 // This leaves ample time.
                 setTimeout(function () {
@@ -1783,15 +1771,11 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                                 command: 'save',
                                 version: wed.version,
                                 data:
-'<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"><div class="p _real"></div>\
-</div><div class="sourceDesc _real"><div class="p _real"></div></div>\
-</div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+'<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt><p></p></publicationStmt><sourceDesc><p></p></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                             };
                             var expected = "\n***\n" + JSON.stringify(obj);
                             assert.equal(data, expected);
@@ -1821,16 +1805,11 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                                 command: 'recover',
                                 version: wed.version,
                                 data:
-'<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div></div>\
-<div class="publicationStmt _real"><div class="p _real"></div></div>\
-<div class="sourceDesc _real"><div class="p _real"></div></div></div></div>\
-<div class="text _real"><div class="body _real"><div class="p _real">Blah blah \
-<div class="term _real">blah</div> blah.</div><div class="p _real">\
-<div class="term _real">blah</div></div></div></div></div>'
-                            };
+'<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt><p></p></publicationStmt><sourceDesc><p></p></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'                            };
                             var expected = "\n***\n" + JSON.stringify(obj);
                             assert.equal(data, expected);
                             onerror.__test.reset();
