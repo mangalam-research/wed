@@ -499,6 +499,32 @@ describe("wed", function () {
                 "_placeholder"));
         });
 
+        it("an element that goes from empty to not empty is properly " +
+           "decorated",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            var initial = editor.gui_root.querySelector(".publicationStmt>.p");
+            var initial_data = editor.toDataNode(initial);
+
+            // Make sure we are looking at the right thing.
+            assert.equal(initial_data.childNodes.length, 0);
+            editor.setDataCaret(initial_data, 0);
+            editor.type("a");
+            assert.equal(initial_data.childNodes.length, 1);
+            // Check the contents of the GUI tree to make sure it has
+            // a start, end labels and one text node.
+            assert.equal(initial.childNodes.length, 3);
+            var cl;
+            assert.isTrue((cl = initial.firstChild.classList) &&
+                          cl.contains("_p_label") &&
+                          cl.contains("__start_label"));
+            assert.equal(initial.childNodes[1].nodeType, Node.TEXT_NODE);
+            assert.isTrue((cl = initial.lastChild.classList) &&
+                          cl.contains("_p_label") &&
+                          cl.contains("__end_label"));
+        });
+
         it("unwraps elements", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
