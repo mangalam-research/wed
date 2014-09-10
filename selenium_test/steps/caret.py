@@ -734,7 +734,7 @@ def step_impl(context):
     return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
     """)
 
-    pos = wedutil.caret_screen_pos(driver)
+    pos = wedutil.caret_selection_pos(driver)
     # First click away so that the caret is no longer where we left it
     # and the subsequent click moves it again.
     el_pos = util.element_screen_position(button)
