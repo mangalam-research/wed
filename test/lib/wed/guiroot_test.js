@@ -106,7 +106,7 @@ describe("guiroot", function () {
                         '</span> >&nbsp;</span></span>');
                 node = defined($(node).find("._attribute_value")[0]);
                 assert.equal(root_obj.nodeToPath(node),
-                             "0/1/0/1/1/@data-wed-type");
+                             "0/1/0/1/1/@type");
             });
 
             it("returns a correct path on text node in attribute", function () {
@@ -123,7 +123,7 @@ describe("guiroot", function () {
                 node = defined($(node).find("._attribute_value")[0]
                                .childNodes[0]);
                 assert.equal(root_obj.nodeToPath(node),
-                             "0/1/0/1/1/@data-wed-type");
+                             "0/1/0/1/1/@type");
             });
 
             it("fails on a node which is not a descendant of its root",
@@ -172,7 +172,7 @@ describe("guiroot", function () {
                         '=<span class="_phantom _attribute_value">q</span>' +
                         '</span> >&nbsp;</span></span>');
                 node = defined($(node).find("._attribute_value")[0]);
-                assert.equal(root_obj.pathToNode("0/1/0/1/1/@data-wed-type"),
+                assert.equal(root_obj.pathToNode("0/1/0/1/1/@type"),
                              node);
             });
 
