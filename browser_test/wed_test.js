@@ -1570,7 +1570,7 @@ describe("wed", function () {
                             version: wed.version,
                             data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
-<publicationStmt><p></p></publicationStmt><sourceDesc><p></p></sourceDesc>\
+<publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
 </fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
 <p><term>blah</term></p></body></text></TEI>'
                         };
@@ -1604,7 +1604,7 @@ describe("wed", function () {
                             version: wed.version,
                             data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
-<publicationStmt></publicationStmt><sourceDesc><p></p></sourceDesc>\
+<publicationStmt/><sourceDesc><p/></sourceDesc>\
 </fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
 <p><term>blah</term></p></body></text></TEI>'
                         };
@@ -1639,7 +1639,7 @@ describe("wed", function () {
                             version: wed.version,
                             data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
-<publicationStmt></publicationStmt><sourceDesc><p></p></sourceDesc>\
+<publicationStmt/><sourceDesc><p/></sourceDesc>\
 </fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
 <p><term>blah</term></p></body></text></TEI>'
                         };
@@ -1773,7 +1773,7 @@ describe("wed", function () {
                                 data:
 '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
-<publicationStmt><p></p></publicationStmt><sourceDesc><p></p></sourceDesc>\
+<publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
 </fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
 <p><term>blah</term></p></body></text></TEI>'
                             };
@@ -1807,7 +1807,7 @@ describe("wed", function () {
                                 data:
 '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
-<publicationStmt><p></p></publicationStmt><sourceDesc><p></p></sourceDesc>\
+<publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
 </fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
 <p><term>blah</term></p></body></text></TEI>'                            };
                             var expected = "\n***\n" + JSON.stringify(obj);

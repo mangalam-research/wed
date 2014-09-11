@@ -31,6 +31,13 @@ var $wedroot = $(wedroot);
 var src_stack =
         ["../../test-files/input_trigger_test_data/source_converted.xml"];
 
+// This is an ad-hoc function meant for these tests *only*. The XML
+// serialization adds an xmlns declaration that we don't care
+// for. So...
+function cleanNamespace(str) {
+    return str.replace(/ xmlns=".*?"/, '');
+}
+
 describe("input_trigger_factory", function () {
     var editor;
     beforeEach(function (done) {
@@ -63,10 +70,10 @@ describe("input_trigger_factory", function () {
 
             ps = editor.data_root.querySelectorAll("body p");
             assert.equal(ps.length, 2);
-            assert.equal(ps[0].outerHTML, '<p>Blah</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
             assert.equal(ps.length, 2);
-            assert.equal(ps[0].outerHTML, '<p>Blah</p>');
-            assert.equal(ps[1].outerHTML,
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML),
                          '<p> blah <term>blah</term>' +
                          '<term>blah2</term> blah.</p>');
         });
@@ -84,10 +91,10 @@ describe("input_trigger_factory", function () {
 
             ps = editor.data_root.querySelectorAll("body p");
             assert.equal(ps.length, 2);
-            assert.equal(ps[0].outerHTML, '<p>Blah</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
             assert.equal(ps.length, 2);
-            assert.equal(ps[0].outerHTML, '<p>Blah</p>');
-            assert.equal(ps[1].outerHTML,
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML),
                          '<p> blah <term>blah</term>' +
                          '<term>blah2</term> blah.</p>');
         });
@@ -119,9 +126,9 @@ describe("input_trigger_factory", function () {
 
             ps = editor.data_root.querySelectorAll("body p");
             assert.equal(ps.length, 3);
-            assert.equal(ps[0].outerHTML, '<p>ab</p>');
-            assert.equal(ps[1].outerHTML, '<p>cd</p>');
-            assert.equal(ps[2].outerHTML,
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>ab</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML), '<p>cd</p>');
+            assert.equal(cleanNamespace(ps[2].outerHTML),
                          '<p>efBlah blah <term>blah</term>'+
                          '<term>blah2</term> blah.</p>');
         });
@@ -192,7 +199,7 @@ describe("input_trigger_factory", function () {
             ps = editor.data_root.querySelectorAll("body>p");
             assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal(ps[0].outerHTML, '<p>BarFoo</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
         });
 
         it("creates an InputTrigger that merges on BACKSPACE, and can undo",
@@ -211,15 +218,15 @@ describe("input_trigger_factory", function () {
             ps = editor.data_root.querySelectorAll("body>p");
             assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal(ps[0].outerHTML, '<p>BarFoo</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
 
             editor.undo();
 
             ps = editor.data_root.querySelectorAll("body>p");
             assert.equal(ps.length, 2,
                         "there should be 2 paragraphs after undo");
-            assert.equal(ps[0].outerHTML, '<p>Bar</p>');
-            assert.equal(ps[1].outerHTML, '<p>Foo</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Bar</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML), '<p>Foo</p>');
         });
 
         it("creates an InputTrigger that merges on DELETE",
@@ -239,7 +246,7 @@ describe("input_trigger_factory", function () {
             ps = editor.data_root.querySelectorAll("body>p");
             assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal(ps[0].outerHTML, '<p>BarFoo</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
         });
 
         it("creates an InputTrigger that merges on DELETE, and can undo",
@@ -259,14 +266,14 @@ describe("input_trigger_factory", function () {
             ps = editor.data_root.querySelectorAll("body>p");
             assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal(ps[0].outerHTML, '<p>BarFoo</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
 
             editor.undo();
             ps = editor.data_root.querySelectorAll("body>p");
             assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
-            assert.equal(ps[0].outerHTML, '<p>Bar</p>');
-            assert.equal(ps[1].outerHTML, '<p>Foo</p>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Bar</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML), '<p>Foo</p>');
         });
     });
 

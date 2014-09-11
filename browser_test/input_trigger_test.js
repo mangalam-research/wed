@@ -31,6 +31,13 @@ var wedroot = $("#wedframe-invisible").contents().find("#wedroot")[0];
 var $wedroot = $(wedroot);
 var source = "../../test-files/input_trigger_test_data/source_converted.xml";
 
+// This is an ad-hoc function meant for these tests *only*. The XML
+// serialization adds an xmlns declaration that we don't care
+// for. So...
+function cleanNamespace(str) {
+    return str.replace(/ xmlns=".*?"/, '');
+}
+
 describe("InputTrigger", function () {
     var editor;
     beforeEach(function (done) {
@@ -153,9 +160,9 @@ describe("InputTrigger", function () {
 
         ps = editor.data_root.querySelectorAll("body p");
         assert.equal(ps.length, 3);
-        assert.equal(ps[0].outerHTML, '<p>ab</p>');
-        assert.equal(ps[1].outerHTML, '<p>cd</p>');
-        assert.equal(ps[2].outerHTML,
+        assert.equal(cleanNamespace(ps[0].outerHTML), '<p>ab</p>');
+        assert.equal(cleanNamespace(ps[1].outerHTML), '<p>cd</p>');
+        assert.equal(cleanNamespace(ps[2].outerHTML),
                      '<p>efBlah blah <term>blah</term>'+
                      '<term>blah2</term> blah.</p>',
                     "first split: 3rd part");
@@ -163,7 +170,7 @@ describe("InputTrigger", function () {
         editor.undo();
         ps = editor.data_root.querySelectorAll("body p");
         assert.equal(ps.length, 1);
-        assert.equal(ps[0].outerHTML,
+        assert.equal(cleanNamespace(ps[0].outerHTML),
                      '<p>Blah blah <term>blah</term>'+
                      '<term>blah2</term> blah.</p>',
                      "after undo");
@@ -171,11 +178,11 @@ describe("InputTrigger", function () {
         editor.redo();
         ps = editor.data_root.querySelectorAll("body p");
         assert.equal(ps.length, 3, "after redo: length");
-        assert.equal(ps[0].outerHTML, '<p>ab</p>',
+        assert.equal(cleanNamespace(ps[0].outerHTML), '<p>ab</p>',
                      "after redo: 1st part");
-        assert.equal(ps[1].outerHTML, '<p>cd</p>',
+        assert.equal(cleanNamespace(ps[1].outerHTML), '<p>cd</p>',
                      "after redo: 2nd part");
-        assert.equal(ps[2].outerHTML,
+        assert.equal(cleanNamespace(ps[2].outerHTML),
                      '<p>efBlah blah <term>blah</term>'+
                      '<term>blah2</term> blah.</p>',
                      "after redo: 3rd part");
