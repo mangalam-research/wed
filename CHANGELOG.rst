@@ -15,6 +15,17 @@ Only salient changes are recorded here.
 
   - wed now bundles with jQuery 2.1.1.
 
+  - API: Wed now expects pure XML and saves pure XML rather than the
+    HTML format that was previously used. Related changes:
+
+    - ``xml-to-html`` and ``html-to-xml`` are no longer needed.
+
+    - API: InputTrigger now takes an actual element name for selector
+      rather than the class name required by the now obsolete method
+      of storing data. So to get paragraph elements for instance you
+      specify "p" rather than ".p".
+
+
   - API: ``Mode.getContextualMenuItems`` has been removed. This was a
     function that was added very early on and that has since been
     subsumed by other methods, like ``Mode.getContextualActions``.
@@ -85,14 +96,6 @@ Only salient changes are recorded here.
     object passed to their handlers is now called ``name``. This field
     is now referenced in description strings as ``<name>`` rather than
     ``<element_name>``.
-
-  - API: Wed now expects pure XML and saves pure XML rather than the
-    HTML format that was previously used. Related changes:
-
-    - API: InputTrigger now takes an actual element name for selector
-      rather than the class name required by the now obsolete method
-      of storing data. So to get paragraph elements for instance you
-      specify "p" rather than ".p".
 
 * 0.17.2:
 

@@ -716,7 +716,7 @@ its corresponding data element. Update data nodes as needed.
 GUI Tree and Data Tree
 ----------------------
 
-Wed maintains two trees of DOM trees:
+Wed maintains two trees of DOM nodes:
 
 * A data tree which is not attached to the browser's document. (It is
   not visible. It does not receive events.) It is a mere
@@ -734,8 +734,8 @@ The ``GUIUpdater`` object stored in ``Editor._gui_updater`` is
 responsible for inserting and deleting the nodes of the GUI tree that
 corresponds to those of the data tree whenever the latter is modified.
 
-Conversion for Editing
-======================
+Elements of the GUI Tree
+========================
 
 Wed operates on an HTML structure constructed as follows:
 
@@ -853,13 +853,6 @@ cutting is problematic, because:
 It is possible to listen to ``cut`` events and let them go through or
 veto them, but this is about the maximum level of control that can be
 achieved cross-browser.
-
-As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
-Linux. It is unknown whether it would work on other
-platforms. Unfortunately, it is not possible to automatically test for
-cutting functionality because JavaScript cannot initiate a cut
-operation by itself.
-
 
 Contenteditable
 ---------------

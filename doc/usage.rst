@@ -13,7 +13,7 @@ Known limitations:
   <https://github.com/mangalam-research/salve/>`_ package for details.
 
 * Wed does not currently support ordering attributes according to some
-  set order. (The order is whatever the DOM implementation does by
+  preference. (The order is whatever the DOM implementation does by
   default.)
 
 * Wed does not currently support multiline values in attributes.
@@ -65,19 +65,11 @@ Known limitations:
 
 * See also `Browser Requirements`_.
 
-Known bugs:
-
-* Firefox: Sometimes a caret moved to the end of a bit of text
-  disappears. There does not seem to be any rhyme or reason for it. It
-  is probably a Firefox bug. At any rate, wed does not currently
-  compensate for it. So you may see your caret disappear, but it is
-  still there, waiting for you to type text.
-
 Browser Requirements
 ====================
 
 Wed is primarily developed using a recent version of Chrome (version
-35; versions 26-34 have also been used earlier) and a recent version
+36; versions 26-35 have also been used earlier) and a recent version
 of Firefox (version 28; versions 20-27 have also been used earlier)
 for testing. The fact that wed is developed using these browsers
 influences the severity and frequency of bugs you can expect to run
@@ -86,18 +78,20 @@ into.
 Here is the list of officially supported browsers, in order of
 decreasing priority:
 
-* Chrome 35 and higher and Firefox 28 and higher, about equally.
+* Chrome 36 and higher and Firefox 28 and higher, about equally.
 
 * IE 10 and 11, about equally.
 
 File an issue on github if you find a problem with one of the
-supported browsers above. IE 9 is neither supported nor
-unsupported. See the section on `IE 9`_ below for an explanation.
+supported browsers above.
 
 We would like to support phone and tablet browsers but due to a lack
 of development resources, such support is unlikely to materialize
 soon. In decreasing order of likelihood, the following cases are
 unlikely to ever be supported:
+
+* IE 9. We'd need a) a substantial demand for it and b) people willing
+  to participate in providing support.
 
 * Versions of Chrome and Firefox older than those mentioned above.
 
@@ -110,32 +104,6 @@ unlikely to ever be supported:
 
 * Operating systems or browsers no longer supported by their own
   vendors.
-
-IE 9
-----
-
-Is it safe to use wed with IE 9? Probably.
-
-Some work has been done to support IE 9. However, as of 2013-03-20
-three tests of the Selenium test suite fail intermitently in IE 9. It
-is not possible to reproduce the failures manually, which makes it
-really hard to debug. Since the failures only occur in Selenium, some
-sort of logging at the JavaScript level must be performed to figure
-out what is going on. However, IE 9 does not seem to have any facility
-that readily allows producing stack traces. Methods that work on
-Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method we
-know for IE 9 relies on using the ``caller`` argument, which is turned
-off when strict mode is in use. Using this method would mean turning
-off strict mode in wed **and** in any third-party library that happens
-to be on the stack when the trace is produced. Not a trivial
-matter. So for now IE 9 is not officially supported.
-
-You may use it. And we will listen to bug reports concerning it. But
-there are no guarantees.
-
-If you are in a position to contribute substantial monetary or
-technical resources towards making IE 9 officially supported, you are
-welcome to contact us.
 
 OS X
 ----
@@ -359,13 +327,6 @@ designed the mode.
 Using
 =====
 
-Wed expects the XML files it uses to have been converted from XML to
-an ad-hoc HTML version. So the data passed to it must have been
-converted by :github:`lib/wed/xml-to-html.xsl`. Various schemas and projects
-will have different needs regarding white space handling, so it is
-likely you'll want to create your own ``xml-to-html.xsl`` file that will
-import :github:`lib/wed/xml-to-html.xsl` but customize white space handling.
-
 To include wed in a web page you must:
 
 * Require :github:`lib/wed/wed.js`
@@ -374,15 +335,14 @@ To include wed in a web page you must:
 
     var editor = new wed.Editor();
     [...]
-    editor.init(widget, options);
+    editor.init(widget, options, data);
 
   Between the creation of the ``Editor`` object and the call to
   ``init``, there conceivably could be some calls to add event
   handlers or condition handlers. The ``widget`` parameter must be an
-  element (preferably a ``div``) which contains the entire data
-  structure to edit (converted by ``xml-to-html.xsl`` or a
-  customization of it). The ``options`` parameter is a dictionary
-  which at present understands the following keys:
+  element (preferably a ``div``) that wed will take over to install
+  its GUI. The ``options`` parameter is a dictionary which at present
+  understands the following keys:
 
   + ``schema``: the path to the schema to use for interpreting the
     document. This file must contain the result of doing the schema
@@ -406,11 +366,14 @@ To include wed in a web page you must:
 
   + ``save``: See the documentation about :ref:`saving <saving>`.
 
-  If ``options`` is absent, wed will attempt getting its configuration
-  from RequireJS by calling ``module.config()``. See the RequireJS
-  documentation. The ``wed/wed`` configuration in
-  :github:`config/requirejs-config-dev.js` gives an example of how this can
-  be used.
+  If ``options`` is ``undefined``, wed will attempt getting its
+  configuration from RequireJS by calling ``module.config()``. See the
+  RequireJS documentation. The ``wed/wed`` configuration in
+  :github:`config/requirejs-config-dev.js` gives an example of how
+  this can be used.
+
+  The ``data`` parameter is a string containing the document to edit,
+  in XML format.
 
 Here is an example of an ``options`` object::
 
@@ -446,21 +409,19 @@ module from calling the old onerror.
 Round-Tripping
 ==============
 
-The transformations performed by :github:`lib/wed/xml-to-html.xsl` and
-:github:`lib/wed/html-to-xml.xsl` are not byte-for-byte reverse
-operations. Suppose document A is converted from xml to html, remains
-unmodified, and is converted back and saved as B, B will **mean** the
-same thing as A but will not necessarily be **identical** to A. Here are
-the salient points:
+At this stage wed does not guarantee that saving an **unmodified**
+document will sent the exact same string as what it was originally
+given to edit. This is due to the fact that the same document can be
+represented in XML in multiple ways. Notably:
 
-* Comments, CDATA, and processing instructions are lost.
+* Comments, CDATA, and processing instructions are not preserved.
 
-* The order of attributes could change.
+* The order of the attributes could differ.
 
-* The order and location of namespaces could change.
+* The order and location of namespaces declarations could differ.
 
-* The encoding of empty elements could change. That is, ``<foo/>`` could
-  become ``<foo></foo>`` or vice-versa.
+* The encoding of empty elements could differ. That is, ``<foo></foo>``
+  could become ``<foo/>`` or vice-versa.
 
 * The presence or absence of a newline on the last line may not be
   preserved.
