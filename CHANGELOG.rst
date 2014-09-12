@@ -25,7 +25,12 @@ Only salient changes are recorded here.
       of storing data. So to get paragraph elements for instance you
       specify "p" rather than ".p".
 
-  - API: ``jqutil.selectorToElements`` is gone, as it was not used.
+  - API: ``jqutil`` is gone.
+
+  - API: ``jqutil.toDataSelector`` is now ``domutil.toGUISelector``.
+
+  - API: The other functions form ``jqutil`` are gone as they were no
+    longer used.
 
   - API: ``Mode.getContextualMenuItems`` has been removed. This was a
     function that was added very early on and that has since been

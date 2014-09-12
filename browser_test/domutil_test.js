@@ -1105,7 +1105,35 @@ describe("domutil", function () {
             assert.equal(domutil.childByClass(ul, "a"), a[0]);
         });
     });
+
+    describe("toDataSelector", function () {
+        it("raises an error on brackets",
+                 function () {
+            assert.Throw(domutil.toGUISelector.bind(undefined, "abcde[f]"),
+                         Error, "selector is too complex");
+        });
+
+        it("raises an error on parens",
+                 function () {
+            assert.Throw(domutil.toGUISelector.bind(undefined, "abcde:not(f)"),
+                         Error, "selector is too complex");
+        });
+
+        it("converts a > sequence",
+                 function () {
+            assert.equal(domutil.toGUISelector("p > term > foreign"),
+                         ".p._real > .term._real > .foreign._real");
+        });
+
+        it("converts a space sequence with namespaces",
+                 function () {
+            assert.equal(domutil.toGUISelector("btw:cit tei:q"),
+                         ".btw\\:cit._real .tei\\:q._real");
+        });
+    });
 });
+
+
 
 });
 
