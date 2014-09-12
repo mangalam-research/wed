@@ -3,8 +3,8 @@
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(["mocha/mocha", "chai", "jquery", "wed/domutil"],
-function (mocha, chai, $, domutil) {
+define(["mocha/mocha", "chai", "jquery", "wed/domutil", "wed/convert"],
+function (mocha, chai, $, domutil, convert) {
 'use strict';
 
 var assert = chai.assert;
@@ -1131,6 +1131,48 @@ describe("domutil", function () {
                          ".btw\\:cit._real .tei\\:q._real");
         });
     });
+
+    describe("dataFind/dataFindAll", function () {
+        var source =
+            '../../test-files/domutil_test_data/dataFind_converted.xml';
+        var data_root;
+        var gui_root;
+        before(function (done) {
+            require(["requirejs/text!" + source], function(data) {
+                var parser = new window.DOMParser();
+                var data_doc = parser.parseFromString(data, "application/xml");
+                data_root = data_doc.firstChild;
+                gui_root = convert.toHTMLTree(document, data_root);
+                domutil.linkTrees(data_root, gui_root);
+                done();
+            });
+        });
+
+        it("find a node", function () {
+            var result = domutil.dataFind(data_root, "btw:sense-emphasis");
+            assert.equal(result.tagName, "btw:sense-emphasis");
+            assert.isTrue(data_root.contains(result));
+        });
+
+        it("find a child node", function () {
+            var result = domutil.dataFind(data_root,
+                                          "btw:overview>btw:definition");
+            assert.equal(result.tagName, "btw:definition");
+            assert.isTrue(data_root.contains(result));
+        });
+
+        it("find nodes", function () {
+            var results = domutil.dataFindAll(data_root,
+                                              "btw:sense-emphasis");
+            assert.equal(results.length, 4);
+            results.forEach(function (x) {
+                assert.equal(x.tagName, "btw:sense-emphasis");
+                assert.isTrue(data_root.contains(x));
+            });
+        });
+
+    });
+
 });
 
 

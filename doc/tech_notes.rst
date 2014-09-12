@@ -723,7 +723,14 @@ Wed maintains two trees of DOM nodes:
   representation in DOM format of the document being edited. You can
   think of this tree as being a part of the model aspect of the MVC
   pattern. (A ``TreeUpdater`` together with a data tree correspond to
-  a model.)
+  a model.) Note that this is an XML document. **It is currently not
+  possible to perform searches in the data tree using
+  ``querySelector`` and its friends if tags are prefixed**. So
+  ``querySelector("foo:bar")`` won't find an element whose local name
+  is ``foo:bar``. You can perform the search in the GUI tree to find
+  the GUI node and convert to the data node. Or you can use
+  ``getElementsByTagNameNS`` if you want to search in the data tree
+  for specific tags. Or you can use ``domutil.dataFind/dataFindAll``.
 
 * A GUI tree which is derived from the data tree. This GUI tree is
   attached to the browser's document. It receives events and is what

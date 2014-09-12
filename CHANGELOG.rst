@@ -32,6 +32,8 @@ Only salient changes are recorded here.
   - API: The other functions form ``jqutil`` are gone as they were no
     longer used.
 
+  - API: ``domutil`` has acquired ``dataFind`` and ``dataFindAll``.
+
   - API: ``Mode.getContextualMenuItems`` has been removed. This was a
     function that was added very early on and that has since been
     subsumed by other methods, like ``Mode.getContextualActions``.
