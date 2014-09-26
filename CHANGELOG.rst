@@ -105,6 +105,10 @@ Only salient changes are recorded here.
     is now referenced in description strings as ``<name>`` rather than
     ``<element_name>``.
 
+  - API: ``tree_updater.TreeUpdater``'s old ``deleteNode`` event is
+    now named ``beforeDeleteNode``. There is a new ``deleteNode``
+    event which is now emitted **after** the node is deleted.
+
 * 0.17.2:
 
   - 0.17.1 actually introduced more problems on IE. Hopefully, this
