@@ -266,10 +266,10 @@ build-samples: $(SAMPLE_TARGETS)
 build/samples:
 	-mkdir -p $@
 
-build/samples/%: sample_documents/% | build/samples
+build/samples/%: sample_documents/% | build/samples test/xml-to-xml-tei.xsl
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
-		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
-		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-xml-tei.xsl; else \
+		cp $<  $@; \
 	fi)
 
 build-test-files: $(DEST_DATA_FILES) build/ajax
