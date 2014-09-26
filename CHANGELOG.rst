@@ -7,7 +7,7 @@ Only salient changes are recorded here.
 * 0.18.0:
 
   - This version is a major reworking of wed. This is where old APIs
-    are broken.
+    are freely broken for the sake of better functionality.
 
   - GUI: Context menus now support filtering operations by kind of
     operation, by type of node modified and by text of the nodes
