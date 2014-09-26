@@ -353,6 +353,18 @@ def step_impl(context):
 
     text = wedutil.select_contents_directly(util, p)
 
+    context.expected_selection_serialization = driver.execute_script("""
+    var data_node = wed_editor.toDataNode(arguments[0]);
+    var range = document.createRange();
+    range.selectNodeContents(data_node);
+    var clone = range.cloneContents();
+    var parser = new window.DOMParser();
+    var doc = parser.parseFromString("<div></div>", "text/xml");
+    while(clone.firstChild)
+      doc.firstChild.appendChild(clone.firstChild);
+    return doc.firstChild.innerHTML;
+    """, p)
+
     context.expected_selection = text
     context.selection_parent = p
     context.caret_screen_position = wedutil.caret_screen_pos(driver)
@@ -722,7 +734,7 @@ def step_impl(context):
     return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
     """)
 
-    pos = wedutil.caret_screen_pos(driver)
+    pos = wedutil.caret_selection_pos(driver)
     # First click away so that the caret is no longer where we left it
     # and the subsequent click moves it again.
     el_pos = util.element_screen_position(button)

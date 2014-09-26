@@ -31,17 +31,22 @@ var $wedroot = $(wedroot);
 var src_stack =
         ["../../test-files/input_trigger_test_data/source_converted.xml"];
 
+// This is an ad-hoc function meant for these tests *only*. The XML
+// serialization adds an xmlns declaration that we don't care
+// for. So...
+function cleanNamespace(str) {
+    return str.replace(/ xmlns=".*?"/, '');
+}
+
 describe("input_trigger_factory", function () {
     var editor;
     beforeEach(function (done) {
-        $wedroot.empty();
         require(["requirejs/text!" + src_stack[0]], function(data) {
-            $wedroot.append(data);
             editor = new wed.Editor();
             editor.addEventListener("initialized", function () {
                 done();
             });
-            editor.init(wedroot, options);
+            editor.init(wedroot, options, data);
         });
     });
 
@@ -56,57 +61,54 @@ describe("input_trigger_factory", function () {
            "keypress event",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key.makeKey(";"),
+                editor, "p", key.makeKey(";"),
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            // Synthetic event
-            editor.setDataCaret(
-                editor.$data_root.find(".p").get(-1).firstChild, 4);
+            var ps = editor.data_root.getElementsByTagName("p");
+            editor.setDataCaret(ps[ps.length - 1].firstChild, 4);
             editor.type(";");
 
-            var $ps = editor.$data_root.find(".body .p");
-            assert.equal($ps.length, 2);
-            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
-            assert.equal($ps.length, 2);
-            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
-            assert.equal($ps[1].outerHTML,
-                         '<div class="p _real"> blah '+
-                         '<div class="term _real">blah</div>'+
-                         '<div class="term _real">blah2</div> blah.</div>');
+            ps = editor.data_root.querySelectorAll("body p");
+            assert.equal(ps.length, 2);
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
+            assert.equal(ps.length, 2);
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML),
+                         '<p> blah <term>blah</term>' +
+                         '<term>blah2</term> blah.</p>');
         });
 
         it("creates an InputTrigger that handles a split triggered by a " +
            "keydown event",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key_constants.ENTER,
+                editor, "p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            editor.setDataCaret(
-                editor.$data_root.find(".p").get(-1).firstChild, 4);
+            var ps = editor.data_root.getElementsByTagName("p");
+            editor.setDataCaret(ps[ps.length - 1].firstChild, 4);
             editor.type(key_constants.ENTER);
 
-            var $ps = editor.$data_root.find(".body .p");
-            assert.equal($ps.length, 2);
-            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
-            assert.equal($ps.length, 2);
-            assert.equal($ps[0].outerHTML, '<div class="p _real">Blah</div>');
-            assert.equal($ps[1].outerHTML,
-                         '<div class="p _real"> blah '+
-                         '<div class="term _real">blah</div>'+
-                         '<div class="term _real">blah2</div> blah.</div>');
+            ps = editor.data_root.querySelectorAll("body p");
+            assert.equal(ps.length, 2);
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
+            assert.equal(ps.length, 2);
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Blah</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML),
+                         '<p> blah <term>blah</term>' +
+                         '<term>blah2</term> blah.</p>');
         });
 
 
         it("creates an InputTrigger that handles a split triggered by a " +
-           "children-changed event",
+           "paste event",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key.makeKey(";"),
+                editor, "p", key.makeKey(";"),
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            var $ps = editor.$data_root.find(".body .p");
-            assert.equal($ps.length, 1);
+            var ps = editor.data_root.querySelectorAll("body p");
+            assert.equal(ps.length, 1);
 
             // Synthetic event
             var event = new $.Event("paste");
@@ -119,17 +121,16 @@ describe("input_trigger_factory", function () {
                     }
                 }
             };
-            editor.setDataCaret($ps[0], 0);
+            editor.setDataCaret(ps[0], 0);
             editor.$gui_root.trigger(event);
 
-            $ps = editor.$data_root.find(".body .p");
-            assert.equal($ps.length, 3);
-            assert.equal($ps[0].outerHTML, '<div class="p _real">ab</div>');
-            assert.equal($ps[1].outerHTML, '<div class="p _real">cd</div>');
-            assert.equal($ps[2].outerHTML,
-                         '<div class="p _real">efBlah blah '+
-                         '<div class="term _real">blah</div>'+
-                         '<div class="term _real">blah2</div> blah.</div>');
+            ps = editor.data_root.querySelectorAll("body p");
+            assert.equal(ps.length, 3);
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>ab</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML), '<p>cd</p>');
+            assert.equal(cleanNamespace(ps[2].outerHTML),
+                         '<p>efBlah blah <term>blah</term>'+
+                         '<term>blah2</term> blah.</p>');
         });
     });
 
@@ -142,33 +143,34 @@ describe("input_trigger_factory", function () {
             src_stack.shift();
         });
 
-        it("creates an InputTrigger that backspace in phantom text",
+        it("creates an InputTrigger that backspaces in phantom text",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key_constants.ENTER,
+                editor, "p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setGUICaret(
-                editor.$gui_root.find(".p>.ref")[0].firstChild, 1);
+                editor.gui_root.querySelector(".p>.ref").firstChild, 1);
             editor.type(key_constants.BACKSPACE);
 
-            var $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 1);
+            var ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 1);
         });
 
-        it("creates an InputTrigger that delete in phantom text",
+        it("creates an InputTrigger that deletes in phantom text",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key_constants.ENTER,
+                editor, "p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
             editor.setGUICaret(
-                editor.$gui_root.find(".p>.ref")[0].lastChild.previousSibling,
+                editor.gui_root.querySelector(".p>.ref")
+                    .lastChild.previousSibling,
                 0);
             editor.type(key_constants.DELETE);
 
-            var $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 1);
+            var ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 1);
         });
     });
 
@@ -184,102 +186,94 @@ describe("input_trigger_factory", function () {
         it("creates an InputTrigger that merges on BACKSPACE",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key_constants.ENTER,
+                editor, "p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            var $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 2,
+            var ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setDataCaret($ps[1].firstChild, 0);
+            editor.setDataCaret(ps[1].firstChild, 0);
             editor.type(key_constants.BACKSPACE);
 
-            $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 1,
+            ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal($ps[0].outerHTML,
-                         '<div class="p _real">BarFoo</div>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
         });
 
         it("creates an InputTrigger that merges on BACKSPACE, and can undo",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key_constants.ENTER,
+                editor, "p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            var $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 2,
+            var ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setDataCaret($ps[1].firstChild, 0);
+            editor.setDataCaret(ps[1].firstChild, 0);
             editor.type(key_constants.BACKSPACE);
 
-            $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 1,
+            ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal($ps[0].outerHTML,
-                         '<div class="p _real">BarFoo</div>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
 
             editor.undo();
 
-            $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 2,
+            ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 2,
                         "there should be 2 paragraphs after undo");
-            assert.equal($ps[0].outerHTML,
-                         '<div class="p _real">Bar</div>');
-            assert.equal($ps[1].outerHTML,
-                         '<div class="p _real">Foo</div>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Bar</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML), '<p>Foo</p>');
         });
 
         it("creates an InputTrigger that merges on DELETE",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key_constants.ENTER,
+                editor, "p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            var $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 2,
+            var ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setDataCaret($ps[0].lastChild,
-                                $ps[0].lastChild.nodeValue.length);
+            editor.setDataCaret(ps[0].lastChild,
+                                ps[0].lastChild.nodeValue.length);
             editor.type(key_constants.DELETE);
 
-            $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 1,
+            ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal($ps[0].outerHTML,
-                         '<div class="p _real">BarFoo</div>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
         });
 
         it("creates an InputTrigger that merges on DELETE, and can undo",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
-                editor, ".p", key_constants.ENTER,
+                editor, "p", key_constants.ENTER,
                 key_constants.BACKSPACE, key_constants.DELETE);
 
-            var $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 2,
+            var ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setDataCaret($ps[0].lastChild,
-                                $ps[0].lastChild.nodeValue.length);
+            editor.setDataCaret(ps[0].lastChild,
+                                ps[0].lastChild.nodeValue.length);
             editor.type(key_constants.DELETE);
 
-            $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 1,
+            ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 1,
                         "there should be 1 paragraph after backspacing");
-            assert.equal($ps[0].outerHTML,
-                         '<div class="p _real">BarFoo</div>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
 
             editor.undo();
-            $ps = editor.$data_root.find(".body>.p");
-            assert.equal($ps.length, 2,
+            ps = editor.data_root.querySelectorAll("body>p");
+            assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
-            assert.equal($ps[0].outerHTML,
-                         '<div class="p _real">Bar</div>');
-            assert.equal($ps[1].outerHTML,
-                         '<div class="p _real">Foo</div>');
+            assert.equal(cleanNamespace(ps[0].outerHTML), '<p>Bar</p>');
+            assert.equal(cleanNamespace(ps[1].outerHTML), '<p>Foo</p>');
         });
     });
 

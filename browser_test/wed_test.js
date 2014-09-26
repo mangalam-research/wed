@@ -102,12 +102,11 @@ describe("wed", function () {
         var editor;
         beforeEach(function (done) {
             require(["requirejs/text!" + src_stack[0]], function(data) {
-                wedroot.innerHTML = data;
                 editor = new wed.Editor();
                 editor.addEventListener("initialized", function () {
                     done();
                 });
-                editor.init(wedroot, options);
+                editor.init(wedroot, options, data);
             });
         });
 
@@ -261,8 +260,8 @@ describe("wed", function () {
            function () {
             editor.validator._validateUpTo(editor.data_root, -1);
             // Text node inside title.
-            var initial = editor.data_root.querySelectorAll(".body>.p")[3];
-            var his = domutil.childrenByClass(initial, "hi");
+            var initial = editor.data_root.querySelectorAll("body>p")[3];
+            var his = initial.getElementsByTagName("hi");
             var hi = his[his.length - 1];
 
             // We put the caret just after the last <hi>, which means
@@ -281,7 +280,7 @@ describe("wed", function () {
            function () {
             editor.validator._validateUpTo(editor.data_root, -1);
             // Text node inside title.
-            var initial = editor.data_root.querySelectorAll(".body>.p")[3];
+            var initial = editor.data_root.querySelectorAll("body>p")[3];
 
             // We put the caret just after the last child, a text node.
             editor.setDataCaret(initial, initial.childNodes.length);
@@ -310,7 +309,7 @@ describe("wed", function () {
         it("typing text after an element works", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
-            var initial = editor.data_root.querySelectorAll(".body>.p")[1];
+            var initial = editor.data_root.querySelectorAll("body>p")[1];
             var parent = initial.parentNode;
             editor.setDataCaret(initial, 1);
 
@@ -890,7 +889,7 @@ describe("wed", function () {
                 "initialized",
                 function () {
                 // Text node inside paragraph.
-                var initial = editor.data_root.querySelector(".body>.p");
+                var initial = editor.data_root.querySelector("body>p");
                 var parent = initial.parentNode;
                 editor.setDataCaret(initial.firstChild, 1);
 
@@ -950,7 +949,7 @@ describe("wed", function () {
                 title.insertBefore(phantom, null);
 
                 // Text node inside paragraph.
-                var initial = editor.data_root.querySelector(".body>.p");
+                var initial = editor.data_root.querySelector("body>p");
                 var parent = initial.parentNode;
                 editor.setDataCaret(initial.firstChild, 1);
 
@@ -995,7 +994,7 @@ describe("wed", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             // Text node inside title.
-            var initial = editor.data_root.getElementsByClassName("title")[0];
+            var initial = editor.data_root.getElementsByTagName("title")[0];
             var parent = initial.parentNode;
 
             // Make sure we are looking at the right thing.
@@ -1044,7 +1043,7 @@ describe("wed", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             // Text node inside title.
-            var initial = editor.data_root.getElementsByClassName("title")[0];
+            var initial = editor.data_root.getElementsByTagName("title")[0];
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
@@ -1066,7 +1065,7 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            var node = domutil.childByClass(initial, "hi");
+            var node = initial.getElementsByTagName("hi")[0];
             trs = editor.mode.getContextualActions(["unwrap"], "hi", node, 0);
 
             tr = trs[0];
@@ -1080,7 +1079,7 @@ describe("wed", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             // Text node inside title.
-            var initial = editor.data_root.querySelectorAll(".body>.p")[4];
+            var initial = editor.data_root.querySelectorAll("body>p")[4];
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
@@ -1099,8 +1098,7 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML,
-                         'abc<div class="hi _real">de</div>fghij');
+            assert.equal(initial.innerHTML, 'abc<hi>de</hi>fghij');
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
 
@@ -1111,9 +1109,7 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML,
-                         '<div class="hi _real">abc<div class="hi _real">' +
-                         'de</div></div>fghij');
+            assert.equal(initial.innerHTML, '<hi>abc<hi>de</hi></hi>fghij');
             assert.equal(initial.childNodes.length, 2,
                          "length after second wrap");
 
@@ -1124,7 +1120,7 @@ describe("wed", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             // Text node inside title.
-            var initial = editor.data_root.querySelectorAll(".body>.p")[4];
+            var initial = editor.data_root.querySelectorAll("body>p")[4];
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
@@ -1142,8 +1138,7 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML,
-                         'abc<div class="hi _real">de</div>fghij');
+            assert.equal(initial.innerHTML, 'abc<hi>de</hi>fghij');
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
 
@@ -1161,9 +1156,7 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML,
-                         'ab<div class="hi _real">c<div class="hi _real">' +
-                         'de</div>fghij</div>');
+            assert.equal(initial.innerHTML, 'ab<hi>c<hi>de</hi>fghij</hi>');
             assert.equal(initial.childNodes.length, 2,
                          "length after second wrap");
         });
@@ -1172,7 +1165,7 @@ describe("wed", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             // Text node inside title.
-            var initial = editor.data_root.querySelectorAll(".body>.p")[4];
+            var initial = editor.data_root.querySelectorAll("body>p")[4];
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
@@ -1191,8 +1184,7 @@ describe("wed", function () {
 
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
-            assert.equal(initial.innerHTML,
-                         'abc<div class="hi _real">de</div>fghij');
+            assert.equal(initial.innerHTML, 'abc<hi>de</hi>fghij');
 
             caret = editor.fromDataLocation(initial.firstChild, 2);
             editor.setSelectionRange(caret.makeRange(
@@ -1202,9 +1194,7 @@ describe("wed", function () {
 
             assert.equal(initial.childNodes.length, 3,
                          "length after second wrap");
-            assert.equal(initial.innerHTML,
-                         'ab<div class="hi _real">c<div class="hi _real">' +
-                         'de</div>fg</div>hij');
+            assert.equal(initial.innerHTML, 'ab<hi>c<hi>de</hi>fg</hi>hij');
         });
 
 
@@ -1212,7 +1202,7 @@ describe("wed", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             // Text node inside title.
-            var initial = editor.data_root.querySelectorAll(".body>.p")[4];
+            var initial = editor.data_root.querySelectorAll("body>p")[4];
 
             // Make sure we are looking at the right thing.
             assert.equal(initial.childNodes.length, 1);
@@ -1230,8 +1220,7 @@ describe("wed", function () {
             tr.execute(data);
 
             assert.equal(initial.childNodes.length, 1, "length after wrap");
-            assert.equal(initial.innerHTML,
-                         '<div class="hi _real">abcdefghij</div>');
+            assert.equal(initial.innerHTML, '<hi>abcdefghij</hi>');
         });
 
 
@@ -1286,7 +1275,7 @@ describe("wed", function () {
         });
 
         it("handles pasting simple text", function () {
-            var initial = editor.data_root.querySelector(".body>.p").firstChild;
+            var initial = editor.data_root.querySelector("body>p").firstChild;
             editor.setDataCaret(initial, 0);
             var initial_value = initial.nodeValue;
 
@@ -1307,7 +1296,7 @@ describe("wed", function () {
         });
 
         it("handles pasting structured text", function () {
-            var p = editor.data_root.querySelector(".body>.p");
+            var p = editor.data_root.querySelector("body>p");
             var initial = p.firstChild;
             editor.setDataCaret(initial, 0);
             var initial_value = p.innerHTML;
@@ -1330,7 +1319,7 @@ describe("wed", function () {
 
         it("handles pasting structured text: invalid, decline pasting as text",
            function (done) {
-            var p = editor.data_root.querySelector(".body>.p");
+            var p = editor.data_root.querySelector("body>p");
             var initial = p.firstChild;
             editor.setDataCaret(initial, 0);
             var initial_value = p.innerHTML;
@@ -1364,7 +1353,7 @@ describe("wed", function () {
 
         it("handles pasting structured text: invalid, accept pasting as text",
            function (done) {
-            var p = editor.data_root.querySelector(".body>.p");
+            var p = editor.data_root.querySelector("body>p");
             var initial = p.firstChild;
             editor.setDataCaret(initial, 0);
             var initial_value = p.innerHTML;
@@ -1405,8 +1394,8 @@ describe("wed", function () {
         });
 
         it("handles pasting simple text into an attribute", function () {
-            var p = editor.data_root.querySelector(".body>.p:nth-of-type(8)");
-            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            var p = editor.data_root.querySelector("body>p:nth-of-type(8)");
+            var initial = p.getAttributeNode("rend");
             editor.setDataCaret(initial, 0);
             var initial_value = initial.value;
 
@@ -1427,7 +1416,7 @@ describe("wed", function () {
         });
 
         it("handles cutting a well formed selection", function (done) {
-            var p = editor.data_root.querySelector(".body>.p");
+            var p = editor.data_root.querySelector("body>p");
             var gui_start = editor.fromDataLocation(p.firstChild, 4);
             editor.setGUICaret(gui_start);
             var range = gui_start.makeRange(
@@ -1444,7 +1433,7 @@ describe("wed", function () {
         });
 
         it("handles cutting a bad selection", function (done) {
-            var p = editor.data_root.querySelector(".body>.p");
+            var p = editor.data_root.querySelector("body>p");
             var original_inner_html = p.innerHTML;
             // Start caret is inside the term element.
             var gui_start = editor.fromDataLocation(p.childNodes[1].firstChild, 1);
@@ -1474,8 +1463,8 @@ describe("wed", function () {
         });
 
         it("handles cutting in attributes", function (done) {
-            var p = editor.data_root.querySelector(".body>.p:nth-of-type(8)");
-            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            var p = editor.data_root.querySelector("body>p:nth-of-type(8)");
+            var initial = p.getAttributeNode("rend");
             var initial_value = initial.value;
             var start = editor.fromDataLocation(initial, 2);
             var end = editor.fromDataLocation(initial, 4);
@@ -1495,7 +1484,7 @@ describe("wed", function () {
 
         it("handles properly caret position for words that are too " +
            "long to word wrap", function () {
-            var p = editor.data_root.getElementsByClassName("p")[0];
+            var p = editor.data_root.getElementsByTagName("p")[0];
             editor.setDataCaret(p, 0);
             editor.type("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
@@ -1513,7 +1502,7 @@ describe("wed", function () {
 
         it("handles properly caret position for elements that span lines",
            function () {
-            var p = editor.data_root.querySelectorAll(".body>.p")[5];
+            var p = editor.data_root.querySelectorAll("body>p")[5];
             var text_loc = editor.fromDataLocation(p.lastChild, 2);
             assert.equal(text_loc.node.nodeType, Node.TEXT_NODE);
 
@@ -1547,7 +1536,7 @@ describe("wed", function () {
 
         // This test only checks that the editor does not crash.
         it("autofills in the midst of text", function () {
-            var p = editor.data_root.querySelector(".body>.p");
+            var p = editor.data_root.querySelector("body>p");
             assert.isTrue(p.firstChild.nodeType === Node.TEXT_NODE,
                           "we should set our caret in a text node");
             editor.setDataCaret(p.firstChild, 3);
@@ -1579,15 +1568,11 @@ describe("wed", function () {
                         var obj = {
                             command: 'save',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"><div class="p _real">\
-</div></div><div class="sourceDesc _real"><div class="p _real"></div>\
-</div></div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
@@ -1617,22 +1602,18 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                         var obj = {
                             command: 'autosave',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"></div><div class="sourceDesc _real">\
-<div class="p _real"></div>\
-</div></div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt/><sourceDesc><p/></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
                     });
                 });
                 editor.data_updater.removeNode(
-                    editor.data_root.querySelector(".p._real"));
+                    editor.data_root.querySelector("p"));
                 var interval = 50;
                 editor._saver.setAutosaveInterval(interval);
                 // This leaves ample time.
@@ -1656,15 +1637,11 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                         var obj = {
                             command: 'autosave',
                             version: wed.version,
-                            data: '<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"></div><div class="sourceDesc _real">\
-<div class="p _real"></div>\
-</div></div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+                            data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt/><sourceDesc><p/></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
@@ -1675,7 +1652,7 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 setTimeout(function () {
                     assert.isFalse(autosaved, "should not have been saved yet");
                     editor.data_updater.removeNode(
-                        editor.data_root.querySelector(".p._real"));
+                        editor.data_root.querySelector("p"));
                 }, interval * 2);
                 // This leaves ample time.
                 setTimeout(function () {
@@ -1794,15 +1771,11 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                                 command: 'save',
                                 version: wed.version,
                                 data:
-'<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div>\
-</div><div class="publicationStmt _real"><div class="p _real"></div>\
-</div><div class="sourceDesc _real"><div class="p _real"></div></div>\
-</div></div><div class="text _real"><div class="body _real">\
-<div class="p _real">Blah blah <div class="term _real">blah</div> blah.</div>\
-<div class="p _real"><div class="term _real">blah</div></div></div></div></div>'
+'<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
                             };
                             var expected = "\n***\n" + JSON.stringify(obj);
                             assert.equal(data, expected);
@@ -1832,22 +1805,17 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                                 command: 'recover',
                                 version: wed.version,
                                 data:
-'<div xmlns="http://www.w3.org/1999/xhtml" \
-data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
-<div class="teiHeader _real"><div class="fileDesc _real">\
-<div class="titleStmt _real"><div class="title _real">abcd</div></div>\
-<div class="publicationStmt _real"><div class="p _real"></div></div>\
-<div class="sourceDesc _real"><div class="p _real"></div></div></div></div>\
-<div class="text _real"><div class="body _real"><div class="p _real">Blah blah \
-<div class="term _real">blah</div> blah.</div><div class="p _real">\
-<div class="term _real">blah</div></div></div></div></div>'
-                            };
+'<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'                            };
                             var expected = "\n***\n" + JSON.stringify(obj);
                             assert.equal(data, expected);
                             onerror.__test.reset();
                             done();
                         });
-                    }, 500);
+                    }, 1000);
                     throw new Error("I'm failing!");
                 }, 0);
             });
@@ -1858,14 +1826,13 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
         var editor, ps;
         before(function (done) {
             require(["requirejs/text!" + src_stack[0]], function(data) {
-                wedroot.innerHTML = data;
                 editor = new wed.Editor();
                 editor.addEventListener("initialized", function () {
                     editor.validator._validateUpTo(editor.data_root, -1);
                     ps = editor.gui_root.querySelectorAll(".body>.p");
                     done();
                 });
-                editor.init(wedroot, options);
+                editor.init(wedroot, options, data);
             });
         });
 

@@ -47,6 +47,7 @@ def before_all(context):
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
 FAILS_IF = "fails_if:"
+ONLY_FOR = "only_for:"
 
 
 def skip_if_needed(context, entity):
@@ -67,6 +68,19 @@ def skip_if_needed(context, entity):
                 entity.mark_skipped()
         else:
             raise ValueError("can't interpret fails_if:" + spec)
+
+    only_for = []
+    for tag in entity.tags:
+        if tag.startswith(ONLY_FOR):
+            only_for.append(tag[len(ONLY_FOR):])
+
+    for spec in only_for:
+        # Only implemented as much as needed here.
+        if spec == "ie":
+            if not context.util.ie:
+                entity.mark_skipped()
+        else:
+            raise ValueError("can't interpret only_for:" + spec)
 
 
 def before_feature(context, feature):

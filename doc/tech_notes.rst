@@ -716,14 +716,21 @@ its corresponding data element. Update data nodes as needed.
 GUI Tree and Data Tree
 ----------------------
 
-Wed maintains two trees of DOM trees:
+Wed maintains two trees of DOM nodes:
 
 * A data tree which is not attached to the browser's document. (It is
   not visible. It does not receive events.) It is a mere
   representation in DOM format of the document being edited. You can
   think of this tree as being a part of the model aspect of the MVC
   pattern. (A ``TreeUpdater`` together with a data tree correspond to
-  a model.)
+  a model.) Note that this is an XML document. **It is currently not
+  possible to perform searches in the data tree using
+  ``querySelector`` and its friends if tags are prefixed**. So
+  ``querySelector("foo:bar")`` won't find an element whose local name
+  is ``foo:bar``. You can perform the search in the GUI tree to find
+  the GUI node and convert to the data node. Or you can use
+  ``getElementsByTagNameNS`` if you want to search in the data tree
+  for specific tags. Or you can use ``domutil.dataFind/dataFindAll``.
 
 * A GUI tree which is derived from the data tree. This GUI tree is
   attached to the browser's document. It receives events and is what
@@ -734,8 +741,8 @@ The ``GUIUpdater`` object stored in ``Editor._gui_updater`` is
 responsible for inserting and deleting the nodes of the GUI tree that
 corresponds to those of the data tree whenever the latter is modified.
 
-Conversion for Editing
-======================
+Elements of the GUI Tree
+========================
 
 Wed operates on an HTML structure constructed as follows:
 
@@ -853,13 +860,6 @@ cutting is problematic, because:
 It is possible to listen to ``cut`` events and let them go through or
 veto them, but this is about the maximum level of control that can be
 achieved cross-browser.
-
-As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
-Linux. It is unknown whether it would work on other
-platforms. Unfortunately, it is not possible to automatically test for
-cutting functionality because JavaScript cannot initiate a cut
-operation by itself.
-
 
 Contenteditable
 ---------------

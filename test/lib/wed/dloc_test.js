@@ -17,7 +17,7 @@ function defined(x) {
 }
 
 describe("dloc", function () {
-    var source = 'build/test-files/domutil_test_data/source_converted.xml';
+    var source = 'build/test-files/dloc_test_data/source_converted.xml';
     var source_txt = fs.readFileSync(source).toString();
     var fw;
     var window;

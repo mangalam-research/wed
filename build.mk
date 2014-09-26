@@ -95,8 +95,27 @@ LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*" -not -name "*.less"
 
 STANDALONE_LIB_FILES:=$(foreach path,$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,$f)) $(INC_LESS_FILES),build/standalone/$(path))
 
-TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
-CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
+PERCENT:=%
+TEST_DATA_DIRS:=$(wildcard browser_test/*_data)
+# Directories for which we simply copy the files.
+TEST_DATA_DIRS_COPY:=browser_test/convert_test_data
+# Directories for which we convert the files to HTML.
+TEST_DATA_DIRS_CONVERT_TO_HTML:=$(foreach d,dloc guiroot tree_updater,browser_test/$(d)_test_data)
+$(info $(TEST_DATA_DIRS_CONVERT_TO_HTML))
+
+# Directories for which we convert the files to XML.
+TEST_DATA_DIRS_CONVERT_TO_XML:=$(filter-out $(TEST_DATA_DIRS_COPY:%=%$(PERCENT)) $(TEST_DATA_DIRS_CONVERT_TO_HTML:%=%$(PERCENT)),$(TEST_DATA_DIRS))
+
+SOURCE_DATA_FILES:=$(shell find browser_test -type f -print)
+SOURCE_DATA_FILES_COPY:=$(filter $(TEST_DATA_DIRS_COPY:%=%$(PERCENT)),$(SOURCE_DATA_FILES))
+SOURCE_DATA_FILES_CONVERT_TO_HTML:=$(filter $(TEST_DATA_DIRS_CONVERT_TO_HTML:%=%$(PERCENT)),$(SOURCE_DATA_FILES))
+SOURCE_DATA_FILES_CONVERT_TO_XML:=$(filter $(TEST_DATA_DIRS_CONVERT_TO_XML:%=%$(PERCENT)),$(SOURCE_DATA_FILES))
+
+DEST_DATA_FILES_COPY:=$(SOURCE_DATA_FILES_COPY:browser_test/%=build/test-files/%)
+DEST_DATA_FILES_CONVERT_TO_HTML:=$(SOURCE_DATA_FILES_CONVERT_TO_HTML:browser_test/%.xml=build/test-files/%_converted.xml)
+DEST_DATA_FILES_CONVERT_TO_XML:=$(SOURCE_DATA_FILES_CONVERT_TO_XML:browser_test/%.xml=build/test-files/%_converted.xml)
+DEST_DATA_FILES:=$(DEST_DATA_FILES_COPY) $(DEST_DATA_FILES_CONVERT_TO_HTML) $(DEST_DATA_FILES_CONVERT_TO_XML)
+
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
 SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json build/schemas/tei-doc
@@ -247,20 +266,31 @@ build-samples: $(SAMPLE_TARGETS)
 build/samples:
 	-mkdir -p $@
 
-build/samples/%: sample_documents/% | build/samples
+build/samples/%: sample_documents/% | build/samples test/xml-to-xml-tei.xsl
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
-		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
-		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-xml-tei.xsl; else \
+		cp $<  $@; \
 	fi)
 
-build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
+build-test-files: $(DEST_DATA_FILES) build/ajax
 
-build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
+$(DEST_DATA_FILES_CONVERT_TO_XML): build/test-files/%_converted.xml: browser_test/%.xml test/xml-to-xml-tei.xsl
+	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
+	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-xml-tei.xsl; else \
+		cp $< $@; \
+	fi)
+
+$(DEST_DATA_FILES_CONVERT_TO_HTML): build/test-files/%_converted.xml: browser_test/%.xml lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
 		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
 		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
 	fi)
+
+$(DEST_DATA_FILES_COPY): build/test-files/%: browser_test/%
+	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
+	cp $< $@
 
 build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)

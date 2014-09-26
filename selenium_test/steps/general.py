@@ -219,7 +219,7 @@ def step_impl(context):
     driver.execute_script("""
     delete window.__selenic_scrolled;
     jQuery(function () {
-      window.scrollTo(0, wed_editor.$gui_root.offset().top);
+      window.scrollTo(0, wed_editor._$scroller.offset().top);
       window.__selenic_scrolled = true;
     });
     """)
