@@ -1,6 +1,28 @@
 Wed
 ===
 
+Store the Caret as a (Path, Offset) Pair
+----------------------------------------
+
+Up to now, wed has maintained its carets as a (Node, offset)
+pair. This has worked fairly well but the changes that have been made
+to support attribute editing have complicated things. In particular
+the decorator must save the caret before decorating an element and
+refresh it afterwards. This refreshing could be avoided by storing the
+caret's node as a path. This could potentially also simplify other
+cases.
+
+Caret Paths
+-----------
+
+Caret paths currently cannot be used to note a caret position which is
+inside a label (but outside an attribute value). This means that when
+a transformation is initiated from a label and then undone, the
+caret will **NOT** be back in the label.
+
+[This is a problem which has been present in wed since the start but
+ has been thrown into focus with the addition of attribute support.]
+
 Input Triggers
 --------------
 

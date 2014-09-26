@@ -2,7 +2,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 # pylint: disable=E0611
 from nose.tools import assert_true, assert_equal, assert_not_equal, \
     assert_false
-from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -10,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 import wedutil
 import selenic.util
 
-from selenium_test.util import Trigger, get_element_parent_and_parent_text
+from selenium_test.util import get_element_parent_and_parent_text
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
@@ -47,7 +46,6 @@ def step_impl(context):
     context.execute_steps(u"""
     When the user clicks on an element's label
     Then the label changes to show it is selected
-    And the caret disappears
     """)
 
 
@@ -143,8 +141,23 @@ def step_impl(context, what):
     ActionChains(driver)\
         .click(button)\
         .perform()
-    context.context_menu_trigger = Trigger(util, button)
     context.context_menu_for = None
+
+
+@when(u"^the user clicks on "
+      u"(?P<what>|the start label of an element which has )"
+      u"an attribute value that takes completions$")
+def step_impl(context, what):
+    util = context.util
+    driver = context.driver
+
+    selector = ".body>.div:nth-of-type(11)>.__start_label._div_label " + \
+               ("._attribute_value" if what == "" else "._element_name")
+    where = util.find_element((By.CSS_SELECTOR, selector))
+    ActionChains(driver) \
+        .move_to_element(where) \
+        .click() \
+        .perform()
 
 
 @when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
@@ -170,8 +183,6 @@ def step_impl(context, choice, element=None):
         .click(button)\
         .perform()
 
-    context.context_menu_trigger = Trigger(util, button)
-
 
 @then(u'^the label changes to show it is selected$')
 def step_impl(context):
@@ -179,14 +190,28 @@ def step_impl(context):
     assert_true("_label_clicked" in button.get_attribute("class").split())
 
 
-@when(u"^(?:the user )?hits the (?P<choice>right|left) arrow$")
+@then(u'^the caret is in the element name in the label$')
+def step_impl(context):
+    util = context.util
+    button = context.clicked_element
+    en = button.find_element_by_class_name("_element_name")
+    wedutil.wait_for_caret_to_be_in(util, en)
+
+_CHOICE_TO_ARROW = {
+    "down": Keys.ARROW_DOWN,
+    "right": Keys.ARROW_RIGHT,
+    "left": Keys.ARROW_LEFT
+}
+
+
+@when(u"^(?:the user )?hits the (?P<choice>right|left|down) arrow$")
 def step_impl(context, choice):
     driver = context.driver
 
     context.caret_position_before_arrow = wedutil.caret_screen_pos(
         driver)
 
-    key = Keys.ARROW_RIGHT if choice == "right" else Keys.ARROW_LEFT
+    key = _CHOICE_TO_ARROW[choice]
     ActionChains(driver)\
         .send_keys(key)\
         .perform()
@@ -203,13 +228,6 @@ def step_impl(context):
     util = context.util
     util.wait_until_not(EC.presence_of_element_located(
         (By.CLASS_NAME, "_label_clicked")))
-
-
-@then(u'^the caret disappears$')
-def step_impl(context):
-    driver = context.driver
-    WebDriverWait(driver, 2).until_not(EC.presence_of_element_located(
-        (By.CLASS_NAME, "_wed_caret")))
 
 
 # This is also our default for when a mechanism is not specified.
@@ -599,7 +617,7 @@ def step_impl(context):
     context.window_scroll_top = util.window_scroll_top()
     context.window_scroll_left = util.window_scroll_left()
 
-    wed = util.find_element((By.CLASS_NAME, "wed-document"))
+    wed = util.find_element((By.CLASS_NAME, "wed-scroller"))
 
     scroll_top = util.scroll_top(wed)
 

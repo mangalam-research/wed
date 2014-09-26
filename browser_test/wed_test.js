@@ -5,9 +5,9 @@
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-        "wed/key"],
+        "wed/key", "wed/dloc", "wed/util"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key) {
+                onerror, log, key, dloc, util) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -34,8 +34,17 @@ var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 
 function caretCheck(editor, container, offset, msg) {
     var caret = editor.getGUICaret(true);
-    assert.equal(caret.node, container, msg + " (container)");
-    assert.equal(caret.offset, offset, msg + " (offset)");
+    if (offset !== null) {
+        assert.equal(caret.node, container, msg + " (container)");
+        assert.equal(caret.offset, offset, msg + " (offset)");
+    }
+    else {
+        // A null offset means we are not interested in the specific
+        // offset.  We just want to know that the caret is *inside*
+        // container either directly or indirectly.
+        assert.isTrue($(caret.node).closest(container).length !== 0,
+                      msg + " (container)");
+    }
 }
 
 function dataCaretCheck(editor, container, offset, msg) {
@@ -48,9 +57,39 @@ function firstGUI(container) {
     return domutil.childByClass(container, "_gui");
 }
 
+function getAttributeValuesFor(container) {
+    return firstGUI(container).getElementsByClassName("_attribute_value");
+}
+
+function getAttributeNamesFor(container) {
+    return firstGUI(container).getElementsByClassName("_attribute_name");
+}
+
+function getElementNameFor(container) {
+    return firstGUI(container).getElementsByClassName("_element_name")[0];
+}
+
+
 function lastGUI(container) {
     var children = domutil.childrenByClass(container, "_gui");
     return children[children.length - 1] || null;
+}
+
+function activateContextMenu(editor, el) {
+    var event = new $.Event("mousedown");
+    el.scrollIntoView();
+    var rect = el.getBoundingClientRect();
+    var left = rect.left + rect.width / 2;
+    var top = rect.top + rect.height / 2;
+    var scroll_top = editor.my_window.document.body.scrollTop;
+    var scroll_left = editor.my_window.document.body.scrollLeft;
+    event.which = 3;
+    event.pageX = left + scroll_left;
+    event.pageY = top + scroll_top;
+    event.clientX = left,
+    event.clientY = top,
+    event.target = el;
+    editor.$gui_root.trigger(event);
 }
 
 describe("wed", function () {
@@ -318,6 +357,294 @@ describe("wed", function () {
             caretCheck(editor, initial, 4, "caret after text insertion");
         });
 
+        it("typing text in an attribute inserts text", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 0);
+            assert.equal(initial.data, "rend_value");
+            editor.type("blah");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "blahrend_value");
+            caretCheck(editor, initial, 4, "caret after text insertion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "blahrend_value");
+        });
+
+        it("typing text in an empty attribute inserts text", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[9]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.isTrue(initial.classList.contains("_placeholder"));
+            editor.setGUICaret(initial, 0);
+            editor.type("blah");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[9]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "blah");
+            caretCheck(editor, initial, 4, "caret after text insertion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "blah");
+        });
+
+        it("typing a double quote in an attribute inserts a double quote",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 0);
+            assert.equal(initial.data, "rend_value");
+            editor.type('"');
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, '"rend_value');
+            caretCheck(editor, initial, 1, "caret after text insertion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, '"rend_value');
+        });
+
+        it("typing a single quote in an attribute inserts a single quote",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 0);
+            assert.equal(initial.data, "rend_value");
+            editor.type("'");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "'rend_value");
+            caretCheck(editor, initial, 1, "caret after text insertion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "'rend_value");
+        });
+
+        it("typing an open angle bracket in an attribute inserts an open " +
+           "angle bracket",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 0);
+            assert.equal(initial.data, "rend_value");
+            editor.type("<");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "<rend_value");
+            caretCheck(editor, initial, 1, "caret after text insertion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "<rend_value");
+        });
+
+        it("typing DELETE in an attribute deletes text", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 0);
+            assert.equal(initial.data, "rend_value");
+            editor.type(key_constants.DELETE);
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "end_value");
+            caretCheck(editor, initial, 0, "caret after deletion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "end_value");
+        });
+
+        it("typing DELETE in an attribute when no more can be deleted is a " +
+           "noop", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var p = ps[8];
+            var first_gui = firstGUI(p);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 0);
+            assert.equal(initial.data, "abc");
+            editor.type(key_constants.DELETE);
+            editor.type(key_constants.DELETE);
+            editor.type(key_constants.DELETE);
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(p);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0];
+            assert.isTrue(
+                initial.firstChild.classList.contains("_placeholder"));
+            assert.equal(initial.childNodes.length, 1);
+            caretCheck(editor, initial.firstChild, 0, "caret after deletion");
+
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "");
+
+            // Overdeleting
+            editor.type(key_constants.DELETE);
+
+            first_gui = firstGUI(p);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0];
+            assert.isTrue(
+                initial.firstChild.classList.contains("_placeholder"));
+            assert.equal(initial.childNodes.length, 1);
+            caretCheck(editor, initial.firstChild, 0, "caret after deletion");
+
+            // Check that the data is also modified
+            data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "");
+        });
+
+        it("typing BACKSPACE in an attribute deletes text", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 4);
+            assert.equal(initial.data, "rend_value");
+            editor.type(key_constants.BACKSPACE);
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "ren_value");
+            caretCheck(editor, initial, 3, "caret after deletion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "ren_value");
+        });
+
+        it("typing BACKSPACE in an attribute when no more can be deleted is " +
+           "a noop", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var p = ps[8];
+            var first_gui = firstGUI(p);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 3);
+            assert.equal(initial.data, "abc");
+            editor.type(key_constants.BACKSPACE);
+            editor.type(key_constants.BACKSPACE);
+            editor.type(key_constants.BACKSPACE);
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(p);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0];
+            assert.isTrue(
+                initial.firstChild.classList.contains("_placeholder"));
+            assert.equal(initial.childNodes.length, 1);
+            caretCheck(editor, initial.firstChild, 0, "caret after deletion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "");
+
+            // Overdeleting
+            editor.type(key_constants.BACKSPACE);
+
+            first_gui = firstGUI(p);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0];
+            assert.isTrue(
+                initial.firstChild.classList.contains("_placeholder"));
+            assert.equal(initial.childNodes.length, 1);
+            caretCheck(editor, initial.firstChild, 0, "caret after deletion");
+
+            // Check that the data is also modified
+            data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "");
+        });
+
         it("undo undoes typed text as a group", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
@@ -368,6 +695,194 @@ describe("wed", function () {
             assert.equal(initial.nodeValue, "blahabcd", "text after undo");
             assert.equal(parent.childNodes.length, 3);
             caretCheck(editor, initial, 4, "caret after redo");
+        });
+
+        it("undoing an attribute value change undoes the value change",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 4);
+            assert.equal(initial.data, "rend_value");
+            editor.type("blah");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "rendblah_value");
+            caretCheck(editor, initial, 8, "caret after text insertion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, "rendblah_value");
+
+            editor.undo();
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, "rend_value");
+            caretCheck(editor, initial, 4, "caret after undo");
+
+            // Check that the data change has been undone.
+            assert.equal(data_node.value, "rend_value");
+        });
+
+        it("undoing an attribute addition undoes the addition", function () {
+            var p = editor.gui_root.querySelector(".body>.p");
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+            var trs = editor.mode.getContextualActions(
+                ["add-attribute"], undefined, el_name, 0);
+            var tr = trs[0];
+            var data = {node: data_p, name: "abbr"};
+
+            editor.setGUICaret(el_name.firstChild, 0);
+            caretCheck(editor, el_name.firstChild, 0,
+                       "the caret should be in the element name");
+            tr.execute(data);
+            var attr_vals = getAttributeValuesFor(p);
+            assert.equal(attr_vals.length, 1, "one attribute");
+            caretCheck(editor, attr_vals[0].firstChild, 0,
+                       "the caret should be in the attribute value");
+
+            editor.undo();
+            assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+            // We would ideally want the caret to be back in the
+            // element name but there's currently an issue with doing
+            // this.
+            caretCheck(editor, p, 1,
+                       "the caret should be in a reasonable position");
+        });
+
+        it("undoing an attribute deletion undoes the deletion", function () {
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var p = ps[7];
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            var attr_names = getAttributeNamesFor(p);
+            var attr_values = getAttributeValuesFor(p);
+            var initial_value = attr_values[0].textContent;
+            var initial_length = attr_values.length;
+            assert.isTrue(initial_length > 0,
+                          "the paragraph should have attributes");
+            var attr = editor.toDataNode(attr_values[0]);
+            var decoded_name = attr_names[0].textContent;
+            var trs = editor.mode.getContextualActions(
+                ["delete-attribute"], decoded_name, attr);
+            var tr = trs[0];
+            var data = {node: attr, name: decoded_name};
+
+            editor.setDataCaret(attr, 0);
+            caretCheck(editor,
+                       attr_values[0].firstChild, 0,
+                       "the caret should be in the attribute");
+            tr.execute(data);
+            attr_values = getAttributeValuesFor(p);
+            assert.equal(attr_values.length, initial_length - 1,
+                         "one attribute should be gone");
+            caretCheck(editor, attr_values[0].firstChild, 0,
+                       "the caret should be in the first attribute value");
+
+            assert.isNull(attr.ownerElement,
+                          "the old attribute should not have an onwer element");
+            assert.isNull(data_p.getAttribute(attr.name));
+
+            editor.undo();
+
+            attr_values = getAttributeValuesFor(p);
+            attr_names = getAttributeNamesFor(p);
+            assert.equal(attr_values.length, initial_length,
+                         "the attribute should be back");
+            assert.equal(attr_names[0].textContent, decoded_name,
+                         "the first attribute should be the one that "+
+                         "was deleted");
+            assert.equal(attr_values[0].textContent, initial_value,
+                         "the attribute should have its initial value");
+            caretCheck(editor, attr_values[0].firstChild, 0,
+                       "the caret should be in the first attribute value");
+        });
+
+        it("doing an attribute addition changes the data", function () {
+            var p = editor.gui_root.querySelector(".body>.p");
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+            var trs = editor.mode.getContextualActions(
+                ["add-attribute"], undefined, el_name, 0);
+            var tr = trs[0];
+            var data = {node: data_p, name: "abbr"};
+
+            editor.setGUICaret(el_name.firstChild, 0);
+            caretCheck(editor, el_name.firstChild, 0,
+                       "the caret should be in the element name");
+            tr.execute(data);
+            var attr_vals = getAttributeValuesFor(p);
+            assert.equal(attr_vals.length, 1, "one attribute");
+            caretCheck(editor, attr_vals[0].firstChild, 0,
+                       "the caret should be in the attribute value");
+
+            var data_node = editor.toDataNode(attr_vals[0]);
+            assert.isTrue(!!data_node);
+            assert.equal(data_node.value, "");
+
+        });
+
+        it("doing an attribute deletion changes the data", function () {
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var p = ps[7];
+            var data_p = editor.toDataNode(p);
+            editor.validator._validateUpTo(data_p.firstChild ||
+                                           data_p.nextElementSibling, 0);
+            var first_gui = firstGUI(p);
+            var el_name = getElementNameFor(p);
+            var attr_names = getAttributeNamesFor(p);
+            var attr_values = getAttributeValuesFor(p);
+            var initial_length = attr_values.length;
+            assert.isTrue(initial_length > 0,
+                          "the paragraph should have attributes");
+            var attr = editor.toDataNode(attr_values[0]);
+            var decoded_name = attr_names[0].textContent;
+            var trs = editor.mode.getContextualActions(
+                ["delete-attribute"], decoded_name, attr);
+            var tr = trs[0];
+            var data = {node: attr, name: decoded_name};
+
+            editor.setDataCaret(attr, 0);
+            caretCheck(editor,
+                       attr_values[0].firstChild, 0,
+                       "the caret should be in the attribute");
+            tr.execute(data);
+            attr_values = getAttributeValuesFor(p);
+            assert.equal(attr_values.length, initial_length - 1,
+                         "one attribute should be gone");
+            caretCheck(editor, attr_values[0].firstChild, 0,
+                       "the caret should be in the first attribute value");
+
+            assert.isNull(attr.ownerElement,
+                          "the old attribute should not have an onwer element");
+            assert.isNull(data_p.getAttribute(attr.name));
         });
 
         it("clicking a gui element after typing text works", function (done) {
@@ -542,7 +1057,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             editor.setDataCaret(initial.firstChild, 1);
             caret = editor.getGUICaret();
             var range = caret.makeRange();
@@ -575,7 +1090,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             editor.setDataCaret(initial.firstChild, 3);
             var caret = editor.getGUICaret();
             editor.setSelectionRange(
@@ -619,7 +1134,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             var caret = editor.fromDataLocation(initial.firstChild, 3);
             editor.setSelectionRange(
                 caret.makeRange(caret.make(caret.node, caret.offset + 2))
@@ -667,7 +1182,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             var caret = editor.fromDataLocation(initial.firstChild, 3);
             editor.setSelectionRange(caret.makeRange(
                 caret.make(caret.node, caret.offset + 2)).range);
@@ -707,7 +1222,7 @@ describe("wed", function () {
                 ["wrap"], "hi", initial, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "hi"};
+            var data = {node: undefined, name: "hi"};
             var caret = editor.fromDataLocation(initial.firstChild, 0);
             editor.setSelectionRange(caret.makeRange(
                 caret.make(caret.node, initial.firstChild.length)).range);
@@ -720,31 +1235,13 @@ describe("wed", function () {
         });
 
 
-        function activateContextMenu(editor) {
-            var event = new $.Event("mousedown");
-            var title = editor.gui_root.getElementsByClassName("title")[0];
-            title.scrollIntoView();
-            var rect = title.getBoundingClientRect();
-            var left = rect.left + rect.width / 2;
-            var top = rect.top + rect.height / 2;
-            var scroll_top = editor.my_window.document.body.scrollTop;
-            var scroll_left = editor.my_window.document.body.scrollLeft;
-            event.which = 3;
-            event.pageX = left + scroll_left;
-            event.pageY = top + scroll_top;
-            event.clientX = left,
-            event.clientY = top,
-            event.target = editor.gui_root;
-            editor.$gui_root.trigger(event);
-        }
-
         it("brings up a contextual menu even when there is no caret",
            function (done) {
             editor.validator._validateUpTo(editor.data_root, -1);
             var initial = editor.gui_root.getElementsByClassName("title")[0]
                 .childNodes[1];
             assert.isUndefined(editor.getGUICaret());
-            activateContextMenu(editor);
+            activateContextMenu(editor, initial.parentNode);
             window.setTimeout(function () {
                 assert.isDefined(editor._current_dropdown,
                                  "dropdown defined");
@@ -764,7 +1261,9 @@ describe("wed", function () {
                              .getElementsByTagName("div")[0]);
             rangy.getSelection(editor.my_window).setSingleRange(range);
             assert.isUndefined(editor.getGUICaret());
-                activateContextMenu(editor);
+                activateContextMenu(editor,
+                                    editor.gui_root
+                                    .getElementsByClassName("title")[0]);
             window.setTimeout(function () {
                     assert.isDefined(editor._current_dropdown);
                 done();
@@ -779,7 +1278,7 @@ describe("wed", function () {
                 .childNodes[1];
             editor.setGUICaret(initial, 0);
 
-            activateContextMenu(editor);
+            activateContextMenu(editor, initial.parentNode);
             window.setTimeout(function () {
                 assert.isDefined(editor._current_dropdown);
                 done();
@@ -897,10 +1396,34 @@ describe("wed", function () {
                                    initial_outer.length, "final position");
                     done();
                 });
+                // This clicks "Yes".
+                var button = editor._paste_modal._$footer[0]
+                    .getElementsByClassName("btn-primary")[0];
+                button.click();
             });
             editor.$gui_root.trigger(event);
-            // This clicks "Yes".
-            editor._paste_modal._$footer.find(".btn-primary")[0].click();
+        });
+
+        it("handles pasting simple text into an attribute", function () {
+            var p = editor.data_root.querySelector(".body>.p:nth-of-type(8)");
+            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.value;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "abcdef";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            assert.equal(initial.value, "abcdef" + initial_value);
+            dataCaretCheck(editor, initial, 6, "final position");
         });
 
         it("handles cutting a well formed selection", function (done) {
@@ -928,8 +1451,8 @@ describe("wed", function () {
             var gui_end = editor.fromDataLocation(p.childNodes[2], 5);
             editor.setGUICaret(gui_end);
             var range = gui_start.makeRange(gui_end).range;
-            rangy.getSelection(editor.my_window).setSingleRange(range);
 
+            rangy.getSelection(editor.my_window).setSingleRange(range);
             assert.equal(p.innerHTML, original_inner_html);
             var $top = editor.straddling_modal.getTopLevel();
             $top.one("shown.bs.modal", function () {
@@ -950,6 +1473,26 @@ describe("wed", function () {
             editor.straddling_modal._$footer.find(".btn-primary")[0].click();
         });
 
+        it("handles cutting in attributes", function (done) {
+            var p = editor.data_root.querySelector(".body>.p:nth-of-type(8)");
+            var initial = p.getAttributeNode(util.encodeAttrName("rend"));
+            var initial_value = initial.value;
+            var start = editor.fromDataLocation(initial, 2);
+            var end = editor.fromDataLocation(initial, 4);
+            var range = start.makeRange(end).range;
+
+            editor.setSelectionRange(range);
+
+            // Synthetic event
+            var event = new $.Event("cut");
+            editor.$gui_root.trigger(event);
+            window.setTimeout(function () {
+                assert.equal(initial.value, initial_value.slice(0, 2) +
+                             initial_value.slice(4));
+                done();
+            }, 1);
+        });
+
         it("handles properly caret position for words that are too " +
            "long to word wrap", function () {
             var p = editor.data_root.getElementsByClassName("p")[0];
@@ -964,13 +1507,15 @@ describe("wed", function () {
             var rect = range.getBoundingClientRect();
             // The caret should not be above the rectangle around the
             // unbreakable text.
-            assert.isTrue(rect.top <= editor._$fake_caret.offset().top);
+            assert.isTrue(Math.round(rect.top) <=
+                          Math.round(editor._$fake_caret.offset().top));
         });
 
         it("handles properly caret position for elements that span lines",
            function () {
             var p = editor.data_root.querySelectorAll(".body>.p")[5];
             var text_loc = editor.fromDataLocation(p.lastChild, 2);
+            assert.equal(text_loc.node.nodeType, Node.TEXT_NODE);
 
             // Check that we are testing what we want to test. The end
             // label for the hi element must be on the next line.
@@ -987,7 +1532,7 @@ describe("wed", function () {
                           "of this same element");
 
             var event = new $.Event("mousedown");
-            event.target = text_loc.node;
+            event.target = text_loc.node.parentNode;
             var rr = text_loc.makeRange(text_loc.make(text_loc.node, 3));
             var rect = rr.range.nativeRange.getBoundingClientRect();
             event.pageX = rect.left;
@@ -1010,7 +1555,7 @@ describe("wed", function () {
                 ["insert"], "biblFull", p.firstChild, 0);
 
             var tr = trs[0];
-            var data = {node: undefined, element_name: "biblFull"};
+            var data = {node: undefined, name: "biblFull"};
             tr.execute(data);
         });
 
@@ -1310,13 +1855,14 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
     });
 
     describe("(not state-sensitive)", function () {
-        var editor;
+        var editor, ps;
         before(function (done) {
             require(["requirejs/text!" + src_stack[0]], function(data) {
                 wedroot.innerHTML = data;
                 editor = new wed.Editor();
                 editor.addEventListener("initialized", function () {
                     editor.validator._validateUpTo(editor.data_root, -1);
+                    ps = editor.gui_root.querySelectorAll(".body>.p");
                     done();
                 });
                 editor.init(wedroot, options);
@@ -1338,6 +1884,54 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                            "test caused an unhandled exception to occur");
             // We don't reload our page so we need to do this.
             onerror.__test.reset();
+            editor._dismissDropdownMenu();
+        });
+
+        function contextMenuHasOption(pattern) {
+            var menu = editor.my_window.document.getElementsByClassName(
+                "wed-context-menu")[0];
+            assert.isDefined(menu, "the menu should exist");
+            var items = menu.querySelectorAll("li>a");
+            var found = false;
+            for(var i = 0, item; !found && (item = items[i]) !== undefined;
+                ++i) {
+                found = pattern.test(item.textContent.trim());
+            }
+            assert.isTrue(found, "should have found the option");
+        }
+
+        var contextMenuHasAttributeOption =
+            contextMenuHasOption.bind(undefined, /^Add @/);
+
+        describe("has context menus", function () {
+            it("with attribute options, when invoked on a start label",
+               function () {
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector(
+                        ".__start_label._title_label ._element_name"));
+                contextMenuHasAttributeOption();
+            });
+
+            it("with attribute options, when invoked in an attribute",
+               function () {
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector(
+                        ".__start_label._p_label ._attribute_value"));
+                contextMenuHasAttributeOption();
+            });
+        });
+
+        describe("has a completion menu", function () {
+            it("when the caret is in an attribute that takes completions",
+               function () {
+                var p = ps[9];
+                var attr_vals = getAttributeValuesFor(p);
+                editor.setGUICaret(attr_vals[0].firstChild, 0);
+                // This is an arbitrary menu item we check for.
+                contextMenuHasOption(/^Y$/);
+            });
         });
 
         describe("setNavigationList", function () {
@@ -1367,28 +1961,108 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
 
             it("moves right into gui elements",
                function () {
-                var initial = editor.gui_root.firstChild;
-                editor.setGUICaret(initial, 0);
-                caretCheck(editor, initial, 0, "initial");
+                // The 6th paragraph contains a test case.
+                var initial =
+                    editor.gui_root.querySelectorAll(".body>.p")[5]
+                    .childNodes[1];
+                assert.equal(initial.nodeType, Node.TEXT_NODE);
+                editor.setGUICaret(initial, initial.length);
+                caretCheck(editor, initial, initial.length, "initial");
+                editor.moveCaretRight();
+                var first_gui = firstGUI(initial.nextElementSibling);
+                // It is now located inside the text inside
+                // the label.
+                var element_name =
+                    first_gui.getElementsByClassName("_element_name")[0];
+                caretCheck(editor, element_name, 0, "moved once");
+                assert.equal(element_name.textContent, "hi");
+            });
+
+
+            it("moves into the first attribute of a start label",
+               function () {
+                // Start label of last paragraph...
+                var first_gui = firstGUI(ps[7]);
+                var initial = first_gui.parentNode;
+                var offset = _indexOf.call(initial.childNodes, first_gui);
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
                 editor.moveCaretRight();
                 var first_gui = firstGUI(initial);
                 // It is now located inside the text inside
                 // the label which marks the start of the TEI
                 // element.
-                caretCheck(editor, first_gui, 0, "moved once");
+                caretCheck(
+                    editor,
+                    first_gui.getElementsByClassName("_element_name")[0], 0,
+                    "moved once");
+
                 editor.moveCaretRight();
-
-                // It is now after the gui element..
-                caretCheck(editor, first_gui.parentNode, 1, "moved thrice");
+                caretCheck(
+                    editor,
+                    first_gui.getElementsByClassName("_attribute_value")[0]
+                        .firstChild, 0,
+                    "moved twice");
 
                 editor.moveCaretRight();
+                caretCheck(
+                    editor,
+                    first_gui.getElementsByClassName("_attribute_value")[0]
+                        .firstChild, 1,
+                    "moved thrice");
+            });
 
-                // It is now in the gui element of the 1st
-                // child.
-                caretCheck(editor,
-                           firstGUI(
-                               initial.getElementsByClassName("teiHeader")[0]),
-                           0, "moved thrice");
+            it("moves into empty attributes",
+               function () {
+                // Start label of last paragraph...
+                var first_gui = firstGUI(ps[9]);
+                var initial = first_gui.parentNode;
+                var offset = _indexOf.call(initial.childNodes, first_gui);
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
+                editor.moveCaretRight();
+                // It is now located inside the text inside
+                // the label which marks the start of the TEI
+                // element.
+                caretCheck(
+                    editor,
+                    first_gui.getElementsByClassName("_element_name")[0], 0,
+                    "moved once");
+
+                editor.moveCaretRight();
+                caretCheck(
+                    editor,
+                    first_gui.getElementsByClassName("_attribute_value")[0]
+                        .firstChild, 0,
+                    "moved twice");
+            });
+
+            it("moves from attribute to attribute",
+               function () {
+                // First attribute of the start label of last paragraph...
+                var first_gui = firstGUI(ps[7]);
+                var initial =
+                    first_gui.getElementsByClassName("_attribute_value")[0]
+                    .firstChild;
+                editor.setGUICaret(initial, initial.length);
+                caretCheck(editor, initial, initial.length, "initial");
+                editor.moveCaretRight();
+                caretCheck(
+                    editor,
+                    first_gui.getElementsByClassName("_attribute_value")[1]
+                        .firstChild, 0, "moved");
+            });
+
+            it("moves out of attributes", function () {
+                // First attribute of the start label of last paragraph...
+                var first_gui = firstGUI(ps[7]);
+                var attributes =
+                    first_gui.getElementsByClassName("_attribute_value");
+                var initial = attributes[attributes.length - 1].firstChild;
+                editor.setGUICaret(initial, initial.length);
+                caretCheck(editor, initial, initial.length, "initial");
+                editor.moveCaretRight();
+                caretCheck(editor, first_gui.nextSibling, 0, "moved");
             });
 
             it("moves right into text",
@@ -1401,7 +2075,11 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 // It is now located inside the text inside
                 // the label which marks the start of the TEI
                 // element.
-                caretCheck(editor, firstGUI(initial), 0, "moved once");
+                caretCheck(
+                    editor,
+                    firstGUI(initial).
+                        getElementsByClassName("_element_name")[0],
+                    0, "moved once");
                 editor.moveCaretRight();
                 // It is now inside the text
                 var text_node = domutil.childByClass(initial, "_gui")
@@ -1417,7 +2095,11 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 caretCheck(editor, text_node, 4, "moved 6 times");
                 editor.moveCaretRight();
                 // It is now inside the final gui element.
-                caretCheck(editor, lastGUI(initial), 0, "moved 7 times");
+                caretCheck(
+                    editor,
+                    lastGUI(initial)
+                        .getElementsByClassName("_element_name")[0],
+                    0, "moved 7 times");
             });
 
             it("moves right from text to text", function () {
@@ -1450,7 +2132,8 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                            "initial");
                 editor.moveCaretRight();
                 // It is now inside the final gui element.
-                caretCheck(editor, lastGUI(initial.parentNode),
+                caretCheck(editor, lastGUI(initial.parentNode)
+                           .getElementsByClassName("_element_name")[0],
                            0, "moved once");
                 editor.moveCaretRight();
                 // It is now before the gui element at end of
@@ -1510,6 +2193,33 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
             });
         });
 
+        describe("positionLeft", function () {
+            it("returns the first position in the element name if it starts " +
+               "from any other position in the element name", function () {
+                var first_gui =
+                    editor.gui_root.getElementsByClassName("__start_label")[0];
+                var el_name =
+                    first_gui.getElementsByClassName("_element_name")[0];
+                var before = dloc.makeDLoc(editor.gui_root,
+                                           el_name.firstChild, 1);
+                var after = editor.positionLeft(before);
+                assert.equal(after.node, el_name);
+                assert.equal(after.offset, 0);
+            });
+            it("returns the position before the element if it starts " +
+               "in the first position in the element name", function () {
+                var first_gui = firstGUI(ps[7]);
+                var el_name = getElementNameFor(ps[7]);
+                var before = dloc.makeDLoc(editor.gui_root, el_name, 0);
+                var after = editor.positionLeft(before);
+                var parent = ps[7].parentNode;
+                assert.equal(after.node, parent);
+                assert.equal(after.offset, _indexOf.call(parent.childNodes,
+                                                        ps[7]));
+            });
+
+        });
+
         describe("moveCaretLeft", function () {
             it("works even if there is no caret defined", function () {
                 editor._blur();
@@ -1524,12 +2234,16 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 var offset = initial.childNodes.length;
                 editor.setGUICaret(initial, offset);
                 caretCheck(editor, initial, offset, "initial");
-                editor.moveCaretLeft();
                 var last_gui =  lastGUI(initial);
+
+                editor.moveCaretLeft();
                 // It is now located inside the text inside
                 // the label which marks the end of the TEI
                 // element.
-                caretCheck(editor, last_gui, 0, "moved once");
+                caretCheck(editor,
+                           last_gui.getElementsByClassName("_element_name")[0],
+                           0, "moved once");
+
                 editor.moveCaretLeft();
                 caretCheck(editor, last_gui.parentNode,
                            last_gui.parentNode.childNodes.length - 1,
@@ -1539,19 +2253,116 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 // It is now in the gui element of the 1st
                 // child.
                 var texts = initial.getElementsByClassName("text");
-                caretCheck(editor, lastGUI(texts[texts.length - 1]),
+                caretCheck(editor, lastGUI(texts[texts.length - 1])
+                           .getElementsByClassName("_element_name")[0],
                            0, "moved 3 times");
             });
 
+            it("moves into the last attribute of a start label",
+               function () {
+                // Start label of last paragraph...
+                var first_gui = firstGUI(ps[7]);
+                var initial = first_gui.parentNode;
+                var offset = _indexOf.call(initial.childNodes, first_gui) + 1;
+                // Set the caret just after the start label
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
+
+                var attrs =
+                    first_gui.getElementsByClassName("_attribute_value");
+                var last_attr_text = attrs[attrs.length - 1].firstChild;
+                editor.moveCaretLeft();
+                caretCheck(editor, last_attr_text, last_attr_text.length,
+                           "moved once");
+
+                editor.moveCaretLeft();
+                caretCheck(editor, last_attr_text, last_attr_text.length - 1,
+                           "moved twice");
+            });
+
+            it("moves into empty attributes",
+               function () {
+                // Start label of last paragraph...
+                var first_gui = firstGUI(ps[9]);
+                var initial = first_gui.parentNode;
+                var offset = _indexOf.call(initial.childNodes, first_gui) + 1;
+                // Set the caret just after the start label
+                editor.setGUICaret(initial, offset);
+                caretCheck(editor, initial, offset, "initial");
+
+                var attrs =
+                    first_gui.getElementsByClassName("_attribute_value");
+                var last_attr = attrs[attrs.length - 1];
+                editor.moveCaretLeft();
+                caretCheck(editor, last_attr.firstChild, 0, "moved once");
+            });
+
+            it("moves from attribute to attribute",
+               function () {
+                // Start label of last paragraph...
+                var first_gui = firstGUI(ps[7]);
+                var attrs =
+                    first_gui.getElementsByClassName("_attribute_value");
+                var initial = attrs[attrs.length - 1].firstChild;
+                // Set the caret at the start of the last attribute.
+                editor.setGUICaret(initial, 0);
+                caretCheck(editor, initial, 0, "initial");
+
+                editor.moveCaretLeft();
+                var next_to_last_attr_text = attrs[attrs.length - 2].firstChild;
+                caretCheck(editor, next_to_last_attr_text,
+                           next_to_last_attr_text.length,
+                           "moved once");
+            });
+
+            it("moves out of attributes",
+               function () {
+                // Start label of last paragraph...
+                var first_gui = firstGUI(ps[7]);
+                var attrs =
+                    first_gui.getElementsByClassName("_attribute_value");
+                // Set the caret at the start of the first attribute.
+                var initial = attrs[0].firstChild;
+                editor.setGUICaret(initial, 0);
+                caretCheck(editor, initial, 0, "initial");
+
+                editor.moveCaretLeft();
+                caretCheck(editor,
+                           first_gui.getElementsByClassName("_element_name")[0],
+                           0,
+                           "moved once");
+            });
+
+            it("moves out of a start label",
+               function () {
+                var p = ps[7];
+                // Start label of last paragraph...
+                var first_gui = firstGUI(p);
+                // Set the caret at the start of the first attribute.
+                var initial =
+                    first_gui.getElementsByClassName("_element_name")[0];
+                editor.setGUICaret(initial, 0);
+                caretCheck(editor, initial, 0, "initial");
+
+                var parent = p.parentNode;
+                editor.moveCaretLeft();
+                caretCheck(editor,
+                           parent,
+                           _indexOf.call(parent.childNodes, p),
+                           "moved once");
+            });
+
             it("moves left into text", function () {
-                var title = editor.gui_root.getElementsByClassName("title")[0];
-                var initial = lastGUI(title);
-                editor.setGUICaret(initial, 1);
-                caretCheck(editor, initial, 1, "initial");
+                var last_gui =
+                    lastGUI(editor.gui_root.getElementsByClassName("title")[0]);
+                var initial =
+                    last_gui.getElementsByClassName("_element_name")[0];
+                editor.setGUICaret(initial, 0);
+                caretCheck(editor, initial, 0, "initial");
                 editor.moveCaretLeft();
                 // It is now inside the text
-                var text_node = initial.previousSibling;
-                var offset = text_node.nodeValue.length;
+                var text_node = last_gui.previousSibling;
+                var offset = text_node.length;
                 caretCheck(editor, text_node, offset, "moved once");
                 editor.moveCaretLeft();
                 // move through text
@@ -1563,7 +2374,10 @@ data-wed-xmlns="http://www.tei-c.org/ns/1.0" class="TEI _real">\
                 caretCheck(editor, text_node, 0, "moved 5 times");
                 editor.moveCaretLeft();
                 // It is now inside the first gui element.
-                caretCheck(editor, firstGUI(title), 0, "moved 6 times");
+                caretCheck(editor, firstGUI(editor.gui_root
+                                            .getElementsByClassName("title")[0])
+                           .getElementsByClassName("_element_name")[0],
+                           0, "moved 6 times");
             });
 
             it("moves left out of elements", function () {

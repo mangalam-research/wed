@@ -12,7 +12,7 @@ Scenario: Clicking moves the caret.
 Scenario: Clicking on an element's label.
   When the user clicks on an element's label
   Then the label changes to show it is selected
-  And the caret disappears
+  And the caret is in the element name in the label
 
 Scenario: Selecting text with the mouse.
   When the user selects text with the mouse

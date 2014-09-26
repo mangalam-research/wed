@@ -253,7 +253,7 @@ def step_impl(context, choice):
 
     if choice == "completely ":
         scroll_by = driver.execute_script("""
-        return wed_editor.gui_root.scrollHeight;
+        return wed_editor._scroller.scrollHeight;
         """)
     else:
         scroll_by = 10
@@ -263,10 +263,9 @@ def step_impl(context, choice):
     var by = arguments[0];
     delete window.__selenic_scrolled;
     jQuery(function () {
-      var $gui_root = window.wed_editor.$gui_root;
-      var top = $gui_root.scrollTop();
-      $gui_root.scrollTop(top + by);
-      window.__selenic_scrolled = $gui_root.scrollTop();
+      var _scroller = window.wed_editor._scroller;
+      _scroller.scrollTop += by;
+      window.__selenic_scrolled = _scroller.scrollTop;
     });
     """, scroll_by)
 
@@ -295,7 +294,7 @@ def step_impl(context):
     scroll_top = context.editor_pane_new_scroll_top
 
     new_scroll_top = context.driver.execute_script(
-        "return  window.wed_editor.$gui_root.scrollTop();")
+        "return  window.wed_editor._scroller.scrollTop;")
 
     assert_equal(scroll_top, new_scroll_top,
                  "the scroll top should not have changed")

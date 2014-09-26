@@ -9,8 +9,9 @@ Only salient changes are recorded here.
   - This version is a major reworking of wed. This is where old APIs
     are broken.
 
-  - GUI: Context menus now support filtering operations by kind and by
-    text of the elements involved.
+  - GUI: Context menus now support filtering operations by kind of
+    operation, by type of node modified and by text of the nodes
+    involved.
 
   - wed now bundles with jQuery 2.1.1.
 
@@ -78,6 +79,12 @@ Only salient changes are recorded here.
 
   - API: ``Editor.computeContextMenuHeight`` was removed as it was
     unusued.
+
+  - API: The data field named ``element_name`` that
+    ``transformation.Transformation`` objects expect in the ``data``
+    object passed to their handlers is now called ``name``. This field
+    is now referenced in description strings as ``<name>`` rather than
+    ``<element_name>``.
 
 * 0.17.2:
 

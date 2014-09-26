@@ -12,7 +12,8 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    label = util.find_element((By.CSS_SELECTOR, ".__start_label"))
+    label = util.find_element(
+        (By.CSS_SELECTOR, ".__start_label._teiHeader_label"))
 
     ActionChains(driver) \
         .move_to_element(label) \
