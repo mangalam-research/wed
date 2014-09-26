@@ -77,7 +77,16 @@ if (build.modules) {
         });
     });
 }
+
 config.paths = path_config;
+
+// Node that this serialization does not preserve functions that could
+// have originally appeared in the runtime configuration. However, our
+// current use of RequireJS does not require that such functions be
+// preserved. We use them only for the ``init`` parameters in
+// shims. These functions are incorporated inside the optimized bundle
+// so they do not need to be present in the config that uses the
+// bundle.
 console.log("require.config(" +
             JSON.stringify(config, null, 4) +
            ");");
