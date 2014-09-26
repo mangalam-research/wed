@@ -1,5 +1,6 @@
 import os
 import subprocess
+import json
 
 from selenium.webdriver.firefox.webdriver import FirefoxProfile, FirefoxBinary
 from selenium.webdriver.chrome.options import Options
@@ -34,6 +35,10 @@ if suffix:
 
 # Grab the current build number.
 describe = subprocess.check_output(["git", "describe"])
+# Grab the current reported version of wed
+with open("package.json") as pk:
+    version_data = json.load(pk)
+version = version_data["version"]
 
 caps = {
     # We have to turn this on...
@@ -42,7 +47,7 @@ caps = {
     # As of 2014-06-30 2.42.2 fails to load on Saucelabs...
     "selenium-version": "2.41.0",
     "chromedriver-version": "2.10",
-    "build": describe
+    "build": "version: " + version + ", git describe: " + describe
 }
 
 if not LOGS:
