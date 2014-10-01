@@ -62,7 +62,8 @@ config = Config("Linux", "CHROME", "36")
 
 config = Config("Windows 8.1", "CHROME", "36", caps, remote=True)
 config = Config("Windows 8.1", "CHROME", "35", caps, remote=True)
-config = Config("Windows 8.1", "CHROME", "34", caps, remote=True)
+# wed definitely breaks on Chrome 34.
+# config = Config("Windows 8.1", "CHROME", "34", caps, remote=True)
 
 config = Config("Windows 8.1", "FIREFOX", "28", caps, remote=True)
 config = Config("Windows 8.1", "FIREFOX", "27", caps, remote=True)
@@ -71,11 +72,10 @@ config = Config("Windows 8", "INTERNETEXPLORER", "10", caps, remote=True)
 config = Config("Windows 8.1", "INTERNETEXPLORER", "11", caps, remote=True)
 
 
-# As of 07292014 Chrome 36 is not yet available on OS X from
-# Saucelabs.
-
+config = Config("OS X 10.8", "CHROME", "36", caps, remote=True)
 config = Config("OS X 10.6", "CHROME", "35", caps, remote=True)
-config = Config("OS X 10.6", "CHROME", "34", caps, remote=True)
+# wed definitely breaks on Chrome 34.
+# config = Config("OS X 10.6", "CHROME", "34", caps, remote=True)
 
 #
 # FAILING COMBINATIONS
