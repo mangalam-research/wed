@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.18.0 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.18.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.18.0',
+        VERSION:     'v0.18.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.18.0 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.18.1 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.18.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.18.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -375,9 +375,19 @@ paths are all relative to the <tt class="docutils literal"><span class="pre">wed
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">save</span></tt>: See the documentation about <a class="reference internal" href="tech_notes.html#saving"><em>saving</em></a>.</p>
 </li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">ignore_module_config</span></tt>: This tells wed to not try to get a
+configuration from RequireJS&#8217; <tt class="docutils literal"><span class="pre">module.config()</span></tt>. This may be
+necessary to handle some configuration scenarios.</p>
+</li>
 </ul>
-<p>If <tt class="docutils literal"><span class="pre">options</span></tt> is <tt class="docutils literal"><span class="pre">undefined</span></tt>, wed will attempt getting its
-configuration from RequireJS by calling <tt class="docutils literal"><span class="pre">module.config()</span></tt>. See the
+<p>Wed will get a configuration from RequireJS <tt class="docutils literal"><span class="pre">module.config()</span></tt> and
+will <strong>merge</strong> it with the <tt class="docutils literal"><span class="pre">options</span></tt> parameter using jQuery&#8217;s
+<tt class="docutils literal"><span class="pre">$.extend</span></tt>. So if a key appears both in the <tt class="docutils literal"><span class="pre">module.config()</span></tt>
+object and in the <tt class="docutils literal"><span class="pre">options</span></tt> object, the latter value will override
+the former. <strong>Note that it is not possible to undefine a value set
+in ``module.config()``</strong> because <tt class="docutils literal"><span class="pre">$.extend</span></tt> ignores undefined
+values. One way around this problem is to specify
+<tt class="docutils literal"><span class="pre">ignore_module_config</span></tt> in the <tt class="docutils literal"><span class="pre">options</span></tt> object. See the
 RequireJS documentation. The <tt class="docutils literal"><span class="pre">wed/wed</span></tt> configuration in
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a> gives an example of how
 this can be used.</p>
@@ -497,7 +507,7 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.18.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.18.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

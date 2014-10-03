@@ -370,8 +370,18 @@ To include wed in a web page you must:
 
   + ``save``: See the documentation about :ref:`saving <saving>`.
 
-  If ``options`` is ``undefined``, wed will attempt getting its
-  configuration from RequireJS by calling ``module.config()``. See the
+  + ``ignore_module_config``: This tells wed to not try to get a
+    configuration from RequireJS' ``module.config()``. This may be
+    necessary to handle some configuration scenarios.
+
+  Wed will get a configuration from RequireJS ``module.config()`` and
+  will **merge** it with the ``options`` parameter using jQuery's
+  ``$.extend``. So if a key appears both in the ``module.config()``
+  object and in the ``options`` object, the latter value will override
+  the former. **Note that it is not possible to undefine a value set
+  in ``module.config()``** because ``$.extend`` ignores undefined
+  values. One way around this problem is to specify
+  ``ignore_module_config`` in the ``options`` object. See the
   RequireJS documentation. The ``wed/wed`` configuration in
   :github:`config/requirejs-config-dev.js` gives an example of how
   this can be used.
