@@ -42,13 +42,22 @@ def step_impl(context, direction, what):
         .click() \
         .perform()
 
+ORDER_TO_POS = {
+    "first": 0,
+    "last": -1,
+    "second": 1
+}
 
-@then(u"^the caret is in the last (?P<what>.*?) element$")
-def step_impl(context, what):
+
+@then(ur'^the caret is in the (?P<order>last|first|second) '
+      ur'"(?P<what>.*?)" element$')
+def step_impl(context, order, what):
     driver = context.driver
     util = context.util
 
-    el = driver.find_elements_by_css_selector("." + what)
+    position = ORDER_TO_POS[order]
+
+    el = driver.find_elements_by_css_selector("." + what)[position]
 
     wedutil.wait_for_caret_to_be_in(util, el)
 

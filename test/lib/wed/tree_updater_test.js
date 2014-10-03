@@ -72,6 +72,7 @@ describe("TreeUpdater", function () {
         this.expected = {
             insertNodeAt: 0,
             setTextNodeValue: 0,
+            beforeDeleteNode: 0,
             deleteNode: 0,
             setAttributeNS: 0,
             changed: undefined
@@ -165,8 +166,17 @@ describe("TreeUpdater", function () {
             });
             listener.expected.insertNodeAt = 2;
 
+            var former_parent = node.parentNode;
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
+                assert.equal(ev.former_parent, former_parent);
             });
             listener.expected.deleteNode = 1;
 
@@ -360,10 +370,17 @@ describe("TreeUpdater", function () {
            "node", function () {
             var node = $root.find(".title")[0].firstChild;
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
             });
-
             listener.expected.deleteNode = 1;
 
             tu.deleteText(node, 0, 4);
@@ -452,10 +469,19 @@ describe("TreeUpdater", function () {
             var node = parent.firstChild;
             var $el = $("<span>");
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
+
             var ina_calls = [
                 [parent, 0],
                 [parent, 1],
@@ -492,10 +518,19 @@ describe("TreeUpdater", function () {
             var $el = $("<span>");
 
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
+
             var ina_calls = [
                 [parent, 0],
                 [parent, 1]
@@ -528,10 +563,19 @@ describe("TreeUpdater", function () {
             var $el = $("<span>");
 
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
+
             var ina_calls = [
                 [parent, 0],
                 [parent, 1]
@@ -589,8 +633,16 @@ describe("TreeUpdater", function () {
            function () {
             var node = $root.find(".title")[0].firstChild;
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
 
@@ -610,8 +662,15 @@ describe("TreeUpdater", function () {
             var parent = node.parentNode;
             assert.equal(parent.childNodes.length, 3);
             var listener = new Listener(tu);
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
 
@@ -634,18 +693,34 @@ describe("TreeUpdater", function () {
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 5);
             var listener = new Listener(tu);
+            var first_before = true;
             var first = true;
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                // beforeDeleteNode will be emitted twice. Once to
+                // remove the node itself, and second to merge the
+                // text nodes.
+                if (first_before)
+                    assert.equal(ev.node, node);
+                else
+                    assert.equal(ev.node, next);
+                assert.isNotNull(ev.node.parentNode);
+                first_before = false;
+            });
+            listener.expected.beforeDeleteNode = 2;
+
             tu.addEventListener("deleteNode", function (ev) {
-                // Remove node will be emitted twice. Once to
+                // deleteNode will be emitted twice. Once to
                 // remove the node itself, and second to merge the
                 // text nodes.
                 if (first)
                     assert.equal(ev.node, node);
                 else
                     assert.equal(ev.node, next);
+                assert.isNull(ev.node.parentNode);
                 first = false;
             });
             listener.expected.deleteNode = 2;
+
 
             tu.addEventListener("setTextNodeValue", function (ev) {
                 assert.equal(ev.node, prev);
@@ -682,8 +757,16 @@ describe("TreeUpdater", function () {
             var parent = node.parentNode;
             assert.equal(parent.childNodes.length, 3);
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, node);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, node);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
 
@@ -706,15 +789,32 @@ describe("TreeUpdater", function () {
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 5);
             var listener = new Listener(tu);
+
+            var first_before = true;
             var first = true;
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                // beforeDeleteNode will be emitted twice. Once to
+                // remove the node itself, and second to merge the
+                // text nodes.
+                if (first_before)
+                    assert.equal(ev.node, node);
+                else
+                    assert.equal(ev.node, next);
+                assert.isNotNull(ev.node.parentNode);
+                first_before = false;
+            });
+            listener.expected.beforeDeleteNode = 2;
+
             tu.addEventListener("deleteNode", function (ev) {
-                // Remove node will be emitted twice. Once to
+                // deleteNode will be emitted twice. Once to
                 // remove the node itself, and second to merge the
                 // text nodes.
                 if (first)
                     assert.equal(ev.node, node);
                 else
                     assert.equal(ev.node, next);
+                assert.isNull(ev.node.parentNode);
                 first = false;
             });
             listener.expected.deleteNode = 2;
@@ -801,9 +901,20 @@ describe("TreeUpdater", function () {
             var listener = new Listener(tu);
             var calls = nodes.concat([next]);
             var calls_ix = 0;
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                var call = calls[calls_ix];
+                assert.equal(ev.node, call, "beforeDeleteNode call " +
+                             calls_ix);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 4;
+
             tu.addEventListener("deleteNode", function (ev) {
-                var call = calls[calls_ix++];
-                assert.equal(ev.node, call, "deleteNode call " + calls_ix);
+                var call = calls[calls_ix];
+                assert.equal(ev.node, call, "beforeDeleteNode call " +
+                             calls_ix);
+                assert.isNull(ev.node.parentNode);
+                calls_ix++;
             });
             listener.expected.deleteNode = 4;
 
@@ -848,8 +959,16 @@ describe("TreeUpdater", function () {
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 4);
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, next);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, next);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
 
@@ -952,8 +1071,16 @@ describe("TreeUpdater", function () {
             var next = node.nextSibling;
             assert.equal(parent.childNodes.length, 4);
             var listener = new Listener(tu);
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                assert.equal(ev.node, next);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = 1;
+
             tu.addEventListener("deleteNode", function (ev) {
                 assert.equal(ev.node, next);
+                assert.isNull(ev.node.parentNode);
             });
             listener.expected.deleteNode = 1;
 
@@ -1106,9 +1233,21 @@ describe("TreeUpdater", function () {
             nodes = nodes.reverse();
             var calls = nodes.concat([end.node]);
             var calls_ix = 0;
+
+            tu.addEventListener("beforeDeleteNode", function (ev) {
+                var call = calls[calls_ix];
+                assert.equal(ev.node, call, "beforeDeleteNode call " +
+                             calls_ix);
+                assert.isNotNull(ev.node.parentNode);
+            });
+            listener.expected.beforeDeleteNode = calls.length;
+
             tu.addEventListener("deleteNode", function (ev) {
-                var call = calls[calls_ix++];
-                assert.equal(ev.node, call, "deleteNode call " + calls_ix);
+                var call = calls[calls_ix];
+                assert.equal(ev.node, call, "beforeDeleteNode call " +
+                             calls_ix);
+                assert.isNull(ev.node.parentNode);
+                calls_ix++;
             });
             listener.expected.deleteNode = calls.length;
 

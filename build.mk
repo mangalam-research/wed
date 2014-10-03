@@ -63,11 +63,11 @@ WGET:=$(WGET) --no-use-server-timestamps
 # https://rangy.googlecode.com/files/
 RANGY_FILE=rangy-1.3alpha.804.tar.gz
 
-JQUERY_FILE=jquery-1.11.0.js
+JQUERY_FILE=jquery-2.1.1.js
 
 BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-dist.zip #https://github.com/twbs/bootstrap/releases/download/v3.0.3/bootstrap-3.0.3-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
-FONTAWESOME_PATH=http://fontawesome.io/3.2.1/assets/font-awesome.zip
+FONTAWESOME_PATH=http://fontawesome.io/assets/font-awesome-4.2.0.zip
 FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
 
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
@@ -95,8 +95,27 @@ LIB_FILES:=$(shell find lib -type f -not -name "*_flymake.*" -not -name "*.less"
 
 STANDALONE_LIB_FILES:=$(foreach path,$(foreach f,$(LIB_FILES),$(patsubst %.less,%.css,$f)) $(INC_LESS_FILES),build/standalone/$(path))
 
-TEST_DATA_FILES:=$(shell find browser_test -type f -name "*.xml")
-CONVERTED_TEST_DATA_FILES:=$(foreach f,$(TEST_DATA_FILES),$(patsubst browser_test/%.xml,build/test-files/%_converted.xml,$f))
+PERCENT:=%
+TEST_DATA_DIRS:=$(wildcard browser_test/*_data)
+# Directories for which we simply copy the files.
+TEST_DATA_DIRS_COPY:=browser_test/convert_test_data
+# Directories for which we convert the files to HTML.
+TEST_DATA_DIRS_CONVERT_TO_HTML:=$(foreach d,dloc guiroot tree_updater,browser_test/$(d)_test_data)
+$(info $(TEST_DATA_DIRS_CONVERT_TO_HTML))
+
+# Directories for which we convert the files to XML.
+TEST_DATA_DIRS_CONVERT_TO_XML:=$(filter-out $(TEST_DATA_DIRS_COPY:%=%$(PERCENT)) $(TEST_DATA_DIRS_CONVERT_TO_HTML:%=%$(PERCENT)),$(TEST_DATA_DIRS))
+
+SOURCE_DATA_FILES:=$(shell find browser_test -type f -print)
+SOURCE_DATA_FILES_COPY:=$(filter $(TEST_DATA_DIRS_COPY:%=%$(PERCENT)),$(SOURCE_DATA_FILES))
+SOURCE_DATA_FILES_CONVERT_TO_HTML:=$(filter $(TEST_DATA_DIRS_CONVERT_TO_HTML:%=%$(PERCENT)),$(SOURCE_DATA_FILES))
+SOURCE_DATA_FILES_CONVERT_TO_XML:=$(filter $(TEST_DATA_DIRS_CONVERT_TO_XML:%=%$(PERCENT)),$(SOURCE_DATA_FILES))
+
+DEST_DATA_FILES_COPY:=$(SOURCE_DATA_FILES_COPY:browser_test/%=build/test-files/%)
+DEST_DATA_FILES_CONVERT_TO_HTML:=$(SOURCE_DATA_FILES_CONVERT_TO_HTML:browser_test/%.xml=build/test-files/%_converted.xml)
+DEST_DATA_FILES_CONVERT_TO_XML:=$(SOURCE_DATA_FILES_CONVERT_TO_XML:browser_test/%.xml=build/test-files/%_converted.xml)
+DEST_DATA_FILES:=$(DEST_DATA_FILES_COPY) $(DEST_DATA_FILES_CONVERT_TO_HTML) $(DEST_DATA_FILES_CONVERT_TO_XML)
+
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
 SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json build/schemas/tei-doc
@@ -179,7 +198,7 @@ build/config/nginx.conf:
 
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js
 
 ifndef NO_NEW_BUILDINFO
 # Force rebuilding
@@ -194,7 +213,7 @@ build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
 build/standalone/%.html: web/%.html
 	cp $< $@
 
-build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html
+build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html build/standalone-optimized/platform_test.html
 
 build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
 	cp $< $@
@@ -247,27 +266,46 @@ build-samples: $(SAMPLE_TARGETS)
 build/samples:
 	-mkdir -p $@
 
-build/samples/%: sample_documents/% | build/samples
+build/samples/%: sample_documents/% | build/samples test/xml-to-xml-tei.xsl
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
-		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
-		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-xml-tei.xsl; else \
+		cp $<  $@; \
 	fi)
 
-build-test-files: $(CONVERTED_TEST_DATA_FILES) build/ajax
+build-test-files: $(DEST_DATA_FILES) build/ajax
 
-build/test-files/%_converted.xml: browser_test/%.xml build/standalone/lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
+$(DEST_DATA_FILES_CONVERT_TO_XML): build/test-files/%_converted.xml: browser_test/%.xml test/xml-to-xml-tei.xsl
+	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
+	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
+		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-xml-tei.xsl; else \
+		cp $< $@; \
+	fi)
+
+$(DEST_DATA_FILES_CONVERT_TO_HTML): build/test-files/%_converted.xml: browser_test/%.xml lib/wed/xml-to-html.xsl test/xml-to-html-tei.xsl
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	(if grep "http://www.tei-c.org/ns/1.0" $<; then \
 		$(SAXON) -s:$< -o:$@ -xsl:test/xml-to-html-tei.xsl; else \
 		$(SAXON) -s:$< -o:$@ -xsl:lib/wed/xml-to-html.xsl; \
 	fi)
+
+$(DEST_DATA_FILES_COPY): build/test-files/%: browser_test/%
+	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
+	cp $< $@
 
 build/standalone/lib/%: lib/%
 	-[ -e $(dir $@) ] || mkdir -p $(dir $@)
 	cp $< $@
 
-build/standalone/lib/%.css: lib/%.less lib/wed/less-inc/*
-	lessc --include-path=./lib/wed/less-inc/ $< $@
+build/standalone/lib/external:
+	mkdir -p $@
+
+wed.css_CSS_DEPS=build/standalone/lib/external/bootstrap/css/bootstrap.css
+
+build/standalone/lib/external/bootstrap/css/bootstrap.css: build/standalone/lib/external/bootstrap
+
+.SECONDEXPANSION:
+build/standalone/lib/wed/%.css: lib/wed/%.less lib/wed/less-inc/* $$($$(notdir $$@)_CSS_DEPS)
+	node_modules/.bin/lessc --include-path=./lib/wed/less-inc/ $< $@
 
 build/standalone build/ajax: | build-dir
 	-mkdir $@
@@ -307,7 +345,7 @@ downloads/$(CLASSLIST_BASE): | downloads
 node_modules/%:
 	npm install
 
-build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone
+build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone/lib/external
 	-mkdir -p $@
 	rm -rf $@/*
 	tar -xzf $< --strip-components=1 -C $@
@@ -316,11 +354,11 @@ ifneq ($(DEV),0)
 endif # ifneq ($(DEV),0)
 	rm -rf $@/uncompressed
 
-build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib
+build/standalone/lib/external/$(JQUERY_FILE): downloads/$(JQUERY_FILE) | build/standalone/lib/external
 	-mkdir $(dir $@)
 	cp $< $@
 
-build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib
+build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/standalone/lib/external
 	-rm -rf $@
 	-mkdir $@
 	-rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
@@ -333,15 +371,17 @@ build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/sta
 # so, touch it.
 	touch $@
 
-build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | build/standalone/lib/
-	-mkdir $(dir $@)
-	rm -rf $@/*
-	unzip -d $(dir $@) $<
+build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | build/standalone/lib//external
+	-rm -rf $@
+	mkdir $@
+	unzip -d downloads/ $<
+	mv downloads/$(FONTAWESOME_BASE:.zip=)/* $@
+	rm -rf downloads/$(FONTAWESOME_BASE:.zip=)
 	rm -rf $@/scss
 	rm -rf $@/less
 	touch $@
 
-build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib
+build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib/external
 	unzip -d $(dir $@) $<
 ifneq ($(DEV),0)
 	mv $(dir $@)/bootstrap-growl-*/jquery.bootstrap-growl.js $@
@@ -360,7 +400,7 @@ build/standalone/lib/requirejs/require.js: node_modules/requirejs/require.js | b
 build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
 	cp $< $@
 
-build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE)
+build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE) | build/standalone/lib/external
 	-mkdir $(dir $@)
 	unzip -d $(dir $@) $< log4javascript-*/js/*.js
 ifneq ($(DEV),0)
@@ -371,10 +411,10 @@ endif
 	rm -rf $(dir $@)/log4javascript-*
 	touch $@
 
-build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js
+build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js | build/standalone/lib/external
 	cp $< $@
 
-build/standalone/lib/external/xregexp.js: node_modules/salve/node_modules/xregexp/xregexp-all.js
+build/standalone/lib/external/xregexp.js: node_modules/salve/node_modules/xregexp/xregexp-all.js | build/standalone/lib/external
 	cp $< $@
 
 build/standalone/lib/external/lodash:
@@ -383,8 +423,8 @@ build/standalone/lib/external/lodash:
 build/standalone/lib/external/lodash/%: node_modules/lodash-amd/% | build/standalone/lib/external/lodash
 	cp -rp $< $@
 
-build/standalone/lib/external/classList.js: downloads/$(CLASSLIST_BASE)
-	-mkdir $(dir $@)
+build/standalone/lib/external/classList.js: downloads/$(CLASSLIST_BASE) | build/standalone/lib/external
+	-mkdir -p $(dir $@)
 	unzip -d $(dir $@) $< classList.js-*/*.js
 	mv $(dir $@)/classList.js-*/classList.js $@
 	rm -rf $(dir $@)/classList.js-*
@@ -418,11 +458,15 @@ endif
 	mocha $(MOCHA_PARAMS)
 
 .PHONY: selenium-test
-selenium-test: build | build-test-files
+selenium-test: build-config
+	python misc/check_selenium_config.py
+	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: selenium_test/%.feature
-selenium_test/%.feature: build | build-test-files
+selenium_test/%.feature: build-config
+	python misc/check_selenium_config.py
+	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) $@
 
 .PHONY: doc

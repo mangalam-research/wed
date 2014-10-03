@@ -1,3 +1,5 @@
+import re
+
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -15,7 +17,7 @@ import wedutil
 def step_impl(context):
     driver = context.driver
     element, context.emptied_element = driver.execute_script("""
-    var el = jQuery(".__start_label._title_label")[0];
+    var el = document.querySelector(".__start_label._title_label");
     return [el, el.parentNode];
     """)
 
@@ -122,3 +124,24 @@ def step_impl(context, ordinal, what, text):
     def cond(*_):
         return util.get_text_excluding_children(els[index]) == text
     util.wait(cond)
+
+
+@when(ur'^the user closes the pasting modal by accepting it$')
+def step_impl(context):
+    button = context.util.find_element(
+        (By.CSS_SELECTOR, ".modal.in .btn-primary"))
+    button.click()
+
+
+@then(ur'^the text is pasted after the last paragraph$')
+def step_impl(context):
+
+    def cond(driver):
+        text = driver.execute_script("""
+        var ps = wed_editor.data_root.querySelectorAll("body>p");
+        var p = ps[ps.length - 1];
+        return p.nextSibling.textContent;
+        """)
+        return text == context.expected_selection_serialization
+
+    context.util.wait(cond)

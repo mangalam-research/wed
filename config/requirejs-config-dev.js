@@ -7,7 +7,7 @@ require.config({
  baseUrl: 'lib/',
  paths: {
    browser_test: '../../../browser_test',
-   jquery: 'external/jquery-1.11.0',
+   jquery: 'external/jquery-2.1.1',
    bootstrap: 'external/bootstrap/js/bootstrap.min',
    log4javascript: 'external/log4javascript',
    'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
@@ -24,7 +24,12 @@ require.config({
  ],
  shim: {
    xregexp: {
+     // RequireJS wants to have this here even if the ``init`` field
+     // makes it pointless.
      exports: "XRegExp",
+     // We do it this way because salve is developed in Node and in
+     // Node when we require XRegExp we get a module which has an
+     // XRegExp field on it.
      init: function () { return {XRegExp: XRegExp}; }
    },
    bootstrap: {

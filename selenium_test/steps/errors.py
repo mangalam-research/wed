@@ -2,6 +2,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import MoveTargetOutOfBoundsException
 
+from selenic.util import Condition, Result
+# pylint: disable=no-name-in-module
+from nose.tools import assert_true
+
 step_matcher("re")
 
 
@@ -80,14 +84,18 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    def cond(*_):
+    def check(*_):
         top = driver.execute_script("""
-        var $ = jQuery;
-        var top = $(".wed-validation-error").last().position().top;
-        return top;
+        var errors = document.getElementsByClassName("wed-validation-error");
+        var last = errors[errors.length - 1];
+        // Get the position relative to the scroller element.
+        return last.getBoundingClientRect().top -
+            wed_editor._scroller.getBoundingClientRect().top;
         """)
 
         # Sigh... Firefox will come close but not quite, so...
-        return abs(top) < 5
+        return Result(abs(top) < 5, top)
 
-    util.wait(cond)
+    ret = Condition(util, check).wait().payload
+    assert_true(abs(ret) < 5, "the top should be within -5 and 5 (got: " +
+                str(ret))

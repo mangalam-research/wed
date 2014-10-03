@@ -1,6 +1,8 @@
 # pylint: disable=E0611
 from nose.tools import assert_equal, assert_is_not_none
+from selenium.webdriver.support.wait import TimeoutException
 
+from ..util import get_real_siblings
 
 step_matcher("re")
 
@@ -25,11 +27,12 @@ def step_impl(context):
 
 @then(ur"^a new element is inserted before the selected element.?$")
 def step_impl(context):
+    driver = context.driver
     for_element = context.context_menu_for
     info = context.context_menu_pre_transformation_info
     assert_is_not_none(for_element)
-    preceding = for_element.find_elements_by_xpath("preceding-sibling::*")
-    following = for_element.find_elements_by_xpath("following-sibling::*")
+
+    preceding, following = get_real_siblings(driver, for_element)
     assert_equal(len(info["preceding"]) + 1, len(preceding),
                  "items before the selected element")
     assert_equal(len(info["following"]), len(following),
@@ -38,11 +41,12 @@ def step_impl(context):
 
 @then(ur"^a new element is inserted after the selected element.?$")
 def step_impl(context):
+    driver = context.driver
     for_element = context.context_menu_for
     info = context.context_menu_pre_transformation_info
     assert_is_not_none(for_element)
-    preceding = for_element.find_elements_by_xpath("preceding-sibling::*")
-    following = for_element.find_elements_by_xpath("following-sibling::*")
+
+    preceding, following = get_real_siblings(driver, for_element)
     assert_equal(len(info["preceding"]), len(preceding),
                  "items before the selected element")
     assert_equal(len(info["following"]) + 1, len(following),

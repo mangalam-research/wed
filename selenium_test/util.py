@@ -64,3 +64,29 @@ def get_element_parent_and_parent_text(driver, selector):
     }).text();
     return [button, parent, parent_text];
     """, selector)
+
+
+def get_real_siblings(driver, element):
+    """
+    Returns a couple whose first member is the list of siblings before
+    ``element``, and the second member is the list of siblings after
+    ``element``. All siblings must be of the ``_real`` class.
+    """
+    preceding, following = driver.execute_script("""
+    var el = arguments[0];
+    var before = [];
+    var after = [];
+    var child = el.parentNode.firstElementChild;
+    var into = before;
+
+    while(child) {
+        if (child === el)
+            into = after;
+        else if (child.classList.contains("_real"))
+            into.push(child);
+        child = child.nextElementSibling;
+    }
+    return [before, after];
+    """, element)
+
+    return (preceding, following)

@@ -4,6 +4,111 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.18.0:
+
+  - This version is a major reworking of wed. This is where old APIs
+    are freely broken for the sake of better functionality.
+
+  - GUI: Context menus now support filtering operations by kind of
+    operation, by type of node modified and by text of the nodes
+    involved.
+
+  - wed now bundles with jQuery 2.1.1.
+
+  - API: Wed now expects pure XML and saves pure XML rather than the
+    HTML format that was previously used. Related changes:
+
+    - ``xml-to-html`` and ``html-to-xml`` are no longer needed.
+
+    - API: InputTrigger now takes an actual element name for selector
+      rather than the class name required by the now obsolete method
+      of storing data. So to get paragraph elements for instance you
+      specify "p" rather than ".p".
+
+  - API: ``jqutil`` is gone.
+
+  - API: ``jqutil.toDataSelector`` is now ``domutil.toGUISelector``.
+
+  - API: The other functions form ``jqutil`` are gone as they were no
+    longer used.
+
+  - API: ``domutil`` has acquired ``dataFind`` and ``dataFindAll``.
+
+  - API: ``Mode.getContextualMenuItems`` has been removed. This was a
+    function that was added very early on and that has since been
+    subsumed by other methods, like ``Mode.getContextualActions``.
+
+  - API: Removed ``TransformationRegistry``, which did not provide
+    much.
+
+  - API: Consequently, the generic mode no longer has a ``_tr`` field.
+
+  - API: ``transformation.makeElement`` returns a ``Node`` rather than
+    a ``jQuery`` object.
+
+  - API: ``transformation.insertElement`` returns a ``Node`` rather
+    than a ``jQuery`` object.
+
+  - API: ``transformation.insertElement`` no longer takes a
+    ``contents`` parameter.
+
+  - API: ``transformation.wrapTextInElement'' returns a ``Node``
+    rather than a ``jQuery`` object.
+
+  - API: ``transformation.wrapInElement`` returns a ``Node`` rather
+    than a ``jQuery`` object.
+
+  - API: ``Decorator.addRemListElementHandler`` and
+    ``Decorator.includeListHandler`` are gone.
+
+  - API: ``Decorator.listDecorator`` now takes a ``Node`` rather than
+    a ``jQuery``.
+
+  - API: The handlers for all ``domlistener.Listener`` objects now
+    receive DOM nodes rather than ``jQuery`` objects.
+
+  - API: ``domlistener.Listener`` objects no longer accept jQuery
+    selectors. They must be pure CSS now.
+
+  - API: ``domutil.makePlaceholder`` returns a ``Node`` rather than a
+    ``jQuery``.
+
+  - API: ``mode.makePlaceholderFor`` returns a ``Node`` rather than a
+    ``jQuery``.
+
+  - API: The ``dloc`` API no longer accepts jQuery objects.
+
+  - API: ``InputTrigger`` objects now expect CSS selectors rather than
+    jQuery selectors.
+
+  - API: ``InputTrigger`` event handlers take DOM ``Element`` objects
+    rather than ``jQuery`` objects.
+
+  - API: ``Editor.$sidebar`` is gone. It was never meant to be public.
+
+  - API: Introduced the ``gui/icon`` module.
+
+  - API: ``transformation.Transformation`` now has an additional ``type``
+    parameter which indicates the type of transformation. **Code must
+    be changed to take care of this.**
+
+  - API: ``transformation.Transformation`` now computes an icon on the
+    basis of the ``type`` parameter passed to it. So in many cases it
+    is not necessary to give an icon.
+
+  - API: ``Editor.computeContextMenuHeight`` was removed as it was
+    unusued.
+
+  - API: The data field named ``element_name`` that
+    ``transformation.Transformation`` objects expect in the ``data``
+    object passed to their handlers is now called ``name``. This field
+    is now referenced in description strings as ``<name>`` rather than
+    ``<element_name>``.
+
+  - API: ``tree_updater.TreeUpdater``'s old ``deleteNode`` event is
+    now named ``beforeDeleteNode``. There is a new ``deleteNode``
+    event which is now emitted **after** the node is deleted.
+
 * 0.17.2:
 
   - 0.17.1 actually introduced more problems on IE. Hopefully, this

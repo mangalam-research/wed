@@ -75,6 +75,20 @@ Scenario: pasting text that triggers an input trigger outside an element that sh
   And the user pastes
   Then the first paragraph in body has the text "A;B"
 
+# Selenium for OSX just does not allow us to paste.
+@fails_if:osx
+# IE does not allow us to get the contents of the clipboard as HTML.
+@fails_if:ie
+Scenario: pasting HTML where it cannot be pasted, and accepting conversion to text
+  Given a document containing a top level element, a p element, and text.
+  When the user selects the whole contents of the first paragraph in "body"
+  And the user cuts
+  And the user clicks on the end label of the last paragraph
+  And the user hits the right arrow
+  And the user pastes
+  When the user closes the pasting modal by accepting it
+  Then the text is pasted after the last paragraph
+
 Scenario: overwriting a selection
   Given a document containing a top level element, a p element, and text.
   When the user selects the "bc" of the first title

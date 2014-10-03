@@ -1,4 +1,5 @@
 @import "wed-vars.less";
+@import (less,reference) "../../build/standalone/lib/external/bootstrap/css/bootstrap.css";
 
 * {
    -webkit-box-sizing: border-box;
@@ -33,14 +34,28 @@
     z-index: 3;
 
     .dropdown-menu {
-            overflow-y: auto;
+        overflow-y: auto;
+
+        .btn-group>.btn {
+            // Bootstrap 3.x sets it to ``float: left`` by
+            // default. With the default value, a button group
+            // appearing in a menu item will be split on multiple
+            // lines. ``float: none`` prevents this.
+            float: none;
+        }
+
+        // This makes it so that the div we sometimes add to some
+        // context menu is formatted just like a regular menu
+        // item. (Same padding, etc.)
+        li>div:extend(.dropdown-menu>li>a) {}
     }
 
-    .icon-remove, .icon-collapse-top {
+
+    .fa-times, .fa-caret-square-o-up {
         color: red;
     }
 
-    .icon-plus, .icon-collapse {
+    .fa-plus, .fa-caret-square-o-down {
         color: green;
     }
 
@@ -99,11 +114,11 @@
         padding: 0px;
     }
 
-    .icon-remove {
+    .fa-times {
         color: red;
     }
 
-    .icon-plus {
+    .fa-plus {
         color: green;
     }
 }
@@ -139,6 +154,25 @@ div.wed-document-constrainer {
         }
 
     }
+
+    .wed-scroller {
+        overflow-y: auto;
+        border-style: solid;
+        border-width: 1px;
+        background-color: white;
+        position: relative;
+
+        .wed-error-layer {
+            position: relative;
+            z-index: 2;
+            // The following attribute is required for IE.
+            background-color: white;
+
+            * {
+                position: absolute;
+            }
+        }
+    }
 }
 
 div.wed-frame {
@@ -149,13 +183,15 @@ div.wed-frame {
         margin: 0.25em 0em;
     }
 
-    ._gui._label, ._gui._label._owns_caret {
+    @background-color-clicked: #f0ad4e;
+    ._gui._label {
+        @background-color: #3a87ad;
         text-indent: 0em;
         /* This restores the bootstrap 2 style. */
-        font-size: 12px;
-        font-weight: bold;
+        font-size: 16px;
+        //font-weight: bold;
         display: inline-block;
-        background-color: #3a87ad;
+        background-color: @background-color;
         color: white;
 
         line-height: 1;
@@ -164,17 +200,18 @@ div.wed-frame {
         vertical-align: middle;
         border-radius: .25em;
         border-style: none;
+
+        &._label_clicked {
+            background-color: @background-color-clicked;
+        }
     }
 
-    ._gui._label._label_clicked {
-            background-color: #f0ad4e;
+
+    ._gui._invisible {
+        display: none;
     }
 
     div.wed-document {
-        border-style: solid;
-        border-width: 1px;
-        background-color: white;
-
         div {
             word-wrap: normal;
 
@@ -199,7 +236,7 @@ div.wed-frame {
                 display: block;
                 background-color: transparent;
                 white-space: normal;
-                margin-left: 1em;
+                margin-left: @base-margin;
 
                 &._inline {
                     display: inline;

@@ -17,11 +17,11 @@ function defined(x) {
 }
 
 describe("dloc", function () {
-    var source = 'build/test-files/domutil_test_data/source_converted.xml';
+    var source = 'build/test-files/dloc_test_data/source_converted.xml';
     var source_txt = fs.readFileSync(source).toString();
     var fw;
     var window;
-    var $root;
+    var $root, root;
     var root_obj;
     var dloc;
     var $;
@@ -37,9 +37,9 @@ describe("dloc", function () {
                     dloc = _dloc;
                     $ = _$;
                     $root = $("#root");
-                    defined($root[0]);
+                    root = defined($root[0]);
                     $root.html(source_txt);
-                    root_obj = new dloc.DLocRoot($root[0]);
+                    root_obj = new dloc.DLocRoot(root);
                     done();
                 }
                 catch (e) {
@@ -52,12 +52,12 @@ describe("dloc", function () {
 
     describe("DLocRoot", function () {
         it("marks the root", function () {
-            assert.equal(dloc.findRoot($root[0]), root_obj);
+            assert.equal(dloc.findRoot(root), root_obj);
         });
 
         it("fails if the node is already marked", function () {
             assert.Throw(function () {
-                new dloc.DLocRoot($root[0]);
+                new dloc.DLocRoot(root);
             },
                          window.Error,
                          "node already marked as root");
@@ -65,7 +65,7 @@ describe("dloc", function () {
 
         describe("nodeToPath", function () {
             it("returns an empty string on root", function () {
-                assert.equal(root_obj.nodeToPath($root[0]), "");
+                assert.equal(root_obj.nodeToPath(root), "");
             });
 
             it("returns a correct path on text node", function () {
@@ -105,7 +105,7 @@ describe("dloc", function () {
 
         describe("pathToNode", function () {
             it("returns root when passed an empty string", function () {
-                assert.equal(root_obj.pathToNode(""), $root[0]);
+                assert.equal(root_obj.pathToNode(""), root);
             });
 
             it("returns a correct node on a text path", function () {
@@ -173,23 +173,15 @@ describe("dloc", function () {
     describe("makeDLoc", function () {
         it("returns undefined when called with undefined location",
            function () {
-            assert.isUndefined(dloc.makeDLoc($root, undefined));
+            assert.isUndefined(dloc.makeDLoc(root, undefined));
         });
 
         it("returns a valid DLoc", function () {
             var a = defined($(".p")[0]);
-            var loc = dloc.makeDLoc($root, a, 0);
+            var loc = dloc.makeDLoc(root, a, 0);
             assert.equal(loc.node, a);
             assert.equal(loc.offset, 0);
-            assert.equal(loc.root, $root[0]);
-        });
-
-        it("returns a valid DLoc when the root is a Node", function () {
-            var a = defined($(".p")[0]);
-            var loc = dloc.makeDLoc($root[0], a, 0);
-            assert.equal(loc.node, a);
-            assert.equal(loc.offset, 0);
-            assert.equal(loc.root, $root[0]);
+            assert.equal(loc.root, root);
         });
 
         it("returns a valid DLoc when the root is a DLocRoot", function () {
@@ -197,42 +189,35 @@ describe("dloc", function () {
             var loc = dloc.makeDLoc(root_obj, a, 0);
             assert.equal(loc.node, a);
             assert.equal(loc.offset, 0);
-            assert.equal(loc.root, $root[0]);
+            assert.equal(loc.root, root);
         });
 
         it("returns a valid DLoc on an attribute node", function () {
             var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
-            var loc = dloc.makeDLoc($root, a, 0);
+            var loc = dloc.makeDLoc(root, a, 0);
             assert.equal(loc.node, a);
             assert.equal(loc.offset, 0);
-            assert.equal(loc.root, $root[0]);
+            assert.equal(loc.root, root);
         });
 
         it("returns a valid DLoc when called with an array", function () {
             var a = defined($(".p")[0]);
-            var loc = dloc.makeDLoc($root, new window.Array(a, 0));
+            var loc = dloc.makeDLoc(root, new window.Array(a, 0));
             assert.equal(loc.node, a);
             assert.equal(loc.offset, 0);
-            assert.equal(loc.root, $root[0]);
+            assert.equal(loc.root, root);
         });
 
         it("returns undefined when called with an array that has an " +
            "undefined first member", function () {
-            assert.isUndefined(dloc.makeDLoc($root,
+            assert.isUndefined(dloc.makeDLoc(root,
                                              new window.Array(undefined,
                                                               0)));
         });
 
-        it("returns undefined when called with an array that has an " +
-           "an empty first member",
-           function () {
-            assert.isUndefined(dloc.makeDLoc($root, new window.Array($(),
-                                                                     0)));
-        });
-
         it("throws an error when the node is not in the root", function () {
             var c = defined($root.parent()[0]);
-            assert.Throw(dloc.makeDLoc.bind(undefined, $root, c, 0),
+            assert.Throw(dloc.makeDLoc.bind(undefined, root, c, 0),
                          window.Error, "node not in root");
         });
 
@@ -247,7 +232,7 @@ describe("dloc", function () {
         describe("clone", function () {
             it("clones", function () {
                 var a = defined($(".p")[0]);
-                var loc = dloc.makeDLoc($root, a, 1);
+                var loc = dloc.makeDLoc(root, a, 1);
                 assert.deepEqual(loc, loc.clone());
             });
         });
@@ -256,7 +241,7 @@ describe("dloc", function () {
             it("makes a new location with the same root", function () {
                 var a = defined($(".p")[0]);
                 var b = defined($(".p")[1]);
-                var loc = dloc.makeDLoc($root, a, 1);
+                var loc = dloc.makeDLoc(root, a, 1);
                 var loc2 = loc.make(b, 0);
                 assert.equal(loc.root, loc2.root);
                 assert.equal(loc2.node, b);
@@ -268,7 +253,7 @@ describe("dloc", function () {
             it("makes a range", function () {
                 var a = defined($(".p")[0]);
                 var b = defined($(".p")[1]);
-                var loc = dloc.makeDLoc($root, a, 0);
+                var loc = dloc.makeDLoc(root, a, 0);
                 var loc2 = loc.make(b, 1);
                 var range = loc.makeRange(loc2);
                 assert.equal(range.range.startContainer, a);
@@ -281,7 +266,7 @@ describe("dloc", function () {
 
             it("makes a collapsed range", function () {
                 var a = defined($(".p")[0]);
-                var loc = dloc.makeDLoc($root, a, 0);
+                var loc = dloc.makeDLoc(root, a, 0);
                 var range = loc.makeRange();
                 assert.equal(range.startContainer, a);
                 assert.equal(range.startOffset, 0);
@@ -293,7 +278,7 @@ describe("dloc", function () {
             it("makes a reversed range", function () {
                 var a = defined($(".p")[0]);
                 var b = defined($(".p")[1]);
-                var loc = dloc.makeDLoc($root, b, 1);
+                var loc = dloc.makeDLoc(root, b, 1);
                 var loc2 = loc.make(a, 0);
                 var range = loc.makeRange(loc2);
                 assert.equal(range.range.startContainer, a);
@@ -308,7 +293,7 @@ describe("dloc", function () {
                 var a = defined($(".quote")[0].getAttributeNode(
                     "data-wed-type"));
                 var b = defined($(".p")[1]);
-                var loc = dloc.makeDLoc($root, a, 0);
+                var loc = dloc.makeDLoc(root, a, 0);
                 var loc2 = loc.make(b, 1);
                 assert.Throw(loc.makeRange.bind(loc, loc2),
                              window.Error,
@@ -319,7 +304,7 @@ describe("dloc", function () {
                 var a = defined($(".quote")[0].getAttributeNode(
                     "data-wed-type"));
                 var b = defined($(".p")[1]);
-                var loc = dloc.makeDLoc($root, a, 0);
+                var loc = dloc.makeDLoc(root, a, 0);
                 var loc2 = loc.make(b, 1);
                 assert.Throw(loc2.makeRange.bind(loc2, loc),
                              window.Error,
@@ -330,7 +315,7 @@ describe("dloc", function () {
         describe("toArray", function () {
             it("returns an array with the right values", function () {
                 var a = defined($(".p")[0]);
-                var loc = dloc.makeDLoc($root, a, 1);
+                var loc = dloc.makeDLoc(root, a, 1);
                 assert.deepEqual(loc.toArray(), [a, 1]);
             });
         });

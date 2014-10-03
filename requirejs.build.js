@@ -14,6 +14,9 @@
             name: "lodash"
         },
         {
+            name: "jquery"
+        },
+        {
             name: "wed/wed",
             include: [
                 "wed/modes/generic/generic",
