@@ -439,6 +439,7 @@ def step_impl(context):
 # adjusted during the test to take into account version numbers or OS.
 _BROWSER_TO_VALUES = {
     "CHROME": {
+        u"CHROME": True,
         u"CHROME_31": False,
         u"FIREFOX": False,
         u"GECKO": False,
@@ -448,6 +449,7 @@ _BROWSER_TO_VALUES = {
         u"OSX": False,
     },
     "FIREFOX": {
+        u"CHROME": False,
         u"CHROME_31": False,
         u"FIREFOX": True,
         u"GECKO": True,
@@ -457,6 +459,7 @@ _BROWSER_TO_VALUES = {
         u"OSX": False,
     },
     "INTERNETEXPLORER": {
+        u"CHROME": False,
         u"CHROME_31": False,
         u"FIREFOX": False,
         u"GECKO": False,

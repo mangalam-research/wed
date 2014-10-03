@@ -71,9 +71,9 @@ Browser Requirements
 Wed is primarily developed using a recent version of Chrome (version
 36; versions 26-35 have also been used earlier) and a recent version
 of Firefox (version 28; versions 20-27 have also been used earlier)
-for testing. The fact that wed is developed using these browsers
-influences the severity and frequency of bugs you can expect to run
-into.
+for testing. (But see a note about Chrome 34 below.) The fact that wed
+is developed using these browsers influences the severity and
+frequency of bugs you can expect to run into.
 
 Here is the list of officially supported browsers, in order of
 decreasing priority:
@@ -89,6 +89,10 @@ We would like to support phone and tablet browsers but due to a lack
 of development resources, such support is unlikely to materialize
 soon. In decreasing order of likelihood, the following cases are
 unlikely to ever be supported:
+
+* Chrome 34: the luminaries at Google decided to remove
+  ``Attr.ownerElement`` from Chrome 34. It was reintroduced in
+  Chrome 35.
 
 * IE 9. We'd need a) a substantial demand for it and b) people willing
   to participate in providing support.

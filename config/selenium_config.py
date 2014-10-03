@@ -1,5 +1,6 @@
 import os
 import subprocess
+import json
 
 from selenium.webdriver.firefox.webdriver import FirefoxProfile, FirefoxBinary
 from selenium.webdriver.chrome.options import Options
@@ -34,6 +35,10 @@ if suffix:
 
 # Grab the current build number.
 describe = subprocess.check_output(["git", "describe"])
+# Grab the current reported version of wed
+with open("package.json") as pk:
+    version_data = json.load(pk)
+version = version_data["version"]
 
 caps = {
     # We have to turn this on...
@@ -42,7 +47,7 @@ caps = {
     # As of 2014-06-30 2.42.2 fails to load on Saucelabs...
     "selenium-version": "2.41.0",
     "chromedriver-version": "2.10",
-    "build": describe
+    "build": "version: " + version + ", git describe: " + describe
 }
 
 if not LOGS:
@@ -57,7 +62,8 @@ config = Config("Linux", "CHROME", "36")
 
 config = Config("Windows 8.1", "CHROME", "36", caps, remote=True)
 config = Config("Windows 8.1", "CHROME", "35", caps, remote=True)
-config = Config("Windows 8.1", "CHROME", "34", caps, remote=True)
+# wed definitely breaks on Chrome 34.
+# config = Config("Windows 8.1", "CHROME", "34", caps, remote=True)
 
 config = Config("Windows 8.1", "FIREFOX", "28", caps, remote=True)
 config = Config("Windows 8.1", "FIREFOX", "27", caps, remote=True)
@@ -66,11 +72,10 @@ config = Config("Windows 8", "INTERNETEXPLORER", "10", caps, remote=True)
 config = Config("Windows 8.1", "INTERNETEXPLORER", "11", caps, remote=True)
 
 
-# As of 07292014 Chrome 36 is not yet available on OS X from
-# Saucelabs.
-
+config = Config("OS X 10.8", "CHROME", "36", caps, remote=True)
 config = Config("OS X 10.6", "CHROME", "35", caps, remote=True)
-config = Config("OS X 10.6", "CHROME", "34", caps, remote=True)
+# wed definitely breaks on Chrome 34.
+# config = Config("OS X 10.6", "CHROME", "34", caps, remote=True)
 
 #
 # FAILING COMBINATIONS
