@@ -31,6 +31,7 @@ var assert = chai.assert;
 var wedroot = document.getElementById("wedframe-invisible")
         .contentWindow.document.getElementById("wedroot");
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
+var option_stack = [options];
 
 function caretCheck(editor, container, offset, msg) {
     var caret = editor.getGUICaret(true);
@@ -106,7 +107,7 @@ describe("wed", function () {
                 editor.addEventListener("initialized", function () {
                     done();
                 });
-                editor.init(wedroot, options, data);
+                editor.init(wedroot, option_stack[0], data);
             });
         });
 
@@ -1819,6 +1820,38 @@ describe("wed", function () {
                     throw new Error("I'm failing!");
                 }, 0);
             });
+        });
+
+        describe("without saver", function () {
+            before(function() {
+                var new_options =
+                {
+                    schema: '../../../schemas/tei-simplified-rng.js',
+                    mode: {
+                        path: 'wed/modes/generic/generic',
+                        options: {
+                            meta: {
+                                path: 'wed/modes/generic/metas/tei_meta',
+                                options: {
+                                    metadata: '../../../../../schemas/tei-metadata.json'
+                                }
+                            }
+                        }
+                    },
+                    // You certainly do not want this in actual deployment.
+                    ajaxlog: {
+                        url: "/build/ajax/log.txt"
+                    }
+                };
+                new_options.ignore_module_config = true;
+                option_stack.unshift(new_options);
+            });
+
+            after(function () {
+                option_stack.shift();
+            });
+
+            it("is able to start", function () { });
         });
     });
 
