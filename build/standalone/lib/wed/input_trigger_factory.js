@@ -12,8 +12,6 @@ function (require, exports, module) {
 var key_constants = require("./key_constants");
 var input_trigger = require("./input_trigger");
 var util = require("./util");
-var jqutil = require("./jqutil");
-var $ = require("jquery");
 var domutil = require("./domutil");
 var transformation = require("./transformation");
 
@@ -21,7 +19,7 @@ var transformation = require("./transformation");
  * Makes an input trigger that splits and merges consecutive elements.
  * @param {module:wed~Editor} editor The editor for which to create
  * the input trigger.
- * @param {string} element_name A jQuery selector that determines
+ * @param {string} element_name A CSS selector that determines
  * which element we want to split or merge. For instance, to operate
  * on all paragraphs, this parameter could be <code>"p"</code>.
  * @param {module:key~Key} split_key The key which splits the element.
@@ -37,28 +35,28 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
 
 
     var split_node_on_tr = new transformation.Transformation(
-        editor, "Split node on character", split_node_on);
+        editor, "split", "Split node on character", split_node_on);
 
     var ret = new input_trigger.InputTrigger(editor, element_name);
     ret.addKeyHandler(
         split_key,
-        function (type, $el, ev) {
+        function (type, el, ev) {
         if (ev) {
             ev.stopImmediatePropagation();
             ev.preventDefault();
         }
         if (type === "keypress" ||
             type === "keydown")
-            editor.fireTransformation(editor.split_node_tr, { node: $el[0] });
+            editor.fireTransformation(editor.split_node_tr, { node: el });
         else
             editor.fireTransformation(
                 split_node_on_tr,
-                {node: $el[0], sep: String.fromCharCode(split_key.which)});
+                {node: el, sep: String.fromCharCode(split_key.which)});
     });
 
     ret.addKeyHandler(
         merge_with_previous_key,
-        function (type, $el, ev) {
+        function (type, el, ev) {
         var caret = editor.getDataCaret();
 
         if (!caret)
@@ -67,22 +65,22 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
         // Fire it only if it the caret is at the start of the element
         // we are listening on and can't go back.
         if ((caret.offset === 0) &&
-            (caret.node === $el[0] ||
+            (caret.node === el ||
              (caret.node.nodeType === Node.TEXT_NODE &&
-              caret.node === $el[0].firstChild))) {
+              caret.node === el.firstChild))) {
             if (ev) {
                 ev.stopImmediatePropagation();
                 ev.preventDefault();
             }
             editor.fireTransformation(
                 editor.merge_with_previous_homogeneous_sibling_tr,
-                {node: $el[0], element_name: $el[0].tagName});
+                {node: el, name: el.tagName});
         }
     });
 
     ret.addKeyHandler(
         merge_with_next_key,
-        function (type, $el, ev) {
+        function (type, el, ev) {
         var caret = editor.getDataCaret();
 
         if (!caret)
@@ -90,18 +88,17 @@ function makeSplitMergeInputTrigger(editor, element_name, split_key,
 
         // Fire it only if it the caret is at the end of the element
         // we are listening on and can't actually delete text.
-        if ((caret.node === $el[0] &&
-             caret.offset === $el[0].childNodes.length) ||
+        if ((caret.node === el && caret.offset === el.childNodes.length) ||
             (caret.node.nodeType === Node.TEXT_NODE &&
-             caret.node === $el[0].lastChild &&
-             caret.offset === $el[0].lastChild.length)) {
+             caret.node === el.lastChild &&
+             caret.offset === el.lastChild.length)) {
             if (ev) {
                 ev.stopImmediatePropagation();
                 ev.preventDefault();
             }
             editor.fireTransformation(
                 editor.merge_with_next_homogeneous_sibling_tr,
-                {node: $el[0], element_name: $el[0].tagName});
+                {node: el, name: el.tagName});
         }
     });
     return ret;
@@ -124,8 +121,14 @@ function split_node_on(editor, data) {
     var modified = true;
     while(modified) {
         modified = false;
-        var $node = $(node);
-        var text_nodes = $node.contents().filter(jqutil.textFilter).toArray();
+        var text_nodes = [];
+        var child = node.firstChild;
+        while(child) {
+            if (child.nodeType === Node.TEXT_NODE)
+                text_nodes.push(child);
+            child = child.nextSibling;
+        }
+
         for (var i = 0; !modified && i < text_nodes.length; ++i) {
             var text = text_nodes[i];
             var offset = text.data.indexOf(sep);
@@ -160,5 +163,5 @@ exports.makeSplitMergeInputTrigger = makeSplitMergeInputTrigger;
 });
 
 //  LocalWords:  Mangalam MPL Dubeau lastChild deleteText domutil
-//  LocalWords:  keypress keydown jquery jqutil util jQuery
+//  LocalWords:  keypress keydown util
 //  LocalWords:  InputTrigger

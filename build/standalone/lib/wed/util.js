@@ -110,14 +110,14 @@ function escapeCSSClass(cls) {
 function getOriginalName(node) {
     // The original name is the first class name of the element that
     // was created.
-    return node.className.split(" ", 1)[0];
+    return node.classList[0];
 }
 
 /**
- * Makes a class name appropriate for a node in wed's data tree.
+ * Makes a class string appropriate for a node in wed's data tree.
  *
  * @param {string} name The original element name.
- * @returns {string} The class name.
+ * @returns {string} The class string.
  */
 function classFromOriginalName(name) {
     // Special case if we want to match all
@@ -150,6 +150,28 @@ function decodeAttrName(name) {
 function encodeAttrName(name) {
     return "data-wed-" + name.replace(/--(-+)/g, "---$1").replace(/:/, '---');
 }
+
+/**
+ * Gets all the attributes of the node that were "original" attributes
+ * in the XML document being edited, by opposition to those attributes
+ * that exist only for HTML rendering.
+ *
+ * @param {Node} Node The node to process.
+ * @returns {Object} An object whose keys are attribute names and
+ * values are attribute values.
+ */
+function getOriginalAttributes(node) {
+    var original = Object.create(null);
+    var attributes = node.attributes;
+    for(var i = 0; i < attributes.length; ++i) {
+        var attr = attributes[i];
+        // It is a node we want.
+        if (attr.localName.lastIndexOf("data-wed-", 0) === 0)
+            original[decodeAttrName(attr.localName)] = attr.value;
+    }
+    return original;
+}
+
 
 var next_id = 0;
 
@@ -225,6 +247,7 @@ exports.getOriginalName = getOriginalName;
 exports.classFromOriginalName = classFromOriginalName;
 exports.decodeAttrName = decodeAttrName;
 exports.encodeAttrName = encodeAttrName;
+exports.getOriginalAttributes = getOriginalAttributes;
 exports.newGenericID = newGenericID;
 exports.anySpecialKeyHeld = anySpecialKeyHeld;
 exports.distFromDeltas = distFromDeltas;

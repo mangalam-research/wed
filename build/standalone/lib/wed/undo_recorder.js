@@ -11,7 +11,6 @@ define(/** @lends module:undo_recorder */ function (require, exports, module) {
 'use strict';
 
 var domutil = require("./domutil");
-var $ = require("jquery");
 var oop = require("./oop");
 var undo = require("./undo");
 
@@ -32,7 +31,9 @@ function UndoRecorder (editor, tree_updater) {
     this._tree_updater.addEventListener(
         "setTextNodeValue", this._setTextNodeValueHandler.bind(this));
     this._tree_updater.addEventListener(
-        "deleteNode", this._deleteNodeHandler.bind(this));
+        "beforeDeleteNode", this._beforeDeleteNodeHandler.bind(this));
+    this._tree_updater.addEventListener(
+        "setAttributeNS", this._setAttributeNSHandler.bind(this));
     this._suppress = false;
 }
 
@@ -83,16 +84,31 @@ UndoRecorder.prototype._setTextNodeValueHandler = function (ev) {
 };
 
 /**
- * Handles {@link module:tree_updater~TreeUpdater#event:deleteNode
- * deleteNode} events.
+ * Handles {@link module:tree_updater~TreeUpdater#event:beforeDeleteNode
+ * beforeDeleteNode} events.
  * @private
- * @param {module:tree_updater~TreeUpdater#event:deleteNode} ev The
+ * @param {module:tree_updater~TreeUpdater#event:beforeDeleteNode} ev The
  * event.
  */
-UndoRecorder.prototype._deleteNodeHandler = function (ev) {
+UndoRecorder.prototype._beforeDeleteNodeHandler = function (ev) {
     if (this._suppress)
         return;
     this._editor.recordUndo(new DeleteNodeUndo(this._tree_updater, ev.node));
+};
+
+/**
+ * Handles {@link module:tree_updater~TreeUpdater#event:setAttributeNS
+ * setAttributeNS} events.
+ * @private
+ * @param {module:tree_updater~TreeUpdater#event:setTextNodeValue} ev The
+ * event.
+ */
+UndoRecorder.prototype._setAttributeNSHandler = function (ev) {
+    if (this._suppress)
+        return;
+    this._editor.recordUndo(new SetAttributeNSUndo(
+        this._tree_updater,
+        ev.node, ev.ns, ev.attribute, ev.old_value, ev.new_value));
 };
 
 /**
@@ -126,7 +142,7 @@ InsertNodeAtUndo.prototype.undo = function () {
     if (this._node)
         throw new Error("undo called twice in a row");
     var parent = this._tree_updater.pathToNode(this._parent_path);
-    this._node = $(parent.childNodes[this._index]).clone()[0];
+    this._node = parent.childNodes[this._index].cloneNode(true);
     this._tree_updater.deleteNode(parent.childNodes[this._index]);
 };
 
@@ -139,14 +155,11 @@ InsertNodeAtUndo.prototype.redo = function () {
 };
 
 InsertNodeAtUndo.prototype.toString = function () {
-    function dump (it) {
-        return it ? ($(it).clone().wrap('<div>').parent().html() ||
-                     $(it).text()) : "undefined";
-    }
     return [this._desc, "\n",
             " Parent path: ",  this._parent_path, "\n",
             " Index: ", this._index, "\n",
-            " Node: ", dump(this._node), "\n"].join("");
+            " Node: ", this._node ? this._node.outerHTML : "undefined",
+            "\n"].join("");
 };
 
 /**
@@ -195,7 +208,7 @@ SetTextNodeValueUndo.prototype.toString = function () {
 
 /**
  * @classdesc Undo operation for {@link
- * module:tree_updater~TreeUpdater#event:deleteNode deleteNode}
+ * module:tree_updater~TreeUpdater#event:beforeDeleteNode beforeDeleteNode}
  * events.
  * @extends module:undo~Undo
  *
@@ -215,7 +228,7 @@ function DeleteNodeUndo(tree_updater, node) {
     this._parent_path = tree_updater.nodeToPath(parent);
     this._index = Array.prototype.indexOf.call(parent.childNodes,
                                                node);
-    this._node = $(node).clone()[0];
+    this._node = node.cloneNode(true);
 }
 
 oop.inherit(DeleteNodeUndo, undo.Undo);
@@ -232,21 +245,69 @@ DeleteNodeUndo.prototype.redo = function () {
     if (this._node)
         throw new Error("redo called twice in a row");
     var parent = this._tree_updater.pathToNode(this._parent_path);
-    this._node = $(parent.childNodes[this._index]).clone()[0];
+    this._node = parent.childNodes[this._index].cloneNode(true);
     this._tree_updater.deleteNode(parent.childNodes[this._index]);
 };
 
 DeleteNodeUndo.prototype.toString = function () {
-    function dump (it) {
-        return it ? ($(it).clone().wrap('<div>').parent().html() ||
-                     $(it).text()) : "undefined";
-    }
     return [this._desc, "\n",
             " Parent path: ",  this._parent_path, "\n",
             " Index: ", this._index, "\n",
-            " Node: ", dump(this._node), "\n"].join("");
+            " Node: ", this._node ? this._node.outerHTML : "undefined",
+            "\n"].join("");
 };
 
+/**
+ * @classdesc Undo operation for {@link
+ * module:tree_updater~TreeUpdater#event:setAttributeNS setAttributeNS}
+ * events.
+ * @extends module:undo~Undo
+ *
+ * The parameters after <code>tree_updater</code> are the same as the
+ * properties on the event corresponding to this class.
+ *
+ * @private
+ * @constructor
+ * @param {module:tree_updater~TreeUpdater} tree_updater The tree
+ * updater to use to perform undo or redo operations.
+ * @param node
+ * @param ns
+ * @param attribute
+ * @param value
+ */
+function SetAttributeNSUndo(tree_updater, node, ns, attribute, old_value,
+                            new_value) {
+    undo.Undo.call(this, "SetAttributeNSUndo");
+    this._tree_updater = tree_updater;
+    this._node_path = tree_updater.nodeToPath(node);
+    this._ns = ns;
+    this._attribute = attribute;
+    this._old_value = old_value;
+    this._new_value = new_value;
+}
+
+oop.inherit(SetAttributeNSUndo, undo.Undo);
+
+SetAttributeNSUndo.prototype.undo = function () {
+    var node = this._tree_updater.pathToNode(this._node_path);
+    this._tree_updater.setAttributeNS(node, this._ns, this._attribute,
+                                      this._old_value);
+};
+
+SetAttributeNSUndo.prototype.redo = function () {
+    var node = this._tree_updater.pathToNode(this._node_path);
+    this._tree_updater.setAttributeNS(node, this._ns, this._attribute,
+                                      this._new_value);
+};
+
+SetAttributeNSUndo.prototype.toString = function () {
+    return [this._desc, "\n",
+            " Node path: ",  this._node_path, "\n",
+            " Namespace: " , this._ns, "\n",
+            " Attribute Name: ", this._attribute, "\n",
+            " New value: ", this._new_value, "\n",
+            " Old value: ", this._old_value, "\n"].join("");
+};
 
 
 exports.UndoRecorder = UndoRecorder;

@@ -8,10 +8,11 @@
 define(/** @lends module:guiroot */function (require, exports, module) {
 'use strict';
 
-var $ = require("jquery");
 var oop = require("./oop");
 var dloc = require("./dloc");
 var util = require("./util");
+var domutil = require("./domutil");
+var closestByClass = domutil.closestByClass;
 
 var _indexOf = Array.prototype.indexOf;
 
@@ -43,49 +44,50 @@ GUIRoot.prototype.nodeToPath = function (node) {
     if (node === null || node === undefined)
         throw new Error("invalid node parameter");
 
-    var $node = $(node);
-    if ($node.closest("._placeholder")[0])
+    if (closestByClass(node, "_placeholder", root))
         throw new Error("cannot provide path to node because it is a "+
                         "placeholder node");
 
     if (root === node)
         return "";
 
-    if (!$node.closest(root)[0])
+    if (!root.contains(node))
         throw new Error("node is not a descendant of root");
 
     var ret = [];
     while (node !== root) {
-        var parent;
+        var parent, child;
         var location;
         var offset = 0;
         var i;
 
-        if (!$node.is("._real, ._phantom_wrap, ._attribute_value") &&
-            node.nodeType !== Node.TEXT_NODE)
+        if (node.nodeType !== Node.TEXT_NODE &&
+            !node.matches("._real, ._phantom_wrap, ._attribute_value"))
             throw new Error("only nodes of class ._real, ._phantom_wrap, and " +
                             "._attribute_value are supported");
 
-        var $attr_val = $node.closest("._attribute_value");
-        if ($attr_val.length) {
-            ret.unshift("@" + util.encodeAttrName(
-                $attr_val.siblings("._attribute_name").text()));
-            parent = $attr_val.closest("._real")[0];
+        var attr_val = closestByClass(node, "_attribute_value", root);
+        if (attr_val) {
+            child = domutil.siblingByClass(attr_val, "_attribute_name");
+            if (!child)
+                throw new Error("no attribute name found");
+            ret.unshift("@" + child.textContent);
+            parent = closestByClass(attr_val, "_real", root);
         }
         else {
             parent = node.parentNode;
             location = _indexOf.call(parent.childNodes, node);
             for (i = 0; i < location; ++i) {
-                if ((parent.childNodes[i].nodeType === Node.TEXT_NODE) ||
-                    (parent.childNodes[i].nodeType === Node.ELEMENT_NODE &&
-                     $(parent.childNodes[i]).is("._real, ._phantom_wrap")))
+                child = parent.childNodes[i];
+                if ((child.nodeType === Node.TEXT_NODE) ||
+                    (child.nodeType === Node.ELEMENT_NODE &&
+                     child.matches("._real, ._phantom_wrap")))
                     offset++;
             }
 
             ret.unshift("" + offset);
         }
         node = parent;
-        $node = $(node);
     }
 
     return ret.join("/");
@@ -130,7 +132,7 @@ GUIRoot.prototype.pathToNode = function (path) {
                 node = parent.childNodes[i];
                 if ((node.nodeType === Node.TEXT_NODE ||
                      (node.nodeType === Node.ELEMENT_NODE &&
-                      $(node).is("._real, ._phantom_wrap"))) && --index < 0)
+                      node.matches("._real, ._phantom_wrap"))) && --index < 0)
                     found = node;
             }
 
@@ -144,11 +146,14 @@ GUIRoot.prototype.pathToNode = function (path) {
     }
 
     if (attribute) {
-        var name = util.decodeAttrName(attribute.slice(1));
-        var attr = $(parent).find("._attribute_name").filter(function () {
-            return this.textContent === name;
-        })[0];
-        parent = $(attr).siblings("._attribute_value")[0];
+        var name = attribute.slice(1);
+        var attrs = parent.getElementsByClassName("_attribute_name");
+        for (var aix = 0, attr; (attr = attrs[aix]) !== undefined; ++aix)
+            if (attr.textContent === name)
+                break;
+        if (!attr)
+            throw new Error("could not find attribute with name: " + name);
+        parent = domutil.siblingByClass(attr, "_attribute_value");
     }
 
     return parent;

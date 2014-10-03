@@ -30,12 +30,6 @@ Here are some limitations of the demo:
 
 * Autosave is turned off, for the reason given above.
 
-* You cannot edit attributes in a generic way, as attributes. The
-  functionality just has not been implemented yet because wed is
-  developed in the context of a project where all attributes are set
-  by software or are edited through domain-specific abstractions
-  rather than directly, as attributes.
-
 Things you can do:
 
 * Use the left mouse button to bring up a context menu. Such a menu

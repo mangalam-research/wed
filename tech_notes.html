@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced Usage Notes &mdash; Wed v0.17.2 documentation</title>
+    <title>Advanced Usage Notes &mdash; Wed v0.18.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.17.2',
+        VERSION:     'v0.18.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.17.2 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.18.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.17.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.18.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -278,14 +278,49 @@ these are not set:</p>
 </pre></div>
 </div>
 <p>Modes may set other options on the <tt class="docutils literal"><span class="pre">_wed_options</span></tt> property:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">label_levels</span></tt>: an object with two fields:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">label_levels</span></tt>: an object with two fields:<ul>
 <li><tt class="docutils literal"><span class="pre">max</span></tt>: determines the maximum level of
 <em class="xref std std-ref">label visibility</em>,</li>
 <li><tt class="docutils literal"><span class="pre">initial</span></tt> determines the initial level of label visibility; must
 be <tt class="docutils literal"><span class="pre">1</span> <span class="pre">&lt;=</span> <span class="pre">initial</span> <span class="pre">&lt;=</span> <span class="pre">max</span></tt>. (Level 0 exists. It is just not valid
 to start at that level.)</li>
 </ul>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">attributes</span></tt>: determines the level of <em>direct</em> attribute editing
+support provided by wed. By &#8220;direct editing&#8221; we mean allowing the
+user to change the value of attributes directly, as attributes. No
+matter what level is selected, wed itself or its modes are <em>always</em>
+free to modify attributes behind the scenes.</p>
+<p>The levels are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">&quot;hide&quot;</span></tt>: wed won&#8217;t show attributes and won&#8217;t allow editing
+them directly.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;show&quot;</span></tt>: wed will show attributes but won&#8217;t allow editing
+them directly.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;edit&quot;</span></tt>: wed will show and allow editing attributes.</li>
+</ul>
+<p>Here are examples to illustrate some of the differences and what
+they mean concretely. Suppose a project based on TEI that uses
+<tt class="docutils literal"><span class="pre">ptr</span></tt> to link to other elements in the document. This <tt class="docutils literal"><span class="pre">ptr</span></tt>
+element uses the <tt class="docutils literal"><span class="pre">&#64;target</span></tt> attribute to point to the desired
+element. A mode using <tt class="docutils literal"><span class="pre">&quot;hide&quot;</span></tt> would not allow the user to see
+<tt class="docutils literal"><span class="pre">&#64;target</span></tt> or to manually enter a target in <tt class="docutils literal"><span class="pre">&#64;target</span></tt>. However,
+it could present a menu item saying &#8220;Create hyperlink to other
+element&#8221; and provide a list of elements the user may link to to
+choose from. When the user selects an element, the mode would create
+a <tt class="docutils literal"><span class="pre">ptr</span></tt> element with an appropriate <tt class="docutils literal"><span class="pre">&#64;target</span></tt> value. If needed,
+it would also create a proper <tt class="docutils literal"><span class="pre">&#64;id</span></tt> on the element to which the
+<tt class="docutils literal"><span class="pre">&#64;target</span></tt> refers. The <tt class="docutils literal"><span class="pre">&#64;id</span></tt> attribute, just like <tt class="docutils literal"><span class="pre">&#64;target</span></tt>
+would not be editable by the user directly or visible to the user.</p>
+<p>Suppose a similar project but a less sophisticated mode that does
+not assist with hyperlinking. Here, the mode set the option to
+<tt class="docutils literal"><span class="pre">&quot;edit&quot;</span></tt> for the attributes. In this setup, the user would have to
+create their <tt class="docutils literal"><span class="pre">ptr</span></tt> element and add themselves a proper value for
+<tt class="docutils literal"><span class="pre">&#64;target</span></tt> through the attribute editing functions. They would also
+be responsible for putting a proper <tt class="docutils literal"><span class="pre">&#64;id</span></tt> on the element to which
+<tt class="docutils literal"><span class="pre">&#64;target</span></tt> refers.</p>
 </li>
 </ul>
 </div>
@@ -360,18 +395,25 @@ again because otherwise the suite will run against the old code.</p>
 <div class="section" id="selenium-based-tests">
 <h2>Selenium-Based Tests<a class="headerlink" href="#selenium-based-tests" title="Permalink to this headline">¶</a></h2>
 <p>Everything that follows is specific to wed. You need to have <a class="reference external" href="http://github.com/mangalam-research/selenic">selenic</a> installed and
-available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt>. Read its documentation. Then you
-need to create a <tt class="docutils literal"><span class="pre">config/selenium_local_config.py</span></tt> file. Use one of
-the example files provided with selenic. Add the following
-variable to your <tt class="docutils literal"><span class="pre">local_config/selenium_local_config.py</span></tt> file:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Location of our server</span>
-<span class="n">WED_SERVER</span> <span class="o">=</span> <span class="s">&quot;http://localhost:8888/build/standalone/kitchen-sink.html&quot;</span>
+available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt>. Read its documentation.  You also
+need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a>
+installed and available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt>.</p>
+<p>It is very likely that you&#8217;ll want to override some of the values in
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a> by creating
+<tt class="docutils literal"><span class="pre">local_config/selenium_config.py</span></tt> that loads the default file but
+override or adds some values. For instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># If used, must appear before the default file is loaded. The</span>
+<span class="c"># default is to not log anything.</span>
+<span class="n">LOGS</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="c"># Load the default file</span>
+<span class="nb">execfile</span><span class="p">(</span><span class="s">&quot;config/selenium_config.py&quot;</span><span class="p">)</span>
+
+<span class="c"># Add some local values...</span>
+<span class="n">SAUCELABS_CREDENTIALS</span> <span class="o">=</span> <span class="s">&quot;foo:bar&quot;</span>
+<span class="n">CHROMEDRIVER_PATH</span> <span class="o">=</span> <span class="s">&quot;.../selenium/chromedriver&quot;</span>
 </pre></div>
 </div>
-<p>Change <tt class="docutils literal"><span class="pre">standalone</span></tt> to <tt class="docutils literal"><span class="pre">standalone-optimized</span></tt> if you want to use
-the optimized bundle.</p>
-<p>You also need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a> installed and
-available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt>.</p>
 <p>To run the Selenium-based tests, you can run either
 <tt class="docutils literal"><span class="pre">server.js</span></tt> <em>or</em> an nginx-based server. The latter option is
 recommended if you run your browser on a provisioning service like
@@ -387,19 +429,31 @@ puts all of the things that would go in <tt class="docutils literal"><span class
 the OS in the <tt class="docutils literal"><span class="pre">var/</span></tt> directory that sits at the top of the code
 tree. Look there for logs. This nginx instance uses the configuration
 built at <tt class="docutils literal"><span class="pre">build/config/nginx.conf</span></tt> from
-<tt class="docutils literal"><span class="pre">config/nginx.conf</span></tt>. Remember that if you want to override the
-configuration, the proper way to do it is to copy the configuration
-file into <tt class="docutils literal"><span class="pre">local_config/</span></tt> and edit it there. Run <tt class="docutils literal"><span class="pre">make</span></tt> again after
-you have made modifications. The only processing done on nginx&#8217;s file is to
-replace instances of <tt class="docutils literal"><span class="pre">&#64;PWD&#64;</span></tt> with the top of the code tree.</p>
+<tt class="docutils literal"><span class="pre">config/nginx.conf</span></tt>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Remember that if you want to override the configuration,
+the proper way to do it is to copy the configuration file
+into <tt class="docutils literal"><span class="pre">local_config/</span></tt> and edit it there.</p>
+</div>
+<p>Run <tt class="docutils literal"><span class="pre">make</span></tt> again after you have made modifications. The only
+processing done on nginx&#8217;s file is to replace instances of <tt class="docutils literal"><span class="pre">&#64;PWD&#64;</span></tt>
+with the top of the code tree.</p>
 <p>Finally, to run the suite issue:</p>
-<div class="highlight-python"><pre>$ make selenium-test</pre>
+<div class="highlight-python"><pre>$ make selenium-test TEST_BROWSER=&lt;platform&gt;,&lt;browser&gt;,&lt;version&gt;</pre>
 </div>
 <p>To run the suite while using the SauceLab servers, run:</p>
-<div class="highlight-python"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test</pre>
+<div class="highlight-python"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test TEST_BROWSER=...</pre>
 </div>
 <p>Behind the scenes, this will launch behave. See the makefile
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> for information about how behave is run.</p>
+<p>The <tt class="docutils literal"><span class="pre">TEST_BROWSER</span></tt> variable determines which browser will run the
+test. You may omit any of <tt class="docutils literal"><span class="pre">platform</span></tt>, <tt class="docutils literal"><span class="pre">browser</span></tt> or <tt class="docutils literal"><span class="pre">versions</span></tt> so
+long as the parts that are specified are enough to match a <strong>single</strong>
+configuration defined in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a>. See the
+list of configurations there to see what has been configured. If you
+want something different from the list there, you&#8217;ll have to configure
+it in the copy you made into <tt class="docutils literal"><span class="pre">local_config</span></tt>.</p>
 <p>The environment variable <tt class="docutils literal"><span class="pre">BEHAVE_WAIT_BETWEEN_STEPS</span></tt> can be set to a
 numerical value in seconds to get behave to stop between steps. It
 makes the Selenium test unfold more slowly. The environment variable
@@ -436,6 +490,21 @@ prevent using wed on Firefox.</p>
 first, Firefox second. Other browsers will eventually
 be added to this list as the Selenium-based tests take
 shape.</p>
+</div>
+<div class="section" id="troubleshooting-the-selenium-tests">
+<h3>Troubleshooting the Selenium Tests<a class="headerlink" href="#troubleshooting-the-selenium-tests" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="symptom-all-tests-fail">
+<h4>Symptom: All tests fail!<a class="headerlink" href="#symptom-all-tests-fail" title="Permalink to this headline">¶</a></h4>
+<p>Make sure that SauceConnect is running.</p>
+</div>
+<div class="section" id="symptom-some-firefox-tests-fail-and-i-am-at-a-loss-to-know-why">
+<h4>Symptom: Some Firefox tests fail and I am at a loss to know why.<a class="headerlink" href="#symptom-some-firefox-tests-fail-and-i-am-at-a-loss-to-know-why" title="Permalink to this headline">¶</a></h4>
+<p>Firefox is picky. Make sure you have a windows manager that manages
+FF&#8217;s window. (This would come into play if you use Xephyr or Xnest for
+instance. You&#8217;d have to start a window manager running on the server
+they create.) Some tests that failed in Xephyr have also stopped
+failing once leftover windows from previous tests were closed.</p>
+</div>
 </div>
 </div>
 </div>
@@ -646,18 +715,29 @@ keys for the input triggers.</p>
 <ul class="simple">
 <li>A data tree which is not attached to the browser&#8217;s document. (It is
 not visible. It does not receive events.) It is a mere
-representation in DOM format of the data tree being edited.</li>
+representation in DOM format of the document being edited. You can
+think of this tree as being a part of the model aspect of the MVC
+pattern. (A <tt class="docutils literal"><span class="pre">TreeUpdater</span></tt> together with a data tree correspond to
+a model.) Note that this is an XML document. <strong>It is currently not
+possible to perform searches in the data tree using
+``querySelector`` and its friends if tags are prefixed</strong>. So
+<tt class="docutils literal"><span class="pre">querySelector(&quot;foo:bar&quot;)</span></tt> won&#8217;t find an element whose local name
+is <tt class="docutils literal"><span class="pre">foo:bar</span></tt>. You can perform the search in the GUI tree to find
+the GUI node and convert to the data node. Or you can use
+<tt class="docutils literal"><span class="pre">getElementsByTagNameNS</span></tt> if you want to search in the data tree
+for specific tags. Or you can use <tt class="docutils literal"><span class="pre">domutil.dataFind/dataFindAll</span></tt>.</li>
 <li>A GUI tree which is derived from the data tree. This GUI tree is
 attached to the browser&#8217;s document. It receives events and is what
-the user sees.</li>
+the user sees. You can think of this tree as being a part of the
+view and controler aspects of the MVC pattern.</li>
 </ul>
 <p>The <tt class="docutils literal"><span class="pre">GUIUpdater</span></tt> object stored in <tt class="docutils literal"><span class="pre">Editor._gui_updater</span></tt> is
 responsible for inserting and deleting the nodes of the GUI tree that
 corresponds to those of the data tree whenever the latter is modified.</p>
 </div>
 </div>
-<div class="section" id="conversion-for-editing">
-<h1>Conversion for Editing<a class="headerlink" href="#conversion-for-editing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="elements-of-the-gui-tree">
+<h1>Elements of the GUI Tree<a class="headerlink" href="#elements-of-the-gui-tree" title="Permalink to this headline">¶</a></h1>
 <p>Wed operates on an HTML structure constructed as follows:</p>
 <ul class="simple">
 <li>All elements from the XML document become HTML <tt class="docutils literal"><span class="pre">div</span></tt> elements.</li>
@@ -758,11 +838,6 @@ stale. (An additional complication is that there is no undoing.)</li>
 <p>It is possible to listen to <tt class="docutils literal"><span class="pre">cut</span></tt> events and let them go through or
 veto them, but this is about the maximum level of control that can be
 achieved cross-browser.</p>
-<p>As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
-Linux. It is unknown whether it would work on other
-platforms. Unfortunately, it is not possible to automatically test for
-cutting functionality because JavaScript cannot initiate a cut
-operation by itself.</p>
 </div>
 <div class="section" id="contenteditable">
 <h2>Contenteditable<a class="headerlink" href="#contenteditable" title="Permalink to this headline">¶</a></h2>
@@ -894,7 +969,14 @@ the incremental changes, but some obsolete code may still remain.</p>
 <li><a class="reference internal" href="#testing">Testing</a><ul>
 <li><a class="reference internal" href="#browser-independent-tests">Browser-Independent Tests</a></li>
 <li><a class="reference internal" href="#in-browser-tests">In-Browser Tests</a></li>
-<li><a class="reference internal" href="#selenium-based-tests">Selenium-Based Tests</a></li>
+<li><a class="reference internal" href="#selenium-based-tests">Selenium-Based Tests</a><ul>
+<li><a class="reference internal" href="#troubleshooting-the-selenium-tests">Troubleshooting the Selenium Tests</a><ul>
+<li><a class="reference internal" href="#symptom-all-tests-fail">Symptom: All tests fail!</a></li>
+<li><a class="reference internal" href="#symptom-some-firefox-tests-fail-and-i-am-at-a-loss-to-know-why">Symptom: Some Firefox tests fail and I am at a loss to know why.</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#internals">Internals</a><ul>
@@ -907,7 +989,7 @@ the incremental changes, but some obsolete code may still remain.</p>
 <li><a class="reference internal" href="#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#conversion-for-editing">Conversion for Editing</a></li>
+<li><a class="reference internal" href="#elements-of-the-gui-tree">Elements of the GUI Tree</a></li>
 <li><a class="reference internal" href="#classes-used-by-wed">Classes Used by Wed</a></li>
 <li><a class="reference internal" href="#browser-issues">Browser Issues</a><ul>
 <li><a class="reference internal" href="#cut-paste-copy">Cut, Paste, Copy</a></li>
@@ -952,7 +1034,7 @@ the incremental changes, but some obsolete code may still remain.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.17.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.18.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

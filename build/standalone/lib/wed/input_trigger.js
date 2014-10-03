@@ -9,10 +9,11 @@ define(/** @lends module:input_trigger */ function (require, exports, module) {
 'use strict';
 
 var util = require("./util");
-var jqutil = require("./jqutil");
-var $ = require("jquery");
 var HashMap = require("salve/hashstructs").HashMap;
 var key_constants = require("./key_constants");
+var domutil = require("./domutil");
+var $ = require("jquery");
+var closest = domutil.closest;
 
 function hashHelper(o) {
     return o.hash();
@@ -43,14 +44,16 @@ function hashHelper(o) {
  * @constructor
  * @param {module:wed~Editor} editor The editor to which this
  * InputTrigger belongs.
- * @param selector This can be anything jQuery accepts to select an
- * object from the DOM tree. The object created by this constructor
- * will listen to events that pertain only to DOM nodes matching this
- * selector.
+ * @param {string} selector This is a CSS selector. The object created
+ * by this constructor will listen to events that pertain only to DOM
+ * nodes matching this selector. The form this selector can take is
+ * constrained by the limits imposed by {@link
+ * module:domutil~toGUISelector toGUISelector}.
  */
 function InputTrigger(editor, selector) {
     this._editor = editor;
     this._selector = selector;
+    this._gui_selector = domutil.toGUISelector(selector);
 
     // This is a map of all keys to their handlers.
     this._key_to_handler = new HashMap(hashHelper);
@@ -89,18 +92,17 @@ function InputTrigger(editor, selector) {
  * <p>Adds a key handler to the object. The handler will be called
  * as:</p>
  *
- * <pre>handler(type, $element, [event])</pre>
+ * <pre>handler(type, element, [event])</pre>
  *
  * <p>Where <code>type</code> determines the type of event being
  * processed. It will be <code>"keydown"</code> for keydown events,
  * <code>"keypress"</code> for keypress events, <code>"paste"</code>
- * for paste events. The parameter <code>$element</code> is a jQuery
- * object wrapping the DOM element in the <strong>data tree</strong>
- * that was modified or had the caret when the keydown event
- * happened. The parameter <code>event</code> is the jQuery event in
- * question.</p>
+ * for paste events. The parameter <code>element</code> is a DOM
+ * element in the <strong>data tree</strong> that was modified or had
+ * the caret when the keydown event happened. The parameter
+ * <code>event</code> is the jQuery event in question.</p>
  *
- * <p>Remember that <code>$element</code> always points into the data
+ * <p>Remember that <code>element</code> always points into the data
  * tree and not the GUI tree.</p>
  *
  * <p>The handler is called once per event. This means for instance
@@ -160,17 +162,26 @@ InputTrigger.prototype.addKeyHandler = function (key, handler) {
  * @param {Event} e The original DOM event that wed received.
  */
 InputTrigger.prototype._keydownHandler = function (wed_event, e) {
-    var caret = this._editor.getGUICaret();
+    var caret = this._editor.getDataCaret(true);
+    if (!caret)
+        return;
 
-    var $node_of_interest = $(caret.node).closest(this._selector);
+    // We transit through the GUI tree to perform our match because
+    // CSS selectors cannot operate on XML namespace prefixes (or, at
+    // the time of writing, on XML namespaces, period).
+    var data_node = caret.node.nodeType === Node.TEXT_NODE ?
+            caret.node.parentNode : caret.node;
+    var gui_node = $.data(data_node, "wed_mirror_node");
 
-    if ($node_of_interest.length > 0) {
-        $node_of_interest =
-            $(this._editor.toDataNode($node_of_interest[0]));
+    var node_of_interest = closest(gui_node, this._gui_selector,
+                                   this._editor.gui_root);
+
+    if (node_of_interest) {
+        data_node = $.data(node_of_interest, "wed_mirror_node");
         this._key_to_handler.forEach(function (key, handlers) {
             if (key.matchesEvent(e)) {
                 for(var i = 0; i < handlers.length; ++i)
-                    handlers[i]("keydown", $node_of_interest, e);
+                    handlers[i]("keydown", data_node, e);
             }
         });
     }
@@ -185,20 +196,27 @@ InputTrigger.prototype._keydownHandler = function (wed_event, e) {
  * @param {Event} e The original DOM event that wed received.
  */
 InputTrigger.prototype._keypressHandler = function (wed_event, e) {
-    var caret = this._editor.getGUICaret();
+    var caret = this._editor.getDataCaret(true);
 
     if (!caret)
         return;
 
-    var $node_of_interest = $(caret.node).closest(this._selector);
+    // We transit through the GUI tree to perform our match because
+    // CSS selectors cannot operate on XML namespace prefixes (or, at
+    // the time of writing, on XML namespaces, period).
+    var data_node = caret.node.nodeType === Node.TEXT_NODE ?
+            caret.node.parentNode : caret.node;
+    var gui_node = $.data(data_node, "wed_mirror_node");
 
-    if ($node_of_interest.length > 0) {
-        $node_of_interest =
-            $(this._editor.toDataNode($node_of_interest[0]));
+    var node_of_interest = closest(gui_node, this._gui_selector,
+                                   this._editor.gui_root);
+
+    if (node_of_interest) {
+        data_node = $.data(node_of_interest, "wed_mirror_node");
         this._key_to_handler.forEach(function (key, handlers) {
             if (key.matchesEvent(e)) {
                 for(var i = 0; i < handlers.length; ++i)
-                    handlers[i]("keypress", $node_of_interest, e);
+                    handlers[i]("keypress", data_node, e);
             }
         });
     }
@@ -212,21 +230,30 @@ InputTrigger.prototype._keypressHandler = function (wed_event, e) {
  * this handler.
  * @param {Event} e The original DOM event that wed received.
  * @param {module:dloc~DLoc} caret The data caret.
- * @param {jQuery} $data The data that the user wants to insert.
+ * @param {Element} data The data that the user wants to insert.
  */
-InputTrigger.prototype._pasteHandler = function (wed_event, e, caret,
-                                                 $data) {
+InputTrigger.prototype._pasteHandler = function (wed_event, e, caret, data) {
     if (this._editor.undoingOrRedoing())
         return;
 
-    var text = $data.contents().filter(jqutil.textFilter).toArray();
+    var text = [];
+    var child = data.firstChild;
+    while(child) {
+        if (child.nodeType === Node.TEXT_NODE)
+            text.push(child);
+        child = child.nextSibling;
+    }
     if (text.length === 0)
         return;
 
-    var $node_of_interest = (caret.node.nodeType === Node.TEXT_NODE) ?
-            $(caret.node.parentNode) : $(caret.node);
+    // We transit through the GUI tree to perform our match because
+    // CSS selectors cannot operate on XML namespace prefixes (or, at
+    // the time of writing, on XML namespaces, period).
+    var node_of_interest = (caret.node.nodeType === Node.TEXT_NODE) ?
+            caret.node.parentNode : caret.node;
+    var gui_node = $.data(node_of_interest, "wed_mirror_node");
 
-    if (!$node_of_interest.closest(this._selector)[0])
+    if (!closest(gui_node, this._gui_selector, this._editor.gui_root))
         return;
 
     this._text_input_key_to_handler.forEach(function (key, handlers) {
@@ -240,7 +267,7 @@ InputTrigger.prototype._pasteHandler = function (wed_event, e, caret,
                                    // are not in the tree anymore.
                 node.data.indexOf(ch) > -1) {
                 for (var j = 0; j < handlers.length; ++j)
-                    handlers[j]("paste", $node_of_interest, e);
+                    handlers[j]("paste", node_of_interest, e);
             }
         }
     });
@@ -251,5 +278,5 @@ exports.InputTrigger = InputTrigger;
 });
 
 //  LocalWords:  DOM html gui Mangalam MPL Dubeau li ul focusable
-//  LocalWords:  submap keypress tabindex keydown hashstructs jquery
-//  LocalWords:  jqutil util jQuery InputTrigger
+//  LocalWords:  submap keypress tabindex keydown hashstructs
+//  LocalWords:  util InputTrigger

@@ -10,8 +10,10 @@ define(/** @lends module:name_resolver */function (require, exports, module) {
 
 var validate = require("./validate");
 
+// Both defined at:
+// http://www.w3.org/TR/REC-xml-names/#ns-decl
 var XML1_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
-
+var XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/";
 
 /**
  * @classdesc A name resolver for handling namespace changes in
@@ -27,8 +29,13 @@ function NameResolver() {
     // Create a default context.
     this.enterContext();
 
-    // Mandated by XML 1.x which is the only XML which exists now.
-    this.definePrefix("xml", XML1_NAMESPACE);
+    // Both namespaces defined at:
+    // http://www.w3.org/TR/REC-xml-names/#ns-decl
+    // Skip definePrefix for these initial values.
+    this._context_stack[0].forward.xml = XML1_NAMESPACE;
+    this._context_stack[0].backwards[XML1_NAMESPACE] = ["xml"];
+    this._context_stack[0].forward.xmlns = XMLNS_NAMESPACE;
+    this._context_stack[0].backwards[XMLNS_NAMESPACE] = ["xmlns"];
 }
 
 /**
@@ -87,6 +94,15 @@ NameResolver.prototype.clone = function() {
  * @param {string} uri The namespace URI associated with the prefix.
  */
 NameResolver.prototype.definePrefix = function (prefix, uri) {
+    // http://www.w3.org/TR/REC-xml-names/#ns-decl
+    if (prefix === "xmlns")
+        throw new Error("trying to define 'xmlns' but the XML Namespaces " +
+                        "standard stipulates that 'xmlns' cannot be declared " +
+                        "(= \"defined\")");
+
+    if (prefix === "xml" && uri !== XML1_NAMESPACE)
+        throw new Error("trying to define 'xml' to an incorrect URI");
+
     this._context_stack[0].forward[prefix] = uri;
 
     var prefixes = this._context_stack[0].backwards[uri];

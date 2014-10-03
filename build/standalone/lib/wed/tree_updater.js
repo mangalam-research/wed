@@ -10,7 +10,6 @@
 define(/** @lends module:tree_updater */ function (require, exports, module) {
 'use strict';
 
-var $ = require("jquery");
 var domutil = require("./domutil");
 var oop = require("./oop");
 var SimpleEventEmitter =
@@ -31,7 +30,8 @@ var makeDLoc = dloc.makeDLoc;
  * methods to perform a series of modifications on the tree. Or they
  * delegate the actual modification work to the primitive
  * methods. They may emit one or more events of a name different from
- * their own name.
+ * their own name. Events are emitted **after** their corresponding
+ * operation is performed on the tree.
  *
  * For primitive methods, the list of events which they are documented
  * to be firing is exhaustive. For complex methods, the list is not
@@ -40,18 +40,27 @@ var makeDLoc = dloc.makeDLoc;
  * Many events have a name identical to a corresponding method. Such
  * events are accompanied by event objects which have the same
  * properties as the parameters of the corresponding method, with the
- * same meaning. Therefore, their parameters are not further
+ * same meaning. Therefore, their properties are not further
  * documented.
  *
- * There is a generic ``changed`` event that is emitted with every
- * other event. This event does not carry information about what
- * changed exactly.
+ * There is a generic {@link module:tree_updater~TreeUpdater#event:changed
+ * changed} event that is emitted with every other event. This event
+ * does not carry information about what changed exactly.
  *
- * Events signaling the removal of data from the DOM tree are issued
- * **before** their corresponding operation is performed on the
- * tree. Events signaling the addition of data to the DOM tree are
- * issued **after** their corresponding operation is performed on the
- * tree.
+ *
+ * The {@link module:tree_updater~TreeUpdater#deleteNode deleteNode}
+ * operation is the one major exception to the basic rules given
+ * above:
+ *
+ * - The {@link module:tree_updater~TreeUpdater#event:beforeDeleteNode
+ * beforeDeleteNode} event is emitted **before** the deletion is
+ * performed. This allows performing operations based on the node's
+ * location before it is removed. For instance, calling the DOM method
+ * ``matches`` on a node that has been removed from its DOM tree is
+ * generally going to fail to perform the intended check.
+ *
+ * - The {@link module:tree_updater~TreeUpdater#event:deleteNode
+ * deleteNode} event has the additional ``former_parent`` property.
  *
  * @mixes module:simple_event_emitter~SimpleEventEmitter
  *
@@ -73,7 +82,7 @@ var __super_emit = TreeUpdater.prototype._emit;
 TreeUpdater.prototype._emit = function () {
     __super_emit.apply(this, arguments);
     /**
-     * @event module:tree_updater~TreeUpdater#change
+     * @event module:tree_updater~TreeUpdater#changed
      */
     __super_emit.call(this, "changed");
 };
@@ -186,10 +195,10 @@ TreeUpdater.prototype.splitAt = function (top, loc, index) {
         throw new Error("splitAt called in a way that would result in " +
                         "two adjacent text nodes");
 
-    if ($(node).closest(top).length === 0)
+    if (!top.contains(node))
         throw new Error("split location is not inside top");
 
-    var cloned_top = $(top).clone()[0];
+    var cloned_top = top.cloneNode(true);
     var cloned_node = domutil.correspondingNode(top, cloned_top, node);
 
     var pair = this._splitAt(cloned_top, cloned_node, index);
@@ -243,9 +252,7 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
         else if (index > node.childNodes.length)
             index = node.childNodes.length;
 
-        var $node = $(node);
-        var $clone = $node.clone();
-        var clone = $clone[0];
+        var clone = node.cloneNode(true);
         // Remove all nodes at index and after.
         while (node.childNodes[index])
             node.removeChild(node.childNodes[index]);
@@ -667,16 +674,31 @@ TreeUpdater.prototype.mergeTextNodesNF = function (node) {
  * @param {Node} node The node to remove
  *
  * @emits module:tree_updater~TreeUpdater#deleteNode
+ * @emits module:tree_updater~TreeUpdater#beforeDeleteNode
  * @emits module:tree_updater~TreeUpdater#change
  */
 TreeUpdater.prototype.deleteNode = function (node) {
     /**
-     * @event module:tree_updater~TreeUpdater#deleteNode
+     * @event module:tree_updater~TreeUpdater#beforeDeleteNode
      * @type {Object}
      * @property {Node} node
      */
-    this._emit("deleteNode", {node: node});
-    $(node).detach();
+    this._emit("beforeDeleteNode", {node: node});
+    // The following is functionally equivalent to $(node).detach(), which is
+    // what we want.
+    var parent = node.parentNode;
+    parent.removeChild(node);
+    /**
+     * @event module:tree_updater~TreeUpdater#deleteNode
+     * @type {Object}
+     * @property {Node} node The removed node.
+     * @property {Node} former_parent The parent that had the node
+     * before it was removed.
+     */
+    this._emit("deleteNode", {
+        node: node,
+        former_parent: parent
+    });
 };
 
 /**
@@ -734,16 +756,14 @@ TreeUpdater.prototype.setAttributeNS = function (node, ns, attribute, value) {
     if (old_value === "" && !node.hasAttributeNS(ns, attribute))
         old_value = null;
 
-    // If adding or changing, we modify *before* emitting.
     if (!del)
         node.setAttributeNS(ns, attribute, value);
+    else
+        node.removeAttributeNS(ns, attribute);
 
     this._emit("setAttributeNS", {node: node, ns: ns, attribute: attribute,
                                   old_value: old_value, new_value: value});
 
-    // If deleting, we modify *after* emitting.
-    if (del)
-        node.removeAttributeNS(ns, attribute);
 };
 
 
@@ -775,8 +795,8 @@ exports.TreeUpdater = TreeUpdater;
 });
 
 //  LocalWords:  DOM Mangalam MPL Dubeau previousSibling nextSibling
-//  LocalWords:  mergeTextNodes prev insertIntoText nodeToPath jQuery
+//  LocalWords:  mergeTextNodes prev insertIntoText nodeToPath
 //  LocalWords:  pathToNode SimpleEventEmitter deleteNode setTextNode
 //  LocalWords:  cd abfoocd abcd insertNodeAt TreeUpdater param mixin
 //  LocalWords:  setTextNodeValue removeNode deleteText insertBefore
-//  LocalWords:  insertText insertAt splitAt oop domutil jquery
+//  LocalWords:  insertText insertAt splitAt oop domutil

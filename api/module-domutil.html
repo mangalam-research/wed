@@ -113,6 +113,773 @@
         <dl>
             
 <dt>
+    <h4 class="name" id="childByClass"><span class="type-signature">&lt;inner> </span>childByClass<span class="signature">(node, cl)</span><span class="type-signature"> &rarr; {Element|null}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Find child matching the class.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The element whose child we are looking for.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>cl</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The class to use for matches.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1130">line 1130</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The first child (in document order) that
+match the class, or <code>null</code> if nothing matches.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Element</span>
+|
+
+<span class="param-type">null</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="childrenByClass"><span class="type-signature">&lt;inner> </span>childrenByClass<span class="signature">(node, cl)</span><span class="type-signature"> &rarr; {Array.&lt;Element>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Find children matching the class.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The element whose children we are looking for.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>cl</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The class to use for matches.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1104">line 1104</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The children (in document order) that
+match the class.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;Element></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="closest"><span class="type-signature">&lt;inner> </span>closest<span class="signature">(node, selector, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {Element|null}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Starting with the element passed, and walking up the elements's
+parents, returns the first element that matches the selector.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>The element to start with.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>selector</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>The selector to use for matches.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>limit</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>An optional limit. The algorithm will
+search up to this limit, inclusively.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1007">line 1007</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The first element that matches the
+selector, or <code>null</code> if nothing matches.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Element</span>
+|
+
+<span class="param-type">null</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="closestByClass"><span class="type-signature">&lt;inner> </span>closestByClass<span class="signature">(node, cl, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {Element|null}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Starting with the element passed, and walking up the elements's
+parents, returns the first element that matches the class.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>The element to start with.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>cl</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>The class to use for matches.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>limit</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>An optional limit. The algorithm will
+search up to this limit, inclusively.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1045">line 1045</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The first element that matches the
+class, or <code>null</code> if nothing matches.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Element</span>
+|
+
+<span class="param-type">null</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="correspondingNode"><span class="type-signature">&lt;inner> </span>correspondingNode<span class="signature">(tree_a, tree_b, node_in_a)</span><span class="type-signature"> &rarr; {Node}</span></h4>
     
     
@@ -252,7 +1019,7 @@ attribute nodes.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line290">line 290</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line293">line 293</a>
     </li></ul></dd>
     
     
@@ -317,6 +1084,347 @@ attribute nodes.</p>
 	<dd>
 		
 <span class="param-type">Node</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="dataFind"><span class="type-signature">&lt;inner> </span>dataFind<span class="signature">(node, selector)</span><span class="type-signature"> &rarr; {Node}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Allows applying simple CSS selectors on the data tree as if it were
+an HTML tree. This is necessary because the current browsers are
+unable to handle tag prefixes or namespaces in selectors passed to
+<code>matches</code>, <code>querySelector</code> and related functions.</p>
+<p>The steps are:</p>
+<ol>
+<li><p>Convert <code>selector</code> with <a href="module-domutil.html#toGUISelector"><code>toGUISelector</code></a> into a selector that can be applied to the GUI tree.</p>
+</li>
+<li><p>Convert <code>node</code> to a GUI node.</p>
+</li>
+<li><p>Apply the converted selector to the GUI node.</p>
+</li>
+<li><p>Convert the resulting node to a data node.</p>
+</li>
+</ol>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The data node to use as the starting point of
+the query.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>selector</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The selector to use.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1223">line 1223</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The resulting data node.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Node</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="dataFindAll"><span class="type-signature">&lt;inner> </span>dataFindAll<span class="signature">(node, selector)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Allows applying simple CSS selectors on the data tree as if it were
+an HTML tree. Operates like <a href="module-domutil.html#dataFind"><code>dataFind</code></a> but returns an array of nodes.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The data node to use as the starting point of
+the query.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>selector</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The selector to use.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1240">line 1240</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The resulting data nodes.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;Node></span>
 
 
 	</dd>
@@ -419,7 +1527,7 @@ attribute nodes.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line681">line 681</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line687">line 687</a>
     </li></ul></dd>
     
     
@@ -583,7 +1691,7 @@ is deleted.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line607">line 607</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line613">line 613</a>
     </li></ul></dd>
     
     
@@ -752,7 +1860,7 @@ information.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line916">line 916</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line922">line 922</a>
     </li></ul></dd>
     
     
@@ -893,7 +2001,7 @@ information.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line928">line 928</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line934">line 934</a>
     </li></ul></dd>
     
     
@@ -1034,7 +2142,7 @@ information.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line947">line 947</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line953">line 953</a>
     </li></ul></dd>
     
     
@@ -1158,7 +2266,7 @@ and is first.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line670">line 670</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line676">line 676</a>
     </li></ul></dd>
     
     
@@ -1474,7 +2582,7 @@ signatures of <a href="module-domutil.html#deleteText"><code>deleteText</code></
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line741">line 741</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line747">line 747</a>
     </li></ul></dd>
     
     
@@ -1697,7 +2805,7 @@ the new element is to be inserted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line364">line 364</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line370">line 370</a>
     </li></ul></dd>
     
     
@@ -1919,7 +3027,7 @@ to be inserted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line526">line 526</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line532">line 532</a>
     </li></ul></dd>
     
     
@@ -2285,7 +3393,7 @@ the new element is to be inserted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line505">line 505</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line511">line 511</a>
     </li></ul></dd>
     
     
@@ -2481,7 +3589,7 @@ into the parent.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line695">line 695</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line701">line 701</a>
     </li></ul></dd>
     
     
@@ -2646,7 +3754,7 @@ to be inserted.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line591">line 591</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line597">line 597</a>
     </li></ul></dd>
     
     
@@ -2826,7 +3934,7 @@ DOM range.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line903">line 903</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line909">line 909</a>
     </li></ul></dd>
     
     
@@ -2994,7 +4102,7 @@ performed to confirm this.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line629">line 629</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line635">line 635</a>
     </li></ul></dd>
     
     
@@ -3022,7 +4130,7 @@ performed to confirm this.</p>
         
             
 <dt>
-    <h4 class="name" id="makePlaceholder"><span class="type-signature">&lt;inner> </span>makePlaceholder<span class="signature">(text)</span><span class="type-signature"> &rarr; {jQuery}</span></h4>
+    <h4 class="name" id="makePlaceholder"><span class="type-signature">&lt;inner> </span>makePlaceholder<span class="signature">(text)</span><span class="type-signature"> &rarr; {Node}</span></h4>
     
     
 </dt>
@@ -3111,7 +4219,7 @@ performed to confirm this.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line314">line 314</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line317">line 317</a>
     </li></ul></dd>
     
     
@@ -3136,7 +4244,7 @@ performed to confirm this.</p>
     
             
 <div class="param-desc">
-    <p>A jQuery object.</p>
+    <p>A node.</p>
 </div>
 
 
@@ -3147,7 +4255,7 @@ performed to confirm this.</p>
 	</dt>
 	<dd>
 		
-<span class="param-type">jQuery</span>
+<span class="param-type">Node</span>
 
 
 	</dd>
@@ -3252,7 +4360,7 @@ text, does nothing. Mainly for use with the generic functions defined here.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line709">line 709</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line715">line 715</a>
     </li></ul></dd>
     
     
@@ -3649,7 +4757,7 @@ document.</strong></p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line977">line 977</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line983">line 983</a>
     </li></ul></dd>
     
     
@@ -3848,7 +4956,7 @@ node.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line205">line 205</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line207">line 207</a>
     </li></ul></dd>
     
     
@@ -4110,6 +5218,172 @@ comes before the start.</p>
         
             
 <dt>
+    <h4 class="name" id="siblingByClass"><span class="type-signature">&lt;inner> </span>siblingByClass<span class="signature">(node, cl)</span><span class="type-signature"> &rarr; {Element|null}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Find a sibling matching the class.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>node</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The element whose sibling we are looking for.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>cl</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The class to use for matches.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1080">line 1080</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The first sibling (in document order) that
+matches the class, or <code>null</code> if nothing matches.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Element</span>
+|
+
+<span class="param-type">null</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="splitTextNode"><span class="type-signature">&lt;inner> </span>splitTextNode<span class="signature">(text_node, index)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
     
     
@@ -4223,7 +5497,7 @@ modify the DOM tree only once.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line330">line 330</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line336">line 336</a>
     </li></ul></dd>
     
     
@@ -4263,6 +5537,298 @@ index.</p>
 	<dd>
 		
 <span class="param-type">Array.&lt;Node></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="textToHTML"><span class="type-signature">&lt;inner> </span>textToHTML<span class="signature">(text)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Convert a string to HTML encoding. For instance if you want to have
+the less-than symbol be part of the contents of a <code>span</code> element,
+it would have to be escaped to <code>&amp;lt;</code> otherwise it would be
+interpreted as the beginning of a tag. This function does this kind
+of escaping.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The text to convert.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1153">line 1153</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The converted text.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">string</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="toGUISelector"><span class="type-signature">&lt;inner> </span>toGUISelector<span class="signature">(selector)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Converts a CSS selector written as if it were run against the XML
+document being edited by wed into a selector that will match the
+corresponding items in the GUI tree. This implementation is
+extremely naive and likely to break on complex selectors. Some
+specific things it cannot do:</p>
+<ul>
+<li><p>Match attributes.</p>
+</li>
+<li><p>Match pseudo-elements.</p>
+</li>
+</ul>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>selector</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>The selector to convert.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line1177">line 1177</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>The converted selector.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">string</span>
 
 
 	</dd>
@@ -4366,7 +5932,7 @@ index.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line648">line 648</a>
+        <a href="domutil.js.html">domutil.js</a>, <a href="domutil.js.html#line654">line 654</a>
     </li></ul></dd>
     
     
@@ -4407,13 +5973,13 @@ index.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:change">gui_updater~GUIUpdater#change</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:change">tree_updater~TreeUpdater#change</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="action_context_menu.html">gui/action_context_menu</a></li><li><a href="completion_menu.html">gui/completion_menu</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="icon.html">gui/icon</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="action_context_menu-ContextMenu.html">gui/action_context_menu~ContextMenu</a></li><li><a href="completion_menu-CompletionMenu.html">gui/completion_menu~CompletionMenu</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">gui_updater~GUIUpdater#beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">gui_updater~GUIUpdater#changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">tree_updater~TreeUpdater#beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">tree_updater~TreeUpdater#changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Sep 04 2014 14:04:36 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Oct 03 2014 14:06:06 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

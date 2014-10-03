@@ -1,3 +1,12 @@
+.wed-context-menu .dropdown-menu li > div {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+}
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -28,12 +37,15 @@
 .wed-context-menu .dropdown-menu {
   overflow-y: auto;
 }
-.wed-context-menu .icon-remove,
-.wed-context-menu .icon-collapse-top {
+.wed-context-menu .dropdown-menu .btn-group > .btn {
+  float: none;
+}
+.wed-context-menu .fa-times,
+.wed-context-menu .fa-caret-square-o-up {
   color: red;
 }
-.wed-context-menu .icon-plus,
-.wed-context-menu .icon-collapse {
+.wed-context-menu .fa-plus,
+.wed-context-menu .fa-caret-square-o-down {
   color: green;
 }
 .wed-cut-buffer {
@@ -80,10 +92,10 @@
 .wed-widget .nav > li > a {
   padding: 0px;
 }
-.wed-widget .icon-remove {
+.wed-widget .fa-times {
   color: red;
 }
-.wed-widget .icon-plus {
+.wed-widget .fa-plus {
   color: green;
 }
 div.wed-document-constrainer {
@@ -113,17 +125,30 @@ div.wed-document-constrainer .wed-caret-layer ._wed_caret {
   animation: caret 1s linear infinite;
   -webkit-animation: caret 1s linear infinite;
 }
+div.wed-document-constrainer .wed-scroller {
+  overflow-y: auto;
+  border-style: solid;
+  border-width: 1px;
+  background-color: white;
+  position: relative;
+}
+div.wed-document-constrainer .wed-scroller .wed-error-layer {
+  position: relative;
+  z-index: 2;
+  background-color: white;
+}
+div.wed-document-constrainer .wed-scroller .wed-error-layer * {
+  position: absolute;
+}
 div.wed-frame ._gui._label > span {
   display: inline-block;
   line-height: 1;
   margin: 0.25em 0em;
 }
-div.wed-frame ._gui._label,
-div.wed-frame ._gui._label._owns_caret {
+div.wed-frame ._gui._label {
   text-indent: 0em;
   
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 16px;
   display: inline-block;
   background-color: #3a87ad;
   color: white;
@@ -137,10 +162,8 @@ div.wed-frame ._gui._label._owns_caret {
 div.wed-frame ._gui._label._label_clicked {
   background-color: #f0ad4e;
 }
-div.wed-frame div.wed-document {
-  border-style: solid;
-  border-width: 1px;
-  background-color: white;
+div.wed-frame ._gui._invisible {
+  display: none;
 }
 div.wed-frame div.wed-document div {
   word-wrap: normal;
@@ -259,7 +282,8 @@ div.wed-frame div.wed-document ._placeholder._owns_caret {
   
   background-color: #3a87ad;
 }
-.dropdown-menu > li > a {
+.dropdown-menu > li > a,
+.wed-context-menu .dropdown-menu li > div {
   
   line-height: 1;
 }

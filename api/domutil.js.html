@@ -147,9 +147,11 @@ function nextCaretPosition(caret, container, no_text) {
         no_text = true;
 
     var found = false;
+    var window = node.ownerDocument.defaultView;
+    var parent;
     search_loop:
     while(!found) {
-        var parent = node.parentNode;
+        parent = node.parentNode;
         switch(node.nodeType) {
         case Node.TEXT_NODE:
             if (offset >= node.length ||
@@ -157,8 +159,8 @@ function nextCaretPosition(caret, container, no_text) {
                 // handling, then moving the caret forward by one
                 // position will skip this whitespace.
                 (parent.lastChild === node &&
-                 $(parent).css("white-space") === "normal" &&
-                 /^\s+$/.test(node.data.slice(offset)))) {
+                 window.getComputedStyle(parent, null).whiteSpace ===
+                 "normal" && /^\s+$/.test(node.data.slice(offset)))) {
 
                 // We would move outside the container
                 if (container !== undefined && node === container)
@@ -200,9 +202,9 @@ function nextCaretPosition(caret, container, no_text) {
     if (!found)
         return null;
 
+    parent = node.parentNode;
     return (no_text && node.nodeType === Node.TEXT_NODE) ?
-        [node.parentNode,
-         _indexOf.call(node.parentNode.childNodes, node)] : [node, offset];
+        [parent, _indexOf.call(parent.childNodes, node)] : [node, offset];
 }
 
 /**
@@ -238,19 +240,20 @@ function prevCaretPosition(caret, container, no_text) {
         no_text = true;
 
     var found = false;
+    var parent;
     search_loop:
     while(!found) {
         offset--;
-        var parent = node.parentNode;
+        parent = node.parentNode;
         switch(node.nodeType) {
         case Node.TEXT_NODE:
             if (offset &lt; 0 ||
                 // If the parent node is set to normal whitespace
                 // handling, then moving the caret back by one
                 // position will skip this whitespace.
-                ($(node.parentNode).css("white-space") === "normal" &&
-                 parent.firstChild === node &&
-                 /^\s+$/.test(node.data.slice(0, offset)))) {
+                (parent.firstChild === node &&
+                 window.getComputedStyle(parent, null).whiteSpace ===
+                 "normal" && /^\s+$/.test(node.data.slice(0, offset)))) {
 
                 // We would move outside the container
                 if (container !== undefined && node === container)
@@ -297,9 +300,9 @@ function prevCaretPosition(caret, container, no_text) {
     if (!found)
         return null;
 
+    parent = node.parentNode;
     return (no_text && node.nodeType === Node.TEXT_NODE) ?
-        [node.parentNode,
-         _indexOf.call(node.parentNode.childNodes, node)] : [node, offset];
+        [parent, _indexOf.call(parent.childNodes, node)] : [node, offset];
 }
 
 /**
@@ -338,11 +341,14 @@ function correspondingNode(tree_a, tree_b, node_in_a) {
  * Makes a placeholder element
  *
  * @param {string} text The text to put in the placeholder.
- * @returns {jQuery} A jQuery object.
+ * @returns {Node} A node.
  */
 function makePlaceholder(text) {
-    return $("&lt;span class='_placeholder' contenteditable='true'>" +
-             (text ? text: " ") + "&lt;/span>");
+    var span = document.createElement("span");
+    span.className = "_placeholder";
+    span.setAttribute("contenteditable", "true");
+    span.innerHTML = text || " ";
+    return span;
 }
 
 /**
@@ -656,8 +662,8 @@ function deleteText(node, index, length) {
  *
  */
 function linkTrees(root_a, root_b) {
-    $(root_a).data("wed_mirror_node", root_b);
-    $(root_b).data("wed_mirror_node", root_a);
+    $.data(root_a, "wed_mirror_node", root_b);
+    $.data(root_b, "wed_mirror_node", root_a);
     if (root_a.nodeType === Node.ELEMENT_NODE) {
         for(var i = 0; i &lt; root_a.childNodes.length; ++i) {
             var child_a = root_a.childNodes[i];
@@ -675,7 +681,7 @@ function linkTrees(root_a, root_b) {
  *
  */
 function unlinkTree(root) {
-    $(root).removeData("wed_mirror_node");
+    $.removeData(root, "wed_mirror_node");
     if (root.nodeType === Node.ELEMENT_NODE)
         for(var i = 0; i &lt; root.childNodes.length; ++i)
             unlinkTree(root.childNodes[i]);
@@ -1006,14 +1012,269 @@ function dumpRangeToString(msg, range) {
 function pointInContents(element, x, y) {
     // Convert the coordinates relative to the document to coordinates
     // relative to the element.
-    var offset = $(element).offset();
-    x -= offset.left;
-    y -= offset.top;
+    var body = element.ownerDocument.body;
+    // Using clientLeft and clientTop is not equivalent to using the rect.
+    var rect = element.getBoundingClientRect();
+    x -= rect.left + body.scrollLeft;
+    y -= rect.top + body.scrollTop;
 
     return ((x >= 0) && (y >= 0) &&
             (x &lt; element.clientWidth) && (y &lt; element.clientHeight));
 }
 
+/**
+ * Starting with the element passed, and walking up the elements's
+ * parents, returns the first element that matches the selector.
+ *
+ * @param {Element} node The element to start with.
+ * @param {string} selector The selector to use for matches.
+ * @param {Element} [limit] An optional limit. The algorithm will
+ * search up to this limit, inclusively.
+ * @returns {Element|null} The first element that matches the
+ * selector, or ``null`` if nothing matches.
+ */
+function closest(node, selector, limit) {
+
+    if (node === undefined || node === null)
+        return null;
+
+    // Immediately move out of text nodes.
+    if (node.nodeType === Node.TEXT_NODE)
+        node = node.parentNode;
+
+    while(node) {
+        if (node.nodeType !== Node.ELEMENT_NODE)
+            return null;
+
+        if (node.matches(selector))
+            break;
+
+        if (node === limit) {
+            node = null;
+            break;
+        }
+
+        node = node.parentNode;
+
+    }
+    return node;
+}
+
+/**
+ * Starting with the element passed, and walking up the elements's
+ * parents, returns the first element that matches the class.
+ *
+ * @param {Element} node The element to start with.
+ * @param {string} cl The class to use for matches.
+ * @param {Element} [limit] An optional limit. The algorithm will
+ * search up to this limit, inclusively.
+ * @returns {Element|null} The first element that matches the
+ * class, or ``null`` if nothing matches.
+ */
+function closestByClass(node, cl, limit) {
+
+    if (node === undefined || node === null)
+        return null;
+
+    // Immediately move out of text nodes.
+    if (node.nodeType === Node.TEXT_NODE)
+        node = node.parentNode;
+
+    while(node) {
+        if (node.nodeType !== Node.ELEMENT_NODE)
+            return null;
+
+        if (node.classList.contains(cl))
+            break;
+
+        if (node === limit) {
+            node = null;
+            break;
+        }
+
+        node = node.parentNode;
+
+    }
+    return node;
+}
+
+/**
+ * Find a sibling matching the class.
+ *
+ * @param {Element} node The element whose sibling we are looking for.
+ * @param {string} cl The class to use for matches.
+ * @returns {Element|null} The first sibling (in document order) that
+ * matches the class, or ``null`` if nothing matches.
+ */
+function siblingByClass(node, cl) {
+
+    if (node === undefined || node === null ||
+        node.nodeType !== Node.ELEMENT_NODE)
+        return null;
+
+    var parent = node.parentNode;
+    if (!parent)
+        return null;
+
+    var child = parent.firstElementChild;
+    while(child && !child.classList.contains(cl))
+        child = child.nextElementSibling;
+    return child;
+}
+
+/**
+ * Find children matching the class.
+ *
+ * @param {Element} node The element whose children we are looking for.
+ * @param {string} cl The class to use for matches.
+ * @returns {Array.&lt;Element>} The children (in document order) that
+ * match the class.
+ */
+function childrenByClass(node, cl) {
+
+    if (node === undefined || node === null ||
+        node.nodeType !== Node.ELEMENT_NODE)
+        return [];
+
+    var ret = [];
+    var child = node.firstElementChild;
+    while (child) {
+        if (child.classList.contains(cl))
+            ret.push(child);
+        child = child.nextElementSibling;
+    }
+
+    return ret;
+}
+
+
+/**
+ * Find child matching the class.
+ *
+ * @param {Element} node The element whose child we are looking for.
+ * @param {string} cl The class to use for matches.
+ * @returns {Element|null} The first child (in document order) that
+ * match the class, or ``null`` if nothing matches.
+ */
+function childByClass(node, cl) {
+    if (node === undefined || node === null ||
+        node.nodeType !== Node.ELEMENT_NODE)
+        return null;
+
+    var child = node.firstElementChild;
+    while (child && !child.classList.contains(cl))
+        child = child.nextElementSibling;
+    return child;
+}
+
+var textToHTML_span;
+
+/**
+ * Convert a string to HTML encoding. For instance if you want to have
+ * the less-than symbol be part of the contents of a ``span`` element,
+ * it would have to be escaped to ``&lt;`` otherwise it would be
+ * interpreted as the beginning of a tag. This function does this kind
+ * of escaping.
+ *
+ * @param {string} text The text to convert.
+ * @returns {string} The converted text.
+ */
+function textToHTML(text) {
+    if (!textToHTML_span)
+        textToHTML_span = document.createElement("span");
+    textToHTML_span.textContent = text;
+    return textToHTML_span.innerHTML;
+}
+
+var separators = ",>+~ ";
+var separator_re = new RegExp("([" + separators + "]+)");
+
+/**
+ * Converts a CSS selector written as if it were run against the XML
+ * document being edited by wed into a selector that will match the
+ * corresponding items in the GUI tree. This implementation is
+ * extremely naive and likely to break on complex selectors. Some
+ * specific things it cannot do:
+ *
+ * - Match attributes.
+ *
+ * - Match pseudo-elements.
+ *
+ * @param {string} selector The selector to convert.
+ * @returns {string} The converted selector.
+ */
+function toGUISelector(selector) {
+    if (/[\]['"()]/.test(selector))
+        throw new Error("selector is too complex");
+
+    var parts = selector.split(separator_re);
+    var ret = [];
+    for(var i = 0; i &lt; parts.length; ++i) {
+        var part = parts[i];
+        if (part.length) {
+            if (separators.indexOf(part) > -1)
+                ret.push(part);
+            else if (/[a-zA-Z]/.test(part[0])) {
+                part = part.trim();
+                var name_split = part.split(/(.#)/);
+                ret.push(util.classFromOriginalName(name_split[0]));
+                ret = ret.concat(name_split.slice(1));
+            }
+            else
+                ret.push(part);
+        }
+    }
+    return ret.join("");
+}
+
+/**
+ * Allows applying simple CSS selectors on the data tree as if it were
+ * an HTML tree. This is necessary because the current browsers are
+ * unable to handle tag prefixes or namespaces in selectors passed to
+ * ``matches``, ``querySelector`` and related functions.
+ *
+ * The steps are:
+ *
+ * 1. Convert ``selector`` with {@link module:domutil~toGUISelector
+ * toGUISelector} into a selector that can be applied to the GUI tree.
+ *
+ * 2. Convert ``node`` to a GUI node.
+ *
+ * 3. Apply the converted selector to the GUI node.
+ *
+ * 4. Convert the resulting node to a data node.
+ *
+ * @param {Node} node The data node to use as the starting point of
+ * the query.
+ * @param {string} selector The selector to use.
+ * @returns {Node} The resulting data node.
+ */
+function dataFind(node, selector) {
+    var gui_selector = toGUISelector(selector);
+    var gui_node = $.data(node, "wed_mirror_node");
+    var found_node = gui_node.querySelector(gui_selector);
+    return $.data(found_node, "wed_mirror_node");
+}
+
+/**
+ * Allows applying simple CSS selectors on the data tree as if it were
+ * an HTML tree. Operates like {@link module:domutil~dataFind
+ * dataFind} but returns an array of nodes.
+ *
+ * @param {Node} node The data node to use as the starting point of
+ * the query.
+ * @param {string} selector The selector to use.
+ * @returns {Array.&lt;Node>} The resulting data nodes.
+ */
+function dataFindAll(node, selector) {
+    var gui_selector = toGUISelector(selector);
+    var gui_node = $.data(node, "wed_mirror_node");
+    var found_nodes = gui_node.querySelectorAll(gui_selector);
+    var ret = [];
+    for(var i = 0, found_node; (found_node = found_nodes[i]); ++i)
+        ret.push($.data(found_node, "wed_mirror_node"));
+    return ret;
+}
 
 exports.getSelectionRange = getSelectionRange;
 exports.nextCaretPosition = nextCaretPosition;
@@ -1039,6 +1300,15 @@ exports.dumpRange = dumpRange;
 exports.dumpRangeToString = dumpRangeToString;
 exports.pointInContents = pointInContents;
 exports.correspondingNode = correspondingNode;
+exports.closest = closest;
+exports.closestByClass = closestByClass;
+exports.siblingByClass = siblingByClass;
+exports.childrenByClass = childrenByClass;
+exports.childByClass = childByClass;
+exports.textToHTML = textToHTML;
+exports.toGUISelector = toGUISelector;
+exports.dataFind = dataFind;
+exports.dataFindAll = dataFindAll;
 
 });
 
@@ -1060,13 +1330,13 @@ exports.correspondingNode = correspondingNode;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-jqutil.html">jqutil</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic_tr-Registry.html">modes/generic/generic_tr~Registry</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-transformation-TransformationRegistry.html">transformation~TransformationRegistry</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:change">gui_updater~GUIUpdater#change</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:change">tree_updater~TreeUpdater#change</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="action_context_menu.html">gui/action_context_menu</a></li><li><a href="completion_menu.html">gui/completion_menu</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="icon.html">gui/icon</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="action_context_menu-ContextMenu.html">gui/action_context_menu~ContextMenu</a></li><li><a href="completion_menu-CompletionMenu.html">gui/completion_menu~CompletionMenu</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">gui_updater~GUIUpdater#beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">gui_updater~GUIUpdater#changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">tree_updater~TreeUpdater#beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">tree_updater~TreeUpdater#changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Sep 04 2014 14:04:36 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Oct 03 2014 14:06:05 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

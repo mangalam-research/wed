@@ -279,6 +279,44 @@ Modes may set other options on the ``_wed_options`` property:
     be ``1 <= initial <= max``. (Level 0 exists. It is just not valid
     to start at that level.)
 
++ ``attributes``: determines the level of *direct* attribute editing
+  support provided by wed. By "direct editing" we mean allowing the
+  user to change the value of attributes directly, as attributes. No
+  matter what level is selected, wed itself or its modes are *always*
+  free to modify attributes behind the scenes.
+
+  The levels are:
+
+  - ``"hide"``: wed won't show attributes and won't allow editing
+    them directly.
+
+  - ``"show"``: wed will show attributes but won't allow editing
+    them directly.
+
+  - ``"edit"``: wed will show and allow editing attributes.
+
+  Here are examples to illustrate some of the differences and what
+  they mean concretely. Suppose a project based on TEI that uses
+  ``ptr`` to link to other elements in the document. This ``ptr``
+  element uses the ``@target`` attribute to point to the desired
+  element. A mode using ``"hide"`` would not allow the user to see
+  ``@target`` or to manually enter a target in ``@target``. However,
+  it could present a menu item saying "Create hyperlink to other
+  element" and provide a list of elements the user may link to to
+  choose from. When the user selects an element, the mode would create
+  a ``ptr`` element with an appropriate ``@target`` value. If needed,
+  it would also create a proper ``@id`` on the element to which the
+  ``@target`` refers. The ``@id`` attribute, just like ``@target``
+  would not be editable by the user directly or visible to the user.
+
+  Suppose a similar project but a less sophisticated mode that does
+  not assist with hyperlinking. Here, the mode set the option to
+  ``"edit"`` for the attributes. In this setup, the user would have to
+  create their ``ptr`` element and add themselves a proper value for
+  ``@target`` through the attribute editing functions. They would also
+  be responsible for putting a proper ``@id`` on the element to which
+  ``@target`` refers.
+
 Testing
 =======
 
@@ -362,20 +400,25 @@ Selenium-Based Tests
 
 Everything that follows is specific to wed. You need to have `selenic
 <http://github.com/mangalam-research/selenic>`_ installed and
-available on your ``PYTHONPATH``. Read its documentation. Then you
-need to create a ``config/selenium_local_config.py`` file. Use one of
-the example files provided with selenic. Add the following
-variable to your ``local_config/selenium_local_config.py`` file::
+available on your ``PYTHONPATH``. Read its documentation.  You also
+need to have `wedutil <http://github.com/mangalam-research/wedutil>`_
+installed and available on your ``PYTHONPATH``.
 
-    # Location of our server
-    WED_SERVER = "http://localhost:8888/build/standalone/kitchen-sink.html"
+It is very likely that you'll want to override some of the values in
+:github:`config/selenium_config.py` by creating
+``local_config/selenium_config.py`` that loads the default file but
+override or adds some values. For instance::
 
-Change ``standalone`` to ``standalone-optimized`` if you want to use
-the optimized bundle.
+    # If used, must appear before the default file is loaded. The
+    # default is to not log anything.
+    LOGS = True
 
-You also need to have `wedutil
-<http://github.com/mangalam-research/wedutil>`_ installed and
-available on your ``PYTHONPATH``.
+    # Load the default file
+    execfile("config/selenium_config.py")
+
+    # Add some local values...
+    SAUCELABS_CREDENTIALS = "foo:bar"
+    CHROMEDRIVER_PATH = ".../selenium/chromedriver"
 
 To run the Selenium-based tests, you can run either
 ``server.js`` *or* an nginx-based server. The latter option is
@@ -393,22 +436,34 @@ puts all of the things that would go in ``/var/`` if it was started by
 the OS in the ``var/`` directory that sits at the top of the code
 tree. Look there for logs. This nginx instance uses the configuration
 built at ``build/config/nginx.conf`` from
-``config/nginx.conf``. Remember that if you want to override the
-configuration, the proper way to do it is to copy the configuration
-file into ``local_config/`` and edit it there. Run ``make`` again after
-you have made modifications. The only processing done on nginx's file is to
-replace instances of ``@PWD@`` with the top of the code tree.
+``config/nginx.conf``.
+
+.. warning:: Remember that if you want to override the configuration,
+             the proper way to do it is to copy the configuration file
+             into ``local_config/`` and edit it there.
+
+Run ``make`` again after you have made modifications. The only
+processing done on nginx's file is to replace instances of ``@PWD@``
+with the top of the code tree.
 
 Finally, to run the suite issue::
 
-    $ make selenium-test
+    $ make selenium-test TEST_BROWSER=<platform>,<browser>,<version>
 
 To run the suite while using the SauceLab servers, run::
 
-    $ make SELENIUM_SAUCELABS=1 selenium-test
+    $ make SELENIUM_SAUCELABS=1 selenium-test TEST_BROWSER=...
 
 Behind the scenes, this will launch behave. See the makefile
 :github:`build.mk` for information about how behave is run.
+
+The ``TEST_BROWSER`` variable determines which browser will run the
+test. You may omit any of ``platform``, ``browser`` or ``versions`` so
+long as the parts that are specified are enough to match a **single**
+configuration defined in :github:`config/selenium_config.py`. See the
+list of configurations there to see what has been configured. If you
+want something different from the list there, you'll have to configure
+it in the copy you made into ``local_config``.
 
 The environment variable ``BEHAVE_WAIT_BETWEEN_STEPS`` can be set to a
 numerical value in seconds to get behave to stop between steps. It
@@ -441,6 +496,23 @@ A. We've found that JavaScript is poorly supported by the various
              first, Firefox second. Other browsers will eventually
              be added to this list as the Selenium-based tests take
              shape.
+
+Troubleshooting the Selenium Tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Symptom: All tests fail!
+````````````````````````
+
+Make sure that SauceConnect is running.
+
+Symptom: Some Firefox tests fail and I am at a loss to know why.
+````````````````````````````````````````````````````````````````
+
+Firefox is picky. Make sure you have a windows manager that manages
+FF's window. (This would come into play if you use Xephyr or Xnest for
+instance. You'd have to start a window manager running on the server
+they create.) Some tests that failed in Xephyr have also stopped
+failing once leftover windows from previous tests were closed.
 
 Internals
 =========
@@ -648,18 +720,29 @@ Wed maintains two trees of DOM nodes:
 
 * A data tree which is not attached to the browser's document. (It is
   not visible. It does not receive events.) It is a mere
-  representation in DOM format of the data tree being edited.
+  representation in DOM format of the document being edited. You can
+  think of this tree as being a part of the model aspect of the MVC
+  pattern. (A ``TreeUpdater`` together with a data tree correspond to
+  a model.) Note that this is an XML document. **It is currently not
+  possible to perform searches in the data tree using
+  ``querySelector`` and its friends if tags are prefixed**. So
+  ``querySelector("foo:bar")`` won't find an element whose local name
+  is ``foo:bar``. You can perform the search in the GUI tree to find
+  the GUI node and convert to the data node. Or you can use
+  ``getElementsByTagNameNS`` if you want to search in the data tree
+  for specific tags. Or you can use ``domutil.dataFind/dataFindAll``.
 
 * A GUI tree which is derived from the data tree. This GUI tree is
   attached to the browser's document. It receives events and is what
-  the user sees.
+  the user sees. You can think of this tree as being a part of the
+  view and controler aspects of the MVC pattern.
 
 The ``GUIUpdater`` object stored in ``Editor._gui_updater`` is
 responsible for inserting and deleting the nodes of the GUI tree that
 corresponds to those of the data tree whenever the latter is modified.
 
-Conversion for Editing
-======================
+Elements of the GUI Tree
+========================
 
 Wed operates on an HTML structure constructed as follows:
 
@@ -777,13 +860,6 @@ cutting is problematic, because:
 It is possible to listen to ``cut`` events and let them go through or
 veto them, but this is about the maximum level of control that can be
 achieved cross-browser.
-
-As of 2013-11-15, cutting works on Firefox 25 and Chrome 30 on
-Linux. It is unknown whether it would work on other
-platforms. Unfortunately, it is not possible to automatically test for
-cutting functionality because JavaScript cannot initiate a cut
-operation by itself.
-
 
 Contenteditable
 ---------------

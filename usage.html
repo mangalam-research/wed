@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.17.2 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.18.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.17.2',
+        VERSION:     'v0.18.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.17.2 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.18.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.17.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.18.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,12 +53,10 @@ to change until we hit version 1.0.0.</p>
 <ul class="simple">
 <li>Wed currently does understand a large subset of Relax NG, but some
 constructs are not supported. See the <a class="reference external" href="https://github.com/mangalam-research/salve/">salve</a> package for details.</li>
-<li>Wed does not currently support editing attributes in a
-generic way <em>as attributes</em>. The functionality just has not been
-implemented <strong>yet</strong> because wed is developed in the context of a
-project where all attributes are set by software or are edited
-through domain-specific abstractions rather than directly, as
-attributes. Other features are more pressing.</li>
+<li>Wed does not currently support ordering attributes according to some
+preference. (The order is whatever the DOM implementation does by
+default.)</li>
+<li>Wed does not currently support multiline values in attributes.</li>
 <li>Empty elements appear in the editor as if they had an opening and
 closing tag, irrespective of how they are encoded in the original
 document. So <tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> and <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt> are treated the
@@ -99,37 +97,33 @@ UI. The project for which it is developed currently does not need
 support for other languages, hence this state of affairs.</li>
 <li>See also <a class="reference internal" href="#browser-requirements">Browser Requirements</a>.</li>
 </ul>
-<p>Known bugs:</p>
-<ul class="simple">
-<li>Firefox: Sometimes a caret moved to the end of a bit of text
-disappears. There does not seem to be any rhyme or reason for it. It
-is probably a Firefox bug. At any rate, wed does not currently
-compensate for it. So you may see your caret disappear, but it is
-still there, waiting for you to type text.</li>
-</ul>
 </div>
 <div class="section" id="browser-requirements">
 <h1>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h1>
 <p>Wed is primarily developed using a recent version of Chrome (version
-35; versions 26-34 have also been used earlier) and a recent version
+36; versions 26-35 have also been used earlier) and a recent version
 of Firefox (version 28; versions 20-27 have also been used earlier)
-for testing. The fact that wed is developed using these browsers
-influences the severity and frequency of bugs you can expect to run
-into.</p>
+for testing. (But see a note about Chrome 34 below.) The fact that wed
+is developed using these browsers influences the severity and
+frequency of bugs you can expect to run into.</p>
 <p>Here is the list of officially supported browsers, in order of
 decreasing priority:</p>
 <ul class="simple">
-<li>Chrome 35 and higher and Firefox 28 and higher, about equally.</li>
+<li>Chrome 36 and higher and Firefox 28 and higher, about equally.</li>
 <li>IE 10 and 11, about equally.</li>
 </ul>
 <p>File an issue on github if you find a problem with one of the
-supported browsers above. IE 9 is neither supported nor
-unsupported. See the section on <a class="reference internal" href="#ie-9">IE 9</a> below for an explanation.</p>
+supported browsers above.</p>
 <p>We would like to support phone and tablet browsers but due to a lack
 of development resources, such support is unlikely to materialize
 soon. In decreasing order of likelihood, the following cases are
 unlikely to ever be supported:</p>
 <ul class="simple">
+<li>Chrome 34: the luminaries at Google decided to remove
+<tt class="docutils literal"><span class="pre">Attr.ownerElement</span></tt> from Chrome 34. It was reintroduced in
+Chrome 35.</li>
+<li>IE 9. We&#8217;d need a) a substantial demand for it and b) people willing
+to participate in providing support.</li>
 <li>Versions of Chrome and Firefox older than those mentioned above.</li>
 <li>IE 8 and earlier.</li>
 <li>Antique browsers.</li>
@@ -138,28 +132,6 @@ web pages. (E.g. gaming consoles, smart TVs.)</li>
 <li>Operating systems or browsers no longer supported by their own
 vendors.</li>
 </ul>
-<div class="section" id="ie-9">
-<h2>IE 9<a class="headerlink" href="#ie-9" title="Permalink to this headline">¶</a></h2>
-<p>Is it safe to use wed with IE 9? Probably.</p>
-<p>Some work has been done to support IE 9. However, as of 2013-03-20
-three tests of the Selenium test suite fail intermitently in IE 9. It
-is not possible to reproduce the failures manually, which makes it
-really hard to debug. Since the failures only occur in Selenium, some
-sort of logging at the JavaScript level must be performed to figure
-out what is going on. However, IE 9 does not seem to have any facility
-that readily allows producing stack traces. Methods that work on
-Chrome, Firefox, IE 10 and 11 do not work in IE 9. The only method we
-know for IE 9 relies on using the <tt class="docutils literal"><span class="pre">caller</span></tt> argument, which is turned
-off when strict mode is in use. Using this method would mean turning
-off strict mode in wed <strong>and</strong> in any third-party library that happens
-to be on the stack when the trace is produced. Not a trivial
-matter. So for now IE 9 is not officially supported.</p>
-<p>You may use it. And we will listen to bug reports concerning it. But
-there are no guarantees.</p>
-<p>If you are in a position to contribute substantial monetary or
-technical resources towards making IE 9 officially supported, you are
-welcome to contact us.</p>
-</div>
 <div class="section" id="os-x">
 <h2>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h2>
 <p>The test suite depends on native events to do its work, but support
@@ -217,8 +189,9 @@ suite, is located in <a class="reference external" href="https://github.com/mang
 <p class="first admonition-title">Warning</p>
 <p class="last">If you want to change this configuration for
 experimentation or to match your local setup, please copy
-it to the <tt class="docutils literal"><span class="pre">&lt;local_config&gt;</span></tt> directory and edit it
-<em>there</em>. This directory is not tracked by git.</p>
+it to the <tt class="docutils literal"><span class="pre">local_config</span></tt> directory and edit it
+<em>there</em>. This directory is not tracked by git. This is
+true of all files that are stored in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/">config/</a>.</p>
 </div>
 <p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/package.json">package.json</a>,
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/Makefile">Makefile</a> and
@@ -340,8 +313,10 @@ screen but will <strong>not</strong> be copied into the clipboard.</p>
 functionality wed needs to be used with a server able to save the
 data and serve it intelligently.</p>
 </li>
-<li><p class="first">Ctrl-` to go into development mode. This will bring up a log window
-and allow the use of F2 to dump the element to the console.</p>
+<li><p class="first">Ctrl-` to go into development mode. Since this is meant only for
+developers, you should read the source code of wed to know what this
+allows. (In particular, search for <tt class="docutils literal"><span class="pre">this._development_mode</span></tt> in the
+<tt class="docutils literal"><span class="pre">_globalKeydownHandler</span></tt> method.)</p>
 </li>
 </ul>
 <p>It is possible to run the kitchen sink with a different mode than the
@@ -364,12 +339,6 @@ designed the mode.</p>
 </div>
 <div class="section" id="using">
 <h1>Using<a class="headerlink" href="#using" title="Permalink to this headline">¶</a></h1>
-<p>Wed expects the XML files it uses to have been converted from XML to
-an ad-hoc HTML version. So the data passed to it must have been
-converted by <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a>. Various schemas and projects
-will have different needs regarding white space handling, so it is
-likely you&#8217;ll want to create your own <tt class="docutils literal"><span class="pre">xml-to-html.xsl</span></tt> file that will
-import <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a> but customize white space handling.</p>
 <p>To include wed in a web page you must:</p>
 <ul>
 <li><p class="first">Require <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/wed.js">lib/wed/wed.js</a></p>
@@ -377,15 +346,14 @@ import <a class="reference external" href="https://github.com/mangalam-research/
 <li><p class="first">Instantiate an <tt class="docutils literal"><span class="pre">Editor</span></tt> object of that module as follows:</p>
 <div class="highlight-python"><pre>var editor = new wed.Editor();
 [...]
-editor.init(widget, options);</pre>
+editor.init(widget, options, data);</pre>
 </div>
 <p>Between the creation of the <tt class="docutils literal"><span class="pre">Editor</span></tt> object and the call to
 <tt class="docutils literal"><span class="pre">init</span></tt>, there conceivably could be some calls to add event
 handlers or condition handlers. The <tt class="docutils literal"><span class="pre">widget</span></tt> parameter must be an
-element (preferably a <tt class="docutils literal"><span class="pre">div</span></tt>) which contains the entire data
-structure to edit (converted by <tt class="docutils literal"><span class="pre">xml-to-html.xsl</span></tt> or a
-customization of it). The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary
-which at present understands the following keys:</p>
+element (preferably a <tt class="docutils literal"><span class="pre">div</span></tt>) that wed will take over to install
+its GUI. The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary which at present
+understands the following keys:</p>
 <ul>
 <li><p class="first"><tt class="docutils literal"><span class="pre">schema</span></tt>: the path to the schema to use for interpreting the
 document. This file must contain the result of doing the schema
@@ -408,11 +376,13 @@ paths are all relative to the <tt class="docutils literal"><span class="pre">wed
 <li><p class="first"><tt class="docutils literal"><span class="pre">save</span></tt>: See the documentation about <a class="reference internal" href="tech_notes.html#saving"><em>saving</em></a>.</p>
 </li>
 </ul>
-<p>If <tt class="docutils literal"><span class="pre">options</span></tt> is absent, wed will attempt getting its configuration
-from RequireJS by calling <tt class="docutils literal"><span class="pre">module.config()</span></tt>. See the RequireJS
-documentation. The <tt class="docutils literal"><span class="pre">wed/wed</span></tt> configuration in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a> gives an example of how this can
-be used.</p>
+<p>If <tt class="docutils literal"><span class="pre">options</span></tt> is <tt class="docutils literal"><span class="pre">undefined</span></tt>, wed will attempt getting its
+configuration from RequireJS by calling <tt class="docutils literal"><span class="pre">module.config()</span></tt>. See the
+RequireJS documentation. The <tt class="docutils literal"><span class="pre">wed/wed</span></tt> configuration in
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a> gives an example of how
+this can be used.</p>
+<p>The <tt class="docutils literal"><span class="pre">data</span></tt> parameter is a string containing the document to edit,
+in XML format.</p>
 </li>
 </ul>
 <p>Here is an example of an <tt class="docutils literal"><span class="pre">options</span></tt> object:</p>
@@ -449,18 +419,16 @@ wed with JavaScript code that causes onerror to fire.</p>
 </div>
 <div class="section" id="round-tripping">
 <h1>Round-Tripping<a class="headerlink" href="#round-tripping" title="Permalink to this headline">¶</a></h1>
-<p>The transformations performed by <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/xml-to-html.xsl">lib/wed/xml-to-html.xsl</a> and
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/html-to-xml.xsl">lib/wed/html-to-xml.xsl</a> are not byte-for-byte reverse
-operations. Suppose document A is converted from xml to html, remains
-unmodified, and is converted back and saved as B, B will <strong>mean</strong> the
-same thing as A but will not necessarily be <strong>identical</strong> to A. Here are
-the salient points:</p>
+<p>At this stage wed does not guarantee that saving an <strong>unmodified</strong>
+document will sent the exact same string as what it was originally
+given to edit. This is due to the fact that the same document can be
+represented in XML in multiple ways. Notably:</p>
 <ul class="simple">
-<li>Comments, CDATA, and processing instructions are lost.</li>
-<li>The order of attributes could change.</li>
-<li>The order and location of namespaces could change.</li>
-<li>The encoding of empty elements could change. That is, <tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> could
-become <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt> or vice-versa.</li>
+<li>Comments, CDATA, and processing instructions are not preserved.</li>
+<li>The order of the attributes could differ.</li>
+<li>The order and location of namespaces declarations could differ.</li>
+<li>The encoding of empty elements could differ. That is, <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt>
+could become <tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> or vice-versa.</li>
 <li>The presence or absence of a newline on the last line may not be
 preserved.</li>
 </ul>
@@ -485,7 +453,6 @@ work.</p>
   <ul>
 <li><a class="reference internal" href="#">Basic Usage</a></li>
 <li><a class="reference internal" href="#browser-requirements">Browser Requirements</a><ul>
-<li><a class="reference internal" href="#ie-9">IE 9</a></li>
 <li><a class="reference internal" href="#os-x">OS X</a></li>
 <li><a class="reference internal" href="#safari">Safari</a></li>
 </ul>
@@ -530,7 +497,7 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.17.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.18.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

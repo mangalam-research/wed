@@ -9,7 +9,6 @@ define(/** @lends module:modes/test/test_mode*/
 function (require, exports, module) {
 'use strict';
 
-var $ = require("jquery");
 var util = require("wed/util");
 var log = require("wed/log");
 var Mode = require("wed/modes/generic/generic").Mode;
@@ -56,26 +55,24 @@ function TestMode (options) {
 
 oop.inherit(TestMode, Mode);
 
-TestMode.prototype.init = function (editor) {
-    Mode.prototype.init.call(this, editor);
-
-    if (this._test_mode_options.ambiguous_fileDesc_insert) {
-        // We just duplicate the transformation.
-        var tr = this._tr.getTagTransformations("insert", "fileDesc");
-        this._tr.addTagTransformations("insert", "fileDesc", tr);
-    }
-};
-
 TestMode.prototype.getContextualActions = function (type, tag, container,
                                                     offset) {
     if (this._test_mode_options.fileDesc_insert_needs_input &&
         tag === "fileDesc" && type === "insert")
         return [new transformation.Transformation(
-            this._editor, "foo", undefined, undefined, true,
+            this._editor, "insert", "foo", undefined, undefined, true,
             // We don't need a real handler because it will not be called.
             function () {})];
 
-    return this._tr.getTagTransformations(type, tag);
+    var ret = Mode.prototype.getContextualActions.call(this, type, tag,
+                                                      container, offset);
+
+    if (this._test_mode_options.ambiguous_fileDesc_insert &&
+        tag === "fileDesc" && type === "insert")
+        // We just duplicate the transformation.
+        ret = ret.concat(ret);
+
+    return ret;
 };
 
 
@@ -92,5 +89,5 @@ exports.Mode = TestMode;
 
 });
 
-//  LocalWords:  domutil metas tei oop util jquery Mangalam MPL
+//  LocalWords:  domutil metas tei oop util Mangalam MPL
 //  LocalWords:  Dubeau

@@ -9,80 +9,65 @@
 define(/** @lends module:transformation */function (require, exports, module) {
 "use strict";
 
-var $ = require("jquery");
 var util = require("./util");
-var sense_refs = require("./refman").sense_refs;
 var domutil = require("./domutil");
 var Action = require("./action").Action;
 var oop = require("./oop");
+var icon = require("./gui/icon");
+var _ = require("lodash");
 
 var _indexOf = Array.prototype.indexOf;
 
-/**
- * @classdesc A registry of transformations. Not all transformations
- * must be in the registry but the registry is what allows wed to find
- * certain types of transformations.
- *
- * @constructor
- */
-function TransformationRegistry() {
-    this._tag_tr = {
-        "insert": {},
-        "delete-element": {},
-        "delete-parent": {},
-        "merge-with-next": {},
-        "merge-with-previous": {},
-        "swap-with-next": {},
-        "swap-with-previous": {},
-        "wrap": {},
-        "append": {},
-        "prepend": {},
-        "unwrap": {}
-    };
-}
+var TYPE_TO_KIND = _.extend(Object.create(null), {
+    // These are not actually type names. It is possible to use a kind
+    // name as a type name if the transformation is not more
+    // specific. In this case the kind === type.
+    add: "add",
+    "delete": "delete",
+    transform: "transform",
 
-/**
- * @param {string} type The type of transformation.
- * @param {string} tag Can be a tag name or "*" to match all tags.
- * @param
- * {module:transformation~Transformation|Array.<module:transformation~Transformation>}
- * tr One or more transformations.
- */
-TransformationRegistry.prototype.addTagTransformations = function(type, tag,
-                                                                  tr) {
-    if (!(tr instanceof Array))
-        tr = [tr];
+    insert: "add",
+    "delete-element": "delete",
+    "delete-parent": "delete",
+    wrap: "wrap",
+    "merge-with-next": "transform",
+    "merge-with-previous": "transform",
+    "swap-with-next": "transform",
+    "swap-with-previous": "transform",
+    "split": "transform",
+    append: "add",
+    prepend: "add",
+    unwrap: "unwrap",
+    "add-attribute": "add",
+    "delete-attribute": "delete"
+});
 
-    this._tag_tr[type][tag] = tr;
-};
+var TYPE_TO_NODE_TYPE = _.extend(Object.create(null), {
+    // These are not actually type names. These are here to handle the
+    // case where the type is actually a kind name. Since they are not
+    // more specific, the node type is set to "other". Note that
+    // "wrap" and "unwrap" are always about elements so there is no
+    // way to have a "wrap/unwrap" which has "other" for the node
+    // type.
+    add: "other",
+    "delete": "other",
+    transform: "other",
 
-/**
- * Gets transformations from the registry.
- *
- * @param {Array.<string>|string} type The type or types of
- * transformation desired.
- * @param {string} tag Can be a tag name or "*" to match all tags.
- *
- * @returns {Array.<module:transformation~Transformation>} The
- * transformations.
- */
-TransformationRegistry.prototype.getTagTransformations = function (type, tag) {
-    if (!(type instanceof Array))
-        type = [type];
-
-    var ret = [];
-    for(var ix = 0; ix < type.length; ix++) {
-        var val = this._tag_tr[type[ix]][tag];
-        // Can't concat undefined
-        if (val !== undefined)
-            ret = ret.concat(val);
-
-        val = this._tag_tr[type[ix]]["*"];
-        if (val !== undefined)
-            ret = ret.concat(val);
-    }
-    return ret;
-};
+    insert: "element",
+    "delete-element": "element",
+    "delete-parent": "element",
+    wrap: "element",
+    "merge-with-next": "element",
+    "merge-with-previous": "element",
+    "swap-with-next": "element",
+    "swap-with-previous": "element",
+    "split": "element",
+    append: "element",
+    prepend: "element",
+    unwrap: "element",
+    "add-attribute": "attribute",
+    "delete-attribute": "attribute"
+});
 
 /**
  * @classdesc An operation that transforms the data tree.
@@ -92,16 +77,17 @@ TransformationRegistry.prototype.getTagTransformations = function (type, tag) {
  *
  * @param {module:wed~Editor} editor The editor for which this
  * transformation must be created.
+ * @param {string} type The type of transformation.
  * @param {string} desc The description of this transformation. A
  * transformation's {@link
  * module:transformation~Transformation#getDescriptionFor
- * getDescriptionFor} method will replace "&lt;element_name>" with the
- * name of the element actually being processed. So a string like
- * "Remove &lt;element_name>" would become "Remove foo" when the
- * transformation is called for the element "foo".
+ * getDescriptionFor} method will replace ``&lt;name>`` with the name
+ * of the node actually being processed. So a string like ``Remove
+ * &lt;name>`` would become ``Remove foo`` when the transformation is
+ * called for the element ``foo``.
  * @param {string} [abbreviated_desc] An abbreviated description of this
  * transformation.
- * @param {string} [icon] An HTML representation of the icon
+ * @param {string} [icon_html] An HTML representation of the icon
  * associated with this transformation.
  * @param {boolean} [needs_input=false] Indicates whether this action
  * needs input from the user. For instance, an action which brings up
@@ -118,34 +104,38 @@ TransformationRegistry.prototype.getTagTransformations = function (type, tag) {
  * The handler to call when this
  * transformation is executed.
  */
-function Transformation(editor, desc, abbreviated_desc, icon, needs_input,
-                        handler) {
+function Transformation(editor, type, desc, abbreviated_desc, icon_html,
+                        needs_input, handler) {
     switch(arguments.length) {
-    case 3:
+    case 4:
         handler = abbreviated_desc;
         abbreviated_desc = undefined;
         break;
-    case 4:
-        handler = icon;
-        icon = undefined;
-        break;
     case 5:
+        handler = icon_html;
+        icon_html = undefined;
+        break;
+    case 6:
         handler = needs_input;
         needs_input = undefined;
         break;
     }
-    Action.call(this, editor, desc, abbreviated_desc, icon, needs_input);
     this.handler = handler;
+    this.type = type;
+    this.kind = TYPE_TO_KIND[type];
+    this.node_type = TYPE_TO_NODE_TYPE[type];
+
+    if (icon_html === undefined && this.kind)
+        icon_html = icon.makeHTML(this.kind);
+    Action.call(this, editor, desc, abbreviated_desc, icon_html, needs_input);
 }
 
 /**
- * <p>The transformation types that are defined for {@link
- * module:transformation~TransformationRegistry
- * TransformationRegistry} expect the following values for the
+ * <p>The transformation types expect the following values for the
  * parameters passed to a handler. For all these types
  * <code>transformation_data</code> is unused.</p>
  *
- * Transformation Type | `node` is | `element_name` is the name of the:
+ * Transformation Type | `node` is | `name` is the name of the:
  * ------------------|--------|---------------------------------
  * insert | undefined (we insert at caret position) | element to insert
  * delete-element | element to delete | element to delete
@@ -158,6 +148,9 @@ function Transformation(editor, desc, abbreviated_desc, icon, needs_input,
  * append | element after which to append | element after which to append
  * prepend | element before which to prepend | element before which to append
  * unwrap | node to unwrap | node to unwrap
+ * add-attribute | node to which an attribute is added | attribute to add
+ * delete-attribute | attribute to delete | attribute to delete
+ * insert-text | node to which text is added | text to add
  *
  * @callback module:transformation~Transformation~handler
  *
@@ -176,8 +169,8 @@ function Transformation(editor, desc, abbreviated_desc, icon, needs_input,
  *
  * - ``node``: The node to operate on.
  *
- * - ``element_name``: The element name of an element to add, remove,
- *   etc.  (Could be different from the name of the ``node``.)
+ * - ``name``: The name of the node to add, remove, etc.  (Could be
+ *   different from the name of the node that ``node`` refers to.)
  *
  * - ``move_caret_to``: A position to which the caret is moved before
  *   the transformation is fired. **Wed performs the move.**
@@ -187,7 +180,7 @@ oop.inherit(Transformation, Action);
 
 // Documented by method in parent class.
 Transformation.prototype.getDescriptionFor = function (data) {
-    return this._desc.replace(/<element_name>/, data.element_name);
+    return this._desc.replace(/<name>/, data.name);
 };
 
 /**
@@ -211,43 +204,36 @@ Transformation.prototype.execute = function (data) {
  * @param {string} name Name of the new element.
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
- * @param {jQuery|string|Node} [contents] The contents of the new
- * element.
  *
- * @returns {jQuery} The new element.
+ * @returns {Node} The new element.
  */
-function insertElement(data_updater, parent, index, name, attrs,
-                       contents) {
-    var $new = makeElement(name, attrs, contents !== undefined);
-
-    if (contents !== undefined)
-        $new.append(contents);
-
-    data_updater.insertAt(parent, index, $new[0]);
-    return $new;
+function insertElement(data_updater, parent, index, name, attrs) {
+    var el = makeElement(parent.ownerDocument, name, attrs);
+    data_updater.insertAt(parent, index, el);
+    return el;
 }
 
 /**
  * Makes an element appropriate for a wed data tree.
  *
+ * @param {string} doc The document for which to make the element.x
  * @param {string} name Name of the new element.
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
  *
- * @returns {jQuery} The new element.
+ * @returns {Node} The new element.
  */
-function makeElement(name, attrs) {
-    var $e = $("<div class='" + name + " _real'>");
-    var e = $e[0];
+function makeElement(doc, name, attrs) {
+    var e = doc.createElement(name);
     if (attrs !== undefined)
     {
         // Create attributes
         var keys = Object.keys(attrs);
         for(var keys_ix = 0, key; (key = keys[keys_ix++]) !== undefined; ) {
-            e.setAttribute(util.encodeAttrName(key), attrs[key]);
+            e.setAttribute(key, attrs[key]);
         }
     }
-    return $e;
+    return e;
 }
 
 /**
@@ -264,7 +250,7 @@ function makeElement(name, attrs) {
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
  *
- * @returns {jQuery} The new element.
+ * @returns {Node} The new element.
  */
 function wrapTextInElement (data_updater, node, offset, end_offset,
                             name, attrs) {
@@ -274,20 +260,23 @@ function wrapTextInElement (data_updater, node, offset, end_offset,
     var node_offset = _indexOf.call(parent.childNodes, node);
 
     data_updater.deleteText(node, offset, text_to_wrap.length);
-    var $new_element = makeElement(name, attrs);
+    var new_element = makeElement(node.ownerDocument, name, attrs);
 
-    // It is okay to manipulate the DOM directly as long as the DOM
-    // tree being manipulated is not *yet* inserted into the data
-    // tree. That is the case here.
-    $new_element.append(text_to_wrap);
+    if (text_to_wrap !== "") {
+        // It is okay to manipulate the DOM directly as long as the DOM
+        // tree being manipulated is not *yet* inserted into the data
+        // tree. That is the case here.
+        new_element.appendChild(
+            node.ownerDocument.createTextNode(text_to_wrap));
+    }
 
     if (!node.parentNode)
         // The entire node was removed.
-        data_updater.insertAt(parent, node_offset, $new_element[0]);
+        data_updater.insertAt(parent, node_offset, new_element);
     else
-        data_updater.insertAt(node, offset, $new_element[0]);
+        data_updater.insertAt(node, offset, new_element);
 
-    return $new_element;
+    return new_element;
 }
 
 /**
@@ -340,7 +329,7 @@ function _wie_splitTextNode(data_updater, container, offset) {
  * @param {Object} [attrs] An object whose fields will become
  * attributes for the new element.
  *
- * @returns {jQuery} The new element.
+ * @returns {Node} The new element.
  * @throws {Error} If the range is malformed or if there is an
  * internal error.
  */
@@ -375,17 +364,17 @@ function wrapInElement (data_updater, start_container, start_offset,
         throw new Error("start_container and end_container are not the same;" +
                         "probably due to an algorithmic mistake");
 
-    var $new_element = makeElement(name, attrs);
+    var new_element = makeElement(start_container.ownerDocument, name, attrs);
     while(--end_offset >= start_offset) {
         var end_node = end_container.childNodes[end_offset];
         data_updater.deleteNode(end_node);
         // Okay to change a tree which is not yet connected to the data tree.
-        $new_element.prepend(end_node);
+        new_element.insertBefore(end_node, new_element.firstChild);
     }
 
-    data_updater.insertAt(start_container, start_offset, $new_element[0]);
+    data_updater.insertAt(start_container, start_offset, new_element);
 
-    return $new_element;
+    return new_element;
 }
 
 /**
@@ -448,7 +437,7 @@ function unwrap(data_updater, node) {
 function splitNode(editor, node) {
     var caret = editor.getDataCaret();
 
-    if ($(caret.node).closest(node).length === 0)
+    if (!node.contains(caret.node))
         throw new Error("caret outside node");
 
     var pair = editor.data_updater.splitAt(node, caret);
@@ -468,28 +457,30 @@ function splitNode(editor, node) {
  * @param {Node} node The element to merge with previous.
  */
 function mergeWithPreviousHomogeneousSibling (editor, node) {
-    var $node = $(node);
-    var $prev = $node.prev();
-    var name = util.getOriginalName(node);
-    if ($prev.is(util.classFromOriginalName(name))) {
-        // We need to record these to set the caret to a good position.
-        var caret_pos = $prev[0].childNodes.length;
-        var was_text = $prev[0].lastChild.nodeType === Node.TEXT_NODE;
-        var text_len = (was_text) ? $prev[0].lastChild.length : 0;
+    var prev = node.previousElementSibling;
+    if (!prev)
+        return;
 
-        var prev = $prev[0];
-        var insertion_point = prev.childNodes.length;
-        // Reverse order
-        for (var i = node.childNodes.length - 1; i >= 0; --i)
-            editor.data_updater.insertAt(prev, insertion_point,
-                                         $(node.childNodes[i]).clone()[0]);
+    if (prev.localName !== node.localName ||
+        prev.namespace !== node.namespace)
+        return;
 
-        if (was_text)
-            editor.setDataCaret($prev[0].childNodes[caret_pos - 1], text_len);
-        else
-            editor.setDataCaret($prev[0], caret_pos);
-        editor.data_updater.removeNode(node);
-    }
+    // We need to record these to set the caret to a good position.
+    var caret_pos = prev.childNodes.length;
+    var was_text = prev.lastChild.nodeType === Node.TEXT_NODE;
+    var text_len = was_text ? prev.lastChild.length : 0;
+
+    var insertion_point = prev.childNodes.length;
+    // Reverse order
+    for (var i = node.childNodes.length - 1; i >= 0; --i)
+        editor.data_updater.insertAt(prev, insertion_point,
+                                     node.childNodes[i].cloneNode(true));
+
+    if (was_text)
+        editor.setDataCaret(prev.childNodes[caret_pos - 1], text_len);
+    else
+        editor.setDataCaret(prev, caret_pos);
+    editor.data_updater.removeNode(node);
 }
 
 /**
@@ -503,11 +494,11 @@ function mergeWithPreviousHomogeneousSibling (editor, node) {
  * @param {Node} node The element to merge with next.
  */
 function mergeWithNextHomogeneousSibling(editor, node) {
-    var $node = $(node);
-    var $next = $node.next();
-    var name = util.getOriginalName(node);
-    if ($next.is(util.classFromOriginalName(name)))
-        mergeWithPreviousHomogeneousSibling(editor, $next[0]);
+    var next = node.nextElementSibling;
+    if (!next)
+        return;
+
+    mergeWithPreviousHomogeneousSibling(editor, next);
 }
 
 /**
@@ -521,15 +512,18 @@ function mergeWithNextHomogeneousSibling(editor, node) {
  * @param {Node} node The element to swap with previous.
  */
 function swapWithPreviousHomogeneousSibling (editor, node) {
-    var prev = node.previousSibling;
+    var prev = node.previousElementSibling;
+    if (!(prev && prev.classList.contains("_real")))
+        return;
+
     var name = util.getOriginalName(node);
-    if ($(prev).is(util.classFromOriginalName(name))) {
-        var parent = prev.parentNode;
-        editor.data_updater.removeNode(node);
-        editor.data_updater.insertBefore(parent, node, prev);
-        editor.setDataCaret(parent, _indexOf.call(
-            parent.childNodes, node));
-    }
+    if (!prev.classList.contains(name))
+        return;
+
+    var parent = prev.parentNode;
+    editor.data_updater.removeNode(node);
+    editor.data_updater.insertBefore(parent, node, prev);
+    editor.setDataCaret(parent, _indexOf.call(parent.childNodes, node));
 }
 
 /**
@@ -543,12 +537,13 @@ function swapWithPreviousHomogeneousSibling (editor, node) {
  * @param {Node} node The element to swap with next.
  */
 function swapWithNextHomogeneousSibling(editor, node) {
-    var next = node.nextSibling;
-    if (next)
-        swapWithPreviousHomogeneousSibling(editor, next);
+    var next = node.nextElementSibling;
+    if (!next)
+        return;
+
+    swapWithPreviousHomogeneousSibling(editor, next);
 }
 
-exports.TransformationRegistry = TransformationRegistry;
 exports.Transformation = Transformation;
 exports.wrapTextInElement = wrapTextInElement;
 exports.wrapInElement = wrapInElement;
@@ -570,4 +565,4 @@ exports.swapWithNextHomogeneousSibling =
 //  LocalWords:  startOffset startContainer html Mangalam MPL Dubeau
 //  LocalWords:  previousSibling nextSibling insertNodeAt deleteNode
 //  LocalWords:  mergeTextNodes lastChild prev deleteText Prepend lt
-//  LocalWords:  domutil jquery util jQuery
+//  LocalWords:  domutil util
