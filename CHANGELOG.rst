@@ -4,6 +4,13 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.18.1:
+
+  - API: added the ``ignore_module_config`` option.
+
+  - Fixed a bug that caused wed to crash when there is no saving url
+    specified in the options.
+
 * 0.18.0:
 
   - This version is a major reworking of wed. This is where old APIs
