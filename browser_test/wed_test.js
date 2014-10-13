@@ -2463,6 +2463,13 @@ describe("wed", function () {
             });
         });
 
+        it("processes validation errors added by the mode", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var last =
+                editor._validation_errors[editor._validation_errors.length - 1];
+            assert.equal(last.error.toString(), "Test");
+        });
+
         describe("the location bar", function () {
             it("ignores placeholders", function () {
                 var ph = editor.gui_root
