@@ -9,7 +9,7 @@ from nose.tools import assert_true, assert_equal, assert_not_equal
 from selenium.webdriver.common.keys import Keys
 
 import wedutil
-from ..util import get_element_parent_and_parent_text
+from ..util import get_element_parent_and_parent_text, wait_for_editor
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
@@ -17,7 +17,6 @@ from ..util import get_element_parent_and_parent_text
 
 def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
     driver = context.driver
-    util = context.util
     builder = context.selenic
     server = builder.WED_SERVER + "/kitchen-sink.html?mode=test"
     if text is not None:
@@ -27,34 +26,7 @@ def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
         server = server + "&options=" + options
 
     driver.get(server)
-
-    wedutil.wait_for_editor(util)
-
-    context.origin_object = driver.execute_script("""
-    var tooltips = arguments[0];
-    if (!tooltips) {
-        // Turn off tooltips
-        wed_editor.preferences.set("tooltips", false);
-
-        // Delete all tooltips.
-        jQuery(".tooltip").remove();
-    }
-
-    // This is bullshit to work around a Selenium limitation.
-    jQuery("body").append(
-        '<div id="origin-object" style=' +
-        '"position: fixed; top: 0px; left: 0px; width:1px; height:1px;"/>');
-    return jQuery("#origin-object")[0];
-    """, tooltips)
-
-    # For some reason, FF does not get focus automatically.
-    # This counters the problem.
-    if builder.config.browser == "FIREFOX":
-        body = driver.find_element_by_css_selector(".wed-document")
-        ActionChains(driver) \
-            .move_to_element_with_offset(body, 1, 1) \
-            .click() \
-            .perform()
+    wait_for_editor(context, tooltips)
 
 
 @when("the user loads the page")
@@ -98,6 +70,8 @@ def step_impl(context):
 def step_impl(context):
     context.driver.close()
     context.driver.switch_to.window(context.initial_window_handle)
+    context.util.wait(
+        lambda driver: driver.execute_script("return document.hasFocus();"))
 
 
 @given("an empty document with autoinsert off")
@@ -555,3 +529,21 @@ def step_impl(context, what, text):
 @when(ur'^the user dismisses the alert$')
 def step_imp(context):
     context.driver.switch_to.alert.accept()
+
+
+@when(ur'^(?:the user )?clicks the "(?P<text>.*?)" button$')
+def step_impl(context, text):
+    driver = context.driver
+    button = driver.execute_script("""
+    var text = arguments[0];
+    var buttons = document.getElementsByTagName("button");
+    return Array.prototype.filter.call(buttons, function (b) {
+        return b.textContent === text;
+    })[0];
+    """, text)
+    button.click()
+
+
+@when(ur'^(?:the user )?clicks the link "(?P<text>.*?)"$')
+def step_impl(context, text):
+    context.util.find_element((By.LINK_TEXT, text)).click()

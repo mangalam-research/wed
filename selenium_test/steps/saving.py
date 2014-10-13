@@ -63,3 +63,13 @@ abcd abcd abcd abcd abcd abcd abcd abcd</p>\
         return actual == expected
 
     util.wait(cond)
+
+
+@then(ur'^the modification status shows the document is unmodified$')
+def step_impl(context):
+    def check(driver):
+        return driver.execute_script("""
+        return wed_editor._$modification_status.hasClass("label-success");
+        """)
+
+    context.util.wait(check)

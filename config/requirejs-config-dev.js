@@ -14,7 +14,11 @@ require.config({
    'font-awesome': 'external/font-awesome',
    'pubsub-js': 'external/pubsub',
    xregexp: 'external/xregexp',
-   text: 'requirejs/text'
+   text: 'requirejs/text',
+   localforage: 'external/localforage',
+   async: 'external/async',
+   angular: 'external/angular',
+   bootbox: 'external/bootbox'
  },
  packages: [
      {
@@ -51,6 +55,16 @@ require.config({
    },
    log4javascript: {
        exports: "log4javascript"
+   },
+   angular: {
+       // AngularJS can use jQuery optionally. However, in our application
+       // we MUST have jQuery loaded and available for Angular to use it.
+       deps: ["jquery"],
+       exports: "angular"
+   },
+   bootbox: {
+       deps: ["bootstrap"],
+       exports: "bootbox"
    }
  },
  config: {
@@ -73,7 +87,10 @@ require.config({
          },
          // You certainly do not want this in actual deployment.
          save: {
-             url: "/build/ajax/save.txt"
+             path: 'wed/savers/ajax',
+             options: {
+                 url: "/build/ajax/save.txt"
+             }
          }
      }
  },

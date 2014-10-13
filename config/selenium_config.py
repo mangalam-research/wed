@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import json
 
@@ -122,7 +123,22 @@ if config.browser == "CHROME":
 profile = FirefoxProfile()
 # profile.set_preference("webdriver.log.file", "/tmp/firefox_webdriver.log")
 # profile.set_preference("webdriver.firefox.logfile", "/tmp/firefox.log")
+
+#
+# This turns off the downloading prompt in FF.
+#
+tmp_path = "selenium_tests/tmp"
+shutil.rmtree(tmp_path, True)
+os.makedirs(tmp_path)
+profile.set_preference("browser.download.folderList", 2)
+profile.set_preference("browser.download.manager.showWhenStarting", False)
+profile.set_preference("browser.download.dir", tmp_path)
+profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
 FIREFOX_PROFILE = profile
+
+
+def post_execution():
+    shutil.rmtree(tmp_path, True)
 
 # May be required to get native events.
 # FIREFOX_BINARY = FirefoxBinary("/home/ldd/src/firefox-24/firefox")
