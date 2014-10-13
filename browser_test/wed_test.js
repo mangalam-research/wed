@@ -2470,6 +2470,27 @@ describe("wed", function () {
             assert.equal(last.error.toString(), "Test");
         });
 
+        it("_refreshValidationErrors does not change the number of errors",
+           function () {
+            var gui_root = editor.gui_root;
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var count = editor._validation_errors.length;
+            var list_count = editor.$error_list.children("li").length;
+            var marker_count =
+                gui_root.getElementsByClassName("wed-validation-error").length;
+
+            editor._refreshValidationErrors();
+            assert.equal(count, editor._validation_errors.length,
+                         "the number of recorded errors should be the same");
+            assert.equal(list_count, editor.$error_list.children("li").length,
+                         "the number of errors in the panel should be the " +
+                         "same");
+            assert.equal(marker_count,
+                         gui_root.getElementsByClassName("wed-validation-error")
+                         .length,
+                         "the number of markers should be the same");
+        });
+
         describe("the location bar", function () {
             it("ignores placeholders", function () {
                 var ph = editor.gui_root
