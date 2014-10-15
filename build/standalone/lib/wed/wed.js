@@ -58,7 +58,7 @@ var closest = domutil.closest;
 
 var _indexOf = Array.prototype.indexOf;
 
-exports.version = "0.18.1";
+exports.version = "0.19.0";
 var version = exports.version;
 
 var getOriginalName = util.getOriginalName;
@@ -535,7 +535,9 @@ Editor.prototype.onModeChange = log.wrap(function (mode) {
     this.$gui_root.focus();
 
     this.resolver = mode.getAbsoluteResolver();
-    this.validator = new Validator(this.options.schema, this.data_root);
+    var mode_validator = mode.getValidator();
+    this.validator = new Validator(this.options.schema, this.data_root,
+                                   mode_validator);
     this.validator.addEventListener(
         "state-update", this._onValidatorStateChange.bind(this));
     this.validator.addEventListener(
@@ -4247,11 +4249,18 @@ Editor.prototype._onValidatorError = function (ev) {
     this._processValidationError(ev);
 };
 
+/**
+ * This method refreshes the error messages and the error markers
+ * associated with the errors that the editor already knows.
+ *
+ * @private
+ */
 Editor.prototype._refreshValidationErrors = function () {
     var errs = this.widget.getElementsByClassName('wed-validation-error');
     var el;
     while((el = errs[0]) !== undefined)
         el.parentNode.removeChild(el);
+    this.$error_list.children("li").remove();
     for(var i = 0, err; (err = this._validation_errors[i]) !== undefined; ++i)
         this._processValidationError(err);
 };

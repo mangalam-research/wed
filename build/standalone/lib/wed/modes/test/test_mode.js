@@ -17,6 +17,7 @@ var transformation = require("wed/transformation");
 var rangy = require("rangy");
 var tei_meta = require("wed/modes/generic/metas/tei_meta");
 var domutil = require("wed/domutil");
+var Validator = require("./test_mode_validator").Validator;
 var TestDecorator = require("./test_decorator").TestDecorator;
 var _ = require("lodash");
 
@@ -84,6 +85,10 @@ TestMode.prototype.makeDecorator = function () {
     return obj;
 };
 
+
+TestMode.prototype.getValidator = function () {
+    return new Validator(this._editor.gui_root, this._editor.data_root);
+};
 
 exports.Mode = TestMode;
 

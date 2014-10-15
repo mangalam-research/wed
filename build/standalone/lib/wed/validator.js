@@ -70,15 +70,17 @@ exports.VALID = VALID;
  * salve. See salve's documentation.
  * @param {Node} root The root of the DOM tree to validate. This root
  * contains the document to validate but is not
+ * @param {module:mode~Mode} [mode] The mode that is currently in use.
  * <strong>part</strong> of it.
  */
-function Validator(schema, root) {
+function Validator(schema, root, mode) {
     // Call the constructor for our mixin
     SimpleEventEmitter.call(this);
 
     this.schema = schema;
 
     this.root = root;
+    this.mode = mode;
     this._cycle_entered = 0;
     this._timeout = 200;
     this._max_timespan = 100;
@@ -385,6 +387,7 @@ Validator.prototype._cycle = function () {
                 if (event_result)
                     this._processEventResult(event_result, cur_el,
                                              cur_el.childNodes.length);
+                this._runDocumentValidation();
                 this._part_done = 1;
                 this._setWorkingState(this._errors.length > 0 ? INVALID :
                                       VALID);
@@ -430,6 +433,22 @@ Validator.prototype._cycle = function () {
     }
 
     this.cycle_entered--;
+};
+
+/**
+ * Runs document-wide validation specific to the mode passed to
+ * the validator.
+ *
+ * @private
+ * @emits module:validator~Validator#error
+ */
+Validator.prototype._runDocumentValidation = function () {
+    if (!this.mode)
+        return;
+
+    var errors = this.mode.validateDocument();
+    for (var i = 0, error; (error = errors[i]); ++i)
+        this._processError(error);
 };
 
 /**
@@ -562,19 +581,32 @@ Validator.prototype.getWorkingState = function () {
 Validator.prototype._processEventResult = function (result, node, index) {
     for(var ix = 0, err; (err = result[ix]) !== undefined; ++ix) {
         var error_data = { error: err, node: node, index: index};
-        this._errors.push(error_data);
-        /**
-         * Tells the listener that an error has occurred.
-         *
-         * @event module:validator~Validator#error
-         * @type {Object}
-         * @property {Object} error The validation error.
-         * @property {Node} node The node where the error occurred.
-         * @property {integer} index The index in this node.
-         */
-        this._emit("error", error_data);
+        this._processError(error_data);
     }
 };
+
+/**
+ * This method should be called whenever a new error is detected. It
+ * records the error and emits the corresponding event.
+ *
+ * @private
+ * @param {module:validator~Validator#event:error} error The error found.
+ * @emits module:validator~Validator#error
+ */
+Validator.prototype._processError = function (error) {
+    this._errors.push(error);
+    /**
+     * Tells the listener that an error has occurred.
+     *
+     * @event module:validator~Validator#error
+     * @type {Object}
+     * @property {Object} error The validation error.
+     * @property {Node} node The node where the error occurred.
+     * @property {integer} index The index in this node.
+     */
+    this._emit("error", error);
+};
+
 
 /**
  * Fires all the attribute events for a given element.
@@ -1056,6 +1088,11 @@ Validator.prototype.speculativelyValidateFragment = function (container, index,
  *
  * - Attribute errors belong to the element node to which the
  *   attributes belong.
+ *
+ * - Errors produced by {@link module:mode~Mode#validateDocument
+ *   validateDocument} can refer to any node of the document. However,
+ *   for the purpose of this method, they are not considered to
+ *   *belong* to the node passed to the method.
  *
  * @param {Node} node The node whose errors we want to get.
  * @returns {Array.<module:validator~Validator#event:error>} The errors.
