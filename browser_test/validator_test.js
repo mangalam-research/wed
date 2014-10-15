@@ -3,8 +3,9 @@
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(["mocha/mocha", "chai", "wed/validator", "salve/validate"],
-function (mocha, chai, validator, validate) {
+define(["mocha/mocha", "chai", "wed/validator", "salve/validate",
+        "wed/mode_validator", "wed/oop"],
+function (mocha, chai, validator, validate, mode_validator, oop) {
 'use strict';
 
 // The test subdirectory is one of the paths required to be in the config
@@ -14,6 +15,7 @@ var schema = '../../../schemas/simplified-rng.js';
 var to_parse_stack =
         ['../../test-files/validator_test_data/to_parse_converted.xml'];
 var assert = chai.assert;
+var ValidationError = validate.ValidationError;
 describe("validator", function () {
     var parser = new window.DOMParser();
     var frag = document.createDocumentFragment();
@@ -660,6 +662,71 @@ describe("validator", function () {
 
 
     });
+
+    describe("with a mode validator", function () {
+        var p, tree;
+        var validation_error = new ValidationError("Test");
+
+        before(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data) {
+                tree = parser.parseFromString(data, "application/xml");
+                done();
+            });
+        });
+
+        beforeEach(function () {
+            // We create a fake mode because a real mode needs a
+            // whole editor, which is very expensive.
+            function Validator() {
+                mode_validator.ModeValidator.apply(this, arguments);
+            }
+            oop.inherit(Validator, mode_validator.ModeValidator);
+
+            Validator.prototype.validateDocument = function () {
+                return [{
+                    error: validation_error,
+                    node: tree,
+                    index: 0
+                }];
+            };
+
+            p = new validator.Validator(schema, tree, new Validator());
+            p._max_timespan = 0; // Work forever.
+        });
+
+        it("records additional errors", function (done) {
+            var old_stop = p.stop;
+            p.stop = function () {
+                old_stop.call(p);
+                assert.equal(p._errors.length, 1);
+                assert.equal(p._errors[0].error, validation_error);
+                assert.isTrue(p._errors[0].node === tree);
+                assert.equal(p._errors[0].index, 0);
+                done();
+            };
+            p.start();
+        });
+
+        it("emits additional error events", function (done) {
+            var seen = 0;
+            p.addEventListener("error", function (error) {
+                assert.equal(error.error, validation_error);
+                assert.isTrue(error.node === tree);
+                assert.equal(error.index, 0);
+                seen++;
+            });
+            var old_stop = p.stop;
+            p.stop = function () {
+                old_stop.call(p);
+                assert.equal(seen, 1);
+                done();
+            };
+            p.start();
+        });
+
+    });
+
 });
 
 });

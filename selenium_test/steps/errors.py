@@ -27,14 +27,14 @@ def step_impl(context):
     """)
 
 
-@then(ur"^2 errors appear in the error panel$")
+@then(ur"^3 errors appear in the error panel$")
 def step_impl(context):
     driver = context.driver
     util = context.util
 
     def cond(*_):
         return driver.execute_script("""
-        return jQuery("#sb-errorlist").children().length === 2;
+        return jQuery("#sb-errorlist").children().length === 3;
         """)
 
     util.wait(cond)

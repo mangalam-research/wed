@@ -4,6 +4,12 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.19.0:
+
+  - API: Modes can now implement ``getValidator`` to return a validator to
+    perform some ad-hoc checks that can't be performed with a schema-based
+    validator.
+
 * 0.18.1:
 
   - API: added the ``ignore_module_config`` option.

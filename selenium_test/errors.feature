@@ -5,10 +5,10 @@ Background: a complex document.
 
 Scenario: errors are listed in the error panel
   When the user introduces an error in the document
-  Then 2 errors appear in the error panel
+  Then 3 errors appear in the error panel
 
 Scenario: clicking an error in the error panel
   When the user introduces an error in the document
-  Then 2 errors appear in the error panel
+  Then 3 errors appear in the error panel
   When the user clicks the last error in the error panel
   Then the last error marker is fully visible.
