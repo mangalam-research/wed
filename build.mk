@@ -138,6 +138,13 @@ build-dir:
 # use a per-target variable assignment then the :: targets don't work.
 #
 gh-pages-build:
+	@if [ `git rev-parse --abbrev-ref HEAD`!="master" ]; then \
+	    echo "***"; \
+	    echo "Not on master branch. Don't build gh-pages-build on"; \
+	    echo "a branch other than master."; \
+	    echo "***"; \
+	    exit 1; \
+	fi
 	$(MAKE) -f build.mk BUILD_DEPLOYMENT_TARGET:=$@ DEPLOYMENT_INCLUDES_DOC=1 build-deployment
 
 .PHONY: build-deployment
