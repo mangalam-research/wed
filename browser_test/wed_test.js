@@ -1099,7 +1099,9 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML, 'abc<hi>de</hi>fghij');
+            assert.equal(
+                initial.innerHTML,
+                'abc<hi xmlns="http://www.tei-c.org/ns/1.0">de</hi>fghij');
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
 
@@ -1110,7 +1112,10 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML, '<hi>abc<hi>de</hi></hi>fghij');
+            assert.equal(
+                initial.innerHTML,
+                '<hi xmlns="http://www.tei-c.org/ns/1.0">abc'+
+                    '<hi>de</hi></hi>fghij');
             assert.equal(initial.childNodes.length, 2,
                          "length after second wrap");
 
@@ -1139,7 +1144,9 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML, 'abc<hi>de</hi>fghij');
+            assert.equal(
+                initial.innerHTML,
+                'abc<hi xmlns="http://www.tei-c.org/ns/1.0">de</hi>fghij');
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
 
@@ -1157,7 +1164,10 @@ describe("wed", function () {
 
             tr.execute(data);
 
-            assert.equal(initial.innerHTML, 'ab<hi>c<hi>de</hi>fghij</hi>');
+            assert.equal(
+                initial.innerHTML,
+                'ab<hi xmlns="http://www.tei-c.org/ns/1.0">c<hi>de</hi>' +
+                    'fghij</hi>');
             assert.equal(initial.childNodes.length, 2,
                          "length after second wrap");
         });
@@ -1185,7 +1195,9 @@ describe("wed", function () {
 
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
-            assert.equal(initial.innerHTML, 'abc<hi>de</hi>fghij');
+            assert.equal(
+                initial.innerHTML,
+                'abc<hi xmlns="http://www.tei-c.org/ns/1.0">de</hi>fghij');
 
             caret = editor.fromDataLocation(initial.firstChild, 2);
             editor.setSelectionRange(caret.makeRange(
@@ -1195,7 +1207,9 @@ describe("wed", function () {
 
             assert.equal(initial.childNodes.length, 3,
                          "length after second wrap");
-            assert.equal(initial.innerHTML, 'ab<hi>c<hi>de</hi>fg</hi>hij');
+            assert.equal(initial.innerHTML,
+                         'ab<hi xmlns="http://www.tei-c.org/ns/1.0">c' +
+                         '<hi>de</hi>fg</hi>hij');
         });
 
 
@@ -1221,7 +1235,9 @@ describe("wed", function () {
             tr.execute(data);
 
             assert.equal(initial.childNodes.length, 1, "length after wrap");
-            assert.equal(initial.innerHTML, '<hi>abcdefghij</hi>');
+            assert.equal(
+                initial.innerHTML,
+                '<hi xmlns="http://www.tei-c.org/ns/1.0">abcdefghij</hi>');
         });
 
 
