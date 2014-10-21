@@ -1,5 +1,8 @@
 import os
 import time
+from urlparse import urljoin
+
+import requests
 
 # pylint: disable=E0611
 from nose.tools import assert_raises, assert_true
@@ -98,6 +101,16 @@ def before_feature(context, feature):
             skip_if_needed(context, scenario)
 
 
+def control(server, command, errmsg):
+    params = {"command": command}
+    resp = requests.post(urljoin(server, '/build/ajax/control'), params)
+    assert resp.json() == {}, errmsg
+
+
+def reset(server):
+    control(server, 'reset', 'failed to reset')
+
+
 def before_scenario(context, scenario):
     driver = context.driver
 
@@ -109,6 +122,7 @@ def before_scenario(context, scenario):
                            context.initial_window_size["height"])
     driver.set_window_position(0, 0)
     context.initial_window_handle = driver.current_window_handle
+    reset(context.selenic.WED_SERVER)
 
 
 def after_scenario(context, _scenario):
