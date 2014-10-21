@@ -1583,6 +1583,32 @@ describe("wed", function () {
                 editor.type(key_constants.CTRLEQ_S);
             });
 
+            it("serializes properly", function (done) {
+                editor.addEventListener("saved", function () {
+                    $.get("/build/ajax/save.txt", function (data) {
+                        var obj = {
+                            command: 'save',
+                            version: wed.version,
+                            data: '<TEI xmlns="http://www.tei-c.org/ns/1.0">\
+<teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
+<publicationStmt><p><abbr/></p></publicationStmt><sourceDesc><p/></sourceDesc>\
+</fileDesc></teiHeader><text><body><p>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p></body></text></TEI>'
+                        };
+                        var expected = "\n***\n" + JSON.stringify(obj);
+                        assert.equal(data, expected);
+                        done();
+                    });
+                });
+                var p = editor.data_root.querySelector("p");
+                editor.setDataCaret(p, 0);
+                var trs =
+                    editor.mode.getContextualActions("insert", "abbr", p, 0);
+                var tr = trs[0];
+                tr.execute({name: 'abbr'});
+                editor.type(key_constants.CTRLEQ_S);
+            });
+
             it("does not autosave if not modified", function (done) {
                 editor.addEventListener("autosaved", function () {
                     throw new Error("autosaved!");
