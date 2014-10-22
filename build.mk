@@ -9,13 +9,13 @@
 SAXON?=saxon
 
 # jsdoc command.
-JSDOC3?=jsdoc
+JSDOC3?=node_modules/.bin/jsdoc
 
 # wget command.
 WGET?=wget
 
 # jsdoc3 templates
-JSDOC3_DEFAULT_TEMPLATE?=$(dir $(JSDOC3))/templates/default
+JSDOC3_DEFAULT_TEMPLATE?=node_modules/jsdoc/templates/default
 
 ifeq ($(wildcard $(JSDOC3_DEFAULT_TEMPLATE)),)
 $(error JSDOC3_DEFAULT_TEMPLATE must be set to the path of jsdoc3's default template)
