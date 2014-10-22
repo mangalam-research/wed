@@ -18,11 +18,15 @@ def step_impl(context):
 
 last_obj_re = re.compile('.*}{')
 
+# This regular expression is obviously not meant to be general.
+empty_tag_re = re.compile(ur'(<[^/>]+?) (/>)')
+flip_rend_style_re = re.compile(ur'(style=".*?") (rend=".*?")')
+
 
 @then('^the data saved is properly serialized$')
 def step_impl(context):
-    resp = requests.get(urljoin(context.selenic.WED_SERVER,
-                                "/build/ajax/save.txt"))
+    util = context.util
+
     expected = {
         u'command': u'save',
         u'data': u"""\
@@ -41,10 +45,21 @@ abcd abcd abcd abcd abcd abcd abcd abcd</p>\
 <p part="">Blah</p><div sample=""/></body></text></TEI>"""
 
     }
-    print resp.text.replace('\n***\n', '').strip()
-    text = resp.text.replace('\n***\n', '').strip()
-    text = last_obj_re.sub('{', text)
-    actual = json.loads(text)
-    # We don't care about the version here.
-    del actual["version"]
-    assert_equal(actual, expected)
+
+    def cond(_driver):
+        resp = requests.get(urljoin(context.selenic.WED_SERVER,
+                                    "/build/ajax/save.txt"))
+        text = resp.text.replace('\n***\n', '').strip()
+        text = last_obj_re.sub('{', text)
+        actual = json.loads(text)
+        # We don't care about the version here.
+        del actual["version"]
+        if util.ie and u"data" in actual:
+            # IE serializes empty tags like <foo /> rather than <foo/>
+            actual[u"data"] =  \
+                empty_tag_re.sub(ur'\1\2',
+                                 flip_rend_style_re.sub(ur'\2 \1',
+                                                        actual[u"data"]))
+        return actual == expected
+
+    util.wait(cond)
