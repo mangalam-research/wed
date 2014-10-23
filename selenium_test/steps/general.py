@@ -443,6 +443,7 @@ _BROWSER_TO_VALUES = {
         u"CHROME_31": False,
         u"CHROME_37": False,
         u"FIREFOX": False,
+        u"FIREFOX_24": False,
         u"GECKO": False,
         u"MSIE_TO_10": False,
         u"MSIE_11_AND_UP": False,
@@ -455,6 +456,7 @@ _BROWSER_TO_VALUES = {
         u"CHROME_31": False,
         u"CHROME_37": False,
         u"FIREFOX": True,
+        u"FIREFOX_24": False,
         u"GECKO": True,
         u"MSIE_TO_10": False,
         u"MSIE_11_AND_UP": False,
@@ -467,6 +469,7 @@ _BROWSER_TO_VALUES = {
         u"CHROME_31": False,
         u"CHROME_37": False,
         u"FIREFOX": False,
+        u"FIREFOX_24": False,
         u"GECKO": False,
         u"MSIE_TO_10": False,
         u"MSIE_11_AND_UP": False,
@@ -524,6 +527,8 @@ def step_impl(context):
             expected_values[u"MSIE_TO_10"] = True
         else:
             expected_values[u"MSIE_11_AND_UP"] = True
+    elif config.browser == "FIREFOX" and config.version == "24":
+        expected_values[u"FIREFOX_24"] = True
 
     if config.platform.startswith("OS X "):
         expected_values[u"OSX"] = True
