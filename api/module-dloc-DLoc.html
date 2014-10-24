@@ -26,7 +26,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
         <span class="ancestors"><a href="module-dloc.html">dloc</a>~</span>
@@ -48,62 +48,62 @@ Text node or inside an Attr node.</p>
 <p>Use <a href="module-dloc.html#makeDLoc"><code>makeDLoc</code></a> to make <code>DLoc</code>
 objects. Calling this constructor directly is not legal.</p></div>
     
-</header>  
+</header>
 
 <article>
     <div class="container-overview">
     
-    
+
     
         
 <dt>
     <h4 class="name" id="DLoc"><span class="type-signature"></span>new DLoc<span class="signature">()</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
+
         <h5 class="subsection-title">Properties:</h5>
-        
+
         <dl>
 
 <table class="props">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>root</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -112,21 +112,21 @@ objects. Calling this constructor directly is not legal.</p></div>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The root of the DOM tree to which this DLoc applies.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -135,21 +135,21 @@ objects. Calling this constructor directly is not legal.</p></div>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The node of the location.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>offset</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -158,91 +158,90 @@ objects. Calling this constructor directly is not legal.</p></div>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The offset of the location.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table></dl>
-        
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="dloc.js.html">dloc.js</a>, <a href="dloc.js.html#line39">line 39</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
     
     </div>
+
     
+
     
+
     
+
     
+
+     
+
     
+
     
-    
-    
-    
-    
-    
-    
-    
+
     
         <h3 class="subsection-title">Methods</h3>
-        
+
         <dl>
             
 <dt>
     <h4 class="name" id="clone"><span class="type-signature"></span>clone<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-dloc-DLoc.html">module:dloc~DLoc</a>}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Creates a copy of the location.</p>
@@ -250,54 +249,51 @@ objects. Calling this constructor directly is not legal.</p></div>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="dloc.js.html">dloc.js</a>, <a href="dloc.js.html#line48">line 48</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -309,19 +305,19 @@ objects. Calling this constructor directly is not legal.</p></div>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -329,11 +325,11 @@ objects. Calling this constructor directly is not legal.</p></div>
             
 <dt>
     <h4 class="name" id="make"><span class="type-signature"></span>make<span class="signature">(node, offset)</span><span class="type-signature"> &rarr; {<a href="module-dloc-DLoc.html">module:dloc~DLoc</a>}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Make a new location in the same DOM tree as the current one. This
@@ -343,38 +339,38 @@ is a convenience function that enables avoid having to pass
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -383,21 +379,21 @@ is a convenience function that enables avoid having to pass
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>offset</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -406,62 +402,59 @@ is a convenience function that enables avoid having to pass
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="dloc.js.html">dloc.js</a>, <a href="dloc.js.html#line62">line 62</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -473,19 +466,19 @@ is a convenience function that enables avoid having to pass
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -493,11 +486,11 @@ is a convenience function that enables avoid having to pass
             
 <dt>
     <h4 class="name" id="makeRange"><span class="type-signature"></span>makeRange<span class="signature">(<span class="optional">other</span>)</span><span class="type-signature"> &rarr; {Range|Object}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Make a range from this location. If <code>other</code> is not specified, the
@@ -511,40 +504,40 @@ is interpreted as an unspecified <code>other</code>.)</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>other</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -553,72 +546,69 @@ is interpreted as an unspecified <code>other</code>.)</p>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>The other location to use.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="dloc.js.html">dloc.js</a>, <a href="dloc.js.html#line96">line 96</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -634,22 +624,22 @@ reversed, that is, if the end comes before the start.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">Range</span>
 |
 
 <span class="param-type">Object</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -657,11 +647,11 @@ reversed, that is, if the end comes before the start.</p>
             
 <dt>
     <h4 class="name" id="toArray"><span class="type-signature"></span>toArray<span class="signature">()</span><span class="type-signature"> &rarr; {Array}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Converts the location to an array. This array contains only the node
@@ -672,54 +662,51 @@ information. These functions do not typically expect a root.</p>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="dloc.js.html">dloc.js</a>, <a href="dloc.js.html#line75">line 75</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -732,31 +719,31 @@ information. These functions do not typically expect a root.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">Array</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
         </dl>
     
+
     
-    
-    
+
     
 </article>
 
-</section>  
+</section>
 
 
 
@@ -770,7 +757,7 @@ information. These functions do not typically expect a root.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Oct 15 2014 16:18:12 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Oct 24 2014 16:24:40 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

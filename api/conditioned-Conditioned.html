@@ -26,7 +26,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
         <span class="ancestors"><a href="conditioned.html">lib/conditioned</a>~</span>
@@ -65,21 +65,21 @@ being executed, but the condition won't be recorded as being in
 effect as would be the case if <code>_setCondition</code> would
 be called.</p></div>
     
-</header>  
+</header>
 
 <article>
     <div class="container-overview">
     
-    
+
     
         
 <dt>
     <h4 class="name" id="Conditioned"><span class="type-signature"></span>new Conditioned<span class="signature">()</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This constructor must be called by the class using this mixin.</p>
@@ -87,86 +87,85 @@ be called.</p></div>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="conditioned.js.html">lib/conditioned.js</a>, <a href="conditioned.js.html#line53">line 53</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
     
     </div>
+
     
+
     
+
     
+
     
+
+     
+
     
+
     
-    
-    
-    
-    
-    
-    
-    
+
     
         <h3 class="subsection-title">Methods</h3>
-        
+
         <dl>
             
 <dt>
     <h4 class="name" id="getCondition"><span class="type-signature"></span>getCondition<span class="signature">(name)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This is a convenience method to check whether a condition has been
@@ -178,38 +177,38 @@ polling is called for.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -218,62 +217,59 @@ polling is called for.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The name of the condition to check.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="conditioned.js.html">lib/conditioned.js</a>, <a href="conditioned.js.html#line85">line 85</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -286,19 +282,19 @@ already, or a falsy value if the condition has not been met.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">boolean</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -306,11 +302,11 @@ already, or a falsy value if the condition has not been met.</p>
             
 <dt>
     <h4 class="name" id="whenCondition"><span class="type-signature"></span>whenCondition<span class="signature">(name, listener)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This method is called so that a listener function is executed
@@ -323,38 +319,38 @@ once per call to this method.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -363,22 +359,22 @@ once per call to this method.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The name of the condition that the caller is
 interested in.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>listener</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -387,77 +383,74 @@ interested in.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The listener to execute when the
 condition is reached.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="conditioned.js.html">lib/conditioned.js</a>, <a href="conditioned.js.html#line102">line 102</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
         </dl>
     
+
     
-    
-    
+
     
 </article>
 
-</section>  
+</section>
 
 
 
@@ -471,7 +464,7 @@ condition is reached.</p></td>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Oct 15 2014 16:18:13 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Oct 24 2014 16:24:41 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

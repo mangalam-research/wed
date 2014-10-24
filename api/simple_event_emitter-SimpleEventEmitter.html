@@ -26,7 +26,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
         <span class="ancestors"><a href="simple_event_emitter.html">lib/simple_event_emitter</a>~</span>
@@ -55,104 +55,103 @@ other listeners. Therefore, if they return the value
 <code>false</code>, they prevent the other listeners from
 executing.</p></div>
     
-</header>  
+</header>
 
 <article>
     <div class="container-overview">
     
-    
+
     
         
 <dt>
     <h4 class="name" id="SimpleEventEmitter"><span class="type-signature"></span>new SimpleEventEmitter<span class="signature">()</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="simple_event_emitter.js.html">lib/simple_event_emitter.js</a>, <a href="simple_event_emitter.js.html#line38">line 38</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
     
     </div>
+
     
+
     
+
     
+
     
+
+     
+
     
+
     
-    
-    
-    
-    
-    
-    
-    
+
     
         <h3 class="subsection-title">Methods</h3>
-        
+
         <dl>
             
 <dt>
     <h4 class="name" id="addEventListener"><span class="type-signature"></span>addEventListener<span class="signature">(event_name, listener)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Adds a listener for an event. The order in which event listeners are
@@ -162,38 +161,38 @@ added matters. An earlier event listener returning
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>event_name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -202,21 +201,21 @@ added matters. An earlier event listener returning
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The name of the event to listen to.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>listener</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -225,65 +224,62 @@ added matters. An earlier event listener returning
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The function that will be called when
 the event occurs.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="simple_event_emitter.js.html">lib/simple_event_emitter.js</a>, <a href="simple_event_emitter.js.html#line52">line 52</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -291,11 +287,11 @@ the event occurs.</p></td>
             
 <dt>
     <h4 class="name" id="addOneTimeEventListener"><span class="type-signature"></span>addOneTimeEventListener<span class="signature">(event_name, listener)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Adds a one-time listener for an event. The listener will be called
@@ -308,38 +304,38 @@ later listeners from being called.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>event_name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -348,21 +344,21 @@ later listeners from being called.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The name of the event to listen to.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>listener</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -371,63 +367,60 @@ later listeners from being called.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The function that will be called when
 the event occurs.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="simple_event_emitter.js.html">lib/simple_event_emitter.js</a>, <a href="simple_event_emitter.js.html#line81">line 81</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -444,7 +437,7 @@ created could change in future versions of this code.)</p>
 
 
         
-    
+
     
 </dd>
 
@@ -452,11 +445,11 @@ created could change in future versions of this code.)</p>
             
 <dt>
     <h4 class="name" id="removeAllListeners"><span class="type-signature"></span>removeAllListeners<span class="signature">(event_name)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Removes all listeners for a specific event.</p>
@@ -464,38 +457,38 @@ created could change in future versions of this code.)</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>event_name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -504,65 +497,62 @@ created could change in future versions of this code.)</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The event whose listeners must all be
 removed.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="simple_event_emitter.js.html">lib/simple_event_emitter.js</a>, <a href="simple_event_emitter.js.html#line115">line 115</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -570,11 +560,11 @@ removed.</p></td>
             
 <dt>
     <h4 class="name" id="removeEventListener"><span class="type-signature"></span>removeEventListener<span class="signature">(event_name, listener)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Removes a listener. Calling this method on a listener that is not
@@ -583,38 +573,38 @@ actually listening to events is a noop.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>event_name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -623,21 +613,21 @@ actually listening to events is a noop.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The name of the event that was listened to.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>listener</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -646,76 +636,73 @@ actually listening to events is a noop.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The handler to remove.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="simple_event_emitter.js.html">lib/simple_event_emitter.js</a>, <a href="simple_event_emitter.js.html#line98">line 98</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
         </dl>
     
+
     
-    
-    
+
     
 </article>
 
-</section>  
+</section>
 
 
 
@@ -729,7 +716,7 @@ actually listening to events is a noop.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Oct 15 2014 16:18:13 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Oct 24 2014 16:24:41 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

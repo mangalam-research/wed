@@ -26,7 +26,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
         <span class="ancestors"><a href="module-action.html">action</a>~</span>
@@ -39,60 +39,60 @@ menu items, menu items, buttons, keybindings, etc. The base class
 is always enabled but derived classes can set their own enabled
 state depending on whatever conditions they choose.</p></div>
     
-</header>  
+</header>
 
 <article>
     <div class="container-overview">
     
-    
+
     
         
 <dt>
     <h4 class="name" id="Action"><span class="type-signature"></span>new Action<span class="signature">(editor, desc, abbreviated_desc, icon, <span class="optional">needs_input</span>)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		<th>Default</th>
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -101,34 +101,34 @@ state depending on whatever conditions they choose.</p></div>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
                 </td>
             
-            
+
             <td class="description last"><p>The editor to which this action
 belongs.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>desc</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -137,33 +137,33 @@ belongs.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
                 </td>
             
-            
+
             <td class="description last"><p>A simple string description of the action.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>abbreviated_desc</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -172,34 +172,34 @@ belongs.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
                 </td>
             
-            
+
             <td class="description last"><p>An abbreviated description,
 suitable to put into a button, for instance.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>icon</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -208,34 +208,34 @@ suitable to put into a button, for instance.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
                 </td>
             
-            
+
             <td class="description last"><p>HTML code that represents an icon for this
 action. This can be a simple string or something more complex.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>needs_input</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -244,19 +244,19 @@ action. This can be a simple string or something more complex.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
@@ -264,7 +264,7 @@ action. This can be a simple string or something more complex.</p></td>
                 
                 </td>
             
-            
+
             <td class="description last"><p>Indicates whether this action needs
 input from the user. For instance, an action which brings up a
 modal dialog to ask something of the user must have this parameter
@@ -277,45 +277,45 @@ operations for such elements be marked with <code>needs_input</code> set to
 <code>true</code> so that the <code>autoinsert</code> logic backs off from trying to
 insert these elements.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
+
         <h5 class="subsection-title">Properties:</h5>
-        
+
         <dl>
 
 <table class="props">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>needs_input</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -324,24 +324,24 @@ insert these elements.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>See the parameter of the same
 name. This value should not be changed after the object is
 initialized. Changing this value at runtime will lead to undefined
 behavior.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>bound_handler</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -350,22 +350,22 @@ behavior.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>This is an event handler bound
 to the object that contains it. See <code>eventHandler</code>.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>bound_terminal_handler</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -374,98 +374,97 @@ to the object that contains it. See <code>eventHandler</code>.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>This is a terminal
 event handler bound to the object that contains it. See <code>terminalEventHandler</code>.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table></dl>
-        
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line53">line 53</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
     
     </div>
+
     
-    
-    
+
     
         <h3 class="subsection-title">Mixes In</h3>
-        
+
         <ul>
             <li><a href="simple_event_emitter-SimpleEventEmitter.html">module:lib/simple_event_emitter~SimpleEventEmitter</a></li>
         </ul>
     
+
     
+
     
+
+     
+
     
+
     
-    
-    
-    
-    
-    
+
     
         <h3 class="subsection-title">Methods</h3>
-        
+
         <dl>
             
 <dt>
     <h4 class="name" id="eventHandler"><span class="type-signature"></span>eventHandler<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>An event handler. By default just calls <a href="module-action-Action.html#execute"><code>execute</code></a>. You probably want to use
@@ -477,38 +476,38 @@ the event passed to it.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>e</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -517,62 +516,59 @@ the event passed to it.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The DOM event.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line94">line 94</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -584,19 +580,19 @@ the event passed to it.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">boolean</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -604,46 +600,46 @@ the event passed to it.</p>
             
 <dt>
     <h4 class="name" id="execute"><span class="type-signature"></span>execute<span class="signature">(data)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>data</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -652,65 +648,62 @@ the event passed to it.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>Arbitrary data. What data must be passed is
 determined by the action.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line79">line 79</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -718,11 +711,11 @@ determined by the action.</p></td>
             
 <dt>
     <h4 class="name" id="getAbbreviatedDescription"><span class="type-signature"></span>getAbbreviatedDescription<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Gets the abbreviated  description for this action.</p>
@@ -730,54 +723,51 @@ determined by the action.</p></td>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line146">line 146</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -789,19 +779,19 @@ determined by the action.</p></td>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -809,11 +799,11 @@ determined by the action.</p></td>
             
 <dt>
     <h4 class="name" id="getDescription"><span class="type-signature"></span>getDescription<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Gets a description for this action.</p>
@@ -821,54 +811,51 @@ determined by the action.</p></td>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line125">line 125</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -880,19 +867,19 @@ determined by the action.</p></td>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -900,11 +887,11 @@ determined by the action.</p></td>
             
 <dt>
     <h4 class="name" id="getDescriptionFor"><span class="type-signature"></span>getDescriptionFor<span class="signature">(data)</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Gets a description for this action, contextualized by the data
@@ -913,38 +900,38 @@ passed.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>data</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -953,62 +940,59 @@ passed.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The same data that would be passed to <a href="module-action-Action.html#execute"><code>execute</code></a>.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line137">line 137</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -1020,19 +1004,19 @@ passed.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -1040,11 +1024,11 @@ passed.</p>
             
 <dt>
     <h4 class="name" id="getEnabled"><span class="type-signature"></span>getEnabled<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Returns whether or not the action is currently enabled.</p>
@@ -1052,54 +1036,51 @@ passed.</p>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line196">line 196</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -1107,19 +1088,19 @@ passed.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">boolean</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -1127,11 +1108,11 @@ passed.</p>
             
 <dt>
     <h4 class="name" id="getIcon"><span class="type-signature"></span>getIcon<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Gets the icon.</p>
@@ -1139,54 +1120,51 @@ passed.</p>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line155">line 155</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -1198,19 +1176,19 @@ passed.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -1218,11 +1196,11 @@ passed.</p>
             
 <dt>
     <h4 class="name" id="getLabelFor"><span class="type-signature"></span>getLabelFor<span class="signature">(data)</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This method returns the icon together with the description for the
@@ -1231,38 +1209,38 @@ data passed as parameter.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>data</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1271,62 +1249,59 @@ data passed as parameter.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The same data that would be passed to <a href="module-action-Action.html#execute"><code>execute</code></a>.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line168">line 168</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -1339,19 +1314,19 @@ presentation.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -1359,11 +1334,11 @@ presentation.</p>
             
 <dt>
     <h4 class="name" id="terminalEventHandler"><span class="type-signature"></span>terminalEventHandler<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>An event handler. By default just calls <a href="module-action-Action.html#eventHandler"><code>eventHandler</code></a>. You probably want
@@ -1375,38 +1350,38 @@ the event passed to it.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>e</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1415,62 +1390,59 @@ the event passed to it.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The DOM event.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line111">line 111</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -1482,19 +1454,19 @@ the event passed to it.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">boolean</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -1502,11 +1474,11 @@ the event passed to it.</p>
             
 <dt>
     <h4 class="name" id="toString"><span class="type-signature"></span>toString<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Converts this action to a string. By default calls <a href="module-action-Action.html#getDescription"><code>getDescription</code></a>.</p>
@@ -1514,54 +1486,51 @@ the event passed to it.</p>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line187">line 187</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -1569,39 +1538,39 @@ the event passed to it.</p>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
         </dl>
     
+
     
-    
-    
+
     
         <h3 class="subsection-title">Events</h3>
-        
+
         <dl>
             
 <dt>
     <h4 class="name" id="event:disabled">disabled</h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Emitted when the action is disabled.</p>
@@ -1609,56 +1578,53 @@ the event passed to it.</p>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line55">line 55</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -1666,11 +1632,11 @@ the event passed to it.</p>
             
 <dt>
     <h4 class="name" id="event:enabled">enabled</h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Emitted when the action is enabled.</p>
@@ -1678,56 +1644,53 @@ the event passed to it.</p>
     
 
     
+
     
+
     
-    
-    
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="action.js.html">action.js</a>, <a href="action.js.html#line54">line 54</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -1735,7 +1698,7 @@ the event passed to it.</p>
     
 </article>
 
-</section>  
+</section>
 
 
 
@@ -1749,7 +1712,7 @@ the event passed to it.</p>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Oct 15 2014 16:18:12 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Oct 24 2014 16:24:40 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

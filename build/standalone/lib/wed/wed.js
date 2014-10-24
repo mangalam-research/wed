@@ -58,7 +58,7 @@ var closest = domutil.closest;
 
 var _indexOf = Array.prototype.indexOf;
 
-exports.version = "0.19.0";
+exports.version = "0.19.1";
 var version = exports.version;
 
 var getOriginalName = util.getOriginalName;
@@ -929,9 +929,9 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         if (evs.length === 1 && evs[0].params[0] === "enterStartTag") {
             transformation.insertElement(
                 this.data_updater, this.data_root, 0,
+                evs[0].params[1],
                 this.resolver.unresolveName(evs[0].params[1],
-                                            evs[0].params[2]),
-                attrs);
+                                            evs[0].params[2]), attrs);
         }
     }
     else {
@@ -3044,13 +3044,13 @@ Editor.prototype._findLocationInElementAt = function(node, x, y, text_ok) {
 
     var checkRange = checkRangeNormal;
 
-    if (browsers.MSIE) {
+    if (browsers.MSIE || (browsers.CHROME_37 && browsers.WINDOWS)) {
         //
         // IE is a special case. There would presumably be a way to
         // test for this by creating a multiline paragraph on the
         // screen and then checking what rectangles are
         // returned. Maybe a future version of wed will do this. For
-        // now, however, we use browsers.IE to determine that we are
+        // now, however, we use browsers.MSIE to determine that we are
         // running in IE and act accoringly.
         //
         // The problem being worked around here is what happens when
@@ -3071,6 +3071,10 @@ Editor.prototype._findLocationInElementAt = function(node, x, y, text_ok) {
         // rects. This way, any work that must be done to work around
         // IE's moronic return values is born only by those who use
         // IE.
+        //
+        // Chrome 37 on Windows suffers from a similar problem. Chrome
+        // 38 is fine. Chrome 36 is fine. See
+        // https://code.google.com/p/chromium/issues/detail?id=412127.
         //
         checkRange = checkRangeIE;
     }

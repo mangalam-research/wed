@@ -26,35 +26,35 @@
 
 
 <section>
-    
+
 <header>
     <h2>
     transformation
     </h2>
     
-</header>  
+</header>
 
 <article>
     <div class="container-overview">
     
-    
+
     
         
             <div class="description"><p>Transformation framework.</p></div>
         
-        
+
         
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
-    
+
     
     <dt class="tag-author">Author:</dt>
     <dd class="tag-author">
@@ -63,69 +63,66 @@
         </ul>
     </dd>
     
-    
+
     
     <dt class="tag-copyright">Copyright:</dt>
     <dd class="tag-copyright"><ul class="dummy"><li>2013, 2014 Mangalam Research Center for Buddhist Languages</li></ul></dd>
     
-    
+
     
     <dt class="tag-license">License:</dt>
     <dd class="tag-license"><ul class="dummy"><li>MPL 2.0</li></ul></dd>
     
+
     
+
     
+
     
+
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line1">line 1</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
-        
+
         
     
     </div>
+
     
+
     
+
     
-    
-    
-    
-    
+
     
         <h3 class="subsection-title">Classes</h3>
-        
+
         <dl>
             <dt><a href="module-transformation-Transformation.html">Transformation</a></dt>
             <dd></dd>
         </dl>
     
+
+     
+
     
+
     
-    
-    
-    
+
     
         <h3 class="subsection-title">Methods</h3>
-        
+
         <dl>
             
 <dt>
-    <h4 class="name" id="insertElement"><span class="type-signature">&lt;inner> </span>insertElement<span class="signature">(data_updater, parent, index, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
-    
+    <h4 class="name" id="insertElement"><span class="type-signature">&lt;inner> </span>insertElement<span class="signature">(data_updater, parent, index, ns, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Insert an element in a wed data tree.</p>
@@ -133,40 +130,40 @@
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>data_updater</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -175,30 +172,30 @@
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>A tree
 updater through which to update the DOM tree.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>parent</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -207,29 +204,29 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>Parent of the new node.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>index</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -238,29 +235,29 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>Offset in the parent where to insert the new node.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>ns</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -269,29 +266,60 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
+
+            <td class="description last"><p>The URI of the namespace to use for the new element.</p></td>
+        </tr>
+
+    
+
+        <tr>
             
+                <td class="name"><code>name</code></td>
             
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
             <td class="description last"><p>Name of the new element.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>attrs</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -300,73 +328,70 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>An object whose fields will become
 attributes for the new element.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line210">line 210</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -378,31 +403,31 @@ attributes for the new element.</p></td>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">Node</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="makeElement"><span class="type-signature">&lt;inner> </span>makeElement<span class="signature">(doc, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
-    
+    <h4 class="name" id="makeElement"><span class="type-signature">&lt;inner> </span>makeElement<span class="signature">(doc, ns, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Makes an element appropriate for a wed data tree.</p>
@@ -410,40 +435,40 @@ attributes for the new element.</p></td>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>doc</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -452,29 +477,60 @@ attributes for the new element.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
-            <td class="description last"><p>The document for which to make the element.x</p></td>
+
+            <td class="description last"><p>The document for which to make the element.</p></td>
         </tr>
-	
-	
-	
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ns</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The URI of the namespace to use for the new element.</p></td>
+        </tr>
+
+    
+
         <tr>
             
                 <td class="name"><code>name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -483,29 +539,29 @@ attributes for the new element.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>Name of the new element.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>attrs</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -514,73 +570,70 @@ attributes for the new element.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>An object whose fields will become
 attributes for the new element.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line226">line 226</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -592,19 +645,19 @@ attributes for the new element.</p></td>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">Node</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
@@ -612,11 +665,11 @@ attributes for the new element.</p></td>
             
 <dt>
     <h4 class="name" id="mergeWithNextHomogeneousSibling"><span class="type-signature">&lt;inner> </span>mergeWithNextHomogeneousSibling<span class="signature">(editor, node)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This function merges an element with a next element of the same
@@ -627,38 +680,38 @@ element being merged.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -667,22 +720,22 @@ element being merged.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The editor on which we are to
 perform the transformation.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -691,64 +744,61 @@ perform the transformation.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The element to merge with next.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line496">line 496</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -756,11 +806,11 @@ perform the transformation.</p></td>
             
 <dt>
     <h4 class="name" id="mergeWithPreviousHomogeneousSibling"><span class="type-signature">&lt;inner> </span>mergeWithPreviousHomogeneousSibling<span class="signature">(editor, node)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This function merges an element with a previous element of the same
@@ -771,38 +821,38 @@ element being merged.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -811,22 +861,22 @@ element being merged.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The editor on which we are to
 perform the transformation.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -835,64 +885,61 @@ perform the transformation.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The element to merge with previous.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line459">line 459</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -900,11 +947,11 @@ perform the transformation.</p></td>
             
 <dt>
     <h4 class="name" id="splitNode"><span class="type-signature">&lt;inner> </span>splitNode<span class="signature">(editor, node)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This function splits a node at the position of the caret. If the
@@ -914,38 +961,38 @@ raised.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -954,22 +1001,22 @@ raised.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The editor on which we are to
 perform the transformation.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -978,60 +1025,57 @@ perform the transformation.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The node to split.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line437">line 437</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
-    
+
     
     <h5>Throws:</h5>
     
@@ -1060,9 +1104,9 @@ perform the transformation.</p></td>
 
 
         
+
     
-    
-    
+
     
 </dd>
 
@@ -1070,11 +1114,11 @@ perform the transformation.</p></td>
             
 <dt>
     <h4 class="name" id="swapWithNextHomogeneousSibling"><span class="type-signature">&lt;inner> </span>swapWithNextHomogeneousSibling<span class="signature">(editor, node)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This function swaps an element with a next element of the same
@@ -1085,38 +1129,38 @@ being merged.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1125,22 +1169,22 @@ being merged.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The editor on which we are to
 perform the transformation.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1149,64 +1193,61 @@ perform the transformation.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The element to swap with next.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line539">line 539</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -1214,11 +1255,11 @@ perform the transformation.</p></td>
             
 <dt>
     <h4 class="name" id="swapWithPreviousHomogeneousSibling"><span class="type-signature">&lt;inner> </span>swapWithPreviousHomogeneousSibling<span class="signature">(editor, node)</span><span class="type-signature"></span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>This function swaps an element with a previous element of the same
@@ -1229,38 +1270,38 @@ element being merged.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1269,22 +1310,22 @@ element being merged.</p>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The editor on which we are to
 perform the transformation.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1293,64 +1334,61 @@ perform the transformation.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The element to swap with previous.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line514">line 514</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
+
     
-    
-    
-    
+
     
 </dd>
 
@@ -1358,11 +1396,11 @@ perform the transformation.</p></td>
             
 <dt>
     <h4 class="name" id="unwrap"><span class="type-signature">&lt;inner> </span>unwrap<span class="signature">(data_updater, node)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
-    
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Replaces an element with its contents.</p>
@@ -1370,38 +1408,38 @@ perform the transformation.</p></td>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>data_updater</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1410,22 +1448,22 @@ perform the transformation.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>A tree
 updater through which to update the DOM tree.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1434,62 +1472,59 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last"><p>The element to unwrap.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line389">line 389</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -1501,31 +1536,31 @@ updater through which to update the DOM tree.</p></td>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">Array.&lt;Node></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="wrapInElement"><span class="type-signature">&lt;inner> </span>wrapInElement<span class="signature">(data_updater, start_container, start_offset, end_container, end_offset, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
-    
+    <h4 class="name" id="wrapInElement"><span class="type-signature">&lt;inner> </span>wrapInElement<span class="signature">(data_updater, start_container, start_offset, end_container, end_offset, ns, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Wraps a well-formed span in a new element. This span can contain
@@ -1534,40 +1569,40 @@ text and element nodes.</p>
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>data_updater</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1576,30 +1611,30 @@ text and element nodes.</p>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>A tree
 updater through which to update the DOM tree.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>start_container</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1608,29 +1643,29 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>The node where to start wrapping.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>start_offset</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1639,29 +1674,29 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>The offset where to start wrapping.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>end_container</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1670,29 +1705,29 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>The node where to end wrapping.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>end_offset</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1701,29 +1736,29 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>The offset where to end wrapping.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>ns</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1732,29 +1767,60 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
+
+            <td class="description last"><p>The URI of the namespace to use for the new element.</p></td>
+        </tr>
+
+    
+
+        <tr>
             
+                <td class="name"><code>name</code></td>
             
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
             <td class="description last"><p>The name of the new element.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>attrs</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1763,71 +1829,68 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>An object whose fields will become
 attributes for the new element.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line336">line 336</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
-    
+
     
     <h5>Throws:</h5>
     
@@ -1857,7 +1920,7 @@ internal error.
 
 
         
-    
+
     
     <h5>Returns:</h5>
     
@@ -1869,31 +1932,31 @@ internal error.
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">Node</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="wrapTextInElement"><span class="type-signature">&lt;inner> </span>wrapTextInElement<span class="signature">(data_updater, node, offset, end_offset, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
-    
+    <h4 class="name" id="wrapTextInElement"><span class="type-signature">&lt;inner> </span>wrapTextInElement<span class="signature">(data_updater, node, offset, end_offset, ns, name, <span class="optional">attrs</span>)</span><span class="type-signature"> &rarr; {Node}</span></h4>
+
     
 </dt>
 <dd>
-    
+
     
     <div class="description">
         <p>Wraps a span of text in a new element.</p>
@@ -1901,40 +1964,40 @@ internal error.
     
 
     
+
     
-    
-    
+
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>data_updater</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1943,30 +2006,30 @@ internal error.
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>A tree
 updater through which to update the DOM tree.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>node</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1975,29 +2038,29 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>The DOM node where to wrap. Must be a text node.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>offset</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -2006,30 +2069,30 @@ updater through which to update the DOM tree.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>Offset in the node. This parameter
 specifies where to start wrapping.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>end_offset</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -2038,30 +2101,30 @@ specifies where to start wrapping.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>Offset in the node. This parameter
 specifies where to end wrapping.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>ns</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -2070,29 +2133,60 @@ specifies where to end wrapping.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
+
+            <td class="description last"><p>The URI of the namespace to use for the new element.</p></td>
+        </tr>
+
+    
+
+        <tr>
             
+                <td class="name"><code>name</code></td>
             
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
             <td class="description last"><p>Name of the wrapping element.</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>attrs</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -2101,73 +2195,70 @@ specifies where to end wrapping.</p></td>
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
+
             <td class="description last"><p>An object whose fields will become
 attributes for the new element.</p></td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
     
-    
+
     
 <dl class="details">
     
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line255">line 255</a>
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
+
     
 </dl>
 
+
     
+
     
 
     
 
     
+
     
-    
-    
+
     
     <h5>Returns:</h5>
     
@@ -2179,31 +2270,31 @@ attributes for the new element.</p></td>
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">Node</span>
 
 
-	</dd>
+    </dd>
 </dl>
 
         
-    
+
     
 </dd>
 
         </dl>
     
+
     
-    
-    
+
     
 </article>
 
-</section>  
+</section>
 
 
 
@@ -2217,7 +2308,7 @@ attributes for the new element.</p></td>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Oct 15 2014 16:18:15 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Oct 24 2014 16:24:43 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>
