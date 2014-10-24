@@ -4,6 +4,22 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.19.1:
+
+  - Fixed a major bug with serialization. There is a bug in the way
+    Chrome serializes nodes that do not have a namespace set on
+    them. This Chrome bug masked a bug in wed. Firefox serializes
+    correctly and so wed's bug would manifest itself in Firefox but
+    not Chrome.
+
+  - API: ``transformation.makeElement``,
+    ``transformation.wrapInElement``,
+    ``transformation.wrapTextInElement`` and
+    ``transformation.insertElement`` take an additional ``ns``
+    parameter which is the URI of the namespace for the element to be
+    created. Their ``name`` parameter must be the prefixed name of
+    the element to create.
+
 * 0.19.0:
 
   - API: Modes can now implement ``getValidator`` to return a validator to

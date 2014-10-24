@@ -9,13 +9,13 @@
 SAXON?=saxon
 
 # jsdoc command.
-JSDOC3?=jsdoc
+JSDOC3?=node_modules/.bin/jsdoc
 
 # wget command.
 WGET?=wget
 
 # jsdoc3 templates
-JSDOC3_DEFAULT_TEMPLATE?=$(dir $(JSDOC3))/templates/default
+JSDOC3_DEFAULT_TEMPLATE?=node_modules/jsdoc/templates/default
 
 ifeq ($(wildcard $(JSDOC3_DEFAULT_TEMPLATE)),)
 $(error JSDOC3_DEFAULT_TEMPLATE must be set to the path of jsdoc3's default template)
@@ -138,6 +138,13 @@ build-dir:
 # use a per-target variable assignment then the :: targets don't work.
 #
 gh-pages-build:
+	@if [ `git rev-parse --abbrev-ref HEAD`!="master" ]; then \
+	    echo "***"; \
+	    echo "Not on master branch. Don't build gh-pages-build on"; \
+	    echo "a branch other than master."; \
+	    echo "***"; \
+	    exit 1; \
+	fi
 	$(MAKE) -f build.mk BUILD_DEPLOYMENT_TARGET:=$@ DEPLOYMENT_INCLUDES_DOC=1 build-deployment
 
 .PHONY: build-deployment
