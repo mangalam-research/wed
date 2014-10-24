@@ -441,32 +441,41 @@ _BROWSER_TO_VALUES = {
     "CHROME": {
         u"CHROME": True,
         u"CHROME_31": False,
+        u"CHROME_37": False,
         u"FIREFOX": False,
+        u"FIREFOX_24": False,
         u"GECKO": False,
         u"MSIE_TO_10": False,
         u"MSIE_11_AND_UP": False,
         u"MSIE": False,
         u"OSX": False,
+        u"WINDOWS": False,
     },
     "FIREFOX": {
         u"CHROME": False,
         u"CHROME_31": False,
+        u"CHROME_37": False,
         u"FIREFOX": True,
+        u"FIREFOX_24": False,
         u"GECKO": True,
         u"MSIE_TO_10": False,
         u"MSIE_11_AND_UP": False,
         u"MSIE": False,
         u"OSX": False,
+        u"WINDOWS": False,
     },
     "INTERNETEXPLORER": {
         u"CHROME": False,
         u"CHROME_31": False,
+        u"CHROME_37": False,
         u"FIREFOX": False,
+        u"FIREFOX_24": False,
         u"GECKO": False,
         u"MSIE_TO_10": False,
         u"MSIE_11_AND_UP": False,
         u"MSIE": True,
         u"OSX": False,
+        u"WINDOWS": False,
     }
 }
 
@@ -511,14 +520,20 @@ def step_impl(context):
     if config.browser == "CHROME":
         if config.version == "31":
             expected_values[u"CHROME_31"] = True
+        elif config.version == "37":
+            expected_values[u"CHROME_37"] = True
     elif config.browser == "INTERNETEXPLORER":
         if int(config.version) <= 10:
             expected_values[u"MSIE_TO_10"] = True
         else:
             expected_values[u"MSIE_11_AND_UP"] = True
+    elif config.browser == "FIREFOX" and config.version == "24":
+        expected_values[u"FIREFOX_24"] = True
 
     if config.platform.startswith("OS X "):
         expected_values[u"OSX"] = True
+    elif config.platform.startswith("WINDOWS "):
+        expected_values[u"WINDOWS"] = True
 
     assert_equal(browsers, expected_values)
     for result in match_tests:

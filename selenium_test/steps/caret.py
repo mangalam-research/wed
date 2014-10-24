@@ -499,10 +499,18 @@ def step_impl(context, what):
 def step_impl(context):
     driver = context.driver
 
-    p = driver.find_elements_by_css_selector(".body>.p")[6]
+    distance_test, p, start_label, end_label = driver.execute_script("""
+    var p = document.querySelectorAll(".body>.p")[6];
+    var start_label = p.querySelector(".__start_label._p_label");
+    var end_label = p.querySelector(".__end_label._p_label");
+    var start_rect = start_label.getBoundingClientRect();
+    var end_rect = end_label.getBoundingClientRect();
+    // A minium distance of 20 pixels is an arbitrary minimum.
+    return [end_rect.top > start_rect.bottom + 20, p, start_label, end_label];
+    """)
 
-    start_label = p.find_element_by_css_selector(".__start_label._p_label")
-    end_label = p.find_element_by_css_selector(".__end_label._p_label")
+    assert_true(distance_test, "the labels are not at the desired distance")
+
     end_label.click()
 
     # Both must be displayed.
@@ -510,29 +518,6 @@ def step_impl(context):
                 "the start label should be visible")
     assert_true(end_label.is_displayed(), "the end label should be visible")
 
-    ActionChains(driver) \
-        .click(start_label) \
-        .send_keys([Keys.ARROW_RIGHT]) \
-        .perform()
-    start_pos = wedutil.caret_screen_pos(driver)
-
-    ActionChains(driver) \
-        .click(end_label) \
-        .send_keys([Keys.ARROW_LEFT]) \
-        .perform()
-    end_pos = wedutil.caret_screen_pos(driver)
-
-    assert_not_equal(start_pos["top"], end_pos["top"],
-                     "start and end should be on different lines")
-
-    # Click in the middle of the paragraph
-    p.click()
-    mid_pos = wedutil.caret_screen_pos(driver)
-
-    assert_not_equal(start_pos["top"], mid_pos["top"],
-                     "the middle should be on a different line than the start")
-    assert_not_equal(end_pos["top"], mid_pos["top"],
-                     "the end should be on a different line than the top")
     context.multiline_paragraph = p
 
 
