@@ -15,13 +15,7 @@ from ..util import get_element_parent_and_parent_text
 # pylint: disable=E0102
 
 
-def no_before_unload(context):
-    # IE 9 does not like setting onbeforeunload to undefined. So...
-    context.driver.execute_script("window.onbeforeunload = function () {};")
-
-
 def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
-    no_before_unload(context)
     driver = context.driver
     util = context.util
     builder = context.selenic
@@ -427,7 +421,6 @@ def step_impl(context):
 
 @given("the platform variation page is loaded")
 def step_impl(context):
-    no_before_unload(context)
     config = context.selenic.config
     context.driver.get(context.selenic.WED_SERVER +
                        "/platform_test.html?platform=" +
@@ -538,3 +531,27 @@ def step_impl(context):
     assert_equal(browsers, expected_values)
     for result in match_tests:
         assert_true(result[u"result"], result[u"name"] + " should be true")
+
+
+@when(ur'^the user reloads$')
+def step_impl(context):
+    context.driver.refresh()
+
+
+@then(ur'^(?P<what>an alert|a reload prompt) with the text "(?P<text>.*?)" '
+      ur'comes up$')
+def step_impl(context, what, text):
+    # Firefox does not allow changing the text of the prompt. So we
+    # don't test for it. There is currently a bug in IEDriver. The IE
+    # exclusion should be revisited some time after we upgrade to 2.44
+    # or later. The FF exception probably won't ever be lifted.
+    if what == "a reload prompt" and \
+       (context.util.firefox or context.util.ie):
+        return
+
+    assert_equal(context.driver.switch_to.alert.text, text)
+
+
+@when(ur'^the user dismisses the alert$')
+def step_imp(context):
+    context.driver.switch_to.alert.accept()

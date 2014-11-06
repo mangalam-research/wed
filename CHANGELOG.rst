@@ -4,6 +4,12 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.19.2:
+
+  - If the document is not in a modified state wed now turns off the
+    prompt that would be otherwise displayed when the user tries to
+    leave the page.
+
 * 0.19.1:
 
   - Fixed a major bug with serialization. There is a bug in the way

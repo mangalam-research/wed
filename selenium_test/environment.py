@@ -136,6 +136,8 @@ def after_scenario(context, _scenario):
         assert_raises(TimeoutException, util.find_element,
                       (By.CLASS_NAME, "wed-fatal-modal"))
 
+    context.driver.execute_script("window.onbeforeunload = function () {};")
+
     # Close all extra tabs.
     for handle in driver.window_handles:
         if handle != context.initial_window_handle:
