@@ -4,11 +4,17 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
-* 0.19.2:
+* 0.20.0:
+
+  - The wed demo now has an option for storing files locally. This
+    allows using wed without a server.
 
   - If the document is not in a modified state wed now turns off the
     prompt that would be otherwise displayed when the user tries to
     leave the page.
+
+  - Fixed serialization bug: on IE, the top node would get
+    an extra `xmlns` attribute.
 
 * 0.19.1:
 
