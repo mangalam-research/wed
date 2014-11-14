@@ -67,8 +67,8 @@ config = Config("Windows 8.1", "CHROME", "37", caps, remote=True)
 
 # ESR
 config = Config("Windows 8.1", "FIREFOX", "31", caps, remote=True)
-# Previous ESR
-config = Config("Windows 8.1", "FIREFOX", "24", caps, remote=True)
+# Previous ESR: Nope. FF24 fails. Not worth keeping up so it is gone...
+# config = Config("Windows 8.1", "FIREFOX", "24", caps, remote=True)
 
 config = Config("Windows 8", "INTERNETEXPLORER", "10", caps, remote=True)
 config = Config("Windows 8.1", "INTERNETEXPLORER", "11", caps, remote=True)
@@ -91,8 +91,7 @@ config = Config("OS X 10.9", "CHROME", "37", caps, remote=True)
 #
 # FF does not support native events in OS X.
 #
-# config = Config("OS X 10.6", "FIREFOX", "26", caps, remote=True)
-# config = Config("OS X 10.6", "FIREFOX", "27", caps, remote=True)
+# config = Config("OS X 10.6", "FIREFOX", "..", caps, remote=True)
 #
 # Just fails:
 #
