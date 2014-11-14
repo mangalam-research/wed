@@ -138,7 +138,8 @@ build-dir:
 # use a per-target variable assignment then the :: targets don't work.
 #
 gh-pages-build:
-	@if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then \
+	@if [ `git rev-parse --abbrev-ref HEAD` != "master" -a \
+	      -z "$(FORCE_GH_PAGES_BUILD)" ]; then \
 	    echo "***"; \
 	    echo "Not on master branch. Don't build gh-pages-build on"; \
 	    echo "a branch other than master."; \

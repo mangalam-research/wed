@@ -964,25 +964,6 @@ might result in 5-6 mutations of the DOM tree, and there is no simple
 way to know that these 5-6 mutations were all initiated by a single
 key.
 
-Memory Leaks
-------------
-
-There seems to be a small memory leak upon reloading a window with wed
-in it.
-
-Tests performed with Chrome's memory profiler by doing:
-
-1. One load,
-2. issuing a memory profile,
-3. reload, and
-4. issuing a memory profile
-
-show that the whole Walker tree created before the first profile is
-created still exists at the time of the second profile. Upon reload,
-wed stops all MutationObservers, removes all event handlers, and
-deletes the data structure of the document being edited. We do not know
-of a good explanation for the leak.
-
 Historical Notes
 ================
 
