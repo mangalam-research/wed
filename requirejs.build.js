@@ -29,7 +29,9 @@
                 "log4javascript",
                 "jquery.bootstrap-growl",
                 "pubsub-js",
-                "lodash"
+                "lodash",
+                "localforage",
+                "angular"
             ]
         }
     ],

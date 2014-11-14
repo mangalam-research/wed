@@ -136,6 +136,40 @@ def after_scenario(context, _scenario):
         assert_raises(TimeoutException, util.find_element,
                       (By.CLASS_NAME, "wed-fatal-modal"))
 
+    context.driver.execute_async_script("""
+    var done = arguments[0];
+
+    window.onbeforeunload = function () {};
+
+    // This clears localforage on pages where it has been loaded
+    // and configured by Wed code. We detect this by checking whether the
+    // saver has been loaded.
+    if (require.defined("wed/savers/localforage")) {
+        var lf = require("localforage");
+        var saver = require("wed/savers/localforage");
+        saver.config();
+        lf.clear().then(function () {
+            // This rigmarole is required to work around a bug in IndexedDB.
+            //
+            // See https://github.com/mozilla/localForage/issues/154
+            //
+            // We're basically polling until the length of the database is 0.
+            //
+            function check() {
+                lf.length(function (length) {
+                    if (length)
+                        setTimeout(check, 100);
+                    else
+                        done();
+                });
+            }
+            check();
+        });
+    }
+    else
+        done();
+    """)
+
     # Close all extra tabs.
     for handle in driver.window_handles:
         if handle != context.initial_window_handle:
@@ -179,4 +213,6 @@ def after_all(context):
     if not ((selenium_quit == "never") or
             (context.failed and selenium_quit == "on-success")):
         driver.quit()
+    if context.selenic.post_execution:
+        context.selenic.post_execution()
     dump_config()

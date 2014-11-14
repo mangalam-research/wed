@@ -138,7 +138,8 @@ build-dir:
 # use a per-target variable assignment then the :: targets don't work.
 #
 gh-pages-build:
-	@if [ `git rev-parse --abbrev-ref HEAD`!="master" ]; then \
+	@if [ `git rev-parse --abbrev-ref HEAD` != "master" -a \
+	      -z "$(FORCE_GH_PAGES_BUILD)" ]; then \
 	    echo "***"; \
 	    echo "Not on master branch. Don't build gh-pages-build on"; \
 	    echo "a branch other than master."; \
@@ -205,7 +206,7 @@ build/config/nginx.conf:
 
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js
 
 ifndef NO_NEW_BUILDINFO
 # Force rebuilding
@@ -220,7 +221,7 @@ build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
 build/standalone/%.html: web/%.html
 	cp $< $@
 
-build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html build/standalone-optimized/platform_test.html
+build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html build/standalone-optimized/platform_test.html build/standalone-optimized/files.html
 
 build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
 	cp $< $@
@@ -419,6 +420,18 @@ endif
 	touch $@
 
 build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js | build/standalone/lib/external
+	cp $< $@
+
+build/standalone/lib/external/localforage.js: node_modules/localforage/dist/localforage.js | build/standalone/lib/external
+	cp $< $@
+
+build/standalone/lib/external/async.js: node_modules/async/lib/async.js | build/standalone/lib/external
+	cp $< $@
+
+build/standalone/lib/external/angular.js: node_modules/angular/angular.js | build/standalone/lib/external
+	cp $< $@
+
+build/standalone/lib/external/bootbox.js: node_modules/bootbox.js/bootbox.js | build/standalone/lib/external
 	cp $< $@
 
 build/standalone/lib/external/xregexp.js: node_modules/salve/node_modules/xregexp/xregexp-all.js | build/standalone/lib/external

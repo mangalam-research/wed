@@ -1,5 +1,18 @@
-Wed
-===
+Testing
+=======
+
+The testing system is rather complicated. Things that would make life
+easier:
+
+1. Reduce the number of methods by which tests must be run from 3 to 2
+   or 1.
+
+2. Add support for continuous integration. Either by finding a way to
+   run all the tests on Travis or having support for some sort of
+   Jenkins setup.
+
+Wed Itself
+==========
 
 Store the Caret as a (Path, Offset) Pair
 ----------------------------------------

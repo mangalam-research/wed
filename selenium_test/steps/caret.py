@@ -89,7 +89,7 @@ def step_impl(context):
     last_click = context.last_click
     caret_pos = wedutil.caret_selection_pos(driver)
 
-    assert_equal(selenic.util.locations_within(caret_pos, last_click, 2), "")
+    assert_equal(selenic.util.locations_within(caret_pos, last_click, 3), "")
 
 
 @then(ur"^the caret is at the last position before the focus was lost\.?$")

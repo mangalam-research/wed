@@ -80,6 +80,11 @@ if (build.modules) {
 
 config.paths = path_config;
 
+config.bundles = {
+    "wed/wed": ["wed/log", "wed/onerror", "wed/savers/localforage",
+                "wed/browsers"]
+};
+
 // Node that this serialization does not preserve functions that could
 // have originally appeared in the runtime configuration. However, our
 // current use of RequireJS does not require that such functions be

@@ -1,10 +1,11 @@
 Basic Usage
 ===========
 
-Wed is a web-based editor that assists users in editing XML documents
-according to their own Relax NG schema. It runs in a web browser. It
-is alpha software. We aim to make it extensible, but the API is likely
-to change until we hit version 1.0.0.
+Wed is a schema-aware editor for XML documents. It runs in a web
+browser. The software is at the beta stage. It is being used in a
+project for editing scholarly articles. We aim to make it extensible
+by means of a stable API, but the API is likely to change quickly for
+now.
 
 Known limitations:
 
@@ -43,6 +44,14 @@ Known limitations:
   declare them once and for all on the top element, and never change
   them throughout the document. Otherwise, problems are likely.
 
+  [A significant issue here is that the various browsers do not handle
+  namespaces in the same way. For instance FF and Chrome are
+  absolutely fine if you specify ``xmlns`` with DOM's ``setAttribute`` on
+  an element that is on the same namespace as the namespace specified
+  with the new ``xmlns`` attribute and they will produce a correct
+  serialization. IE, on the other hand, will produce a node with two
+  ``xmlns`` attributes.]
+
 * We've not tested a setup in which more than one wed instance appears
   on the same page.
 
@@ -65,12 +74,14 @@ Known limitations:
 
 * See also `Browser Requirements`_.
 
+.. _usage_browser_requirements:
+
 Browser Requirements
 ====================
 
 Wed is primarily developed using a recent version of Chrome (version
-36; versions 26-35 have also been used earlier) and a recent version
-of Firefox (version 28; versions 20-27 have also been used earlier)
+38; versions 26-37 have also been used earlier) and a recent version
+of Firefox (version 31; versions 20-30 have also been used earlier)
 for testing. (But see a note about Chrome 34 below.) The fact that wed
 is developed using these browsers influences the severity and
 frequency of bugs you can expect to run into.
@@ -78,9 +89,21 @@ frequency of bugs you can expect to run into.
 Here is the list of officially supported browsers, in order of
 decreasing priority:
 
-* Chrome 36 and higher and Firefox 28 and higher, about equally.
+* Chrome 38 and higher and Firefox 31 and higher, about equally.
+
+* The current ESR (Extended Support Release) of Firefox, which is
+  Firefox 31 at the time of writing.
 
 * IE 10 and 11, about equally.
+
+* Relatively recent versions of Chrome and Firefox: older than the
+  latest releases but not very old. (Yeah, this is vague. Sorry about
+  that.) In the case of Firefox this means versions newer than the
+  current ESR but older than the latest release.
+
+* The previous ESR of Firefox, provided it does not cause too much of
+  a burden. (Support for FF24 was dropped due to this: there was an
+  obscure bug that was not worth fighting against.)
 
 File an issue on github if you find a problem with one of the
 supported browsers above.
@@ -90,14 +113,16 @@ of development resources, such support is unlikely to materialize
 soon. In decreasing order of likelihood, the following cases are
 unlikely to ever be supported:
 
+* Versions of Chrome and Firefox older than those mentioned above.
+
 * Chrome 34: the luminaries at Google decided to remove
   ``Attr.ownerElement`` from Chrome 34. It was reintroduced in
   Chrome 35.
 
 * IE 9. We'd need a) a substantial demand for it and b) people willing
-  to participate in providing support.
-
-* Versions of Chrome and Firefox older than those mentioned above.
+  to participate in providing support. As time goes by, wed is
+  accumulating features that are not supported natively in IE 9, so
+  this possibility is becoming more and more remote.
 
 * IE 8 and earlier.
 
@@ -148,14 +173,13 @@ If you desire that wed be actually tested on Safari and are in a
 position to contribute substantial monetary or technical resources
 towards this goal, you are welcome to contact us. In particular,
 immediate problem we've run into when trying to test on Safari is this
-[Selenium
-issue](http://code.google.com/p/selenium/issues/detail?id=4136). If
-you want fix it, then this would bring us one step closer to being
-able to test wed on Safari. And regarding the state of Selenium
-support for Safari, take note this response from a Selenium project
-member:
+`Selenium issue
+<http://code.google.com/p/selenium/issues/detail?id=4136>`__. If you
+want fix it, then this would bring us one step closer to being able to
+test wed on Safari. And regarding the state of Selenium support for
+Safari, take note this response from a Selenium project member:
 
-> Safari is not a priority, sorry. But your patches are welcome!
+ Safari is not a priority, sorry. But your patches are welcome!
 
 Absent these patches, wed is unlikely to support Safari.
 
@@ -246,11 +270,20 @@ Testing
 
 See :doc:`tech_notes`.
 
-Local Demo
-==========
+Local Demos
+===========
 
-To see the local demo, you must have a minimal server running just
-like the one needed to run the browser-dependent test suite (see the
+Demo Saving to Local Storage
+----------------------------
+
+The demo that uses your own browser's local storage is ready to use
+once wed is built.
+
+Demos Saving to a Server
+------------------------
+
+To see this demo, you must have a minimal server running just like the
+one needed to run the browser-dependent test suite (see the
 :ref:`tech_notes_in_browser_tests` section in :doc:`tech_notes`) and
 then point your browser to either:
 
@@ -322,7 +355,7 @@ Wed allows the user to reduce or increase the number of element
 labeled on the screen. How this works is dependent in part on the
 specific mode that the user has selected. For instance, the default
 mode that comes with wed (the "generic" mode) knows only two levels of
-visiblity: 0 and 1. At level 0, no elements are labeled. At level 1,
+visibility: 0 and 1. At level 0, no elements are labeled. At level 1,
 all elements are labeled. A mode with levels 0, 1, and 2 would label
 all elements at level 2, no elements at level 0 and some elements at
 level 1. Which elements are labeled depends on how the mode designer
@@ -456,4 +489,6 @@ work.
 ..  LocalWords:  perl chai semver json Makefile saxon selenic nginx
 ..  LocalWords:  glerbl subdirectory README html CHANGELOG TEI Ctrl
 ..  LocalWords:  RequireJS's unoptimized ajax txt tei hoc xml xsl rng
-..  LocalWords:  schemas init onerror CDATA versa LocalWords
+..  LocalWords:  schemas init onerror CDATA versa LocalWords xmlns
+..  LocalWords:  multiline DOM's setAttribute ESR Attr ownerElement
+..  LocalWords:  globalKeydownHandler ajaxlog jQuery's

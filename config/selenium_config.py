@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import json
 
@@ -66,8 +67,8 @@ config = Config("Windows 8.1", "CHROME", "37", caps, remote=True)
 
 # ESR
 config = Config("Windows 8.1", "FIREFOX", "31", caps, remote=True)
-# Previous ESR
-config = Config("Windows 8.1", "FIREFOX", "24", caps, remote=True)
+# Previous ESR: Nope. FF24 fails. Not worth keeping up so it is gone...
+# config = Config("Windows 8.1", "FIREFOX", "24", caps, remote=True)
 
 config = Config("Windows 8", "INTERNETEXPLORER", "10", caps, remote=True)
 config = Config("Windows 8.1", "INTERNETEXPLORER", "11", caps, remote=True)
@@ -90,8 +91,7 @@ config = Config("OS X 10.9", "CHROME", "37", caps, remote=True)
 #
 # FF does not support native events in OS X.
 #
-# config = Config("OS X 10.6", "FIREFOX", "26", caps, remote=True)
-# config = Config("OS X 10.6", "FIREFOX", "27", caps, remote=True)
+# config = Config("OS X 10.6", "FIREFOX", "..", caps, remote=True)
 #
 # Just fails:
 #
@@ -122,7 +122,22 @@ if config.browser == "CHROME":
 profile = FirefoxProfile()
 # profile.set_preference("webdriver.log.file", "/tmp/firefox_webdriver.log")
 # profile.set_preference("webdriver.firefox.logfile", "/tmp/firefox.log")
+
+#
+# This turns off the downloading prompt in FF.
+#
+tmp_path = "selenium_tests/tmp"
+shutil.rmtree(tmp_path, True)
+os.makedirs(tmp_path)
+profile.set_preference("browser.download.folderList", 2)
+profile.set_preference("browser.download.manager.showWhenStarting", False)
+profile.set_preference("browser.download.dir", tmp_path)
+profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
 FIREFOX_PROFILE = profile
+
+
+def post_execution():
+    shutil.rmtree(tmp_path, True)
 
 # May be required to get native events.
 # FIREFOX_BINARY = FirefoxBinary("/home/ldd/src/firefox-24/firefox")

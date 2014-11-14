@@ -1,3 +1,7 @@
+import wedutil
+from selenium.webdriver.common.action_chains import ActionChains
+
+
 class Trigger(object):
     util = None
     el = None
@@ -90,3 +94,36 @@ def get_real_siblings(driver, element):
     """, element)
 
     return (preceding, following)
+
+
+def wait_for_editor(context, tooltips=False):
+    util = context.util
+    driver = context.driver
+    builder = context.selenic
+    wedutil.wait_for_editor(util)
+
+    context.origin_object = driver.execute_script("""
+    var tooltips = arguments[0];
+    if (!tooltips) {
+        // Turn off tooltips
+        wed_editor.preferences.set("tooltips", false);
+
+        // Delete all tooltips.
+        jQuery(".tooltip").remove();
+    }
+
+    // This is bullshit to work around a Selenium limitation.
+    jQuery("body").append(
+        '<div id="origin-object" style=' +
+        '"position: fixed; top: 0px; left: 0px; width:1px; height:1px;"/>');
+    return jQuery("#origin-object")[0];
+    """, tooltips)
+
+    # For some reason, FF does not get focus automatically.
+    # This counters the problem.
+    if builder.config.browser == "FIREFOX":
+        body = driver.find_element_by_css_selector(".wed-document")
+        ActionChains(driver) \
+            .move_to_element_with_offset(body, 1, 1) \
+            .click() \
+            .perform()

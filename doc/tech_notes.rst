@@ -162,20 +162,39 @@ Saving
 Wed saves documents using Ajax queries to a server. Where wed saves is
 determined by the ``save`` option. It is of the form::
 
-  save: {
-      url: "...",
-      headers: { ... }
-      autosave: ...,
-      initial_etag: ...,
-  }
+    save: {
+        path: "...",
+        options: {
+        }
+    }
 
-The ``url`` parameter is the URL where wed will send the Ajax queries
-for saving. The ``headers`` parameter is as described above for
-logging. The ``autosave`` parameter is a number of seconds between
-autosaves. Setting it to 0 will turn off autosaving. Wed will autosave
-only if it detects that the document has been changed since the last
-save. The ``initial_etag`` parameter is the ``ETag`` of the document being
-loaded.
+The ``path`` parameter is the path to the module that implements the
+``Saver`` abstract class. The two choices for now are
+``wed/savers/ajax`` and ``wed/savers/localforage``.
+
+Ajax Saver
+~~~~~~~~~~
+
+The Ajax saver requires a server that understands the wire protocol
+used by this saver. The configuration for it is as follows::
+
+    save: {
+        path: "wed/savers/ajax",
+        options: {
+            url: "...",
+            headers: { ... }
+            autosave: ...,
+            initial_etag: ...,
+        }
+    }
+
+The ``url`` option is required. It is the URL where wed will send the
+Ajax queries for saving. The ``headers`` option is as described above
+for logging. It is optional. The ``autosave`` option is a number of
+seconds between autosaves. It is optional. Setting it to 0 will turn
+off autosaving. Wed will autosave only if it detects that the document
+has been changed since the last save. The ``initial_etag`` option is
+the ``ETag`` of the document being loaded. It is required.
 
 Queries are sent as POST requests with the following parameters:
 
@@ -249,6 +268,23 @@ use this ``ETag`` to update the ``ETag`` it associates with its
 document, otherwise a subsequent save will (erroneously) go through.
 
 This may not correspond to how other systems use ``ETag``.
+
+Localforage Saver
+~~~~~~~~~~~~~~~~~
+
+This saver uses `localForage
+<https://github.com/mozilla/localForage>`_ to store the data in the
+browser. It is configured as follows::
+
+    save: {
+        path: "wed/savers/localforage",
+        options: {
+            name: "..."
+        }
+    }
+
+The ``name`` parameter is the name to use for saving the document in
+localForage. It is the "file name" of sorts of the document.
 
 Creating a Mode
 ===============
@@ -927,25 +963,6 @@ elements. In practice, a single keyboard key (like BACKSPACE) hit
 might result in 5-6 mutations of the DOM tree, and there is no simple
 way to know that these 5-6 mutations were all initiated by a single
 key.
-
-Memory Leaks
-------------
-
-There seems to be a small memory leak upon reloading a window with wed
-in it.
-
-Tests performed with Chrome's memory profiler by doing:
-
-1. One load,
-2. issuing a memory profile,
-3. reload, and
-4. issuing a memory profile
-
-show that the whole Walker tree created before the first profile is
-created still exists at the time of the second profile. Upon reload,
-wed stops all MutationObservers, removes all event handlers, and
-deletes the data structure of the document being edited. We do not know
-of a good explanation for the leak.
 
 Historical Notes
 ================
