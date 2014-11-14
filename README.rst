@@ -1,10 +1,13 @@
 Introduction
 ============
 
-Wed is a web-based editor that assists users in editing XML documents
-according to their own Relax NG schema. It runs in a web browser. It
-is alpha software. We aim to make it extensible, but the API is likely
-to change until we hit version 1.0.0.
+Wed is a schema-aware editor for XML documents. It runs in a web
+browser. The software is at the beta stage. It is being used in a
+project for editing scholarly articles. We aim to make it extensible
+by means of a stable API, but the API is likely to change quickly for
+now.
+
+Wed is tested on Chrome, Firefox and Internet Explorer.
 
 Our extensive documentation can be `read here
 <http://mangalam-research.github.io/wed/>`_.
@@ -48,4 +51,5 @@ for the Humanities.
 ..  LocalWords:  selectionsaverestore CHANGELOG RTL UI setTimeout rst
 ..  LocalWords:  nginx SauceLabs SauceLab's OpenSauce readme Glerbl
 ..  LocalWords:  reStructuredText namespace namespaces RequireJS NG
-..  LocalWords:  Dubeau Mangalam jsdoc perl selenic glerbl mk
+..  LocalWords:  Dubeau Mangalam jsdoc perl selenic glerbl mk Bethel
+..  LocalWords:  io
