@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &mdash; Wed v0.19.1 documentation</title>
+    <title>Introduction &mdash; Wed v0.20.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.19.1',
+        VERSION:     'v0.20.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.19.1 documentation" href="#" /> 
+    <link rel="top" title="Wed v0.20.0 documentation" href="#" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="#">Wed v0.19.1 documentation</a> &raquo;</li> 
+        <li><a href="#">Wed v0.20.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -46,28 +46,22 @@
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>Wed is a schema-aware editor for XML documents. It runs in a web
-browser. It is alpha software. We aim to make it extensible, but the
-API is likely to change quickly for now. Please see our <a class="reference internal" href="#documentation">Documentation</a>
-for details about how to use wed in your own project.</p>
+browser. The software is at the beta stage. It is being used in a
+project for editing scholarly articles. We aim to make it extensible
+by means of a stable API, but the API is likely to change quickly for
+now.</p>
+<p>Wed is tested on Chrome, Firefox and Internet Explorer.</p>
 </div>
-<div class="section" id="demo">
-<h1>Demo<a class="headerlink" href="#demo" title="Permalink to this headline">¶</a></h1>
-<p>You can run the demo with:</p>
-<ul class="simple">
-<li>an <a class="reference external" href="build/standalone/kitchen-sink.html">empty document</a> using a
-vanilla TEI schema.</li>
-<li><a class="reference external" href="build/standalone/kitchen-sink.html?file=/wed/build/samples/sketch_for_a_medical_education.xml">Sketch for a medical education</a>, a sample document from the
-Oxford Text Archive.</li>
-</ul>
-<p>Here are some limitations of the demo:</p>
-<ul class="simple">
-<li>Wed does not support old browsers, mobile devices, oddball, or
-unpopular browsers. Your notion of &#8220;old&#8221; might differ from ours.</li>
-<li>Wed will fail if you try to save. Rest assured that the saving
-functionality works, but it needs a server able to handle AJAX
-calls. Github.io is not able to do this.</li>
-<li>Autosave is turned off, for the reason given above.</li>
-</ul>
+<div class="section" id="demos">
+<h1>Demos<a class="headerlink" href="#demos" title="Permalink to this headline">¶</a></h1>
+<p>Wed can work with any schema (minus the limitations of
+salve). However, the wed is bundled with a single TEI schema that uses
+these TEI modules: <tt class="docutils literal"><span class="pre">tei</span></tt>, <tt class="docutils literal"><span class="pre">core</span></tt>, <tt class="docutils literal"><span class="pre">textstructure</span></tt> and
+<tt class="docutils literal"><span class="pre">header</span></tt>. So this is what the demo is currently limited to. (Future
+versions will allow loading arbitrary schemas.)</p>
+<p>Note that Wed does not support old browsers, mobile devices, oddball,
+or unpopular browsers. Your notion of &#8220;old&#8221; might differ from
+ours. See <a class="reference internal" href="usage.html#usage-browser-requirements"><em>Browser Requirements</em></a> section in <a class="reference internal" href="usage.html"><em>Basic Usage</em></a>.</p>
 <p>Things you can do:</p>
 <ul>
 <li><p class="first">Use the left mouse button to bring up a context menu. Such a menu
@@ -102,9 +96,33 @@ cut, the selected data will be deleted from the editing
 screen but will <strong>not</strong> be copied into the clipboard.</p>
 </div>
 </li>
-<li><p class="first">Using Ctrl-S to save does not work, for the reasons given above.</p>
+<li><p class="first">Using Ctrl-S to save <strong>works only in the demo that uses local storage</strong>.</p>
 </li>
 </ul>
+<div class="section" id="using-local-storage">
+<h2>Using Local Storage<a class="headerlink" href="#using-local-storage" title="Permalink to this headline">¶</a></h2>
+<p>You can run a demo that uses your browser&#8217;s own storage facilities to
+store documents. This demo does not come with documents, <strong>so you&#8217;d
+have to load one of your documents into it.</strong> Bear in mind the schema
+that wed currently supports. Point your browser <a class="reference external" href="build/standalone/files.html">here</a> to load this demo. You will then have
+to upload your file.</p>
+</div>
+<div class="section" id="using-a-server">
+<h2>Using a Server<a class="headerlink" href="#using-a-server" title="Permalink to this headline">¶</a></h2>
+<p>This demo is configured as if there was a server to receive the saved
+data. However, it is not possible to configure <tt class="docutils literal"><span class="pre">github.io</span></tt> to act as
+the kind of server needed for actually saving. <strong>Wed will fail if you
+try to save.</strong> Rest assured that the saving functionality works, but
+it needs a server able to handle AJAX calls. Github.io is not able to
+do this.</p>
+<p>It is configured to load:</p>
+<ul class="simple">
+<li>an <a class="reference external" href="build/standalone/kitchen-sink.html">empty document</a> using a
+vanilla TEI schema.</li>
+<li><a class="reference external" href="build/standalone/kitchen-sink.html?file=/wed/build/samples/sketch_for_a_medical_education.xml">Sketch for a medical education</a>, a sample document from the
+Oxford Text Archive.</li>
+</ul>
+</div>
 </div>
 <div class="section" id="documentation">
 <h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
@@ -149,7 +167,11 @@ represent those of the National Endowment for the Humanities.</p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Introduction</a></li>
-<li><a class="reference internal" href="#demo">Demo</a></li>
+<li><a class="reference internal" href="#demos">Demos</a><ul>
+<li><a class="reference internal" href="#using-local-storage">Using Local Storage</a></li>
+<li><a class="reference internal" href="#using-a-server">Using a Server</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#documentation">Documentation</a></li>
 <li><a class="reference internal" href="#downloads">Downloads</a></li>
 <li><a class="reference internal" href="#license">License</a></li>
@@ -184,7 +206,7 @@ represent those of the National Endowment for the Humanities.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="#">Wed v0.19.1 documentation</a> &raquo;</li> 
+        <li><a href="#">Wed v0.20.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

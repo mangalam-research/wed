@@ -8,135 +8,151 @@
 define(/** @lends module:saver */function (require, exports, module) {
 'use strict';
 
-var $ = require("jquery");
-var log= require("./log");
 var oop = require("./oop");
 var SimpleEventEmitter =
         require("./lib/simple_event_emitter").SimpleEventEmitter;
 var Conditioned = require("./lib/conditioned").Conditioned;
-require("jquery.bootstrap-growl");
+var browsers = require("./browsers");
 
 var AUTO = 1;
 var MANUAL = 2;
 
 /**
- * @classdesc A Saver is responsible for communicating with a server to save the
- * data edited by a wed editor.
+ * @classdesc A saver is responsible for saving a document's
+ * data. This class cannot be instantiated as-is, but only through
+ * subclasses.
+ *
  * @mixes module:lib/simple_event_emitter~SimpleEventEmitter
+ * @mixes module:lib/conditioned~Conditioned
+ *
+ * @emits module:saver~Saver#changed
  *
  * @constructor
- * @param {string} url The url location to POST save requests.
- * @param {Object} headers Headers to set on the POST request. This
- * may be necessary for cross domain request protection, for instance.
  * @param {string} version The version of wed for which this object is
  * created.
- * @param {string|undefined} initial_etag The initial ETag to use.
  * @param {module:tree_updater~TreeUpdater} data_updater The updater
  * that the editor created for its data tree.
  * @param {Node} data_tree The editor's data tree.
+ *
  */
-function Saver(url, headers, version, initial_etag, data_updater, data_tree) {
+function Saver(version, data_updater, data_tree) {
     // Call our mixin's constructors.
     SimpleEventEmitter.call(this);
     Conditioned.call(this);
-    this._url = url;
-    this._headers = headers;
+
+    /**
+     * The wed version for which this saver was created. This may be
+     * used to store version information together with the document
+     * being saved.
+     * @protected
+     * @readonly
+     */
     this._version = version;
+
+    /**
+     * The data updater with which the document to save is being updated.
+     * @private
+     * @readonly
+     */
     this._data_updater = data_updater;
+
+    /**
+     * The data tree of the document being updated.
+     * @protected
+     * @readonly
+     */
     this._data_tree = data_tree;
+
+    /**
+     * Subclasses must set this variable to true once they have
+     * finished with their initialization.
+     * @protected
+     */
     this._initialized = false;
+
+    /**
+     * Subclasses must set this variable to true if the saver is in a
+     * failed state.
+     * @protected
+     */
     this._failed = undefined;
+
+    /**
+     * The generation that is currently being edited.  It is
+     * mutable. Derived classes can read it but not modify it.
+     * @protected
+     */
     this._current_generation = 0;
+
+    /**
+     * The generation that has last been saved. Derived classes can
+     * read it but not modify it. It is mutable.
+     * @protected
+     */
     this._saved_generation = 0;
+
+    /**
+     * The date of last modification.
+     * @private
+     */
     this._last_modification = undefined;
+
+    /**
+     * The date of last save.
+     * @private
+     */
     this._last_save = undefined;
+
+    /**
+     * The last kind of save.
+     * @private
+     */
     this._last_save_kind = undefined;
+
+    /**
+     * The interval at which to autosave, in milliseconds.
+     * @private
+     */
     this._autosave_interval = undefined;
+
+    /**
+     * The current timeout object which will trigger an autosave. It
+     * has the value ``undefined`` if there is no current timeout.
+     * @private
+     */
     this._autosave_timeout = undefined;
-    // This value is saved with the double quotes around it so that we
-    // can just pass it to 'If-Match'.
-    this._etag = '"' + initial_etag + '"';
 
     data_updater.addEventListener("changed", function () {
         this._last_modification = Date.now();
         if (this._saved_generation === this._current_generation) {
             this._current_generation++;
+            /**
+             * This event is emitted when the saver detects that the
+             * document it is responsible for saving has changed in a
+             * way that makes it stale from the point of view of
+             * saving.
+             *
+             * Suppose that the document has been saved. Then a change
+             * is made. Upon this first change, this event is
+             * emitted. Then a change is made again. Since the
+             * document was *already* stale, this event is not emitted
+             * again.
+             *
+             * @event module:saver~Saver#changed
+             */
             this._emit("changed");
         }
     }.bind(this));
 
-    this._post({command: "check", version: version },
-              function (data) {
-        this._initialized = true;
-        this._setCondition("initialized");
-        this._failed = false;
-    }.bind(this), "json").fail(this._failure_wrapper(function () {
-        // This effectively aborts the editing session. This is okay,
-        // since there's a good chance that the issue is major.
-        throw new Error(
-            url +  " is not responding; saving is not possible.");
-    }.bind(this)));
-
+    /**
+     * The _autosave method, pre-bound to ``this``.
+     * @private
+     */
     this._bound_autosave = this._autosave.bind(this);
-
-    // Every 5 minutes.
-    this.setAutosaveInterval(5 * 60 * 1000);
 }
 
 oop.implement(Saver, SimpleEventEmitter);
 oop.implement(Saver, Conditioned);
-
-/**
- * A safety harness to detect when asynchronous operations fail. This
- * method will mark its <code>Saver</code> instance as failed.
- *
- * @private
- *
- * @param {Function} f The function to be wrapped.
- * @returns {Function} The wrapped function.
- */
-Saver.prototype._failure_wrapper = function(f) {
-    return log.wrap(function (jqXHR, textStatus, errorThrown) {
-        try {
-            // This is a case where a precondition failed.
-            if (jqXHR.status === 412) {
-                var error = {msg: "The document was edited by someone else.",
-                             type: "save_edited"};
-                this._emit("failed", error);
-                this._failed = true;
-                return undefined;
-            }
-            return f.apply(undefined, arguments);
-        }
-        catch (e) {
-            this._failed = true;
-            throw e;
-        }
-    }.bind(this));
-};
-
-
-/**
- * A safety harness to detect when asynchronous operations fail. This
- * method will mark its <code>Saver</code> instance as if the callback
- * throws an exception.
- *
- * @private
- *
- * @param {Function} f The function to be wrapped.
- * @returns {Function} The wrapped function.
- */
-Saver.prototype._success_wrapper = function(f) {
-    return log.wrap(function () {
-        try {
-            return f.apply(undefined, arguments);
-        }
-        catch (e) {
-            this._failed = true;
-            throw e;
-        }
-    }.bind(this));
-};
 
 /**
  * This method must be called when the user manually initiates a save.
@@ -145,75 +161,129 @@ Saver.prototype._success_wrapper = function(f) {
  * @param {Function} [done] A function to call once the save operation
  * has been completed. The function's first parameter is the error
  * encountered. It will be ``null`` if there is no error.
+ * @emits module:saver~Saver#failed
+ * @emits module:saver~Saver#saved
+ * @emits module:saver~Saver#autosaved
  */
 Saver.prototype.save = function (done) {
     this._save(false, done);
 };
 
-Saver.prototype._save = function (autosave, done) {
-    if (!this._initialized)
-        return;
-
-    // We must store this value now because a modifying operation
-    // could occur after the data is sent to the server but before we
-    // can be sure the data is saved.
-    var saving_generation = this._current_generation;
-
-    function success (data) {
-        /* jshint validthis:true */
-        var msgs = _get_messages(data);
-        if (!msgs)
-            throw new Error(
-                "The server accepted the save request but did " +
-                    "not return any information regarding whether the " +
-                    "save was successful or not.");
-
-        if (msgs.save_fatal_error)
-            throw new Error(
-                "The server was not able to save the data " +
-                    "due to a fatal error. Please contact technical " +
-                    "support before trying to edit again.");
-
-        if (msgs.save_transient_error) {
-            this._emit("failed", msgs.save_transient_error);
-            if (done)
-                done(msgs.save_transient_error);
-            return;
-        }
-
-        if (!msgs.save_successful)
-            throw new Error(
-                "Unexpected response from the server while saving. " +
-                    "Please contact technical support before trying to " +
-                    "edit again.");
-
-        if (msgs.version_too_old_error)
-            this._emit("too_old");
-
-        // If we get here, we've been successful.
-        this._saved_generation = saving_generation;
-        this._last_save = Date.now();
-        this._last_save_kind = autosave ? AUTO : MANUAL;
-        this._emit(autosave ? "autosaved" : "saved");
-        // This resets the countdown to now.
-        this.setAutosaveInterval(this._autosave_interval);
-        if (done)
-            done(null);
-    }
-
-    this._post({command: autosave ? "autosave" : "save",
-                version: this._version,
-                data: this._data_tree.innerHTML },
-               this._success_wrapper(success.bind(this)), "json").
-        fail(this._failure_wrapper(function () {
-            var error = {msg: "Your browser cannot contact the server",
-                         type: "save_disconnected"};
-            this._emit("failed", error);
-            if (done)
-                done(error);
-        }.bind(this)));
+/**
+ * This method is called when saving or autosaving. This is the method
+ * responsible for the implementation-specific details.
+ *
+ * @protected
+ * @abstract
+ *
+ * @param {boolean} autosave ``true`` if called by an autosave,
+ * ``false`` if not.
+ * @param {Function} [done] A function to call once the save operation
+ * has been completed. The function's first parameter is the error
+ * encountered. It will be ``null`` if there is no error.
+ * @emits module:saver~Saver#failed
+ * @emits module:saver~Saver#saved
+ * @emits module:saver~Saver#autosaved
+ */
+Saver.prototype._save = function(autosave, done) {
+    throw new Error("derived classes must implement this method");
 };
 
+/**
+ * This method returns the data to be saved in a save
+ * operation. Derived classes **must** call this method rather than
+ * get the data directly from the data tree.
+ */
+Saver.prototype.getData = function () {
+    // MSIE will output two xmlns attributes if the node has a
+    // namespace set and an attribute set.
+    if (browsers.MSIE && this._data_tree.firstChild.attributes.xmlns)
+        this._data_tree.firstChild.removeAttribute("xmlns");
+
+    return this._data_tree.innerHTML;
+};
+
+/**
+ * Must be called by derived class upon a successful save.
+ *
+ * @protected
+ *
+ * @param {boolean} autosave ``true`` if called for an autosave
+ * operation, ``false`` if not.
+ * @param saving_generation The generation being saved. It is
+ * necessary to pass this value due to the asynchronous nature of some
+ * saving operations.
+ *
+ * @emits module:saver~Saver#saved
+ * @emits module:saver~Saver#autosaved
+ *
+ */
+Saver.prototype._saveSuccess = function (autosave, saving_generation) {
+    // If we get here, we've been successful.
+    this._saved_generation = saving_generation;
+    this._last_save = Date.now();
+    this._last_save_kind = autosave ? AUTO : MANUAL;
+    /**
+     * This event is emitted after a document has been successfully saved.
+     *
+     * @event module:saver~Saver#saved
+     */
+    /**
+     * This event is emitted after a document has been successfully autosaved.
+     *
+     * @event module:saver~Saver#autosaved
+     */
+    this._emit(autosave ? "autosaved" : "saved");
+    // This resets the countdown to now.
+    this.setAutosaveInterval(this._autosave_interval);
+};
+
+/**
+ * Must be called by derived classes when they fail to perform their task.
+ *
+ * @protected
+ *
+ * @param {Object} [error] The error message associated with the
+ * failure. If the error message is specified a ``failed`` event will
+ * be emitted. If not, no event is emitted.
+ *
+ * @emits module:saver~Saver#failed
+ */
+Saver.prototype._fail = function (error) {
+    this._failed = true;
+    if (error)
+        /**
+         * Emitted upon a failure during operations. The possible
+         * values for ``type`` are:
+         *
+         * - ``save_edited`` when the file to be saved has changed in
+         *   the save media. (For instance, if someone else edited a
+         *   file that is stored on a server.)
+         *
+         * - ``save_disconnected`` when the saver has lost contact
+         *   with the media that holds the data to be saved.
+         *
+         * - ``save_transient_error`` when an recoverable error
+         *   happened while saving. These are errors that a user
+         *   should be able to recover from. For instance, if the
+         *   document must contain a specific piece of information
+         *   before being saved, this kind of error may be used to
+         *   notify the user.
+         *
+         * @event module:saver~Saver#failed
+         * @type {object}
+         * @property {string} type The type of the error.
+         * @property {string} msg A human readable error message.
+         */
+        this._emit("failed", error);
+};
+
+/**
+ * This is the function called internally when an autosave is needed.
+ *
+ * @private
+ * @emits module:saver~Saver#autosaved
+ */
 Saver.prototype._autosave = function () {
     this._autosave_timeout = undefined;
     var me = this;
@@ -246,7 +316,7 @@ Saver.prototype._autosave = function () {
  * minute.
  *
  * @param {number} interval The interval between autosaves in
- * milliseconds.
+ * milliseconds. 0 turns off autosaves.
  */
 Saver.prototype.setAutosaveInterval = function (interval) {
     this._autosave_interval = interval;
@@ -265,12 +335,12 @@ Saver.prototype.setAutosaveInterval = function (interval) {
  * before wed dies.
  *
  * @param {Function} done A function to call once the recovery
- * operation is done. Cannot be <code>null</code> or
- * <code>undefined</code>. This function must accept one parameter
- * which will be set to <code>undefined</code> if the method did not
- * do anything because the Saver object is in an unintialized state or
- * has already failed. It will be set to <code>true</code> if the
- * recovery operation was successful, and <code>false</code> if not.
+ * operation is done. Cannot be ``null`` or ``undefined``. This
+ * function must accept one parameter which will be set to
+ * ``undefined`` if the method did not do anything because the Saver
+ * object is in an unintialized state or has already failed. It will
+ * be set to ``true`` if the recovery operation was successful, and
+ * ``false`` if not.
  */
 Saver.prototype.recover = function (done) {
     if (!this._initialized || this._failed) {
@@ -278,31 +348,23 @@ Saver.prototype.recover = function (done) {
         return;
     }
 
-    function success (data) {
-        var msgs = _get_messages(data);
-        if (!msgs) {
-            done(false);
-            return;
-        }
+    this._recover(done);
+};
 
-        if (msgs.save_fatal_error) {
-            done(false);
-            return;
-        }
-
-        if (!msgs.save_successful) {
-            done(false);
-            return;
-        }
-
-        done(true);
-    }
-
-    this._post({command: "recover",
-                version: this._version,
-                data: this._data_tree.innerHTML },
-               success, "json").
-        fail(done.bind(undefined, false));
+/**
+ * This method is called when recovering. This is the method
+ * responsible for the implementation-specific details.
+ *
+ * @protected
+ * @abstract
+ *
+ * @param {Function} done A function to call once the recovery
+ * operation is done. Cannot be ``null`` or ``undefined``.  It will be
+ * set to ``true`` if the recovery operation was successful, and
+ * ``false`` if not.
+ */
+Saver.prototype._recover = function (done) {
+    throw new Error("derived classes must implement this method");
 };
 
 function deltaToString(delta) {
@@ -371,72 +433,6 @@ Saver.prototype.getSavedWhen = function () {
 Saver.prototype.getLastSaveKind = function () {
     return this._last_save_kind;
 };
-
-/**
- * Utility wrapper for <code>jQuery.ajax</code>. Its parameters
- * correspond to the parameters of the same name on
- * <code>jQuery.ajax</code>. Read the code for more information.
- *
- * @private
- *
- * @param data
- * @param callback
- * @param dataType
- *
- * @returns The same thing as <code>jQuery.ajax</code>.
- */
-Saver.prototype._post = function (data, callback, dataType) {
-    var headers;
-
-    if (this._etag) {
-        headers = $.extend({}, this._headers);
-        headers['If-Match'] = this._etag;
-    }
-    else
-        headers = this._headers;
-
-    var me = this;
-    return $.ajax({
-        type: "POST",
-        url: this._url,
-        data: data,
-        dataType: dataType,
-        headers: headers
-    }).done(function (data, textStatus, jqXHR) {
-        var msgs = _get_messages(data);
-        // Unsuccessful operations don't have a valid etag.
-        if (msgs && msgs.save_successful)
-            me._etag = jqXHR.getResponseHeader('ETag');
-        callback(data, textStatus, jqXHR);
-    });
-};
-
-/**
- * Processes a list of messages received from the server.
- * @private
- *
- * @param {Object} data The data received from the server.
- * @returns {Object} An object which has for field names message types
- * and for field values a message of the corresponding type.
- *
- * @throws {Error} If there is more than one message of the same type
- * in the data being processed.
- */
-function _get_messages (data) {
-    var raw = data.messages;
-    if (!raw || !raw.length)
-        return undefined;
-
-    var ret = {};
-    for(var i = 0, msg; (msg = raw[i]) !== undefined; ++i) {
-        var type = msg.type;
-        if (ret[type] !== undefined)
-            throw new Error("same type of message appearing more than " +
-                            "once in one transaction");
-        ret[type] = msg;
-    }
-    return ret;
-}
 
 exports.Saver = Saver;
 exports.AUTO = AUTO;

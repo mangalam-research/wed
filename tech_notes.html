@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced Usage Notes &mdash; Wed v0.19.1 documentation</title>
+    <title>Advanced Usage Notes &mdash; Wed v0.20.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.19.1',
+        VERSION:     'v0.20.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.19.1 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.20.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.19.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.20.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -185,19 +185,35 @@ headers.</p>
 <p>Wed saves documents using Ajax queries to a server. Where wed saves is
 determined by the <tt class="docutils literal"><span class="pre">save</span></tt> option. It is of the form:</p>
 <div class="highlight-python"><pre>save: {
-    url: "...",
-    headers: { ... }
-    autosave: ...,
-    initial_etag: ...,
+    path: "...",
+    options: {
+    }
 }</pre>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">url</span></tt> parameter is the URL where wed will send the Ajax queries
-for saving. The <tt class="docutils literal"><span class="pre">headers</span></tt> parameter is as described above for
-logging. The <tt class="docutils literal"><span class="pre">autosave</span></tt> parameter is a number of seconds between
-autosaves. Setting it to 0 will turn off autosaving. Wed will autosave
-only if it detects that the document has been changed since the last
-save. The <tt class="docutils literal"><span class="pre">initial_etag</span></tt> parameter is the <tt class="docutils literal"><span class="pre">ETag</span></tt> of the document being
-loaded.</p>
+<p>The <tt class="docutils literal"><span class="pre">path</span></tt> parameter is the path to the module that implements the
+<tt class="docutils literal"><span class="pre">Saver</span></tt> abstract class. The two choices for now are
+<tt class="docutils literal"><span class="pre">wed/savers/ajax</span></tt> and <tt class="docutils literal"><span class="pre">wed/savers/localforage</span></tt>.</p>
+<div class="section" id="ajax-saver">
+<h3>Ajax Saver<a class="headerlink" href="#ajax-saver" title="Permalink to this headline">¶</a></h3>
+<p>The Ajax saver requires a server that understands the wire protocol
+used by this saver. The configuration for it is as follows:</p>
+<div class="highlight-python"><pre>save: {
+    path: "wed/savers/ajax",
+    options: {
+        url: "...",
+        headers: { ... }
+        autosave: ...,
+        initial_etag: ...,
+    }
+}</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">url</span></tt> option is required. It is the URL where wed will send the
+Ajax queries for saving. The <tt class="docutils literal"><span class="pre">headers</span></tt> option is as described above
+for logging. It is optional. The <tt class="docutils literal"><span class="pre">autosave</span></tt> option is a number of
+seconds between autosaves. It is optional. Setting it to 0 will turn
+off autosaving. Wed will autosave only if it detects that the document
+has been changed since the last save. The <tt class="docutils literal"><span class="pre">initial_etag</span></tt> option is
+the <tt class="docutils literal"><span class="pre">ETag</span></tt> of the document being loaded. It is required.</p>
 <p>Queries are sent as POST requests with the following parameters:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">command</span></tt>: the command wed is issuing.</li>
@@ -259,6 +275,21 @@ following could happen:</p>
 use this <tt class="docutils literal"><span class="pre">ETag</span></tt> to update the <tt class="docutils literal"><span class="pre">ETag</span></tt> it associates with its
 document, otherwise a subsequent save will (erroneously) go through.</p>
 <p>This may not correspond to how other systems use <tt class="docutils literal"><span class="pre">ETag</span></tt>.</p>
+</div>
+<div class="section" id="localforage-saver">
+<h3>Localforage Saver<a class="headerlink" href="#localforage-saver" title="Permalink to this headline">¶</a></h3>
+<p>This saver uses <a class="reference external" href="https://github.com/mozilla/localForage">localForage</a> to store the data in the
+browser. It is configured as follows:</p>
+<div class="highlight-python"><pre>save: {
+    path: "wed/savers/localforage",
+    options: {
+        name: "..."
+    }
+}</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">name</span></tt> parameter is the name to use for saving the document in
+localForage. It is the &#8220;file name&#8221; of sorts of the document.</p>
+</div>
 </div>
 </div>
 <div class="section" id="creating-a-mode">
@@ -896,23 +927,6 @@ might result in 5-6 mutations of the DOM tree, and there is no simple
 way to know that these 5-6 mutations were all initiated by a single
 key.</p>
 </div>
-<div class="section" id="memory-leaks">
-<h2>Memory Leaks<a class="headerlink" href="#memory-leaks" title="Permalink to this headline">¶</a></h2>
-<p>There seems to be a small memory leak upon reloading a window with wed
-in it.</p>
-<p>Tests performed with Chrome&#8217;s memory profiler by doing:</p>
-<ol class="arabic simple">
-<li>One load,</li>
-<li>issuing a memory profile,</li>
-<li>reload, and</li>
-<li>issuing a memory profile</li>
-</ol>
-<p>show that the whole Walker tree created before the first profile is
-created still exists at the time of the second profile. Upon reload,
-wed stops all MutationObservers, removes all event handlers, and
-deletes the data structure of the document being edited. We do not know
-of a good explanation for the leak.</p>
-</div>
 </div>
 <div class="section" id="historical-notes">
 <h1>Historical Notes<a class="headerlink" href="#historical-notes" title="Permalink to this headline">¶</a></h1>
@@ -962,7 +976,11 @@ the incremental changes, but some obsolete code may still remain.</p>
 <li><a class="reference internal" href="#deployment-considerations">Deployment Considerations</a></li>
 <li><a class="reference internal" href="#schema-and-structure-considerations">Schema and Structure Considerations</a></li>
 <li><a class="reference internal" href="#remote-logging">Remote Logging</a></li>
-<li><a class="reference internal" href="#saving">Saving</a></li>
+<li><a class="reference internal" href="#saving">Saving</a><ul>
+<li><a class="reference internal" href="#ajax-saver">Ajax Saver</a></li>
+<li><a class="reference internal" href="#localforage-saver">Localforage Saver</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#creating-a-mode">Creating a Mode</a></li>
@@ -1000,7 +1018,6 @@ the incremental changes, but some obsolete code may still remain.</p>
 </li>
 <li><a class="reference internal" href="#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
 <li><a class="reference internal" href="#vetoing-mutations">Vetoing Mutations</a></li>
-<li><a class="reference internal" href="#memory-leaks">Memory Leaks</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#historical-notes">Historical Notes</a></li>
@@ -1034,7 +1051,7 @@ the incremental changes, but some obsolete code may still remain.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.19.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.20.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

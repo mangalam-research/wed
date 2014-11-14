@@ -218,6 +218,8 @@ wed/oop.js
 wed/lib/simple_event_emitter.js
 wed/lib/conditioned.js
 wed/saver.js
+wed/savers/ajax.js
+wed/savers/localforage.js
 external/rangy/rangy-core.js
 external/rangy/rangy-selectionsaverestore.js
 rangy.js

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.19.1 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.20.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.19.1',
+        VERSION:     'v0.20.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.19.1 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.20.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.19.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.20.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -45,25 +45,30 @@
             
   <div class="section" id="basic-usage">
 <h1>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h1>
-<p>Wed is a web-based editor that assists users in editing XML documents
-according to their own Relax NG schema. It runs in a web browser. It
-is alpha software. We aim to make it extensible, but the API is likely
-to change until we hit version 1.0.0.</p>
+<p>Wed is a schema-aware editor for XML documents. It runs in a web
+browser. The software is at the beta stage. It is being used in a
+project for editing scholarly articles. We aim to make it extensible
+by means of a stable API, but the API is likely to change quickly for
+now.</p>
 <p>Known limitations:</p>
-<ul class="simple">
-<li>Wed currently does understand a large subset of Relax NG, but some
-constructs are not supported. See the <a class="reference external" href="https://github.com/mangalam-research/salve/">salve</a> package for details.</li>
-<li>Wed does not currently support ordering attributes according to some
+<ul>
+<li><p class="first">Wed currently does understand a large subset of Relax NG, but some
+constructs are not supported. See the <a class="reference external" href="https://github.com/mangalam-research/salve/">salve</a> package for details.</p>
+</li>
+<li><p class="first">Wed does not currently support ordering attributes according to some
 preference. (The order is whatever the DOM implementation does by
-default.)</li>
-<li>Wed does not currently support multiline values in attributes.</li>
-<li>Empty elements appear in the editor as if they had an opening and
+default.)</p>
+</li>
+<li><p class="first">Wed does not currently support multiline values in attributes.</p>
+</li>
+<li><p class="first">Empty elements appear in the editor as if they had an opening and
 closing tag, irrespective of how they are encoded in the original
 document. So <tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> and <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt> are treated the
 same. Part of this problem is due to the fact that wed sees the
 document as a DOM tree, not as a serialization. In a DOM tree,
-<tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> and <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt> are the same.</li>
-<li>Elements that <em>cannot</em> contain anything appear in the editor as if
+<tt class="docutils literal"><span class="pre">&lt;foo/&gt;</span></tt> and <tt class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></tt> are the same.</p>
+</li>
+<li><p class="first">Elements that <em>cannot</em> contain anything appear in the editor as if
 they <em>could</em>. The validator raises an error if these elements are
 filled with any contents but it would be nicer if they were
 displayed in a way that distinguished them from the elements that
@@ -73,44 +78,67 @@ differently if it could not. However, this required that the
 rendering engine query the validating engine during rendering, which
 made rendering extremely slow. Since the editor will raise an error
 if an element that should be empty is filled erroneously, we&#8217;ve
-decided that a solution to this problem can wait.</li>
-<li>Eventually the plan is to handle XML namespace changes completely,
+decided that a solution to this problem can wait.</p>
+</li>
+<li><p class="first">Eventually the plan is to handle XML namespace changes completely,
 and there is incipient code to deal with this; for now the safe
 thing to do if you have a file using multiple namespaces is to
 declare them once and for all on the top element, and never change
-them throughout the document. Otherwise, problems are likely.</li>
-<li>We&#8217;ve not tested a setup in which more than one wed instance appears
-on the same page.</li>
-<li>Keyboard navigation in contextual menus works. However, if the mouse
+them throughout the document. Otherwise, problems are likely.</p>
+<p>[A significant issue here is that the various browsers do not handle
+namespaces in the same way. For instance FF and Chrome are
+absolutely fine if you specify <tt class="docutils literal"><span class="pre">xmlns</span></tt> with DOM&#8217;s <tt class="docutils literal"><span class="pre">setAttribute</span></tt> on
+an element that is on the same namespace as the namespace specified
+with the new <tt class="docutils literal"><span class="pre">xmlns</span></tt> attribute and they will produce a correct
+serialization. IE, on the other hand, will produce a node with two
+<tt class="docutils literal"><span class="pre">xmlns</span></tt> attributes.]</p>
+</li>
+<li><p class="first">We&#8217;ve not tested a setup in which more than one wed instance appears
+on the same page.</p>
+</li>
+<li><p class="first">Keyboard navigation in contextual menus works. However, if the mouse
 is hovering over menu items, two items will be highlighted at once,
 which may be confusing. This seems to be a limitation of CSS which
 Bootstrap does nothing to deal with. (One element may be in the
-focused state (keyboard) while another is in the hover state.)</li>
-<li>Wed does not work with RTL scripts. There no inherent reason wed
+focused state (keyboard) while another is in the hover state.)</p>
+</li>
+<li><p class="first">Wed does not work with RTL scripts. There no inherent reason wed
 could not support them but the project for which it is developed
 currently does not need support for RTL scripts. So no resources
-have been expended towards supporting this.</li>
-<li>Wed is not internationalized. Although the contents of a document
+have been expended towards supporting this.</p>
+</li>
+<li><p class="first">Wed is not internationalized. Although the contents of a document
 could be in any language, wed&#8217;s UI is in English. Again, there is no
 inherent reason wed could not support other languages for the
 UI. The project for which it is developed currently does not need
-support for other languages, hence this state of affairs.</li>
-<li>See also <a class="reference internal" href="#browser-requirements">Browser Requirements</a>.</li>
+support for other languages, hence this state of affairs.</p>
+</li>
+<li><p class="first">See also <a class="reference internal" href="#browser-requirements">Browser Requirements</a>.</p>
+</li>
 </ul>
 </div>
 <div class="section" id="browser-requirements">
-<h1>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h1>
+<span id="usage-browser-requirements"></span><h1>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h1>
 <p>Wed is primarily developed using a recent version of Chrome (version
-36; versions 26-35 have also been used earlier) and a recent version
-of Firefox (version 28; versions 20-27 have also been used earlier)
+38; versions 26-37 have also been used earlier) and a recent version
+of Firefox (version 31; versions 20-30 have also been used earlier)
 for testing. (But see a note about Chrome 34 below.) The fact that wed
 is developed using these browsers influences the severity and
 frequency of bugs you can expect to run into.</p>
 <p>Here is the list of officially supported browsers, in order of
 decreasing priority:</p>
 <ul class="simple">
-<li>Chrome 36 and higher and Firefox 28 and higher, about equally.</li>
+<li>Chrome 38 and higher and Firefox 31 and higher, about equally.</li>
+<li>The current ESR (Extended Support Release) of Firefox, which is
+Firefox 31 at the time of writing.</li>
 <li>IE 10 and 11, about equally.</li>
+<li>Relatively recent versions of Chrome and Firefox: older than the
+latest releases but not very old. (Yeah, this is vague. Sorry about
+that.) In the case of Firefox this means versions newer than the
+current ESR but older than the latest release.</li>
+<li>The previous ESR of Firefox, provided it does not cause too much of
+a burden. (Support for FF24 was dropped due to this: there was an
+obscure bug that was not worth fighting against.)</li>
 </ul>
 <p>File an issue on github if you find a problem with one of the
 supported browsers above.</p>
@@ -119,12 +147,14 @@ of development resources, such support is unlikely to materialize
 soon. In decreasing order of likelihood, the following cases are
 unlikely to ever be supported:</p>
 <ul class="simple">
+<li>Versions of Chrome and Firefox older than those mentioned above.</li>
 <li>Chrome 34: the luminaries at Google decided to remove
 <tt class="docutils literal"><span class="pre">Attr.ownerElement</span></tt> from Chrome 34. It was reintroduced in
 Chrome 35.</li>
 <li>IE 9. We&#8217;d need a) a substantial demand for it and b) people willing
-to participate in providing support.</li>
-<li>Versions of Chrome and Firefox older than those mentioned above.</li>
+to participate in providing support. As time goes by, wed is
+accumulating features that are not supported natively in IE 9, so
+this possibility is becoming more and more remote.</li>
 <li>IE 8 and earlier.</li>
 <li>Antique browsers.</li>
 <li>Oddball browsers or other software or hardware systems that present
@@ -165,13 +195,12 @@ resources to fix.</p>
 position to contribute substantial monetary or technical resources
 towards this goal, you are welcome to contact us. In particular,
 immediate problem we&#8217;ve run into when trying to test on Safari is this
-[Selenium
-issue](<a class="reference external" href="http://code.google.com/p/selenium/issues/detail?id=4136">http://code.google.com/p/selenium/issues/detail?id=4136</a>). If
-you want fix it, then this would bring us one step closer to being
-able to test wed on Safari. And regarding the state of Selenium
-support for Safari, take note this response from a Selenium project
-member:</p>
-<p>&gt; Safari is not a priority, sorry. But your patches are welcome!</p>
+<a class="reference external" href="http://code.google.com/p/selenium/issues/detail?id=4136">Selenium issue</a>. If you
+want fix it, then this would bring us one step closer to being able to
+test wed on Safari. And regarding the state of Selenium support for
+Safari, take note this response from a Selenium project member:</p>
+<blockquote>
+<div>Safari is not a priority, sorry. But your patches are welcome!</div></blockquote>
 <p>Absent these patches, wed is unlikely to support Safari.</p>
 <p>On the other hand, if you feel the urge to write an email saying &#8220;You
 should just...&#8221;, then please abstain because there is nothing &#8220;just&#8221;
@@ -257,10 +286,17 @@ wed.</p>
 <h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
 <p>See <a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a>.</p>
 </div>
-<div class="section" id="local-demo">
-<h1>Local Demo<a class="headerlink" href="#local-demo" title="Permalink to this headline">¶</a></h1>
-<p>To see the local demo, you must have a minimal server running just
-like the one needed to run the browser-dependent test suite (see the
+<div class="section" id="local-demos">
+<h1>Local Demos<a class="headerlink" href="#local-demos" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="demo-saving-to-local-storage">
+<h2>Demo Saving to Local Storage<a class="headerlink" href="#demo-saving-to-local-storage" title="Permalink to this headline">¶</a></h2>
+<p>The demo that uses your own browser&#8217;s local storage is ready to use
+once wed is built.</p>
+</div>
+<div class="section" id="demos-saving-to-a-server">
+<h2>Demos Saving to a Server<a class="headerlink" href="#demos-saving-to-a-server" title="Permalink to this headline">¶</a></h2>
+<p>To see this demo, you must have a minimal server running just like the
+one needed to run the browser-dependent test suite (see the
 <a class="reference internal" href="tech_notes.html#tech-notes-in-browser-tests"><em>In-Browser Tests</em></a> section in <a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a>) and
 then point your browser to either:</p>
 <ul class="simple">
@@ -324,13 +360,14 @@ default one (generic) by passing a <tt class="docutils literal"><span class="pre
 instance the URL
 <a class="reference external" href="http://localhost:8888/web/kitchen-sink.html?mode=tei">http://localhost:8888/web/kitchen-sink.html?mode=tei</a> would tell
 the kitchen sink to load the tei mode.</p>
+</div>
 <div class="section" id="label-visibility">
 <span id="id1"></span><h2>Label Visibility<a class="headerlink" href="#label-visibility" title="Permalink to this headline">¶</a></h2>
 <p>Wed allows the user to reduce or increase the number of element
 labeled on the screen. How this works is dependent in part on the
 specific mode that the user has selected. For instance, the default
 mode that comes with wed (the &#8220;generic&#8221; mode) knows only two levels of
-visiblity: 0 and 1. At level 0, no elements are labeled. At level 1,
+visibility: 0 and 1. At level 0, no elements are labeled. At level 1,
 all elements are labeled. A mode with levels 0, 1, and 2 would label
 all elements at level 2, no elements at level 0 and some elements at
 level 1. Which elements are labeled depends on how the mode designer
@@ -470,7 +507,9 @@ work.</p>
 <li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li><a class="reference internal" href="#building">Building</a></li>
 <li><a class="reference internal" href="#testing">Testing</a></li>
-<li><a class="reference internal" href="#local-demo">Local Demo</a><ul>
+<li><a class="reference internal" href="#local-demos">Local Demos</a><ul>
+<li><a class="reference internal" href="#demo-saving-to-local-storage">Demo Saving to Local Storage</a></li>
+<li><a class="reference internal" href="#demos-saving-to-a-server">Demos Saving to a Server</a></li>
 <li><a class="reference internal" href="#label-visibility">Label Visibility</a></li>
 </ul>
 </li>
@@ -507,7 +546,7 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.19.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.20.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

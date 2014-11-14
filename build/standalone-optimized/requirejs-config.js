@@ -8,7 +8,11 @@ require.config({
         "font-awesome": "external/font-awesome",
         "pubsub-js": "external/pubsub",
         "xregexp": "external/xregexp",
-        "text": "requirejs/text"
+        "text": "requirejs/text",
+        "localforage": "external/localforage",
+        "async": "external/async",
+        "angular": "external/angular",
+        "bootbox": "external/bootbox"
     },
     "packages": [
         {
@@ -44,6 +48,18 @@ require.config({
         },
         "log4javascript": {
             "exports": "log4javascript"
+        },
+        "angular": {
+            "deps": [
+                "jquery"
+            ],
+            "exports": "angular"
+        },
+        "bootbox": {
+            "deps": [
+                "bootstrap"
+            ],
+            "exports": "bootbox"
         }
     },
     "config": {
@@ -63,5 +79,13 @@ require.config({
         }
     },
     "waitSeconds": 12,
-    "enforceDefine": true
+    "enforceDefine": true,
+    "bundles": {
+        "wed/wed": [
+            "wed/log",
+            "wed/onerror",
+            "wed/savers/localforage",
+            "wed/browsers"
+        ]
+    }
 });

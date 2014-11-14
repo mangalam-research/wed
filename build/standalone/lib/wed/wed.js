@@ -13,6 +13,8 @@ var browsers = require("./browsers");
 var _ = require("lodash");
 var log = require("./log");
 var saver = require("./saver");
+var AjaxSaver = require("./savers/ajax").Saver;
+var LocalSaver = require("./savers/localforage").Saver;
 var rangy = require("rangy");
 var validator = require("./validator");
 var Validator = validator.Validator;
@@ -52,13 +54,13 @@ var preferences = require("./preferences");
 var icon = require("./gui/icon");
 require("bootstrap");
 require("jquery.bootstrap-growl");
-require("./onbeforeunload");
+var onbeforeunload = require("./onbeforeunload");
 var closestByClass = domutil.closestByClass;
 var closest = domutil.closest;
 
 var _indexOf = Array.prototype.indexOf;
 
-exports.version = "0.19.1";
+exports.version = "0.20.0";
 var version = exports.version;
 
 var getOriginalName = util.getOriginalName;
@@ -786,11 +788,20 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     if (this._data_doc.firstChild)
         this.data_updater.insertAt(this.data_root, 0,
                                    this._data_doc.firstChild);
-    if (this._save && this._save.url) {
-        this._saver = new saver.Saver(this._save.url, this._save.headers,
-                                      version, this._save.initial_etag,
-                                      this.data_updater,
-                                      this.data_root);
+    if (this._save) {
+        switch(this._save.path) {
+        case "wed/savers/ajax":
+            this._saver = new AjaxSaver(version, this.data_updater,
+                                        this.data_root, this._save.options);
+            break;
+        case "wed/savers/localforage":
+            this._saver = new LocalSaver(version, this.data_updater,
+                                         this.data_root, this._save.options);
+            break;
+        default:
+            throw new Error("unknown saver: " + this._save.path);
+        }
+
         this._saver.addEventListener("saved", this._onSaverSaved.bind(this));
         this._saver.addEventListener("autosaved",
                                      this._onSaverAutosaved.bind(this));
@@ -804,6 +815,14 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         this._refreshSaveStatus();
         this._save_status_interval =
             setInterval(this._refreshSaveStatus.bind(this), 30 * 1000);
+        onbeforeunload.install(
+            this.my_window,
+            "The document has unsaved modifications. "+
+                "Do you really want to leave without saving?",
+            function () {
+            return !!this._saver.getModifiedWhen();
+        }.bind(this),
+            true);
     }
     else
         log.error("wed cannot save data due " +

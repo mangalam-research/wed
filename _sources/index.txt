@@ -2,33 +2,25 @@ Introduction
 ============
 
 Wed is a schema-aware editor for XML documents. It runs in a web
-browser. It is alpha software. We aim to make it extensible, but the
-API is likely to change quickly for now. Please see our Documentation_
-for details about how to use wed in your own project.
+browser. The software is at the beta stage. It is being used in a
+project for editing scholarly articles. We aim to make it extensible
+by means of a stable API, but the API is likely to change quickly for
+now.
 
-Demo
+Wed is tested on Chrome, Firefox and Internet Explorer.
+
+Demos
 =====
 
-You can run the demo with:
+Wed can work with any schema (minus the limitations of
+salve). However, the wed is bundled with a single TEI schema that uses
+these TEI modules: ``tei``, ``core``, ``textstructure`` and
+``header``. So this is what the demo is currently limited to. (Future
+versions will allow loading arbitrary schemas.)
 
-* an `empty document <build/standalone/kitchen-sink.html>`_ using a
-  vanilla TEI schema.
-
-* `Sketch for a medical education
-  <build/standalone/kitchen-sink.html?file=/wed/build/samples/
-  sketch_for_a_medical_education.xml>`_, a sample document from the
-  Oxford Text Archive.
-
-Here are some limitations of the demo:
-
-* Wed does not support old browsers, mobile devices, oddball, or
-  unpopular browsers. Your notion of "old" might differ from ours.
-
-* Wed will fail if you try to save. Rest assured that the saving
-  functionality works, but it needs a server able to handle AJAX
-  calls. Github.io is not able to do this.
-
-* Autosave is turned off, for the reason given above.
+Note that Wed does not support old browsers, mobile devices, oddball,
+or unpopular browsers. Your notion of "old" might differ from
+ours. See :ref:`usage_browser_requirements` section in :doc:`usage`.
 
 Things you can do:
 
@@ -63,7 +55,37 @@ Things you can do:
                screen but will **not** be copied into the clipboard.
 
 
-* Using Ctrl-S to save does not work, for the reasons given above.
+* Using Ctrl-S to save **works only in the demo that uses local storage**.
+
+Using Local Storage
+-------------------
+
+You can run a demo that uses your browser's own storage facilities to
+store documents. This demo does not come with documents, **so you'd
+have to load one of your documents into it.** Bear in mind the schema
+that wed currently supports. Point your browser `here
+<build/standalone/files.html>`__ to load this demo. You will then have
+to upload your file.
+
+Using a Server
+--------------
+
+This demo is configured as if there was a server to receive the saved
+data. However, it is not possible to configure ``github.io`` to act as
+the kind of server needed for actually saving. **Wed will fail if you
+try to save.** Rest assured that the saving functionality works, but
+it needs a server able to handle AJAX calls. Github.io is not able to
+do this.
+
+It is configured to load:
+
+* an `empty document <build/standalone/kitchen-sink.html>`_ using a
+  vanilla TEI schema.
+
+* `Sketch for a medical education
+  <build/standalone/kitchen-sink.html?file=/wed/build/samples/
+  sketch_for_a_medical_education.xml>`_, a sample document from the
+  Oxford Text Archive.
 
 Documentation
 =============
@@ -113,4 +135,5 @@ represent those of the National Endowment for the Humanities.
 
 
 ..  LocalWords:  API README html Github TEI xml io Ctrl Mangalam api
-..  LocalWords:  Dubeau LocalWords readme changelog
+..  LocalWords:  Dubeau LocalWords readme changelog tei textstructure
+..  LocalWords:  github wed's HD
