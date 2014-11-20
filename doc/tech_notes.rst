@@ -409,10 +409,10 @@ the latest code.
 In-Browser Tests
 ----------------
 
-The browser-dependent tests are located in the ``browser_test/`` directory
-off the wed root. To run
-the tests that run in the browser, you must run ``server.js``, a
-basic web server, from the root of the wed source::
+The browser-dependent tests are located in the ``browser_test/``
+directory off the wed root. To run the tests that run in the browser,
+you must run ``server.js``, a basic web server, from the root of the
+wed source::
 
     $ ./server.js
 
@@ -456,41 +456,13 @@ override or adds some values. For instance::
     SAUCELABS_CREDENTIALS = "foo:bar"
     CHROMEDRIVER_PATH = ".../selenium/chromedriver"
 
-To run the Selenium-based tests, you can run either
-``server.js`` *or* an nginx-based server. The latter option is
-recommended if you run your browser on a provisioning service like
-SauceLabs *and* you want to maximize performance. Running
-``server.js`` has been explained above. To run nginx, just issue::
-
-    $ misc/start_nginx
-
-This will launch an nginx server listening on localhost:8888. It will
-handle all the requests to static resources itself, but will forward
-all Ajax stuff to an instance of ``server.js`` (which is started by
-the ``start_nginx`` script to listen on localhost:9999). This server
-puts all of the things that would go in ``/var/`` if it was started by
-the OS in the ``var/`` directory that sits at the top of the code
-tree. Look there for logs. This nginx instance uses the configuration
-built at ``build/config/nginx.conf`` from
-``config/nginx.conf``.
-
-.. warning:: Remember that if you want to override the configuration,
-             the proper way to do it is to copy the configuration file
-             into ``local_config/`` and edit it there.
-
-Run ``make`` again after you have made modifications. The only
-processing done on nginx's file is to replace instances of ``@PWD@``
-with the top of the code tree.
-
 Finally, to run the suite issue::
 
     $ make selenium-test TEST_BROWSER=<platform>,<browser>,<version>
 
-To run the suite while using the SauceLab servers, run::
-
-    $ make SELENIUM_SAUCELABS=1 selenium-test TEST_BROWSER=...
-
-Behind the scenes, this will launch behave. See the makefile
+Behind the scenes, this will launch Behave. An instance of ``./server.js``
+will be launched automatically to respond to the requests of the
+browser that the test suite launches. See the makefile
 :github:`build.mk` for information about how behave is run.
 
 The ``TEST_BROWSER`` variable determines which browser will run the
@@ -1002,7 +974,7 @@ the incremental changes, but some obsolete code may still remain.
 ..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
 ..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText js
 ..  LocalWords:  RequireJS setTimeout localhost selenic addr config
-..  LocalWords:  PYTHONPATH nginx nginx's SauceLab Makefile DOM desc
+..  LocalWords:  PYTHONPATH SauceLab Makefile DOM desc
 ..  LocalWords:  getSelection namespace programmatically profiler CSS
 ..  LocalWords:  gitflow oop wedutil SauceLabs nvie AVH deployable py
 ..  LocalWords:  requirejs unoptimized conf gui LocalWords github

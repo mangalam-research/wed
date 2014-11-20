@@ -201,9 +201,6 @@ endif
 build/config/%:
 	cp $< $@
 
-build/config/nginx.conf:
-	sed -e's;@PWD@;$(PWD);'g $< > $@
-
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js

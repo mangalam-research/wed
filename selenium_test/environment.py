@@ -1,6 +1,8 @@
 import os
 import time
 from urlparse import urljoin
+import subprocess
+import socket
 
 import requests
 
@@ -48,6 +50,18 @@ def before_all(context):
     context.behave_captions = os.environ.get("BEHAVE_CAPTIONS")
 
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
+
+    # Obtain an unused port from the OS. Linux will assign a port and
+    # won't reuse it for a while after we close it.
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('', 0))
+    port = str(sock.getsockname()[1])
+    sock.close()
+
+    # Start a server just for our tests...
+    context.server = subprocess.Popen(["node", "./server.js",
+                                       "localhost:" + port])
+    builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
 
 FAILS_IF = "fails_if:"
 ONLY_FOR = "only_for:"
@@ -213,6 +227,10 @@ def after_all(context):
     if not ((selenium_quit == "never") or
             (context.failed and selenium_quit == "on-success")):
         driver.quit()
+        if context.server:
+            context.server.kill()
+
     if context.selenic.post_execution:
         context.selenic.post_execution()
+
     dump_config()

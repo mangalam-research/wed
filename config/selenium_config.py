@@ -147,4 +147,4 @@ def post_execution():
 # standalone-optimized will run the tests on the non-optimized version
 # of the code.
 #
-WED_SERVER = "http://localhost:8888/forever/build/standalone-optimized"
+WED_ROOT = "/forever/build/standalone-optimized"
