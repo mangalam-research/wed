@@ -5,6 +5,7 @@ import subprocess
 import socket
 
 import requests
+from pyvirtualdisplay import Display
 
 # pylint: disable=E0611
 from nose.tools import assert_raises, assert_true
@@ -30,6 +31,18 @@ def dump_config():
 
 def before_all(context):
     dump_config()
+
+    context.selenium_quit = os.environ.get("SELENIUM_QUIT")
+
+    if not builder.remote:
+        visible = context.selenium_quit in ("never", "on-success")
+        context.display = Display(visible=visible, size=(1024, 600))
+        context.display.start()
+        context.wm = subprocess.Popen(["openbox"])
+    else:
+        context.display = None
+        context.wm = None
+
     driver = builder.get_driver()
     context.driver = driver
     context.util = selenic.util.Util(driver,
@@ -223,12 +236,18 @@ def after_step(context, _step):
 def after_all(context):
     driver = context.driver
     builder.set_test_status(driver.session_id, not context.failed)
-    selenium_quit = os.environ.get("SELENIUM_QUIT")
+    selenium_quit = context.selenium_quit
     if not ((selenium_quit == "never") or
             (context.failed and selenium_quit == "on-success")):
         driver.quit()
+        if context.wm:
+            context.wm.kill()
+
         if context.server:
             context.server.kill()
+
+        if context.display:
+            context.display.stop()
 
     if context.selenic.post_execution:
         context.selenic.post_execution()
