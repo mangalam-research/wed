@@ -15,11 +15,15 @@ JSDOC3?=node_modules/.bin/jsdoc
 WGET?=wget
 
 # jsdoc3 templates
-JSDOC3_DEFAULT_TEMPLATE?=node_modules/jsdoc/templates/default
-
+# Perform the test first. If we use the default value below, a make
+# target will create the template...
+ifdef JSDOC3_DEFAULT_TEMPLATE
 ifeq ($(wildcard $(JSDOC3_DEFAULT_TEMPLATE)),)
 $(error JSDOC3_DEFAULT_TEMPLATE must be set to the path of jsdoc3's default template)
 endif
+endif
+
+JSDOC3_DEFAULT_TEMPLATE?=node_modules/jsdoc/templates/default
 
 # rst2html command.
 RST2HTML?=rst2html
