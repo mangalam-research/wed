@@ -312,7 +312,7 @@ wed.css_CSS_DEPS=build/standalone/lib/external/bootstrap/css/bootstrap.css
 build/standalone/lib/external/bootstrap/css/bootstrap.css: build/standalone/lib/external/bootstrap
 
 .SECONDEXPANSION:
-build/standalone/lib/wed/%.css: lib/wed/%.less lib/wed/less-inc/* $$($$(notdir $$@)_CSS_DEPS)
+build/standalone/lib/wed/%.css: lib/wed/%.less lib/wed/less-inc/* $$($$(notdir $$@)_CSS_DEPS) node_modules/.bin/lessc
 	node_modules/.bin/lessc --include-path=./lib/wed/less-inc/ $< $@
 
 build/standalone build/ajax: | build-dir
