@@ -247,15 +247,10 @@ build/schemas:
 build/schemas/%: schemas/% | build/schemas
 	cp $< $@
 
-schemas/out/myTEI.xml.compiled: schemas/myTEI.xml
+schemas/out/myTEI.compiled: schemas/myTEI.xml
 	roma2 --xsl=$(TEI) --compile --nodtd --noxsd $< schemas/out
-# Deal with a bug in roma. This should eventually be removed once roma is fixed.
-	if [ -e schemas/out/schemas/myTEI.xml.compiled ]; then \
-		mv schemas/out/schemas/myTEI.xml.compiled $@; \
-		rm -rf schemas/out/schemas; \
-	fi
 
-schemas/out/myTEI.json: schemas/out/myTEI.xml.compiled
+schemas/out/myTEI.json: schemas/out/myTEI.compiled
 	saxon -xsl:/usr/share/xml/tei/stylesheet/odds/odd2json.xsl -s:$< -o:$@ callback=''
 
 build/schemas/tei-metadata.json: schemas/out/myTEI.json
@@ -264,7 +259,7 @@ build/schemas/tei-metadata.json: schemas/out/myTEI.json
 		--dochtml "../../../../../schemas/tei-doc/"\
 		--ns tei=http://www.tei-c.org/ns/1.0 $< $@
 
-build/schemas/tei-doc: schemas/out/myTEI.xml.compiled
+build/schemas/tei-doc: schemas/out/myTEI.compiled
 	-rm -rf $@
 	-mkdir $@
 	$(SAXON) -s:$< -xsl:$(ODD2HTML) STDOUT=false splitLevel=0 outputDir=$@
