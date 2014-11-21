@@ -38,7 +38,7 @@ def before_all(context):
         visible = context.selenium_quit in ("never", "on-success")
         context.display = Display(visible=visible, size=(1024, 600))
         context.display.start()
-        context.wm = subprocess.Popen(["openbox"])
+        context.wm = subprocess.Popen(["openbox", "--sm-disable"])
     else:
         context.display = None
         context.wm = None
