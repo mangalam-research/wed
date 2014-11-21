@@ -204,6 +204,8 @@ app.post(make_paths("/build/ajax/control"), function(request, response) {
         case 'no_response_on_recover':
             no_response_on_recover = decoded.value;
             break;
+        case 'ping':
+            break;
         default:
             status = 400;
         }

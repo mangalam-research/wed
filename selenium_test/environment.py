@@ -5,6 +5,7 @@ import subprocess
 import socket
 
 import requests
+from requests.exceptions import ConnectionError
 from pyvirtualdisplay import Display
 
 # pylint: disable=E0611
@@ -75,6 +76,21 @@ def before_all(context):
     context.server = subprocess.Popen(["node", "./server.js",
                                        "localhost:" + port])
     builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
+
+    # Try pinging the server util we get a positive response or we've
+    # tried enough times to declare failure
+    tries = 0
+    success = False
+    while not success and tries < 10:
+        try:
+            control(builder.WED_SERVER, 'ping', 'failed to ping')
+            success = True
+        except ConnectionError:
+            time.sleep(1)
+            tries += 1
+
+    if not success:
+        raise Exception("cannot contact server")
 
 FAILS_IF = "fails_if:"
 ONLY_FOR = "only_for:"
