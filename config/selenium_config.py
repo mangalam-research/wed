@@ -66,7 +66,7 @@ if not LOGS:
 # Perform these first because they are extremely cheap to perform.
 #
 config = Config("Linux", "FIREFOX", "31")
-config = Config("Linux", "CHROME", "38")
+config = Config("Linux", "CHROME", "39")
 
 #
 # Perform these next because IE compatibility is a major
