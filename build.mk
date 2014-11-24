@@ -346,6 +346,7 @@ downloads/$(CLASSLIST_BASE): | downloads
 
 
 node_modules/%:
+	-mkdir node_modules
 	npm install
 
 build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone/lib/external
@@ -569,3 +570,4 @@ clean::
 .PHONY: distclean
 distclean: clean
 	-rm -rf downloads
+	-rm -rf node_modules
