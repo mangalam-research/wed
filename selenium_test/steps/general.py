@@ -5,8 +5,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 import selenium.webdriver.support.expected_conditions as EC
 # pylint: disable=E0611
-from nose.tools import assert_true, assert_equal, assert_not_equal
+from nose.tools import assert_true, assert_equal
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoAlertPresentException
 
 import wedutil
 from ..util import get_element_parent_and_parent_text, wait_for_editor
@@ -529,6 +530,13 @@ def step_impl(context, what, text):
 @when(ur'^the user dismisses the alert$')
 def step_imp(context):
     context.driver.switch_to.alert.accept()
+    # This is a workaround for a Selenium bug:
+    # https://code.google.com/p/selenium/issues/detail?id=8208
+    if context.util.firefox:
+        try:
+            context.driver.switch_to.alert.accept()
+        except NoAlertPresentException:
+            pass
 
 
 @when(ur'^(?:the user )?clicks the "(?P<text>.*?)" button$')
