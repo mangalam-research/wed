@@ -189,7 +189,10 @@ build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
-build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone
+build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build/jenkins-matrix.properties
+
+build/jenkins-matrix.properties: build/config/selenium_config.py misc/dump_selenium_configs.py
+	python ./misc/dump_selenium_configs.py --jenkins > $@
 
 build-config: $(CONFIG_TARGETS) | build/config
 

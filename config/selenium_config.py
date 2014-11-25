@@ -114,7 +114,11 @@ config = Config("Windows 8.1", "FIREFOX", "31", caps, remote=True)
 #
 browser_env = os.environ.get("TEST_BROWSER", None)
 if browser_env:
-    parts = re.split(r"[,|]", browser_env)
+    # When invoked from a Jenkins setup, the spaces that would
+    # normally appear in names like "Windows 8.1" will appear as
+    # underscores instead. And the separators will be "|" rather than
+    # ",".
+    parts = re.split(r"[,|]", browser_env.replace("_", " "))
     CONFIG = selenic.get_config(
         platform=parts[0] or None, browser=parts[1] or None,
         version=parts[2] or None)
