@@ -269,17 +269,13 @@ describe("validator", function () {
 
         function makeTest(name, stop_fn, top) {
             it(name, function (done) {
-                top = top || data;
-                var tree = parser.parseFromString(top, "application/xml");
+                var tree = top || parser.parseFromString(data,
+                                                         "application/xml");
                 var p = new validator.Validator(schema, tree);
-                p._max_timespan = 0; // Work forever.
-                var old_stop = p.stop;
-                p.stop = function () {
-                    old_stop.call(p);
+                p.initialize(function () {
                     stop_fn(p, tree);
                     done();
-                };
-                p.start();
+                });
             });
         }
 
@@ -367,6 +363,26 @@ describe("validator", function () {
                 evs.toArray(),
                 [new validate.Event("enterStartTag", "", "body")]);
         });
+        makeTest("with actual contents, attributes on root",
+                 function (p, tree) {
+            var evs = p.possibleAt(tree, 0, true);
+            assert.sameMembers(
+                evs.toArray(),
+                [new validate.Event("leaveStartTag")]);
+        });
+        makeTest("with actual contents, attributes on element",
+                 function (p, tree) {
+            var el = tree.getElementsByTagName("head")[0];
+            var evs = p.possibleAt(
+                el.parentNode,
+                Array.prototype.indexOf.call(el.parentNode.childNodes,
+                                             el),
+                true);
+            assert.sameMembers(
+                evs.toArray(),
+                [new validate.Event("leaveStartTag")]);
+        });
+
     });
 
     describe("possibleWhere", function () {
