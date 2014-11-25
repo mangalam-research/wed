@@ -13,7 +13,7 @@ from nose.tools import assert_raises, assert_true
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
 
-from selenic import Builder
+from selenic import Builder, outil
 import selenic.util
 
 _dirname = os.path.dirname(__file__)
@@ -65,12 +65,13 @@ def before_all(context):
 
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
-    # Obtain an unused port from the OS. Linux will assign a port and
-    # won't reuse it for a while after we close it.
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('', 0))
-    port = str(sock.getsockname()[1])
-    sock.close()
+    port = outil.get_unused_port() if not builder.remote else \
+        outil.get_unused_sauce_port()
+
+    if port is None:
+        raise Exception("unable to find a port for the server")
+
+    port = str(port)
 
     # Start a server just for our tests...
     context.server = subprocess.Popen(["node", "./server.js",
