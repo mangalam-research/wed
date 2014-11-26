@@ -15,11 +15,15 @@ JSDOC3?=node_modules/.bin/jsdoc
 WGET?=wget
 
 # jsdoc3 templates
-JSDOC3_DEFAULT_TEMPLATE?=node_modules/jsdoc/templates/default
-
+# Perform the test first. If we use the default value below, a make
+# target will create the template...
+ifdef JSDOC3_DEFAULT_TEMPLATE
 ifeq ($(wildcard $(JSDOC3_DEFAULT_TEMPLATE)),)
 $(error JSDOC3_DEFAULT_TEMPLATE must be set to the path of jsdoc3's default template)
 endif
+endif
+
+JSDOC3_DEFAULT_TEMPLATE?=node_modules/jsdoc/templates/default
 
 # rst2html command.
 RST2HTML?=rst2html
@@ -185,7 +189,10 @@ build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
-build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone
+build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build/jenkins-matrix.properties
+
+build/jenkins-matrix.properties: build/config/selenium_config.py misc/dump_selenium_configs.py
+	python ./misc/dump_selenium_configs.py --jenkins > $@
 
 build-config: $(CONFIG_TARGETS) | build/config
 
@@ -201,18 +208,14 @@ endif
 build/config/%:
 	cp $< $@
 
-build/config/nginx.conf:
-	sed -e's;@PWD@;$(PWD);'g $< > $@
-
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js
 
-ifndef NO_NEW_BUILDINFO
-# Force rebuilding
-.PHONY: build/standalone/lib/wed/build-info.js
-endif # NO_NEW_BUILDINFO
-build/standalone/lib/wed/build-info.js:
+# We produce a new build-info.js only if the files generated among
+# $(STANDALONE_LIB_FILES) have changed. Note that if we just upgrade
+# jQuery, for instance this WON'T result in a new build info file.
+build/standalone/lib/wed/build-info.js: $(STANDALONE_LIB_FILES)
 	node misc/generate_build_info.js --unclean --module > $@
 
 build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
@@ -247,15 +250,10 @@ build/schemas:
 build/schemas/%: schemas/% | build/schemas
 	cp $< $@
 
-schemas/out/myTEI.xml.compiled: schemas/myTEI.xml
+schemas/out/myTEI.compiled: schemas/myTEI.xml
 	roma2 --xsl=$(TEI) --compile --nodtd --noxsd $< schemas/out
-# Deal with a bug in roma. This should eventually be removed once roma is fixed.
-	if [ -e schemas/out/schemas/myTEI.xml.compiled ]; then \
-		mv schemas/out/schemas/myTEI.xml.compiled $@; \
-		rm -rf schemas/out/schemas; \
-	fi
 
-schemas/out/myTEI.json: schemas/out/myTEI.xml.compiled
+schemas/out/myTEI.json: schemas/out/myTEI.compiled
 	saxon -xsl:/usr/share/xml/tei/stylesheet/odds/odd2json.xsl -s:$< -o:$@ callback=''
 
 build/schemas/tei-metadata.json: schemas/out/myTEI.json
@@ -264,7 +262,7 @@ build/schemas/tei-metadata.json: schemas/out/myTEI.json
 		--dochtml "../../../../../schemas/tei-doc/"\
 		--ns tei=http://www.tei-c.org/ns/1.0 $< $@
 
-build/schemas/tei-doc: schemas/out/myTEI.xml.compiled
+build/schemas/tei-doc: schemas/out/myTEI.compiled
 	-rm -rf $@
 	-mkdir $@
 	$(SAXON) -s:$< -xsl:$(ODD2HTML) STDOUT=false splitLevel=0 outputDir=$@
@@ -312,7 +310,7 @@ wed.css_CSS_DEPS=build/standalone/lib/external/bootstrap/css/bootstrap.css
 build/standalone/lib/external/bootstrap/css/bootstrap.css: build/standalone/lib/external/bootstrap
 
 .SECONDEXPANSION:
-build/standalone/lib/wed/%.css: lib/wed/%.less lib/wed/less-inc/* $$($$(notdir $$@)_CSS_DEPS)
+build/standalone/lib/wed/%.css: lib/wed/%.less lib/wed/less-inc/* $$($$(notdir $$@)_CSS_DEPS) node_modules/.bin/lessc
 	node_modules/.bin/lessc --include-path=./lib/wed/less-inc/ $< $@
 
 build/standalone build/ajax: | build-dir
@@ -351,6 +349,7 @@ downloads/$(CLASSLIST_BASE): | downloads
 
 
 node_modules/%:
+	-mkdir node_modules
 	npm install
 
 build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone/lib/external
@@ -574,3 +573,4 @@ clean::
 .PHONY: distclean
 distclean: clean
 	-rm -rf downloads
+	-rm -rf node_modules

@@ -1,15 +1,19 @@
 import os
 import time
 from urlparse import urljoin
+import subprocess
+import socket
 
 import requests
+from requests.exceptions import ConnectionError
+from pyvirtualdisplay import Display
 
 # pylint: disable=E0611
 from nose.tools import assert_raises, assert_true
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
 
-from selenic import Builder
+from selenic import Builder, outil
 import selenic.util
 
 _dirname = os.path.dirname(__file__)
@@ -28,6 +32,18 @@ def dump_config():
 
 def before_all(context):
     dump_config()
+
+    context.selenium_quit = os.environ.get("SELENIUM_QUIT")
+
+    if not builder.remote:
+        visible = context.selenium_quit in ("never", "on-success")
+        context.display = Display(visible=visible, size=(1024, 600))
+        context.display.start()
+        context.wm = subprocess.Popen(["openbox", "--sm-disable"])
+    else:
+        context.display = None
+        context.wm = None
+
     driver = builder.get_driver()
     context.driver = driver
     context.util = selenic.util.Util(driver,
@@ -48,6 +64,34 @@ def before_all(context):
     context.behave_captions = os.environ.get("BEHAVE_CAPTIONS")
 
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
+
+    port = outil.get_unused_port() if not builder.remote else \
+        outil.get_unused_sauce_port()
+
+    if port is None:
+        raise Exception("unable to find a port for the server")
+
+    port = str(port)
+
+    # Start a server just for our tests...
+    context.server = subprocess.Popen(["node", "./server.js",
+                                       "localhost:" + port])
+    builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
+
+    # Try pinging the server util we get a positive response or we've
+    # tried enough times to declare failure
+    tries = 0
+    success = False
+    while not success and tries < 10:
+        try:
+            control(builder.WED_SERVER, 'ping', 'failed to ping')
+            success = True
+        except ConnectionError:
+            time.sleep(1)
+            tries += 1
+
+    if not success:
+        raise Exception("cannot contact server")
 
 FAILS_IF = "fails_if:"
 ONLY_FOR = "only_for:"
@@ -209,10 +253,20 @@ def after_step(context, _step):
 def after_all(context):
     driver = context.driver
     builder.set_test_status(driver.session_id, not context.failed)
-    selenium_quit = os.environ.get("SELENIUM_QUIT")
+    selenium_quit = context.selenium_quit
     if not ((selenium_quit == "never") or
             (context.failed and selenium_quit == "on-success")):
         driver.quit()
+        if context.wm:
+            context.wm.kill()
+
+        if context.server:
+            context.server.kill()
+
+        if context.display:
+            context.display.stop()
+
     if context.selenic.post_execution:
         context.selenic.post_execution()
+
     dump_config()

@@ -1,5 +1,19 @@
 #!/usr/bin/env node
 
+//
+// This is a server designed SOLELY to perform wed testing. It serves
+// two hierarchies:
+//
+// - One rooted at '/' (and which excludes '/forever') that uses
+//   modification dates to control caching. This one is useful for
+//   quickly checking modifications in development.
+//
+// - One rooted at '/forever' that sets files to "never" expire. This
+//   one is used for automated testing. (In fact they expire 10 years
+//   from now, which for the purpose of a test is "never".)
+//
+
+'use strict';
 var express = require("express");
 var compress = require("compression");
 var serve_static = require("serve-static");
@@ -25,10 +39,21 @@ var ip = parts[0];
 var port = parts[1];
 var cwd = process.cwd();
 
+// Yes, setting the expiration date at the start and never changing it
+// is sloppy... but this is not meant to be a production server.
+var ten_years = 315360000; // 10 years, in seconds
+var expiration = new Date(Date.now() + ten_years * 1000).toUTCString();
+
 var app = express();
 
 app.use(compress());
 app.use(serve_static(cwd));
+app.use('/forever', serve_static(cwd, {
+    setHeaders: function (res, path, stat) {
+        res.setHeader('Cache-Control', 'private, max-age=' + ten_years);
+        res.setHeader('Expires', expiration);
+    }
+}));
 if (verbose) {
     // var log_file = fs.createWriteStream("./server.log");
     var log_file = process.stdout;
@@ -90,12 +115,16 @@ function dumpData(request, callback) {
     });
 }
 
-app.post("/build/ajax/log.txt", function (request, response) {
+function make_paths(str) {
+    return [str, "/forever" + str];
+}
+
+app.post(make_paths("/build/ajax/log.txt"), function (request, response) {
     dumpData(request);
     writeResponse(response, 200, "{}", "application/json");
 });
 
-app.post("/build/ajax/save.txt", function (request, response) {
+app.post(make_paths("/build/ajax/save.txt"), function (request, response) {
     dumpData(request, function (decoded) {
         var headers = undefined;
         function success() {
@@ -142,7 +171,7 @@ app.post("/build/ajax/save.txt", function (request, response) {
     });
 });
 
-app.post("/build/ajax/control", function(request, response) {
+app.post(make_paths("/build/ajax/control"), function(request, response) {
     dumpData(request, function (decoded) {
         var status = 200;
         switch(decoded.command) {
@@ -174,6 +203,8 @@ app.post("/build/ajax/control", function(request, response) {
             break;
         case 'no_response_on_recover':
             no_response_on_recover = decoded.value;
+            break;
+        case 'ping':
             break;
         default:
             status = 400;
