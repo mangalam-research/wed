@@ -222,7 +222,6 @@ following:
 * Python's Selenium package.
 * `selenic <http://github.com/mangalam-research/selenic>`_
 * behave (the python package)
-* nginx is highly recommended but optional.
 
 If you want to contribute to wed, your code will have to pass the
 checks listed in :github:`.glerbl/repo_conf.py`. So you either have to
@@ -486,7 +485,7 @@ work.
 ..  LocalWords:  NG API namespace namespaces CSS RTL wed's UI github
 ..  LocalWords:  SauceLab's OpenSauce RequireJS config requirejs dev
 ..  LocalWords:  js jquery selectionsaverestore amd pre jsdoc rst mk
-..  LocalWords:  perl chai semver json Makefile saxon selenic nginx
+..  LocalWords:  perl chai semver json Makefile saxon selenic
 ..  LocalWords:  glerbl subdirectory README html CHANGELOG TEI Ctrl
 ..  LocalWords:  RequireJS's unoptimized ajax txt tei hoc xml xsl rng
 ..  LocalWords:  schemas init onerror CDATA versa LocalWords xmlns

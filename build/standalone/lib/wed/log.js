@@ -69,8 +69,10 @@ function Handled(original) {
 function unhandled(e) {
     if (!(e instanceof Handled)) {
         log.fatal("Unhandled exception", e);
-        if (typeof console !== "undefined")
+        if (typeof console !== "undefined") {
+            console.log(e);
             console.log(e.stack);
+        }
         return new Handled(e);
     }
     return e;

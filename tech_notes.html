@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced Usage Notes &mdash; Wed v0.20.0 documentation</title>
+    <title>Advanced Usage Notes &mdash; Wed v0.20.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.20.0',
+        VERSION:     'v0.20.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.20.0 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.20.1 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.20.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.20.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -403,10 +403,10 @@ the suite will run against <strong>old code!</strong></p>
 </div>
 <div class="section" id="in-browser-tests">
 <span id="tech-notes-in-browser-tests"></span><h2>In-Browser Tests<a class="headerlink" href="#in-browser-tests" title="Permalink to this headline">¶</a></h2>
-<p>The browser-dependent tests are located in the <tt class="docutils literal"><span class="pre">browser_test/</span></tt> directory
-off the wed root. To run
-the tests that run in the browser, you must run <tt class="docutils literal"><span class="pre">server.js</span></tt>, a
-basic web server, from the root of the wed source:</p>
+<p>The browser-dependent tests are located in the <tt class="docutils literal"><span class="pre">browser_test/</span></tt>
+directory off the wed root. To run the tests that run in the browser,
+you must run <tt class="docutils literal"><span class="pre">server.js</span></tt>, a basic web server, from the root of the
+wed source:</p>
 <div class="highlight-python"><pre>$ ./server.js</pre>
 </div>
 <p>The server will serve on localhost:8888 by default. Give it an
@@ -445,38 +445,12 @@ override or adds some values. For instance:</p>
 <span class="n">CHROMEDRIVER_PATH</span> <span class="o">=</span> <span class="s">&quot;.../selenium/chromedriver&quot;</span>
 </pre></div>
 </div>
-<p>To run the Selenium-based tests, you can run either
-<tt class="docutils literal"><span class="pre">server.js</span></tt> <em>or</em> an nginx-based server. The latter option is
-recommended if you run your browser on a provisioning service like
-SauceLabs <em>and</em> you want to maximize performance. Running
-<tt class="docutils literal"><span class="pre">server.js</span></tt> has been explained above. To run nginx, just issue:</p>
-<div class="highlight-python"><pre>$ misc/start_nginx</pre>
-</div>
-<p>This will launch an nginx server listening on localhost:8888. It will
-handle all the requests to static resources itself, but will forward
-all Ajax stuff to an instance of <tt class="docutils literal"><span class="pre">server.js</span></tt> (which is started by
-the <tt class="docutils literal"><span class="pre">start_nginx</span></tt> script to listen on localhost:9999). This server
-puts all of the things that would go in <tt class="docutils literal"><span class="pre">/var/</span></tt> if it was started by
-the OS in the <tt class="docutils literal"><span class="pre">var/</span></tt> directory that sits at the top of the code
-tree. Look there for logs. This nginx instance uses the configuration
-built at <tt class="docutils literal"><span class="pre">build/config/nginx.conf</span></tt> from
-<tt class="docutils literal"><span class="pre">config/nginx.conf</span></tt>.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Remember that if you want to override the configuration,
-the proper way to do it is to copy the configuration file
-into <tt class="docutils literal"><span class="pre">local_config/</span></tt> and edit it there.</p>
-</div>
-<p>Run <tt class="docutils literal"><span class="pre">make</span></tt> again after you have made modifications. The only
-processing done on nginx&#8217;s file is to replace instances of <tt class="docutils literal"><span class="pre">&#64;PWD&#64;</span></tt>
-with the top of the code tree.</p>
 <p>Finally, to run the suite issue:</p>
 <div class="highlight-python"><pre>$ make selenium-test TEST_BROWSER=&lt;platform&gt;,&lt;browser&gt;,&lt;version&gt;</pre>
 </div>
-<p>To run the suite while using the SauceLab servers, run:</p>
-<div class="highlight-python"><pre>$ make SELENIUM_SAUCELABS=1 selenium-test TEST_BROWSER=...</pre>
-</div>
-<p>Behind the scenes, this will launch behave. See the makefile
+<p>Behind the scenes, this will launch Behave. An instance of <tt class="docutils literal"><span class="pre">./server.js</span></tt>
+will be launched automatically to respond to the requests of the
+browser that the test suite launches. See the makefile
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> for information about how behave is run.</p>
 <p>The <tt class="docutils literal"><span class="pre">TEST_BROWSER</span></tt> variable determines which browser will run the
 test. You may omit any of <tt class="docutils literal"><span class="pre">platform</span></tt>, <tt class="docutils literal"><span class="pre">browser</span></tt> or <tt class="docutils literal"><span class="pre">versions</span></tt> so
@@ -1051,7 +1025,7 @@ the incremental changes, but some obsolete code may still remain.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.20.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.20.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
