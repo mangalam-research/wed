@@ -1,0 +1,49 @@
+#
+# The order of the configs is a balancing act
+#
+
+#
+# Perform these first because they are extremely cheap to perform.
+#
+Linux,FF,31
+Linux,CH,39
+
+
+#
+# Perform these next because IE compatibility is a major
+# issue. Finding problems early pays.
+#
+Windows 8,IE,10,Remote
+Windows 8.1,IE,11,Remote
+
+#
+# Perform these next because OS X compatibility is an issue. Again, we
+# want to find problems early.
+#
+OS X 10.9,CH,38,Remote
+OS X 10.9,CH,37,Remote
+# wed definitely breaks on Chrome 34.
+# OS X 10.6,CH,34,Remote
+
+#
+# The rest is unlikely to fail if the previous tests passed.
+#
+Windows 8.1,CH,38,Remote
+Windows 8.1,CH,37,Remote
+# wed definitely breaks on Chrome 34.
+# Windows 8.1,CH,34,Remote
+
+# ESR
+Windows 8.1,FF,31,Remote
+
+#
+# FAILING COMBINATIONS
+#
+# Fails due to a resizing bug in Selenium:
+#
+# Windows 8.1,FF,26,Remote
+
+#
+# FF does not support native events in OS X.
+#
+# OS X 10.6,FF,..,Remote
