@@ -129,6 +129,7 @@ SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_
 LODASH_FILES:=main.js modern package.json
 LODASH_BUILD_FILES:=$(addprefix build/standalone/lib/external/lodash/,$(LODASH_FILES))
 
+.SECONDARY:
 .DELETE_ON_ERROR:
 
 .PHONY: all build-dir build
