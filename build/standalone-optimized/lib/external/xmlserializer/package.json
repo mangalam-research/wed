@@ -1,0 +1,63 @@
+{
+  "name": "xmlserializer",
+  "description": "Serializes a document to XML/XHTML",
+  "version": "0.3.3",
+  "homepage": "http://cburgmer.github.io/xmlserializer/",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/cburgmer/xmlserializer"
+  },
+  "author": {
+    "name": "Christoph Burgmer"
+  },
+  "keywords": [
+    "html",
+    "html5",
+    "xhtml",
+    "xml",
+    "serializer",
+    "XMLSerializer"
+  ],
+  "main": "./lib/serializer.js",
+  "dependencies": {},
+  "devDependencies": {
+    "parse5": "~0.8.0",
+    "jasmine-node": "~1.14.0",
+    "jake": "~0.7.3",
+    "browserify": "~3.38.0",
+    "jshint": "~2.4.0"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "scripts": {
+    "test": "jake clean browser test"
+  },
+  "gitHead": "97fc5e7efcdf4e364532aea77c28dbca23701a1d",
+  "bugs": {
+    "url": "https://github.com/cburgmer/xmlserializer/issues"
+  },
+  "_id": "xmlserializer@0.3.3",
+  "_shasum": "43c11232ec579a0b8c0dac7d91803de558c2a36e",
+  "_from": "xmlserializer@",
+  "_npmVersion": "2.0.2",
+  "_nodeVersion": "0.10.32",
+  "_npmUser": {
+    "name": "cburgmer",
+    "email": "christoph.burgmer@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "cburgmer",
+      "email": "christoph.burgmer@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "43c11232ec579a0b8c0dac7d91803de558c2a36e",
+    "tarball": "http://registry.npmjs.org/xmlserializer/-/xmlserializer-0.3.3.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/xmlserializer/-/xmlserializer-0.3.3.tgz"
+}

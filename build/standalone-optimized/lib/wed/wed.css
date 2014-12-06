@@ -196,6 +196,7 @@ div.wed-frame div.wed-document div._real._owns_caret {
   background-image: none;
 }
 div.wed-frame div.wed-document ._placeholder {
+  text-indent: 0px;
   border-style: solid;
   white-space: pre;
 }
