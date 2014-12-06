@@ -524,6 +524,22 @@ rst-doc: $(HTML_TARGETS)
 # solution eventually.
 	$(RST2HTML) $< | perl -np -e 's/href="(.*?)\.rst(#.*?)"/href="$$1.html$$2"/g' > $@
 
+define DIST_COMMON
+	rm -rf build/wed-*.tgz
+	rm -rf build/dist
+	mkdir -p build/dist
+	cp -rp build/standalone build/dist
+	cp -rp build/standalone-optimized build/dist
+	cp -rp bin build/dist
+	cp NPM_README.md build/dist/README.md
+	cp package.json build/dist
+	ln -sf `(cd build; npm pack dist)` build/LATEST-DIST.tgz
+	rm -rf build/t
+	mkdir -p build/t/node_modules
+	(cd build/t; npm install ../LATEST-DIST.tgz)
+	rm -rf build/t
+endef
+
 #
 # The target dist is not optimized. Issuing consecutive `make dist`
 # commands will just recopy everything even if none of the sources
@@ -531,39 +547,19 @@ rst-doc: $(HTML_TARGETS)
 #
 .PHONY: dist
 dist: test selenium-test
-	rm -rf build/wed-*.tgz
-	rm -rf build/dist
-	mkdir -p build/dist
-	cp -rp build/standalone build/dist
-	cp -rp build/standalone-optimized build/dist
-	cp -rp bin build/dist
-	cp NPM_README.md build/dist/README.md
-	cp package.json build/dist
-	(cd build; npm pack dist)
-	rm -rf build/t
-	mkdir -p build/t/node_modules
-	(cd build/t; npm install ../wed-*.tgz)
-	rm -rf build/t
+	$(DIST_COMMON)
 
 .PHONY: dist-notest
 dist-notest: build
-	rm -rf build/wed-*.tgz
-	rm -rf build/dist
-	mkdir -p build/dist
-	cp -rp build/standalone build/dist
-	cp -rp build/standalone-optimized build/dist
-	cp -rp bin build/dist
-	cp NPM_README.md build/dist/README.md
-	cp package.json build/dist
-	(cd build; npm pack dist)
-	rm -rf build/t
-	mkdir -p build/t/node_modules
-	(cd build/t; npm install ../wed-*.tgz)
-	rm -rf build/t
+	$(DIST_COMMON)
 
 .PHONY: publish
 publish: dist
-	npm publish build/dist
+	npm publish build/LATEST-DIST.tgz
+
+.PHONY: publish-notest
+publish-notest: dist-notest
+	npm publish build/LATEST-DIST.tgz
 
 .PHONY: clean
 clean::
