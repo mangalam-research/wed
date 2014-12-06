@@ -1,3 +1,8 @@
+Stack Trace
+===========
+
+util.stackTrace should be updated to take advantage of console.trace.
+
 Testing
 =======
 

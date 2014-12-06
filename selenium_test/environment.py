@@ -188,7 +188,7 @@ def after_scenario(context, _scenario):
     // This clears localforage on pages where it has been loaded
     // and configured by Wed code. We detect this by checking whether the
     // saver has been loaded.
-    if (require.defined("wed/savers/localforage")) {
+    if (require && require.defined("wed/savers/localforage")) {
         var lf = require("localforage");
         var saver = require("wed/savers/localforage");
         saver.config();
