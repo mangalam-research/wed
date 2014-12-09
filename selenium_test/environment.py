@@ -5,6 +5,7 @@ import subprocess
 import atexit
 import tempfile
 import signal
+import threading
 
 import requests
 from requests.exceptions import ConnectionError
@@ -74,9 +75,46 @@ def cleanup(context, failed):
         context.selenic.post_execution()
 
 
+def start_server(context):
+    port = outil.get_unused_port() if not builder.remote else \
+        outil.get_unused_sauce_port()
+
+    if port is None:
+        raise Exception("unable to find a port for the server")
+
+    port = str(port)
+
+    def start():
+        # Start a server just for our tests...
+        context.server = subprocess.Popen(["node", "./server.js",
+                                           "localhost:" + port])
+        builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
+
+        # Try pinging the server util we get a positive response or we've
+        # tried enough times to declare failure
+        tries = 0
+        success = False
+        while not success and tries < 10:
+            try:
+                control(builder.WED_SERVER, 'ping', 'failed to ping')
+                success = True
+            except ConnectionError:
+                time.sleep(0.5)
+                tries += 1
+
+        if not success:
+            raise Exception("cannot contact server")
+
+    thread = threading.Thread(target=start, name="Server Start Thread")
+    thread.start()
+    return thread
+
+
 def before_all(context):
     atexit.register(cleanup, context, True)
     dump_config()
+
+    server_thread = start_server(context)
 
     context.selenium_quit = os.environ.get("SELENIUM_QUIT")
 
@@ -123,6 +161,7 @@ def before_all(context):
     # Without this, window sizes vary depending on the actual browser
     # used.
     context.initial_window_size = {"width": 1020, "height": 700}
+    context.initial_window_handle = driver.current_window_handle
     assert_true(driver.desired_capabilities["nativeEvents"],
                 "Wed's test suite require that native events be available; "
                 "you may have to use a different version of your browser, "
@@ -135,33 +174,7 @@ def before_all(context):
 
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
-    port = outil.get_unused_port() if not builder.remote else \
-        outil.get_unused_sauce_port()
-
-    if port is None:
-        raise Exception("unable to find a port for the server")
-
-    port = str(port)
-
-    # Start a server just for our tests...
-    context.server = subprocess.Popen(["node", "./server.js",
-                                       "localhost:" + port])
-    builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
-
-    # Try pinging the server util we get a positive response or we've
-    # tried enough times to declare failure
-    tries = 0
-    success = False
-    while not success and tries < 10:
-        try:
-            control(builder.WED_SERVER, 'ping', 'failed to ping')
-            success = True
-        except ConnectionError:
-            time.sleep(1)
-            tries += 1
-
-    if not success:
-        raise Exception("cannot contact server")
+    server_thread.join()
 
 FAILS_IF = "fails_if:"
 ONLY_FOR = "only_for:"
@@ -235,7 +248,6 @@ def before_scenario(context, scenario):
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
     driver.set_window_position(0, 0)
-    context.initial_window_handle = driver.current_window_handle
     reset(context.selenic.WED_SERVER)
 
 
@@ -285,11 +297,13 @@ def after_scenario(context, _scenario):
     """)
 
     # Close all extra tabs.
-    for handle in driver.window_handles:
-        if handle != context.initial_window_handle:
-            driver.switch_to_window(handle)
-            driver.close()
-    driver.switch_to_window(context.initial_window_handle)
+    handles = driver.window_handles
+    if handles:
+        for handle in handles:
+            if handle != context.initial_window_handle:
+                driver.switch_to_window(handle)
+                driver.close()
+        driver.switch_to_window(context.initial_window_handle)
 
 
 def before_step(context, step):
