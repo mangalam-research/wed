@@ -1,7 +1,10 @@
-Stack Trace
-===========
+Misc
+====
 
-util.stackTrace should be updated to take advantage of console.trace.
+- wed does not currently support having a schema that allows multiple
+  choices at the root. Fix this. (e.g. TEI vs teiCorpus).
+
+- util.stackTrace should be updated to take advantage of console.trace.
 
 Testing
 =======
