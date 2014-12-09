@@ -195,6 +195,7 @@ build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalo
 build/jenkins-matrix.properties: build/config/selenium_config.py misc/dump_selenium_configs.py
 	python ./misc/dump_selenium_configs.py --jenkins > $@
 
+.PHONY: build-config
 build-config: $(CONFIG_TARGETS) | build/config
 
 build/config: | build-dir
