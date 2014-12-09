@@ -13,6 +13,10 @@ Known limitations:
   constructs are not supported. See the `salve
   <https://github.com/mangalam-research/salve/>`_ package for details.
 
+* Wed currently does not support schemas that allow multiple choices
+  at the root (e.g. TEI vs teiCorpus). These schemas must be
+  customized to allow only one top level element.
+
 * Wed does not currently support ordering attributes according to some
   preference. (The order is whatever the DOM implementation does by
   default.)
