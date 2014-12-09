@@ -7,6 +7,8 @@ import requests
 from nose.tools import assert_equal  # pylint: disable=E0611
 from behave import step_matcher
 
+from selenic.util import Result, Condition
+
 
 step_matcher("re")
 
@@ -18,9 +20,36 @@ def step_impl(context):
 
 last_obj_re = re.compile('.*}{')
 
-# This regular expression is obviously not meant to be general.
-empty_tag_re = re.compile(ur'(<[^/>]+?) (/>)')
 flip_rend_style_re = re.compile(ur'(style=".*?") (rend=".*?")')
+flip_xmlns_re = re.compile(ur'(xmlns:math=".*?") (xmlns=".*?")')
+
+_SCENARIO_TO_EXPECTED_DATA = {
+    "serializes namespaces properly":
+    u"""\
+<TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc>\
+<titleStmt><title>abcd</title></titleStmt><publicationStmt><p/>\
+</publicationStmt><sourceDesc><p/></sourceDesc></fileDesc></teiHeader>\
+<text><body><p><hi/>Blah blah <term>blah</term> blah.</p>\
+<p><term>blah</term></p><p><ref/></p><p><hi>a</hi><hi>b</hi>c</p>\
+<p>abcdefghij</p><p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+<hi>aaaaaaaa aaaaaaaaaaa</hi>abcd</p><p>abcd abcd abcd abcd abcd abcd \
+abcd \
+abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
+abcd \
+abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
+abcd \
+abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
+abcd \
+abcd abcd abcd abcd abcd abcd abcd abcd</p>\
+<p rend="rend_value" style="style_value">Blah</p><p rend="abc">Blah</p>\
+<p part="">Blah</p><div sample=""/></body></text></TEI>""",
+    "serializes multiple top namespaces properly": """\
+<TEI xmlns="http://www.tei-c.org/ns/1.0" \
+xmlns:math="http://www.w3.org/1998/Math/MathML"><teiHeader><fileDesc>\
+<titleStmt><title/></titleStmt><publicationStmt><p/></publicationStmt>\
+<sourceDesc><p/></sourceDesc></fileDesc></teiHeader><text><body><p>\
+<hi/><formula><math:math/></formula></p></body></text></TEI>"""
+}
 
 
 @then('^the data saved is properly serialized$')
@@ -29,21 +58,7 @@ def step_impl(context):
 
     expected = {
         u'command': u'save',
-        u'data': u"""\
-<TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc>\
-<titleStmt><title>abcd</title></titleStmt><publicationStmt><p/>\
-</publicationStmt><sourceDesc><p/></sourceDesc></fileDesc></teiHeader>\
-<text><body><p><hi/>Blah blah <term>blah</term> blah.</p>\
-<p><term>blah</term></p><p><ref/></p><p><hi>a</hi><hi>b</hi>c</p>\
-<p>abcdefghij</p><p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
-<hi>aaaaaaaa aaaaaaaaaaa</hi>abcd</p><p>abcd abcd abcd abcd abcd abcd abcd \
-abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
-abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
-abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
-abcd abcd abcd abcd abcd abcd abcd abcd</p>\
-<p rend="rend_value" style="style_value">Blah</p><p rend="abc">Blah</p>\
-<p part="">Blah</p><div sample=""/></body></text></TEI>"""
-
+        u'data': _SCENARIO_TO_EXPECTED_DATA[context.scenario.name]
     }
 
     def cond(_driver):
@@ -55,14 +70,19 @@ abcd abcd abcd abcd abcd abcd abcd abcd</p>\
         # We don't care about the version here.
         del actual["version"]
         if util.ie and u"data" in actual:
-            # IE serializes empty tags like <foo /> rather than <foo/>
             actual[u"data"] =  \
-                empty_tag_re.sub(ur'\1\2',
-                                 flip_rend_style_re.sub(ur'\2 \1',
-                                                        actual[u"data"]))
-        return actual == expected
+                flip_rend_style_re.sub(ur'\2 \1',
+                                       actual[u"data"])
+            actual[u"data"] = \
+                flip_xmlns_re.sub(ur'\2 \1',
+                                  actual[u"data"])
+        return Result(actual == expected, [actual, expected])
 
-    util.wait(cond)
+    result = Condition(util, cond).wait()
+
+    assert_equal.__self__.maxDiff = None
+    if not result:
+        assert_equal(result.payload[0], result.payload[1])
 
 
 @then(ur'^the modification status shows the document is unmodified$')

@@ -122,7 +122,7 @@ DEST_DATA_FILES:=$(DEST_DATA_FILES_COPY) $(DEST_DATA_FILES_CONVERT_TO_HTML) $(DE
 
 # Use $(sort ...) to remove duplicates.
 HTML_TARGETS:=$(patsubst %.rst,%.html,$(wildcard *.rst))
-SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json build/schemas/tei-doc
+SCHEMA_TARGETS:=$(patsubst %,build/%,$(wildcard schemas/*.js)) build/schemas/tei-metadata.json build/schemas/tei-math-metadata.json build/schemas/tei-doc
 SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_documents/*.xml))
 
 # The list of files and directories to grab from lodash.
@@ -252,17 +252,23 @@ build/schemas:
 build/schemas/%: schemas/% | build/schemas
 	cp $< $@
 
-schemas/out/myTEI.compiled: schemas/myTEI.xml
+schemas/out/%.compiled: schemas/%.xml
 	roma2 --xsl=$(TEI) --compile --nodtd --noxsd $< schemas/out
 
-schemas/out/myTEI.json: schemas/out/myTEI.compiled
+schemas/out/%.json: schemas/out/%.compiled
 	saxon -xsl:/usr/share/xml/tei/stylesheet/odds/odd2json.xsl -s:$< -o:$@ callback=''
 
 build/schemas/tei-metadata.json: schemas/out/myTEI.json
+build/schemas/tei-math-metadata.json: schemas/out/tei-math.json
+
+tei-metadata.json_NS:=--ns tei=http://www.tei-c.org/ns/1.0
+tei-math-metadata.json_NS:=$(tei-metadata.json_NS) --ns xlink=http://www.w3.org/1999/xlink --ns math=http://www.w3.org/1998/Math/MathML
+
+build/schemas/%-metadata.json:
 # The --dochtml string is a path that is meaningful at run time.
 	bin/tei-to-generic-meta-json \
 		--dochtml "../../../../../schemas/tei-doc/"\
-		--ns tei=http://www.tei-c.org/ns/1.0 $< $@
+		$($(notdir $@)_NS) $< $@
 
 build/schemas/tei-doc: schemas/out/myTEI.compiled
 	-rm -rf $@
