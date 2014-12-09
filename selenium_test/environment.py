@@ -2,7 +2,9 @@ import os
 import time
 from urlparse import urljoin
 import subprocess
-import socket
+import atexit
+import tempfile
+import signal
 
 import requests
 from requests.exceptions import ConnectionError
@@ -30,11 +32,57 @@ def dump_config():
     print "***"
 
 
+def cleanup(context, failed):
+    driver = context.driver
+
+    if driver:
+        try:
+            builder.set_test_status(
+                driver.session_id, not (failed or context.failed))
+        except httplib.HTTPException:
+            # Ignore cases where we can't set the status.
+            pass
+
+        selenium_quit = context.selenium_quit
+        if not ((selenium_quit == "never") or
+                (context.failed and selenium_quit == "on-success")):
+            # Yes, we trap every possible exception. There is not much
+            # we can do if the driver refuses to stop.
+            try:
+                driver.quit()
+            except:
+                pass
+        context.driver = None
+
+    if context.sc_tunnel:
+        context.sc_tunnel.send_signal(signal.SIGTERM)
+        context.sc_tunnel = None
+
+    if context.wm:
+        context.wm.send_signal(signal.SIGTERM)
+        context.wm = None
+
+    if context.server:
+        context.server.send_signal(signal.SIGTERM)
+        context.server = None
+
+    if context.display:
+        context.display.stop()
+        context.display = None
+
+    if context.selenic.post_execution:
+        context.selenic.post_execution()
+
+
 def before_all(context):
+    atexit.register(cleanup, context, True)
     dump_config()
 
     context.selenium_quit = os.environ.get("SELENIUM_QUIT")
 
+    context.sc_tunnel = None
+    context.sc_tunnel_tempdir = None
+    desired_capabilities = {}
     if not builder.remote:
         visible = context.selenium_quit in ("never", "on-success")
         context.display = Display(visible=visible, size=(1024, 600))
@@ -44,7 +92,29 @@ def before_all(context):
         context.display = None
         context.wm = None
 
-    driver = builder.get_driver()
+        sc_tunnel_id = os.environ.get("SC_TUNNEL_ID")
+        if not sc_tunnel_id:
+            tmpdir = context.sc_tunnel_tempdir = tempfile.mkdtemp()
+            pidfile_path = os.path.join(tmpdir, "pid")
+            logfile_path = os.path.join(tmpdir, "log")
+            readyfile_path = os.path.join(tmpdir, "ready")
+
+            sc_tunnel_id = "sc-tunnel-for-" + str(os.getpid())
+            user, key = builder.SAUCELABS_CREDENTIALS.split(":")
+            context.sc_tunnel = subprocess.Popen(
+                [builder.SC_TUNNEL_PATH, "-u", user, "-k", key,
+                 "--se-port", "0", "--logfile", logfile_path,
+                 "--pidfile", pidfile_path, "--readyfile",
+                 readyfile_path, "--tunnel-identifier", sc_tunnel_id])
+            while True:
+                if os.path.exists(readyfile_path):
+                    break
+                if context.sc_tunnel.poll():
+                    raise Exception("tunnel exited prematurely")
+                time.sleep(0.2)
+
+        desired_capabilities["tunnel-identifier"] = sc_tunnel_id
+    driver = builder.get_driver(desired_capabilities)
     context.driver = driver
     context.util = selenic.util.Util(driver,
                                      # Give more time if we are remote.
@@ -251,22 +321,5 @@ def after_step(context, _step):
 
 
 def after_all(context):
-    driver = context.driver
-    builder.set_test_status(driver.session_id, not context.failed)
-    selenium_quit = context.selenium_quit
-    if not ((selenium_quit == "never") or
-            (context.failed and selenium_quit == "on-success")):
-        driver.quit()
-        if context.wm:
-            context.wm.kill()
-
-        if context.server:
-            context.server.kill()
-
-        if context.display:
-            context.display.stop()
-
-    if context.selenic.post_execution:
-        context.selenic.post_execution()
-
+    cleanup(context, False)
     dump_config()
