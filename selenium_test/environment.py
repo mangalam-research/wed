@@ -85,7 +85,7 @@ def before_all(context):
     desired_capabilities = {}
     if not builder.remote:
         visible = context.selenium_quit in ("never", "on-success")
-        context.display = Display(visible=visible, size=(1024, 600))
+        context.display = Display(visible=visible, size=(1024, 768))
         context.display.start()
         context.wm = subprocess.Popen(["openbox", "--sm-disable"])
     else:
@@ -122,7 +122,7 @@ def before_all(context):
     context.selenic = builder
     # Without this, window sizes vary depending on the actual browser
     # used.
-    context.initial_window_size = {"width": 1020, "height": 560}
+    context.initial_window_size = {"width": 1020, "height": 700}
     assert_true(driver.desired_capabilities["nativeEvents"],
                 "Wed's test suite require that native events be available; "
                 "you may have to use a different version of your browser, "
