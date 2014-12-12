@@ -3,9 +3,9 @@ import time
 from urlparse import urljoin
 import subprocess
 import atexit
-import tempfile
 import signal
 import threading
+import shutil
 
 import requests
 from requests.exceptions import ConnectionError
@@ -58,6 +58,10 @@ def cleanup(context, failed):
     if context.sc_tunnel:
         context.sc_tunnel.send_signal(signal.SIGTERM)
         context.sc_tunnel = None
+
+    if context.sc_tunnel_tempdir:
+        shutil.rmtree(context.sc_tunnel_tempdir, True)
+        context.sc_tunnel_tempdir = None
 
     if context.wm:
         context.wm.send_signal(signal.SIGTERM)
@@ -132,26 +136,12 @@ def before_all(context):
 
         sc_tunnel_id = os.environ.get("SC_TUNNEL_ID")
         if not sc_tunnel_id:
-            tmpdir = context.sc_tunnel_tempdir = tempfile.mkdtemp()
-            pidfile_path = os.path.join(tmpdir, "pid")
-            logfile_path = os.path.join(tmpdir, "log")
-            readyfile_path = os.path.join(tmpdir, "ready")
-
-            sc_tunnel_id = "sc-tunnel-for-" + str(os.getpid())
             user, key = builder.SAUCELABS_CREDENTIALS.split(":")
-            context.sc_tunnel = subprocess.Popen(
-                [builder.SC_TUNNEL_PATH, "-u", user, "-k", key,
-                 "--se-port", "0", "--logfile", logfile_path,
-                 "--pidfile", pidfile_path, "--readyfile",
-                 readyfile_path, "--tunnel-identifier", sc_tunnel_id])
-            while True:
-                if os.path.exists(readyfile_path):
-                    break
-                if context.sc_tunnel.poll():
-                    raise Exception("tunnel exited prematurely")
-                time.sleep(0.2)
-
+            context.sc_tunnel, sc_tunnel_id, \
+                context.sc_tunnel_tempdir = \
+                outil.start_sc(builder.SC_TUNNEL_PATH, user, key)
         desired_capabilities["tunnel-identifier"] = sc_tunnel_id
+
     driver = builder.get_driver(desired_capabilities)
     context.driver = driver
     context.util = selenic.util.Util(driver,
