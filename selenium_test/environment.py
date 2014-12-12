@@ -2,7 +2,10 @@ import os
 import time
 from urlparse import urljoin
 import subprocess
-import socket
+import atexit
+import signal
+import threading
+import shutil
 
 import requests
 from requests.exceptions import ConnectionError
@@ -30,21 +33,116 @@ def dump_config():
     print "***"
 
 
+def cleanup(context, failed):
+    driver = context.driver
+
+    if driver:
+        try:
+            builder.set_test_status(
+                driver.session_id, not (failed or context.failed))
+        except httplib.HTTPException:
+            # Ignore cases where we can't set the status.
+            pass
+
+        selenium_quit = context.selenium_quit
+        if not ((selenium_quit == "never") or
+                (context.failed and selenium_quit == "on-success")):
+            # Yes, we trap every possible exception. There is not much
+            # we can do if the driver refuses to stop.
+            try:
+                driver.quit()
+            except:
+                pass
+        context.driver = None
+
+    if context.sc_tunnel:
+        context.sc_tunnel.send_signal(signal.SIGTERM)
+        context.sc_tunnel = None
+
+    if context.sc_tunnel_tempdir:
+        shutil.rmtree(context.sc_tunnel_tempdir, True)
+        context.sc_tunnel_tempdir = None
+
+    if context.wm:
+        context.wm.send_signal(signal.SIGTERM)
+        context.wm = None
+
+    if context.server:
+        context.server.send_signal(signal.SIGTERM)
+        context.server = None
+
+    if context.display:
+        context.display.stop()
+        context.display = None
+
+    if context.selenic.post_execution:
+        context.selenic.post_execution()
+
+
+def start_server(context):
+    port = outil.get_unused_port() if not builder.remote else \
+        outil.get_unused_sauce_port()
+
+    if port is None:
+        raise Exception("unable to find a port for the server")
+
+    port = str(port)
+
+    def start():
+        # Start a server just for our tests...
+        context.server = subprocess.Popen(["node", "./server.js",
+                                           "localhost:" + port])
+        builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
+
+        # Try pinging the server util we get a positive response or we've
+        # tried enough times to declare failure
+        tries = 0
+        success = False
+        while not success and tries < 10:
+            try:
+                control(builder.WED_SERVER, 'ping', 'failed to ping')
+                success = True
+            except ConnectionError:
+                time.sleep(0.5)
+                tries += 1
+
+        if not success:
+            raise Exception("cannot contact server")
+
+    thread = threading.Thread(target=start, name="Server Start Thread")
+    thread.start()
+    return thread
+
+
 def before_all(context):
+    atexit.register(cleanup, context, True)
     dump_config()
+
+    server_thread = start_server(context)
 
     context.selenium_quit = os.environ.get("SELENIUM_QUIT")
 
+    context.sc_tunnel = None
+    context.sc_tunnel_tempdir = None
+    desired_capabilities = {}
     if not builder.remote:
         visible = context.selenium_quit in ("never", "on-success")
-        context.display = Display(visible=visible, size=(1024, 600))
+        context.display = Display(visible=visible, size=(1024, 768))
         context.display.start()
         context.wm = subprocess.Popen(["openbox", "--sm-disable"])
     else:
         context.display = None
         context.wm = None
 
-    driver = builder.get_driver()
+        sc_tunnel_id = os.environ.get("SC_TUNNEL_ID")
+        if not sc_tunnel_id:
+            user, key = builder.SAUCELABS_CREDENTIALS.split(":")
+            context.sc_tunnel, sc_tunnel_id, \
+                context.sc_tunnel_tempdir = \
+                outil.start_sc(builder.SC_TUNNEL_PATH, user, key)
+        desired_capabilities["tunnel-identifier"] = sc_tunnel_id
+
+    driver = builder.get_driver(desired_capabilities)
     context.driver = driver
     context.util = selenic.util.Util(driver,
                                      # Give more time if we are remote.
@@ -52,7 +150,8 @@ def before_all(context):
     context.selenic = builder
     # Without this, window sizes vary depending on the actual browser
     # used.
-    context.initial_window_size = {"width": 1020, "height": 560}
+    context.initial_window_size = {"width": 1020, "height": 700}
+    context.initial_window_handle = driver.current_window_handle
     assert_true(driver.desired_capabilities["nativeEvents"],
                 "Wed's test suite require that native events be available; "
                 "you may have to use a different version of your browser, "
@@ -65,33 +164,7 @@ def before_all(context):
 
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
-    port = outil.get_unused_port() if not builder.remote else \
-        outil.get_unused_sauce_port()
-
-    if port is None:
-        raise Exception("unable to find a port for the server")
-
-    port = str(port)
-
-    # Start a server just for our tests...
-    context.server = subprocess.Popen(["node", "./server.js",
-                                       "localhost:" + port])
-    builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
-
-    # Try pinging the server util we get a positive response or we've
-    # tried enough times to declare failure
-    tries = 0
-    success = False
-    while not success and tries < 10:
-        try:
-            control(builder.WED_SERVER, 'ping', 'failed to ping')
-            success = True
-        except ConnectionError:
-            time.sleep(1)
-            tries += 1
-
-    if not success:
-        raise Exception("cannot contact server")
+    server_thread.join()
 
 FAILS_IF = "fails_if:"
 ONLY_FOR = "only_for:"
@@ -165,7 +238,6 @@ def before_scenario(context, scenario):
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
     driver.set_window_position(0, 0)
-    context.initial_window_handle = driver.current_window_handle
     reset(context.selenic.WED_SERVER)
 
 
@@ -215,11 +287,13 @@ def after_scenario(context, _scenario):
     """)
 
     # Close all extra tabs.
-    for handle in driver.window_handles:
-        if handle != context.initial_window_handle:
-            driver.switch_to_window(handle)
-            driver.close()
-    driver.switch_to_window(context.initial_window_handle)
+    handles = driver.window_handles
+    if handles:
+        for handle in handles:
+            if handle != context.initial_window_handle:
+                driver.switch_to_window(handle)
+                driver.close()
+        driver.switch_to_window(context.initial_window_handle)
 
 
 def before_step(context, step):
@@ -251,22 +325,5 @@ def after_step(context, _step):
 
 
 def after_all(context):
-    driver = context.driver
-    builder.set_test_status(driver.session_id, not context.failed)
-    selenium_quit = context.selenium_quit
-    if not ((selenium_quit == "never") or
-            (context.failed and selenium_quit == "on-success")):
-        driver.quit()
-        if context.wm:
-            context.wm.kill()
-
-        if context.server:
-            context.server.kill()
-
-        if context.display:
-            context.display.stop()
-
-    if context.selenic.post_execution:
-        context.selenic.post_execution()
-
+    cleanup(context, False)
     dump_config()

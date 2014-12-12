@@ -16,15 +16,24 @@ from ..util import get_element_parent_and_parent_text, wait_for_editor
 # pylint: disable=E0102
 
 
-def load_and_wait_for_editor(context, text=None, options=None, tooltips=False):
+def load_and_wait_for_editor(context, text=None, options=None,
+                             tooltips=False, schema=None):
     driver = context.driver
     builder = context.selenic
-    server = builder.WED_SERVER + "/kitchen-sink.html?mode=test"
+    server = builder.WED_SERVER + "/kitchen-sink.html?"
+
+    query = {"mode": "test"}
+
     if text is not None:
-        server = server + "&file=" + text
+        query["file"] = text
 
     if options is not None:
-        server = server + "&options=" + options
+        query["options"] = options
+
+    if schema is not None:
+        query["schema"] = schema
+
+    server += urllib.urlencode(query)
 
     driver.get(server)
     wait_for_editor(context, tooltips)
@@ -275,6 +284,15 @@ def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
         text="/build/test-files/wed_test_data/source_converted.xml")
+
+
+@given(ur"^a document that has multiple top namespaces.?$")
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        text="/build/test-files/wed_test_data/" +
+        "multiple_top_namespaces_converted.xml",
+        schema="@math")
 
 
 @given(ur"^a document with tooltips on")

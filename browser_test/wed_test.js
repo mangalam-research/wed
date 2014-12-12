@@ -669,6 +669,36 @@ describe("wed", function () {
             caretCheck(editor, initial, 0, "caret after undo");
         });
 
+        it("undo undoes typed text as a group (inside element)", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var title = editor.gui_root
+                .getElementsByClassName("title")[0];
+            var title_data = $.data(title, "wed_mirror_node");
+
+            var trs = editor.mode.getContextualActions(
+                ["insert"], "hi", title_data.firstChild, 2);
+
+            var tr = trs[0];
+            var data = {node: undefined, name: "hi"};
+            editor.setDataCaret(title_data.firstChild, 2);
+
+            tr.execute(data);
+
+            editor.type("a");
+            var hi = title_data.firstElementChild;
+            var hi_text = hi.firstChild;
+            assert.equal(hi_text.nodeValue, "a",
+                         "text after edit");
+            assert.equal(title_data.childNodes.length, 3);
+
+            editor.undo();
+            // Once upon a time, this crashed wed.
+            editor.dumpUndo();
+            editor.type(key_constants.CTRLEQ_Z);
+        });
+
         it("redo redoes typed text as a group", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
             // Text node inside title.
