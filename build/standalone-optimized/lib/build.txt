@@ -217,6 +217,7 @@ wed/log.js
 wed/oop.js
 wed/lib/simple_event_emitter.js
 wed/lib/conditioned.js
+wed/serializer.js
 wed/saver.js
 wed/savers/ajax.js
 wed/savers/localforage.js

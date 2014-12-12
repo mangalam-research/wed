@@ -230,7 +230,7 @@ function makeElement(doc, ns, name, attrs) {
     if (attrs !== undefined)
     {
         // Create attributes
-        var keys = Object.keys(attrs);
+        var keys = Object.keys(attrs).sort();
         for(var keys_ix = 0, key; (key = keys[keys_ix++]) !== undefined; ) {
             e.setAttribute(key, attrs[key]);
         }

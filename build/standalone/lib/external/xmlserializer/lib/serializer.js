@@ -1,4 +1,4 @@
-var removeInvalidCharacters = function (content) {
+define(function (require, exports, module) {var removeInvalidCharacters = function (content) {
     // See http://www.w3.org/TR/xml/#NT-Char for valid XML 1.0 characters
     return content.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
 };
@@ -115,3 +115,5 @@ var nodeTreeToXHTML = function (node) {
 exports.serializeToString = function (document) {
     return removeInvalidCharacters(nodeTreeToXHTML(document));
 };
+
+});
