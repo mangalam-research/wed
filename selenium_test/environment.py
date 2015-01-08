@@ -129,6 +129,7 @@ def before_all(context):
         visible = context.selenium_quit in ("never", "on-success")
         context.display = Display(visible=visible, size=(1024, 768))
         context.display.start()
+        builder.update_ff_binary_env('DISPLAY')
         context.wm = subprocess.Popen(["openbox", "--sm-disable"])
     else:
         context.display = None
