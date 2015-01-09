@@ -212,7 +212,7 @@ build/config/%:
 
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js node_modules
 
 # We produce a new build-info.js only if the files generated among
 # $(STANDALONE_LIB_FILES) have changed. Note that if we just upgrade
@@ -354,10 +354,11 @@ downloads/$(PURL_BASE): | downloads
 downloads/$(CLASSLIST_BASE): | downloads
 	(cd downloads; $(WGET) -O $(CLASSLIST_BASE) $(CLASSLIST_URL))
 
-
-
-node_modules/%:
-	-mkdir node_modules
+# We need to run npm every single time because if npm-shrinkwrap
+# changes, then the packages must be upgraded.
+.PHONY: node_modules
+node_modules:
+	-mkdir -p node_modules
 	npm install
 
 build/standalone/lib/external/rangy: downloads/$(RANGY_FILE) | build/standalone/lib/external
@@ -540,6 +541,7 @@ define DIST_COMMON
 	cp -rp bin build/dist
 	cp NPM_README.md build/dist/README.md
 	cp package.json build/dist
+	cp npm-shrinkwrap.json build/dist
 	ln -sf `(cd build; npm pack dist)` build/LATEST-DIST.tgz
 	rm -rf build/t
 	mkdir -p build/t/node_modules

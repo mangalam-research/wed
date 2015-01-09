@@ -44,6 +44,11 @@ def user_load(context):
     load_and_wait_for_editor(context)
 
 
+@when("waits for the editor")
+def step_impl(context):
+    wait_for_editor(context)
+
+
 @then("the editor shows a document")
 def doc_appears(context):
     driver = context.driver
@@ -545,14 +550,14 @@ def step_impl(context, what, text):
     assert_equal(context.driver.switch_to.alert.text, text)
 
 
-@when(ur'^the user dismisses the alert$')
+@when(ur'^the user cancels the alert$')
 def step_imp(context):
-    context.driver.switch_to.alert.accept()
+    context.driver.switch_to.alert.dismiss()
     # This is a workaround for a Selenium bug:
     # https://code.google.com/p/selenium/issues/detail?id=8208
     if context.util.firefox:
         try:
-            context.driver.switch_to.alert.accept()
+            context.driver.switch_to.alert.dismiss()
         except NoAlertPresentException:
             pass
 

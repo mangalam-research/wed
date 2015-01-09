@@ -24,12 +24,10 @@ Scenario: reloading a modified document brings up a prompt
   And that the user has deleted all the text in an element
   When the user reloads
   Then a reload prompt with the text "The document has unsaved modifications. Do you really want to leave without saving?" comes up
-  When the user dismisses the alert
-  # There is no need for an additional line here. If the alert is not
-  # dismissed the cleanup code for the scenario will fail.
+  When the user cancels the alert
+  And waits for the editor
 
 Scenario: reloading an unmodified document does not bring up a prompt
   Given a document containing a top level element, a p element, and text.
   When the user reloads
-  # There is no need for an additional line here. If an alert comes
-  # up, the cleanup code for the scenario will fail.
+  And waits for the editor

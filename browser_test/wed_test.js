@@ -115,7 +115,7 @@ describe("wed", function () {
             if (editor)
                 editor.destroy();
             editor = undefined;
-            assert.isFalse(onerror.__test.is_terminating(),
+            assert.isFalse(onerror.is_terminating(),
                            "test caused an unhandled exception to occur");
             // We don't reload our page so we need to do this.
             onerror.__test.reset();
@@ -1945,14 +1945,14 @@ describe("wed", function () {
             if (editor)
                 editor.destroy();
             editor = undefined;
-            assert.isFalse(onerror.__test.is_terminating(),
+            assert.isFalse(onerror.is_terminating(),
                            "test caused an unhandled exception to occur");
             // We don't reload our page so we need to do this.
             onerror.__test.reset();
         });
 
         afterEach(function () {
-            assert.isFalse(onerror.__test.is_terminating(),
+            assert.isFalse(onerror.is_terminating(),
                            "test caused an unhandled exception to occur");
             // We don't reload our page so we need to do this.
             onerror.__test.reset();

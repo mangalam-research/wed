@@ -6,15 +6,15 @@ import atexit
 import signal
 import threading
 import shutil
+import datetime
+import httplib
 
 import requests
 from requests.exceptions import ConnectionError
 from pyvirtualdisplay import Display
 
 # pylint: disable=E0611
-from nose.tools import assert_raises, assert_true
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import TimeoutException
+from nose.tools import assert_true, assert_false
 
 from selenic import Builder, outil
 import selenic.util
@@ -36,6 +36,10 @@ def dump_config():
 def cleanup(context, failed):
     driver = context.driver
 
+    selenium_quit = context.selenium_quit
+    actually_quit = not ((selenium_quit in ("never", "on-enter")) or
+                         (context.failed and selenium_quit ==
+                          "on-success"))
     if driver:
         try:
             builder.set_test_status(
@@ -44,11 +48,15 @@ def cleanup(context, failed):
             # Ignore cases where we can't set the status.
             pass
 
-        selenium_quit = context.selenium_quit
-        if not ((selenium_quit == "never") or
-                (context.failed and selenium_quit == "on-success")):
+        if actually_quit:
             # Yes, we trap every possible exception. There is not much
             # we can do if the driver refuses to stop.
+            try:
+                driver.quit()
+            except:
+                pass
+        elif selenium_quit == "on-enter":
+            raw_input("Hit enter to quit")
             try:
                 driver.quit()
             except:
@@ -63,17 +71,18 @@ def cleanup(context, failed):
         shutil.rmtree(context.sc_tunnel_tempdir, True)
         context.sc_tunnel_tempdir = None
 
-    if context.wm:
-        context.wm.send_signal(signal.SIGTERM)
-        context.wm = None
+    if actually_quit:
+        if context.wm:
+            context.wm.send_signal(signal.SIGTERM)
+            context.wm = None
+
+        if context.display:
+            context.display.stop()
+            context.display = None
 
     if context.server:
         context.server.send_signal(signal.SIGTERM)
         context.server = None
-
-    if context.display:
-        context.display.stop()
-        context.display = None
 
     if context.selenic.post_execution:
         context.selenic.post_execution()
@@ -129,6 +138,7 @@ def before_all(context):
         visible = context.selenium_quit in ("never", "on-success")
         context.display = Display(visible=visible, size=(1024, 768))
         context.display.start()
+        builder.update_ff_binary_env('DISPLAY')
         context.wm = subprocess.Popen(["openbox", "--sm-disable"])
     else:
         context.display = None
@@ -165,6 +175,7 @@ def before_all(context):
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
     server_thread.join()
+    context.start_time = time.time()
 
 FAILS_IF = "fails_if:"
 ONLY_FOR = "only_for:"
@@ -243,26 +254,36 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, _scenario):
     driver = context.driver
-    util = context.util
 
     #
     # Make sure we did not trip a fatal error.
     #
-    with util.local_timeout(0.1):
-        assert_raises(TimeoutException, util.find_element,
-                      (By.CLASS_NAME, "wed-fatal-modal"))
-
-    context.driver.execute_async_script("""
+    terminating = context.driver.execute_async_script("""
     var done = arguments[0];
 
     window.onbeforeunload = function () {};
 
-    // This clears localforage on pages where it has been loaded
-    // and configured by Wed code. We detect this by checking whether the
-    // saver has been loaded.
-    if (require && require.defined("wed/savers/localforage")) {
-        var lf = require("localforage");
-        var saver = require("wed/savers/localforage");
+    if (typeof require === "undefined" || !require.defined) {
+        done(false);
+        return;
+    }
+
+    var onerror_defined = require.defined("wed/onerror");
+
+    define("undefined", function () { return undefined; });
+
+    var deps = [];
+    deps.push(onerror_defined ? "wed/onerror" : "undefined");
+
+    deps = deps.concat(require.defined("wed/savers/localforage") ?
+      ["wed/savers/localforage", "localforage"] : ["undefined", "undefined"]);
+
+    require(deps, function (onerror, saver, lf) {
+      var terminating = onerror && onerror.is_terminating();
+      // This clears localforage on pages where it has been loaded
+      // and configured by Wed code. We detect this by checking whether the
+      // saver has been loaded.
+      if (saver) {
         saver.config();
         lf.clear().then(function () {
             // This rigmarole is required to work around a bug in IndexedDB.
@@ -275,16 +296,22 @@ def after_scenario(context, _scenario):
                 lf.length(function (length) {
                     if (length)
                         setTimeout(check, 100);
-                    else
-                        done();
+                    else {
+                        done(terminating);
+                        return;
+                    }
                 });
             }
             check();
         });
-    }
-    else
-        done();
+      }
+      else {
+          done(terminating);
+          return;
+      }
+    });
     """)
+    assert_false(terminating, "should not have experienced a fatal error")
 
     # Close all extra tabs.
     handles = driver.window_handles
@@ -325,5 +352,7 @@ def after_step(context, _step):
 
 
 def after_all(context):
+    print "Elapsed between before_all and after_all:", \
+        str(datetime.timedelta(seconds=time.time() - context.start_time))
     cleanup(context, False)
     dump_config()
