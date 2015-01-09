@@ -6,6 +6,8 @@ import atexit
 import signal
 import threading
 import shutil
+import datetime
+import httplib
 
 import requests
 from requests.exceptions import ConnectionError
@@ -173,6 +175,7 @@ def before_all(context):
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
     server_thread.join()
+    context.start_time = time.time()
 
 FAILS_IF = "fails_if:"
 ONLY_FOR = "only_for:"
@@ -349,5 +352,7 @@ def after_step(context, _step):
 
 
 def after_all(context):
+    print "Elapsed between before_all and after_all:", \
+        str(datetime.timedelta(seconds=time.time() - context.start_time))
     cleanup(context, False)
     dump_config()
