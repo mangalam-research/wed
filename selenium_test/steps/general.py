@@ -44,6 +44,11 @@ def user_load(context):
     load_and_wait_for_editor(context)
 
 
+@when("waits for the editor")
+def step_impl(context):
+    wait_for_editor(context)
+
+
 @then("the editor shows a document")
 def doc_appears(context):
     driver = context.driver
