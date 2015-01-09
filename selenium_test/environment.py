@@ -36,6 +36,10 @@ def dump_config():
 def cleanup(context, failed):
     driver = context.driver
 
+    selenium_quit = context.selenium_quit
+    actually_quit = not ((selenium_quit in ("never", "on-enter")) or
+                         (context.failed and selenium_quit ==
+                          "on-success"))
     if driver:
         try:
             builder.set_test_status(
@@ -44,11 +48,15 @@ def cleanup(context, failed):
             # Ignore cases where we can't set the status.
             pass
 
-        selenium_quit = context.selenium_quit
-        if not ((selenium_quit == "never") or
-                (context.failed and selenium_quit == "on-success")):
+        if actually_quit:
             # Yes, we trap every possible exception. There is not much
             # we can do if the driver refuses to stop.
+            try:
+                driver.quit()
+            except:
+                pass
+        elif selenium_quit == "on-enter":
+            raw_input("Hit enter to quit")
             try:
                 driver.quit()
             except:
@@ -63,17 +71,18 @@ def cleanup(context, failed):
         shutil.rmtree(context.sc_tunnel_tempdir, True)
         context.sc_tunnel_tempdir = None
 
-    if context.wm:
-        context.wm.send_signal(signal.SIGTERM)
-        context.wm = None
+    if actually_quit:
+        if context.wm:
+            context.wm.send_signal(signal.SIGTERM)
+            context.wm = None
+
+        if context.display:
+            context.display.stop()
+            context.display = None
 
     if context.server:
         context.server.send_signal(signal.SIGTERM)
         context.server = None
-
-    if context.display:
-        context.display.stop()
-        context.display = None
 
     if context.selenic.post_execution:
         context.selenic.post_execution()
