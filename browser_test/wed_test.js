@@ -35,6 +35,7 @@ var option_stack = [options];
 
 function caretCheck(editor, container, offset, msg) {
     var caret = editor.getGUICaret(true);
+    assert.isTrue(!!caret, "there should be a caret");
     if (offset !== null) {
         assert.equal(caret.node, container, msg + " (container)");
         assert.equal(caret.offset, offset, msg + " (offset)");
@@ -77,22 +78,28 @@ function lastGUI(container) {
 }
 
 function activateContextMenu(editor, el) {
-    el.scrollIntoView();
-    var rect = el.getBoundingClientRect();
-    var left = rect.left + rect.width / 2;
-    var top = rect.top + rect.height / 2;
-    var scroll_top = editor.my_window.document.body.scrollTop;
-    var scroll_left = editor.my_window.document.body.scrollLeft;
-    var values = {
-        which: 3,
-        pageX: left + scroll_left,
-        pageY: top + scroll_top,
-        clientX: left,
-        clientY: top,
-        target: el
-    };
+    function computeValues() {
+        el.scrollIntoView();
+        var rect = el.getBoundingClientRect();
+        var left = rect.left + rect.width / 2;
+        var top = rect.top + rect.height / 2;
+        var scroll_top = editor.my_window.document.body.scrollTop;
+        var scroll_left = editor.my_window.document.body.scrollLeft;
+        return {
+            which: 3,
+            pageX: left + scroll_left,
+            pageY: top + scroll_top,
+            clientX: left,
+            clientY: top,
+            target: el
+        };
+    }
+
+    var values = computeValues();
     var event = new $.Event("mousedown", values);
     editor.$gui_root.trigger(event);
+
+    values = computeValues();
     event = new $.Event("mouseup", values);
     editor.$gui_root.trigger(event);
 }
@@ -1772,8 +1779,10 @@ describe("wed", function () {
             event.target = text_loc.node.parentNode;
             var rr = text_loc.makeRange(text_loc.make(text_loc.node, 3));
             var rect = rr.range.nativeRange.getBoundingClientRect();
-            event.pageX = rect.left;
-            event.pageY = ((rect.top + rect.bottom) / 2);
+            var scroll_top = editor.my_window.document.body.scrollTop;
+            var scroll_left = editor.my_window.document.body.scrollLeft;
+            event.pageX = rect.left + scroll_left;
+            event.pageY = ((rect.top + rect.bottom) / 2) + scroll_top;
             event.clientX = rect.left;
             event.clientY = ((rect.top + rect.bottom) / 2);
             event.which = 1; // First mouse button.

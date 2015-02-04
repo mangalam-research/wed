@@ -101,7 +101,7 @@ def start_server(context):
     def start():
         # Start a server just for our tests...
         context.server = subprocess.Popen(["node", "./server.js",
-                                           "localhost:" + port])
+                                           "server", "localhost:" + port])
         builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
 
         # Try pinging the server util we get a positive response or we've
