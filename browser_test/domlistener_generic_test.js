@@ -85,7 +85,7 @@ return function (domlistener, class_name, tree_updater_class) {
     var assert = chai.assert;
     var Listener = domlistener.Listener;
     describe(class_name, function () {
-        var $root = $("#domroot");
+        var $root = $(window.parent.document.getElementById("domroot"));
         var $fragment_to_add;
         var listener;
         var tree_updater;

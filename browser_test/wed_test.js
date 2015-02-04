@@ -28,7 +28,7 @@ var options = {
 };
 var assert = chai.assert;
 
-var wedroot = document.getElementById("wedframe-invisible")
+var wedroot = window.parent.document.getElementById("wedframe")
         .contentWindow.document.getElementById("wedroot");
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];

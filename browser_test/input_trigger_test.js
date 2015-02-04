@@ -27,7 +27,8 @@ var options = {
     }
 };
 
-var wedroot = $("#wedframe-invisible").contents().find("#wedroot")[0];
+var wedroot = window.parent.document.getElementById("wedframe")
+        .contentWindow.document.getElementById("wedroot");
 var $wedroot = $(wedroot);
 var source = "../../test-files/input_trigger_test_data/source_converted.xml";
 

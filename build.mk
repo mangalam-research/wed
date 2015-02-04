@@ -187,6 +187,7 @@ build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
 			$$config.t > $$config; \
 		rm $$config.t; \
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/test.html; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/mocha_frame.html; \
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
@@ -212,7 +213,8 @@ build/config/%:
 
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js node_modules
+.PHONY: build-only-standalone
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js node_modules
 
 # We produce a new build-info.js only if the files generated among
 # $(STANDALONE_LIB_FILES) have changed. Note that if we just upgrade
@@ -226,7 +228,8 @@ build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
 build/standalone/%.html: web/%.html
 	cp $< $@
 
-build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html build/standalone-optimized/platform_test.html build/standalone-optimized/files.html
+.PHONY: build-standalone-optimized
+build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/mocha_frame.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html build/standalone-optimized/platform_test.html build/standalone-optimized/files.html
 
 build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
 	cp $< $@

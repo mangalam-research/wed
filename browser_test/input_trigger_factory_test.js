@@ -25,7 +25,8 @@ var options = {
     }
 };
 
-var wedroot = $("#wedframe-invisible").contents().find("#wedroot")[0];
+var wedroot = window.parent.document.getElementById("wedframe")
+        .contentWindow.document.getElementById("wedroot");
 var $wedroot = $(wedroot);
 // Yes, we use *input_trigger* test data.
 var src_stack =
