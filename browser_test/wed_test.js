@@ -1636,6 +1636,141 @@ describe("wed", function () {
                                   "after increasing the level");
         });
 
+        it("refreshes error positions when pasting", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Paste.
+            var initial =
+                editor.data_root.querySelector("body>p").firstChild;
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.nodeValue;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "abcdef";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            assert.equal(initial.nodeValue, "abcdef" + initial_value);
+            dataCaretCheck(editor, initial, 6, "final position");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
+        });
+
+        it("refreshes error positions when typing text", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Text node inside title.
+            var initial =
+                editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 0);
+
+            editor.type("blah");
+            assert.equal(initial.nodeValue, "blahabcd");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 4, "caret after text insertion");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
+        });
+
+
+        it("refreshes error positions when typing DELETE", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Text node inside title.
+            var initial =
+                editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 0);
+
+            editor.type(key_constants.DELETE);
+            assert.equal(initial.nodeValue, "bcd");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 0, "caret after text deletion");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
+        });
+
+        it("refreshes error positions when typing BACKSPACE",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Text node inside title.
+            var initial =
+                editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 4);
+
+            editor.type(key_constants.BACKSPACE);
+            assert.equal(initial.nodeValue, "abc");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 3, "caret after text deletion");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
+        });
+
         describe("interacts with the server:", function () {
             before(function () {
                 src_stack.unshift("../../test-files/wed_test_data" +
