@@ -1595,6 +1595,47 @@ describe("wed", function () {
             tr.execute(data);
         });
 
+        it("refreshes error positions when changing label "+
+           "visibility level", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Reduce the visibility level.
+            editor.type(key_constants.CTRLEQ_OPEN_BRACKET);
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same after decreasing the level");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new " +
+                                  "after decreasing the level");
+
+
+            orig = then;
+
+            // Increase visibility level
+            editor.type(key_constants.CTRLEQ_CLOSE_BRACKET);
+            then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same after increasing the level");
+
+            // Make sure all markers are new.
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new " +
+                                  "after increasing the level");
+        });
+
         describe("interacts with the server:", function () {
             before(function () {
                 src_stack.unshift("../../test-files/wed_test_data" +
