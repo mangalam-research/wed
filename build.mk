@@ -69,7 +69,7 @@ RANGY_FILE=rangy-1.3alpha.804.tar.gz
 
 JQUERY_FILE=jquery-2.1.1.js
 
-BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-dist.zip #https://github.com/twbs/bootstrap/releases/download/v3.0.3/bootstrap-3.0.3-dist.zip
+BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.3.2/bootstrap-3.3.2-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fontawesome.io/assets/font-awesome-4.2.0.zip
 FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
@@ -129,12 +129,12 @@ SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_
 LODASH_FILES:=main.js modern package.json
 LODASH_BUILD_FILES:=$(addprefix build/standalone/lib/external/lodash/,$(LODASH_FILES))
 
-.SECONDARY:
 .DELETE_ON_ERROR:
 
-.PHONY: all build-dir build
+.PHONY: all
 all: build
 
+.PHONY: build-dir
 build-dir:
 	-@[ -e build ] || mkdir build
 
@@ -191,7 +191,8 @@ build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
-build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build/jenkins-matrix.properties
+.PHONY: build
+build: $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build/jenkins-matrix.properties
 
 build/jenkins-matrix.properties: build/config/selenium_config.py misc/dump_selenium_configs.py
 	python ./misc/dump_selenium_configs.py --jenkins > $@
@@ -211,6 +212,7 @@ endif
 build/config/%:
 	cp $< $@
 
+.PHONY: build-standalone
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 .PHONY: build-only-standalone
@@ -381,7 +383,7 @@ build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/sta
 	-rm -rf $@
 	-mkdir $@
 	-rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
-	unzip -d downloads/ $<
+	unzip -DD -d downloads/ $<
 	mv downloads/$(BOOTSTRAP_BASE:.zip=)/* $@
 	rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
 # unzip preserves the creation date of the bootstrap directory. Which
