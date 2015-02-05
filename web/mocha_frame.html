@@ -34,6 +34,32 @@
           }
       });
 
+      var config = require.s.contexts._.config;
+      if (config.bundles && config.bundles["wed/wed"]) {
+          var wed_bundle = config.bundles["wed/wed"].slice();
+          wed_bundle.push(
+              "wed/validator",
+              "salve/validate",
+              "wed/oop",
+              "wed/key",
+              "wed/key_constants",
+              "wed/transformation",
+              "wed/gui/modal",
+              "wed/domutil",
+              "wed/convert",
+              "rangy",
+              "wed/dloc",
+              "wed/util",
+              "wed/updater_domlistener",
+              "wed/tree_updater"
+          );
+          require.config({
+              bundles: {
+                  "wed/wed": wed_bundle
+              }
+          });
+      }
+
       require(["mocha/mocha", "chai", "browser_test/global", "wed/onerror",
                "browser_test/validator_test",
                "browser_test/jquery.findandself_test",
