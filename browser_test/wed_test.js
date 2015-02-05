@@ -5,9 +5,9 @@
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-        "wed/key", "wed/dloc", "wed/util"],
+        "wed/key", "wed/dloc", "wed/util", "salve/validate"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util) {
+                onerror, log, key, dloc, util, validate) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -99,6 +99,17 @@ describe("wed", function () {
         // is costly to create a new editor for each individual test,
         // we don't want to put in this `describe` the tests that
         // don't need such initialization.
+
+        before(function (done) {
+            // Resolve the schema to a grammar.
+            $.get(require.toUrl(options.schema), function (x) {
+                options.schema = validate.constructTree(x);
+                done();
+            }, "text").fail(
+                function (jqXHR, textStatus, errorThrown) {
+                throw new Error(textStatus + " " + errorThrown);
+            });
+        });
 
         var editor;
         beforeEach(function (done) {
