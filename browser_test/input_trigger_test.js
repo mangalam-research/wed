@@ -5,9 +5,9 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
-        "wed/transformation"],
+        "wed/transformation", "salve/validate"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
-         input_trigger_factory, transformation) {
+         input_trigger_factory, transformation, validate) {
 'use strict';
 var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
@@ -27,7 +27,8 @@ var options = {
     }
 };
 
-var wedroot = $("#wedframe-invisible").contents().find("#wedroot")[0];
+var wedroot = window.parent.document.getElementById("wedframe")
+        .contentWindow.document.getElementById("wedroot");
 var $wedroot = $(wedroot);
 var source = "../../test-files/input_trigger_test_data/source_converted.xml";
 
@@ -40,6 +41,18 @@ function cleanNamespace(str) {
 
 describe("InputTrigger", function () {
     var editor;
+
+    before(function (done) {
+        // Resolve the schema to a grammar.
+        $.get(require.toUrl(options.schema), function (x) {
+            options.schema = validate.constructTree(x);
+            done();
+        }, "text").fail(
+            function (jqXHR, textStatus, errorThrown) {
+            throw new Error(textStatus + " " + errorThrown);
+        });
+    });
+
     beforeEach(function (done) {
         require(["requirejs/text!" + source], function(data) {
             editor = new wed.Editor();

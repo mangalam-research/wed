@@ -4,8 +4,8 @@
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "wed/validator", "salve/validate",
-        "wed/mode_validator", "wed/oop"],
-function (mocha, chai, validator, validate, mode_validator, oop) {
+        "wed/mode_validator", "wed/oop", "jquery"],
+function (mocha, chai, validator, validate, mode_validator, oop, $) {
 'use strict';
 
 // The test subdirectory is one of the paths required to be in the config
@@ -21,12 +21,23 @@ describe("validator", function () {
     var frag = document.createDocumentFragment();
     var empty_tree = document.createElement("div");
     frag.appendChild(empty_tree);
+    var grammar;
+
+    before(function (done) {
+        $.get(require.toUrl(schema), function (x) {
+            grammar = validate.constructTree(x);
+            done();
+        }, "text").fail(
+            function (jqXHR, textStatus, errorThrown) {
+            throw new Error(textStatus + " " + errorThrown);
+        });
+    });
 
     describe("", function () {
         var p;
 
         function makeValidator(tree) {
-            var p = new validator.Validator(schema, tree);
+            var p = new validator.Validator(grammar, tree);
             p._max_timespan = 0; // Work forever.
             return p;
         }

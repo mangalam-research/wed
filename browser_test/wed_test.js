@@ -5,9 +5,9 @@
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-        "wed/key", "wed/dloc", "wed/util"],
+        "wed/key", "wed/dloc", "wed/util", "salve/validate"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util) {
+                onerror, log, key, dloc, util, validate) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -28,7 +28,7 @@ var options = {
 };
 var assert = chai.assert;
 
-var wedroot = document.getElementById("wedframe-invisible")
+var wedroot = window.parent.document.getElementById("wedframe")
         .contentWindow.document.getElementById("wedroot");
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];
@@ -99,6 +99,17 @@ describe("wed", function () {
         // is costly to create a new editor for each individual test,
         // we don't want to put in this `describe` the tests that
         // don't need such initialization.
+
+        before(function (done) {
+            // Resolve the schema to a grammar.
+            $.get(require.toUrl(options.schema), function (x) {
+                options.schema = validate.constructTree(x);
+                done();
+            }, "text").fail(
+                function (jqXHR, textStatus, errorThrown) {
+                throw new Error(textStatus + " " + errorThrown);
+            });
+        });
 
         var editor;
         beforeEach(function (done) {
@@ -243,17 +254,43 @@ describe("wed", function () {
             // text node, which would throw off the
             // nodeToPath/pathToNode calculations.
 
+            editor.type("1");
+            assert.equal(initial.nodeValue, "1abcd");
+            assert.equal(parent.childNodes.length, 3);
+
+            editor.type("1");
+            assert.equal(initial.nodeValue, "11abcd");
+            assert.equal(parent.childNodes.length, 3);
+
+            // This is where wed used to fail.
+            editor.type("1");
+            assert.equal(initial.nodeValue, "111abcd");
+            assert.equal(parent.childNodes.length, 3);
+        });
+
+        it("typing adjancent spaces inserts only one space", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            // Text node inside title.
+            var initial = editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 0);
+
             editor.type(" ");
             assert.equal(initial.nodeValue, " abcd");
             assert.equal(parent.childNodes.length, 3);
 
             editor.type(" ");
-            assert.equal(initial.nodeValue, "  abcd");
+            assert.equal(initial.nodeValue, " abcd");
             assert.equal(parent.childNodes.length, 3);
 
-            // This is where wed used to fail.
+            editor.setGUICaret(initial, 5);
             editor.type(" ");
-            assert.equal(initial.nodeValue, "   abcd");
+            assert.equal(initial.nodeValue, " abcd ");
+            assert.equal(parent.childNodes.length, 3);
+
+            editor.type(" ");
+            assert.equal(initial.nodeValue, " abcd ");
             assert.equal(parent.childNodes.length, 3);
         });
 
@@ -382,6 +419,79 @@ describe("wed", function () {
             // Check that the data is also modified
             var data_node = editor.toDataNode(initial);
             assert.equal(data_node.value, "blahrend_value");
+        });
+
+        it("typing multiple spaces in an attribute normalizes the space",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var ps = editor.gui_root.querySelectorAll(".body>.p");
+            var first_gui = firstGUI(ps[7]);
+            var initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            editor.setGUICaret(initial, 0);
+            assert.equal(initial.data, "rend_value");
+
+            editor.type(" ");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, " rend_value");
+            caretCheck(editor, initial, 1, "caret after text insertion");
+
+            // Check that the data is also modified
+            var data_node = editor.toDataNode(initial);
+            assert.equal(data_node.value, " rend_value");
+
+            editor.type(" ");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, " rend_value");
+            caretCheck(editor, initial, 1, "caret after text insertion");
+
+            // Check that the data is also modified
+            assert.equal(data_node.value, " rend_value");
+
+            editor.setGUICaret(initial, 11);
+
+            editor.type(" ");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, " rend_value ");
+            caretCheck(editor, initial, 12, "caret after text insertion");
+
+            // Check that the data is also modified
+            assert.equal(data_node.value, " rend_value ");
+
+            editor.type(" ");
+
+            // We have to refetch because the decorations have been
+            // redone.
+            first_gui = firstGUI(ps[7]);
+            initial =
+                first_gui.getElementsByClassName("_attribute_value")[0]
+                .firstChild;
+            assert.equal(initial.data, " rend_value ");
+            caretCheck(editor, initial, 12, "caret after text insertion");
+
+            // Check that the data is also modified
+            assert.equal(data_node.value, " rend_value ");
         });
 
         it("typing text in an empty attribute inserts text", function () {
@@ -643,6 +753,33 @@ describe("wed", function () {
             // Check that the data is also modified
             data_node = editor.toDataNode(initial);
             assert.equal(data_node.value, "");
+        });
+
+        it("typing a non-breaking space converts it to a regular space",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var initial = editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 0);
+
+            editor.type("\u00A0");
+            assert.equal(initial.nodeValue, " abcd");
+        });
+
+        it("typing a zero-width space is a no-op", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            // Text node inside title.
+            var initial = editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 0);
+
+            editor.type("\u200B");
+            assert.equal(initial.nodeValue, "abcd");
         });
 
         it("undo undoes typed text as a group", function () {
@@ -1342,6 +1479,48 @@ describe("wed", function () {
             dataCaretCheck(editor, initial, 6, "final position");
         });
 
+        it("pasting spaces pastes a single space", function () {
+            var initial = editor.data_root.querySelector("body>p").firstChild;
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.nodeValue;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "    \u00A0  ";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            assert.equal(initial.nodeValue, " " + initial_value);
+            dataCaretCheck(editor, initial, 1, "final position");
+        });
+
+        it("pasting zero-width space pastes nothing", function () {
+            var initial = editor.data_root.querySelector("body>p").firstChild;
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.nodeValue;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "\u200B\u200B";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            assert.equal(initial.nodeValue, initial_value);
+            dataCaretCheck(editor, initial, 0, "final position");
+        });
+
         it("handles pasting structured text", function () {
             var p = editor.data_root.querySelector("body>p");
             var initial = p.firstChild;
@@ -1355,7 +1534,9 @@ describe("wed", function () {
                 clipboardData: {
                     types: ["text/html", "text/plain"],
                     getData: function (type) {
-                        return p.innerHTML;
+                        // We add the zero-width space for the heck of it.
+                        // It will be stripped.
+                        return p.innerHTML + "\u200B";
                     }
                 }
             };
@@ -1593,6 +1774,182 @@ describe("wed", function () {
             var tr = trs[0];
             var data = {node: undefined, name: "biblFull"};
             tr.execute(data);
+        });
+
+        it("refreshes error positions when changing label "+
+           "visibility level", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Reduce the visibility level.
+            editor.type(key_constants.CTRLEQ_OPEN_BRACKET);
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same after decreasing the level");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new " +
+                                  "after decreasing the level");
+
+
+            orig = then;
+
+            // Increase visibility level
+            editor.type(key_constants.CTRLEQ_CLOSE_BRACKET);
+            then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same after increasing the level");
+
+            // Make sure all markers are new.
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new " +
+                                  "after increasing the level");
+        });
+
+        it("refreshes error positions when pasting", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Paste.
+            var initial =
+                editor.data_root.querySelector("body>p").firstChild;
+            editor.setDataCaret(initial, 0);
+            var initial_value = initial.nodeValue;
+
+            // Synthetic event
+            var event = new $.Event("paste");
+            // Provide a skeleton of clipboard data
+            event.originalEvent = {
+                clipboardData: {
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "abcdef";
+                    }
+                }
+            };
+            editor.$gui_root.trigger(event);
+            assert.equal(initial.nodeValue, "abcdef" + initial_value);
+            dataCaretCheck(editor, initial, 6, "final position");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
+        });
+
+        it("refreshes error positions when typing text", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Text node inside title.
+            var initial =
+                editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 0);
+
+            editor.type("blah");
+            assert.equal(initial.nodeValue, "blahabcd");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 4, "caret after text insertion");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
+        });
+
+
+        it("refreshes error positions when typing DELETE", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Text node inside title.
+            var initial =
+                editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 0);
+
+            editor.type(key_constants.DELETE);
+            assert.equal(initial.nodeValue, "bcd");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 0, "caret after text deletion");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
+        });
+
+        it("refreshes error positions when typing BACKSPACE",
+           function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            var orig = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            // Text node inside title.
+            var initial =
+                editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            var parent = initial.parentNode;
+            editor.setGUICaret(initial, 4);
+
+            editor.type(key_constants.BACKSPACE);
+            assert.equal(initial.nodeValue, "abc");
+            assert.equal(parent.childNodes.length, 3);
+            caretCheck(editor, initial, 3, "caret after text deletion");
+
+            var then = Array.prototype.slice.call(
+                editor._$error_layer[0].children);
+
+            assert.equal(orig.count, then.count,
+                         "the number of recorded errors should be "+
+                         "the same");
+
+            // Make sure all markers are new.
+            var i, item;
+            for (i = 0; (item = orig[i]); ++i)
+                assert.notInclude(then, item,
+                                  "the list of markers should be new");
         });
 
         describe("interacts with the server:", function () {

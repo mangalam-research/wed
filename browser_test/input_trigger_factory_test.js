@@ -4,8 +4,9 @@
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
-        "wed/wed", "wed/key", "wed/key_constants"],
-function (mocha, chai, $, input_trigger_factory, wed, key, key_constants) {
+        "wed/wed", "wed/key", "wed/key_constants", "salve/validate"],
+function (mocha, chai, $, input_trigger_factory, wed, key, key_constants,
+          validate) {
 'use strict';
 
 var assert = chai.assert;
@@ -25,7 +26,8 @@ var options = {
     }
 };
 
-var wedroot = $("#wedframe-invisible").contents().find("#wedroot")[0];
+var wedroot = window.parent.document.getElementById("wedframe")
+        .contentWindow.document.getElementById("wedroot");
 var $wedroot = $(wedroot);
 // Yes, we use *input_trigger* test data.
 var src_stack =
@@ -40,6 +42,18 @@ function cleanNamespace(str) {
 
 describe("input_trigger_factory", function () {
     var editor;
+
+    before(function (done) {
+        // Resolve the schema to a grammar.
+        $.get(require.toUrl(options.schema), function (x) {
+            options.schema = validate.constructTree(x);
+            done();
+        }, "text").fail(
+            function (jqXHR, textStatus, errorThrown) {
+            throw new Error(textStatus + " " + errorThrown);
+        });
+    });
+
     beforeEach(function (done) {
         require(["requirejs/text!" + src_stack[0]], function(data) {
             editor = new wed.Editor();

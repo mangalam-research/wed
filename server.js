@@ -15,7 +15,7 @@
 
 'use strict';
 var express = require("express");
-var compress = require("compression");
+var compression = require("compression");
 var serve_static = require("serve-static");
 var path = require("path");
 var url = require("url");
@@ -46,7 +46,7 @@ var expiration = new Date(Date.now() + ten_years * 1000).toUTCString();
 
 var app = express();
 
-app.use(compress());
+app.use(compression());
 app.use(serve_static(cwd));
 app.use('/forever', serve_static(cwd, {
     setHeaders: function (res, path, stat) {
@@ -129,7 +129,7 @@ app.post(make_paths("/build/ajax/save.txt"), function (request, response) {
         var headers = undefined;
         function success() {
             messages.push({type: 'save_successful'});
-            var hash = crypto.createHash('sha1');
+            var hash = crypto.createHash('md5');
             hash.update(decoded.data);
             headers = {ETag: hash.digest('base64')};
         }

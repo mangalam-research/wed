@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(["chai", "wed/convert"], function (chai, convert) {
+define(["mocha/mocha", "chai", "wed/convert"], function (mocha, chai, convert) {
 'use strict';
 
 var assert = chai.assert;

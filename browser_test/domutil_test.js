@@ -9,9 +9,11 @@ function (mocha, chai, $, domutil, convert) {
 
 var assert = chai.assert;
 
+var root = window.parent.document.getElementById("domroot");
+var test_para = window.parent.document.getElementById("test-para");
+
 describe("domutil", function () {
     describe("nextCaretPosition", function () {
-        var root = document.getElementById("domroot");
         var caret;
 
         function testPair(no_text_expected, text_expected, container) {
@@ -182,7 +184,6 @@ describe("domutil", function () {
     });
 
     describe("prevCaretPosition", function () {
-        var root = document.getElementById("domroot");
         var caret;
 
         function testPair(no_text_expected,
@@ -756,7 +757,7 @@ describe("domutil", function () {
 
     describe("focusNode", function () {
         it("focuses an element", function () {
-            var p = document.getElementById("test-para");
+            var p = test_para;
             assert.notEqual(p, p.ownerDocument.activeElement,
                             "p is not focused");
             domutil.focusNode(p);
@@ -764,7 +765,7 @@ describe("domutil", function () {
         });
 
         it("focuses text's parent", function () {
-            var text = document.getElementById("test-para").firstChild;
+            var text = test_para.firstChild;
             assert.equal(text.nodeType, Node.TEXT_NODE,
                          "node type is text");
             assert.notEqual(text, text.ownerDocument.activeElement,
@@ -938,7 +939,6 @@ describe("domutil", function () {
     });
 
     describe("closest", function () {
-        var root = document.getElementById("domroot");
         var p, text;
         before(function () {
             root.innerHTML = '<div class="text"><div class="body">' +
@@ -971,7 +971,6 @@ describe("domutil", function () {
     });
 
     describe("closestByClass", function () {
-        var root = document.getElementById("domroot");
         var p, text;
         before(function () {
             root.innerHTML = '<div class="text"><div class="body">' +
@@ -1004,7 +1003,6 @@ describe("domutil", function () {
     });
 
     describe("siblingByClass", function () {
-        var root = document.getElementById("domroot");
         var a, b, first_li;
         before(function() {
             root.innerHTML = '<ul><li>a</li><li class="a"></li><li></li>'+
@@ -1044,7 +1042,6 @@ describe("domutil", function () {
     });
 
     describe("childrenByClass", function () {
-        var root = document.getElementById("domroot");
         var a, b, first_li, ul;
         before(function () {
             root.innerHTML = '<ul><li>a</li><li class="a"></li><li></li>'+
@@ -1076,7 +1073,6 @@ describe("domutil", function () {
     });
 
     describe("childByClass", function () {
-        var root = document.getElementById("domroot");
         var a, b, first_li, ul;
         before(function () {
             root.innerHTML = '<ul><li>a</li><li class="a"></li><li></li>'+

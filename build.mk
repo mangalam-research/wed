@@ -69,7 +69,7 @@ RANGY_FILE=rangy-1.3alpha.804.tar.gz
 
 JQUERY_FILE=jquery-2.1.1.js
 
-BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-dist.zip #https://github.com/twbs/bootstrap/releases/download/v3.0.3/bootstrap-3.0.3-dist.zip
+BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.3.2/bootstrap-3.3.2-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
 FONTAWESOME_PATH=http://fontawesome.io/assets/font-awesome-4.2.0.zip
 FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
@@ -129,12 +129,12 @@ SAMPLE_TARGETS:=$(patsubst sample_documents/%,build/samples/%,$(wildcard sample_
 LODASH_FILES:=main.js modern package.json
 LODASH_BUILD_FILES:=$(addprefix build/standalone/lib/external/lodash/,$(LODASH_FILES))
 
-.SECONDARY:
 .DELETE_ON_ERROR:
 
-.PHONY: all build-dir build
+.PHONY: all
 all: build
 
+.PHONY: build-dir
 build-dir:
 	-@[ -e build ] || mkdir build
 
@@ -187,10 +187,12 @@ build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
 			$$config.t > $$config; \
 		rm $$config.t; \
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/test.html; \
+		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/mocha_frame.html; \
 		rm $(BUILD_DEPLOYMENT_TARGET)/build/$$dist/wed_test.html; \
 	done
 
-build: | $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build/jenkins-matrix.properties
+.PHONY: build
+build: $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build/jenkins-matrix.properties
 
 build/jenkins-matrix.properties: build/config/selenium_config.py misc/dump_selenium_configs.py
 	python ./misc/dump_selenium_configs.py --jenkins > $@
@@ -210,9 +212,11 @@ endif
 build/config/%:
 	cp $< $@
 
+.PHONY: build-standalone
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js node_modules
+.PHONY: build-only-standalone
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js node_modules
 
 # We produce a new build-info.js only if the files generated among
 # $(STANDALONE_LIB_FILES) have changed. Note that if we just upgrade
@@ -226,7 +230,8 @@ build/standalone/requirejs-config.js: build/config/requirejs-config-dev.js
 build/standalone/%.html: web/%.html
 	cp $< $@
 
-build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html build/standalone-optimized/platform_test.html build/standalone-optimized/files.html
+.PHONY: build-standalone-optimized
+build-standalone-optimized: build-standalone build/standalone-optimized build/standalone-optimized/requirejs-config.js build/standalone-optimized/test.html build/standalone-optimized/mocha_frame.html build/standalone-optimized/wed_test.html build/standalone-optimized/kitchen-sink.html build/standalone-optimized/platform_test.html build/standalone-optimized/files.html
 
 build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
 	cp $< $@
@@ -378,7 +383,7 @@ build/standalone/lib/external/bootstrap: downloads/$(BOOTSTRAP_BASE) | build/sta
 	-rm -rf $@
 	-mkdir $@
 	-rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
-	unzip -d downloads/ $<
+	unzip -DD -d downloads/ $<
 	mv downloads/$(BOOTSTRAP_BASE:.zip=)/* $@
 	rm -rf downloads/$(BOOTSTRAP_BASE:.zip=)
 # unzip preserves the creation date of the bootstrap directory. Which
