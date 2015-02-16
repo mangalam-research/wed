@@ -9,6 +9,11 @@ now.
 
 Wed is tested on Chrome, Firefox and Internet Explorer.
 
+Wed is used as part of the `Buddhist Translators Workbench project
+<https://btw.mangalamresearch.org/>`_ as the central component that
+enables a team of scholars to edit and manage lexicographical
+articles.
+
 Demos
 =====
 

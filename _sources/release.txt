@@ -23,7 +23,7 @@ The following assumes that `origin` is **a private fork** and
 
 8. ``$ git flow release finish [version]``
 
-9. ``$ npm publish``
+9. ``$ make publish``
 
 10. ``$ git push origin : --follow-tags``
 

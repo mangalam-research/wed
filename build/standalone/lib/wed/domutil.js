@@ -1247,6 +1247,79 @@ function dataFindAll(node, selector) {
     return ret;
 }
 
+/**
+ * Converts an HTML string to an array of DOM nodes
+ * @param {string} html The HTML to convert.
+ * @param {Document} [document] The document for which to create the
+ * nodes. If not specified, the document will be the global ``document``.
+ * @returns {Array.<Node>} The resulting nodes.
+ */
+function htmlToElements(html, document) {
+    var doc = document || window.document;
+    var frag = doc.createDocumentFragment();
+    var div = doc.createElement("div");
+    frag.appendChild(div);
+    div.innerHTML = html;
+    return Array.prototype.slice.call(div.childNodes);
+}
+
+/**
+ * Gets the character immediately before the caret. The word
+ * "immediately" here means that this function does not walk the
+ * DOM. If the caret is pointing into an element node, it will check
+ * whether the node before the offset is a text node and use
+ * it. That's the extent to which it walks the DOM.
+ *
+ * @param {Array} caret The caret position.
+ * @return {string|undefined} The character, if it exists.
+ */
+function getCharacterImmediatelyBefore(caret) {
+    var node = caret[0];
+    var offset = caret[1];
+    switch(node.nodeType) {
+    case Node.TEXT_NODE:
+        var value = node.data;
+        return value[offset - 1];
+    case Node.ELEMENT_NODE:
+        var prev = node[offset - 1];
+        if (prev && prev.nodeType === Node.TEXT_NODE)
+            return prev.value[prev.value - 1];
+        break;
+    default:
+        throw new Error("unexpected node type: " + node.nodeType);
+    }
+    return undefined;
+}
+
+/**
+ * Gets the character immediately at the caret. The word "immediately"
+ * here means that this function does not walk the DOM. If the caret
+ * is pointing into an element node, it will check whether the node
+ * after the offset is a text node and use it. That's the extent to
+ * which it walks the DOM.
+ *
+ * @param {Array} caret The caret position.
+ * @return {string|undefined} The character, if it exists.
+ */
+function getCharacterImmediatelyAt(caret) {
+    var node = caret[0];
+    var offset = caret[1];
+    switch(node.nodeType) {
+    case Node.TEXT_NODE:
+        var value = node.data;
+        return value[offset];
+    case Node.ELEMENT_NODE:
+        var next = node[offset];
+        if (next && next.nodeType === Node.TEXT_NODE)
+            return next.value[0];
+        break;
+    default:
+        throw new Error("unexpected node type: " + node.nodeType);
+    }
+    return undefined;
+}
+
+
 exports.getSelectionRange = getSelectionRange;
 exports.nextCaretPosition = nextCaretPosition;
 exports.prevCaretPosition = prevCaretPosition;
@@ -1280,6 +1353,9 @@ exports.textToHTML = textToHTML;
 exports.toGUISelector = toGUISelector;
 exports.dataFind = dataFind;
 exports.dataFindAll = dataFindAll;
+exports.htmlToElements = htmlToElements;
+exports.getCharacterImmediatelyAt = getCharacterImmediatelyAt;
+exports.getCharacterImmediatelyBefore = getCharacterImmediatelyBefore;
 
 });
 

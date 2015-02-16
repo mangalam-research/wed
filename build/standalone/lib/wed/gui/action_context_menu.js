@@ -262,30 +262,29 @@ function makeTypeHandler(me, type) {
 var ITEM_SELECTOR = "li:not(.divider):visible a";
 
 ContextMenu.prototype._actionKeydownHandler = log.wrap(function (ev) {
-    if (key_constants.ESCAPE.matchesEvent(ev)) {
-        if (this._action_kind_filter !== null ||
-            this._action_type_filter !== null ||
-            this._action_text_filter) {
-            this._action_kind_filter = null;
-            this._action_type_filter = null;
-            this._action_text_filter = "";
-            // For some reason, on FF 24, stopping propagation and
-            // preventing the default is not enough.
-            if (!browsers.FIREFOX_24) {
-                this._action_filter_input.value = "";
-                this._render();
-            }
-            else {
-                var me = this;
-                setTimeout(function () {
-                    me._action_filter_input.value = "";
-                    me._render();
-                }, 0);
-            }
-            ev.stopPropagation();
-            ev.preventDefault();
-            return false;
+    if (key_constants.ESCAPE.matchesEvent(ev) &&
+        (this._action_kind_filter !== null ||
+         this._action_type_filter !== null ||
+         this._action_text_filter)) {
+        this._action_kind_filter = null;
+        this._action_type_filter = null;
+        this._action_text_filter = "";
+        // For some reason, on FF 24, stopping propagation and
+        // preventing the default is not enough.
+        if (!browsers.FIREFOX_24) {
+            this._action_filter_input.value = "";
+            this._render();
         }
+        else {
+            var me = this;
+            setTimeout(function () {
+                me._action_filter_input.value = "";
+                me._render();
+            }, 0);
+        }
+        ev.stopPropagation();
+        ev.preventDefault();
+        return false;
     }
     return true;
 });
@@ -353,6 +352,32 @@ ContextMenu.prototype._inputKeydownHandler = log.wrap(function (ev) {
         ev.preventDefault();
         return false;
     }
+
+    // Bootstrap 3.3.2 (and probably some versions before this
+    // one, introduce a change that prevents these events from
+    // being processed by the dropdown menu. We have to manually
+    // forward them. See bug report:
+    //
+    // https://github.com/twbs/bootstrap/issues/15757
+    //
+    var matches;
+    var checks = ["UP_ARROW", "DOWN_ARROW", "ESCAPE"];
+    for (var i = 0, check; (check = checks[i]); ++i) {
+        var key = key_constants[check];
+        if (key.matchesEvent(ev)) {
+            matches = key;
+            break;
+        }
+    }
+
+    if (matches) {
+        var fake_ev = new $.Event("keydown");
+        matches.setEventToMatch(fake_ev);
+        this._$menu.trigger(fake_ev);
+        // We have to return `false` to make sure it is not mishandled.
+        return false;
+    }
+
     return true;
 });
 

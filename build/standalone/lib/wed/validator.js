@@ -64,10 +64,12 @@ exports.VALID = VALID;
  * @mixes module:lib/simple_event_emitter~SimpleEventEmitter
  *
  * @constructor
- * @param {string} schema A path to the schema to pass to salve for
- * validation. This is a path that will be interpreted by
- * RequireJS. The schema must have already been prepared for use by
- * salve. See salve's documentation.
+ * @param {string|module:salve/validate~Grammar} schema A path to the
+ * schema to pass to salve for validation. This is a path that will be
+ * interpreted by RequireJS. The schema must have already been
+ * prepared for use by salve. See salve's documentation. Or this can
+ * be a ``Grammar`` object that has already been produced from
+ * ``salve``'s ``constructTree``.
  * @param {Node} root The root of the DOM tree to validate. This root
  * contains the document to validate but is not
  * @param {module:mode~Mode} [mode] The mode that is currently in use.
@@ -142,14 +144,22 @@ Validator.prototype.start = function () {
  * work to be done is asynchronous.
  */
 Validator.prototype.initialize = function (done) {
-    $.get(require.toUrl(this.schema), function (x) {
-        this._tree = validate.constructTree(x);
+    if (this.schema instanceof validate.Grammar) {
+        this._tree = this.schema;
         this._validation_walker = this._tree.newWalker();
         this._initialized = true;
         done();
-    }.bind(this), "text").fail(function (jqXHR, textStatus, errorThrown) {
-        throw new Error(textStatus + " " + errorThrown);
-    });
+    }
+    else {
+        $.get(require.toUrl(this.schema), function (x) {
+            this._tree = validate.constructTree(x);
+            this._validation_walker = this._tree.newWalker();
+            this._initialized = true;
+            done();
+        }.bind(this), "text").fail(function (jqXHR, textStatus, errorThrown) {
+            throw new Error(textStatus + " " + errorThrown);
+        });
+    }
 };
 
 /**
@@ -1070,7 +1080,7 @@ Validator.prototype.speculativelyValidateFragment = function (container, index,
 
     // We create a new validator with the proper state to parse the
     // fragment we've been given.
-    var dup = new Validator(this.schema, to_parse);
+    var dup = new Validator(this._tree, to_parse);
 
     dup._validation_walker = this._getWalkerAt(container, index).clone();
 

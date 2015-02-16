@@ -49,17 +49,12 @@ GenericDecorator.prototype.addHandlers = function () {
         util.classFromOriginalName("*"),
         function (root, tree, parent,
                   prev, next, el) {
-        this.elementDecorator(root, el);
-    }.bind(this));
-
-    this._domlistener.addHandler(
-        "included-element",
-        util.classFromOriginalName("*"),
-        function (root, tree, parent, prev, next, el) {
         // Skip elements which would already have been removed from
         // the tree. Unlikely but...
         if (!root.contains(el))
             return;
+
+        this.elementDecorator(root, el);
 
         var klass = this._meta.getAdditionalClasses(el);
         if (klass.length > 0)

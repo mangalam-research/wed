@@ -48,16 +48,17 @@ function _reset() {
     $modal.remove();
 }
 
-function _is_terminating() {
+function is_terminating() {
     return terminating;
 }
+
+exports.is_terminating = is_terminating;
 
 // For testing only
 if (test) {
     exports.__test = {
         $modal: $modal,
-        reset: _reset,
-        is_terminating: _is_terminating
+        reset: _reset
     };
 }
 
@@ -150,7 +151,7 @@ function installOnError(win) {
                     ++r_ix)
                     messages.push(to_msg(editors[result[0]].name, result[1]));
             }
-            $("body").append($modal);
+            $(document.body).append($modal);
             $modal.find(".modal-body").contents().replaceWith(
                 messages.join(""));
             $modal.on("hide.bs.modal.modal", function () {

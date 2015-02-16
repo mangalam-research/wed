@@ -562,9 +562,16 @@ PatternTwoPatterns.prototype._elementDefinitions = function (memo) {
  * of the event parameters must be strings.
  */
 function Event() {
-    var params = (arguments[0] instanceof Array) ?
-        arguments[0] :
-        Array.prototype.slice.call(arguments);
+    var params;
+    if (arguments[0] instanceof Array)
+        params = arguments[0];
+    else {
+        // We do it this way to allow v8 to optimize the function.
+        var lim = arguments.length;
+        params = new Array(lim);
+        for (var i = 0; i < lim; ++i)
+            params[i] = arguments[i];
+    }
 
     var key = params.join();
 
@@ -3114,6 +3121,8 @@ exports.AttributeNameError = AttributeNameError;
 exports.AttributeValueError = AttributeValueError;
 exports.ElementNameError = ElementNameError;
 exports.ChoiceError = ChoiceError;
+exports.Grammar = Grammar;
+exports.Walker = Walker;
 
 //
 // Things used only during testing.
@@ -3121,7 +3130,6 @@ exports.ChoiceError = ChoiceError;
 var tret = {};
 
 tret.GrammarWalker = GrammarWalker;
-tret.Walker = Walker;
 tret.Text = Text;
 
 exports.__test = function () { return tret; };
