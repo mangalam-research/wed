@@ -4,6 +4,18 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.21.0:
+
+  - GUI: Wed now filters out zero-width spaces from the input and converts
+    non-breaking spaces to normal spaces.
+
+  - GUI: When the user types the spacebar on the keyboard next to an
+    already existing space, no new space is entered. Note that wed
+    does not *generally* prevent the presence of multiple spaces next
+    to one-another.
+
+  - GUI: Upgrade to Bootstrap 3.3.2.
+
 * 0.20.0:
 
   - The wed demo now has an option for storing files locally. This
