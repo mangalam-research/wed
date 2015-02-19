@@ -9,6 +9,10 @@ Only salient changes are recorded here.
   - API: Upgrade to salve 0.23.0, which means that wed now supports
     Relax NG's ``interleave`` and ``mixed`` elements.
 
+  - GUI: bug fix: some key combinations typed into placeholders (usually
+    having Ctrl, Alt or Command set) would not be transmitted to the
+    modes. This has been fixed.
+
 * 0.21.0:
 
   - GUI: Wed now filters out zero-width spaces from the input and converts
