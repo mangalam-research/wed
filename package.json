@@ -16,7 +16,7 @@
     } ],
     "dependencies": {
         "argparse": ">=0.1.15 <1",
-        "salve": "~0.22.0"
+        "salve": "~0.23.0"
     },
     "devDependencies": {
         "amd-loader": "~0.0.4",

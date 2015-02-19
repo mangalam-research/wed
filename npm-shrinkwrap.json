@@ -1,6 +1,6 @@
 {
   "name": "wed",
-  "version": "0.20.5",
+  "version": "0.21.0",
   "dependencies": {
     "amd-loader": {
       "version": "0.0.5",
@@ -1081,9 +1081,9 @@
       "resolved": "https://registry.npmjs.org/requirejs/-/requirejs-2.1.15.tgz"
     },
     "salve": {
-      "version": "0.22.0",
-      "from": "salve@0.22.0",
-      "resolved": "https://registry.npmjs.org/salve/-/salve-0.22.0.tgz",
+      "version": "0.23.0",
+      "from": "salve@0.23.0",
+      "resolved": "https://registry.npmjs.org/salve/-/salve-0.23.0.tgz",
       "dependencies": {
         "temp": {
           "version": "0.8.1",

@@ -4,6 +4,11 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.22.0:
+
+  - API: Upgrade to salve 0.23.0, which means that wed now supports
+    Relax NG's ``interleave`` and ``mixed`` elements.
+
 * 0.21.0:
 
   - GUI: Wed now filters out zero-width spaces from the input and converts
