@@ -1278,6 +1278,11 @@
           }
         }
       }
+    },
+    "typeahead.js": {
+      "version": "0.10.5",
+      "from": "typeahead.js@*",
+      "resolved": "https://registry.npmjs.org/typeahead.js/-/typeahead.js-0.10.5.tgz"
     }
   }
 }

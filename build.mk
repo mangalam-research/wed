@@ -89,6 +89,9 @@ PURL_BASE=purl-$(notdir $(PURL_URL))
 CLASSLIST_URL=https://github.com/eligrey/classList.js/archive/master.zip
 CLASSLIST_BASE=classList.zip
 
+TYPEAHEAD_BOOTSTRAP_URL:=https://github.com/bassjobsen/typeahead.js-bootstrap-css/archive/1.0.0.zip
+TYPEAHEAD_BOOTSTRAP_BASE:=typeahead.js-bootstrap-css-$(notdir $(TYPEAHEAD_BOOTSTRAP_URL))
+
 # Only the less files that we compile.
 COMPILED_LESS_FILES:=$(wildcard lib/wed/*.less)
 
@@ -216,7 +219,7 @@ build/config/%:
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 .PHONY: build-only-standalone
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js node_modules
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js build/standalone/lib/external/typeahead.bundle.min.js build/standalone/lib/external/typeaheadjs.css node_modules
 
 # We produce a new build-info.js only if the files generated among
 # $(STANDALONE_LIB_FILES) have changed. Note that if we just upgrade
@@ -359,6 +362,9 @@ downloads/$(PURL_BASE): | downloads
 downloads/$(CLASSLIST_BASE): | downloads
 	(cd downloads; $(WGET) -O $(CLASSLIST_BASE) $(CLASSLIST_URL))
 
+downloads/$(TYPEAHEAD_BOOTSTRAP_BASE): | downloads
+	$(WGET) -O $@ '$(TYPEAHEAD_BOOTSTRAP_URL)'
+
 # We need to run npm every single time because if npm-shrinkwrap
 # changes, then the packages must be upgraded.
 .PHONY: node_modules
@@ -420,6 +426,12 @@ build/standalone/lib/requirejs/require.js: node_modules/requirejs/require.js | b
 
 build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
 	cp $< $@
+
+build/standalone/lib/external/typeahead.bundle.min.js: node_modules/typeahead.js/dist/typeahead.bundle.min.js
+	cp $< $@
+
+build/standalone/lib/external/typeaheadjs.css: downloads/$(TYPEAHEAD_BOOTSTRAP_BASE)
+	unzip -j -DD -d $(dir $@) $< $(notdir $(<:.zip=))/$(notdir $@)
 
 build/standalone/lib/external/log4javascript.js: downloads/$(LOG4JAVASCRIPT_BASE) | build/standalone/lib/external
 	-mkdir $(dir $@)
