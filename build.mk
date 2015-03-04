@@ -219,7 +219,7 @@ build/config/%:
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 .PHONY: build-only-standalone
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js build/standalone/lib/external/typeahead.bundle.min.js build/standalone/lib/external/typeaheadjs.css node_modules
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js build/standalone/lib/external/typeahead.bundle.min.js build/standalone/lib/external/typeaheadjs.css
 
 # We produce a new build-info.js only if the files generated among
 # $(STANDALONE_LIB_FILES) have changed. Note that if we just upgrade
@@ -239,10 +239,12 @@ build-standalone-optimized: build-standalone build/standalone-optimized build/st
 build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
 	cp $< $@
 
-build/standalone-optimized: requirejs.build.js $(shell find build/standalone -type f)
+build/standalone-optimized: requirejs.build.js $(shell find build/standalone -type f) node_modules/requirejs/bin/r.js
 # The || in the next command is because DELETE_ON_ERROR does not
 # delete *directories*. So we have to do it ourselves.
 	node_modules/requirejs/bin/r.js -o $< || (rm -rf $@ && exit 1)
+
+node_modules/requirejs/bin/r.js: | node_modules
 
 build/standalone-optimized/%.html: web/%.html
 	cp $< $@
@@ -328,6 +330,8 @@ build/standalone/lib/external/bootstrap/css/bootstrap.css: build/standalone/lib/
 .SECONDEXPANSION:
 build/standalone/lib/wed/%.css: lib/wed/%.less lib/wed/less-inc/* $$($$(notdir $$@)_CSS_DEPS) node_modules/.bin/lessc
 	node_modules/.bin/lessc --include-path=./lib/wed/less-inc/ $< $@
+
+node_modules/.bin/lessc: | node_modules
 
 build/standalone build/ajax: | build-dir
 	-mkdir $@
@@ -421,13 +425,19 @@ endif
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
 
-build/standalone/lib/requirejs/require.js: node_modules/requirejs/require.js | build/standalone/lib/requirejs
-	cp $< $@
+define SIMPLE_NODE_MODULES_TARGET
+$1: $2
+	-mkdir -p $$(dir $1)
+	cp $$< $$@
+
+$2: | node_modules
+endef
+
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/requirejs/require.js,node_modules/requirejs/require.js))
+
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/typeahead.bundle.min.js,node_modules/typeahead.js/dist/typeahead.bundle.min.js))
 
 build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
-	cp $< $@
-
-build/standalone/lib/external/typeahead.bundle.min.js: node_modules/typeahead.js/dist/typeahead.bundle.min.js
 	cp $< $@
 
 build/standalone/lib/external/typeaheadjs.css: downloads/$(TYPEAHEAD_BOOTSTRAP_BASE)
@@ -444,29 +454,26 @@ endif
 	rm -rf $(dir $@)/log4javascript-*
 	touch $@
 
-build/standalone/lib/external/pubsub.js: node_modules/pubsub-js/src/pubsub.js | build/standalone/lib/external
-	cp $< $@
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/pubsub.js,node_modules/pubsub-js/src/pubsub.js))
 
-build/standalone/lib/external/localforage.js: node_modules/localforage/dist/localforage.js | build/standalone/lib/external
-	cp $< $@
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/localforage.js,node_modules/localforage/dist/localforage.js))
 
-build/standalone/lib/external/async.js: node_modules/async/lib/async.js | build/standalone/lib/external
-	cp $< $@
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/async.js,node_modules/async/lib/async.js))
 
-build/standalone/lib/external/angular.js: node_modules/angular/angular.js | build/standalone/lib/external
-	cp $< $@
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/angular.js,node_modules/angular/angular.js))
 
-build/standalone/lib/external/bootbox.js: node_modules/bootbox.js/bootbox.js | build/standalone/lib/external
-	cp $< $@
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/bootbox.js,node_modules/bootbox.js/bootbox.js))
 
-build/standalone/lib/external/xregexp.js: node_modules/salve/node_modules/xregexp/xregexp-all.js | build/standalone/lib/external
-	cp $< $@
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/xregexp.js,node_modules/salve/node_modules/xregexp/xregexp-all.js))
 
+# Lodash uses cp -rp so we don't use SIMPLE_NODE_MODULES_TARGET
 build/standalone/lib/external/lodash:
 	mkdir -p $@
 
 build/standalone/lib/external/lodash/%: node_modules/lodash-amd/% | build/standalone/lib/external/lodash
 	cp -rp $< $@
+
+node_modules/lodash-amd/%: | node_modules
 
 build/standalone/lib/external/classList.js: downloads/$(CLASSLIST_BASE) | build/standalone/lib/external
 	-mkdir -p $(dir $@)
@@ -486,6 +493,8 @@ build/standalone/lib/salve: node_modules/salve/lib/salve
 # Sometimes the modification date on the top directory does not
 # get updated, so:
 	touch $@
+
+node_modules/salve/lib/salve: | node_modules
 
 build/ks:
 	mkdir $@
