@@ -9,6 +9,10 @@ Only salient changes are recorded here.
   - API: Upgrade to salve 0.23.0, which means that wed now supports
     Relax NG's ``interleave`` and ``mixed`` elements.
 
+  - GUI: Added support for creating typeahead popups based off of
+    Twitter Typeahead. The modes bundled with wed do not make use of
+    such typeaheads but custom modes may use them.
+
   - GUI: bug fix: some key combinations typed into placeholders (usually
     having Ctrl, Alt or Command set) would not be transmitted to the
     modes. This has been fixed.
