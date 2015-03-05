@@ -328,6 +328,19 @@ def step_impl(context):
     util.find_element((By.CLASS_NAME, "wed-context-menu"))
 
 
+@When("^the context menu's filter field has focus$")
+def step_impl(context):
+    util = context.util
+
+    def cond(driver):
+        return driver.execute_script("""
+        var filter = document.querySelector(".wed-context-menu input");
+        return document.activeElement === filter;
+        """)
+
+    util.wait(cond)
+
+
 @Then("a context menu is visible and completely inside the window")
 def step_impl(context):
     util = context.util
