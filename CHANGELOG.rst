@@ -13,9 +13,13 @@ Only salient changes are recorded here.
     Twitter Typeahead. The modes bundled with wed do not make use of
     such typeaheads but custom modes may use them.
 
-  - GUI: bug fix: some key combinations typed into placeholders (usually
-    having Ctrl, Alt or Command set) would not be transmitted to the
-    modes. This has been fixed.
+  - GUI: bug fix: some key combinations typed into placeholders
+    (usually having Ctrl, Alt or Command set) would not be transmitted
+    to the modes. This has been fixed.
+
+  - GUI: bug fix: typing the ESCAPE key on IE would cause an escape
+    character to be inserted in the document or would cause a crash
+    (when typed while a label is selected). This has been fixed.
 
 * 0.21.0:
 
