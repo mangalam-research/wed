@@ -11,6 +11,9 @@ Only salient changes are recorded here.
 
   - GUI: Upgrade to Font Awesome 4.3.0.
 
+  - GUI: The icon for an element's documentation is now
+    fa-question-circle rather than fa-book.
+
   - GUI: Added support for creating typeahead popups based off of
     Twitter Typeahead. The modes bundled with wed do not make use of
     such typeaheads but custom modes may use them.
