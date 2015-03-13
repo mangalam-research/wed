@@ -15,7 +15,7 @@ var patterns = require("./patterns");
 var pro = patterns.__protected;
 
 //
-// MODIFICATIONS TO THIS TABLE MUST BE REFLECTED IN rng-to-js.xsl
+// MODIFICATIONS TO THIS TABLE MUST BE REFLECTED IN name_to_constructor
 //
 var code_to_constructor = [
     Array,
@@ -34,11 +34,12 @@ var code_to_constructor = [
     pro.Element,
     pro.Define,
     pro.Grammar,
-    pro.EName
+    pro.EName,
+    pro.Interleave
 ];
 
 //
-// MODIFICATIONS TO THIS TABLE MUST BE REFLECTED IN rng-to-js.xsl
+// MODIFICATIONS TO THIS TABLE MUST BE REFLECTED IN code_to_constructor
 //
 var name_to_constructor = {
     // Array = 0 is hard-coded elsewhere in the conversion code so don't
@@ -75,7 +76,9 @@ var name_to_constructor = {
     Grammar: pro.Grammar,
     15: pro.Grammar,
     EName: pro.EName,
-    16: pro.EName
+    16: pro.EName,
+    Interleave: pro.Interleave,
+    17: pro.Interleave
 };
 
 //

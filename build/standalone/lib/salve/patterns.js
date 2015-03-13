@@ -1848,10 +1848,11 @@ ChoiceWalker.prototype.fireEvent = function(ev) {
     this._instantiateWalkers();
 
     this.possible_cached = undefined;
-    var ret_a = (this.walker_a !== undefined) ?
-            this.walker_a.fireEvent(ev): undefined;
-    var ret_b = (this.walker_b !== undefined) ?
-            this.walker_b.fireEvent(ev): undefined;
+    // We purposely do not normalize this.walker_{a,b} to a boolean
+    // value because we do want `undefined` to be the result if the
+    // walkers are undefined.
+    var ret_a = this.walker_a && this.walker_a.fireEvent(ev);
+    var ret_b = this.walker_b && this.walker_b.fireEvent(ev);
 
     if (ret_a !== undefined) {
         this.chosen = true;
@@ -1879,9 +1880,9 @@ ChoiceWalker.prototype._suppressAttributes = function () {
         this.possible_cached = undefined; // no longer valid
         this.suppressed_attributes = true;
 
-        if (this.walker_a !== undefined)
+        if (this.walker_a)
             this.walker_a._suppressAttributes();
-        if (this.walker_b !== undefined)
+        if (this.walker_b)
             this.walker_b._suppressAttributes();
     }
 };
@@ -1889,24 +1890,20 @@ ChoiceWalker.prototype._suppressAttributes = function () {
 ChoiceWalker.prototype.canEnd = function (attribute) {
     this._instantiateWalkers();
 
-    var walker_a_ret = false;
-    var walker_b_ret = false;
+    var ret_a = false;
+    var ret_b = false;
     if (attribute) {
-        walker_a_ret = !this.el.pat_a._hasAttrs();
-        walker_b_ret = !this.el.pat_b._hasAttrs();
+        ret_a = !this.el.pat_a._hasAttrs();
+        ret_b = !this.el.pat_b._hasAttrs();
     }
 
-    walker_a_ret = walker_a_ret || ((this.walker_a !== undefined) ?
-            this.walker_a.canEnd(attribute) : true);
-    walker_b_ret = walker_b_ret || ((this.walker_b !== undefined) ?
-            this.walker_b.canEnd(attribute) : true);
+    // The `!!` are to normalize to boolean values.
+    ret_a = ret_a || (!!this.walker_a && this.walker_a.canEnd(attribute));
+    ret_b = ret_b || (!!this.walker_b && this.walker_b.canEnd(attribute));
 
-    // Before any choice has been made, a ChoiceWalker can end if
-    // any subwalker can end. Once a choice has been made, the
-    // ChoiceWalker can end only if the chosen walker can end. The
-    // assignments earlier ensure that the logic works.
-    return (this.chosen) ? (walker_a_ret && walker_b_ret) :
-        (walker_a_ret || walker_b_ret);
+    // ChoiceWalker can end if any walker can end. The assignments
+    // earlier ensure that the logic works.
+    return ret_a || ret_b;
 };
 
 ChoiceWalker.prototype.end = function (attribute) {
@@ -1914,20 +1911,18 @@ ChoiceWalker.prototype.end = function (attribute) {
 
     if (this.canEnd(attribute)) return false;
 
-    var walker_a_ret = (this.walker_a !== undefined) ?
-            this.walker_a.end(attribute) : false;
+    // The `!!` are to normalize to boolean values.
+    var ret_a = !!this.walker_a && this.walker_a.end(attribute);
+    var ret_b = !!this.walker_b && this.walker_b.end(attribute);
 
-    var walker_b_ret = (this.walker_b !== undefined) ?
-            this.walker_b.end(attribute) : false;
-
-    if (!walker_a_ret && !walker_b_ret)
+    if (!ret_a && !ret_b)
         return false;
 
-    if (walker_a_ret && !walker_b_ret)
-        return walker_a_ret;
+    if (ret_a && !ret_b)
+        return ret_a;
 
-    if (!walker_a_ret && walker_b_ret)
-        return walker_b_ret;
+    if (!ret_a && ret_b)
+        return ret_b;
 
     // If we are here both walkers exist and returned an error.
     var names_a = [];
@@ -1955,7 +1950,7 @@ ChoiceWalker.prototype.end = function (attribute) {
     // If we get here, we were not able to raise a ChoiceError,
     // possibly because there was not enough information to decide
     // among the two walkers. Return whatever error comes first.
-    return walker_a_ret || walker_b_ret;
+    return ret_a || ret_b;
 };
 
 
@@ -2157,6 +2152,205 @@ GroupWalker.prototype.end = function (attribute) {
 };
 
 /**
+ * @classdesc A pattern for &lt;interleave>.
+ * @extends module:patterns~PatternTwoPatterns
+ *
+ * @private
+ * @constructor
+ * @param {string} xml_path This is a string which uniquely identifies
+ * the element from the simplified RNG tree. Used in debugging.
+ * @param {Array.<module:patterns~Pattern>} pats The patterns
+ * contained by this one.
+ * @throws {Error} If <code>pats</code> is not of length 2.
+ */
+function Interleave(xml_path, pats) {
+    PatternTwoPatterns.call(this, xml_path);
+    // Undefined happens when cloning.
+    if (pats !== undefined) {
+        if (pats.length !== 2)
+            throw new Error("InterleaveWalkers walk only interleaves of " +
+                            "two elements!");
+        this.pat_a = pats[0];
+        this.pat_b = pats[1];
+    }
+}
+
+inherit(Interleave, PatternTwoPatterns);
+addWalker(Interleave, InterleaveWalker);
+
+/**
+ * @classdesc Walker for {@link module:patterns~Interleave Interleave}
+ * @extends module:patterns~Walker
+ * @private
+ * @constructor
+ * @param {module:patterns~Interleave} el The pattern for which this walker
+ * was created.
+ * @param {module:name_resolver~NameResolver} name_resolver The name
+ * resolver that can be used to convert namespace prefixes to
+ * namespaces.
+ */
+function InterleaveWalker(el, name_resolver) {
+    Walker.call(this);
+    this.el = el;
+    this.name_resolver = name_resolver;
+
+    this.in_a = false;
+    this.in_b = false;
+    this.walker_a = this.walker_b = undefined;
+}
+
+inherit(InterleaveWalker, Walker);
+
+InterleaveWalker.prototype._copyInto = function (obj, memo) {
+    Walker.prototype._copyInto.call(this, obj, memo);
+    obj.el = this.el;
+    obj.name_resolver = this._cloneIfNeeded(this.name_resolver, memo);
+    obj.in_a = this.in_a;
+    obj.in_b = this.in_b;
+    obj.walker_a = this.walker_a && this.walker_a._clone(memo);
+    obj.walker_b = this.walker_b && this.walker_b._clone(memo);
+};
+
+/**
+ * Creates walkers for the patterns contained by this one. Calling
+ * this method multiple times is safe as the walkers are created once
+ * and only once.
+ *
+ * @private
+ */
+InterleaveWalker.prototype._instantiateWalkers = function () {
+    if (!this.walker_a)
+        this.walker_a = this.el.pat_a.newWalker(this.name_resolver);
+    if (!this.walker_b)
+        this.walker_b = this.el.pat_b.newWalker(this.name_resolver);
+};
+
+InterleaveWalker.prototype._possible = function () {
+    this._instantiateWalkers();
+    if (this.possible_cached !== undefined)
+        return this.possible_cached;
+
+    if (this.in_a && this.in_b)
+        // It due to the restrictions imposed by Relax NG, it should
+        // not be possible to be both in_a and in_b.
+        throw new Error("impossible state");
+
+    if (this.in_a && !this.walker_a.canEnd())
+        this.possible_cached = this.walker_a._possible();
+    else if (this.in_b && !this.walker_b.canEnd())
+        this.possible_cached = this.walker_b._possible();
+
+    if (!this.possible_cached) {
+        this.possible_cached = this.walker_a.possible();
+        this.possible_cached.union(this.walker_b._possible());
+    }
+
+    return this.possible_cached;
+};
+
+InterleaveWalker.prototype.fireEvent = function(ev) {
+    this._instantiateWalkers();
+
+    this.possible_cached = undefined;
+
+    if (this.in_a && this.in_b)
+        // It due to the restrictions imposed by Relax NG, it should
+        // not be possible to be both in_a and in_b.
+        throw new Error("impossible state");
+
+    var ret_a, ret_b;
+    if (!this.in_a && !this.in_b) {
+        ret_a = this.walker_a.fireEvent(ev);
+        if (ret_a === false) {
+            this.in_a = true;
+            return false;
+        }
+        else {
+            // The constraints on interleave do not allow for two
+            // child patterns of interleave to match. So if the first
+            // walker matched, the second cannot. So we don't have to
+            // fireEvent on the second walker if the first matched.
+            ret_b = this.walker_b.fireEvent(ev);
+            if (ret_b === false) {
+                this.in_b = true;
+                return false;
+            }
+
+            if (ret_b === undefined)
+                return ret_a;
+        }
+
+        if (ret_a === undefined)
+            return ret_b;
+
+        return ret_a.concat(ret_b);
+    }
+    else if (this.in_a) {
+        ret_a = this.walker_a.fireEvent(ev);
+        if (ret_a || ret_a === false)
+            return ret_a;
+
+        // If we got here, ret_a === undefined
+        ret_b = this.walker_b.fireEvent(ev);
+
+        if (ret_b === false) {
+            this.in_a = false;
+            this.in_b = true;
+            return false;
+        }
+    }
+    else { // in_b
+        ret_b = this.walker_b.fireEvent(ev);
+        if (ret_b || ret_b === false)
+            return ret_b;
+
+        // If we got here, ret_b === undefined
+        ret_a = this.walker_a.fireEvent(ev);
+
+        if (ret_a === false) {
+            this.in_a = true;
+            this.in_b = false;
+            return false;
+        }
+    }
+
+    return undefined;
+};
+
+InterleaveWalker.prototype._suppressAttributes = function () {
+    this._instantiateWalkers();
+    if (!this.suppressed_attributes) {
+        this.possible_cached = undefined; // no longer valid
+        this.suppressed_attributes = true;
+
+        this.walker_a._suppressAttributes();
+        this.walker_b._suppressAttributes();
+    }
+};
+
+InterleaveWalker.prototype.canEnd = function (attribute) {
+    this._instantiateWalkers();
+    return this.walker_a.canEnd(attribute) && this.walker_b.canEnd(attribute);
+};
+
+InterleaveWalker.prototype.end = function (attribute) {
+    this._instantiateWalkers();
+    var ret_a = this.walker_a.end(attribute);
+    var ret_b = this.walker_b.end(attribute);
+
+    if (ret_a && !ret_b)
+        return ret_a;
+
+    if (ret_b && !ret_a)
+        return ret_b;
+
+    if (!ret_a && !ret_b)
+        return false;
+
+    return ret_a.concat(ret_b);
+};
+
+/**
  * @classdesc A pattern for attributes.
  * @extends module:patterns~PatternOnePattern
  *
@@ -2217,13 +2411,8 @@ function AttributeWalker(el, name_resolver) {
     this.seen_value = false;
     this.subwalker = undefined;
 
-    if (el !== undefined) {
-        this.attr_name_event = new Event("attributeName",
-                                         el.name.ns, el.name.name);
-        this.attr_value_event = new Event("attributeValue", "*");
-    }
-    else
-        this.attr_name_event = this.attr_value_event = undefined;
+    this.attr_name_event = el && new Event("attributeName",
+                                           el.name.ns, el.name.name);
 }
 inherit(AttributeWalker, Walker);
 
@@ -2237,7 +2426,6 @@ AttributeWalker.prototype._copyInto = function (obj, memo) {
 
     // No need to clone; values are immutable.
     obj.attr_name_event = this.attr_name_event;
-    obj.attr_value_event = this.attr_value_event;
 };
 
 AttributeWalker.prototype._possible = function () {
@@ -2448,8 +2636,7 @@ ElementWalker.prototype._possible = function () {
 
         if (value_evs.size())
             ret = value_evs;
-
-        if (this.walker.canEnd(true))
+        else if (this.walker.canEnd(true))
             ret.add(ElementWalker._leaveStartTag_event);
 
         return ret;
@@ -3156,7 +3343,8 @@ exports.__protected = {
     Element: Element,
     Define: Define,
     Grammar: Grammar,
-    EName: EName
+    EName: EName,
+    Interleave: Interleave
 };
 
 });

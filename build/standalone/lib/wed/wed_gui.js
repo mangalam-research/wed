@@ -22,6 +22,7 @@ var modal = require("./gui/modal");
 var context_menu = require("./gui/context_menu");
 var action_context_menu = require("./gui/action_context_menu");
 var completion_menu = require("./gui/completion_menu");
+var typeahead_popup = require("./gui/typeahead_popup");
 var key = require("./key");
 var dloc = require("./dloc");
 var makeDLoc = dloc.makeDLoc;
@@ -315,7 +316,8 @@ Editor.prototype.computeContextMenuPosition = function (e, bottom) {
     var keyboard = !e;
     e = e || {};
     var pos, rect;
-    if (e.type === "mousedown" || e.type === "mouseup" || e.type === "click")
+    if (e.type === "mousedown" || e.type === "mouseup" || e.type === "click" ||
+        e.type === "contextmenu")
         pos = {left: e.clientX, top: e.clientY};
     // The next conditions happen only if the user is using the keyboard
     else if (this._fake_caret.parentNode) {
@@ -685,14 +687,13 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
         }
 
         // Swallow these events when they happen in a placeholder.
-        if (util.anySpecialKeyHeld(e) ||
-            key_constants.BACKSPACE.matchesEvent(e) ||
+        if (key_constants.BACKSPACE.matchesEvent(e) ||
             key_constants.DELETE.matchesEvent(e))
             return terminate();
     }
 
     var attr_val = closestByClass(sel_focus.node, "_attribute_value",
-                                   sel_focus.root);
+                                  sel_focus.root);
     var $label = this.$gui_root.find(
         ".__start_label._label_clicked, .__end_label._label_clicked");
     if (!attr_val && $label[0] && key_constants.DELETE.matchesEvent(e)) {
@@ -851,12 +852,19 @@ Editor.prototype._globalKeydownHandler = log.wrap(function (wed_event, e) {
     return true;
 });
 
+// We don't put this in key_constants because ESCAPE_KEYPRESS should never
+// be seen elsewhere.
+var ESCAPE_KEYPRESS = key.makeKey(27);
+
 Editor.prototype._keypressHandler = log.wrap(function (e) {
-    // We always return false because we never want the default to
-    // execute.
+    // IE is the odd browser that allows ESCAPE to show up as a keypress so
+    // we have to prevent it from going any further.
+    if (ESCAPE_KEYPRESS.matchesEvent(e))
+        return true;
+
     this.$gui_root.trigger('wed-input-trigger-keypress', [e]);
     if (e.isImmediatePropagationStopped() || e.isPropagationStopped())
-        return;
+        return true;
 
     this.$gui_root.trigger('wed-global-keypress', [e]);
 });
@@ -1110,6 +1118,23 @@ Editor.prototype._caretLayerMouseHandler = log.wrap(function (e) {
     e.stopPropagation();
 });
 
+Editor.prototype._moveToNormalizedLabelPosition = function (target, label,
+                                                            boundary) {
+    // Note that in the code that follows, the choice between testing
+    // against ``target`` or against ``boundary.node`` is not arbitrary.
+    var attr = closestByClass(target, "_attribute", label);
+    if (attr) {
+        if (closestByClass(boundary.node, "_attribute_value", label))
+            this.setGUICaret(boundary);
+        else
+            this.setGUICaret(getAttrValueNode(attr.getElementsByClassName(
+                "_attribute_value")[0]), 0);
+    }
+    else {
+        // Find the element name and put it there.
+        this.setGUICaret(label.getElementsByClassName("_element_name")[0], 0);
+    }
+};
 
 Editor.prototype._mousedownHandler = log.wrap(function(ev) {
     // Make sure the mouse is not on a scroll bar.
@@ -1120,31 +1145,11 @@ Editor.prototype._mousedownHandler = log.wrap(function(ev) {
     if (!boundary)
         return true;
 
+    this.$gui_root.one("mouseup",
+                       this._mouseupHandler.bind(this));
+
     this.$widget.find('.wed-validation-error.selected').removeClass('selected');
     this.$error_list.find('.selected').removeClass('selected');
-
-    //
-    // Note that in the code that follows, the choice between testing
-    // against ``target`` or against ``boundary.node`` is not arbitrary.
-    //
-
-    var me = this;
-    function moveToNormalizedLabelPosition() {
-        var attr = closestByClass(target, "_attribute", label);
-        if (attr) {
-            if (closestByClass(boundary.node, "_attribute_value", label))
-                me.setGUICaret(boundary);
-            else
-                me.setGUICaret(
-                    getAttrValueNode(attr.getElementsByClassName(
-                        "_attribute_value")[0]),
-                    0);
-        }
-        else {
-            // Find the element name and put it there.
-            me.setGUICaret(label.getElementsByClassName("_element_name")[0], 0);
-        }
-    }
 
     var root = this.gui_root;
     var target = ev.target;
@@ -1166,7 +1171,7 @@ Editor.prototype._mousedownHandler = log.wrap(function(ev) {
         else if (label)
             // If the caret is changing due to a click on a
             // label, then normalize it to a valid position.
-            moveToNormalizedLabelPosition();
+            this._moveToNormalizedLabelPosition(target, label, boundary);
         else
             this.setGUICaret(boundary);
 
@@ -1176,8 +1181,47 @@ Editor.prototype._mousedownHandler = log.wrap(function(ev) {
             return true;
 
         break;
-    case 2:
-        break;
+    case 3:
+        var range = this.getSelectionRange();
+        if (!(range && !range.collapsed)) {
+            // If the caret is changing due to a click on a
+            // placeholder, then put it inside the placeholder.
+            if (placeholder)
+                this.setGUICaret(placeholder, 0);
+            else if (label)
+                // If the caret is changing due to a click on a
+                // label, then normalize it to a valid position.
+                this._moveToNormalizedLabelPosition(target, label, boundary);
+            else
+                this.setGUICaret(boundary);
+        }
+    }
+    return false;
+});
+
+// In previous versions of wed all mouse button processing was done in
+// _mousedownHandler. However, this caused problems when processing context
+// menus events. On IE in particular the mouseup that would occur when a
+// context menu is brought up would happen on the newly brought up menu and
+// would cause focus problems.
+Editor.prototype._mouseupHandler = log.wrap(function(ev) {
+    // Make sure the mouse is not on a scroll bar.
+    if (!domutil.pointInContents(this._scroller, ev.pageX, ev.pageY))
+        return false;
+
+    var boundary = this._pointToCharBoundary(ev.clientX, ev.clientY);
+    if (!boundary)
+        return true;
+
+    // Normalize.
+    if (ev.type === "contextmenu")
+        ev.which = 3;
+
+    var root = this.gui_root;
+    var target = ev.target;
+    var placeholder = closestByClass(target, "_placeholder", root);
+    var label = closestByClass(target, "_label", root);
+    switch(ev.which) {
     case 3:
         // If the caret is changing due to a click on a placeholder,
         // then put it inside the placeholder.
@@ -1185,7 +1229,7 @@ Editor.prototype._mousedownHandler = log.wrap(function(ev) {
             this.setGUICaret(target, 0);
 
         if (label) {
-            moveToNormalizedLabelPosition();
+            this._moveToNormalizedLabelPosition(target, label, boundary);
             $(target).trigger("wed-context-menu", [ev]);
         }
         else {
@@ -1201,6 +1245,8 @@ Editor.prototype._mousedownHandler = log.wrap(function(ev) {
                 this._contextMenuHandler(ev);
         }
     }
+    this.$gui_root.off("mousemove");
+    ev.preventDefault();
     return false;
 });
 
@@ -1358,6 +1404,34 @@ Editor.prototype.displayContextMenu = function (cm_class, x, y, items) {
         this._current_dropdown = undefined;
         this.popSelection();
     }.bind(this));
+};
+
+/**
+ * Brings up a typeahead popup. See the documentation of {@link
+ * module:gui/typeahead_popup~TypeaheadPopup TypeaheadPopup} for the
+ * meaning of the parameters.
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {string} placeholder
+ * @param {Object} options
+ * @param {Function} dismiss_callback
+ * @returns {module:gui/typeahead_popup~TypeaheadPopup} The popup that
+ * was created.
+ */
+Editor.prototype.displayTypeaheadPopup = function (x, y, placeholder,
+                                                   options, dismiss_callback) {
+    this._dismissDropdownMenu();
+    this.pushSelection();
+    this._current_typeahead = new typeahead_popup.TypeaheadPopup(
+        this.my_window.document, x, y, placeholder, options,
+        function (obj) {
+        this._current_typeahead = undefined;
+        this.popSelection();
+        if (dismiss_callback)
+            dismiss_callback(obj);
+    }.bind(this));
+    return this._current_typeahead;
 };
 
 Editor.prototype._refreshSaveStatus = log.wrap(function () {

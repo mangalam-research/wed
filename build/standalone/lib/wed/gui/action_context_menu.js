@@ -219,18 +219,8 @@ function ContextMenu(document, x, y, items, dismiss_callback) {
     // Call our superclass' constructor first...
     //
     context_menu.ContextMenu.call(this, document, x, y, [], dismiss_callback);
-
-    // For some reason, IE is not happy if we perform the focus right
-    // away. For some reason, Chrome on OS X seems to have the same
-    // problem. Note that by this point, text_input **is** in the DOM tree.
-    if (!browsers.MSIE && !(browsers.OSX && browsers.CHROME))
-        text_input.focus();
-    else
-        setTimeout(function () {
-            text_input.focus();
-        }, 50);
-    var menu = this._menu;
-    var $menu = $(menu);
+    text_input.focus();
+    var $menu = this._$menu;
     $menu.parent().on("hidden.bs.dropdown",
                       log.wrap(function () {
                           // Manually destroy the tooltips so that
@@ -243,6 +233,10 @@ function ContextMenu(document, x, y, items, dismiss_callback) {
 }
 
 oop.inherit(ContextMenu, Base);
+
+ContextMenu.prototype.handleToggleFocus = function () {
+    this._action_filter_input.focus();
+};
 
 function makeKindHandler(me, kind) {
     return log.wrap(function (ev) {
@@ -354,7 +348,7 @@ ContextMenu.prototype._inputKeydownHandler = log.wrap(function (ev) {
     }
 
     // Bootstrap 3.3.2 (and probably some versions before this
-    // one, introduce a change that prevents these events from
+    // one) introduces a change that prevents these events from
     // being processed by the dropdown menu. We have to manually
     // forward them. See bug report:
     //

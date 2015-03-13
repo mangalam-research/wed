@@ -141,6 +141,20 @@ unlikely to ever be supported:
 OS X
 ----
 
+.. warning:: If you are using any version of OS X that hides
+             scroll bars by default, you probably want to modify your
+             OS X settings so that scroll bars are always
+             shown. Otherwise, there are situations where you won't
+             know about contents being scrollable. If you need help
+             doing so, `see this blog post
+             <http://heresthethingblog.com/2013/02/25/mac-tip-missing-scroll-bars/>`__. Note
+             that wed will work either way, and you will be able to
+             scroll either way, but wed relies on the traditional
+             scroll bar behavior to indicate that something can be
+             scrolled. So if you do not make the change above, you can
+             end up in situations where something is scrollable
+             without having any visual indication that *it is*.
+
 The test suite depends on native events to do its work, but support
 for native events in OS X is spotty:
 

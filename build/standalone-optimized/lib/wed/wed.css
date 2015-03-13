@@ -20,7 +20,8 @@
 .modal-dialog {
   width: auto;
 }
-.wed-context-menu-backdrop {
+.wed-context-menu-backdrop,
+.wed-typeahead-popup-backdrop {
   position: fixed;
   z-index: 2;
   top: 0px;
@@ -47,6 +48,32 @@
 .wed-context-menu .fa-plus,
 .wed-context-menu .fa-caret-square-o-down {
   color: green;
+}
+.wed-typeahead-popup {
+  position: absolute;
+  z-index: 3;
+  background-color: white;
+}
+.wed-typeahead-popup .twitter-typeahead {
+  font-size: 18px;
+  width: 100%;
+}
+.wed-typeahead-popup .twitter-typeahead .form-control {
+  font-size: 18px;
+}
+.wed-typeahead-popup .twitter-typeahead .tt-dropdown-menu {
+  background-color: white;
+  width: 100%;
+  overflow: auto;
+  font-size: 18px;
+}
+.wed-typeahead-popup .twitter-typeahead .tt-hint {
+  color: #999;
+}
+.wed-typeahead-popup .spinner {
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
 }
 .wed-cut-buffer {
   position: fixed;

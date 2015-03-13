@@ -26,7 +26,7 @@
 
 
 <section>
-
+    
 <header>
     <h2>
         <span class="ancestors"><a href="module-transformation.html">transformation</a>~</span>
@@ -36,60 +36,60 @@
     
         <div class="class-description"><p>An operation that transforms the data tree.</p></div>
     
-</header>
+</header>  
 
 <article>
     <div class="container-overview">
     
-
+    
     
         
 <dt>
     <h4 class="name" id="Transformation"><span class="type-signature"></span>new Transformation<span class="signature">(editor, type, desc, <span class="optional">abbreviated_desc</span>, <span class="optional">icon_html</span>, <span class="optional">needs_input</span>, handler)</span><span class="type-signature"></span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
 
     
-
     
-
+    
+    
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -98,34 +98,34 @@
 
             
             </td>
-
+            
             
                 <td class="attributes">
                 
-
+                    
                 
-
+                    
                 
                 </td>
             
-
+            
             
                 <td class="default">
                 
                 </td>
             
-
+            
             <td class="description last"><p>The editor for which this
 transformation must be created.</p></td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>type</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -134,33 +134,33 @@ transformation must be created.</p></td>
 
             
             </td>
-
+            
             
                 <td class="attributes">
                 
-
+                    
                 
-
+                    
                 
                 </td>
             
-
+            
             
                 <td class="default">
                 
                 </td>
             
-
+            
             <td class="description last"><p>The type of transformation.</p></td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>desc</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -169,37 +169,37 @@ transformation must be created.</p></td>
 
             
             </td>
-
+            
             
                 <td class="attributes">
                 
-
+                    
                 
-
+                    
                 
                 </td>
             
-
+            
             
                 <td class="default">
                 
                 </td>
             
-
+            
             <td class="description last"><p>The description of this transformation. A
 transformation's <a href="module-transformation-Transformation.html#getDescriptionFor"><code>getDescriptionFor</code></a> method will replace <code>&amp;lt;name&gt;</code> with the name
 of the node actually being processed. So a string like <code>Remove
 &amp;lt;name&gt;</code> would become <code>Remove foo</code> when the transformation is
 called for the element <code>foo</code>.</p></td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>abbreviated_desc</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -208,36 +208,36 @@ called for the element <code>foo</code>.</p></td>
 
             
             </td>
-
+            
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-
+                    
                 
-
+                    
                 
                 </td>
             
-
+            
             
                 <td class="default">
                 
                 </td>
             
-
+            
             <td class="description last"><p>An abbreviated description of this
 transformation.</p></td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>icon_html</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -246,36 +246,36 @@ transformation.</p></td>
 
             
             </td>
-
+            
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-
+                    
                 
-
+                    
                 
                 </td>
             
-
+            
             
                 <td class="default">
                 
                 </td>
             
-
+            
             <td class="description last"><p>An HTML representation of the icon
 associated with this transformation.</p></td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>needs_input</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -284,19 +284,19 @@ associated with this transformation.</p></td>
 
             
             </td>
-
+            
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-
+                    
                 
-
+                    
                 
                 </td>
             
-
+            
             
                 <td class="default">
                 
@@ -304,7 +304,7 @@ associated with this transformation.</p></td>
                 
                 </td>
             
-
+            
             <td class="description last"><p>Indicates whether this action
 needs input from the user. For instance, an action which brings up
 a modal dialog to ask something of the user must have this
@@ -317,14 +317,14 @@ insertion operations for such elements be marked with
 <code>needs_input</code> set to <code>true</code> so that the <code>autoinsert</code> logic
 backs off from trying to insert these elements.</p></td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>handler</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -333,112 +333,113 @@ backs off from trying to insert these elements.</p></td>
 
             
             </td>
-
+            
             
                 <td class="attributes">
                 
-
+                    
                 
-
+                    
                 
                 </td>
             
-
+            
             
                 <td class="default">
                 
                 </td>
             
-
+            
             <td class="description last"><p>The handler to call when this
 transformation is executed.</p></td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
     
-
+    
     
 <dl class="details">
     
-
+        
+    
+    
     
 
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line107">line 107</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
     
-
+    
+    
     
 </dd>
 
     
     </div>
-
+    
     
         <h3 class="subsection-title">Extends</h3>
-
+        
         <ul>
             <li><a href="module-action-Action.html">module:action~Action</a></li>
         </ul>
     
-
     
-
     
-
     
-
-     
-
     
-
     
-
+    
+    
+    
+    
+    
+    
     
         <h3 class="subsection-title">Methods</h3>
-
+        
         <dl>
             
 <dt>
     <h4 class="name" id="eventHandler"><span class="type-signature"></span>eventHandler<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>An event handler. By default just calls <a href="module-action-Action.html#execute"><code>execute</code></a>. You probably want to use
@@ -450,38 +451,38 @@ the event passed to it.</p>
     
 
     
-
     
-
+    
+    
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>e</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -490,25 +491,25 @@ the event passed to it.</p>
 
             
             </td>
-
             
-
             
-
+            
+            
+            
             <td class="description last"><p>The DOM event.</p></td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
     
-
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -517,37 +518,40 @@ the event passed to it.</p>
         <a href="module-action-Action.html#eventHandler">module:action~Action#eventHandler</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line94">line 94</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -559,19 +563,19 @@ the event passed to it.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">boolean</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -579,11 +583,11 @@ the event passed to it.</p>
             
 <dt>
     <h4 class="name" id="execute"><span class="type-signature"></span>execute<span class="signature">(data)</span><span class="type-signature"></span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Calls the <code>fireTransformation</code> method on this
@@ -592,38 +596,38 @@ transformation's editor.</p>
     
 
     
-
     
-
+    
+    
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>data</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -632,61 +636,64 @@ transformation's editor.</p>
 
             
             </td>
-
             
-
             
-
+            
+            
+            
             <td class="description last"><p>The data object to pass.</p></td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
     
-
+    
     
 <dl class="details">
     
-
+        
+    
+    
     
 
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line192">line 192</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
     
-
+    
+    
     
 </dd>
 
@@ -694,11 +701,11 @@ transformation's editor.</p>
             
 <dt>
     <h4 class="name" id="getAbbreviatedDescription"><span class="type-signature"></span>getAbbreviatedDescription<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Gets the abbreviated  description for this action.</p>
@@ -706,17 +713,17 @@ transformation's editor.</p>
     
 
     
-
     
-
     
-
+    
+    
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -725,37 +732,40 @@ transformation's editor.</p>
         <a href="module-action-Action.html#getAbbreviatedDescription">module:action~Action#getAbbreviatedDescription</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line146">line 146</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -767,19 +777,19 @@ transformation's editor.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">string</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -787,11 +797,11 @@ transformation's editor.</p>
             
 <dt>
     <h4 class="name" id="getDescription"><span class="type-signature"></span>getDescription<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Gets a description for this action.</p>
@@ -799,17 +809,17 @@ transformation's editor.</p>
     
 
     
-
     
-
     
-
+    
+    
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -818,37 +828,40 @@ transformation's editor.</p>
         <a href="module-action-Action.html#getDescription">module:action~Action#getDescription</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line125">line 125</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -860,19 +873,19 @@ transformation's editor.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">string</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -880,11 +893,11 @@ transformation's editor.</p>
             
 <dt>
     <h4 class="name" id="getDescriptionFor"><span class="type-signature"></span>getDescriptionFor<span class="signature">(data)</span><span class="type-signature"> &rarr; {string}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Gets a description for this action, contextualized by the data
@@ -893,38 +906,38 @@ passed.</p>
     
 
     
-
     
-
+    
+    
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>data</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -933,25 +946,25 @@ passed.</p>
 
             
             </td>
-
             
-
             
-
+            
+            
+            
             <td class="description last"><p>The same data that would be passed to <a href="module-action-Action.html#execute"><code>execute</code></a>.</p></td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
     
-
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -960,37 +973,40 @@ passed.</p>
         <a href="module-action-Action.html#getDescriptionFor">module:action~Action#getDescriptionFor</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line137">line 137</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -1002,19 +1018,19 @@ passed.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">string</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -1022,11 +1038,11 @@ passed.</p>
             
 <dt>
     <h4 class="name" id="getEnabled"><span class="type-signature"></span>getEnabled<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Returns whether or not the action is currently enabled.</p>
@@ -1034,17 +1050,17 @@ passed.</p>
     
 
     
-
     
-
     
-
+    
+    
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -1053,37 +1069,40 @@ passed.</p>
         <a href="module-action-Action.html#getEnabled">module:action~Action#getEnabled</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line196">line 196</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -1091,19 +1110,19 @@ passed.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">boolean</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -1111,11 +1130,11 @@ passed.</p>
             
 <dt>
     <h4 class="name" id="getIcon"><span class="type-signature"></span>getIcon<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Gets the icon.</p>
@@ -1123,17 +1142,17 @@ passed.</p>
     
 
     
-
     
-
     
-
+    
+    
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -1142,37 +1161,40 @@ passed.</p>
         <a href="module-action-Action.html#getIcon">module:action~Action#getIcon</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line155">line 155</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -1184,19 +1206,19 @@ passed.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">string</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -1204,11 +1226,11 @@ passed.</p>
             
 <dt>
     <h4 class="name" id="getLabelFor"><span class="type-signature"></span>getLabelFor<span class="signature">(data)</span><span class="type-signature"> &rarr; {string}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>This method returns the icon together with the description for the
@@ -1217,38 +1239,38 @@ data passed as parameter.</p>
     
 
     
-
     
-
+    
+    
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>data</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -1257,25 +1279,25 @@ data passed as parameter.</p>
 
             
             </td>
-
             
-
             
-
+            
+            
+            
             <td class="description last"><p>The same data that would be passed to <a href="module-action-Action.html#execute"><code>execute</code></a>.</p></td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
     
-
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -1284,37 +1306,40 @@ data passed as parameter.</p>
         <a href="module-action-Action.html#getLabelFor">module:action~Action#getLabelFor</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line168">line 168</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -1327,19 +1352,19 @@ presentation.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">string</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -1347,11 +1372,11 @@ presentation.</p>
             
 <dt>
     <h4 class="name" id="terminalEventHandler"><span class="type-signature"></span>terminalEventHandler<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>An event handler. By default just calls <a href="module-action-Action.html#eventHandler"><code>eventHandler</code></a>. You probably want
@@ -1363,38 +1388,38 @@ the event passed to it.</p>
     
 
     
-
     
-
+    
+    
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>e</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -1403,25 +1428,25 @@ the event passed to it.</p>
 
             
             </td>
-
             
-
             
-
+            
+            
+            
             <td class="description last"><p>The DOM event.</p></td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
     
-
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -1430,37 +1455,40 @@ the event passed to it.</p>
         <a href="module-action-Action.html#terminalEventHandler">module:action~Action#terminalEventHandler</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line111">line 111</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -1472,19 +1500,19 @@ the event passed to it.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">boolean</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
@@ -1492,11 +1520,11 @@ the event passed to it.</p>
             
 <dt>
     <h4 class="name" id="toString"><span class="type-signature"></span>toString<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Converts this action to a string. By default calls <a href="module-action-Action.html#getDescription"><code>getDescription</code></a>.</p>
@@ -1504,17 +1532,17 @@ the event passed to it.</p>
     
 
     
-
     
-
     
-
+    
+    
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -1523,37 +1551,40 @@ the event passed to it.</p>
         <a href="module-action-Action.html#toString">module:action~Action#toString</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line187">line 187</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
+    
     
     <h5>Returns:</h5>
     
@@ -1561,37 +1592,37 @@ the event passed to it.</p>
 
 
 <dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
 <span class="param-type">string</span>
 
 
-    </dd>
+	</dd>
 </dl>
 
         
-
+    
     
 </dd>
 
         </dl>
     
-
+    
     
         <h3 class="subsection-title">Type Definitions</h3>
-
+        
         <dl>
                 
 <dt>
     <h4 class="name" id="handler"><span class="type-signature"></span>handler<span class="signature">(editor, transformation_data)</span><span class="type-signature"></span></h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>The transformation types expect the following values for the
@@ -1683,38 +1714,38 @@ parameters passed to a handler. For all these types
     
 
     
-
     
-
+    
+    
     
         <h5>Parameters:</h5>
         
 
 <table class="params">
     <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
         <tr>
             
                 <td class="name"><code>editor</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -1723,21 +1754,21 @@ parameters passed to a handler. For all these types
 
             
             </td>
-
             
-
             
-
+            
+            
+            
             <td class="description last"><p>The editor.</p></td>
         </tr>
-
-    
-
+	
+	
+	
         <tr>
             
                 <td class="name"><code>transformation_data</code></td>
             
-
+            
             <td class="type">
             
                 
@@ -1746,11 +1777,11 @@ parameters passed to a handler. For all these types
 
             
             </td>
-
             
-
             
-
+            
+            
+            
             <td class="description last"><p>Data for the
 transformation. Some fields are reserved by wed, but
 transformations are free to use additional fields. The following
@@ -1773,72 +1804,75 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
 </li>
 </ul></td>
         </tr>
-
-    
-    </tbody>
+	
+	
+	</tbody>
 </table>
     
-
+    
     
 <dl class="details">
     
-
+        
+    
+    
     
 
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="transformation.js.html">transformation.js</a>, <a href="transformation.js.html#line133">line 133</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
     
-
+    
+    
     
 </dd>
 
             </dl>
     
-
+    
     
         <h3 class="subsection-title">Events</h3>
-
+        
         <dl>
             
 <dt>
     <h4 class="name" id="event:disabled">disabled</h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Emitted when the action is disabled.</p>
@@ -1846,17 +1880,17 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
     
 
     
-
     
-
     
-
+    
+    
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -1865,39 +1899,42 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
         <a href="module-action-Action.html#event:disabled">module:action~Action#event:disabled</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line55">line 55</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
     
-
+    
+    
     
 </dd>
 
@@ -1905,11 +1942,11 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
             
 <dt>
     <h4 class="name" id="event:enabled">enabled</h4>
-
+    
     
 </dt>
 <dd>
-
+    
     
     <div class="description">
         <p>Emitted when the action is enabled.</p>
@@ -1917,17 +1954,17 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
     
 
     
-
     
-
     
-
+    
+    
+    
     
 <dl class="details">
     
-
+        
     
-
+    
     
 
     
@@ -1936,39 +1973,42 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
         <a href="module-action-Action.html#event:enabled">module:action~Action#event:enabled</a>
     </li></dd>
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
     
-
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="action.js.html">action.js</a>, <a href="action.js.html#line54">line 54</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
     
 </dl>
 
-
+    
     
 
     
 
     
-
     
-
     
-
     
-
+    
+    
     
 </dd>
 
@@ -1976,7 +2016,7 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
     
 </article>
 
-</section>
+</section>  
 
 
 
@@ -1984,13 +2024,13 @@ the transformation is fired. <strong>Wed performs the move.</strong></p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="action_context_menu.html">gui/action_context_menu</a></li><li><a href="completion_menu.html">gui/completion_menu</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="icon.html">gui/icon</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="ajax.html">savers/ajax</a></li><li><a href="localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="action_context_menu-ContextMenu.html">gui/action_context_menu~ContextMenu</a></li><li><a href="completion_menu-CompletionMenu.html">gui/completion_menu~CompletionMenu</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="ajax-AjaxSaver.html">savers/ajax~AjaxSaver</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">gui_updater~GUIUpdater#beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">gui_updater~GUIUpdater#changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">saver~Saver#autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">saver~Saver#changed</a></li><li><a href="module-saver-Saver.html#event:failed">saver~Saver#failed</a></li><li><a href="module-saver-Saver.html#event:saved">saver~Saver#saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">tree_updater~TreeUpdater#beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">tree_updater~TreeUpdater#changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="action_context_menu.html">gui/action_context_menu</a></li><li><a href="completion_menu.html">gui/completion_menu</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="icon.html">gui/icon</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="ajax.html">savers/ajax</a></li><li><a href="localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="action_context_menu-ContextMenu.html">gui/action_context_menu~ContextMenu</a></li><li><a href="completion_menu-CompletionMenu.html">gui/completion_menu~CompletionMenu</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="typeahead_popup-TypeaheadPopup.html">gui/typeahead_popup~TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="ajax-AjaxSaver.html">savers/ajax~AjaxSaver</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">gui_updater~GUIUpdater#beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">gui_updater~GUIUpdater#changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">saver~Saver#autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">saver~Saver#changed</a></li><li><a href="module-saver-Saver.html#event:failed">saver~Saver#failed</a></li><li><a href="module-saver-Saver.html#event:saved">saver~Saver#saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">tree_updater~TreeUpdater#beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">tree_updater~TreeUpdater#changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Mon Feb 16 2015 13:40:29 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Mar 13 2015 15:20:03 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

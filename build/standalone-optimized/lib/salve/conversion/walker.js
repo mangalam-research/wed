@@ -343,6 +343,7 @@ ConversionWalkerV2.prototype.walk = function (el) {
             }
             break;
         case "group":
+        case "interleave":
         case "choice":
         case "oneOrMore":
             this.newItem();

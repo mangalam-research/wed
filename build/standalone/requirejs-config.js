@@ -12,7 +12,8 @@ require.config({
         "localforage": "external/localforage",
         "async": "external/async",
         "angular": "external/angular",
-        "bootbox": "external/bootbox"
+        "bootbox": "external/bootbox",
+        "typeahead": "external/typeahead.bundle.min"
     },
     "packages": [
         {
@@ -63,6 +64,12 @@ require.config({
                 "bootstrap"
             ],
             "exports": "bootbox"
+        },
+        "typeahead": {
+            "deps": [
+                "jquery"
+            ],
+            "exports": "Bloodhound"
         }
     },
     "config": {

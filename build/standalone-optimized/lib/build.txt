@@ -23,6 +23,10 @@ external/font-awesome/css/font-awesome.min.css
 ----------------
 external/font-awesome/css/font-awesome.min.css
 
+external/typeaheadjs.css
+----------------
+external/typeaheadjs.css
+
 wed/wed.css
 ----------------
 wed/wed.css
@@ -273,6 +277,7 @@ wed/key_constants.js
 wed/gui/context_menu.js
 wed/gui/action_context_menu.js
 wed/gui/completion_menu.js
+wed/gui/typeahead_popup.js
 wed/gui/tooltip.js
 wed/wed_gui.js
 wed/wed.js
