@@ -4,6 +4,7 @@
 /build
 /schemas/out
 /local.mk
+/test_logs
 /*.html
 *_flymake.*
 *.pyc

@@ -31,7 +31,10 @@
                 "pubsub-js",
                 "lodash",
                 "localforage",
-                "angular"
+                "async",
+                "angular",
+                "bootbox",
+                "typeahead"
             ]
         }
     ],

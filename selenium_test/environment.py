@@ -9,6 +9,7 @@ import shutil
 import datetime
 import httplib
 
+from slugify import slugify
 import requests
 from requests.exceptions import ConnectionError
 from pyvirtualdisplay import Display
@@ -122,10 +123,31 @@ def start_server(context):
     thread.start()
     return thread
 
+screenshots_dir_path = os.path.join("test_logs", "screenshots")
+
+
+def setup_screenshots(context):
+    now = datetime.datetime.now().replace(microsecond=0)
+    this_screenshots_dir_path = os.path.join(screenshots_dir_path,
+                                             now.isoformat())
+
+    os.makedirs(this_screenshots_dir_path)
+    latest = os.path.join(screenshots_dir_path, "LATEST")
+    try:
+        os.unlink(latest)
+    except OSError as ex:
+        if ex.errno != 2:
+            raise
+
+    os.symlink(this_screenshots_dir_path,
+               os.path.join(screenshots_dir_path, "LATEST"))
+    context.screenshots_dir_path = this_screenshots_dir_path
+
 
 def before_all(context):
     atexit.register(cleanup, context, True)
     dump_config()
+    setup_screenshots(context)
 
     server_thread = start_server(context)
 
@@ -334,8 +356,16 @@ def before_step(context, step):
         time.sleep(context.behave_wait)
 
 
-def after_step(context, _step):
+def after_step(context, step):
     driver = context.driver
+    if step.status == "failed":
+        name = os.path.join(context.screenshots_dir_path,
+                            slugify(step.name)) + ".png"
+        driver.save_screenshot(name)
+        print
+        print "Captured screenshot:", name
+        print
+
     # Perform this query only if SELENIUM_LOGS is on.
     if context.selenium_logs:
         logs = driver.execute_script("""

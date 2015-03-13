@@ -328,6 +328,19 @@ def step_impl(context):
     util.find_element((By.CLASS_NAME, "wed-context-menu"))
 
 
+@When("^the context menu's filter field has focus$")
+def step_impl(context):
+    util = context.util
+
+    def cond(driver):
+        return driver.execute_script("""
+        var filter = document.querySelector(".wed-context-menu input");
+        return document.activeElement === filter;
+        """)
+
+    util.wait(cond)
+
+
 @Then("a context menu is visible and completely inside the window")
 def step_impl(context):
     util = context.util
@@ -436,12 +449,13 @@ def step_impl(context):
     """)
 
 
-@when(u'^the user clicks (?P<choice>the first context menu option|a choice '
-      u'for wrapping text in new elements|'
-      u'a choice for creating an element (?:before|after) the selected '
-      u'element|'
-      u'a choice for creating a new (?P<new>.*))$')
-def step_impl(context, choice, new):
+@when(ur'^the user clicks (?P<choice>the first context menu option|a choice '
+      ur'for wrapping text in new elements|'
+      ur'a choice for creating an element (?:before|after) the selected '
+      ur'element|'
+      ur'a choice for creating a new (?P<new>.*)|'
+      ur'the choice named "(?P<name>.*)")$')
+def step_impl(context, choice, new=None, name=None):
     util = context.util
     driver = context.driver
 
@@ -472,6 +486,10 @@ def step_impl(context, choice, new):
         choice = "new"
         link = util.wait(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,
                                                      "Create new " + new)))
+    elif choice.startswith("the choice named"):
+        choice = None
+        link = util.wait(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT,
+                                                     name)))
     else:
         raise ValueError("can't handle this type of choice: " + choice)
 
@@ -572,6 +590,8 @@ def step_impl(context, what=None, items=None, other=None):
                 elif link.startswith("Delete "):
                     actual.add("delete")
                 elif link.startswith("Element's documentation"):
+                    actual.add("others")
+                elif link == "Test typeahead":
                     actual.add("others")
                 elif link.startswith("Unwrap "):
                     actual.add("unwrap")

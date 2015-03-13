@@ -77,19 +77,23 @@ function lastGUI(container) {
 }
 
 function activateContextMenu(editor, el) {
-    var event = new $.Event("mousedown");
     el.scrollIntoView();
     var rect = el.getBoundingClientRect();
     var left = rect.left + rect.width / 2;
     var top = rect.top + rect.height / 2;
     var scroll_top = editor.my_window.document.body.scrollTop;
     var scroll_left = editor.my_window.document.body.scrollLeft;
-    event.which = 3;
-    event.pageX = left + scroll_left;
-    event.pageY = top + scroll_top;
-    event.clientX = left,
-    event.clientY = top,
-    event.target = el;
+    var values = {
+        which: 3,
+        pageX: left + scroll_left,
+        pageY: top + scroll_top,
+        clientX: left,
+        clientY: top,
+        target: el
+    };
+    var event = new $.Event("mousedown", values);
+    editor.$gui_root.trigger(event);
+    event = new $.Event("mouseup", values);
     editor.$gui_root.trigger(event);
 }
 
@@ -780,6 +784,22 @@ describe("wed", function () {
 
             editor.type("\u200B");
             assert.equal(initial.nodeValue, "abcd");
+        });
+
+        it("typing a control character in a placeholder works",
+           function (done) {
+            editor.validator._validateUpTo(editor.data_root, -1);
+
+            var ph = editor.gui_root
+                .getElementsByClassName("_placeholder")[0];
+            editor.setGUICaret(ph, 0);
+            var ctrl_something = key.makeCtrlEqKey("A");
+            $(editor.widget).on('wed-global-keydown.btw-mode',
+                                function (wed_ev, ev) {
+                if (ctrl_something.matchesEvent(ev))
+                    done();
+            });
+            editor.type(ctrl_something);
         });
 
         it("undo undoes typed text as a group", function () {

@@ -84,6 +84,17 @@ def step_impl(context, text):
 step_matcher('re')
 
 
+@then(u'ESCAPE is not in the text')
+def step_impl(context):
+    util = context.util
+
+    def condition(*_):
+        el_text = util.get_text_excluding_children(
+            context.element_to_test_for_text)
+        return el_text.find(u"\u001b") == -1
+    util.wait(condition)
+
+
 @when(u'^the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE)$')
 def step_impl(context, choice):
     driver = context.driver

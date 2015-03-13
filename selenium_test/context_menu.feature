@@ -157,24 +157,28 @@ Scenario: filtering on operations that wrap content
 
 Scenario: filtering on element names
   When the user uses the mouse to bring up the context menu on a placeholder
+  And the context menu's filter field has focus
   Then the context menu contains more than one option
   When the user types "abbr"
   Then the context menu contains only the option "Create new abbr"
 
 Scenario: filtering on operations for elements
   When the user brings up the context menu on the start label of an element
+  And the context menu's filter field has focus
   Then the context menu contains options of the types "element", "attribute" and others
   When the user clicks on the filter to show only options of type "element"
   Then the context menu contains options of the type "element"
 
 Scenario: filtering on operations for attributes
   When the user brings up the context menu on the start label of an element
+  And the context menu's filter field has focus
   Then the context menu contains options of the types "element", "attribute" and others
   When the user clicks on the filter to show only options of type "attribute"
   Then the context menu contains options of the type "attribute"
 
 Scenario: BACKSPACE removes letters from the text filter
   When the user uses the mouse to bring up the context menu on a placeholder
+  And the context menu's filter field has focus
   Then the context menu contains more than one option
   When the user types "abbr"
   Then the context menu contains only the option "Create new abbr"
@@ -185,6 +189,7 @@ Scenario: BACKSPACE removes letters from the text filter
 
 Scenario: ESCAPE resets the text filtering
   When the user uses the mouse to bring up the context menu on a placeholder
+  And the context menu's filter field has focus
   Then the context menu contains more than one option
   When the user types "abbr"
   Then the context menu contains only the option "Create new abbr"
@@ -193,6 +198,7 @@ Scenario: ESCAPE resets the text filtering
 
 Scenario: ESCAPE resets the kind filtering
   When the user uses the mouse to bring up the context menu on a placeholder
+  And the context menu's filter field has focus
   Then the context menu contains options of the kinds "add", "delete", "unwrap" and others
   When the user clicks on the filter to show only options of kind "add"
   Then the context menu contains options of the kind "add"
@@ -201,6 +207,7 @@ Scenario: ESCAPE resets the kind filtering
 
 Scenario: ESCAPE resets the type filtering
   When the user brings up the context menu on the start label of an element
+  And the context menu's filter field has focus
   Then the context menu contains options of the types "element", "attribute" and others
   When the user clicks on the filter to show only options of type "attribute"
   Then the context menu contains options of the type "attribute"
@@ -209,6 +216,7 @@ Scenario: ESCAPE resets the type filtering
 
 Scenario: ESCAPE twice, when filtering, exits the menu
   When the user uses the mouse to bring up the context menu on a placeholder
+  And the context menu's filter field has focus
   And the user clicks on the filter to show only options of kind "add"
   And the user types ESCAPE
   Then the context menu is visible
@@ -217,6 +225,7 @@ Scenario: ESCAPE twice, when filtering, exits the menu
 
 Scenario: filtering on element names by regular expression
   When the user uses the mouse to bring up the context menu on a placeholder
+  And the context menu's filter field has focus
   Then the context menu is visible
   When the user types "hi"
   Then the context menu contains 3 options

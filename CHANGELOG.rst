@@ -4,6 +4,28 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.22.0:
+
+  - API: Upgrade to salve 0.23.0, which means that wed now supports
+    Relax NG's ``interleave`` and ``mixed`` elements.
+
+  - GUI: Upgrade to Font Awesome 4.3.0.
+
+  - GUI: The icon for an element's documentation is now
+    fa-question-circle rather than fa-book.
+
+  - GUI: Added support for creating typeahead popups based off of
+    Twitter Typeahead. The modes bundled with wed do not make use of
+    such typeaheads but custom modes may use them.
+
+  - GUI: bug fix: some key combinations typed into placeholders
+    (usually having Ctrl, Alt or Command set) would not be transmitted
+    to the modes. This has been fixed.
+
+  - GUI: bug fix: typing the ESCAPE key on IE would cause an escape
+    character to be inserted in the document or would cause a crash
+    (when typed while a label is selected). This has been fixed.
+
 * 0.21.0:
 
   - GUI: Wed now filters out zero-width spaces from the input and converts

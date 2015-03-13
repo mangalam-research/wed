@@ -6,7 +6,7 @@
 # Perform these first because they are extremely cheap to perform.
 #
 Linux,FF,31
-Linux,CH,39
+Linux,CH,41
 
 
 #
