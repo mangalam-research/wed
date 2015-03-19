@@ -139,7 +139,7 @@ def setup_screenshots(context):
         if ex.errno != 2:
             raise
 
-    os.symlink(this_screenshots_dir_path,
+    os.symlink(os.path.basename(this_screenshots_dir_path),
                os.path.join(screenshots_dir_path, "LATEST"))
     context.screenshots_dir_path = this_screenshots_dir_path
 
@@ -360,7 +360,8 @@ def after_step(context, step):
     driver = context.driver
     if step.status == "failed":
         name = os.path.join(context.screenshots_dir_path,
-                            slugify(step.name)) + ".png"
+                            slugify(context.scenario.name + "_"
+                                    + step.name) + ".png")
         driver.save_screenshot(name)
         print
         print "Captured screenshot:", name
