@@ -308,12 +308,16 @@ def step_impl(context, direction):
 
 
 @when(u'^the user selects the whole text of '
-      u'(?P<what>an element|the first paragraph in "body")$')
+      u'(?P<what>an element|the first title element|'
+      u'the first paragraph in "body")$')
 def step_impl(context, what):
     driver = context.driver
     util = context.util
 
     if what == "an element":
+        what = "the first title element"
+
+    if what == "the first title element":
         selector = ".__start_label._title_label"
     elif what == 'the first paragraph in "body"':
         selector = ".body .__start_label._p_label"

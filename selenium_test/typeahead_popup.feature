@@ -55,3 +55,11 @@ Scenario: clicking on a completion which appears outside the editor pane.
   And the typeahead popup is visible and completely inside the window
   When the user clicks the last visible completion
   Then the caret is in the last "p" element
+
+Scenario: bringing up the typeahead on a selection prefills the field and shows suggestions
+  When the user selects the whole text of the first title element
+  And the user types BACKSPACE
+  And the user types "Test"
+  And the user selects the whole text of the first title element
+  And the user opens the typeahead popup
+  Then the typeahead popup shows suggestions

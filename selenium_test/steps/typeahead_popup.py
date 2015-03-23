@@ -153,3 +153,12 @@ def step_impl(context):
     return [caret.node.innerHTML, caret.offset];
     """)
     print
+
+
+@then(ur"^the typeahead popup shows suggestions$")
+def step_impl(context):
+    util = context.util
+
+    assert_true(len(util.find_elements(
+        (By.CSS_SELECTOR,
+         ".wed-typeahead-popup .tt-dropdown-menu .tt-suggestion"))))
