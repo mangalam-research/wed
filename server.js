@@ -273,6 +273,13 @@ app.post(make_paths("/test-results"), function(request, response) {
     });
 });
 
+// Setting up the test environment requires getting *any* page from
+// the server in some cases. It does not matter what the content of
+// the page is. This serves the purpose.
+app.get(make_paths("/blank"), function (request, response) {
+    response.end();
+});
+
 function runserver() {
     if (!ip) {
         var server = http.createServer(app).listen();
