@@ -139,7 +139,7 @@ def setup_screenshots(context):
         if ex.errno != 2:
             raise
 
-    os.symlink(this_screenshots_dir_path,
+    os.symlink(os.path.basename(this_screenshots_dir_path),
                os.path.join(screenshots_dir_path, "LATEST"))
     context.screenshots_dir_path = this_screenshots_dir_path
 
