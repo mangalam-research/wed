@@ -381,9 +381,27 @@ def step_impl(context, choice):
     else:
         raise ValueError("unknown choice: " + choice)
 
-    # IF YOU CHANGE THIS, CHANGE THE TRIGGER
-    wedutil.click_until_caret_in(util, where)
-    util.ctrl_equivalent_x("/")
+    max_tries = 5
+    while True:
+        # IF YOU CHANGE THIS, CHANGE THE TRIGGER
+        wedutil.click_until_caret_in(util, where)
+        util.ctrl_equivalent_x("/")
+        try:
+            # We don't want to check too fast so we do use an explicit
+            # wait by way of ``util``.
+            util.find_element((By.CLASS_NAME, "wed-context-menu"))
+            # If we get here, the menu exists.
+            break
+        except TimeoutException:
+            # The menu did not come up. Probably something messed up
+            # the caret between ``click_until_caret_in`` and
+            # ``ctrl_equivalent_x``. Try again or decide that it just
+            # won't happen.
+            max_tries -= 1
+            if max_tries == 0:
+                raise Exception("tried multiple times to bring up "
+                                "the contextual menu, but was "
+                                "unsuccessful")
 
     # THIS TRIGGER WORKS ONLY BECAUSE OF .click(where) above.
     context.context_menu_trigger = Trigger(util, where)
