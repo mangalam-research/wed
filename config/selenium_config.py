@@ -67,8 +67,10 @@ caps = {
     # We have to turn this on...
     "nativeEvents": True,
     "name": name,
-    "selenium-version": "2.43.0",
-    "chromedriver-version": "2.11",
+    "selenium-version": "2.45.0",
+    # We cannot yet use 2.14 due to the change in how an element's
+    # center is determined.
+    "chromedriver-version": "2.13",
     "build": "version: " + version + ", git describe: " + describe
 }
 
