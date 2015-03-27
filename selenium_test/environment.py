@@ -395,7 +395,8 @@ def after_step(context, step):
     driver = context.driver
     if step.status == "failed":
         name = os.path.join(context.screenshots_dir_path,
-                            slugify(step.name)) + ".png"
+                            slugify(context.scenario.name + "_"
+                                    + step.name) + ".png")
         driver.save_screenshot(name)
         print
         print "Captured screenshot:", name
