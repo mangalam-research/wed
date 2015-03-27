@@ -506,11 +506,19 @@ build/ks/purl.js: downloads/$(PURL_BASE) | build/ks
 	touch $@
 
 .PHONY: test
-test: build-standalone | build-test-files
+test: test-node test-browser
+
+.PHONY: test-node
+test-node: build-standalone | build-test-files
 ifndef SKIP_SEMVER
 	semver-sync -v
 endif
 	mocha $(MOCHA_PARAMS)
+
+.PHONY: test-browser
+test-browser: build-config
+	$(MAKE) -f build.mk build build-test-files
+	./server.js runner $(SERVER_PARAMS)
 
 .PHONY: selenium-test
 selenium-test: build-config

@@ -4,6 +4,13 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.22.1:
+
+  - GUI: bug fix: in Internet Explorer, the typeahead popup would be
+    created without being active. Although this did not affect wed
+    itself or the modes bundled with it, it did affect external modes
+    that use the typeahead popup.
+
 * 0.22.0:
 
   - API: Upgrade to salve 0.23.0, which means that wed now supports

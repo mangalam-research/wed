@@ -62,7 +62,7 @@ def step_impl(context):
     }
 
     def cond(_driver):
-        resp = requests.get(urljoin(context.selenic.WED_SERVER,
+        resp = requests.get(urljoin(context.local_server,
                                     "/build/ajax/save.txt"))
         text = resp.text.replace('\n***\n', '').strip()
         text = last_obj_re.sub('{', text)

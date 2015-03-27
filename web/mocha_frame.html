@@ -3,6 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
     <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
+    <script type="text/javascript" src="../ks/purl.js"></script>
     <script type="text/javascript" src="lib/requirejs/require.js"></script>
     <script type="text/javascript" src="requirejs-config.js"></script>
   </head>
@@ -17,7 +18,7 @@
           shim: {
               'mocha/mocha': {
                   exports: "mocha",
-                  init: function () { this.mocha.setup('bdd'); return this.mocha; }
+                  init: function () { this.mocha.setup('bdd'); return {"mocha": this.mocha, "Mocha": this.Mocha}; }
               }
           },
           config: {
@@ -60,16 +61,19 @@
           });
       }
 
-      require(["mocha/mocha", "chai", "browser_test/global", "wed/onerror",
+      require(["jquery", "mocha/mocha", "chai", "browser_test/global",
+               "wed/onerror",
                "browser_test/validator_test",
                "browser_test/jquery.findandself_test",
-               "browser_test/mutation_domlistener_test", "browser_test/domutil_test",
+               "browser_test/mutation_domlistener_test",
+               "browser_test/domutil_test",
                "browser_test/wed_test", "browser_test/input_trigger_test",
                "browser_test/input_trigger_factory_test",
                "browser_test/modal_test",
                "browser_test/updater_domlistener_test",
-               "browser_test/convert_test"],
-              function (mocha, chai, global, onerror) {
+               "browser_test/convert_test",
+               "browser_test/transformation_test"],
+              function ($, mocha, chai, global, onerror) {
           var assert = chai.assert;
 
           // Reset the server before doing anything.
@@ -106,7 +110,59 @@
                   }, 1);
               });
           });
-          mocha.run();
+
+          var nohtml = purl().param('nohtml');
+
+          var ReporterBase = !nohtml ? mocha.Mocha.reporters.HTML :
+              mocha.Mocha.reporters.Base;
+
+          function MyReporter(runner) {
+              ReporterBase.call(this, runner);
+
+              function emit(message) {
+                  $.ajax({
+                      url: '/test-results',
+                      type: "POST",
+                      data: JSON.stringify(message),
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                      traditional: false,
+                  });
+              }
+
+              function clean(test, err) {
+                  return {
+                      title: test.title,
+                      fullTitle: test.fullTitle(),
+                      duration: test.duration,
+                      err: err && {
+                        message: err.message,
+                        stack: err.stack,
+                      }
+                  };
+              }
+
+              runner.on('start', function () {
+                  emit(['start', { total: runner.total }]);
+              });
+
+              runner.on('pass', function(test){
+                  emit(['pass', clean(test)]);
+              });
+
+              runner.on('fail', function(test, err){
+                  emit(['fail', clean(test, err)]);
+              });
+
+              runner.on('end', function() {
+                  emit(['end', this.stats]);
+              }.bind(this));
+          }
+          MyReporter.prototype = Object.create(ReporterBase.prototype);
+
+          mocha.mocha.reporter(MyReporter);
+
+          mocha.mocha.run();
       });
     </script>
   </body>

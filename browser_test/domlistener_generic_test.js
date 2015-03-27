@@ -10,6 +10,7 @@
 //
 define(function (require) {
 'use strict';
+require("mocha/mocha");
 var chai = require("chai");
 var $ = require("jquery");
 

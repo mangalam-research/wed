@@ -107,7 +107,6 @@ Scenario: typing BACKSPACE when a selection is in effect
   And the user types BACKSPACE
   Then "ad" is in the text
 
-@wip
 Scenario: typing ESCAPE does not result in a text insertion
   Given a document containing a top level element, a p element, and text.
   And that the user has deleted all the text in an element

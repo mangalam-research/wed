@@ -64,9 +64,9 @@ def cleanup(context, failed):
                 pass
         context.driver = None
 
-    if context.sc_tunnel:
-        context.sc_tunnel.send_signal(signal.SIGTERM)
-        context.sc_tunnel = None
+    if context.tunnel:
+        context.tunnel.send_signal(signal.SIGTERM)
+        context.tunnel = None
 
     if context.sc_tunnel_tempdir:
         shutil.rmtree(context.sc_tunnel_tempdir, True)
@@ -97,12 +97,25 @@ def start_server(context):
         raise Exception("unable to find a port for the server")
 
     port = str(port)
+    context.server_port = port
 
     def start():
         # Start a server just for our tests...
         context.server = subprocess.Popen(["node", "./server.js",
-                                           "localhost:" + port])
-        builder.WED_SERVER = "http://localhost:" + port + builder.WED_ROOT
+                                           "server", "localhost:" + port])
+        # This is the address at which we can control the server
+        # locally.
+        local_server = "http://localhost:" + port + builder.WED_ROOT
+        ssh_tunnel = builder.WED_SSH_TUNNEL
+        if builder.remote and ssh_tunnel:
+            builder.WED_SERVER = "{0}:{1}{2}".format(
+                ssh_tunnel["server"],
+                ssh_tunnel["server_port"],
+                builder.WED_ROOT)
+        else:
+            builder.WED_SERVER = local_server
+
+        context.local_server = local_server
 
         # Try pinging the server util we get a positive response or we've
         # tried enough times to declare failure
@@ -110,7 +123,7 @@ def start_server(context):
         success = False
         while not success and tries < 10:
             try:
-                control(builder.WED_SERVER, 'ping', 'failed to ping')
+                control(local_server, 'ping', 'failed to ping')
                 success = True
             except ConnectionError:
                 time.sleep(0.5)
@@ -153,9 +166,10 @@ def before_all(context):
 
     context.selenium_quit = os.environ.get("SELENIUM_QUIT")
 
-    context.sc_tunnel = None
+    context.tunnel = None
     context.sc_tunnel_tempdir = None
     desired_capabilities = {}
+    ssh_tunnel = None
     if not builder.remote:
         visible = context.selenium_quit in ("never", "on-success")
         context.display = Display(visible=visible, size=(1024, 768))
@@ -166,13 +180,21 @@ def before_all(context):
         context.display = None
         context.wm = None
 
-        sc_tunnel_id = os.environ.get("SC_TUNNEL_ID")
-        if not sc_tunnel_id:
-            user, key = builder.SAUCELABS_CREDENTIALS.split(":")
-            context.sc_tunnel, sc_tunnel_id, \
-                context.sc_tunnel_tempdir = \
-                outil.start_sc(builder.SC_TUNNEL_PATH, user, key)
-        desired_capabilities["tunnel-identifier"] = sc_tunnel_id
+        ssh_tunnel = builder.WED_SSH_TUNNEL
+        if not ssh_tunnel:
+            sc_tunnel_id = os.environ.get("SC_TUNNEL_ID")
+            if not sc_tunnel_id:
+                user, key = builder.SAUCELABS_CREDENTIALS.split(":")
+                context.tunnel, sc_tunnel_id, \
+                    context.sc_tunnel_tempdir = \
+                    outil.start_sc(builder.SC_TUNNEL_PATH, user, key)
+            desired_capabilities["tunnel-identifier"] = sc_tunnel_id
+        else:
+            context.tunnel = \
+                subprocess.Popen(
+                    ["ssh", ssh_tunnel["ssh_to"],
+                     "-R", str(ssh_tunnel["ssh_port"]) + ":localhost:" +
+                     context.server_port, "-N"])
 
     driver = builder.get_driver(desired_capabilities)
     context.driver = driver
@@ -197,6 +219,19 @@ def before_all(context):
     context.selenium_logs = os.environ.get("SELENIUM_LOGS", False)
 
     server_thread.join()
+
+    # IE 10 has a problem with self-signed certificates. Selenium
+    # cannot tell IE 10 to ignore these problems. Here we work around
+    # the issue. This problem occurs only if we are using an SSH
+    # tunnel rather than sauce connect.
+    if ssh_tunnel and context.util.ie \
+       and context.selenic.config.version == "10":
+        driver.get(builder.WED_SERVER + "/blank")
+        # Tried using, execute_script. Did not seem to work.
+        driver.get(
+            "javascript:((link = document.getElementById("
+            "'overridelink')) && link.click())")
+
     context.start_time = time.time()
 
 FAILS_IF = "fails_if:"
@@ -271,7 +306,7 @@ def before_scenario(context, scenario):
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
     driver.set_window_position(0, 0)
-    reset(context.selenic.WED_SERVER)
+    reset(context.local_server)
 
 
 def after_scenario(context, _scenario):

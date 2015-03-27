@@ -67,8 +67,10 @@ caps = {
     # We have to turn this on...
     "nativeEvents": True,
     "name": name,
-    "selenium-version": "2.43.0",
-    "chromedriver-version": "2.11",
+    "selenium-version": "2.45.0",
+    # We cannot yet use 2.14 due to the change in how an element's
+    # center is determined.
+    "chromedriver-version": "2.13",
     "build": "version: " + version + ", git describe: " + describe
 }
 
@@ -149,3 +151,34 @@ if browser_env:
 # of the code.
 #
 WED_ROOT = "/forever/build/standalone-optimized"
+
+#
+# This is a setting local to this project. When set to an object:
+#
+# - The test suite does not start sauce connect.
+#
+# - The test suite starts ssh btw according to the configuration to
+#   which WED_SSH_TUNNEL is set. It should be a dictionary with the
+#   keys:
+#
+#   + "ssh_to": "foo@bar"
+#
+#      The username@address where to connect.
+#
+#   + "ssh_port": 2001
+#
+#      This is the port on which the remove server is redirecting
+#      connections. SSH will listen on this port and tunnel
+#      connections to the machine on which the test suite is running.
+#
+#   + "server": "https://something..."
+#
+#      The address of the server that will serve the contents for
+#      the test.
+#
+#   +  "server_port": 2000
+#
+#      This is the port on which the remote server is listening for
+#      incoming connections.
+#
+WED_SSH_TUNNEL = False
