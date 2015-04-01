@@ -63,3 +63,13 @@ Scenario: bringing up the typeahead on a selection prefills the field and shows 
   And the user selects the whole text of the first title element
   And the user opens the typeahead popup
   Then the typeahead popup shows suggestions
+
+Scenario: typeahead losing focus
+  Given that a typeahead popup is open
+  When the user types "Test"
+  Then the typeahead popup shows suggestions
+  # This is not something a user can do but it serves the purpose of
+  # making the typeahead input field lose its focus without being an
+  # onerous operation, like opening a new tab.
+  When the input field is focused
+  Then the typeahead popup shows suggestions
