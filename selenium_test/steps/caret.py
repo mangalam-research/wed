@@ -565,6 +565,13 @@ def step_impl(context):
         ".__end_label._p_label._label_clicked")
     assert_equal(len(labels), 1, "the end label should be clicked")
 
+
+@when(ur"^the user clicks on a gui control that contains only text$")
+def step_impl(context):
+    driver = context.driver
+    button = driver.find_element_by_class_name("_gui_test")
+    button.click()
+
 step_matcher("parse")
 
 

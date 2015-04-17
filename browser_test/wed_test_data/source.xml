@@ -26,6 +26,7 @@
       <p part="">Blah</p>
       <div sample="">
       </div>
+      <p rend="foo"></p>
     </body>
   </text>
 </TEI>
