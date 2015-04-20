@@ -85,6 +85,9 @@ TestMode.prototype.getContextualActions = function (type, tag, container,
     if (tag === "ref" && type === "insert")
         ret.push(this._typeahead_action);
 
+    if (tag === "ref" && type === "wrap")
+        ret.push(this._typeahead_action);
+
     return ret;
 };
 
@@ -144,12 +147,19 @@ TypeaheadAction.prototype.execute = function (data) {
 
     var pos = editor.computeContextMenuPosition(undefined, true);
     var typeahead =
-            editor.displayTypeaheadPopup(pos.left, pos.top, "Test", options,
+            editor.displayTypeaheadPopup(pos.left, pos.top, 300,
+                                         "Test", options,
                                  function (obj) {
         if (obj)
             editor.type(obj.value);
     });
     typeahead.hideSpinner();
+    var range = editor.getSelectionRange();
+
+    // This is purposely not as intelligent as what real mode would
+    // need.
+    if (range && !range.collapsed)
+        typeahead.setValue(range.toString());
 };
 
 exports.Mode = TestMode;

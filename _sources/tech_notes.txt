@@ -391,7 +391,7 @@ Browser-Independent Tests
 
 To run the tests that are not browser-dependent do::
 
-    $ make test
+    $ make test-node
 
 These tests are located in the ``test/`` directory off the wed
 root. You can also run ``mocha``
@@ -409,27 +409,36 @@ the latest code.
 In-Browser Tests
 ----------------
 
+You can run these tests from the command line by running::
+
+  $ make test-browser
+
 The browser-dependent tests are located in the ``browser_test/``
-directory off the wed root. To run the tests that run in the browser,
-you must run ``server.js``, a basic web server, from the root of the
-wed source::
+directory off the wed root. These tests are run by launching
+``server.js`` with the option ``runner``. This starts a server that
+can:
 
-    $ ./server.js
+- Serve wed's files.
 
-The server will serve on localhost:8888 by default. Give it an
-``addr:port`` parameter if you want another address and port. Some
-tests require **this** specific server or a server that provides the
-same responses to Ajax requests. Point your browser to either:
+- Respond to wed's AJAX request.
 
-* `<http://localhost:8888/build/standalone/test.html>`_ to run the
-  tests with an unoptimized file tree.
+- Receive the results of the tests.
 
-* or `<http://localhost:8888/build/standalone-optimized/test.html>`_ to
-  run the tests with an optimized file tree.
+It also starts a Chrome browser which loads the page that contains the
+tests to be run in the browser. The browser is run in ``Xvfb`` so that
+it does not appear on the desktop.
 
-If you change wed's code and want to run the browser-dependent test
-suite again, make sure to run ``make test`` before you run the suite
-again because otherwise the suite will run against the old code.
+If you need to run the server to perform diagnosis on failing tests,
+you can ``server.js browser``. This will launch the browser on your
+desktop and start the tests. The browser and server will remain
+running until you kill them.
+
+Q. Why not use Karma?
+
+A. Historical reasons mostly. If Karma has been in the state it is now
+   when the project started, it would probably be used by the project
+   now. ``server.js`` grew organically with the project and there is
+   not at this moment a solid reason to get rid of it in favor of Karma.
 
 Selenium-Based Tests
 --------------------

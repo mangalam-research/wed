@@ -93,7 +93,18 @@ frequency of bugs you can expect to run into.
 Here is the list of officially supported browsers, in order of
 decreasing priority:
 
-* Chrome 38 and higher and Firefox 31 and higher, about equally.
+* Chrome 38 and higher and Firefox 34.
+
+  .. warning:: A very unusual situation makes it so that Firefox 35
+               and 36 are currently not officially supported. Will wed
+               run on them fine? Probably. However, it so happens that
+               the developers of FF removed an API upon which Selenium
+               relied to provide support for native events, and wed's
+               test suite requires native events to operate. This
+               situation won't be rectified until the FF developers
+               provide the means to Selenium to generate native events
+               again. Note that in light of this, we strongly
+               recommend that you use Chrome rather than Firefox.
 
 * The current ESR (Extended Support Release) of Firefox, which is
   Firefox 31 at the time of writing.

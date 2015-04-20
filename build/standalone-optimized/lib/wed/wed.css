@@ -67,6 +67,14 @@
   overflow: auto;
   font-size: 18px;
 }
+.wed-typeahead-popup .twitter-typeahead .tt-dropdown-menu > div {
+  padding-left: 3px;
+}
+.wed-typeahead-popup .twitter-typeahead .tt-dropdown-menu .tt-suggestions p {
+  margin: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
 .wed-typeahead-popup .twitter-typeahead .tt-hint {
   color: #999;
 }

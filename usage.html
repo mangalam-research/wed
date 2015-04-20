@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic Usage &mdash; Wed v0.22.0 documentation</title>
+    <title>Basic Usage &mdash; Wed v0.23.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.22.0',
+        VERSION:     'v0.23.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.22.0 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.23.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.22.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.23.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -131,18 +131,36 @@ is developed using these browsers influences the severity and
 frequency of bugs you can expect to run into.</p>
 <p>Here is the list of officially supported browsers, in order of
 decreasing priority:</p>
-<ul class="simple">
-<li>Chrome 38 and higher and Firefox 31 and higher, about equally.</li>
-<li>The current ESR (Extended Support Release) of Firefox, which is
-Firefox 31 at the time of writing.</li>
-<li>IE 10 and 11, about equally.</li>
-<li>Relatively recent versions of Chrome and Firefox: older than the
+<ul>
+<li><p class="first">Chrome 38 and higher and Firefox 34.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">A very unusual situation makes it so that Firefox 35
+and 36 are currently not officially supported. Will wed
+run on them fine? Probably. However, it so happens that
+the developers of FF removed an API upon which Selenium
+relied to provide support for native events, and wed&#8217;s
+test suite requires native events to operate. This
+situation won&#8217;t be rectified until the FF developers
+provide the means to Selenium to generate native events
+again. Note that in light of this, we strongly
+recommend that you use Chrome rather than Firefox.</p>
+</div>
+</li>
+<li><p class="first">The current ESR (Extended Support Release) of Firefox, which is
+Firefox 31 at the time of writing.</p>
+</li>
+<li><p class="first">IE 10 and 11, about equally.</p>
+</li>
+<li><p class="first">Relatively recent versions of Chrome and Firefox: older than the
 latest releases but not very old. (Yeah, this is vague. Sorry about
 that.) In the case of Firefox this means versions newer than the
-current ESR but older than the latest release.</li>
-<li>The previous ESR of Firefox, provided it does not cause too much of
+current ESR but older than the latest release.</p>
+</li>
+<li><p class="first">The previous ESR of Firefox, provided it does not cause too much of
 a burden. (Support for FF24 was dropped due to this: there was an
-obscure bug that was not worth fighting against.)</li>
+obscure bug that was not worth fighting against.)</p>
+</li>
 </ul>
 <p>File an issue on github if you find a problem with one of the
 supported browsers above.</p>
@@ -564,7 +582,7 @@ work.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.22.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.23.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
