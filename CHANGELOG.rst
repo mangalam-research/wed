@@ -4,6 +4,21 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.23:
+
+  - API: displayTypeaheadPopup now takes a ``width`` parameter.
+
+  - GUI: When the input element of a typeahead popup loses focus, it
+    no longer closes the dropdown. This was not a bug in wed but an
+    undesirable default behavior of Twitter Typeahead.
+
+  - GUI: Adjusted some of the spaces in the typeahead suggestions.
+
+  - GUI: bug fix: Clicking on a _gui element that contained a text
+    node would cause an infinite loop. This has been fixed. Wed itself
+    does not create elements that would have triggered the bug but
+    some modes in other projects using wed do.
+
 * 0.22.1:
 
   - GUI: bug fix: in Internet Explorer, the typeahead popup would be

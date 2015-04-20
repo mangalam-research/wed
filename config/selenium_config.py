@@ -70,6 +70,9 @@ caps = {
     "selenium-version": "2.45.0",
     # We cannot yet use 2.14 due to the change in how an element's
     # center is determined.
+    #
+    # AND SEE BELOW FOR A SPECIAL CASE.
+    #
     "chromedriver-version": "2.13",
     "build": "version: " + version + ", git describe: " + describe
 }
@@ -90,6 +93,19 @@ with open(os.path.join(dirname, "./browsers.txt")) as browsers:
             Config(*parts)
         elif len(parts) == 4:
             assert parts[-1].upper() == "REMOTE"
+
+            # We have to use 2.12 with CH 39 on Windows to avoid a bug
+            # in 2.13. Without this change the test suite will hang on
+            # the 41st scenario. It really does not matter which
+            # scenario ends up being the 41st. I've tried replicating
+            # the issue with simplified code but it has not worked.
+            if parts[0].lower().startswith("windows ") and \
+               parts[1].lower() == "ch" and parts[2] == "39":
+                caps = dict(caps)
+                caps["chromedriver-version"] = "2.12"
+
+            # Here we add the capabilities to the arguments we use to
+            # call Config.
             parts = parts[:-1] + [caps, True]
             Config(*parts)
         else:

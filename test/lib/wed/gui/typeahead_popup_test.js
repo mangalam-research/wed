@@ -71,7 +71,7 @@ describe("TypeaheadPopup", function () {
         cb = sinon.spy();
         ta = new typeahead_popup.TypeaheadPopup(
             window.document,
-            0, 0,
+            0, 0, 300,
             "Placeholder",
             {
                 options: {

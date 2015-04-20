@@ -584,3 +584,10 @@ def step_impl(context, text):
 @when(ur'^(?:the user )?clicks the link "(?P<text>.*?)"$')
 def step_impl(context, text):
     context.util.find_element((By.LINK_TEXT, text)).click()
+
+
+@when('^the input field is focused$')
+def step_impl(context):
+    context.driver.execute_script("""
+    wed_editor._$input_field[0].focus();
+    """)

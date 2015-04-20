@@ -42,7 +42,7 @@ abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
 abcd \
 abcd abcd abcd abcd abcd abcd abcd abcd</p>\
 <p rend="rend_value" style="style_value">Blah</p><p rend="abc">Blah</p>\
-<p part="">Blah</p><div sample=""/></body></text></TEI>""",
+<p part="">Blah</p><div sample=""/><p rend="foo"/></body></text></TEI>""",
     "serializes multiple top namespaces properly": """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0" \
 xmlns:math="http://www.w3.org/1998/Math/MathML"><teiHeader><fileDesc>\

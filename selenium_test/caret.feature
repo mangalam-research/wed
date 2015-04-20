@@ -104,3 +104,7 @@ Scenario: clicking on a multi-line element
 Scenario: clicking on a letter puts the caret next to it
   When the user clicks in the middle of a piece of text
   Then the caret is set next to the clicked location
+
+Scenario: clicking on a gui control that contains only text
+  When the user clicks on a gui control that contains only text
+  # Then the editor does not crash...
