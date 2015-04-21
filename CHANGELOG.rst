@@ -4,6 +4,21 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.24:
+
+  - API: ``mutation_domlistener`` is now gone. This was used early in
+    the life of wed... then stopped being used... and became a bit
+    derelict. There's no point in keeping it around.
+
+  - API: ``domlistener`` now supports additional events:
+    ``children-changing``, ``removing-element``,
+    ``excluding-element``. The semantics of ``children-changed``,
+    ``removed-element`` and ``exluded-element`` have changed. See the
+    documentation on ``domlistener`` for details. (Note: internally
+    wed still uses the ``children-changed``, ``removed-element`` and
+    ``excluded-element`` events as before, even though they have
+    changed semantics.)
+
 * 0.23:
 
   - API: displayTypeaheadPopup now takes a ``width`` parameter.

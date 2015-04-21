@@ -1227,11 +1227,13 @@ describe("wed", function () {
             var cl;
             assert.isTrue((cl = initial.firstChild.classList) &&
                           cl.contains("_p_label") &&
-                          cl.contains("__start_label"));
+                          cl.contains("__start_label"),
+                          "should have a start label");
             assert.equal(initial.childNodes[1].nodeType, Node.TEXT_NODE);
             assert.isTrue((cl = initial.lastChild.classList) &&
                           cl.contains("_p_label") &&
-                          cl.contains("__end_label"));
+                          cl.contains("__end_label"),
+                         "should have an end label");
         });
 
         it("unwraps elements", function () {
