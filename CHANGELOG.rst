@@ -31,6 +31,9 @@ Only salient changes are recorded here.
     + A ``normalizeOffset`` method to create an object with a valid
       offset from an object that is invalid.
 
+  - API: ``getGUICaret`` now normalizes the caret if it is in an
+    invalid position.
+
 
 * 0.23:
 
