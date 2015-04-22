@@ -38,6 +38,11 @@ Only salient changes are recorded here.
     was possible to get into a state where refreshing the fake caret
     could cause a crash. This has been fixed.
 
+  - GUI: Bug fix: If the user put the caret in text but moved the
+    mouse pointer on a label a tooltip could be shown. Then if the
+    user typed text, the tooltip would remain open and not be closable
+    anymore. This has been fixed.
+
 * 0.23:
 
   - API: displayTypeaheadPopup now takes a ``width`` parameter.
