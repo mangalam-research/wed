@@ -34,6 +34,9 @@ Only salient changes are recorded here.
   - API: ``getGUICaret`` now normalizes the caret if it is in an
     invalid position.
 
+  - GUI: Bug fix: If a transformation caused the document to scroll it
+    was possible to get into a state where refreshing the fake caret
+    could cause a crash. This has been fixed.
 
 * 0.23:
 
