@@ -19,6 +19,19 @@ Only salient changes are recorded here.
     ``excluded-element`` events as before, even though they have
     changed semantics.)
 
+  - API: ``dloc.DLoc`` is now checking the offset passed to it and
+    raises an error if it is invalid.
+
+  - API: ``dloc.DLoc`` has acquired:
+
+    + A ``isValid`` method to check whether it points to a valid DOM
+    location. A location that started valid may become invalid as the
+    DOM is modified.
+
+    + A ``normalizeOffset`` method to create an object with a valid
+      offset from an object that is invalid.
+
+
 * 0.23:
 
   - API: displayTypeaheadPopup now takes a ``width`` parameter.
