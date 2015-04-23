@@ -4,6 +4,45 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.24:
+
+  - API: ``mutation_domlistener`` is now gone. This was used early in
+    the life of wed... then stopped being used... and became a bit
+    derelict. There's no point in keeping it around.
+
+  - API: ``domlistener`` now supports additional events:
+    ``children-changing``, ``removing-element``,
+    ``excluding-element``. The semantics of ``children-changed``,
+    ``removed-element`` and ``exluded-element`` have changed. See the
+    documentation on ``domlistener`` for details. (Note: internally
+    wed still uses the ``children-changed``, ``removed-element`` and
+    ``excluded-element`` events as before, even though they have
+    changed semantics.)
+
+  - API: ``dloc.DLoc`` is now checking the offset passed to it and
+    raises an error if it is invalid.
+
+  - API: ``dloc.DLoc`` has acquired:
+
+    + A ``isValid`` method to check whether it points to a valid DOM
+    location. A location that started valid may become invalid as the
+    DOM is modified.
+
+    + A ``normalizeOffset`` method to create an object with a valid
+      offset from an object that is invalid.
+
+  - API: ``getGUICaret`` now normalizes the caret if it is in an
+    invalid position.
+
+  - GUI: Bug fix: If a transformation caused the document to scroll it
+    was possible to get into a state where refreshing the fake caret
+    could cause a crash. This has been fixed.
+
+  - GUI: Bug fix: If the user put the caret in text but moved the
+    mouse pointer on a label a tooltip could be shown. Then if the
+    user typed text, the tooltip would remain open and not be closable
+    anymore. This has been fixed.
+
 * 0.23:
 
   - API: displayTypeaheadPopup now takes a ``width`` parameter.

@@ -39,21 +39,14 @@ return function (domlistener, class_name, tree_updater_class) {
     // we've seen everything we care about.
     var $marker = $("<div class='_real _marker'>");
 
-    function Mark(total_expected, counts, listener, tree_updater, $root, done) {
+    function Mark(total_expected, counts, listener, $root, done) {
         this._count = 0;
         this._counts_expected = counts;
         this._counts = Object.create(null);
         this._total_expected = total_expected;
         this._$root = $root;
-        this._tree_updater = tree_updater;
         this._listener = listener;
         this._done = done;
-
-        // If we use a tree_updater changes are synchronous so we should
-        // invoke the check manually.
-        if (!tree_updater)
-            listener.addHandler("added-element", "._marker",
-                                this.check.bind(this));
     }
 
     Mark.prototype.check = function () {
@@ -66,8 +59,6 @@ return function (domlistener, class_name, tree_updater_class) {
         }.bind(this));
 
         assert.equal(this._count, this._total_expected, "total mark count");
-        if (!this._tree_updater)
-            assert.equal(this._listener._observer.takeRecords().length, 0);
         this._done();
     };
 
@@ -78,9 +69,6 @@ return function (domlistener, class_name, tree_updater_class) {
         this._counts[label]++;
 
         this._count++;
-        // Trigger the handler only once.
-        if (this._count === this._total_expected && !this._tree_updater)
-            this._$root.append($marker);
     };
 
     var assert = chai.assert;
@@ -103,7 +91,10 @@ return function (domlistener, class_name, tree_updater_class) {
                 listener = new Listener($root[0], tree_updater);
             }
             else
-                listener = new Listener($root[0]);
+                throw new Error(
+                    "if you want these tests to work without a " +
+                        "tree updater, you need to change the test " +
+                        "file.")
         });
         afterEach(function () {
             listener.stopListening();
@@ -127,6 +118,15 @@ return function (domlistener, class_name, tree_updater_class) {
             };
         }
 
+        function makeExcludingHandler(name) {
+            return function (this_root, tree, parent, previous_sibling,
+                             next_sibling, element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(element.className, "_real " + name);
+                mark.mark("excluding " + name);
+            };
+        }
+
 
         it("fires included-element, added-element and " +
            "children-changed when adding a fragment",
@@ -136,7 +136,7 @@ return function (domlistener, class_name, tree_updater_class) {
                              "added ul": 1,
                              "children root": 1,
                              "included li": 2},
-                            listener, tree_updater, $root, done);
+                            listener, $root, done);
             listener.addHandler("included-element", "._real.ul",
                                 makeIncludedHandler("ul"));
             listener.addHandler("included-element", "._real.li",
@@ -169,20 +169,16 @@ return function (domlistener, class_name, tree_updater_class) {
             listener.addHandler("children-changed", "*",
                                 changedHandler);
             listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
-                                          $fragment_to_add[0]);
-                mark.check();
-            }
-            else
-                $root.append($fragment_to_add);
+            tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                      $fragment_to_add[0]);
+            mark.check();
         });
 
-        it("generates added-element with the right previous and next siblings",
+        it("generates added-element with the right previous and " +
+           "next siblings",
            function (done) {
-            mark = new Mark(2,
-                            {"added li": 2},
-                            listener, tree_updater, $root, done);
+            mark = new Mark(2, {"added li": 2},
+                            listener, $root, done);
             function addedHandler(this_root, parent,
                                   previous_sibling,
                                   next_sibling, element) {
@@ -196,26 +192,25 @@ return function (domlistener, class_name, tree_updater_class) {
             var $li = $root.find("._real.li");
             $li.remove();
             listener.startListening($root);
-            if (tree_updater) {
-                var parent = $root.find(".ul")[0];
-                $li.each(function () {
-                    tree_updater.insertNodeAt(parent,
-                                              parent.childNodes.length,
-                                              this);
-                });
-                mark.check();
-            }
-            else
-                $root.find(".ul").append($li);
+            var parent = $root.find(".ul")[0];
+            $li.each(function () {
+                tree_updater.insertNodeAt(parent,
+                                          parent.childNodes.length,
+                                          this);
+            });
+            mark.check();
         });
 
-        it("generates removed-element with the right previous and " +
-           "next siblings",
+        it("generates removing-element and removed-element with " +
+           "the right previous and next siblings",
            function (done) {
-            mark = new Mark(2,
-                            {"removed li": 2},
-                            listener, tree_updater, $root, done);
-            function removedHandler(this_root, parent,
+            mark = new Mark(4,
+                            {
+                                "removing li": 2,
+                                "removed li": 2
+                            },
+                            listener, $root, done);
+            function removingHandler(this_root, parent,
                                     previous_sibling,
                                     next_sibling, element) {
                 var text = element.firstChild.nodeValue;
@@ -225,49 +220,76 @@ return function (domlistener, class_name, tree_updater_class) {
                                  "next sibling of A");
                 }
                 else {
-                    if (tree_updater)
-                        // By the time we get here, B is alone.
-                        assert.isNull(previous_sibling,
-                                      "previous sibling of B");
-                    else {
-                        assert.equal(previous_sibling, $li[0],
-                                     "previous sibling of B");
-                        assert.isNull(next_sibling, "next sibling of B");
-                    }
+                    // By the time we get here, B is alone.
+                    assert.isNull(previous_sibling,
+                                  "previous sibling of B");
                 }
+                mark.mark("removing li");
+            }
+
+
+            listener.addHandler("removing-element", "._real.li",
+                                removingHandler);
+
+            function removedHandler(this_root, parent,
+                                    previous_sibling,
+                                    next_sibling, element) {
+                var text = element.firstChild.nodeValue;
+                assert.isNull(previous_sibling,
+                              "previous sibling of A");
+                assert.isNull(next_sibling,
+                              "next sibling of B");
+                assert.equal(parent, $ul[0]);
                 mark.mark("removed li");
             }
             listener.addHandler("removed-element", "._real.li",
                                 removedHandler);
+
             $root.append($fragment_to_add);
             listener.startListening($root);
             var $li = $root.find("._real.li");
             var $ul = $root.find("._real.ul");
-            if (tree_updater) {
-                $li.each(function () {
-                    tree_updater.deleteNode(this);
-                });
-                mark.check();
-            }
-            else
-                $ul[0].innerHTML = '';
+            $li.each(function () {
+                tree_updater.deleteNode(this);
+            });
+            mark.check();
         });
 
-        it("fires excluded-element, removed-element and " +
-           "children-changed when removing a fragment",
+        it("fires excluding-element, excluded-element, " +
+           "removing-element, removed-element, children-changing " +
+           "and children-changed when removing a fragment",
            function (done) {
             $root.append($fragment_to_add);
-            mark = new Mark(5,
-                            {"excluded ul": 1,
+            mark = new Mark(10,
+                            {"excluding ul": 1,
+                             "excluded ul": 1,
+                             "removing ul": 1,
                              "removed ul": 1,
-                             "children root": 1,
+                             "children-changing root": 1,
+                             "children-changed root": 1,
+                             "excluding li": 2,
                              "excluded li": 2},
-                            listener, tree_updater, $root, done);
+                            listener, $root, done);
+            listener.addHandler("excluding-element", "._real.ul",
+                                makeExcludingHandler("ul"));
             listener.addHandler("excluded-element", "._real.ul",
                                 makeExcludedHandler("ul"));
+            listener.addHandler("excluding-element", "._real.li",
+                                makeExcludingHandler("li"));
             listener.addHandler("excluded-element", "._real.li",
                                 makeExcludedHandler("li"));
 
+            function removingHandler(this_root, parent,
+                                    previous_sibling,
+                                    next_sibling,
+                                    element) {
+                assert.equal(this_root, $root[0]);
+                assert.equal(this_root, parent);
+                assert.equal(element, $fragment_to_add[0]);
+                mark.mark("removing ul");
+            }
+            listener.addHandler("removing-element", "._real.ul",
+                                removingHandler);
             function removedHandler(this_root, parent,
                                     previous_sibling,
                                     next_sibling,
@@ -275,10 +297,31 @@ return function (domlistener, class_name, tree_updater_class) {
                 assert.equal(this_root, $root[0]);
                 assert.equal(this_root, parent);
                 assert.equal(element, $fragment_to_add[0]);
+                assert.isNull(previous_sibling);
+                assert.isNull(next_sibling);
                 mark.mark("removed ul");
             }
             listener.addHandler("removed-element", "._real.ul",
                                 removedHandler);
+
+            function changingHandler(this_root, added,
+                                    removed, previous_sibling,
+                                    next_sibling, element) {
+                // The marker will also trigger this
+                // handler. Ignore it.
+                if (added[0] === $marker[0])
+                    return;
+                assert.equal(this_root, element);
+                assert.equal(added.length, 0);
+                assert.equal(removed.length, 1);
+                assert.equal(removed[0], $fragment_to_add[0]);
+                assert.isNull(previous_sibling);
+                assert.isNull(next_sibling);
+                mark.mark("children-changing root");
+            }
+            listener.addHandler("children-changing", "*",
+                                changingHandler);
+
             function changedHandler(this_root, added,
                                     removed, previous_sibling,
                                     next_sibling, element) {
@@ -292,24 +335,20 @@ return function (domlistener, class_name, tree_updater_class) {
                 assert.equal(removed[0], $fragment_to_add[0]);
                 assert.isNull(previous_sibling);
                 assert.isNull(next_sibling);
-                mark.mark("children root");
+                mark.mark("children-changed root");
             }
             listener.addHandler("children-changed", "*",
                                 changedHandler);
             listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.deleteNode($fragment_to_add[0]);
-                mark.check();
-            }
-            else
-                $fragment_to_add.remove();
+            tree_updater.deleteNode($fragment_to_add[0]);
+            mark.check();
         });
 
         it("trigger triggered twice, invoked once", function (done) {
             var mark = new Mark(3,
                                 {"triggered test": 1,
                                  "included li": 2},
-                                listener, tree_updater, $root, done);
+                                listener, $root, done);
             listener.addHandler(
                 "trigger",
                 "test",
@@ -328,16 +367,12 @@ return function (domlistener, class_name, tree_updater_class) {
                 mark.mark("included li");
             });
             listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
-                                          $fragment_to_add[0]);
-                // We have to allow for triggers to run.
-                window.setTimeout(function () {
-                    mark.check();
-                }, 0);
-            }
-            else
-                $root.append($fragment_to_add);
+            tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                      $fragment_to_add[0]);
+            // We have to allow for triggers to run.
+            window.setTimeout(function () {
+                mark.check();
+            }, 0);
         });
 
         it("trigger triggering a trigger", function (done) {
@@ -345,7 +380,7 @@ return function (domlistener, class_name, tree_updater_class) {
                                 {"triggered test": 1,
                                  "triggered test2": 1,
                                  "included li": 2},
-                                listener, tree_updater, $root, done);
+                                listener, $root, done);
             listener.addHandler(
                 "trigger",
                 "test",
@@ -373,22 +408,18 @@ return function (domlistener, class_name, tree_updater_class) {
                 mark.mark("included li");
             });
             listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
-                                          $fragment_to_add[0]);
-                // We have to allow for triggers to run.
-                window.setTimeout(function () {
-                    mark.check();
-                }, 0);
-            }
-            else
-                $root.append($fragment_to_add);
+            tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                      $fragment_to_add[0]);
+            // We have to allow for triggers to run.
+            window.setTimeout(function () {
+                mark.check();
+            }, 0);
         });
 
         it("fires text-changed when changing a text node",
            function (done) {
             mark = new Mark(1, {"text-changed": 1},
-                            listener, tree_updater, $root, done);
+                            listener, $root, done);
             function textChanged(this_root, element, old_value) {
                 assert.equal(this_root, $root[0]);
                 assert.equal(element.parentNode.className, "_real li");
@@ -400,13 +431,9 @@ return function (domlistener, class_name, tree_updater_class) {
                                 textChanged);
             $root.append($fragment_to_add);
             listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.setTextNodeValue(
-                    $root.find("._real.li")[0].firstChild, "Q");
-                mark.check();
-            }
-            else
-                $root.find("._real.li")[0].firstChild.nodeValue = "Q";
+            tree_updater.setTextNodeValue(
+                $root.find("._real.li")[0].firstChild, "Q");
+            mark.check();
         });
 
         it("fires children-changed when adding a text node",
@@ -416,7 +443,7 @@ return function (domlistener, class_name, tree_updater_class) {
             // when the new text node is added.
 
             mark = new Mark(2, {"children li": 2},
-                            listener, tree_updater, $root, done);
+                            listener, $root, done);
             var $li;
             var change_no = 0;
             function changedHandler(this_root, added, removed,
@@ -446,22 +473,17 @@ return function (domlistener, class_name, tree_updater_class) {
             $root.append($fragment_to_add);
             listener.startListening($root);
             $li = $root.find("._real.li").first();
-            if (tree_updater) {
-                // We'll simulate what jQuery does:
-                // remove the text node and add a new one.
-                tree_updater.deleteNode($li[0].firstChild);
-                tree_updater.insertText($li[0], 0, "Q");
-                mark.check();
-            }
-            else {
-                $li.text("Q");
-            }
+            // We'll simulate what jQuery does:
+            // remove the text node and add a new one.
+            tree_updater.deleteNode($li[0].firstChild);
+            tree_updater.insertText($li[0], 0, "Q");
+            mark.check();
         });
 
         it("fires attribute-changed when changing an attribute",
            function (done) {
             mark = new Mark(1, {"attribute-changed": 1},
-                            listener, tree_updater, $root, done);
+                            listener, $root, done);
             function attributeChanged(this_root, element, ns, name,
                                       old_value) {
                 assert.equal(this_root, $root[0]);
@@ -475,21 +497,16 @@ return function (domlistener, class_name, tree_updater_class) {
                                 attributeChanged);
             $root.append($fragment_to_add);
             listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.setAttributeNS(
-                    $root.find("._real.li")[0], "http://foo.foo/foo", "X",
-                    "ttt");
-                mark.check();
-            }
-            else
-                $root.find("._real.li")[0].setAttributeNS("http://foo.foo/foo",
-                                                          "X", "ttt");
+            tree_updater.setAttributeNS(
+                $root.find("._real.li")[0], "http://foo.foo/foo", "X",
+                "ttt");
+            mark.check();
         });
 
         it("fires attribute-changed when deleting an attribute",
            function (done) {
             mark = new Mark(1, {"attribute-changed": 1},
-                            listener, tree_updater, $root, done);
+                            listener, $root, done);
             function attributeChanged(this_root, element, ns, name,
                                       old_value) {
                 assert.equal(this_root, $root[0]);
@@ -505,22 +522,17 @@ return function (domlistener, class_name, tree_updater_class) {
             $root.find("._real.li")[0].setAttributeNS("http://foo.foo/foo",
                                                       "X", "ttt");
             listener.startListening($root);
-            if (tree_updater) {
-                tree_updater.setAttributeNS(
-                    $root.find("._real.li")[0], "http://foo.foo/foo", "X",
-                    null);
-                mark.check();
-            }
-            else
-                $root.find("._real.li")[0].setAttributeNS("http://foo.foo/foo",
-                                                          "X", null);
+            tree_updater.setAttributeNS(
+                $root.find("._real.li")[0], "http://foo.foo/foo", "X",
+                null);
+            mark.check();
         });
 
         it("generates children-changed with the right previous and " +
-           "next siblings",
+           "next siblings when adding",
            function (done) {
             mark = new Mark(1, {"children ul": 1},
-                            listener, tree_updater, $root, done);
+                            listener, $root, done);
             function changedHandler(this_root, added, removed,
                                     previous_sibling, next_sibling,
                                     element) {
@@ -537,30 +549,80 @@ return function (domlistener, class_name, tree_updater_class) {
             $root.append($fragment_to_add);
             listener.startListening($root);
             var $li = $root.find("._real.li");
-            if (tree_updater) {
-                var li = $li[0];
-                var $new = $("<li>Q</li>");
-                tree_updater.insertNodeAt(li.parentNode,
-                                          Array.prototype.indexOf.call(
-                                              li.parentNode.childNodes, li) + 1,
-                                          $new[0]);
-                mark.check();
-            }
-            else
-                $li.first().after("<li>Q</li>");
+            var li = $li[0];
+            var $new = $("<li>Q</li>");
+            tree_updater.insertNodeAt(li.parentNode,
+                                      Array.prototype.indexOf.call(
+                                          li.parentNode.childNodes, li) + 1,
+                                      $new[0]);
+            mark.check();
         });
 
 
-        it("generates included-element with the right tree, and previous and " +
-           "next siblings",
+        it("generates children-changing and children-changed with " +
+           "the right previous and next siblings when removing",
+           function (done) {
+            $fragment_to_add =
+                $("<div class='_real ul'>"+
+                  "<div class='_real li'>A</div>"+
+                  "<div class='_real li'>B</div>" +
+                  "<div class='_real li'>C</div>" +
+                  "</div>");
+
+            mark = new Mark(2, {
+                "children-changed ul": 1,
+                "children-changing ul": 1
+            },
+                            listener, $root, done);
+            function changingHandler(this_root, added, removed,
+                                    previous_sibling, next_sibling,
+                                    element) {
+                // The marker will also trigger this
+                // handler. Ignore it.
+                if (added[0] === $marker[0])
+                    return;
+                assert.equal(previous_sibling, $li[0]);
+                assert.equal(next_sibling, $li[2]);
+                assert.equal(element, parent);
+                mark.mark("children-changing ul");
+            }
+            listener.addHandler("children-changing", "._real.ul",
+                                changingHandler);
+            function changedHandler(this_root, added, removed,
+                                    previous_sibling, next_sibling,
+                                    element) {
+                // The marker will also trigger this
+                // handler. Ignore it.
+                if (added[0] === $marker[0])
+                    return;
+                assert.isNull(previous_sibling);
+                assert.isNull(next_sibling);
+                assert.equal(element, parent);
+                mark.mark("children-changed ul");
+            }
+            listener.addHandler("children-changed", "._real.ul",
+                                changedHandler);
+
+            $root.append($fragment_to_add);
+            listener.startListening($root);
+            var $li = $root.find("._real.li");
+            var parent = $li[0].parentNode;
+            var li = $li[1];
+            tree_updater.deleteNode(li);
+            mark.check();
+        });
+
+
+        it("generates included-element with the right tree, and " +
+           "previous and next siblings",
            function (done) {
             var mark = new Mark(8,
                                 {"included li at root": 2,
                                  "included li at ul": 2,
-                                 "excluded li at ul": 2,
-                                 "excluded li at root": 2
+                                 "excluding li at ul": 2,
+                                 "excluding li at root": 2
                                 },
-                                listener, tree_updater, $root, done);
+                                listener, $root, done);
             function addHandler(incex) {
                 listener.addHandler(
                     incex + "-element",
@@ -593,7 +655,7 @@ return function (domlistener, class_name, tree_updater_class) {
                 });
             }
             addHandler("included");
-            addHandler("excluded");
+            addHandler("excluding");
             listener.startListening($root);
             var $fragment =
                 $("<div><p>before</p><div class='_real ul'>"+
@@ -601,29 +663,20 @@ return function (domlistener, class_name, tree_updater_class) {
                   "<div class='_real li'>B</div></div>"+
                   "<p>after</p></div>");
             var $ul;
-            if (tree_updater) {
-                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
-                                          $fragment[0]);
-                $ul = $root.find(".ul");
-                tree_updater.deleteNode($ul[0]);
-                var p = $root.find("p")[0];
-                var p_parent = p.parentNode;
-                tree_updater.insertNodeAt(p_parent,
-                                          Array.prototype.indexOf.call(
-                                              p_parent.childNodes, p) + 1,
-                                          $ul[0]);
-                $root.contents().each(function () {
-                    tree_updater.deleteNode(this);
-                });
-                mark.check();
-            }
-            else {
-                $root.append($fragment);
-                $ul = $root.find(".ul");
-                $ul.remove();
-                $root.find("p").first().after($ul);
-                $root.empty();
-            }
+            tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                      $fragment[0]);
+            $ul = $root.find(".ul");
+            tree_updater.deleteNode($ul[0]);
+            var p = $root.find("p")[0];
+            var p_parent = p.parentNode;
+            tree_updater.insertNodeAt(p_parent,
+                                      Array.prototype.indexOf.call(
+                                          p_parent.childNodes, p) + 1,
+                                      $ul[0]);
+            $root.contents().each(function () {
+                tree_updater.deleteNode(this);
+            });
+            mark.check();
         });
 
         it("processImmediately processes immediately",
@@ -631,7 +684,7 @@ return function (domlistener, class_name, tree_updater_class) {
             var marked = false;
             mark = new Mark(2, {"children root": 1,
                                 "trigger": 1},
-                            listener, tree_updater, $root,
+                            listener, $root,
                             function () { marked = true; });
             function changedHandler(this_root, added, removed,
                                     previous_sibling, next_sibling,
@@ -652,31 +705,18 @@ return function (domlistener, class_name, tree_updater_class) {
                                 triggerHandler);
             listener.startListening($root);
 
-            if (tree_updater)
-                tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
-                                          $fragment_to_add[0]);
-            else
-                $root.append($fragment_to_add);
+            tree_updater.insertNodeAt($root[0], $root[0].childNodes.length,
+                                      $fragment_to_add[0]);
             listener.processImmediately();
-            if (tree_updater)
-                mark.check();
+            mark.check();
             assert.isTrue(marked);
         });
 
         it("clearPending clears pending operations",
            function () {
-            // The domlistener based on mutations does not make
-            // triggers pending, so we don't need to test it.
-
-            if (!tree_updater) {
-                // Just make sure it does not crash.
-                listener.clearPending();
-                return;
-            }
-
             var marked = false;
             mark = new Mark(1, {"children root": 1},
-                            listener, tree_updater, $root,
+                            listener, $root,
                             function () { marked = true; });
             function changedHandler(this_root, added, removed,
                                     previous_sibling, next_sibling,

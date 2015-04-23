@@ -23,3 +23,10 @@ Scenario: a tooltip disappears when the user deletes an element that had a toolt
   When the user clicks
   And the user types DELETE
   Then there are no tooltips
+
+Scenario: a tooltip disappears when the user modifies text nodes
+  When the user clicks on text
+  And the user moves the mouse over a start label
+  Then a tooltip comes up
+  When the user types "a"
+  Then there are no tooltips
