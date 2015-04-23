@@ -46,11 +46,19 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  *
  * An ``included-element`` event is fired when an element appears in
  * the observed tree whether it is directly added or added because its
- * parent was added. The opposite event is ``excluded-element``.
+ * parent was added. The opposite events are ``excluding-element`` and
+ * ``excluded-element``.
  *
  * An ``added-element`` event is fired when an element is directly
- * added to the observed tree. The opposite event is
- * ``removed-element``.
+ * added to the observed tree. The opposite events are
+ * ``excluding-element`` and ``removed-element``.
+ *
+ * A ``children-changing`` and ``children-changed`` event are fired
+ * when an element's children are being changed.
+ *
+ * A ``text-changed`` event is fired when a text node has changed.
+ *
+ * An ``attribute-changed`` is fired when an attribute has changed.
  *
  * A ``trigger`` event with name ``[name]`` is fired when
  * ``trigger([name])`` is called. Trigger events are meant to be
@@ -59,7 +67,7 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  *
  * &lt;h2>Example&lt;/h2>
  *
- * Consider the following fragment:
+ * Consider the following HTML fragment:
  *
  *     &lt;ul>
  *      &lt;li>foo&lt;/li>
@@ -68,26 +76,35 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  * If the fragment is added to a ``&lt;div>`` element, an
  * ``included-element`` event will be generated for ``&lt;ul>`` and
  * ``&lt;li>`` but an ``added-element`` event will be generated only
- * for ``&lt;ul>``.
+ * for ``&lt;ul>``. A ``changed-children`` event will be generated for
+ * the parent of ``&lt;ul>``.
  *
- * If the fragment is removed, an excluded-element event will be
- * generated for ``&lt;ul>`` and ``&lt;li>`` but a remove-element
- * event will be generated only for ``&lt;ul>``.
+ * If the fragment is removed, an ``excluding-element`` and
+ * ``excluded-element`` event will be generated for ``&lt;ul>`` and
+ * ``&lt;li>`` but a ``removing-element`` and ``remove-element`` event
+ * will be generated only for ``&lt;ul>``. A ``children-changing`` and
+ * ``children-changed`` event will be generated for the parent of
+ * ``&lt;ul>``.
  *
- * The signature of the handlers varies by type of event:
+ * The signatures of the event handlers and details of each event are
+ * as follows:
  *
- * - ``added-element``, ``removed-element``:
+ * - ``added-element``, ``removing-element``, ``removed-element``:
  *
  *   ``handler(root, parent, previous_sibling, next_sibling, element)``
  *
  *   There is no reason to provide ``parent``, ``previous_sibling``,
  *   ``next_sibling`` for an ``added-element`` event but having the
  *   same signature for additions and removals allows to use the same
- *   function for both cases. For ``removed-element`` events the
- *   parent is the parent that the element had **before** it was
- *   removed. The ``element`` parameter is a single element.
+ *   function for both cases. The ``element`` parameter is a single
+ *   element. The ``removing-element`` event is generated **before**
+ *   the element is removed. The ``removed-element`` event is
+ *   generated **after** the element is removed. Note that the
+ *   ``removed-element`` event has ``null`` for ``parent``,
+ *   ``previous_sibling`` and ``next_sibling`` because the element is
+ *   no longer in the tree.
  *
- * - ``included-element``, ``excluded-element``:
+ * - ``included-element``, ``excluding-element``, `excluded-element``:
  *
  *   ``handler(root, tree, parent, previous_sibling, next_sibling,
  *   element)``
@@ -97,18 +114,34 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  *   passed to {@link module:domlistener~Listener#addHandler
  *   addHandler()} The ``tree`` parameter contains the node which is
  *   at the root of the tree fragment that was added or removed to
- *   trigger the event. Moreover, the ``previous_sibling``,
- *   ``next_sibling`` and ``parent`` parameters record the siblings
- *   and parent of ``tree``, **not those of ``element``**.
+ *   trigger the event. The ``excluding-element`` event is generated
+ *   **before** the tree is removed. The ``excluded-element`` event is
+ *   generated **after** the tree is removed. Moreover, the
+ *   ``previous_sibling``, ``next_sibling`` and ``parent`` parameters
+ *   record the siblings and parent of ``tree``, **not those of
+ *   ``element``**. These are ``null`` for the ``excluded-element``
+ *   event because the tree is no longer in the DOM.
  *
- * - ``children-changed``:
+ * - ``children-changing``, ``children-changed``:
  *
  *   ``handler(root, added, removed, previous_sibling,
  *   next_sibling, element)``
  *
- *   The parameters ``previous_sibling`` and ``next_sibling`` refer
- *   to the siblings that are before and after the entire group of
- *   ``added`` or ``removed`` nodes.
+ *   These events are geneated when an element's children are about to
+ *   change (``changing``) or have been changed (``changed``). The
+ *   parameters ``previous_sibling`` and ``next_sibling`` refer to the
+ *   siblings that are before and after the entire group of ``added``
+ *   or ``removed`` nodes. Note that ``added`` and ``removed`` are
+ *   never non-empty lists in the same event. Some asymmetry to
+ *   consider:
+ *
+ *   + ``children-changing`` is generated only for removals. So it
+ *   will never have an ``added`` parameter that is a non-empty
+ *   array.
+ *
+ *   + When ``children-changed`` is generated **after** the DOM
+ *   operation, it will have ``previous_sibling`` and ``next_sibling``
+ *   set to ``null``.
  *
  * - ``text-changed:``
  *
@@ -139,6 +172,11 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  *
  *   ``handler(root)``
  *
+ *   A ``trigger`` event with name ``[name]`` is fired when
+ *   ``trigger([name])`` is called. Trigger events are meant to be
+ *   triggered by event handlers called by the Listener, not by other
+ *   code.
+ *
  * The order in which handlers are added matters. The Listener
  * provides the following guarantee: for any given type of event, the
  * handlers will be called in the order that they were added to the
@@ -146,17 +184,22 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  *
  * &lt;h2>Warnings:&lt;/h2>
  *
- * - There are two implementations of this class:
- *   ``mutation_domlistener`` and ``updater_domlistener``. The first
- *   uses the ``MutationObserver`` interface to detect changes and is
- *   thus asynchronous, the second requires that all modifications to
- *   the DOM tree be made through a ``tree_updater`` and is
- *   synchronous. This means that although the interface used by both
- *   implementations is the same some details might be different. For
- *   instance, a listener based on ``updater_domlistener`` will learn
- *   of node removals **before** the node is removed while a listener
- *   based on mutation_domlistener will learn of it
- *   **after** it has been removed.
+ * - Keep in mind that the the ``children-changed``,
+ *   ``excluded-element`` and ``removed-element`` events are generated
+ *   **after** the DOM operation that triggers them. This has some
+ *   consequences. In particular, a selector that will work perfectly
+ *   with ``removing-element`` or ``excluding-element`` may not work
+ *   with ``removed-element`` and ``excluded-element``. This would
+ *   happen if the selector tests for ancestors of the element removed
+ *   or excluded. By the time the ``-ed`` events are generated, the
+ *   element is gone from the DOM tree and such selectors will fail.
+ *
+ *   The ``-ed`` version of these events are still useful. For
+ *   instance, a wed mode in use for editing scholarly articles
+ *   listends for ``excluded-element`` with a selector that is a tag
+ *   name so that it can remove references to these elements when they
+ *   are removed. Since it does not need anything more complex then
+ *   ``excluded-element`` works perfectly.
  *
  * - A Listener does not verify whether the parameters passed to
  *   handlers are part of the DOM tree. For instance, handler A could
@@ -165,10 +208,10 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  *   time A is called and handler B is called to deal with it, then by
  *   the time B is run X will no longer be part of the tree.
  *
- *   To put it differently, even if when a mutation record is
- *   generated element X was part of the DOM tree, it is possible that
- *   by the time the handlers that must be run for that mutation are
- *   run, X is no longer part of the DOM tree.
+ *   To put it differently, even if when an event is generated element
+ *   X was part of the DOM tree, it is possible that by the time the
+ *   handlers that must be run for that mutation are run, X is no
+ *   longer part of the DOM tree.
  *
  *   Handlers that care about whether they are operating on elements
  *   that are in the DOM tree should perform a test themselves to
@@ -176,10 +219,10 @@ define(/** @lends module:domlistener */ function (require, exports, module) {
  *
  *   The handlers fired on removed-elements events work on nodes that
  *   have been removed from the DOM tree. To know what was before and
- *   after these nodes **before** they were removed use
- *   ``previous_sibling`` and ``next_sibling``, because it is likely
- *   that the nodes themselves will have both their
- *   ``previousSibling`` and ``nextSibling`` set to ``null``.
+ *   after these nodes **before** they were removed use events that
+ *   have ``previous_sibling`` and ``next_sibling`` parameters,
+ *   because it is likely that the nodes themselves will have both
+ *   their ``previousSibling`` and ``nextSibling`` set to ``null``.
  *
  * - Handlers that are fired on children-changed events, **and** which
  *   modify the DOM tree can easily result in infinite loops. Care
@@ -198,10 +241,13 @@ function Listener(root) {
 
     this._event_handlers = {
         "included-element": [],
-        "excluded-element": [],
         "added-element": [],
+        "excluded-element": [],
+        "excluding-element": [],
         "removed-element": [],
+        "removing-element": [],
         "children-changed": [],
+        "children-changing": [],
         "text-changed": [],
         "attribute-changed": []
     };
@@ -357,13 +403,13 @@ exports.Listener = Listener;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="action_context_menu.html">gui/action_context_menu</a></li><li><a href="completion_menu.html">gui/completion_menu</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="icon.html">gui/icon</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-mutation_domlistener.html">mutation_domlistener</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="ajax.html">savers/ajax</a></li><li><a href="localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="action_context_menu-ContextMenu.html">gui/action_context_menu~ContextMenu</a></li><li><a href="completion_menu-CompletionMenu.html">gui/completion_menu~CompletionMenu</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="typeahead_popup-TypeaheadPopup.html">gui/typeahead_popup~TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-mutation_domlistener-Listener.html">mutation_domlistener~Listener</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="ajax-AjaxSaver.html">savers/ajax~AjaxSaver</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">gui_updater~GUIUpdater#beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">gui_updater~GUIUpdater#changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">saver~Saver#autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">saver~Saver#changed</a></li><li><a href="module-saver-Saver.html#event:failed">saver~Saver#failed</a></li><li><a href="module-saver-Saver.html#event:saved">saver~Saver#saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">tree_updater~TreeUpdater#beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">tree_updater~TreeUpdater#changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="action_context_menu.html">gui/action_context_menu</a></li><li><a href="completion_menu.html">gui/completion_menu</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="icon.html">gui/icon</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="ajax.html">savers/ajax</a></li><li><a href="localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="action_context_menu-ContextMenu.html">gui/action_context_menu~ContextMenu</a></li><li><a href="completion_menu-CompletionMenu.html">gui/completion_menu~CompletionMenu</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="typeahead_popup-TypeaheadPopup.html">gui/typeahead_popup~TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="ajax-AjaxSaver.html">savers/ajax~AjaxSaver</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">gui_updater~GUIUpdater#beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">gui_updater~GUIUpdater#changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">saver~Saver#autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">saver~Saver#changed</a></li><li><a href="module-saver-Saver.html#event:failed">saver~Saver#failed</a></li><li><a href="module-saver-Saver.html#event:saved">saver~Saver#saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">tree_updater~TreeUpdater#beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">tree_updater~TreeUpdater#changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Mon Apr 20 2015 13:06:55 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Apr 23 2015 10:02:54 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

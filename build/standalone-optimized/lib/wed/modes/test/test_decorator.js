@@ -101,6 +101,28 @@ TestDecorator.prototype.elementDecorator = function (root, el) {
                     $("<div class='_gui _phantom _gui_test btn "+
                       "btn-default'>Foo</div>")[0],
                     el.lastChild);
+
+            var found;
+            var child = data_node.firstElementChild;
+            while (!found && child) {
+                if (child.tagName === "abbr")
+                    found = child;
+                child = child.nextElementSibling;
+            }
+            if (found) {
+                this._gui_updater
+                .insertBefore(
+                    el,
+                    $("<div class='_gui _phantom _gui_test btn "+
+                      "btn-default'>Foo2</div>")[0],
+                    el.lastChild);
+                this._gui_updater
+                .insertBefore(
+                    el,
+                    $("<div class='_gui _phantom _gui_test btn "+
+                      "btn-default'>Foo3</div>")[0],
+                    el.lastChild);
+            }
         }
     }
 
@@ -143,7 +165,7 @@ TestDecorator.prototype._navigationContextMenuHandler = log.wrap(
         items.push($("<li></li>").append($a)[0]);
     }
 
-    new context_menu.ContextMenu(this._editor.my_window.document,
+    new context_menu.ContextMenu(this._editor.doc,
                                  ev.clientX, ev.clientY, items);
 
     return false;

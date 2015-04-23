@@ -60,6 +60,7 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this.$frame = $(closest(this.widget, "html"));
     var doc = this.$frame[0].ownerDocument;
     this.my_window = doc.defaultView;
+    this.doc = doc;
     onerror.register(this.my_window);
 
     var parser = new this.my_window.DOMParser();
@@ -300,6 +301,8 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     fake_caret.textContent = " ";
     this._fake_caret = fake_caret;
     this._$fake_caret = $(fake_caret);
+    this._inhibited_fake_caret = 0;
+    this._pending_fake_caret_refresh = false;
 
     var fc_mark = doc.createElement("span");
     fc_mark.innerHTML = "&nbsp;";
@@ -392,7 +395,7 @@ navigation panel brings up a contextual menu.</li>\
     this._selection_stack = [];
 
     this.domlistener = new updater_domlistener.Listener(this.gui_root,
-                                                            this._gui_updater);
+                                                        this._gui_updater);
 
     // Setup the cleanup code.
     $(this.my_window).on('unload.wed', { editor: this }, unloadHandler);
@@ -656,9 +659,9 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
         this._updating_placeholder++;
 
-        // Note that this can't easily be done by inspecting the data
-        // tree right now because a Node deletion is reported before
-        // the deletion occurs.
+        // We perform this check on the GUI tree because there's no
+        // way to know about ._phantom._text elements in the data
+        // tree.
         var to_consider = [];
         var ph;
         var child = target.firstChild;
@@ -676,7 +679,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
                 ph = child;
             child = child.nextSibling;
         }
-        // Narrow it to the elements we care about.
+
         if (to_consider.length === 0 ||
             (to_consider.length === 1 &&
              removed.indexOf(to_consider[0]) !== -1)) {
@@ -831,7 +834,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
     // This is a guard to make sure that mousemove handlers are
     // removed once the button is up again.
-    var $body = $(this.my_window.document.body);
+    var $body = $(this.doc.body);
     $body.on('mouseup.wed', function (ev) {
         this.$gui_root.off('mousemove.wed mouseup');
         this._$caret_layer.off('mousemove mouseup');
@@ -857,8 +860,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
             ((ev.screenX === ev.screenY) && (ev.screenX === 0)))
             return;
 
-        var el = this.my_window.document.elementFromPoint(ev.clientX,
-                                                          ev.clientY);
+        var el = this.doc.elementFromPoint(ev.clientX, ev.clientY);
 
         if ($(el).closest(this._$excluded_from_blur).length)
             return;

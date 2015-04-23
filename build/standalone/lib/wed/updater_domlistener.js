@@ -36,6 +36,8 @@ function Listener(root, updater) {
     this._updater.addEventListener(
         "beforeDeleteNode", this._beforeDeleteNodeHandler.bind(this));
     this._updater.addEventListener(
+        "deleteNode", this._deleteNodeHandler.bind(this));
+    this._updater.addEventListener(
         "setAttributeNS", this._setAttributeNSHandler.bind(this));
 }
 
@@ -78,7 +80,8 @@ Listener.prototype._insertNodeAtHandler = function (ev) {
 
     var parent = ev.parent;
     var node = ev.node;
-    var cc_calls = this._childrenChangedCalls(
+    var cc_calls = this._childrenCalls(
+        "children-changed",
         ev.parent, [ev.node], [], node.previousSibling, node.nextSibling);
 
     var ar_calls = [];
@@ -109,8 +112,40 @@ Listener.prototype._beforeDeleteNodeHandler = function (ev) {
 
     var node = ev.node;
     var parent = node.parentNode;
-    var cc_calls = this._childrenChangedCalls(
+    var cc_calls = this._childrenCalls(
+        "children-changing",
         parent, [], [node], node.previousSibling, node.nextSibling);
+
+    var ar_calls = [];
+    var ie_calls = [];
+    if (ev.node.nodeType === Node.ELEMENT_NODE) {
+        ar_calls = this._addRemCalls("removing-element", node, parent);
+        ie_calls = this._incExcCalls("excluding-element", node, parent);
+    }
+
+    var to_call = cc_calls.concat(ar_calls, ie_calls);
+    for(var i = 0, call; (call = to_call[i]) !== undefined; ++i)
+        this._callHandler.apply(this, call);
+
+    this._scheduleProcessTriggers();
+};
+
+/**
+ * Handles {@link module:tree_updater~TreeUpdater#event:deleteNode
+ * deleteNode} events.
+ *
+ * @private
+ * @param {module:tree_updater~TreeUpdater#event:deleteNode} ev The
+ * event.
+ */
+Listener.prototype._deleteNodeHandler = function (ev) {
+    if (this._stopped)
+        return;
+
+    var node = ev.node;
+    var parent = ev.former_parent;
+    var cc_calls = this._childrenCalls(
+        "children-changed", parent, [], [node], null, null);
 
     var ar_calls = [];
     var ie_calls = [];
@@ -127,21 +162,31 @@ Listener.prototype._beforeDeleteNodeHandler = function (ev) {
 };
 
 /**
- * Produces the calls for <code>children-changed</code> events.
+ * Produces the calls for ``children-...`` events.
  *
  * @private
+ * @param {string} call The type of call to produce. Either
+ * ``"children-changing"`` or ``"children-changed"``.
  * @param {Node} parent The parent of the children that have changed.
  * @param {Array.<Node>} added Added children.
  * @param {Array.<Node>} removed Removed children.
- * @param {Node|undefined} prev Node preceding the chilren.
+ * @param {Node|undefined} prev Node preceding the children.
  * @param {Node|undefined} next Node following the children.
  * @returns {Array.<Array>} An list of call signatures. Each signature
  * is a list which has a function for first element and the parameters
  * to pass to this function.
  */
-Listener.prototype._childrenChangedCalls = function (parent, added, removed,
-                                                     prev, next) {
-    var pairs = this._event_handlers["children-changed"];
+Listener.prototype._childrenCalls = function (call, parent, added,
+                                              removed, prev, next) {
+    if (call !== "children-changing" &&
+        call !== "children-changed")
+        throw new Error("incorrect call value: " + call);
+
+    if (added.length && removed.length)
+        throw new Error("we do not support having nodes added " +
+                        "and removed in the same event");
+
+    var pairs = this._event_handlers[call];
     var ret = [];
 
     // Go over all the elements for which we have handlers

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Advanced Usage Notes &mdash; Wed v0.23.0 documentation</title>
+    <title>Advanced Usage Notes &mdash; Wed v0.24.0-3-g86f0e2f documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.23.0',
+        VERSION:     'v0.24.0-3-g86f0e2f',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.23.0 documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.24.0-3-g86f0e2f documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.23.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.24.0-3-g86f0e2f documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -439,7 +439,7 @@ available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</spa
 need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a>
 installed and available on your <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt>.</p>
 <p>It is very likely that you&#8217;ll want to override some of the values in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a> by creating
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/selenium_config.py">config/selenium_config.py</a> by creating
 <tt class="docutils literal"><span class="pre">local_config/selenium_config.py</span></tt> that loads the default file but
 override or adds some values. For instance:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># If used, must appear before the default file is loaded. The</span>
@@ -460,11 +460,11 @@ override or adds some values. For instance:</p>
 <p>Behind the scenes, this will launch Behave. An instance of <tt class="docutils literal"><span class="pre">./server.js</span></tt>
 will be launched automatically to respond to the requests of the
 browser that the test suite launches. See the makefile
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> for information about how behave is run.</p>
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> for information about how behave is run.</p>
 <p>The <tt class="docutils literal"><span class="pre">TEST_BROWSER</span></tt> variable determines which browser will run the
 test. You may omit any of <tt class="docutils literal"><span class="pre">platform</span></tt>, <tt class="docutils literal"><span class="pre">browser</span></tt> or <tt class="docutils literal"><span class="pre">versions</span></tt> so
 long as the parts that are specified are enough to match a <strong>single</strong>
-configuration defined in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a>. See the
+configuration defined in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/selenium_config.py">config/selenium_config.py</a>. See the
 list of configurations there to see what has been configured. If you
 want something different from the list there, you&#8217;ll have to configure
 it in the copy you made into <tt class="docutils literal"><span class="pre">local_config</span></tt>.</p>
@@ -1034,7 +1034,7 @@ the incremental changes, but some obsolete code may still remain.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.23.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.24.0-3-g86f0e2f documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
