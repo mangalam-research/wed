@@ -25,8 +25,8 @@ Only salient changes are recorded here.
   - API: ``dloc.DLoc`` has acquired:
 
     + A ``isValid`` method to check whether it points to a valid DOM
-    location. A location that started valid may become invalid as the
-    DOM is modified.
+      location. A location that started valid may become invalid as the
+      DOM is modified.
 
     + A ``normalizeOffset`` method to create an object with a valid
       offset from an object that is invalid.
