@@ -4,6 +4,18 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.24.1:
+
+  - Internals: Implemented a caching system for
+    ``validator.Validator`` so that repeated calls to those methods
+    that use the internal method ``_getWalkerAt`` do not take so much
+    time.
+
+    Most documents edited with a mode that derives from the generic
+    mode should see a performance increase. The larger the document,
+    the bigger the performance increase. The performance increase also
+    depends on how the mode calls the validator.
+
 * 0.24:
 
   - API: ``mutation_domlistener`` is now gone. This was used early in
