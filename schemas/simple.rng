@@ -46,6 +46,9 @@
           </choice>
         </oneOrMore>
       </choice>
+      <optional>
+        <attribute name="foo"/>
+      </optional>
     </element>
   </define>
 </grammar>

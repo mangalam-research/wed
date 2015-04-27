@@ -396,6 +396,291 @@ describe("validator", function () {
 
     });
 
+    describe("_getWalkerAt", function () {
+        var data;
+        before(function(done) {
+            require(["requirejs/text!" + to_parse_stack[0]],
+                    function(data_) {
+                data = data_;
+                done();
+            });
+        });
+
+        function makeTest(name, stop_fn, top) {
+            it(name, function (done) {
+                var tree = top || parser.parseFromString(data,
+                                                         "application/xml");
+                var p = new validator.Validator(schema, tree);
+                p.initialize(function () {
+                    try {
+                        stop_fn(p, tree);
+                        done();
+                    }
+                    catch (e) {
+                        done(e);
+                    }
+                });
+            });
+        }
+
+        describe("returns correct walker", function () {
+            makeTest("empty document, at root",
+                     function (p, tree) {
+                var walker = p._getWalkerAt(tree, 0, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("enterStartTag", "", "html")]);
+            }, empty_tree);
+
+            makeTest("with actual contents, at root", function (p, tree) {
+                var walker = p._getWalkerAt(tree, 0, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("enterStartTag", "", "html")]);
+            });
+
+            makeTest("with actual contents, at end",
+                     function (p, tree) {
+                var walker = p._getWalkerAt(tree, -1, false);
+                var evs = walker.possible();
+                assert.sameMembers(evs.toArray(), []);
+            });
+
+            makeTest("with actual contents, start of html",
+                     function (p, tree) {
+                var walker = p._getWalkerAt(
+                    tree.getElementsByTagName("html")[0], 0, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("enterStartTag", "", "head")]);
+            });
+
+            makeTest("with actual contents, start of head", function (p, tree) {
+                var walker = p._getWalkerAt(
+                    tree.getElementsByTagName("head")[0], 0, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("enterStartTag", "", "title")]);
+            });
+
+            makeTest("with actual contents, start of title "+
+                     "(start of text node)",
+                     function (p, tree) {
+                var el = tree.getElementsByTagName("title")[0].firstChild;
+                // Make sure we know what we are looking at.
+                assert.equal(el.nodeType, Node.TEXT_NODE);
+                var walker = p._getWalkerAt(el, 0, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("endTag", "", "title"),
+                     new validate.Event("text", "*")]);
+            });
+
+            makeTest("with actual contents, index inside text node",
+                     function (p, tree) {
+                var el = tree.getElementsByTagName("title")[0].firstChild;
+                // Make sure we know what we are looking at.
+                assert.equal(el.nodeType, Node.TEXT_NODE);
+                var walker = p._getWalkerAt(el, 1, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("endTag", "", "title"),
+                     new validate.Event("text", "*")]);
+            });
+
+            makeTest("with actual contents, end of title", function (p, tree) {
+                var title = tree.getElementsByTagName("title")[0];
+                var walker = p._getWalkerAt(title, title.childNodes.length,
+                                            false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("endTag", "", "title"),
+                     new validate.Event("text", "*")]);
+            });
+
+            makeTest("with actual contents, end of head", function (p, tree) {
+                var el = tree.getElementsByTagName("head")[0];
+                var walker = p._getWalkerAt(el, el.childNodes.length, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("endTag", "", "head")]);
+            });
+
+            makeTest("with actual contents, after head", function (p, tree) {
+                var el = tree.getElementsByTagName("head")[0];
+                var walker = p._getWalkerAt(
+                    el.parentNode,
+                    Array.prototype.indexOf.call(el.parentNode.childNodes,
+                                                 el) + 1, false);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("enterStartTag", "", "body")]);
+            });
+
+            makeTest("with actual contents, attributes on root",
+                     function (p, tree) {
+                var walker = p._getWalkerAt(tree, 0, true);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("leaveStartTag")]);
+            });
+
+            makeTest("with actual contents, attributes on element",
+                     function (p, tree) {
+                var el = tree.getElementsByTagName("head")[0];
+                var walker = p._getWalkerAt(
+                    el.parentNode,
+                    Array.prototype.indexOf.call(el.parentNode.childNodes,
+                                                 el),
+                    true);
+                var evs = walker.possible();
+                assert.sameMembers(
+                    evs.toArray(),
+                    [new validate.Event("leaveStartTag")]);
+            });
+        });
+
+        describe("caches", function () {
+            var data;
+            before(function(done) {
+                to_parse_stack.unshift(
+                    '../../test-files/validator_test_data/' +
+                        'caching_to_parse_converted.xml');
+                require(["requirejs/text!" + to_parse_stack[0]],
+                        function(data_) {
+                    data = data_;
+                    done();
+                });
+            });
+
+            after(function () {
+                to_parse_stack.shift();
+            });
+
+            function makeTest(name, stop_fn, top) {
+                it(name, function (done) {
+                    var tree = top || parser.parseFromString(data,
+                                                             "application/xml");
+                    var p = new validator.Validator(schema, tree);
+                    p.initialize(function () {
+                        try {
+                            assert.equal(Object.keys(p._walker_cache).length,
+                                         0);
+                            assert.equal(p._walker_cache_max, -1);
+                            stop_fn(p, tree);
+                            done();
+                        }
+                        catch (e) {
+                            done(e);
+                        }
+                    });
+                });
+            }
+
+            makeTest("but not at the first position",
+                     function (p, tree) {
+                // There is no point in caching the very first
+                // position in the document, as creating a new walker
+                // is as fast or perhaps faster than cloning a walker.
+
+                var walker = p._getWalkerAt(tree, 0, false);
+                assert.equal(p._walker_cache_max, -1);
+                assert.equal(Object.keys(p._walker_cache).length, 0);
+            }, empty_tree);
+
+            makeTest("but not the final location",
+                     function (p, tree) {
+                var walker = p._getWalkerAt(tree, -1, false);
+                assert.equal(p._walker_cache_max, -1);
+                assert.equal(Object.keys(p._walker_cache).length, 0);
+            });
+
+            makeTest("some walker (element)",
+                     function (p, tree) {
+                var initial_size = Object.keys(p._walker_cache).length;
+                var initial_max = p._walker_cache_max;
+                var el = tree.getElementsByTagName("em")[100];
+                var walker = p._getWalkerAt(el, 0, false);
+                assert.isTrue(p._walker_cache_max > initial_max);
+                assert.equal(Object.keys(p._walker_cache).length, 1);
+                assert.equal(walker, p._getWalkerAt(el, 0, false));
+            });
+
+            makeTest("does not cache walkers that are too close (element)",
+                     function (p, tree) {
+                var initial_size = Object.keys(p._walker_cache).length;
+                var initial_max = p._walker_cache_max;
+                var el = tree.getElementsByTagName("em")[100];
+                var walker = p._getWalkerAt(el, 0, false);
+                var max_after_first = p._walker_cache_max;
+                assert.isTrue(max_after_first > initial_max);
+                assert.equal(Object.keys(p._walker_cache).length, 1);
+                // It won't cache this walker because it is too close
+                // to the previous one.
+                var walker2 = p._getWalkerAt(el, 1, false);
+                assert.equal(max_after_first, p._walker_cache_max);
+                assert.equal(Object.keys(p._walker_cache).length, 1);
+            });
+
+            makeTest("some walker (text)",
+                     function (p, tree) {
+                var initial_size = Object.keys(p._walker_cache).length;
+                var initial_max = p._walker_cache_max;
+                var el = tree.getElementsByTagName("em")[100];
+                assert.equal(el.firstChild.nodeType, Node.TEXT_NODE);
+                var walker = p._getWalkerAt(el.firstChild, 0, false);
+                assert.isTrue(p._walker_cache_max > initial_max);
+                assert.equal(Object.keys(p._walker_cache).length, 1);
+                assert.equal(walker, p._getWalkerAt(el.firstChild, 0, false));
+            });
+
+
+            makeTest("does not cache walkers that are too close (text)",
+                     function (p, tree) {
+                var initial_size = Object.keys(p._walker_cache).length;
+                var initial_max = p._walker_cache_max;
+                var el = tree.getElementsByTagName("em")[100];
+                assert.equal(el.firstChild.nodeType, Node.TEXT_NODE);
+                var walker = p._getWalkerAt(el.firstChild, 0, false);
+                var max_after_first = p._walker_cache_max;
+                assert.isTrue(max_after_first > initial_max);
+                assert.equal(Object.keys(p._walker_cache).length, 1);
+                // It won't cache this walker because it is too close
+                // to the previous one.
+                var walker2 = p._getWalkerAt(el.firstChild, 1, false);
+                assert.equal(max_after_first, p._walker_cache_max);
+                assert.equal(Object.keys(p._walker_cache).length, 1);
+            });
+
+            makeTest("some walker (attribute)",
+                     function (p, tree) {
+                var initial_size = Object.keys(p._walker_cache).length;
+                var initial_max = p._walker_cache_max;
+                var el = tree.getElementsByTagName("em")[100];
+                var attr = el.attributes.foo;
+                assert.isDefined(attr);
+                var walker = p._getWalkerAt(attr, 0, false);
+                assert.isTrue(p._walker_cache_max > initial_max);
+                assert.equal(Object.keys(p._walker_cache).length, 1);
+                // Even though caching was used, the walker won't be
+                // the same.
+                // assert.equal(walker, p._getWalkerAt(attr, 0, false));
+            });
+
+        });
+
+    });
+
     describe("possibleWhere", function () {
         var data;
         before(function(done) {

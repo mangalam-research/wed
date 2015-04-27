@@ -10,4 +10,7 @@ html =
 head = element head { title }
 title = element title { text }
 body = element body { empty | (text | em)+ }
-em = element em { empty | (text | em)+ }
+em = element em {
+   (empty | (text | em)+),
+   attribute foo { text }?
+}
