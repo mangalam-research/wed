@@ -131,6 +131,12 @@ function Validator(schema, root, mode) {
     this._previous_child = null;
     this._validation_stack = [new ProgressState(0, 1)];
     this._cur_el = this.root;
+    this._walker_cache = Object.create(null);
+    this._walker_cache_max = -1;
+    // The distance between walkers under which we skip saving a
+    // walker in the cache.
+    this._walker_cache_gap = 100;
+
     // This prevents an infinite loop when speculativelyValidate is
     // called to validate a text node.
     this._cur_el.wed_event_index_after_start = this._events.length;
@@ -561,6 +567,8 @@ Validator.prototype._resetTo = function (node) {
     this._cur_el = this.root;
     this._part_done = 0;
     this._errors = [];
+    this._walker_cache = Object.create(null);
+    this._walker_cache_max = -1;
     /**
      * Tells the listener that it must reset its list of errors.
      *
@@ -819,6 +827,10 @@ oop.inherit(EventIndexException, Error);
  * module:validator~Validator#_validateUpTo _validateUpTo} for the
  * details of how these parameters are interpreted.
  *
+ * **The walker returned by this function is not guaranteed to be a
+ *    new instance. Callers should not modify the walker returned but
+ *    instead clone it.**
+ *
  * @private
  *
  * @param {Node} container
@@ -843,52 +855,117 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
     // Make sure we have the data we need.
     this._validateUpTo(container, index, attributes);
 
-    // Damn hoisting.
-    var walker, ix;
     // This function could be called with container === root if the
     // document is empty or if the user has the caret before the start
     // tag of the first element of the actual structure we want to
     // validate or after the end tag of that element.
     if (container === this.root && index &lt;= 0) {
-        walker = this._tree.newWalker();
-
         if (!attributes) {
             // We're before the top element, no events to fire.
             if (index === 0)
-                return walker;
+                return this._tree.newWalker();
 
-            event_index = container.wed_event_index_after;
-            if (event_index === undefined)
-                throw new EventIndexException();
-
-            // We're past the top element, fire all events.
-            for(ix= 0; ix &lt; this._events.length; ++ix)
-                walker.fireEvent(this._events[ix]);
-            return walker;
+            // _validateUpTo ensures that the current walker held by
+            // the validator is what we want. We can just return it
+            // here because it is the caller's reponsibility to either
+            // not modify it or clone it.
+            return this._validation_walker;
         }
     }
 
+    //
+    // Perceptive readers will notice that the caching being done here
+    // could be more aggressive. It turns out that the cases where we
+    // have to clone the walker after getting it from the cache are
+    // not that frequently used, so there is little to gain from being
+    // more aggressive. Furthermore, it is likely that the caching
+    // system will change when we implement a saner way to reset
+    // validation and segment large documents into smaller chunks.
+    //
+
+    var me = this;
+    function readyWalker(event_index) {
+        if (event_index === undefined)
+            throw new EventIndexException();
+
+        var cache = me._walker_cache;
+        var max = me._walker_cache_max;
+
+        var walker = cache[event_index];
+        if (walker)
+            return walker;
+
+        //
+        // Scan the cache for a walker we could use... rather than
+        // start from zero.
+        //
+        // There is no point in trying to be clever by using
+        // me._walker_cache_gap to start our search. If _getWalkerAt
+        // is called with decreasing positions in the document, then
+        // the gap is meaningless for our search. (Such scenario is
+        // not a normal usage pattern for _getWalkerAt but it *can*
+        // happen so we cannot assume that it won't happen.)
+        //
+        // Also, the following approach is a bit crude but trying to
+        // be clever with Object.keys() and then searching through a
+        // sorted list does not yield an appreciable
+        // improvement. Maybe on very large documents it would but
+        // this module will have to be redesigned to tackle that so
+        // there's no point now to be cleverer than this. We also
+        // tested using a sparse Array for the cache and got visibly
+        // worse performance. And we tested to see if a flag
+        // indicating if the cache has anything in it would help avoid
+        // doing a long search but it maked things worse. Basically,
+        // it seems that the typical usage pattern of _getWalkerAt is
+        // such that it will usually be called in increasing order of
+        // position in the document.
+        //
+        var search_ix = event_index;
+        if (search_ix >= max) {
+            search_ix = max;
+            walker = cache[search_ix];
+        }
+        else {
+            while (!walker && --search_ix >= 0)
+                walker = cache[search_ix];
+        }
+
+        if (walker) {
+            walker = walker.clone();
+        }
+        else {
+            walker = me._tree.newWalker();
+            search_ix = 0;
+        }
+
+        for(var ix = search_ix; ix &lt; event_index; ++ix)
+            walker.fireEvent(me._events[ix]);
+
+        // This is a bit arbitrary to find a balance between caching
+        // too much information and spending too much time computing
+        // walkers.
+        if (event_index - search_ix >= me._walker_cache_gap) {
+            cache[event_index] = walker;
+            me._walker_cache_max = Math.max(event_index, max);
+        }
+
+        return walker;
+    }
+
+    // Damn hoisting.
+    var walker, ix;
     function fireTextEvent(text_node) {
         var event = new validate.Event("text", text_node.data);
         walker.fireEvent(event);
     }
 
     // Damn hoisting
-    var prev, event_index;
+    var prev, event_index, walker_disp;
     switch(container.nodeType) {
     case Node.TEXT_NODE:
         prev = container.previousElementSibling;
-
-        event_index =
-            prev ? prev.wed_event_index_after :
-            container.parentNode.wed_event_index_after_start;
-
-        if (event_index === undefined)
-            throw new EventIndexException();
-
-        walker = this._tree.newWalker();
-        for(ix = 0; ix &lt; event_index; ++ix)
-            walker.fireEvent(this._events[ix]);
+        walker = readyWalker(prev ? prev.wed_event_index_after :
+                             container.parentNode.wed_event_index_after_start);
 
         // We will attempt to fire a text event if our location
         // is inside the current text node.
@@ -899,8 +976,10 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
         // performed cannot have two adjacent text nodes. It was also
         // checking whether there was a _text element between prev
         // and this text node but this also cannot happen.
-        if (index > 0)
+        if (index > 0) {
+            walker = walker.clone();
             fireTextEvent(container);
+        }
 
         break;
     case Node.ELEMENT_NODE:
@@ -918,12 +997,7 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
         else
             event_index = node.wed_event_index_after_attributes;
 
-        if (event_index === undefined)
-            throw new EventIndexException();
-
-        walker = this._tree.newWalker();
-        for(ix = 0; ix &lt; event_index; ++ix)
-            walker.fireEvent(this._events[ix]);
+        walker = readyWalker(event_index);
 
         if (!attributes) {
             // We will attempt to fire a text event if another text node
@@ -935,27 +1009,23 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
                 // *element* sibbling, then there is nothing *between*
                 // that we need to take care of.
                 prev_sibling !== prev) {
-                if (prev_sibling.nodeType === Node.TEXT_NODE)
+                if (prev_sibling.nodeType === Node.TEXT_NODE) {
+                    walker = walker.clone();
                     fireTextEvent(prev_sibling);
+                }
             }
         }
         break;
     case Node.ATTRIBUTE_NODE:
         var el = container.ownerElement;
-
-        event_index = el.wed_event_index_before_attributes;
-
-        if (event_index === undefined)
-            throw new EventIndexException();
-
-        walker = this._tree.newWalker();
-        for(ix = 0; ix &lt; event_index; ++ix)
-            walker.fireEvent(this._events[ix]);
+        walker = readyWalker(el.wed_event_index_before_attributes);
 
         // Don't fire on namespace attributes.
         if (!(container.name === "data-wed-xmlns" ||
-              container.name.lastIndexOf("data-wed-xmlns---", 0) === 0))
+              container.name.lastIndexOf("data-wed-xmlns---", 0) === 0)) {
+            walker = walker.clone();
             this._fireAttributeNameEvent(walker, el, container);
+        }
         break;
     default:
         throw new Error("unexpected node type: " + container.nodeType);
@@ -994,6 +1064,7 @@ Validator.prototype.possibleAt = function (container, index, attributes) {
         container = container.node;
     }
     var walker = this._getWalkerAt(container, index, attributes);
+    // Calling possible does not *modify* the walker.
     return walker.possible();
 };
 
@@ -1111,6 +1182,8 @@ Validator.prototype.speculativelyValidateFragment = function (container, index,
     // fragment we've been given.
     var dup = new Validator(this._tree, to_parse);
 
+    // We have to clone the walker to prevent messing up the internal
+    // cache.
     dup._validation_walker = this._getWalkerAt(container, index).clone();
 
     dup._tree = this._tree; // _tree is immutable so we can share.
@@ -1207,7 +1280,7 @@ exports.Validator = Validator;
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Thu Apr 23 2015 10:02:54 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Mon Apr 27 2015 16:15:05 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

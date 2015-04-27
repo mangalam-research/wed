@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>&lt;no title&gt; &mdash; Wed v0.24.0-3-g86f0e2f documentation</title>
+    <title>&lt;no title&gt; &mdash; Wed v0.24.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.24.0-3-g86f0e2f',
+        VERSION:     'v0.24.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.24.0-3-g86f0e2f documentation" href="index.html" /> 
+    <link rel="top" title="Wed v0.24.2 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.24.0-3-g86f0e2f documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.24.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -47,25 +47,39 @@
 versions of wed.</p>
 <p>The following assumes that <cite>origin</cite> is <strong>a private fork</strong> and
 <cite>upstream</cite> is the main repository for wed.</p>
-<ol class="arabic simple">
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">start</span> <span class="pre">[new</span> <span class="pre">version,</span> <span class="pre">**without**</span> <span class="pre">the</span> <span class="pre">`v`]</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">semver-sync</span> <span class="pre">-b</span> <span class="pre">[new</span> <span class="pre">version]</span></tt></li>
-<li>Perform whatever other changes must happen and commit.</li>
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">test</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">dist-notest</span></tt> This will test packaging wed and installing
+<p>The following steps assume that you&#8217;ve already run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt> and
+the Selenium tests beforehand and that they passed.</p>
+<ol class="arabic">
+<li><p class="first">Test that the documentation can be generated without errors:</p>
+<div class="highlight-python"><pre>``rm -rf gh-pages-build; make gh-pages-build FORCE_GH_PAGES_BUILD=1``</pre>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">start</span> <span class="pre">[new</span> <span class="pre">version,</span> <span class="pre">**without**</span> <span class="pre">the</span> <span class="pre">`v`]</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">semver-sync</span> <span class="pre">-b</span> <span class="pre">[new</span> <span class="pre">version]</span></tt></p>
+</li>
+<li><p class="first">Perform whatever other changes must happen and commit.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">test</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">dist-notest</span></tt> This will test packaging wed and installing
 in a temporary directory. The <tt class="docutils literal"><span class="pre">notest</span></tt> bit prevents Selenium
-tests from running. You&#8217;ll run them in a later step.</li>
-<li>Open the in-browser tests in the browser and run them.</li>
-<li>Run the Selenium tests. This has to be done for each platform
-listed in <tt class="docutils literal"><span class="pre">selenium_config.py</span></tt>.</li>
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">finish</span> <span class="pre">[version]</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">publish</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">upstream</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></tt></li>
-<li>Switch to the main branch and issue <tt class="docutils literal"><span class="pre">make</span> <span class="pre">gh-pages-build</span></tt>.</li>
-<li>Publish the documentation: take the result of the directory named
+tests from running.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">finish</span> <span class="pre">[version]</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">publish</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">upstream</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></tt></p>
+</li>
+<li><p class="first">Switch to the main branch and issue <tt class="docutils literal"><span class="pre">make</span> <span class="pre">gh-pages-build</span></tt>.</p>
+</li>
+<li><p class="first">Publish the documentation: take the result of the directory named
 <tt class="docutils literal"><span class="pre">gh-pages-build</span></tt>, copy it to the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch, commit it
-and push it to <tt class="docutils literal"><span class="pre">upstream</span></tt>.</li>
+and push it to <tt class="docutils literal"><span class="pre">upstream</span></tt>.</p>
+</li>
 </ol>
 
 
@@ -102,7 +116,7 @@ and push it to <tt class="docutils literal"><span class="pre">upstream</span></t
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">Wed v0.24.0-3-g86f0e2f documentation</a> &raquo;</li> 
+        <li><a href="index.html">Wed v0.24.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
