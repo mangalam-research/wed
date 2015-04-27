@@ -4,6 +4,10 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.24.2:
+
+  - 0.24.1 had a packaging mistake. This release fixes it.
+
 * 0.24.1:
 
   - Internals: Implemented a caching system for
