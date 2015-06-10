@@ -4,6 +4,13 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.24.3:
+
+  - GUI: If a validation error occurred at the very end of a document,
+    wed would put the error marker outside the editing pane. Moreover,
+    clicking on such marker would put the caret in a useless
+    position. This has been fixed.
+
 * 0.24.2:
 
   - 0.24.1 had a packaging mistake. This release fixes it.

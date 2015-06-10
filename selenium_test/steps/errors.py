@@ -4,7 +4,7 @@ from selenium.common.exceptions import MoveTargetOutOfBoundsException
 
 from selenic.util import Condition, Result
 # pylint: disable=no-name-in-module
-from nose.tools import assert_true
+from nose.tools import assert_true, assert_equal
 
 step_matcher("re")
 
@@ -27,34 +27,47 @@ def step_impl(context):
     """)
 
 
-@then(ur"^3 errors appear in the error panel$")
-def step_impl(context):
+@then(ur"^(?P<count>\d+) errors appear in the error panel$")
+def step_impl(context, count):
     driver = context.driver
     util = context.util
 
     def cond(*_):
         return driver.execute_script("""
-        return jQuery("#sb-errorlist").children().length === 3;
-        """)
+        var count = arguments[0];
+        return jQuery("#sb-errorlist").children().length === count;
+        """, int(count))
 
     util.wait(cond)
 
 
-@when(ur"^the user clicks the last error in the error panel$")
-def step_impl(context):
+@when(ur"^the user clicks the (?P<which>first|last) error in the error "
+      ur"panel$")
+def step_impl(context, which):
     driver = context.driver
     util = context.util
 
     el = driver.execute_script("""
+        var which = arguments[0];
         var $ = jQuery;
         var $collapse = $("#sb-errors-collapse");
         if (!$collapse.is(".in"))
             $collapse.collapse('show');
-        var $errors = $("#sb-errorlist");
-        var $last = $errors.children().last();
-        $last[0].scrollIntoView();
-        return $last[0];
-        """)
+        var $children = $("#sb-errorlist").children();
+        var el;
+        switch (which) {
+        case "first":
+            el = $children[0];
+            break;
+        case "last":
+            el = $children.last()[0];
+            break;
+        default:
+            throw new Error("unknown which value: " + which);
+        }
+        el.scrollIntoView();
+        return el;
+        """, which)
 
     def cond(*_):
         # Wait until it is fully opened. Otherwise, the click may hit
@@ -79,23 +92,88 @@ def step_impl(context):
     util.wait(cond)
 
 
-@then(ur"^the last error marker is fully visible\.?$")
-def step_impl(context):
+@then(ur"^the (?P<which>first|last) error marker is fully visible\.?$")
+def step_impl(context, which):
     driver = context.driver
     util = context.util
 
     def check(*_):
-        top = driver.execute_script("""
-        var errors = document.getElementsByClassName("wed-validation-error");
-        var last = errors[errors.length - 1];
-        // Get the position relative to the scroller element.
-        return last.getBoundingClientRect().top -
-            wed_editor._scroller.getBoundingClientRect().top;
-        """)
+        ret = driver.execute_script("""
+        var which = arguments[0];
+        var $ = jQuery;
+        var $children = $("#sb-errorlist a");
+        var el;
+        switch (which) {
+        case "first":
+            el = $children[0];
+            break;
+        case "last":
+            el = $children.last()[0];
+            break;
+        default:
+            throw new Error("unknown which value: " + which);
+        }
+        var href = el.attributes.href.value;
+        if (href[0] !== "#")
+            throw new Error("unexpected link");
+
+        var target = document.getElementById(href.slice(1));
+        var scroller_rect = wed_editor._scroller.getBoundingClientRect();
+        var target_rect = target.getBoundingClientRect();
+        function rectToObj(rect) {
+            return {top: rect.top, bottom: rect.bottom,
+                    left: rect.left, right: rect.right};
+        }
+        return {target: rectToObj(target_rect),
+                scroller: rectToObj(scroller_rect)};
+        """, which)
+
+        target = ret["target"]
+        scroller = ret["scroller"]
+        if target["top"] < scroller["top"]:
+            return Result(False, "error marker above window")
+
+        if target["bottom"] > scroller["bottom"]:
+            return Result(False, "error marker below window")
+
+        if target["left"] < scroller["left"]:
+            return Result(False, "error marker to left of window")
+
+        if target["right"] > scroller["right"]:
+            return Result(False, "error marker to right of window")
+
+        return Result(True, None)
+
+    ret = Condition(util, check).wait()
+    assert_true(ret, ret.payload)
+
+
+@then(ur'^the (?P<which>first|last) error says "(?P<what>.*?)"\.?$')
+def step_impl(context, which, what):
+    driver = context.driver
+    util = context.util
+
+    def check(*_):
+        ret = driver.execute_script("""
+        var which = arguments[0];
+        var $ = jQuery;
+        var $children = $("#sb-errorlist a");
+        var el;
+        switch (which) {
+        case "first":
+            el = $children[0];
+            break;
+        case "last":
+            el = $children.last()[0];
+            break;
+        default:
+            throw new Error("unknown which value: " + which);
+        }
+        return el.textContent;
+        """, which)
 
         # Sigh... Firefox will come close but not quite, so...
-        return Result(abs(top) < 5, top)
+        return Result(ret == what, ret)
 
     ret = Condition(util, check).wait().payload
-    assert_true(abs(ret) < 5, "the top should be within -5 and 5 (got: " +
-                str(ret))
+    assert_equal(ret, what)

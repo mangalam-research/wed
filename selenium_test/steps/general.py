@@ -335,6 +335,13 @@ def open_simple_doc(context):
         text="/build/test-files/wed_test_data/nohi_converted.xml")
 
 
+@given(ur'^a document without "text"$')
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        text="/build/test-files/wed_test_data/notext_converted.xml")
+
+
 @when(ur"^the user scrolls the window (?P<choice>completely down|down "
       ur"by (?P<by>\d+))$")
 def step_impl(context, choice, by):
@@ -401,8 +408,7 @@ def step_impl(context):
 @given(r"^there is no (?P<what>.*)\.?$")
 def step_impl(context, what):
     assert_equal(len(context.driver.find_elements_by_css_selector(
-        ".teiHeader")),
-        0)
+        ".teiHeader")), 0)
 
 
 @when("the user clicks in an element excluded from blur")
