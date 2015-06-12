@@ -2313,6 +2313,27 @@ describe("wed", function () {
 
             it("is able to start", function () { });
         });
+
+        describe("attribute errors without attributes being shown",
+                 function () {
+            before(function() {
+                var new_options = $.extend(true, {}, option_stack[0]);
+                new_options.mode.options.hide_attributes = true;
+                option_stack.unshift(new_options);
+            });
+
+            after(function () {
+                option_stack.shift();
+            });
+
+            it("is able to start", function (done) {
+                editor.whenCondition("first-validation-complete",
+                                     function () {
+                    done();
+                });
+            });
+        });
+
     });
 
     describe("(not state-sensitive)", function () {

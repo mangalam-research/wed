@@ -11,6 +11,11 @@ Only salient changes are recorded here.
     clicking on such marker would put the caret in a useless
     position. This has been fixed.
 
+  - GUI: If a validation error occurred in an attribute but the
+    attribute was not shown because the mode was set to hide all
+    attributes or because the mode happened to hide just *this*
+    attribute, it would result in a crash. This has been fixed.
+
 * 0.24.2:
 
   - 0.24.1 had a packaging mistake. This release fixes it.
