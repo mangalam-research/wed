@@ -6,15 +6,19 @@ Only salient changes are recorded here.
 
 * 0.24.3:
 
-  - GUI: If a validation error occurred at the very end of a document,
-    wed would put the error marker outside the editing pane. Moreover,
-    clicking on such marker would put the caret in a useless
-    position. This has been fixed.
+  - GUI: Bug fix: If a validation error occurred at the very end of a
+    document, wed would put the error marker outside the editing
+    pane. Moreover, clicking on such marker would put the caret in a
+    useless position. This has been fixed.
 
-  - GUI: If a validation error occurred in an attribute but the
-    attribute was not shown because the mode was set to hide all
+  - GUI: Bug fix: If a validation error occurred in an attribute but
+    the attribute was not shown because the mode was set to hide all
     attributes or because the mode happened to hide just *this*
     attribute, it would result in a crash. This has been fixed.
+
+  - GUI: Bug fix: If a validation error occurred in an inline element
+    that spanned multiple lines, the error would appear in a bad
+    position. This has been fixed.
 
 * 0.24.2:
 

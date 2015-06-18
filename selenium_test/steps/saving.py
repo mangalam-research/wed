@@ -42,7 +42,14 @@ abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
 abcd \
 abcd abcd abcd abcd abcd abcd abcd abcd</p>\
 <p rend="rend_value" style="style_value">Blah</p><p rend="abc">Blah</p>\
-<p part="">Blah</p><div sample=""/><p rend="foo"/></body></text></TEI>""",
+<p part="">Blah</p><div sample=""/><p rend="foo"/><p><monogr>\
+This paragraph and its content are designed to test how error markers \
+are shown for inline elements that end up spanning multiple lines. \
+This paragraph and its content are designed to test how error markers \
+are shown for inline elements that end up spanning multiple lines. \
+This paragraph and its content are designed to test how error markers \
+are shown for inline elements that end up spanning multiple lines.\
+</monogr></p></body></text></TEI>""",
     "serializes multiple top namespaces properly": """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0" \
 xmlns:math="http://www.w3.org/1998/Math/MathML"><teiHeader><fileDesc>\
