@@ -2334,6 +2334,25 @@ describe("wed", function () {
             });
         });
 
+        describe("does not have completion menu", function () {
+            it("when the caret is in an attribute that takes " +
+               "completions but the attribute is not visible",
+               function () {
+                // Reduce visibility to 0 so that no attribute is
+                // visible.
+                while (editor._current_label_level)
+                    editor.decreaseLabelVisiblityLevel();
+                var p = editor.gui_root.querySelectorAll(".body>.p")[9];
+                var attr_vals = getAttributeValuesFor(p);
+                editor.setGUICaret(attr_vals[0].firstChild, 0);
+                // This is an arbitrary menu item we check for.
+
+                var menu = editor.my_window.document
+                    .getElementsByClassName("wed-context-menu")[0];
+                assert.isUndefined(menu, "the menu should not exist");
+            });
+        });
+
     });
 
     describe("(not state-sensitive)", function () {
@@ -2374,7 +2393,8 @@ describe("wed", function () {
             assert.isDefined(menu, "the menu should exist");
             var items = menu.querySelectorAll("li>a");
             var found = false;
-            for(var i = 0, item; !found && (item = items[i]) !== undefined;
+            for(var i = 0, item; !found &&
+                        (item = items[i]) !== undefined;
                 ++i) {
                 found = pattern.test(item.textContent.trim());
             }
@@ -2417,11 +2437,11 @@ describe("wed", function () {
 
         describe("setNavigationList", function () {
             it("makes the navigation list appear", function () {
-                assert.equal(editor._$navigation_panel.css("display"), "none",
-                            "the list is not displayed");
+                assert.equal(editor._$navigation_panel.css("display"),
+                             "none", "the list is not displayed");
                 editor.setNavigationList("foo");
-                assert.equal(editor._$navigation_panel.css("display"), "block",
-                            "the list is displayed");
+                assert.equal(editor._$navigation_panel.css("display"),
+                             "block", "the list is displayed");
             });
         });
 
