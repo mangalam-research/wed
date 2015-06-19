@@ -32,6 +32,9 @@ Only salient changes are recorded here.
     to their attributes. A tooltip is set on the error to indicate
     what is going on.
 
+  - Internal: Optimized Editor.toDataNode so that it uses ``$.data``
+    whenever possible.
+
 * 0.24.2:
 
   - 0.24.1 had a packaging mistake. This release fixes it.

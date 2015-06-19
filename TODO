@@ -14,7 +14,9 @@ Misc
 - wed does not currently support having a schema that allows multiple
   choices at the root. Fix this. (e.g. TEI vs teiCorpus).
 
-- util.stackTrace should be updated to take advantage of console.trace.
+- util.stackTrace should be updated to take advantage of
+   console.trace.
+
 
 Testing
 =======
