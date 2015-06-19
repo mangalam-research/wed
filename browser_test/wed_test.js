@@ -2314,7 +2314,8 @@ describe("wed", function () {
             it("is able to start", function () { });
         });
 
-        describe("attribute errors without attributes being shown",
+        describe("attribute errors without attributes being " +
+                 "shown (due to wed options)",
                  function () {
             before(function() {
                 var new_options = $.extend(true, {}, option_stack[0]);
@@ -2331,6 +2332,42 @@ describe("wed", function () {
                                      function () {
                     done();
                 });
+            });
+        });
+
+        describe("attribute errors without attributes being " +
+                 "shown (because of the label visibility level)",
+                 function () {
+            beforeEach(function (done) {
+                editor.whenCondition("first-validation-complete",
+                                     function () {
+                    done();
+                });
+            });
+            it("the attributes error are not linked", function () {
+                while (editor._current_label_level)
+                    editor.decreaseLabelVisiblityLevel();
+
+                var errors = editor._validation_errors;
+                var attribute_errors = [];
+                var $items = editor.$error_list.children("li");
+                var cases = 0;
+                for (var i = 0, error; (error = errors[i]); ++i) {
+                    if (error.node.nodeType === Node.ATTRIBUTE_NODE) {
+                        var item = $items[i];
+                        assert.isTrue(
+                            item.getElementsByTagName("a").length === 0,
+                            "there should be no link in the item");
+                        assert.equal(
+                            item.title,
+                            "This error belongs to an attribute " +
+                                "which is not currently displayed.",
+                            "the item should have the right title");
+                        cases++;
+                    }
+                }
+
+                assert.equal(cases, 2);
             });
         });
 

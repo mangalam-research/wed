@@ -20,6 +20,18 @@ Only salient changes are recorded here.
     that spanned multiple lines, the error would appear in a bad
     position. This has been fixed.
 
+  - GUI: Bug fix: When the label visibility level was reduced to 0,
+    attributes would no longer be shown. However, error in attributes
+    would still be shown in the list of errors. This resulted in being
+    able to click on an attribute error and get the caret in the
+    position of the attribute. Visually, it looked like the caret was
+    inside the element even though the caret was in the
+    attribute. This would result in confusion if the user tried to
+    enter text while the caret was there. This has been fixed so that
+    attributes error that point to invisible attributes are not linked
+    to their attributes. A tooltip is set on the error to indicate
+    what is going on.
+
 * 0.24.2:
 
   - 0.24.1 had a packaging mistake. This release fixes it.
