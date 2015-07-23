@@ -7,7 +7,7 @@ from ..util import get_real_siblings
 step_matcher("re")
 
 
-@then(ur"^the selection is wrapped in a new element.?$")
+@then(ur"the selection is wrapped in a new element\.?")
 def step_impl(context):
     util = context.util
 
@@ -25,7 +25,7 @@ def step_impl(context):
                  context.expected_selection)
 
 
-@then(ur"^a new element is inserted before the selected element.?$")
+@then(ur"a new element is inserted before the selected element\.?")
 def step_impl(context):
     driver = context.driver
     for_element = context.context_menu_for
@@ -39,7 +39,7 @@ def step_impl(context):
                  "items after the selected element")
 
 
-@then(ur"^a new element is inserted after the selected element.?$")
+@then(ur"a new element is inserted after the selected element\.?")
 def step_impl(context):
     driver = context.driver
     for_element = context.context_menu_for
@@ -53,7 +53,7 @@ def step_impl(context):
                  "items after the selected element")
 
 
-@then(ur"^a new (?P<what>.*?) is created inside the element")
+@then(ur"a new (?P<what>.*?) is created inside the element")
 def step_impl(context, what):
     util = context.util
     driver = context.driver
@@ -70,7 +70,7 @@ def step_impl(context, what):
     util.wait(cond)
 
 
-@then(ur"^the teiHeader has been filled as much as possible$")
+@then(ur"the teiHeader has been filled as much as possible")
 def step_impl(context):
     util = context.util
     driver = context.driver
@@ -106,7 +106,7 @@ def step_impl(context):
     util.wait(cond)
 
 
-@then(ur"^the teiHeader has not been filled$")
+@then(ur"the teiHeader has not been filled")
 def step_impl(context):
     util = context.util
     driver = context.driver

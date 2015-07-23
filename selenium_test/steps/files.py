@@ -13,8 +13,8 @@ from ..util import wait_for_editor
 step_matcher('re')
 
 
-@when(ur'^the user opens the files page(?P<already> with a "test.xml" file '
-      ur'already loaded(?P<empty>, and empty)?)?$')
+@when(ur'the user opens the files page(?P<already> with a "test.xml" file '
+      ur'already loaded(?P<empty>, and empty)?)?')
 def step_impl(context, already=None, empty=None):
     driver = context.driver
     util = context.util
@@ -56,7 +56,7 @@ def step_impl(context, already=None, empty=None):
     context.previous_file_state = {}
 
 
-@then(ur'^there (?P<count>are no files|is one file)$')
+@then(ur'there (?P<count>are no files|is one file)')
 def step_impl(context, count):
     util = context.util
 
@@ -106,10 +106,10 @@ def step_impl(context, count):
     assert_true(result, result.payload)
 
 
-@then(ur'^file (?P<number>\d+) is titled "(?P<name>.*?)", has '
+@then(ur'file (?P<number>\d+) is titled "(?P<name>.*?)", has '
       ur'(?P<saved>(?:never )?been saved(?: recently)?), has '
       ur'(?P<uploaded>been uploaded(?: recently)?), and has '
-      ur'(?P<downloaded>(?:never )?been downloaded(?: recently)?)$')
+      ur'(?P<downloaded>(?:never )?been downloaded(?: recently)?)')
 def step_impl(context, number, name, saved, uploaded, downloaded):
     if saved == "never been saved":
         saved = "never"
@@ -215,7 +215,7 @@ def get_file_state(context, name):
     """, name)
 
 
-@when(ur'^(?:the user )?sets the uploading field to upload "(?P<name>.*?)"$')
+@when(ur'(?:the user )?sets the uploading field to upload "(?P<name>.*?)"')
 def step_impl(context, name):
     driver = context.driver
     file_el = driver.find_element_by_id("load-file")
@@ -223,7 +223,7 @@ def step_impl(context, name):
     file_el.send_keys(os.path.abspath("sample_documents/" + name))
 
 
-@when(ur'^(?:the user )?gives the new file the name "(?P<name>.*?)"$')
+@when(ur'(?:the user )?gives the new file the name "(?P<name>.*?)"')
 def step_impl(context, name):
     driver = context.driver
     util = context.util
@@ -234,7 +234,7 @@ def step_impl(context, name):
         ".bootbox .btn.btn-primary").click()
 
 
-@when(ur'^(?:the user )?downloads file (?P<number>\d+)$')
+@when(ur'(?:the user )?downloads file (?P<number>\d+)')
 def step_impl(context, number):
     driver = context.driver
     button = driver.execute_script("""
@@ -250,7 +250,7 @@ def step_impl(context, number):
         pass
 
 
-@when(ur'^(?:the user )?deletes file (?P<number>\d+)$')
+@when(ur'(?:the user )?deletes file (?P<number>\d+)')
 def step_impl(context, number):
     driver = context.driver
     driver.find_element_by_css_selector(
@@ -258,8 +258,8 @@ def step_impl(context, number):
         .format((int(number) + 1))).click()
 
 
-@when(ur'^(?:the user )?(?P<choice>accepts|cancels) the '
-      ur'(?:deletion|overwrite|clear local storage) dialog$')
+@when(ur'(?:the user )?(?P<choice>accepts|cancels) the '
+      ur'(?:deletion|overwrite|clear local storage) dialog')
 def step_impl(context, choice):
     util = context.util
     driver = context.driver
@@ -275,8 +275,8 @@ def step_impl(context, choice):
         .perform()
 
 
-@then(ur'^the file "(?P<name>.*?)" has the contents "(?P<contents>.*)"$')
-@then(ur'^the file "(?P<name>.*?)" contains a minimal document$')
+@then(ur'the file "(?P<name>.*?)" has the contents "(?P<contents>.*)"')
+@then(ur'the file "(?P<name>.*?)" contains a minimal document')
 def step_impl(context, name, contents=None):
     driver = context.driver
 
@@ -303,6 +303,6 @@ def step_impl(context, name, contents=None):
     assert_equal(actual, contents)
 
 
-@then(ur'^the file is loaded in the editor$')
+@then(ur'the file is loaded in the editor')
 def step_impl(context):
     wait_for_editor(context)

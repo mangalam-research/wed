@@ -13,7 +13,7 @@ from selenic.util import Result, Condition
 step_matcher("re")
 
 
-@when('^the user saves$')
+@when('the user saves')
 def step_impl(context):
     util = context.util
     util.ctrl_equivalent_x('S')
@@ -59,7 +59,7 @@ xmlns:math="http://www.w3.org/1998/Math/MathML"><teiHeader><fileDesc>\
 }
 
 
-@then('^the data saved is properly serialized$')
+@then('the data saved is properly serialized')
 def step_impl(context):
     util = context.util
 
@@ -92,7 +92,7 @@ def step_impl(context):
         assert_equal(result.payload[0], result.payload[1])
 
 
-@then(ur'^the modification status shows the document is unmodified$')
+@then(ur'the modification status shows the document is unmodified')
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""

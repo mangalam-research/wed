@@ -9,7 +9,7 @@ from nose.tools import assert_true, assert_equal
 step_matcher("re")
 
 
-@when(ur"^the user introduces an error in the document$")
+@when(ur"the user introduces an error in the document")
 def step_impl(context):
     driver = context.driver
     util = context.util
@@ -27,7 +27,7 @@ def step_impl(context):
     """)
 
 
-@then(ur"^(?P<count>\d+) errors appear in the error panel$")
+@then(ur"(?P<count>\d+) errors appear in the error panel")
 def step_impl(context, count):
     driver = context.driver
     util = context.util
@@ -41,8 +41,8 @@ def step_impl(context, count):
     util.wait(cond)
 
 
-@when(ur"^the user clicks the (?P<which>first|last) error in the error "
-      ur"panel$")
+@when(ur"the user clicks the (?P<which>first|last) error in the error "
+      ur"panel")
 def step_impl(context, which):
     driver = context.driver
     util = context.util
@@ -92,7 +92,7 @@ def step_impl(context, which):
     util.wait(cond)
 
 
-@then(ur"^the (?P<which>first|last) error marker is fully visible\.?$")
+@then(ur"the (?P<which>first|last) error marker is fully visible\.?")
 def step_impl(context, which):
     driver = context.driver
     util = context.util
@@ -148,7 +148,7 @@ def step_impl(context, which):
     assert_true(ret, ret.payload)
 
 
-@then(ur'^the (?P<which>first|last) error says "(?P<what>.*?)"\.?$')
+@then(ur'the (?P<which>first|last) error says "(?P<what>.*?)"\.?')
 def step_impl(context, which, what):
     driver = context.driver
     util = context.util

@@ -5,9 +5,9 @@ from nose.tools import assert_equal, assert_true
 step_matcher("re")
 
 
-@when(ur"^(?P<step>the user opens the typeahead popup"
-      ur"(?P<where> at the end of the title text)?)$")
-@given("^(?P<step>that a typeahead popup is open)$")
+@when(ur"(?P<step>the user opens the typeahead popup"
+      ur"(?P<where> at the end of the title text)?)")
+@given("(?P<step>that a typeahead popup is open)")
 def step_impl(context, step, where=None):
     driver = context.driver
     util = context.util
@@ -47,7 +47,7 @@ def step_impl(context, step, where=None):
     util.find_element((By.CLASS_NAME, "wed-typeahead-popup"))
 
 
-@then("^the typeahead popup is not visible$")
+@then("the typeahead popup is not visible")
 def step_impl(context):
     util = context.util
 
@@ -56,7 +56,7 @@ def step_impl(context):
         len(driver.find_elements_by_class_name("wed-typeahead-popup")) == 0)
 
 
-@then("^the typeahead popup's action (?P<is_>is|is not) performed$")
+@then("the typeahead popup's action (?P<is_>is|is not) performed")
 def step_impl(context, is_):
     util = context.util
 
@@ -65,7 +65,7 @@ def step_impl(context, is_):
     assert_equal(util.get_text_excluding_children(element), expected)
 
 
-@when(ur"^the user clicks the first typeahead choice$")
+@when(ur"the user clicks the first typeahead choice")
 def step_impl(context):
     util = context.util
 
@@ -75,7 +75,7 @@ def step_impl(context):
     element.click()
 
 
-@when(ur"^the user clicks outside the typeahead$")
+@when(ur"the user clicks outside the typeahead")
 def step_impl(context):
     util = context.util
 
@@ -85,7 +85,7 @@ def step_impl(context):
         .perform()
 
 
-@then(ur"^the typeahead popup's choice list has a vertical scrollbar$")
+@then(ur"the typeahead popup's choice list has a vertical scrollbar")
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""
@@ -104,7 +104,7 @@ def step_impl(context):
     context.util.wait(check)
 
 
-@then(ur"^the typeahead popup is visible and completely inside the window$")
+@then(ur"the typeahead popup is visible and completely inside the window")
 def step_impl(context):
     util = context.util
 
@@ -113,7 +113,7 @@ def step_impl(context):
                 "menu is completely visible")
 
 
-@then(ur'^the typeahead popup overflows the editor pane$')
+@then(ur'the typeahead popup overflows the editor pane')
 def step_impl(context):
     driver = context.driver
 
@@ -127,7 +127,7 @@ def step_impl(context):
     """), "the typeahead should overflow the editor pane")
 
 
-@when(ur"^the user clicks the last visible completion$")
+@when(ur"the user clicks the last visible completion")
 def step_impl(context):
     driver = context.driver
 
@@ -143,19 +143,19 @@ def step_impl(context):
         .perform()
 
 
-@then(ur"^dump caret position$")
+@then(ur"dump caret position")
 def step_impl(context):
     driver = context.driver
-    print driver.execute_script("""
+    print(driver.execute_script("""
     var caret = wed_editor.getGUICaret(true);
     if (!caret)
       return "no caret!"
     return [caret.node.innerHTML, caret.offset];
-    """)
-    print
+    """))
+    print("")
 
 
-@then(ur"^the typeahead popup shows suggestions$")
+@then(ur"the typeahead popup shows suggestions")
 def step_impl(context):
     util = context.util
 

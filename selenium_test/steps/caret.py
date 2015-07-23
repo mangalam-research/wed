@@ -41,7 +41,7 @@ def select_text(context, start, end):
         .perform()
 
 
-@when(u"^an element's label has been clicked$")
+@when(u"an element's label has been clicked")
 def step_impl(context):
     context.execute_steps(u"""
     When the user clicks on an element's label
@@ -49,7 +49,7 @@ def step_impl(context):
     """)
 
 
-@when(u"^the user clicks on text$")
+@when(u"the user clicks on text")
 def step_impl(context):
     driver = context.driver
     util = context.util
@@ -82,7 +82,7 @@ def step_impl(context):
     context.last_click = last_click
 
 
-@then(u"^the caret is at the last click's position\.?$")
+@then(u"the caret is at the last click's position\.?")
 def step_impl(context):
     driver = context.driver
 
@@ -92,7 +92,7 @@ def step_impl(context):
     assert_equal(selenic.util.locations_within(caret_pos, last_click, 3), "")
 
 
-@then(ur"^the caret is at the last position before the focus was lost\.?$")
+@then(ur"the caret is at the last position before the focus was lost\.?")
 def step_impl(context):
     context.util.wait(lambda driver:
                       context.caret_screen_position_before_focus_loss ==
@@ -106,10 +106,10 @@ def step_impl(context):
     assert_equal(util.get_selection_text(), context.expected_selection)
 
 
-@when(u"^the user clicks on "
+@when(u"the user clicks on "
       u"(?P<what>an element's label|the end label of an element|"
       u'the end label of the last paragraph|'
-      u'the end label of the first "addrLine" element)$')
+      u'the end label of the first "addrLine" element)')
 def step_impl(context, what):
     driver = context.driver
     util = context.util
@@ -144,9 +144,9 @@ def step_impl(context, what):
     context.context_menu_for = None
 
 
-@when(u"^the user clicks on "
+@when(u"the user clicks on "
       u"(?P<what>|the start label of an element which has )"
-      u"an attribute value that takes completions$")
+      u"an attribute value that takes completions")
 def step_impl(context, what):
     util = context.util
     driver = context.driver
@@ -160,8 +160,8 @@ def step_impl(context, what):
         .perform()
 
 
-@when(ur'^(?:the user )?clicks on the start label of (?P<choice>an element|'
-      ur'the first "(?P<element>.*?)" element in "body")$')
+@when(ur'(?:the user )?clicks on the start label of (?P<choice>an element|'
+      ur'the first "(?P<element>.*?)" element in "body")')
 def step_impl(context, choice, element=None):
     driver = context.driver
     util = context.util
@@ -184,13 +184,13 @@ def step_impl(context, choice, element=None):
         .perform()
 
 
-@then(u'^the label changes to show it is selected$')
+@then(u'the label changes to show it is selected')
 def step_impl(context):
     button = context.clicked_element
     assert_true("_label_clicked" in button.get_attribute("class").split())
 
 
-@then(u'^the caret is in the element name in the label$')
+@then(u'the caret is in the element name in the label')
 def step_impl(context):
     util = context.util
     button = context.clicked_element
@@ -204,7 +204,7 @@ _CHOICE_TO_ARROW = {
 }
 
 
-@when(u"^(?:the user )?hits the (?P<choice>right|left|down) arrow$")
+@when(u"(?:the user )?hits the (?P<choice>right|left|down) arrow")
 def step_impl(context, choice):
     driver = context.driver
 
@@ -217,13 +217,13 @@ def step_impl(context, choice):
         .perform()
 
 
-@then(u'^the label of the element that has the context menu is selected.?$')
+@then(u'the label of the element that has the context menu is selected.?')
 def step_impl(context):
     trigger = context.context_menu_trigger
     assert_true("_label_clicked" in trigger.el.get_attribute("class").split())
 
 
-@then(u'^no label is selected$')
+@then(u'no label is selected')
 def step_impl(context):
     util = context.util
     util.wait_until_not(EC.presence_of_element_located(
@@ -231,8 +231,8 @@ def step_impl(context):
 
 
 # This is also our default for when a mechanism is not specified.
-@when(u'^the user selects text(?:|$)(?P<direction>(?:| backwards))'
-      ur'(?: with the mouse)?(?:\.)?$')
+@when(u'the user selects text(?P<direction>(?:| backwards))'
+      ur'(?: with the mouse)?\.?')
 def step_impl(context, direction):
     driver = context.driver
     util = context.util
@@ -307,9 +307,9 @@ def step_impl(context, direction):
     context.expected_selection = parent_text[1:3]
 
 
-@when(u'^the user selects the whole text of '
+@when(u'the user selects the whole text of '
       u'(?P<what>an element|the first title element|'
-      u'the first paragraph in "body")$')
+      u'the first paragraph in "body")')
 def step_impl(context, what):
     driver = context.driver
     util = context.util
@@ -347,8 +347,8 @@ def step_impl(context, what):
     context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
-@when(u'^the user selects the whole contents of the first paragraph in '
-      ur'"body"$')
+@when(u'the user selects the whole contents of the first paragraph in '
+      ur'"body"')
 def step_impl(context):
     driver = context.driver
     util = context.util
@@ -374,7 +374,7 @@ def step_impl(context):
     context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
-@when(u'^the user selects the "(?P<what>.*?)" of the first title$')
+@when(u'the user selects the "(?P<what>.*?)" of the first title')
 def step_impl(context, what):
     driver = context.driver
     util = context.util
@@ -426,7 +426,7 @@ def step_impl(context, what):
     context.element_to_test_for_text = parent
 
 
-@then(u'^the text "abcd" is selected$')
+@then(u'the text "abcd" is selected')
 def step_impl(context):
     util = context.util
 
@@ -434,17 +434,17 @@ def step_impl(context):
     assert_equal(text, "abcd", "expected selection")
 
 
-@when(u'^the user cuts$')
+@when(u'the user cuts')
 def step_impl(context):
     wedutil.cut(context.util)
 
 
-@when(u'^the user pastes$')
+@when(u'the user pastes')
 def step_impl(context):
     wedutil.paste(context.util)
 
 
-@then(u'^the text is cut$')
+@then(u'the text is cut')
 def step_impl(context):
     util = context.util
     parent = context.selection_parent
@@ -453,7 +453,7 @@ def step_impl(context):
     util.wait(lambda *_: not len(util.get_text_excluding_children(parent)))
 
 
-@then(u'^the text is pasted$')
+@then(u'the text is pasted')
 def step_impl(context):
     util = context.util
     parent = context.selection_parent
@@ -463,8 +463,8 @@ def step_impl(context):
     util.wait(lambda *_: util.get_text_excluding_children(parent) == text)
 
 
-@then(ur"^the selection is restored to what it was before the context menu "
-      "appeared\.?$")
+@then(ur"the selection is restored to what it was before the context menu "
+      "appeared\.?")
 def step_impl(context):
     util = context.util
 
@@ -499,7 +499,7 @@ def step_impl(context, what):
     select_text(context, start, end)
 
 
-@given(ur"^there is a paragraph that spans multiple lines$")
+@given(ur"there is a paragraph that spans multiple lines")
 def step_impl(context):
     driver = context.driver
 
@@ -525,7 +525,7 @@ def step_impl(context):
     context.multiline_paragraph = p
 
 
-@when("^the user clicks on the last character of the paragraph")
+@when("the user clicks on the last character of the paragraph")
 def step_impl(context):
     driver = context.driver
     p = context.multiline_paragraph
@@ -547,7 +547,7 @@ def step_impl(context):
         .perform()
 
 
-@then("^the caret is set to the last character of the paragraph")
+@then("the caret is set to the last character of the paragraph")
 def step_impl(context):
     driver = context.driver
     p = context.multiline_paragraph
@@ -566,7 +566,7 @@ def step_impl(context):
     assert_equal(len(labels), 1, "the end label should be clicked")
 
 
-@when(ur"^the user clicks on a gui control that contains only text$")
+@when(ur"the user clicks on a gui control that contains only text")
 def step_impl(context):
     driver = context.driver
     button = driver.find_element_by_class_name("_gui_test")

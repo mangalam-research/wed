@@ -29,9 +29,9 @@ builder = Builder(conf_path)
 
 
 def dump_config():
-    print "***"
-    print builder.config
-    print "***"
+    print("***")
+    print(builder.config)
+    print("***")
 
 
 def cleanup(context, failed):
@@ -398,9 +398,9 @@ def after_step(context, step):
                             slugify(context.scenario.name + "_"
                                     + step.name) + ".png")
         driver.save_screenshot(name)
-        print
-        print "Captured screenshot:", name
-        print
+        print("")
+        print("Captured screenshot:", name)
+        print("")
 
     # Perform this query only if SELENIUM_LOGS is on.
     if context.selenium_logs:
@@ -408,17 +408,17 @@ def after_step(context, step):
         return window.selenium_log;
         """)
         if logs:
-            print
-            print "JavaScript log:"
-            print "\n".join(repr(x) for x in logs)
-            print
+            print("")
+            print("JavaScript log:")
+            print("\n".join(repr(x) for x in logs))
+            print("")
             driver.execute_script("""
             window.selenium_log = [];
             """)
 
 
 def after_all(context):
-    print "Elapsed between before_all and after_all:", \
-        str(datetime.timedelta(seconds=time.time() - context.start_time))
+    print("Elapsed between before_all and after_all:",
+          str(datetime.timedelta(seconds=time.time() - context.start_time)))
     cleanup(context, False)
     dump_config()
