@@ -64,6 +64,8 @@ def step_impl(context, count):
         def check(driver):
             ret = driver.execute_script("""
             var table = document.getElementById("files-table");
+            if (!table)
+                return [false, "the table is being manipulated"];
             if (table.parentNode.style.display === "none")
                 return [false, "the table is hidden"];
             var td = document.querySelector("tr.files-table-empty");
@@ -76,6 +78,8 @@ def step_impl(context, count):
             ret = driver.execute_script("""
             var count = arguments[0];
             var table = document.getElementById("files-table");
+            if (!table)
+                return [false, "the table is being manipulated"];
             if (table.parentNode.style.display === "none")
                 return [false, "the table is hidden"];
             var td = document.querySelector("tr.files-table-empty");

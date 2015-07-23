@@ -72,7 +72,8 @@ Scenario: pasting text that triggers an input trigger outside an element that sh
   Given a document without "hi"
   When the user selects the whole text of the first paragraph in "body"
   And the user cuts
-  And the user pastes
+  Then the text is cut
+  When the user pastes
   Then the first paragraph in body has the text "A;B"
 
 # Selenium for OSX just does not allow us to paste.
