@@ -489,6 +489,7 @@ build/standalone/lib/external/lodash:
 	mkdir -p $@
 
 build/standalone/lib/external/lodash/%: node_modules/lodash-amd/% | build/standalone/lib/external/lodash
+	rm -rf $@
 	cp -rp $< $@
 
 node_modules/lodash-amd/%: | node_modules
