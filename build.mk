@@ -426,17 +426,34 @@ endif
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
 
+#
+# We have to depend on the actual file to be copied ($2) and on the
+# package directory itself. The fact is that when npm installs a
+# package, it preserves the modification dates on the files. Consider:
+#
+# - June 1st: I ran make.
+#
+# - June 2nd: the package that contains $1 has a new version released.
+#
+# - June 3rd: I run make clean and make again. So $1 has a stamp of June 3rd.
+#
+# - June 4th: I upgrade the package that contains $1. I run make but
+#   it does not update $1 because $2 has a timestamp of June 2nd or
+#   earlier.
+#
+# Therefore I have to depend on the package itself too.
+#
 define SIMPLE_NODE_MODULES_TARGET
-$1: $2
+$1: $2$3 $2
 	-mkdir -p $$(dir $1)
 	cp $$< $$@
 
-$2: | node_modules
+$2$3: | node_modules
 endef
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/requirejs/require.js,node_modules/requirejs/require.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/requirejs/require.js,node_modules/requirejs,/require.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/typeahead.bundle.min.js,node_modules/typeahead.js/dist/typeahead.bundle.min.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/typeahead.bundle.min.js,node_modules/typeahead.js,/dist/typeahead.bundle.min.js))
 
 build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
 	cp $< $@
@@ -455,17 +472,17 @@ endif
 	rm -rf $(dir $@)/log4javascript-*
 	touch $@
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/pubsub.js,node_modules/pubsub-js/src/pubsub.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/pubsub.js,node_modules/pubsub-js,/src/pubsub.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/localforage.js,node_modules/localforage/dist/localforage.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/localforage.js,node_modules/localforage,/dist/localforage.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/async.js,node_modules/async/lib/async.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/async.js,node_modules/async,/lib/async.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/angular.js,node_modules/angular/angular.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/angular.js,node_modules/angular,/angular.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/bootbox.js,node_modules/bootbox.js/bootbox.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/bootbox.js,node_modules/bootbox.js,/bootbox.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/xregexp.js,node_modules/salve/node_modules/xregexp/xregexp-all.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/xregexp.js,node_modules/salve,/node_modules/xregexp/xregexp-all.js))
 
 # Lodash uses cp -rp so we don't use SIMPLE_NODE_MODULES_TARGET
 build/standalone/lib/external/lodash:
