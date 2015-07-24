@@ -1380,18 +1380,18 @@
       }
     },
     "localforage": {
-      "version": "1.1.1",
-      "from": "git+https://github.com/mozilla/localForage.git",
-      "resolved": "git+https://github.com/mozilla/localForage.git#cf81f58107c6c5a55c3539186ba1c1669f395fb6",
+      "version": "1.2.4",
+      "from": "localforage@latest",
+      "resolved": "https://registry.npmjs.org/localforage/-/localforage-1.2.4.tgz",
       "dependencies": {
         "promise": {
           "version": "5.0.0",
-          "from": "promise@^5.0.0",
+          "from": "promise@>=5.0.0 <6.0.0",
           "resolved": "https://registry.npmjs.org/promise/-/promise-5.0.0.tgz",
           "dependencies": {
             "asap": {
               "version": "1.0.0",
-              "from": "asap@~1.0.0",
+              "from": "asap@>=1.0.0 <1.1.0",
               "resolved": "https://registry.npmjs.org/asap/-/asap-1.0.0.tgz"
             }
           }
