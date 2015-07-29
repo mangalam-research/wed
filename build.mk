@@ -240,10 +240,17 @@ build-standalone-optimized: build-standalone build/standalone-optimized build/st
 build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
 	cp $< $@
 
-build/standalone-optimized: requirejs.build.js $(shell find build/standalone -type f) node_modules/requirejs/bin/r.js
+OPTIMIZED_STAMP:=build/standalone-optimized.stamp
+.PHONY: build/standalone-optimized
+build/standalone-optimized: requirejs.build.js node_modules/requirejs/bin/r.js
 # The || in the next command is because DELETE_ON_ERROR does not
 # delete *directories*. So we have to do it ourselves.
-	node_modules/requirejs/bin/r.js -o $< || (rm -rf $@ && exit 1)
+	find build/standalone -printf "%p %t %s\n" | sort > $(OPTIMIZED_STAMP).new
+	if [ ! -e $(OPTIMIZED_STAMP) ]; then touch $(OPTIMIZED_STAMP); fi
+	if ! cmp -s $(OPTIMIZED_STAMP) $(OPTIMIZED_STAMP).new; then \
+	  node_modules/requirejs/bin/r.js -o $< || (rm -rf $@ && exit 1); \
+	  mv $(OPTIMIZED_STAMP).new $(OPTIMIZED_STAMP); \
+        fi
 
 node_modules/requirejs/bin/r.js: | node_modules
 
