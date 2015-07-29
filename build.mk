@@ -72,8 +72,8 @@ JQUERY_FILE=jquery-2.1.1.js
 BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.3.2/bootstrap-3.3.2-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
 
-FONTAWESOME_PATH=https://fortawesome.github.io/Font-Awesome/assets/font-awesome-4.3.0.zip
-FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
+FONTAWESOME_PATH=https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.zip
+FONTAWESOME_BASE=Font-Awesome-$(patsubst v%,%,$(notdir $(FONTAWESOME_PATH)))
 
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
@@ -350,7 +350,7 @@ downloads/$(BOOTSTRAP_BASE): | downloads
 	(cd downloads; $(WGET) -O $(BOOTSTRAP_BASE) '$(BOOTSTRAP_URL)')
 
 downloads/$(FONTAWESOME_BASE): | downloads
-	(cd downloads; $(WGET) '$(FONTAWESOME_PATH)')
+	(cd downloads; $(WGET) -O $(FONTAWESOME_BASE) '$(FONTAWESOME_PATH)')
 
 downloads/$(TEXT_PLUGIN_BASE): | downloads
 	(cd downloads; $(WGET) $(TEXT_PLUGIN_FILE))
@@ -407,10 +407,8 @@ build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | buil
 	-rm -rf $@
 	mkdir $@
 	unzip -d downloads/ $<
-	mv downloads/$(FONTAWESOME_BASE:.zip=)/* $@
+	cp -rp $(foreach d,css fonts,downloads/$(FONTAWESOME_BASE:.zip=)/$d) $@
 	rm -rf downloads/$(FONTAWESOME_BASE:.zip=)
-	rm -rf $@/scss
-	rm -rf $@/less
 	touch $@
 
 build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib/external
