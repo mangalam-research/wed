@@ -52,7 +52,10 @@ Scenario: typing text that triggers an input trigger
   And the user hits the right arrow
   And the user uses the keyboard to bring up the context menu
   And the user clicks a choice for creating a new hi
-  And the user types "A;B"
+  # This step is that our scenario does not start typing before the hi
+  # element is inserted.
+  Then the caret is in the first "hi" element
+  When the user types "A;B"
   Then the first "hi" in body has the text "A"
   And the second "hi" in body has the text "B"
 
