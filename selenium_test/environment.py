@@ -17,6 +17,7 @@ from pyvirtualdisplay import Display
 # pylint: disable=E0611
 from nose.tools import assert_true, assert_false
 
+from behave.tag_matcher import ActiveTagMatcher
 from selenic import Builder, outil
 import selenic.util
 
@@ -181,6 +182,30 @@ def before_all(context):
     if userdata.get("check_selenium_config", False):
         exit(0)
 
+    browser_to_tag_value = {
+        "INTERNETEXPLORER": "ie",
+        "CHROME": "ch",
+        "FIREFOX": "ff"
+    }
+
+    values = {
+        'browser': browser_to_tag_value[builder.config.browser],
+    }
+
+    platform = builder.config.platform
+    if platform.startswith("OS X "):
+        values['platform'] = 'osx'
+    elif platform.startswith("WINDOWS "):
+        values['platform'] = 'win'
+    elif platform == "LINUX" or platform.startswith("LINUX "):
+        values['platform'] = 'linux'
+
+    # We have some cases that need to match a combination of platform
+    # and browser
+    values['platform_browser'] = values['platform'] + "," + values['browser']
+
+    context.active_tag_matcher = ActiveTagMatcher(values)
+
     server_thread = start_server(context)
 
     if not builder.remote:
@@ -246,57 +271,6 @@ def before_all(context):
 
     context.start_time = time.time()
 
-FAILS_IF = "fails_if:"
-ONLY_FOR = "only_for:"
-
-
-def skip_if_needed(context, entity):
-    fails_if = []
-    for tag in entity.tags:
-        if tag.startswith(FAILS_IF):
-            fails_if.append(tag[len(FAILS_IF):])
-
-    for spec in fails_if:
-        if spec == "osx":
-            if context.util.osx:
-                entity.mark_skipped()
-        elif spec == "win,ff":
-            if context.util.windows and context.util.firefox:
-                entity.mark_skipped()
-        elif spec == "ie":
-            if context.util.ie:
-                entity.mark_skipped()
-        else:
-            raise ValueError("can't interpret fails_if:" + spec)
-
-    only_for = []
-    for tag in entity.tags:
-        if tag.startswith(ONLY_FOR):
-            only_for.append(tag[len(ONLY_FOR):])
-
-    for spec in only_for:
-        # Only implemented as much as needed here.
-        if spec == "ie":
-            if not context.util.ie:
-                entity.mark_skipped()
-        else:
-            raise ValueError("can't interpret only_for:" + spec)
-
-
-def before_feature(context, feature):
-    # Some tests cannot be performed on some OSes due to limitations
-    # in Selenium or the browser or the OS or what-have-you. There is
-    # no real equivalent available to perform these tests so we just
-    # skip them.
-
-    skip_if_needed(context, feature)
-
-    # If we're already skipping the feature, we don't need to check
-    # individual scenarios.
-    if not feature.should_skip:
-        for scenario in feature.scenarios:
-            skip_if_needed(context, scenario)
-
 
 def control(server, command, errmsg):
     params = {"command": command}
@@ -310,6 +284,10 @@ def reset(server):
 
 def before_scenario(context, scenario):
     driver = context.driver
+
+    if context.active_tag_matcher.should_exclude_with(scenario.effective_tags):
+        scenario.skip(reason="Disabled by an active tag")
+        return
 
     if context.behave_captions:
         # We send a comment as a "script" so that we get something

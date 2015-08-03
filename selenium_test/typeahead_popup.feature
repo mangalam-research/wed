@@ -34,7 +34,7 @@ Scenario: clicking outside the typeahead
 
 # This test fails due to OS X's idiotic default behavior of hiding
 # scrollbars on scrollable items unless they are actually scrolled.
-@fails_if:osx
+@not.with_platform=osx
 Scenario: bringing up the typeahead popup next to the right side of the window
   When the user adds text to the title so that the titleStmt label is next to the right side of the window
   And the user opens the typeahead popup at the end of the title text

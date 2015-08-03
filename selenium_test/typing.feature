@@ -56,7 +56,7 @@ Scenario: typing text that triggers an input trigger
   Then the first "hi" in body has the text "A"
   And the second "hi" in body has the text "B"
 
-@fails_if:osx
+@not.with_platform=osx
 Scenario: pasting text that triggers an input trigger
   Given a document without "hi"
   When the user selects the whole text of the first paragraph in "body"
@@ -67,7 +67,7 @@ Scenario: pasting text that triggers an input trigger
   Then the first "hi" in body has the text "A"
   And the second "hi" in body has the text "B"
 
-@fails_if:osx
+@not.with_platform=osx
 Scenario: pasting text that triggers an input trigger outside an element that should trigger it
   Given a document without "hi"
   When the user selects the whole text of the first paragraph in "body"
@@ -77,9 +77,9 @@ Scenario: pasting text that triggers an input trigger outside an element that sh
   Then the first paragraph in body has the text "A;B"
 
 # Selenium for OSX just does not allow us to paste.
-@fails_if:osx
+@not.with_platform=osx
 # IE does not allow us to get the contents of the clipboard as HTML.
-@fails_if:ie
+@not.with_browser=ie
 Scenario: pasting HTML where it cannot be pasted, and accepting conversion to text
   Given a document containing a top level element, a p element, and text.
   When the user selects the whole contents of the first paragraph in "body"
