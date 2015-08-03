@@ -20,16 +20,16 @@ Windows 8.1,IE,11,Remote
 # Perform these next because OS X compatibility is an issue. Again, we
 # want to find problems early.
 #
+OS X 10.9,CH,43,Remote
 OS X 10.9,CH,41,Remote
-OS X 10.9,CH,39,Remote
 # wed definitely breaks on Chrome 34.
 # OS X 10.6,CH,34,Remote
 
 #
 # The rest is unlikely to fail if the previous tests passed.
 #
+Windows 8.1,CH,43,Remote
 Windows 8.1,CH,41,Remote
-Windows 8.1,CH,39,Remote
 # wed definitely breaks on Chrome 34.
 # Windows 8.1,CH,34,Remote
 
