@@ -18,7 +18,7 @@ step_matcher('re')
 def step_impl(context, already=None, empty=None):
     driver = context.driver
     util = context.util
-    builder = context.selenic
+    builder = context.builder
 
     driver.get(builder.WED_SERVER + "/files.html")
 

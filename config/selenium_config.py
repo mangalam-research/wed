@@ -110,10 +110,16 @@ with open(os.path.join(dirname, "./browsers.txt")) as browsers:
             Config(*parts)
         else:
             raise ValueError("bad line: " + line)
-#
-# The config is obtained from the TEST_BROWSER environment variable.
-#
-browser_env = os.environ.get("TEST_BROWSER", None)
+
+# Support for older versions of our build setup which do not use builder_args
+if 'builder_args' not in globals():
+    builder_args = {
+        # The config is obtained from the TEST_BROWSER environment variable.
+        'browser': os.environ.get("TEST_BROWSER", None)
+    }
+
+# The 'browser' argument determines what browser we load.
+browser_env = builder_args.get('browser', None)
 if browser_env:
     # When invoked from a Jenkins setup, the spaces that would
     # normally appear in names like "Windows 8.1" will appear as

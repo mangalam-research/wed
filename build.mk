@@ -545,13 +545,15 @@ test-browser: build-config
 
 .PHONY: selenium-test
 selenium-test: build-config
-	python misc/check_selenium_config.py
+	behave $(BEHAVE_PARAMS) -D check_selenium_config=1 selenium_test
+# python misc/check_selenium_config.py
 	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: selenium_test/%.feature
 selenium_test/%.feature: build-config
-	python misc/check_selenium_config.py
+	behave $(BEHAVE_PARAMS) -D check_selenium_config=1 $@
+# python misc/check_selenium_config.py
 	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) $@
 

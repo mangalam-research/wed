@@ -99,7 +99,7 @@ def get_real_siblings(driver, element):
 def wait_for_editor(context, tooltips=False):
     util = context.util
     driver = context.driver
-    builder = context.selenic
+    builder = context.builder
     wedutil.wait_for_editor(util)
 
     context.origin_object = driver.execute_script("""

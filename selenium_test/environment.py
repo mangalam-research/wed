@@ -25,10 +25,8 @@ _dirname = os.path.dirname(__file__)
 conf_path = os.path.join(os.path.dirname(_dirname),
                          "build", "config", "selenium_config.py")
 
-builder = Builder(conf_path)
 
-
-def dump_config():
+def dump_config(builder):
     print("***")
     print(builder.config)
     print("***")
@@ -36,6 +34,7 @@ def dump_config():
 
 def cleanup(context, failed):
     driver = context.driver
+    builder = context.builder
 
     selenium_quit = context.selenium_quit
     actually_quit = not ((selenium_quit in ("never", "on-enter")) or
@@ -85,11 +84,12 @@ def cleanup(context, failed):
         context.server.send_signal(signal.SIGTERM)
         context.server = None
 
-    if context.selenic.post_execution:
-        context.selenic.post_execution()
+    if context.builder and context.builder.post_execution:
+        context.builder.post_execution()
 
 
 def start_server(context):
+    builder = context.builder
     port = outil.get_unused_port() if not builder.remote else \
         outil.get_unused_sauce_port()
 
@@ -159,17 +159,30 @@ def setup_screenshots(context):
 
 def before_all(context):
     atexit.register(cleanup, context, True)
-    dump_config()
+
+    # We set these to None explicity so that the cleanup code can run
+    # through without error. It assumes that these fields exist.
+    context.builder = None
+    context.driver = None
+    context.wm = None
+    context.display = None
+    context.server = None
+    context.tunnel = None
+    context.sc_tunnel_tempdir = None
+
     setup_screenshots(context)
+
+    context.selenium_quit = os.environ.get("SELENIUM_QUIT")
+    userdata = context.config.userdata
+    context.builder = builder = Builder(conf_path, userdata)
+    desired_capabilities = {}
+    ssh_tunnel = None
+    dump_config(builder)
+    if userdata.get("check_selenium_config", False):
+        exit(0)
 
     server_thread = start_server(context)
 
-    context.selenium_quit = os.environ.get("SELENIUM_QUIT")
-
-    context.tunnel = None
-    context.sc_tunnel_tempdir = None
-    desired_capabilities = {}
-    ssh_tunnel = None
     if not builder.remote:
         visible = context.selenium_quit in ("never", "on-success")
         context.display = Display(visible=visible, size=(1024, 768))
@@ -201,7 +214,6 @@ def before_all(context):
     context.util = selenic.util.Util(driver,
                                      # Give more time if we are remote.
                                      4 if builder.remote else 2)
-    context.selenic = builder
     # Without this, window sizes vary depending on the actual browser
     # used.
     context.initial_window_size = {"width": 1020, "height": 700}
@@ -225,7 +237,7 @@ def before_all(context):
     # the issue. This problem occurs only if we are using an SSH
     # tunnel rather than sauce connect.
     if ssh_tunnel and context.util.ie \
-       and context.selenic.config.version == "10":
+       and context.builder.config.version == "10":
         driver.get(builder.WED_SERVER + "/blank")
         # Tried using, execute_script. Did not seem to work.
         driver.get(
@@ -421,4 +433,4 @@ def after_all(context):
     print("Elapsed between before_all and after_all:",
           str(datetime.timedelta(seconds=time.time() - context.start_time)))
     cleanup(context, False)
-    dump_config()
+    dump_config(context.builder)

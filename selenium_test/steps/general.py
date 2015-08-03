@@ -19,7 +19,7 @@ from ..util import get_element_parent_and_parent_text, wait_for_editor
 def load_and_wait_for_editor(context, text=None, options=None,
                              tooltips=False, schema=None):
     driver = context.driver
-    builder = context.selenic
+    builder = context.builder
     server = builder.WED_SERVER + "/kitchen-sink.html?"
 
     query = {"mode": "test"}
@@ -281,7 +281,7 @@ def step_impl(context):
 
     # On IE 10 something causes the scroll to shift a tiny bit. It is
     # unclear what causes this.
-    if context.util.ie and int(context.selenic.config.version) <= 10:
+    if context.util.ie and int(context.builder.config.version) <= 10:
         assert_true(abs(scroll_top - new_scroll_top) <= 2,
                     "the scroll top should be within 2 pixels")
     else:
@@ -431,8 +431,8 @@ def step_impl(context):
 
 @given("the platform variation page is loaded")
 def step_impl(context):
-    config = context.selenic.config
-    context.driver.get(context.selenic.WED_SERVER +
+    config = context.builder.config
+    context.driver.get(context.builder.WED_SERVER +
                        "/platform_test.html?platform=" +
                        urllib.quote(config.platform) +
                        "&browser=" + urllib.quote(config.browser) +
@@ -485,8 +485,7 @@ _BROWSER_TO_VALUES = {
 
 @then("wed handles platform variations")
 def step_impl(context):
-    config = context.selenic.config
-    util = context.util
+    config = context.builder.config
 
     # Check that the parameters were properly passed.
     test_platform, test_browser, test_version = \
