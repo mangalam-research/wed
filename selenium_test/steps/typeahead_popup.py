@@ -1,6 +1,7 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from nose.tools import assert_equal, assert_true
+from selenic.util import Result, Condition
 
 step_matcher("re")
 
@@ -44,7 +45,18 @@ def step_impl(context, step, where=None):
     When the user clicks the choice named "Test typeahead"
     """)
 
-    util.find_element((By.CLASS_NAME, "wed-typeahead-popup"))
+    def check(driver):
+        ret = driver.execute_script("""
+        var input = document.querySelector(
+          '.wed-typeahead-popup input.tt-input');
+        if (!input)
+          return [false, "cannot find input element"];
+        return [document.activeElement === input, "input not focused"];
+        """)
+        return Result(ret[0], ret[1])
+
+    result = Condition(util, check).wait()
+    assert_true(result, result.payload)
 
 
 @then("the typeahead popup is not visible")
