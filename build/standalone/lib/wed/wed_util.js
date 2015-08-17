@@ -21,40 +21,124 @@ var closestByClass = domutil.closestByClass;
 
 var _indexOf = Array.prototype.indexOf;
 
+// Utility function for boundaryXY.
+function parentBoundary(node, root) {
+    var parent = node.parentNode;
+
+    // Cannot find a sensible boundary
+    if (!root.contains(parent))
+        return { left: 0, top: 0 };
+
+    return boundaryXY(makeDLoc(root,
+                               parent,
+                               _indexOf.call(parent.childNodes, node)));
+}
+
 function boundaryXY(boundary) {
     var node = boundary.node;
     var offset = boundary.offset;
     var node_type = node.nodeType;
 
+    var is_element = node_type === Node.ELEMENT_NODE;
+    var is_text = node_type === Node.TEXT_NODE;
+    var node_len;
+    if (is_element)
+        node_len = node.childNodes.length;
+    else if (is_text)
+        node_len = node.length;
+    else
+        throw new Error("unexpected node type: " + node_type);
+
     // The node is empty ...
-    if (((node_type === Node.ELEMENT_NODE) && (node.childNodes.length === 0)) ||
-        ((node_type === Node.TEXT_NODE) && (node.length === 0))) {
-        var parent = node.parentNode;
-        return boundaryXY(makeDLoc(boundary.root,
-                                   parent,
-                                   _indexOf.call(parent.childNodes, node)));
-    }
+    if (node_len === 0)
+        return parentBoundary(node, boundary.root);
 
     var range = node.ownerDocument.createRange();
     var rect;
-    if (((node_type === Node.ELEMENT_NODE) &&
-         (offset < node.childNodes.length)) ||
-        ((node_type === Node.TEXT_NODE) && (offset < node.length))) {
-        range.setStart(node, offset);
-        range.setEnd(node, offset + 1);
-        rect = range.getBoundingClientRect();
-        return {left: rect.left, top: rect.top};
+
+    var child;
+    while (offset < node_len) {
+        child = is_element ? node.childNodes[offset] : undefined;
+
+        // We use getClientRects()[0] so that when we are working with
+        // an inline node, we get only the first rect of the node. If
+        // the node is a block, then there should be only one rect
+        // anyway.
+        if (child && child.nodeType === Node.ELEMENT_NODE)
+            rect = child.getClientRects()[0];
+        else {
+            range.setStart(node, offset);
+            range.setEnd(node, offset + 1);
+
+            rect = range.getClientRects()[0];
+        }
+
+        // If the element that covers the range is invisible, then
+        // getClientRects can return undefined. A 0, 0, 0, 0 rect is
+        // also theoretically possible.
+        if (rect &&
+            (rect.left !== 0 || rect.right !== 0 || rect.top !== 0 ||
+             rect.bottom !== 0))
+            return {left: rect.left, top: rect.top};
+
+        offset++;
     }
 
-    // If it is not empty, and offset is at the end of the
-    // contents, then there must be something *before* the point
-    // indicated by offset. Get a rectangle around that and return
-    // the right side as the left value.
-    range.setStart(node, offset - 1);
-    range.setEnd(node, offset);
-    rect = range.getBoundingClientRect();
-    // Yep, we use the right side...
-    return {left: rect.right, top: rect.top};
+    // We failed to find something after our offset from which to get
+    // coordinates. Try again.
+    offset = boundary.offset;
+
+    while (offset) {
+        offset--;
+        child = undefined;
+
+        // We check whether the thing we are going to cover with the range
+        // is inline.
+        var inline;
+        if (is_text)
+            inline = true;
+        else if (is_element) {
+            child = node.childNodes[offset];
+            switch(child.nodeType) {
+            case Node.TEXT_NODE:
+                inline = true;
+                break;
+            case Node.ELEMENT_NODE:
+                var win = node.ownerDocument.defaultView;
+                var display =
+                        win.getComputedStyle(child).getPropertyValue("display");
+                inline = (display === "inline" || display === "inline-block");
+                break;
+            default:
+                throw new Error("unexpected node type: "  + child.nodeType);
+            }
+        }
+        else
+            throw new Error("unexpected node type: "  + node_type);
+
+        // If it is not empty, and offset is at the end of the
+        // contents, then there must be something *before* the point
+        // indicated by offset. Get a rectangle around that and return
+        // the right side as the left value.
+        var rects;
+        if (child && child.nodeType === Node.ELEMENT_NODE)
+            rects = child.getClientRects();
+        else {
+            range.setStart(node, offset);
+            range.setEnd(node, offset + 1);
+            rects = range.getClientRects();
+        }
+        rect = rects[rects.length - 1];
+        if (rect)
+            return (inline ?
+                    // Yep, we use the right side when it is inline.
+                    {left: rect.right, top: rect.top } :
+                    {left: rect.left, top: rect.bottom});
+    }
+
+    // We can get here with an offset of 0. In this case, we have to
+    // move to the parent.
+    return parentBoundary(node, boundary.root);
 }
 
 exports.boundaryXY = boundaryXY;

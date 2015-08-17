@@ -29,6 +29,7 @@ var makeDLoc = dloc.makeDLoc;
 var icon = require("./gui/icon");
 var wed_util = require("./wed_util");
 var tooltip = require("./gui/tooltip").tooltip;
+var guiroot = require("./guiroot");
 var getAttrValueNode = wed_util.getAttrValueNode;
 require("bootstrap");
 require("jquery.bootstrap-growl");
@@ -1288,8 +1289,12 @@ Editor.prototype._setupCompletionMenu = function () {
 
     var caret = this.getGUICaret();
     var node = caret.node;
-    var attr_val = closestByClass(node, "_attribute_value", this.gui_root);
+    var attr_val = closestByClass(node, "_attribute_value",
+                                  this.gui_root);
     if (attr_val) {
+        if (domutil.isNotDisplayed(attr_val, this.gui_root))
+            return;
+
         var doc = node.ownerDocument;
         var data_caret = this.getDataCaret();
         var data_node = data_caret.node;
@@ -1298,7 +1303,8 @@ Editor.prototype._setupCompletionMenu = function () {
             return;
         var mode = this.mode;
         var possible = [];
-        this.validator.possibleAt(data_caret.node, 0).forEach(function (ev) {
+        this.validator.possibleAt(data_caret.node, 0)
+            .forEach(function (ev) {
             if (ev.params[0] !== "attributeValue")
                 return;
 
@@ -1536,46 +1542,46 @@ Editor.prototype._refreshValidationErrors = function () {
         this._processValidationError(err);
 };
 
+
+// This is a utility function for _processValidationError. If the mode
+// is set to not display attributes or if a custom decorator is set to
+// not display a specific attribute, then finding the GUI location of
+// the attribute won't be possible. In such case, we want to fail
+// nicely rather than crash to the ground.
+//
+// (NOTE: What we're talking about is not the label visibility level
+// being such that attributes are not *seen* but have DOM elements for
+// them in the GUI tree. We're talking about a situation in which the
+// mode's decorator does not create DOM elements for the attributes.)
+//
+function findInsertionPoint(editor, node, index) {
+    try {
+        return editor.fromDataLocation(node, index);
+    }
+    catch (ex) {
+        if (ex instanceof guiroot.AttributeNotFound)
+            return editor.fromDataLocation(node.ownerElement, 0);
+
+        throw ex;
+    }
+}
+
 Editor.prototype._processValidationError = function (ev) {
     var error = ev.error;
     var data_node = ev.node;
     var index = ev.index;
-    var insert_at = this.fromDataLocation(data_node, index);
+
+    var insert_at = findInsertionPoint(this, data_node, index);
     insert_at = this._normalizeCaretToEditableRange(insert_at);
 
-    var link_id = util.newGenericID();
-    var $marker =
-            $(domutil.htmlToElements(
-                "<span class='_phantom wed-validation-error'>&nbsp;</span>",
-                insert_at.node.ownerDocument)[0]);
-
-    // If we are not using the navigation panel, then we should always show
-    // the error list.
-    if (this._$navigation_panel.css("display") === "none")
-        this.$error_list.parents('.panel-collapse').collapse('show');
-
-    $marker.click(log.wrap(function (ev) {
-        this.$error_list.parents('.panel-collapse').collapse('show');
-        var $link = this.$error_list.find("#" + link_id);
-        var $scrollable = this.$error_list.parent('.panel-body');
-        $scrollable.animate({
-            scrollTop: $link.offset().top - $scrollable.offset().top +
-                $scrollable[0].scrollTop
-        });
-        this.$widget.find('.wed-validation-error.selected').removeClass(
-                                                               'selected');
-        $(ev.currentTarget).addClass('selected');
-        $link.siblings().removeClass('selected');
-        $link.addClass('selected');
-    }.bind(this)));
-    var marker_id = $marker[0].id = util.newGenericID();
-    var loc = wed_util.boundaryXY(insert_at);
-    var scroller_pos = this._scroller.getBoundingClientRect();
-    $marker[0].style.top = loc.top - scroller_pos.top +
-        this._scroller.scrollTop + "px";
-    $marker[0].style.left = loc.left - scroller_pos.left +
-        this._scroller.scrollLeft + "px";
-    this._$error_layer.append($marker);
+    var invisible_attribute = false;
+    if (data_node.nodeType === Node.ATTRIBUTE_NODE) {
+        var node_to_test = insert_at.node;
+        if (node_to_test.nodeType === Node.TEXT_NODE)
+            node_to_test = node_to_test.parentNode;
+        if (domutil.isNotDisplayed(node_to_test, insert_at.root))
+            invisible_attribute = true;
+    }
 
     // Turn the expanded names back into qualified names.
     var names = error.getNames();
@@ -1586,21 +1592,75 @@ Editor.prototype._processValidationError = function (ev) {
             error instanceof validate.AttributeValueError);
     }
 
-    var item = domutil.htmlToElements(
-        "<li><a href='#" + marker_id + "'>" +
-            error.toStringWithNames(names) + "</li>",
-                 insert_at.node.ownerDocument)[0];
+    var item;
+    var link_id = util.newGenericID();
+    if (!invisible_attribute) {
+        var $marker =
+                $(domutil.htmlToElements(
+                    "<span class='_phantom wed-validation-error'>" +
+                        "&nbsp;</span>",
+                    insert_at.node.ownerDocument)[0]);
+
+        // If we are not using the navigation panel, then we should
+        // always show the error list.
+        if (this._$navigation_panel.css("display") === "none")
+            this.$error_list.parents('.panel-collapse').collapse('show');
+
+        $marker.mousedown(log.wrap(function (ev) {
+            this.$error_list.parents('.panel-collapse').collapse('show');
+            var $link = this.$error_list.find("#" + link_id);
+            var $scrollable = this.$error_list.parent('.panel-body');
+            $scrollable.animate({
+                scrollTop: $link.offset().top - $scrollable.offset().top +
+                    $scrollable[0].scrollTop
+            });
+            this.$widget.find('.wed-validation-error.selected')
+                .removeClass('selected');
+            $(ev.currentTarget).addClass('selected');
+            $link.siblings().removeClass('selected');
+            $link.addClass('selected');
+
+            // We move the caret ourselves and prevent further
+            // processing of this event. Older versions of wed let the
+            // event trickle up and be handled by the general caret
+            // movement code but that would sometimes result in a
+            // caret being put in a bad position.
+            this.setGUICaret(insert_at);
+            return false;
+        }.bind(this)));
+
+        var marker_id = $marker[0].id = util.newGenericID();
+        var loc = wed_util.boundaryXY(insert_at);
+        var scroller_pos = this._scroller.getBoundingClientRect();
+        $marker[0].style.top = loc.top - scroller_pos.top +
+            this._scroller.scrollTop + "px";
+        $marker[0].style.left = loc.left - scroller_pos.left +
+            this._scroller.scrollLeft + "px";
+        this._$error_layer.append($marker);
+
+        item = domutil.htmlToElements(
+            "<li><a href='#" + marker_id + "'>" +
+                error.toStringWithNames(names) + "</a></li>",
+            insert_at.node.ownerDocument)[0];
+
+        $(item.firstElementChild).click(log.wrap(function (ev) {
+            this.$widget.find('.wed-validation-error.selected').removeClass(
+                'selected');
+            $marker.addClass('selected');
+            var $parent = $(ev.currentTarget).parent();
+            $parent.siblings().removeClass('selected');
+            $parent.addClass('selected');
+        }.bind(this)));
+    }
+    else {
+        item = domutil.htmlToElements(
+            "<li>" + error.toStringWithNames(names) + "</li>",
+            insert_at.node.ownerDocument)[0];
+        item.title = "This error belongs to an attribute " +
+            "which is not currently displayed.";
+    }
+
     item.id = link_id;
-
-    $(item.firstElementChild).click(log.wrap(function (ev) {
-        this.$widget.find('.wed-validation-error.selected').removeClass(
-                                                               'selected');
-        $marker.addClass('selected');
-        var $parent = $(ev.currentTarget).parent();
-        $parent.siblings().removeClass('selected');
-        $parent.addClass('selected');
-    }.bind(this)));
-
     this.$error_list.append(item);
 };
 

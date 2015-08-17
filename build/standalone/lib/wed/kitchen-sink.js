@@ -63,6 +63,10 @@ function launch(text, file, options) {
 
             if (options_param === "fileDesc_insert_needs_input")
                 options.mode.options = { fileDesc_insert_needs_input: true };
+
+            if (options_param === "hide_attributes")
+                options.mode.options = { hide_attributes: true };
+
             window.wed_editor = new wed.Editor();
             window.wed_editor.init(widget, options, text);
         });

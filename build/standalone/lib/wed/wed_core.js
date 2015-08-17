@@ -24,7 +24,7 @@ var closestByClass = domutil.closestByClass;
 
 var _indexOf = Array.prototype.indexOf;
 
-exports.version = "0.24.2";
+exports.version = "0.24.3";
 var version = exports.version;
 
 /**
@@ -364,6 +364,13 @@ Editor.prototype.insertTransientPlaceholderAt = function (loc) {
 };
 
 Editor.prototype.toDataNode = function (node) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+        var ret = $.data(node, "wed_mirror_node");
+        // We can bypass the whole pathToNode, nodeToPath thing.
+        if (ret)
+            return ret;
+    }
+
     return this.data_updater.pathToNode(this.nodeToPath(node));
 };
 
