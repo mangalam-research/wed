@@ -13,7 +13,7 @@ from selenic.util import Result, Condition
 step_matcher("re")
 
 
-@when('^the user saves$')
+@when('the user saves')
 def step_impl(context):
     util = context.util
     util.ctrl_equivalent_x('S')
@@ -42,7 +42,14 @@ abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
 abcd \
 abcd abcd abcd abcd abcd abcd abcd abcd</p>\
 <p rend="rend_value" style="style_value">Blah</p><p rend="abc">Blah</p>\
-<p part="">Blah</p><div sample=""/><p rend="foo"/></body></text></TEI>""",
+<p part="">Blah</p><div sample=""/><p rend="foo"/><p><monogr>\
+This paragraph and its content are designed to test how error markers \
+are shown for inline elements that end up spanning multiple lines. \
+This paragraph and its content are designed to test how error markers \
+are shown for inline elements that end up spanning multiple lines. \
+This paragraph and its content are designed to test how error markers \
+are shown for inline elements that end up spanning multiple lines.\
+</monogr></p></body></text></TEI>""",
     "serializes multiple top namespaces properly": """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0" \
 xmlns:math="http://www.w3.org/1998/Math/MathML"><teiHeader><fileDesc>\
@@ -52,7 +59,7 @@ xmlns:math="http://www.w3.org/1998/Math/MathML"><teiHeader><fileDesc>\
 }
 
 
-@then('^the data saved is properly serialized$')
+@then('the data saved is properly serialized')
 def step_impl(context):
     util = context.util
 
@@ -85,7 +92,7 @@ def step_impl(context):
         assert_equal(result.payload[0], result.payload[1])
 
 
-@then(ur'^the modification status shows the document is unmodified$')
+@then(ur'the modification status shows the document is unmodified')
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""

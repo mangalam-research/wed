@@ -95,7 +95,7 @@ def step_impl(context):
     util.wait(condition)
 
 
-@when(u'^the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE)$')
+@when(u'the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE)')
 def step_impl(context, choice):
     driver = context.driver
     key = getattr(Keys, choice)
@@ -104,7 +104,7 @@ def step_impl(context, choice):
         .perform()
 
 
-@then(u'^the last letter of the element\'s text is deleted$')
+@then(u'the last letter of the element\'s text is deleted')
 def step_impl(context):
     driver = context.driver
     util = context.util
@@ -118,8 +118,8 @@ def step_impl(context):
     assert_equal(initial[:-1], final, "edited text")
 
 
-@then(ur'^the (?P<ordinal>first|second) (?P<what>".*?"|paragraph) in body has '
-      ur'the text "(?P<text>.*)"$')
+@then(ur'the (?P<ordinal>first|second) (?P<what>".*?"|paragraph) in body has '
+      ur'the text "(?P<text>.*)"')
 def step_impl(context, ordinal, what, text):
     util = context.util
     index = 0 if ordinal == "first" else 1
@@ -137,14 +137,14 @@ def step_impl(context, ordinal, what, text):
     util.wait(cond)
 
 
-@when(ur'^the user closes the pasting modal by accepting it$')
+@when(ur'the user closes the pasting modal by accepting it')
 def step_impl(context):
     button = context.util.find_element(
         (By.CSS_SELECTOR, ".modal.in .btn-primary"))
     button.click()
 
 
-@then(ur'^the text is pasted after the last paragraph$')
+@then(ur'the text is pasted after the last paragraph')
 def step_impl(context):
 
     def cond(driver):

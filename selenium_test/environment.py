@@ -17,6 +17,7 @@ from pyvirtualdisplay import Display
 # pylint: disable=E0611
 from nose.tools import assert_true, assert_false
 
+from behave.tag_matcher import ActiveTagMatcher
 from selenic import Builder, outil
 import selenic.util
 
@@ -25,17 +26,16 @@ _dirname = os.path.dirname(__file__)
 conf_path = os.path.join(os.path.dirname(_dirname),
                          "build", "config", "selenium_config.py")
 
-builder = Builder(conf_path)
 
-
-def dump_config():
-    print "***"
-    print builder.config
-    print "***"
+def dump_config(builder):
+    print("***")
+    print(builder.config)
+    print("***")
 
 
 def cleanup(context, failed):
     driver = context.driver
+    builder = context.builder
 
     selenium_quit = context.selenium_quit
     actually_quit = not ((selenium_quit in ("never", "on-enter")) or
@@ -85,11 +85,12 @@ def cleanup(context, failed):
         context.server.send_signal(signal.SIGTERM)
         context.server = None
 
-    if context.selenic.post_execution:
-        context.selenic.post_execution()
+    if context.builder and context.builder.post_execution:
+        context.builder.post_execution()
 
 
 def start_server(context):
+    builder = context.builder
     port = outil.get_unused_port() if not builder.remote else \
         outil.get_unused_sauce_port()
 
@@ -159,17 +160,54 @@ def setup_screenshots(context):
 
 def before_all(context):
     atexit.register(cleanup, context, True)
-    dump_config()
+
+    # We set these to None explicity so that the cleanup code can run
+    # through without error. It assumes that these fields exist.
+    context.builder = None
+    context.driver = None
+    context.wm = None
+    context.display = None
+    context.server = None
+    context.tunnel = None
+    context.sc_tunnel_tempdir = None
+
     setup_screenshots(context)
+
+    context.selenium_quit = os.environ.get("SELENIUM_QUIT")
+    userdata = context.config.userdata
+    context.builder = builder = Builder(conf_path, userdata)
+    desired_capabilities = {}
+    ssh_tunnel = None
+    dump_config(builder)
+    if userdata.get("check_selenium_config", False):
+        exit(0)
+
+    browser_to_tag_value = {
+        "INTERNETEXPLORER": "ie",
+        "CHROME": "ch",
+        "FIREFOX": "ff"
+    }
+
+    values = {
+        'browser': browser_to_tag_value[builder.config.browser],
+    }
+
+    platform = builder.config.platform
+    if platform.startswith("OS X "):
+        values['platform'] = 'osx'
+    elif platform.startswith("WINDOWS "):
+        values['platform'] = 'win'
+    elif platform == "LINUX" or platform.startswith("LINUX "):
+        values['platform'] = 'linux'
+
+    # We have some cases that need to match a combination of platform
+    # and browser
+    values['platform_browser'] = values['platform'] + "," + values['browser']
+
+    context.active_tag_matcher = ActiveTagMatcher(values)
 
     server_thread = start_server(context)
 
-    context.selenium_quit = os.environ.get("SELENIUM_QUIT")
-
-    context.tunnel = None
-    context.sc_tunnel_tempdir = None
-    desired_capabilities = {}
-    ssh_tunnel = None
     if not builder.remote:
         visible = context.selenium_quit in ("never", "on-success")
         context.display = Display(visible=visible, size=(1024, 768))
@@ -201,7 +239,6 @@ def before_all(context):
     context.util = selenic.util.Util(driver,
                                      # Give more time if we are remote.
                                      4 if builder.remote else 2)
-    context.selenic = builder
     # Without this, window sizes vary depending on the actual browser
     # used.
     context.initial_window_size = {"width": 1020, "height": 700}
@@ -225,7 +262,7 @@ def before_all(context):
     # the issue. This problem occurs only if we are using an SSH
     # tunnel rather than sauce connect.
     if ssh_tunnel and context.util.ie \
-       and context.selenic.config.version == "10":
+       and context.builder.config.version == "10":
         driver.get(builder.WED_SERVER + "/blank")
         # Tried using, execute_script. Did not seem to work.
         driver.get(
@@ -233,57 +270,6 @@ def before_all(context):
             "'overridelink')) && link.click())")
 
     context.start_time = time.time()
-
-FAILS_IF = "fails_if:"
-ONLY_FOR = "only_for:"
-
-
-def skip_if_needed(context, entity):
-    fails_if = []
-    for tag in entity.tags:
-        if tag.startswith(FAILS_IF):
-            fails_if.append(tag[len(FAILS_IF):])
-
-    for spec in fails_if:
-        if spec == "osx":
-            if context.util.osx:
-                entity.mark_skipped()
-        elif spec == "win,ff":
-            if context.util.windows and context.util.firefox:
-                entity.mark_skipped()
-        elif spec == "ie":
-            if context.util.ie:
-                entity.mark_skipped()
-        else:
-            raise ValueError("can't interpret fails_if:" + spec)
-
-    only_for = []
-    for tag in entity.tags:
-        if tag.startswith(ONLY_FOR):
-            only_for.append(tag[len(ONLY_FOR):])
-
-    for spec in only_for:
-        # Only implemented as much as needed here.
-        if spec == "ie":
-            if not context.util.ie:
-                entity.mark_skipped()
-        else:
-            raise ValueError("can't interpret only_for:" + spec)
-
-
-def before_feature(context, feature):
-    # Some tests cannot be performed on some OSes due to limitations
-    # in Selenium or the browser or the OS or what-have-you. There is
-    # no real equivalent available to perform these tests so we just
-    # skip them.
-
-    skip_if_needed(context, feature)
-
-    # If we're already skipping the feature, we don't need to check
-    # individual scenarios.
-    if not feature.should_skip:
-        for scenario in feature.scenarios:
-            skip_if_needed(context, scenario)
 
 
 def control(server, command, errmsg):
@@ -298,6 +284,10 @@ def reset(server):
 
 def before_scenario(context, scenario):
     driver = context.driver
+
+    if context.active_tag_matcher.should_exclude_with(scenario.effective_tags):
+        scenario.skip(reason="Disabled by an active tag")
+        return
 
     if context.behave_captions:
         # We send a comment as a "script" so that we get something
@@ -398,9 +388,9 @@ def after_step(context, step):
                             slugify(context.scenario.name + "_"
                                     + step.name) + ".png")
         driver.save_screenshot(name)
-        print
-        print "Captured screenshot:", name
-        print
+        print("")
+        print("Captured screenshot:", name)
+        print("")
 
     # Perform this query only if SELENIUM_LOGS is on.
     if context.selenium_logs:
@@ -408,17 +398,17 @@ def after_step(context, step):
         return window.selenium_log;
         """)
         if logs:
-            print
-            print "JavaScript log:"
-            print "\n".join(repr(x) for x in logs)
-            print
+            print("")
+            print("JavaScript log:")
+            print("\n".join(repr(x) for x in logs))
+            print("")
             driver.execute_script("""
             window.selenium_log = [];
             """)
 
 
 def after_all(context):
-    print "Elapsed between before_all and after_all:", \
-        str(datetime.timedelta(seconds=time.time() - context.start_time))
+    print("Elapsed between before_all and after_all:",
+          str(datetime.timedelta(seconds=time.time() - context.start_time)))
     cleanup(context, False)
-    dump_config()
+    dump_config(context.builder)

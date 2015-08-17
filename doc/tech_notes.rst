@@ -467,14 +467,14 @@ override or adds some values. For instance::
 
 Finally, to run the suite issue::
 
-    $ make selenium-test TEST_BROWSER=<platform>,<browser>,<version>
+    $ make selenium-test BEHAVE_PARAMS="-D browser=<platform>,<browser>,<version>"
 
 Behind the scenes, this will launch Behave. An instance of ``./server.js``
 will be launched automatically to respond to the requests of the
 browser that the test suite launches. See the makefile
 :github:`build.mk` for information about how behave is run.
 
-The ``TEST_BROWSER`` variable determines which browser will run the
+The ``browser`` variable determines which browser will run the
 test. You may omit any of ``platform``, ``browser`` or ``versions`` so
 long as the parts that are specified are enough to match a **single**
 configuration defined in :github:`config/selenium_config.py`. See the

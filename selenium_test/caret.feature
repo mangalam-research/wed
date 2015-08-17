@@ -60,7 +60,7 @@ Scenario: Cutting text.
   And the user cuts
   Then the text is cut
 
-@fails_if:osx
+@not.with_platform=osx
 Scenario: Pasting text.
   When the user selects the whole text of an element
   And the user cuts

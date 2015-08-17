@@ -4,6 +4,37 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.24.3:
+
+  - GUI: Bug fix: If a validation error occurred at the very end of a
+    document, wed would put the error marker outside the editing
+    pane. Moreover, clicking on such marker would put the caret in a
+    useless position. This has been fixed.
+
+  - GUI: Bug fix: If a validation error occurred in an attribute but
+    the attribute was not shown because the mode was set to hide all
+    attributes or because the mode happened to hide just *this*
+    attribute, it would result in a crash. This has been fixed.
+
+  - GUI: Bug fix: If a validation error occurred in an inline element
+    that spanned multiple lines, the error would appear in a bad
+    position. This has been fixed.
+
+  - GUI: Bug fix: When the label visibility level was reduced to 0,
+    attributes would no longer be shown. However, error in attributes
+    would still be shown in the list of errors. This resulted in being
+    able to click on an attribute error and get the caret in the
+    position of the attribute. Visually, it looked like the caret was
+    inside the element even though the caret was in the
+    attribute. This would result in confusion if the user tried to
+    enter text while the caret was there. This has been fixed so that
+    attributes error that point to invisible attributes are not linked
+    to their attributes. A tooltip is set on the error to indicate
+    what is going on.
+
+  - Internal: Optimized Editor.toDataNode so that it uses ``$.data``
+    whenever possible.
+
 * 0.24.2:
 
   - 0.24.1 had a packaging mistake. This release fixes it.

@@ -72,8 +72,8 @@ JQUERY_FILE=jquery-2.1.1.js
 BOOTSTRAP_URL=https://github.com/twbs/bootstrap/releases/download/v3.3.2/bootstrap-3.3.2-dist.zip
 BOOTSTRAP_BASE=$(notdir $(BOOTSTRAP_URL))
 
-FONTAWESOME_PATH=https://fortawesome.github.io/Font-Awesome/assets/font-awesome-4.3.0.zip
-FONTAWESOME_BASE=$(notdir $(FONTAWESOME_PATH))
+FONTAWESOME_PATH=https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.zip
+FONTAWESOME_BASE=Font-Awesome-$(patsubst v%,%,$(notdir $(FONTAWESOME_PATH)))
 
 TEXT_PLUGIN_FILE=https://raw.github.com/requirejs/text/latest/text.js
 TEXT_PLUGIN_BASE=$(notdir $(TEXT_PLUGIN_FILE))
@@ -240,10 +240,17 @@ build-standalone-optimized: build-standalone build/standalone-optimized build/st
 build/standalone-optimized/requirejs-config.js: build/config/requirejs-config-optimized.js | build/standalone-optimized
 	cp $< $@
 
-build/standalone-optimized: requirejs.build.js $(shell find build/standalone -type f) node_modules/requirejs/bin/r.js
+OPTIMIZED_STAMP:=build/standalone-optimized.stamp
+.PHONY: build/standalone-optimized
+build/standalone-optimized: requirejs.build.js node_modules/requirejs/bin/r.js
 # The || in the next command is because DELETE_ON_ERROR does not
 # delete *directories*. So we have to do it ourselves.
-	node_modules/requirejs/bin/r.js -o $< || (rm -rf $@ && exit 1)
+	find build/standalone -printf "%p %t %s\n" | sort > $(OPTIMIZED_STAMP).new
+	if [ ! -e $(OPTIMIZED_STAMP) ]; then touch $(OPTIMIZED_STAMP); fi
+	if ! cmp -s $(OPTIMIZED_STAMP) $(OPTIMIZED_STAMP).new; then \
+	  node_modules/requirejs/bin/r.js -o $< || (rm -rf $@ && exit 1); \
+	  mv $(OPTIMIZED_STAMP).new $(OPTIMIZED_STAMP); \
+        fi
 
 node_modules/requirejs/bin/r.js: | node_modules
 
@@ -350,7 +357,7 @@ downloads/$(BOOTSTRAP_BASE): | downloads
 	(cd downloads; $(WGET) -O $(BOOTSTRAP_BASE) '$(BOOTSTRAP_URL)')
 
 downloads/$(FONTAWESOME_BASE): | downloads
-	(cd downloads; $(WGET) '$(FONTAWESOME_PATH)')
+	(cd downloads; $(WGET) -O $(FONTAWESOME_BASE) '$(FONTAWESOME_PATH)')
 
 downloads/$(TEXT_PLUGIN_BASE): | downloads
 	(cd downloads; $(WGET) $(TEXT_PLUGIN_FILE))
@@ -407,10 +414,8 @@ build/standalone/lib/external/font-awesome: downloads/$(FONTAWESOME_BASE) | buil
 	-rm -rf $@
 	mkdir $@
 	unzip -d downloads/ $<
-	mv downloads/$(FONTAWESOME_BASE:.zip=)/* $@
+	cp -rp $(foreach d,css fonts,downloads/$(FONTAWESOME_BASE:.zip=)/$d) $@
 	rm -rf downloads/$(FONTAWESOME_BASE:.zip=)
-	rm -rf $@/scss
-	rm -rf $@/less
 	touch $@
 
 build/standalone/lib/external/jquery.bootstrap-growl.js: downloads/$(BOOTSTRAP_GROWL_BASE) | build/standalone/lib/external
@@ -426,17 +431,34 @@ endif
 build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
 
+#
+# We have to depend on the actual file to be copied ($2) and on the
+# package directory itself. The fact is that when npm installs a
+# package, it preserves the modification dates on the files. Consider:
+#
+# - June 1st: I ran make.
+#
+# - June 2nd: the package that contains $1 has a new version released.
+#
+# - June 3rd: I run make clean and make again. So $1 has a stamp of June 3rd.
+#
+# - June 4th: I upgrade the package that contains $1. I run make but
+#   it does not update $1 because $2 has a timestamp of June 2nd or
+#   earlier.
+#
+# Therefore I have to depend on the package itself too.
+#
 define SIMPLE_NODE_MODULES_TARGET
-$1: $2
+$1: $2$3 $2
 	-mkdir -p $$(dir $1)
 	cp $$< $$@
 
-$2: | node_modules
+$2$3: | node_modules
 endef
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/requirejs/require.js,node_modules/requirejs/require.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/requirejs/require.js,node_modules/requirejs,/require.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/typeahead.bundle.min.js,node_modules/typeahead.js/dist/typeahead.bundle.min.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/typeahead.bundle.min.js,node_modules/typeahead.js,/dist/typeahead.bundle.min.js))
 
 build/standalone/lib/requirejs/text.js: downloads/text.js | build/standalone/lib/requirejs
 	cp $< $@
@@ -455,23 +477,24 @@ endif
 	rm -rf $(dir $@)/log4javascript-*
 	touch $@
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/pubsub.js,node_modules/pubsub-js/src/pubsub.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/pubsub.js,node_modules/pubsub-js,/src/pubsub.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/localforage.js,node_modules/localforage/dist/localforage.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/localforage.js,node_modules/localforage,/dist/localforage.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/async.js,node_modules/async/lib/async.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/async.js,node_modules/async,/lib/async.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/angular.js,node_modules/angular/angular.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/angular.js,node_modules/angular,/angular.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/bootbox.js,node_modules/bootbox.js/bootbox.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/bootbox.js,node_modules/bootbox.js,/bootbox.js))
 
-$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/xregexp.js,node_modules/salve/node_modules/xregexp/xregexp-all.js))
+$(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/xregexp.js,node_modules/salve,/node_modules/xregexp/xregexp-all.js))
 
 # Lodash uses cp -rp so we don't use SIMPLE_NODE_MODULES_TARGET
 build/standalone/lib/external/lodash:
 	mkdir -p $@
 
 build/standalone/lib/external/lodash/%: node_modules/lodash-amd/% | build/standalone/lib/external/lodash
+	rm -rf $@
 	cp -rp $< $@
 
 node_modules/lodash-amd/%: | node_modules
@@ -522,13 +545,15 @@ test-browser: build-config
 
 .PHONY: selenium-test
 selenium-test: build-config
-	python misc/check_selenium_config.py
+	behave $(BEHAVE_PARAMS) -D check_selenium_config=1 selenium_test
+# python misc/check_selenium_config.py
 	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) selenium_test
 
 .PHONY: selenium_test/%.feature
 selenium_test/%.feature: build-config
-	python misc/check_selenium_config.py
+	behave $(BEHAVE_PARAMS) -D check_selenium_config=1 $@
+# python misc/check_selenium_config.py
 	$(MAKE) -f build.mk build build-test-files
 	behave $(BEHAVE_PARAMS) $@
 

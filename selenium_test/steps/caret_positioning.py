@@ -21,8 +21,8 @@ DIRECTION_TO_SPEC = {
 }
 
 
-@when(u"^the user clicks to the (?P<direction>right|left) of the "
-      ur"last (?P<what>.*?) element$")
+@when(u"the user clicks to the (?P<direction>right|left) of the "
+      ur"last (?P<what>.*?) element")
 def step_impl(context, direction, what):
     driver = context.driver
 
@@ -49,8 +49,8 @@ ORDER_TO_POS = {
 }
 
 
-@then(ur'^the caret is in the (?P<order>last|first|second) '
-      ur'"(?P<what>.*?)" element$')
+@then(ur'the caret is in the (?P<order>last|first|second) '
+      ur'"(?P<what>.*?)" element')
 def step_impl(context, order, what):
     driver = context.driver
     util = context.util
@@ -62,8 +62,8 @@ def step_impl(context, order, what):
     wedutil.wait_for_caret_to_be_in(util, el)
 
 
-@then(ur"^the (?P<label>end|start) label of the last (?P<what>.*?) "
-      ur"element is selected$")
+@then(ur"the (?P<label>end|start) label of the last (?P<what>.*?) "
+      ur"element is selected")
 def step_impl(context, label, what):
     driver = context.driver
 

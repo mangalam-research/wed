@@ -1,6 +1,6 @@
 # As of 2.41.0 this fails on Windows in FF.
 # See: https://code.google.com/p/selenium/issues/detail?id=7249
-@fails_if:win,ff
+@not.with_platform_browser=win,ff
 Feature: tooltips are displayed on labels
 
 Background: a simple document.

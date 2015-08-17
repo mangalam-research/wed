@@ -18,7 +18,7 @@ XML_CASES = [
 step_matcher("re")
 
 
-@then(u"^the innerHTML field of XML nodes produces valid values$")
+@then(u"the innerHTML field of XML nodes produces valid values")
 def step_impl(context):
     driver = context.driver
 

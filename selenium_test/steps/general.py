@@ -19,7 +19,7 @@ from ..util import get_element_parent_and_parent_text, wait_for_editor
 def load_and_wait_for_editor(context, text=None, options=None,
                              tooltips=False, schema=None):
     driver = context.driver
-    builder = context.selenic
+    builder = context.builder
     server = builder.WED_SERVER + "/kitchen-sink.html?"
 
     query = {"mode": "test"}
@@ -227,7 +227,7 @@ def step_impl(context, x):
 step_matcher("re")
 
 
-@when("^(?:the user )?scrolls the editor pane (?P<choice>completely )?down$")
+@when("(?:the user )?scrolls the editor pane (?P<choice>completely )?down")
 def step_impl(context, choice):
     driver = context.driver
     util = context.util
@@ -272,7 +272,7 @@ def step_impl(context, choice):
         util.wait(cond2)
 
 
-@then("^the editor pane did not scroll$")
+@then("the editor pane did not scroll")
 def step_impl(context):
     scroll_top = context.editor_pane_new_scroll_top
 
@@ -281,7 +281,7 @@ def step_impl(context):
 
     # On IE 10 something causes the scroll to shift a tiny bit. It is
     # unclear what causes this.
-    if context.util.ie and int(context.selenic.config.version) <= 10:
+    if context.util.ie and int(context.builder.config.version) <= 10:
         assert_true(abs(scroll_top - new_scroll_top) <= 2,
                     "the scroll top should be within 2 pixels")
     else:
@@ -289,15 +289,15 @@ def step_impl(context):
                      "the scroll top should not have changed")
 
 
-@given(ur"^a document containing a top level element, a p element, "
-       ur"and text.?$")
+@given(ur"a document containing a top level element, a p element, "
+       ur"and text\.?")
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
         text="/build/test-files/wed_test_data/source_converted.xml")
 
 
-@given(ur"^a document that has multiple top namespaces.?$")
+@given(ur"a document that has multiple top namespaces\.?")
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
@@ -306,7 +306,7 @@ def open_simple_doc(context):
         schema="@math")
 
 
-@given(ur"^a document with tooltips on")
+@given(ur"a document with tooltips on")
 def step_impl(context):
     load_and_wait_for_editor(
         context,
@@ -321,22 +321,29 @@ def step_impl(context):
             .perform()
 
 
-@given(ur"^a complex document without errors?$")
+@given(ur"a complex document without errors?")
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
         text="/build/test-files/wed_test_data/complex_converted.xml")
 
 
-@given(ur'^a document without "hi"$')
+@given(ur'a document without "hi"')
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
         text="/build/test-files/wed_test_data/nohi_converted.xml")
 
 
-@when(ur"^the user scrolls the window (?P<choice>completely down|down "
-      ur"by (?P<by>\d+))$")
+@given(ur'a document without "text"')
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        text="/build/test-files/wed_test_data/notext_converted.xml")
+
+
+@when(ur"the user scrolls the window (?P<choice>completely down|down "
+      ur"by (?P<by>\d+))")
 def step_impl(context, choice, by):
     driver = context.driver
     util = context.util
@@ -370,7 +377,7 @@ def step_impl(context, choice, by):
     context.window_scroll_left = util.window_scroll_left()
 
 
-@then(ur"^the window's contents does not move.?$")
+@then(ur"the window's contents does not move\.?")
 def step_impl(context):
     util = context.util
 
@@ -398,11 +405,10 @@ def step_impl(context):
     wedutil.wait_for_first_validation_complete(context.util)
 
 
-@given(r"^there is no (?P<what>.*)\.?$")
+@given(r"there is no (?P<what>.*)\.?")
 def step_impl(context, what):
     assert_equal(len(context.driver.find_elements_by_css_selector(
-        ".teiHeader")),
-        0)
+        ".teiHeader")), 0)
 
 
 @when("the user clicks in an element excluded from blur")
@@ -425,8 +431,8 @@ def step_impl(context):
 
 @given("the platform variation page is loaded")
 def step_impl(context):
-    config = context.selenic.config
-    context.driver.get(context.selenic.WED_SERVER +
+    config = context.builder.config
+    context.driver.get(context.builder.WED_SERVER +
                        "/platform_test.html?platform=" +
                        urllib.quote(config.platform) +
                        "&browser=" + urllib.quote(config.browser) +
@@ -479,8 +485,7 @@ _BROWSER_TO_VALUES = {
 
 @then("wed handles platform variations")
 def step_impl(context):
-    config = context.selenic.config
-    util = context.util
+    config = context.builder.config
 
     # Check that the parameters were properly passed.
     test_platform, test_browser, test_version = \
@@ -537,13 +542,13 @@ def step_impl(context):
         assert_true(result[u"result"], result[u"name"] + " should be true")
 
 
-@when(ur'^the user reloads$')
+@when(ur'the user reloads')
 def step_impl(context):
     context.driver.refresh()
 
 
-@then(ur'^(?P<what>an alert|a reload prompt) with the text "(?P<text>.*?)" '
-      ur'comes up$')
+@then(ur'(?P<what>an alert|a reload prompt) with the text "(?P<text>.*?)" '
+      ur'comes up')
 def step_impl(context, what, text):
     # Firefox does not allow changing the text of the prompt. So we
     # don't test for it. There is currently a bug in IEDriver. The IE
@@ -556,7 +561,7 @@ def step_impl(context, what, text):
     assert_equal(context.driver.switch_to.alert.text, text)
 
 
-@when(ur'^the user cancels the alert$')
+@when(ur'the user cancels the alert')
 def step_imp(context):
     context.driver.switch_to.alert.dismiss()
     # This is a workaround for a Selenium bug:
@@ -568,7 +573,7 @@ def step_imp(context):
             pass
 
 
-@when(ur'^(?:the user )?clicks the "(?P<text>.*?)" button$')
+@when(ur'(?:the user )?clicks the "(?P<text>.*?)" button')
 def step_impl(context, text):
     driver = context.driver
     button = driver.execute_script("""
@@ -581,12 +586,12 @@ def step_impl(context, text):
     button.click()
 
 
-@when(ur'^(?:the user )?clicks the link "(?P<text>.*?)"$')
+@when(ur'(?:the user )?clicks the link "(?P<text>.*?)"')
 def step_impl(context, text):
     context.util.find_element((By.LINK_TEXT, text)).click()
 
 
-@when('^the input field is focused$')
+@when('the input field is focused')
 def step_impl(context):
     context.driver.execute_script("""
     wed_editor._$input_field[0].focus();

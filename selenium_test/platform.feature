@@ -10,7 +10,7 @@ Scenario: Handle Platform Variations
   Given the platform variation page is loaded
   Then wed handles platform variations
 
-@only_for:ie
+@only.with_browser=ie
 Scenario: Check that innerHTML on XML nodes produces valid values.
   Given the platform variation page is loaded
   Then the innerHTML field of XML nodes produces valid values

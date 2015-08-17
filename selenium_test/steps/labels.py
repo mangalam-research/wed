@@ -18,7 +18,7 @@ def get_labels_stats(driver):
     """)
 
 
-@Given(ur"^the label visiblity level is at (?P<level>\d+).?$")
+@Given(ur"the label visiblity level is at (?P<level>\d+).?")
 def step_impl(context, level):
     driver = context.driver
     util = context.util
@@ -33,8 +33,8 @@ def step_impl(context, level):
     context.number_of_visible_labels = n_displayed
 
 
-@When(ur"^(?:the user )?(?P<choice>decreases|increases) the label visibility "
-      ur"level$")
+@When(ur"(?:the user )?(?P<choice>decreases|increases) the label visibility "
+      ur"level")
 def step_impl(context, choice):
     driver = context.driver
     util = context.util
@@ -63,7 +63,7 @@ def step_impl(context, choice):
     util.wait(lambda *_: wedutil.get_label_visibility_level(util) == expected)
 
 
-@Then("^no labels are visible$")
+@Then("no labels are visible")
 def step_impl(context):
     util = context.util
 
@@ -75,7 +75,7 @@ def step_impl(context):
     util.wait(cond)
 
 
-@Then("^more labels are visible$")
+@Then("more labels are visible")
 def step_impl(context):
     util = context.util
 
@@ -86,7 +86,7 @@ def step_impl(context):
     util.wait(cond)
 
 
-@Then("^the caret is at the same position on the screen.?$")
+@Then("the caret is at the same position on the screen\.?")
 def step_impl(context):
     driver = context.driver
 

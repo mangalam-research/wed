@@ -92,48 +92,65 @@ FW.prototype.create = function (done) {
             FetchExternalResources: ["script"],
             ProcessExternalResources: ["script"]
         },
+        loaded: function (error, w) {
+            assert.isNull(error, "window loading failed with error: " +
+                          error);
+
+            me.window = w;
+
+            // Replace default log to record what is going on.
+            w.console.log = function () {
+                me.log_buffer.push.apply(me.log_buffer, arguments);
+            };
+            // Replace the default alert.
+            w.alert = function () {
+                w.console.log.apply(w.console, arguments);
+            };
+
+            // Mock createRange for rangy.
+            w.document.createRange = function () {
+                var range = new Range();
+                range.setStart(w.document.body, 0);
+                range.setEnd(w.document.body, 0);
+                return range;
+            };
+
+            // Check that rangy loaded properly...
+            w.require(["rangy"], function (rangy) {
+                assert.isTrue(rangy.initialized, "rangy initialized.");
+                assert.isTrue(rangy.supported,
+                              "rangy supports our environment");
+
+                // Rangy won't be able to initialize its internal
+                // WrappedSelection module. That's fine.
+                assert.equal(me.log_buffer.length, 1);
+                assert.deepEqual(
+                    me.log_buffer[0],
+                    'Module \'WrappedSelection\' failed to load: ' +
+                        'Module \'WrappedSelection\' failed to load: Neither ' +
+                        'document.selection or window.getSelection() detected.'
+                );
+                me.log_buffer = []; // Flush
+            });
+        },
         done: function (error, w) {
+            //
+            // This detects and works around a bug in jsdom 3.x. The
+            // contains function may return ``0`` instead of
+            // ``false``.
+            //
+            var doc = w.document;
+            // Check whether the problem happens.
+            if (doc.body.contains(doc.body.parentNode) === 0) {
+                // Fix it.
+                var old_contains = w.Node.prototype.contains;
+                w.Node.prototype.contains = function (x) {
+                    return !!old_contains.call(this, x);
+                };
+            }
             assert.isNull(error, "window creation failed with error: " +
                           error);
-            w.addEventListener('load', function () {
-                me.window = w;
-
-                // Replace default log to record what is going on.
-                w.console.log = function () {
-                    me.log_buffer.push.apply(me.log_buffer, arguments);
-                };
-                // Replace the default alert.
-                w.alert = function () {
-                    w.console.log.apply(w.console, arguments);
-                };
-
-                // Mock createRange for rangy.
-                w.document.createRange = function () {
-                    var range = new Range();
-                    range.setStart(w.document.body, 0);
-                    range.setEnd(w.document.body, 0);
-                    return range;
-                };
-
-                // Check that rangy loaded properly...
-                w.require(["rangy"], function (rangy) {
-                    assert.isTrue(rangy.initialized, "rangy initialized.");
-                    assert.isTrue(rangy.supported,
-                                  "rangy supports our environment");
-
-                    // Rangy won't be able to initialize its internal
-                    // WrappedSelection module. That's fine.
-                    assert.equal(me.log_buffer.length, 1);
-                    assert.deepEqual(
-                        me.log_buffer[0],
-                        'Module \'WrappedSelection\' failed to load: ' +
-                            'Module \'WrappedSelection\' failed to load: Neither ' +
-                            'document.selection or window.getSelection() detected.'
-                    );
-                    me.log_buffer = []; // Flush
-                    done();
-                });
-            });
+            done();
         }
     });
 };
