@@ -90,6 +90,7 @@ with open(os.path.join(dirname, "./browsers.txt")) as browsers:
             continue  # Skip comments and blank lines
         parts = line.split(",")
         if len(parts) == 3:
+            parts = parts + [caps, False]
             Config(*parts)
         elif len(parts) == 4:
             assert parts[-1].upper() == "REMOTE"
