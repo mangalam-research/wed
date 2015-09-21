@@ -4,21 +4,19 @@
  * @copyright 2014 Mangalam Research Center for Buddhist Languages
  */
 'use strict';
-var jsdom = require("jsdom").jsdom;
+var jsdom = require("jsdom");
 var chai = require("chai");
 var assert = chai.assert;
 var path = require("path");
 
-var base_path = path.join(__dirname, '/../../../build/standalone/');
+var base_path = "file://" +
+        path.join(__dirname, '/../../../build/standalone/');
 
 /* jshint multistr: true */
 var html = '<html>\
   <head>\
     <base href="@BASE@"></base>\
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>\
-    <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>\
-    <script type="text/javascript" src="lib/wed/polyfills/firstElementChild_etc.js"></script>\
-    <script type="text/javascript" src="lib/external/classList.js"></script>\
     <script type="text/javascript" src="lib/requirejs/require.js"></script>\
     <script type="text/javascript" src="requirejs-config.js"></script>\
     <link rel="stylesheet" href="lib/external/bootstrap/css/bootstrap.min.css"></link>\
@@ -85,6 +83,14 @@ function FW() {
 
 FW.prototype.create = function (done) {
     var me = this;
+    me.log_buffer = [];
+    var vc = jsdom.createVirtualConsole();
+    vc.on("log", function () {
+        me.log_buffer.push(Array.prototype.slice.call(arguments));
+    });
+    vc.on("jsdomError", function (er) {
+       throw er;
+    });
     jsdom.env({
         html: html,
         url: base_path,
@@ -92,21 +98,12 @@ FW.prototype.create = function (done) {
             FetchExternalResources: ["script"],
             ProcessExternalResources: ["script"]
         },
-        loaded: function (error, w) {
-            assert.isNull(error, "window loading failed with error: " +
-                          error);
-
+        virtualConsole: vc,
+        created: function (error, w) {
+            assert.isNull(error);
+        },
+        onload: function (w) {
             me.window = w;
-
-            // Replace default log to record what is going on.
-            w.console.log = function () {
-                me.log_buffer.push.apply(me.log_buffer, arguments);
-            };
-            // Replace the default alert.
-            w.alert = function () {
-                w.console.log.apply(w.console, arguments);
-            };
-
             // Mock createRange for rangy.
             w.document.createRange = function () {
                 var range = new Range();
@@ -125,7 +122,7 @@ FW.prototype.create = function (done) {
                 // WrappedSelection module. That's fine.
                 assert.equal(me.log_buffer.length, 1);
                 assert.deepEqual(
-                    me.log_buffer[0],
+                    me.log_buffer[0][0],
                     'Module \'WrappedSelection\' failed to load: ' +
                         'Module \'WrappedSelection\' failed to load: Neither ' +
                         'document.selection or window.getSelection() detected.'
@@ -134,20 +131,6 @@ FW.prototype.create = function (done) {
             });
         },
         done: function (error, w) {
-            //
-            // This detects and works around a bug in jsdom 3.x. The
-            // contains function may return ``0`` instead of
-            // ``false``.
-            //
-            var doc = w.document;
-            // Check whether the problem happens.
-            if (doc.body.contains(doc.body.parentNode) === 0) {
-                // Fix it.
-                var old_contains = w.Node.prototype.contains;
-                w.Node.prototype.contains = function (x) {
-                    return !!old_contains.call(this, x);
-                };
-            }
             assert.isNull(error, "window creation failed with error: " +
                           error);
             done();

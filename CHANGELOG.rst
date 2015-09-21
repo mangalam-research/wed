@@ -4,6 +4,15 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.25:
+
+  - Going foward: wed cannot be developed with Node.js earlier than
+    version 4. Upgrading the development environment to 4 allows
+    upgrading some of the development tools to their latest
+    version. Supporting both Node 0.12 and Node 4 would be *doable*
+    but won't happen unless someone is willing to spend time
+    implementing it.
+
 * 0.24.3:
 
   - GUI: Bug fix: If a validation error occurred at the very end of a
