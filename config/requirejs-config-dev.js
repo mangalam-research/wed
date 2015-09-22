@@ -19,7 +19,8 @@ require.config({
    async: 'external/async',
    angular: 'external/angular',
    bootbox: 'external/bootbox',
-   typeahead: 'external/typeahead.bundle.min'
+   typeahead: 'external/typeahead.bundle.min',
+   urijs: 'external/urijs'
  },
  packages: [
      {

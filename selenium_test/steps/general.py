@@ -486,13 +486,18 @@ _BROWSER_TO_VALUES = {
 @then("wed handles platform variations")
 def step_impl(context):
     config = context.builder.config
+    util = context.util
 
-    # Check that the parameters were properly passed.
-    test_platform, test_browser, test_version = \
-        context.driver.execute_script("""
-        return [window.test_platform, window.test_browser,
-                window.test_version];
-        """)
+    def check(driver):
+        # Check that the parameters were properly passed.
+        ret = \
+            driver.execute_script("""
+return [window.test_platform, window.test_browser, window.test_version];
+            """)
+
+        return False if None in ret else ret
+
+    test_platform, test_browser, test_version = util.wait(check)
 
     assert_equal(test_platform, config.platform)
     assert_equal(test_browser, config.browser)

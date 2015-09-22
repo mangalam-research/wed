@@ -84,9 +84,6 @@ LOG4JAVASCRIPT_BASE=$(notdir $(LOG4JAVASCRIPT_FILE))
 BOOTSTRAP_GROWL_FILE=https://github.com/ifightcrime/bootstrap-growl/archive/v1.1.0.zip
 BOOTSTRAP_GROWL_BASE=bootstrap-growl-$(notdir $(BOOTSTRAP_GROWL_FILE))
 
-PURL_URL=https://github.com/allmarkedup/purl/archive/v2.3.1.zip
-PURL_BASE=purl-$(notdir $(PURL_URL))
-
 CLASSLIST_URL=https://github.com/eligrey/classList.js/archive/master.zip
 CLASSLIST_BASE=classList.zip
 
@@ -220,7 +217,7 @@ build/config/%:
 build-standalone: build-only-standalone build-ks-files build-config build-schemas build-samples build/ajax
 
 .PHONY: build-only-standalone
-build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js build/standalone/lib/external/typeahead.bundle.min.js build/standalone/lib/external/typeaheadjs.css
+build-only-standalone: $(STANDALONE_LIB_FILES) build/standalone/test.html build/standalone/wed_test.html build/standalone/mocha_frame.html build/standalone/files.html build/standalone/kitchen-sink.html build/standalone/platform_test.html build/standalone/requirejs-config.js build/standalone/lib/external/rangy build/standalone/lib/external/$(JQUERY_FILE) build/standalone/lib/external/bootstrap build/standalone/lib/requirejs/require.js build/standalone/lib/requirejs/text.js build/standalone/lib/salve build/standalone/lib/external/log4javascript.js build/standalone/lib/external/jquery.bootstrap-growl.js build/standalone/lib/external/font-awesome build/standalone/lib/external/pubsub.js build/standalone/lib/external/xregexp.js build/standalone/lib/external/classList.js $(LODASH_BUILD_FILES) build/standalone/lib/wed/build-info.js build/standalone/lib/external/localforage.js build/standalone/lib/external/async.js build/standalone/lib/external/angular.js build/standalone/lib/external/bootbox.js build/standalone/lib/external/typeahead.bundle.min.js build/standalone/lib/external/typeaheadjs.css build/standalone/lib/external/urijs
 
 # We produce a new build-info.js only if the files generated among
 # $(STANDALONE_LIB_FILES) have changed. Note that if we just upgrade
@@ -368,9 +365,6 @@ downloads/$(LOG4JAVASCRIPT_BASE): | downloads
 downloads/$(BOOTSTRAP_GROWL_BASE): | downloads
 	(cd downloads; $(WGET) -O $(BOOTSTRAP_GROWL_BASE) $(BOOTSTRAP_GROWL_FILE))
 
-downloads/$(PURL_BASE): | downloads
-	(cd downloads; $(WGET) -O $(PURL_BASE) $(PURL_URL))
-
 downloads/$(CLASSLIST_BASE): | downloads
 	(cd downloads; $(WGET) -O $(CLASSLIST_BASE) $(CLASSLIST_URL))
 
@@ -432,9 +426,13 @@ build/standalone/lib/requirejs: | build/standalone/lib
 	-mkdir $@
 
 #
-# We have to depend on the actual file to be copied ($2) and on the
-# package directory itself. The fact is that when npm installs a
-# package, it preserves the modification dates on the files. Consider:
+# $1: target
+# $2: the package that contains the source file
+# $3: path of the source file relative to $2.
+#
+# We have to depend on the actual file to be copied and on the package
+# directory itself. The fact is that when npm installs a package, it
+# preserves the modification dates on the files. Consider:
 #
 # - June 1st: I ran make.
 #
@@ -489,6 +487,10 @@ $(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/bootbox.j
 
 $(eval $(call SIMPLE_NODE_MODULES_TARGET,build/standalone/lib/external/xregexp.js,node_modules/salve,/node_modules/xregexp/xregexp-all.js))
 
+build/standalone/lib/external/urijs: node_modules/urijs/src
+	rm -rf $@
+	cp -rp $< $@
+
 # Lodash uses cp -rp so we don't use SIMPLE_NODE_MODULES_TARGET
 build/standalone/lib/external/lodash:
 	mkdir -p $@
@@ -522,11 +524,6 @@ node_modules/salve/lib/salve: | node_modules
 
 build/ks:
 	mkdir $@
-
-build/ks/purl.js: downloads/$(PURL_BASE) | build/ks
-	rm -rf $@
-	unzip -j -d $(dir $@) $< */$(notdir $@)
-	touch $@
 
 .PHONY: test
 test: test-node test-browser

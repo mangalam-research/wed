@@ -3,7 +3,6 @@
   <head>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
     <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
-    <script type="text/javascript" src="../ks/purl.js"></script>
     <script type="text/javascript" src="lib/requirejs/require.js"></script>
     <script type="text/javascript" src="requirejs-config.js"></script>
   </head>
@@ -62,7 +61,7 @@
       }
 
       require(["jquery", "mocha/mocha", "chai", "browser_test/global",
-               "wed/onerror",
+               "wed/onerror", "urijs/URI",
                "browser_test/validator_test",
                "browser_test/jquery.findandself_test",
                "browser_test/domutil_test",
@@ -72,7 +71,7 @@
                "browser_test/updater_domlistener_test",
                "browser_test/convert_test",
                "browser_test/transformation_test"],
-              function ($, mocha, chai, global, onerror) {
+              function ($, mocha, chai, global, onerror, URI) {
           var assert = chai.assert;
 
           // Reset the server before doing anything.
@@ -110,7 +109,7 @@
               });
           });
 
-          var nohtml = purl().param('nohtml');
+          var nohtml = new URI().query(true).nohtml;
 
           var ReporterBase = !nohtml ? mocha.Mocha.reporters.HTML :
               mocha.Mocha.reporters.Base;
