@@ -840,6 +840,53 @@ Classes Used by Wed
 ``_end_wrapper``:
   Like ``_start_wrapper`` but marks the end.
 
+``_readonly``:
+  Marks an element or attribute that cannot be edited.
+
+Possible Due to Wildcard
+========================
+
+As explained in :ref:`complex_name_patterns`, wed *can* handle the
+name patterns ``NsName`` and ``AnyName`` for the purpose of validating
+a document but will not allow editing such elements. In order to limit
+this editing, during validation wed must set a flag on every element
+and attribute to indicate whether the element's or attribute's
+existence is only possible due to a wildcard. Then, the GUI rendering
+part of wed listens to changes to this flag and adds or remove the CSS
+class ``_readonly`` to the GUI elements that render the original XML
+element. This is specifically designed to avoid having the decorator
+refresh elements because this can get pretty expensive.
+
+Note that it is not possible to set the flag once and for all on an
+element and never change it.  Suppose the following Relax NG::
+
+    start = element a { element q { empty }, any+ }
+    any = element * { any* }
+
+The file ``<a><q/><q/></a>``. The first ``q`` validates because of
+``element q`` in the schema. The second one because of ``any+``. If
+the first ``q`` is removed, then the 2nd ``q`` will become first and
+will validate because of ``element q``. In other words, the deletion
+of the first ``q`` *changes the reason* the second ``q`` is deemed
+valid. So the second ``q`` would be first flagged to be valid due to a
+wildcard, and then after the edit, the flag could be made
+false. Starting with a document that has ony one ``q`` and adding
+another ``q`` in front of it would also cause the flag to change, but
+the other way around.
+
+.. warning:: There may be ways to optimize the whole process so as to
+             allow more substantial functionality than a CSS change
+             but any such change should be considered very
+             carefully. For instance, one may think that we could just
+             have rendering code call the validator to perform a check
+             on each element. Calling the validator from rendering
+             code *is possible* but has a significant impact on
+             performance. And it is tricky. If one is not careful, it
+             is possible to create an infinite loop: rendering causes
+             validation, which emits validation events, which cause
+             rendering, which casues validation, which emits events...
+
+
 Browser Issues
 ==============
 

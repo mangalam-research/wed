@@ -1,3 +1,6 @@
+Upgrade to lodash 4.0. Both salve and wed should upgrade at the same
+   time for the sake of keeping things simple.
+
 Misc
 ====
 

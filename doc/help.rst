@@ -1002,6 +1002,91 @@ On the other hand, if you feel the urge to write an email saying "You
 should just...", then please abstain because there is nothing "just"
 about testing web applications.
 
-..  LocalWords:  toolbars NG Ctrl tooltip autosave autosaves biblFull
+.. _complex_name_patterns:
+
+Complex Name Patterns
+=====================
+
+When you open the contextual menu to check what it is possible to
+insert in a document you may see a menu item with an exclamation mark,
+labeled "Complex name pattern". What's the deal?
+
+Brief Explanation
+-----------------
+
+In brief, this occurs if the Relax NG schema uses a wildcard (so to
+speak) that allows an unlimited number of possibilities for the name
+of an element or of an attribute. (Or a set of possibilities that
+cannot be expressed as a set of positive matches.)  Wed is capable to
+validate such documents. However its capability to edit them is
+currently limited. Wed will actually mark as **read only** elements
+and attributes that are allowed only due to a wildcard. These may not
+be modified in wed. The menu item that wed shows is a warning that the
+schema allows for more than what wed is able to do. If this is a
+problem for you, you should contact whoever provides you with
+technical support to discuss the problem. You may direct them to read
+the explanation that follows.
+
+Long Technical Explanation
+--------------------------
+
+A Relax NG schema normally constrains the set of possible valid
+structures to a limited set. Take the following schema::
+
+    start = element a { (element b { empty } | element c { empty })+ }
+
+If we have finished reading the start tag for ``a``, then there are
+only two possibilities: either a start tag for the element named ``b``
+or a start tag for the element named ``c``. However, Relax NG allows
+schemas that effectively say "any element is fine here". For instance::
+
+    start = element a { any+ }
+    any = element * { any* }
+
+The ``*`` that appears after the second ``element`` tells the
+validator that any element name is possible. With this schema, once
+we've processed the start tag for element ``a``, then it is possible
+to encounter any element whatsoever. This is a problem for wed
+because, in addition to validation, it provides *guided* editing.
+
+For now, we've decided that wed will not support such patterns in
+editing. Why? In our experience, these patterns are normally used to
+provide opportunities to expand a schema. An excellent example is
+DocBook, which has provisions for including XML structures encoded
+according to the MathML or SVG schemas. From the standpoint of
+validating the document it makes good sense to have the DocBook schema
+declare that some elements will allow any element, provided that they
+come from the MathML or SVG namespaces. There are scenarios where it
+is not necessary to know anything about MathML or SVG. This is fine
+insofar as validation is concerned.
+
+However, when *editing* to add a MathML section to a DocBook document,
+there's a problem. Suppose a user wants to add a formula encoded with
+MathML to a DocBook document, and user is using the default DocBook
+schema. The only thing wed has to help the editing is "any element
+from MathML is valid here", because this is what the default schema
+says. What are the consequences?
+
+* First, wed is unable to check that the MathML is in fact *valid
+MathML*. The DocBook schema does not contain any information regarding
+what is valid MathML. It allows anything and everything, so long as it
+is declared to be in the MathML namespace. It therefore allows
+constructs that may not be valid MathML. (Note that wed is just
+following what the *schema specifies*, no more, no less.)
+
+* Second, wed would have to prompt the user for every element and
+attribute name. For every MathML element to be added, the user would
+get a dialog box and have to enter an element's name, because wed has
+no finite set of options to choose from. Editing becomes a slog.
+
+We've estimated that it is not worth adding to wed any facilities to
+support scenarios like the one just described. If someone wants to
+edit DocBook documents that allow MathML, they should provide wed with
+a DocBook schema that has been merged with the MathML schema so that
+the final schema uses the actual elements specified by MathML rather
+than say "anything from MathML is valid here". This takes care of the
+problems mentioned above.
+
+..  LocalWords: toolbars NG Ctrl tooltip autosave autosaves biblFull
 ..  LocalWords:  notesStmt TEI xml kbd ESC localStorage github Attr
 ..  LocalWords:  ownerElement

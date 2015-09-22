@@ -9,8 +9,12 @@ html =
   }
 head = element head { title }
 title = element title { text }
-body = element body { empty | (text | em)+ }
+body = element body { empty | ((text | em)+, any*) }
 em = element em {
    (empty | (text | em)+),
    attribute foo { text }?
+}
+any = element * {
+    attribute * { text }*,
+    (any | text)*
 }

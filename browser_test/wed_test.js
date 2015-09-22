@@ -104,6 +104,45 @@ function activateContextMenu(editor, el) {
     editor.$gui_root.trigger(event);
 }
 
+function contextMenuHasOption(editor, pattern, expected_count) {
+    if (expected_count === 0)
+        throw new Error("it makes no sense to call contextMenuHasOption " +
+                        "with an expected_count of 0");
+    var menu = editor.my_window.document.getElementsByClassName(
+        "wed-context-menu")[0];
+    assert.isDefined(menu, "the menu should exist");
+    var items = menu.querySelectorAll("li>a");
+    var found = 0;
+    for(var i = 0, item; (item = items[i]) !== undefined; ++i) {
+        if (pattern.test(item.textContent.trim()))
+            found++;
+
+        if (!expected_count && found)
+            break;
+    }
+
+    if (!expected_count)
+        assert.isTrue(found > 0, "should have found the option");
+    else
+        assert.equal(found, expected_count,
+                     "should have seen the option a number of times equal " +
+                     "to the expected count");
+}
+
+function contextMenuHasAttributeOption(editor) {
+    contextMenuHasOption(editor, /^Add @/);
+}
+
+function contextMenuHasNoTransforms(editor) {
+    var menu = editor.my_window.document.getElementsByClassName(
+        "wed-context-menu")[0];
+    assert.isDefined(menu, "the menu should exist");
+    var items = menu.querySelectorAll("li[data-kind]");
+    assert.equal(items.length, 0, "there should be no items that can " +
+                 "transform the document");
+}
+
+
 describe("wed", function () {
     describe("(state-sensitive)", function () {
         // These are tests that required a brand new editor. Since it
@@ -2021,6 +2060,196 @@ describe("wed", function () {
                                   "the list of markers should be new");
         });
 
+        describe("", function () {
+            before(function() {
+                var new_options = $.extend(true, {}, option_stack[0]);
+                new_options.schema = '../../../schemas/simplified-rng.js';
+                option_stack.unshift(new_options);
+                src_stack.unshift(
+                    '../../test-files/wed_test_data/wildcard_converted.xml');
+            });
+
+            after(function () {
+                option_stack.shift();
+                src_stack.shift();
+            });
+
+            it("marks elements and attributes allowed due to wildcards as " +
+               "readonly", function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                var bar = editor.data_root.querySelector("bar");
+                var bar_gui = editor.fromDataLocation(bar, 0).node;
+                assert.isTrue(bar_gui.classList.contains("_readonly"));
+                var attr_names = getAttributeNamesFor(bar_gui);
+                var attr_name;
+                for(var ix = 0; (attr_name = attr_names[ix]); ++ix) {
+                    if (attr_name.textContent === "foo:baz")
+                        break;
+                }
+                var attr = attr_name.closest("._attribute");
+                assert.isTrue(attr.classList.contains("_readonly"));
+            });
+
+            it("prevents typing in readonly elements and attributes",
+               function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                var bar = editor.data_root.querySelector("bar");
+                var bar_gui = editor.fromDataLocation(bar, 0).node;
+                assert.isTrue(bar_gui.classList.contains("_readonly"));
+
+                editor.setDataCaret(bar, 0);
+                editor.type("foo");
+                assert.equal(bar.textContent, "abc");
+
+                var attr_names = getAttributeNamesFor(bar_gui);
+                var attr_name;
+                for(var ix = 0; (attr_name = attr_names[ix]); ++ix) {
+                    if (attr_name.textContent === "foo:baz")
+                        break;
+                }
+                var attr = attr_name.closest("._attribute");
+                assert.isTrue(attr.classList.contains("_readonly"));
+
+                var foo_baz = bar.attributes["foo:baz"];
+                editor.setDataCaret(foo_baz, 0);
+                editor.type("foo");
+                assert.equal(foo_baz.value, "x");
+
+                // We drop the _readonly classes to make sure that
+                // we're testing what we think we're testing. Note
+                // that the classes will be added right back as we
+                // change the file because it is revalidated. This is
+                // why we type only one character.
+                bar_gui.classList.remove("_readonly");
+                attr.classList.remove("_readonly");
+
+                editor.setDataCaret(foo_baz, 0);
+                editor.type("f");
+                assert.equal(foo_baz.value, "fx");
+
+                bar_gui.classList.remove("_readonly");
+                editor.setDataCaret(bar, 0);
+                editor.type("f");
+                assert.equal(bar.textContent, "fabc");
+            });
+
+            it("prevents pasting in readonly elements and attributes",
+               function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                var initial = editor.data_root.querySelector("bar");
+                var initial_gui = editor.fromDataLocation(initial, 0).node;
+                assert.isTrue(initial_gui.classList.contains("_readonly"));
+                editor.setDataCaret(initial, 0);
+                var initial_value = initial.textContent;
+
+                // Synthetic event
+                var event = new $.Event("paste");
+                // Provide a skeleton of clipboard data
+                var originalEvent = event.originalEvent = {
+                    clipboardData: {
+                        types: ["text/plain"],
+                        getData: function (type) {
+                            return "a";
+                        }
+                    }
+                };
+                editor.$gui_root.trigger(event);
+                assert.equal(initial.textContent, initial_value);
+                dataCaretCheck(editor, initial, 0, "final position");
+
+                // Check that removing _readonly would make the paste
+                // work. This proves that the only thing that was
+                // preventing pasting was _readonly.
+                initial_gui.classList.remove("_readonly");
+                editor.setDataCaret(initial, 0);
+
+                // We have to create a new event.
+                event = new $.Event("paste");
+                event.originalEvent = originalEvent;
+                editor.$gui_root.trigger(event);
+                assert.equal(initial.textContent, "a" + initial_value);
+                dataCaretCheck(editor, initial.firstChild, 4, "final position");
+            });
+
+            it("prevents cutting from readonly elements", function (done) {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                var initial = editor.data_root.querySelector("bar");
+                var initial_gui = editor.fromDataLocation(initial, 0).node;
+                assert.isTrue(initial_gui.classList.contains("_readonly"));
+                var initial_value = initial.textContent;
+
+                var gui_start = editor.fromDataLocation(initial.firstChild, 1);
+                editor.setGUICaret(gui_start);
+                var range = gui_start.makeRange(
+                    editor.fromDataLocation(initial.firstChild, 2)).range;
+                rangy.getSelection(editor.my_window).setSingleRange(range);
+
+                // Synthetic event
+                var event = new $.Event("cut");
+                editor.$gui_root.trigger(event);
+                window.setTimeout(function () {
+                    assert.equal(initial.textContent, initial_value);
+                    // Try again, after removing _readonly so that we
+                    // prove the only reason the cut did not work is
+                    // that _readonly was present.
+                    initial_gui.classList.remove("_readonly");
+                    event = new $.Event("cut");
+                    editor.$gui_root.trigger(event);
+                    window.setTimeout(function () {
+                        assert.equal(initial.textContent,
+                                     initial_value.slice(0, 1) +
+                                     initial_value.slice(2));
+                        done();
+                    }, 1);
+                }, 1);
+            });
+
+            it("a context menu has the complex pattern action, when "  +
+               "invoked on an element allowed due to a complex pattern",
+               function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector("._readonly ._element_name"));
+                contextMenuHasOption(editor, /Complex name pattern/, 1);
+            });
+
+            it("a context menu has the complex pattern action, when " +
+               "invoked on an attribute allowed due to a complex pattern",
+               function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector(
+                        "._readonly ._attribute_value"));
+                contextMenuHasOption(editor, /Complex name pattern/, 1);
+            });
+
+
+            it("a context menu invoked on a readonly element has no " +
+               "actions that can transform the document",
+               function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector("._readonly ._element_name"));
+                contextMenuHasNoTransforms(editor);
+            });
+
+            it("a context menu invoked on a readonly attribute has no " +
+               "actions that can transform the document",
+               function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                activateContextMenu(
+                    editor,
+                    editor.gui_root.querySelector(
+                        "._readonly ._attribute_value"));
+                contextMenuHasNoTransforms(editor);
+            });
+
+
+        });
+
         describe("interacts with the server:", function () {
             before(function () {
                 src_stack.unshift("../../test-files/wed_test_data" +
@@ -2462,23 +2691,6 @@ describe("wed", function () {
             editor._dismissDropdownMenu();
         });
 
-        function contextMenuHasOption(pattern) {
-            var menu = editor.my_window.document.getElementsByClassName(
-                "wed-context-menu")[0];
-            assert.isDefined(menu, "the menu should exist");
-            var items = menu.querySelectorAll("li>a");
-            var found = false;
-            for(var i = 0, item; !found &&
-                        (item = items[i]) !== undefined;
-                ++i) {
-                found = pattern.test(item.textContent.trim());
-            }
-            assert.isTrue(found, "should have found the option");
-        }
-
-        var contextMenuHasAttributeOption =
-            contextMenuHasOption.bind(undefined, /^Add @/);
-
         describe("has context menus", function () {
             it("with attribute options, when invoked on a start label",
                function () {
@@ -2486,7 +2698,7 @@ describe("wed", function () {
                     editor,
                     editor.gui_root.querySelector(
                         ".__start_label._title_label ._element_name"));
-                contextMenuHasAttributeOption();
+                contextMenuHasAttributeOption(editor);
             });
 
             it("with attribute options, when invoked in an attribute",
@@ -2495,7 +2707,7 @@ describe("wed", function () {
                     editor,
                     editor.gui_root.querySelector(
                         ".__start_label._p_label ._attribute_value"));
-                contextMenuHasAttributeOption();
+                contextMenuHasAttributeOption(editor);
             });
         });
 
@@ -2506,7 +2718,7 @@ describe("wed", function () {
                 var attr_vals = getAttributeValuesFor(p);
                 editor.setGUICaret(attr_vals[0].firstChild, 0);
                 // This is an arbitrary menu item we check for.
-                contextMenuHasOption(/^Y$/);
+                contextMenuHasOption(editor, /^Y$/);
             });
         });
 
