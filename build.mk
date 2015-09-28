@@ -193,10 +193,7 @@ build-deployment:: build $(BUILD_DEPLOYMENT_TARGET).phony
 	done
 
 .PHONY: build
-build: $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone build/jenkins-matrix.properties
-
-build/jenkins-matrix.properties: build/config/selenium_config.py misc/dump_selenium_configs.py
-	python ./misc/dump_selenium_configs.py --jenkins > $@
+build: $(and $(OPTIMIZE_BY_DEFAULT),build-standalone-optimized) build-standalone
 
 .PHONY: build-config
 build-config: $(CONFIG_TARGETS) | build/config
