@@ -3,7 +3,7 @@
 /downloads
 /build
 /schemas/out
-/local.mk
+/gulp.local.js
 /test_logs
 /*.html
 *_flymake.*

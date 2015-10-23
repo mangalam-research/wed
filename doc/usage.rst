@@ -265,33 +265,41 @@ subdirectory, except for some documentation files like
 ``README.html`` and ``CHANGELOG.html``, which are in the root
 directory.
 
-For now, wed uses a ``Makefile`` and associated ``build.mk`` to build
-itself. You might want to create a ``local.mk`` file to record
-settings specific to your own build environment. See the start of the
-:github:`build.mk` to see what variables you can set. When everything
-is set, run::
+Wed uses gulp to build itself. You may want to create a
+``gulp.local.js`` file to record settings specific to your own build
+environment. Run ``gulp --help`` to see what variables you can
+set. Note that the variable names when use on the command line have
+dashes where they would have underscore in ``gulp.local.js``. For
+instance, on the command line you'd use ``--jsdoc3-default-template``
+to set the path to the jsdoc3 default template but in
+``gulp.local.js`` it would be ``jsdoc3_default_template``. Also note
+that your ``gulp.local.js`` file should return a single anonymous
+object whose fields are the values you want to set. For instance::
 
-    $ make
+  module.export = {
+      jsdoc3_default_template: "foo"
+  };
 
-.. warning:: If you get a failure please try issuing ``make`` a second
-             time. There are some (rare) usage scenarios in which make
-             can get confused about its dependencies. A second run
-             clears it up.
+When everything is set, install gulp locally (``npm install gulp``)
+and run::
 
-The Makefile will download external packages (like jquery and
-Bootstrap) and place them in ``downloads/``. It will then create a
-tree of files that could be served by a web server. The files will be
-in ``build/standalone/``. As the name "standalone" implies, this build
+    $ gulp
+
+Gulp will install locally some packages with ``npm`` and download some
+external packages that cannot be installed with ``npm`` for whatever
+reason and place them in ``downloads/``. It will then create a tree of
+files that could be served by a web server. The files will be in
+``build/standalone/``. As the name "standalone" implies, this build
 includes **everything** needed to run wed on your own server, except
 the configuration for RequireJS.
 
-Make will additionally create an optimized version of wed in
+Gulp will additionally create an optimized version of wed in
 ``build/standalone-optimized/``. This is a version that has been
 optimized using RequireJS's ``r.js`` optimizer. This optimization
 exists for illustration purposes and for testing wed. See the
-:ref:`tech_notes_deployment_considerations` section in :doc:`tech_notes` to
-determine whether this is the optimization you want to use to deploy
-wed.
+:ref:`tech_notes_deployment_considerations` section in
+:doc:`tech_notes` to determine whether this is the optimization you
+want to use to deploy wed.
 
 Testing
 =======

@@ -391,11 +391,11 @@ Browser-Independent Tests
 
 To run the tests that are not browser-dependent do::
 
-    $ make test-node
+    $ gulp test-node
 
 These tests are located in the ``test/`` directory off the wed
 root. You can also run ``mocha``
-directly from the command line but having ``make`` build the ``test``
+directly from the command line but having ``gulp`` build the ``test``
 target will trigger a build to ensure that the tests are run against
 the latest code.
 
@@ -411,7 +411,7 @@ In-Browser Tests
 
 You can run these tests from the command line by running::
 
-  $ make test-browser
+  $ gulp test-browser
 
 The browser-dependent tests are located in the ``browser_test/``
 directory off the wed root. These tests are run by launching
@@ -467,12 +467,12 @@ override or adds some values. For instance::
 
 Finally, to run the suite issue::
 
-    $ make selenium-test BEHAVE_PARAMS="-D browser=<platform>,<browser>,<version>"
+    $ gulp selenium-test --behave-params="-D browser=<platform>,<browser>,<version>"
 
 Behind the scenes, this will launch Behave. An instance of ``./server.js``
 will be launched automatically to respond to the requests of the
-browser that the test suite launches. See the makefile
-:github:`build.mk` for information about how behave is run.
+browser that the test suite launches. See the gulpfile
+:github:`gulpfile.babel.js` for information about how behave is run.
 
 The ``browser`` variable determines which browser will run the
 test. You may omit any of ``platform``, ``browser`` or ``versions`` so
@@ -713,11 +713,11 @@ when the user wants to **edit** a composed character rather than
 delete or add text. Suppose that we are editing the string "livré" to
 read "livre". The way to do it without composition is in two
 operations: delete the "é" and insert "e" (or in the reverse order).
-However, with composition a character can be transformed into another character
-by one atomic change on the data. A composition method could make the
-change by replacing "é" with "e" as one operation, without there being
-a deletion followed by an insertion. The character itself is
-transformed.
+However, with composition a character can be transformed into another
+character by one atomic change on the data. A composition method could
+make the change by replacing "é" with "e" as one operation, without
+there being a deletion followed by an insertion. The character itself
+is transformed.
 
 What wed currently does is capture all keydown and keypress events
 that are capturable to edit the data tree and **cancel** the default

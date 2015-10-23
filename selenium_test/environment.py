@@ -177,8 +177,6 @@ def before_all(context):
     desired_capabilities = {}
     ssh_tunnel = None
     dump_config(builder)
-    if userdata.get("check_selenium_config", False):
-        exit(0)
 
     setup_screenshots(context)
 

@@ -13,6 +13,8 @@ Only salient changes are recorded here.
     but won't happen unless someone is willing to spend time
     implementing it.
 
+  - Wed now uses Gulp for building, rather than make.
+
 * 0.24.3:
 
   - GUI: Bug fix: If a validation error occurred at the very end of a
