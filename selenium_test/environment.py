@@ -171,8 +171,6 @@ def before_all(context):
     context.tunnel = None
     context.sc_tunnel_tempdir = None
 
-    setup_screenshots(context)
-
     context.selenium_quit = os.environ.get("SELENIUM_QUIT")
     userdata = context.config.userdata
     context.builder = builder = Builder(conf_path, userdata)
@@ -181,6 +179,8 @@ def before_all(context):
     dump_config(builder)
     if userdata.get("check_selenium_config", False):
         exit(0)
+
+    setup_screenshots(context)
 
     browser_to_tag_value = {
         "INTERNETEXPLORER": "ie",
@@ -374,9 +374,8 @@ def before_step(context, step):
     if context.behave_captions:
         # We send a comment as a "script" so that we get something
         # in the record of Selenium commands.
-        context.driver.execute_script("// STEP: " + step.keyword + " "
-                                      + step.name +
-                                      "\n")
+        context.driver.execute_script("// STEP: " + step.keyword + " " +
+                                      step.name + "\n")
     if context.behave_wait:
         time.sleep(context.behave_wait)
 
@@ -385,8 +384,8 @@ def after_step(context, step):
     driver = context.driver
     if step.status == "failed":
         name = os.path.join(context.screenshots_dir_path,
-                            slugify(context.scenario.name + "_"
-                                    + step.name) + ".png")
+                            slugify(context.scenario.name + "_" +
+                                    step.name) + ".png")
         driver.save_screenshot(name)
         print("")
         print("Captured screenshot:", name)
