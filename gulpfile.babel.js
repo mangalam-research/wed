@@ -277,6 +277,8 @@ npm_copy_task("classlist", "classlist-polyfill/src/index.js",
 
 npm_copy_task("salve/lib/salve/**", "salve");
 
+npm_copy_task("interact.js/dist/interact.min.js");
+
 gulp.task("build-info", Promise.coroutine(function* () {
     const dest = "build/standalone/lib/wed/build-info.js";
     const is_newer = yield newer(["lib/**", "!**/*_flymake.*"], dest);

@@ -20,7 +20,8 @@ require.config({
    angular: 'external/angular',
    bootbox: 'external/bootbox',
    typeahead: 'external/typeahead.bundle.min',
-   urijs: 'external/urijs'
+   urijs: 'external/urijs',
+   interact: 'external/interact.min'
  },
  packages: [
      {

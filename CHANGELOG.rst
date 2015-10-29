@@ -13,7 +13,13 @@ Only salient changes are recorded here.
     but won't happen unless someone is willing to spend time
     implementing it.
 
-  - Wed now uses Gulp for building, rather than make.
+  - Wed now uses Gulp for building, rather than ``make``.
+
+  - API/GUI: Wed now allow the creation of draggable and resizable
+    windows. ``Editor.makeModal`` is now allowing an ``options``
+    argument to speicfy whether the modals are draggable and
+    resizable. Wed's stock modals are not usually resizable or
+    draggable but modes may want to create such modals.
 
 * 0.24.3:
 

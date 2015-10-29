@@ -25,6 +25,7 @@
             ],
             exclude: [
                 "jquery",
+                "interact",
                 "bootstrap",
                 "log4javascript",
                 "jquery.bootstrap-growl",
