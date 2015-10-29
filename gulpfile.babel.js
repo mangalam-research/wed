@@ -550,20 +550,35 @@ const test_browser = {
 
 const test = sequence("test", test_node, test_browser);
 
+// Features is an optional array of features to run instead of running
+// all features.
+function selenium(features) {
+    let args = (options.behave_params ?
+                  shell.parse(options.behave_params) : []);
+
+    // We check what we obtained from `behave_params` too, just in
+    // case someone is trying to select a specific feature though
+    // behave_params.
+    if (args.filter((x) => /\.feature$/.test(x)).length === 0 && !features) {
+        args.push("selenium_test");
+    }
+
+    if (features)
+        args = features.concat(args);
+
+    return spawn("behave", args, { stdio: 'inherit' });
+
+}
+
 const selenium_test = {
     name: "selenium-test",
     deps: ['build', 'build-test-files'],
-    func: () => {
-        const args = (options.behave_params ?
-                      shell.parse(options.behave_params) : []);
-
-        if (args.filter((x) => /\.feature$/.test(x)).length === 0) {
-            args.push("selenium_test");
-        }
-
-        return spawn("behave", args, { stdio: 'inherit' });
-    }
+    func: () => selenium()
 };
+
+for (let feature of glob.sync("selenium_test/*.feature")) {
+    gulp.task(feature, selenium_test.deps, () => selenium([feature]));
+}
 
 const dist_notest = {
     name: "dist-notest",
