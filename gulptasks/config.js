@@ -55,10 +55,6 @@ export const option_definitions = {
         type: Boolean,
         defaultValue: true
     },
-    jsdoc3_default_template: {
-        help: "Path to jsdoc 3's default template.",
-        defaultValue: "node_modules/jsdoc/templates/default"
-    },
     force_gh_pages_build: {
         help: `Force the gh-pages target to run even if not on the
 main branch`,
