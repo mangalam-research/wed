@@ -550,6 +550,63 @@ describe("validator", function () {
             });
         });
 
+        describe("handles namespace attributes", function () {
+            var data;
+            before(function(done) {
+                to_parse_stack.unshift(
+                    '../../test-files/validator_test_data/' +
+                        'multiple_namespaces_on_same_node_converted.xml');
+                require(["requirejs/text!" + to_parse_stack[0]],
+                        function(data_) {
+                    data = data_;
+                    done();
+                });
+            });
+
+            after(function () {
+                to_parse_stack.shift();
+            });
+
+            function makeTest(name, stop_fn, top) {
+                it(name, function (done) {
+                    var tree = top || parser.parseFromString(data,
+                                                             "application/xml");
+                    var p = new validator.Validator(
+                        "../../../schemas/tei-simplified-rng.js", tree);
+                    p.initialize(function () {
+                        try {
+                            stop_fn(p, tree);
+                            done();
+                        }
+                        catch (e) {
+                            done(e);
+                        }
+                    });
+                });
+            }
+
+            makeTest("up to an xmlns node", function (p, tree) {
+                // This tests that validating up to an xmlns attribute
+                // is not causing an error.
+                var el = tree.getElementsByTagName("TEI")[0];
+                var attribute = el.attributes.xmlns;
+                var walker = p._getWalkerAt(attribute, 0, false);
+                var evs = walker.possible();
+                assert.equal(p._errors.length, 0);
+            });
+
+            makeTest("up to an xmlns:... node", function (p, tree) {
+                // This tests that validating up to an xmlns:... attribute
+                // is not causing an error.
+                var el = tree.getElementsByTagName("TEI")[0];
+                var attribute = el.attributes["xmlns:foo"];
+                var walker = p._getWalkerAt(attribute, 0, false);
+                var evs = walker.possible();
+                assert.equal(p._errors.length, 0);
+            });
+
+        });
+
         describe("caches", function () {
             var data;
             before(function(done) {

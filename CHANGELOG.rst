@@ -21,7 +21,7 @@ Only salient changes are recorded here.
     resizable. Wed's stock modals are not usually resizable or
     draggable but modes may want to create such modals.
 
-  - Bug fix: An embarrassing mistake made it so that adding new
+  - Internal: Bug fix: An embarrassing mistake made it so that adding new
     attributes to an element never worked correctly, as the attriubte
     name was mangled. This has been fixed.
 
@@ -31,6 +31,10 @@ Only salient changes are recorded here.
     whenever touch events are available. This causes Bootstrap to add
     a backdrop to capture clicks outside dropdowns, which causes
     problems with our context menus. The problem has been fixed.
+
+  - Internal: Bug fix: Clicking onto an attribute appearing after a
+    namespace attribute would cause a spurious error to be
+    reported. This has been fixed.
 
 * 0.24.3:
 
