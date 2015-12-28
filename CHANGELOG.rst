@@ -25,6 +25,13 @@ Only salient changes are recorded here.
     attributes to an element never worked correctly, as the attriubte
     name was mangled. This has been fixed.
 
+  - GUI: Bug fix: The march of progress made it so that Chrome is now
+    better able to detect whether touch events are available. This, in
+    turn, causes Bootstrap to assume it is on a mobile platform
+    whenever touch events are available. This causes Bootstrap to add
+    a backdrop to capture clicks outside dropdowns, which causes
+    problems with our context menus. The problem has been fixed.
+
 * 0.24.3:
 
   - GUI: Bug fix: If a validation error occurred at the very end of a

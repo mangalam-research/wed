@@ -138,9 +138,26 @@ if browser_env:
         # --ignore-certificate-errors
         #
         # --test-type is an **experimental** option. Reevaluate this
-        # --use.
+        # use.
         #
         CHROME_OPTIONS.add_argument("test-type")
+
+        #
+        # We force touch-events to be enabled. Why? At some point
+        # along the line, Chrome gained the ability to tell whether
+        # there is touch-enabled hardware on Debian. It is unclear
+        # what gave it this capability. (It is not based on Chrome's
+        # version as version 43 used to not detect touch capabilities
+        # on Debian but later gained the capability. Is it an upgrade
+        # to Gnome that made the difference??)
+        #
+        # Bootstrap does things differently depending on whether touch
+        # events are available or not. Unfortunately an Xvfb session
+        # won't report touch to be available even if the host X server
+        # supports it. So we force it to be able to test for it. Touch
+        # is becoming mainstream.
+        #
+        CHROME_OPTIONS.add_argument("touch-events")
 
     profile = FirefoxProfile()
     # profile.set_preference("webdriver.log.file",
