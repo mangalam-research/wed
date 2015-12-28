@@ -21,6 +21,10 @@ Only salient changes are recorded here.
     resizable. Wed's stock modals are not usually resizable or
     draggable but modes may want to create such modals.
 
+  - Bug fix: An embarrassing mistake made it so that adding new
+    attributes to an element never worked correctly, as the attriubte
+    name was mangled. This has been fixed.
+
 * 0.24.3:
 
   - GUI: Bug fix: If a validation error occurred at the very end of a

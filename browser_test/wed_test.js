@@ -1040,6 +1040,7 @@ describe("wed", function () {
             var data_node = editor.toDataNode(attr_vals[0]);
             assert.isTrue(!!data_node);
             assert.equal(data_node.value, "");
+            assert.equal(data_node.name, "abbr");
 
         });
 
