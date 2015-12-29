@@ -25,6 +25,10 @@ Only salient changes are recorded here.
     attributes to an element never worked correctly, as the attriubte
     name was mangled. This has been fixed.
 
+  - Internal: Bug fix: Clicking onto an attribute appearing after a
+    namespace attribute would cause a spurious error to be
+    reported. This has been fixed.
+
   - GUI: Bug fix: The march of progress made it so that Chrome is now
     better able to detect whether touch events are available. This, in
     turn, causes Bootstrap to assume it is on a mobile platform
@@ -32,9 +36,10 @@ Only salient changes are recorded here.
     a backdrop to capture clicks outside dropdowns, which causes
     problems with our context menus. The problem has been fixed.
 
-  - Internal: Bug fix: Clicking onto an attribute appearing after a
-    namespace attribute would cause a spurious error to be
-    reported. This has been fixed.
+  - GUI: Bug fix: When a document is saved, the save status acquires a
+    tooltip that indicates what kind of save happened most recently
+    (autosave, manual save). A bug prevented the tooltip from being
+    updated correctly. This has been fixed.
 
 * 0.24.3:
 

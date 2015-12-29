@@ -212,6 +212,10 @@ describe("wed", function () {
                 assert.equal(
                     editor._$save_status.children('span').text(),
                     "moments ago");
+                // We also check the tooltip text.
+                assert.equal(
+                    editor._$save_status.data('bs.tooltip').getTitle(),
+                    "The last save was a manual save.");
                 done();
             });
             editor.type(key_constants.CTRLEQ_S);
@@ -230,6 +234,39 @@ describe("wed", function () {
                 assert.equal(
                     editor._$save_status.children('span').text(),
                     "moments ago");
+                // We also check the tooltip text.
+                assert.equal(
+                    editor._$save_status.data('bs.tooltip').getTitle(),
+                    "The last save was an autosave.");
+                done();
+            });
+
+            editor.validator._validateUpTo(editor.data_root, -1);
+            // Text node inside title.
+            var initial = editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            editor.setGUICaret(initial, 0);
+            editor.type(" ");
+            editor._saver.setAutosaveInterval(50);
+        });
+
+        it("has a save status tooltip is updated after a different kind of " +
+           "save occurs", function (done) {
+            editor.addEventListener("autosaved", function () {
+                // We check the initial tooltip text.
+                assert.equal(
+                    editor._$save_status.data('bs.tooltip').getTitle(),
+                    "The last save was an autosave.");
+
+                // Now perform a save.
+                editor.type(key_constants.CTRLEQ_S);
+            });
+
+            editor.addEventListener("saved", function () {
+                // We check the tooltip changed.
+                assert.equal(
+                    editor._$save_status.data('bs.tooltip').getTitle(),
+                    "The last save was a manual save.");
                 done();
             });
 
