@@ -21,6 +21,12 @@ Only salient changes are recorded here.
     resizable. Wed's stock modals are not usually resizable or
     draggable but modes may want to create such modals.
 
+  - GUI: Attribute values are now shown in black on a white
+    background. This emphasises the values relative to the rest of an
+    element label and has for effect to distinguish a double quote
+    appearing in a value from a double quote as attribute value
+    delimiter.
+
   - Internal: Bug fix: An embarrassing mistake made it so that adding new
     attributes to an element never worked correctly, as the attriubte
     name was mangled. This has been fixed.
