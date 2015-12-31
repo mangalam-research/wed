@@ -47,6 +47,15 @@ Only salient changes are recorded here.
     (autosave, manual save). A bug prevented the tooltip from being
     updated correctly. This has been fixed.
 
+  - GUI: Bug fix: The default trigger for tooltips is a combination of
+    ``focus`` and ``hover``. The earlier versions of Bootstrap had a
+    bug that made it so that the combination did not work
+    correctly. Wed was inadvertently depending on this bug. 3.3.5
+    fixed the Bootstrap bug, which changed the behavior that wed was
+    depending on and thus caused problems in wed. The issue has been
+    fixed.
+
+
 * 0.24.3:
 
   - GUI: Bug fix: If a validation error occurred at the very end of a
