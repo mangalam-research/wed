@@ -49,7 +49,7 @@
         "headless": ">=1.0.0 <2",
         "babel-core": ">= 5.8.25, <6",
         "jquery": ">=2.0.0 <3",
-        "bootstrap": ">=3.3.2 <3.4",
+        "bootstrap": ">=3.3.6 <3.4",
         "font-awesome": ">=4.4.0 <4.5",
         "requirejs-text": ">=2.0.12 <3",
         "classlist-polyfill": ">=1.0.2 <2",
