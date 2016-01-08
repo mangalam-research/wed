@@ -601,3 +601,28 @@ def step_impl(context):
     context.driver.execute_script("""
     wed_editor._$input_field[0].focus();
     """)
+
+
+@then("a help dialog is visible")
+def step_impl(context):
+    head = context.util.find_element(
+        (By.CSS_SELECTOR, ".modal.in .modal-header h3"))
+    assert_equal(head.text, "Help")
+
+
+@when('the user clicks the help link in the dialog')
+def step_impl(context):
+    context.handles_before_help_link_click = context.driver.window_handles
+    link = context.util.find_element(
+        (By.CSS_SELECTOR, ".modal.in .modal-body a"))
+    link.click()
+
+
+@then("the help opens in a new tab")
+def step_impl(context):
+
+    def check(driver):
+        return len(driver.window_handles) == \
+            len(context.handles_before_help_link_click) + 1
+
+    context.util.wait(check)

@@ -95,7 +95,7 @@ def step_impl(context):
     util.wait(condition)
 
 
-@when(u'the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE)')
+@when(u'the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE|F1)')
 def step_impl(context, choice):
     driver = context.driver
     key = getattr(Keys, choice)

@@ -20,7 +20,7 @@ import * as config from "./gulptasks/config";
 import { internals } from "./gulptasks/config";
 import * as util from "./gulptasks/util";
 import { same_files, del, newer, exec, execFile, touchAsync, cprp,
-         cprpdir, spawn, exists_in_file, sequence, mkdirpAsync, fs }
+         cprpdir, spawn, exists_in_file, sequence, mkdirpAsync, fs}
 from "./gulptasks/util";
 import requireDir from "require-dir";
 import rjs from "requirejs";
@@ -82,7 +82,7 @@ gulp.task("config", () => {
         .pipe(gulp.dest(dest));
 });
 
-let build_deps = ["build-standalone"];
+let build_deps = ["build-standalone", "build-bundled-doc"];
 if (options.optimize)
     build_deps.push("build-standalone-optimized");
 gulp.task("build", build_deps);
@@ -318,6 +318,37 @@ gulp.task("build-standalone",
               "build-html",
               "build-info"),
           () => mkdirpAsync('build/ajax'));
+
+gulp.task("build-bundled-doc", ["build-standalone"],
+          Promise.coroutine(function *() {
+    // The strategy here is to remove everything except what is in the
+    // help.rst ifle, which becomes index.rst and is modified to deal
+    // with a theme bug.
+
+    const stamp = util.stamp_path("bundled-doc");
+    const build_bundled_doc = "build/bundled-doc";
+    const standalone_doc = "build/standalone/doc";
+
+    const is_newer = yield newer("doc/**/*", stamp);
+
+    if (!is_newer) {
+        gutil.log("Skipping generation of bundled documentation.");
+        return;
+    }
+
+    yield del([build_bundled_doc, standalone_doc]);
+    yield cprp("doc", build_bundled_doc);
+
+    // help.rst becomes our index.rst.
+    yield cprp("doc/help.rst", path.join(build_bundled_doc, "index.rst"));
+
+    // Then we keep only the index and make that.
+    yield del(["*.rst", "!index.rst"], { cwd: build_bundled_doc });
+    yield exec(`make -C ${build_bundled_doc} html`);
+    yield fs.renameAsync(path.join(build_bundled_doc, "_build/html"),
+                         standalone_doc);
+    yield touchAsync(stamp);
+}));
 
 gulp.task("build-optimized-config", ["config"],
           Promise.coroutine(function* () {

@@ -15,6 +15,9 @@ Only salient changes are recorded here.
 
   - Wed now uses Gulp for building, rather than ``make``.
 
+  - GUI: Wed now has a real help page accessible through the help
+    dialog (``F1``).
+
   - API/GUI: Wed now allow the creation of draggable and resizable
     windows. ``Editor.makeModal`` is now allowing an ``options``
     argument to speicfy whether the modals are draggable and
