@@ -1,3 +1,4 @@
+====================
 Advanced Usage Notes
 ====================
 
@@ -415,7 +416,7 @@ You can run these tests from the command line by running::
 
 The browser-dependent tests are located in the ``browser_test/``
 directory off the wed root. These tests are run by launching
-``server.js`` with the option ``runner``. This starts a server that
+``./server.js`` with the option ``runner``. This starts a server that
 can:
 
 - Serve wed's files.
@@ -429,7 +430,7 @@ tests to be run in the browser. The browser is run in ``Xvfb`` so that
 it does not appear on the desktop.
 
 If you need to run the server to perform diagnosis on failing tests,
-you can ``server.js browser``. This will launch the browser on your
+you can ``./server.js browser``. This will launch the browser on your
 desktop and start the tests. The browser and server will remain
 running until you kill them.
 

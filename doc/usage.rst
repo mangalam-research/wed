@@ -1,5 +1,6 @@
-Basic Usage
-===========
+===========================
+Using Wed in an Application
+===========================
 
 Wed is a schema-aware editor for XML documents. It runs in a web
 browser. The software is at the beta stage. It is being used in a
@@ -309,19 +310,29 @@ See :doc:`tech_notes`.
 Local Demos
 ===========
 
+The demos, you must have a minimal server running just like the one
+needed to run the browser-dependent test suite (see the
+:ref:`tech_notes_in_browser_tests` section in :doc:`tech_notes`). To
+run a server suitable for the demos, you should do::
+
+    $ ./server.js server localhost:8888 &
+
+The address and port ``localhost:8888`` is just a suggestion, but the
+link in the documentation below assume that's the address used.
+
 Demo Saving to Local Storage
 ----------------------------
 
 The demo that uses your own browser's local storage is ready to use
-once wed is built.
+once wed is built. Once ther server is started, point your browser to
+`<http://localhost:8888/build/standalone/files.html>`_ or
+`<http://localhost:8888/build/standalone-optimized/files.html>`_. The
+2nd link is to the optimized application.
 
 Demos Saving to a Server
 ------------------------
 
-To see this demo, you must have a minimal server running just like the
-one needed to run the browser-dependent test suite (see the
-:ref:`tech_notes_in_browser_tests` section in :doc:`tech_notes`) and
-then point your browser to either:
+Once the server is started, point your browser to either:
 
 * `<http://localhost:8888/build/standalone/kitchen-sink.html>`_ to
   view the demo with the unoptimized file tree.
@@ -331,50 +342,17 @@ then point your browser to either:
   to view the demo with an optimized file tree.
 
 The demo currently starts with an empty document using a vanilla TEI
-schema. Things you can do:
+schema. See :doc:`help` to learn what wed can do, in general.
 
-* Hit F1 to get help. This help also displays the information
-  regarding how and when the wed instance you are using was built.
+When you save with this demo, the data is currently dumped into a file
+located at ``build/ajax/save.txt``. You won't be able to reload data
+from that file. For full functionality wed needs to be used with a
+server able to save the data and serve it intelligently.
 
-* Use the left mouse button to bring up a context menu. Such a menu
-  exists for starting tags and all positions that are editable. This
-  menu allows inserting elements. Ctrl-/ also brings up this menu.
-
-* Insert text where text is valid.
-
-* Ctrl-[ to reduce the :ref:`label visibility <label_visibility>` level.
-
-* Ctrl-[ to increase the label visibility level.
-
-* Ctrl-Z to undo.
-
-* Ctrl-Y to redo.
-
-* Ctrl-C to copy.
-
-* Ctrl-V to paste.
-
-* Ctrl-X to cut.
-
-  .. warning:: Browsers put significant obstacles into the path of any
-               JavaScript code that wants to handle cutting
-               itself. (It is a security issue.) Consequently, it is
-               possible that cutting won't work on your platform. Wed
-               *cannot* verify that cutting *will* work on your
-               platform and cannot for now *reliably* issue warnings
-               about problems. So... it is possible that if you try to
-               cut, the selected data will be deleted from the editing
-               screen but will **not** be copied into the clipboard.
-
-* Ctrl-S to save. The data is currently dumped into a file located at
-  ``build/ajax/save.txt``, and you won't be able to reload it. For full
-  functionality wed needs to be used with a server able to save the
-  data and serve it intelligently.
-
-* Ctrl-` to go into development mode. Since this is meant only for
-  developers, you should read the source code of wed to know what this
-  allows. (In particular, search for ``this._development_mode`` in the
-  ``_globalKeydownHandler`` method.)
+:kbd:`Ctrl-\`` allows to go into development mode. Since this is meant
+only for developers, you should read the source code of wed to know
+what this allows.  (In particular, search for
+``this._development_mode`` in the ``_globalKeydownHandler`` method.)
 
 It is possible to run the kitchen sink with a different mode than the
 default one (generic) by passing a ``mode`` parameter in the URL, for
