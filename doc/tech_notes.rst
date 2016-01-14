@@ -310,7 +310,7 @@ Modes may set other options on the ``_wed_options`` property:
 + ``label_levels``: an object with two fields:
 
   - ``max``: determines the maximum level of
-    :ref:`label visibility <label_visiblity>`,
+    :ref:`label visibility <label_visibility>`,
 
   - ``initial`` determines the initial level of label visibility; must
     be ``1 <= initial <= max``. (Level 0 exists. It is just not valid
