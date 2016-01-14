@@ -77,145 +77,7 @@ Known limitations:
   UI. The project for which it is developed currently does not need
   support for other languages, hence this state of affairs.
 
-* See also `Browser Requirements`_.
-
-.. _usage_browser_requirements:
-
-Browser Requirements
-====================
-
-Wed is primarily developed using a recent version of Chrome (version
-38; versions 26-37 have also been used earlier) and a recent version
-of Firefox (version 31; versions 20-30 have also been used earlier)
-for testing. (But see a note about Chrome 34 below.) The fact that wed
-is developed using these browsers influences the severity and
-frequency of bugs you can expect to run into.
-
-Here is the list of officially supported browsers, in order of
-decreasing priority:
-
-* Chrome 38 and higher and Firefox 34.
-
-  .. warning:: A very unusual situation makes it so that Firefox 35
-               and 36 are currently not officially supported. Will wed
-               run on them fine? Probably. However, it so happens that
-               the developers of FF removed an API upon which Selenium
-               relied to provide support for native events, and wed's
-               test suite requires native events to operate. This
-               situation won't be rectified until the FF developers
-               provide the means to Selenium to generate native events
-               again. Note that in light of this, we strongly
-               recommend that you use Chrome rather than Firefox.
-
-* The current ESR (Extended Support Release) of Firefox, which is
-  Firefox 31 at the time of writing.
-
-* IE 10 and 11, about equally.
-
-* Relatively recent versions of Chrome and Firefox: older than the
-  latest releases but not very old. (Yeah, this is vague. Sorry about
-  that.) In the case of Firefox this means versions newer than the
-  current ESR but older than the latest release.
-
-* The previous ESR of Firefox, provided it does not cause too much of
-  a burden. (Support for FF24 was dropped due to this: there was an
-  obscure bug that was not worth fighting against.)
-
-File an issue on github if you find a problem with one of the
-supported browsers above.
-
-We would like to support phone and tablet browsers but due to a lack
-of development resources, such support is unlikely to materialize
-soon. In decreasing order of likelihood, the following cases are
-unlikely to ever be supported:
-
-* Versions of Chrome and Firefox older than those mentioned above.
-
-* Chrome 34: the luminaries at Google decided to remove
-  ``Attr.ownerElement`` from Chrome 34. It was reintroduced in
-  Chrome 35.
-
-* IE 9. We'd need a) a substantial demand for it and b) people willing
-  to participate in providing support. As time goes by, wed is
-  accumulating features that are not supported natively in IE 9, so
-  this possibility is becoming more and more remote.
-
-* IE 8 and earlier.
-
-* Antique browsers.
-
-* Oddball browsers or other software or hardware systems that present
-  web pages. (E.g. gaming consoles, smart TVs.)
-
-* Operating systems or browsers no longer supported by their own
-  vendors.
-
-OS X
-----
-
-.. warning:: If you are using any version of OS X that hides
-             scroll bars by default, you probably want to modify your
-             OS X settings so that scroll bars are always
-             shown. Otherwise, there are situations where you won't
-             know about contents being scrollable. If you need help
-             doing so, `see this blog post
-             <http://heresthethingblog.com/2013/02/25/mac-tip-missing-scroll-bars/>`__. Note
-             that wed will work either way, and you will be able to
-             scroll either way, but wed relies on the traditional
-             scroll bar behavior to indicate that something can be
-             scrolled. So if you do not make the change above, you can
-             end up in situations where something is scrollable
-             without having any visual indication that *it is*.
-
-The test suite depends on native events to do its work, but support
-for native events in OS X is spotty:
-
-* Chrome: it is possible to generate *some* native events.
-
-* Firefox reports that it does not support native events at all.
-
-* Safari does not support native events at all.
-
-Your best bet in OS X is to use Chrome because we can't run the test
-suite with Firefox or Safari.
-
-Safari
-------
-
-Safari is a vexing case. Wed may or may not work on Safari. We
-currently cannot run the automated test suite with Safari. Manual
-testing is out of the question.
-
-We would like to have wed be supported on recent versions of Safari to
-the same extent it is supported on recent versions of Chrome, Firefox
-and IE. The tool we use to test it is Selenium. For better or for
-worse this is the go-to tool to do the kind of test wed
-needs. Selenium's support for Chrome and Firefox benefits from
-collaboration from developers who are responsible for developing these
-two browsers. In the case of IE, it appears (from reading bug reports)
-that Microsoft is communicating with the Selenium developers to
-resolve issues. However, we've not seen evidence of any collaboration
-between the Selenium project and Apple. Thus testing support for
-Safari is deficient, and it is not something that we here have the
-resources to fix.
-
-If you desire that wed be actually tested on Safari and are in a
-position to contribute substantial monetary or technical resources
-towards this goal, you are welcome to contact us. In particular,
-immediate problem we've run into when trying to test on Safari is this
-`Selenium issue
-<http://code.google.com/p/selenium/issues/detail?id=4136>`__. If you
-want fix it, then this would bring us one step closer to being able to
-test wed on Safari. And regarding the state of Selenium support for
-Safari, take note this response from a Selenium project member:
-
- Safari is not a priority, sorry. But your patches are welcome!
-
-Absent these patches, wed is unlikely to support Safari.
-
-On the other hand, if you feel the urge to write an email saying "You
-should just...", then please abstain because there is nothing "just"
-about testing web applications.
+* See also :ref:`help_browser_requirements`.
 
 Dependencies
 ============
@@ -324,7 +186,7 @@ Demo Saving to Local Storage
 ----------------------------
 
 The demo that uses your own browser's local storage is ready to use
-once wed is built. Once ther server is started, point your browser to
+once wed is built. Once the server is started, point your browser to
 `<http://localhost:8888/build/standalone/files.html>`_ or
 `<http://localhost:8888/build/standalone-optimized/files.html>`_. The
 2nd link is to the optimized application.
@@ -500,9 +362,10 @@ work.
 ..  LocalWords:  NG API namespace namespaces CSS RTL wed's UI github
 ..  LocalWords:  SauceLab's OpenSauce RequireJS config requirejs dev
 ..  LocalWords:  js jquery selectionsaverestore amd pre jsdoc rst mk
-..  LocalWords:  perl chai semver json Makefile saxon selenic
+..  LocalWords:  perl chai semver json Makefile saxon selenic npm
 ..  LocalWords:  glerbl subdirectory README html CHANGELOG TEI Ctrl
 ..  LocalWords:  RequireJS's unoptimized ajax txt tei hoc xml xsl rng
 ..  LocalWords:  schemas init onerror CDATA versa LocalWords xmlns
 ..  LocalWords:  multiline DOM's setAttribute ESR Attr ownerElement
-..  LocalWords:  globalKeydownHandler ajaxlog jQuery's
+..  LocalWords:  globalKeydownHandler ajaxlog jQuery's teiCorpus
+..  LocalWords:  localhost

@@ -502,19 +502,6 @@ A. We've found that JavaScript is poorly supported by the various
    obscure or unsupported packages, or do we want to focus on wed? We
    chose the latter.
 
-.. warning:: Some of the browser-dependent tests may fail on browsers
-             other than Chrome. Eventually, wed will work the same on
-             all browsers but at the moment development efforts are
-             spent elsewhere than hunting down differences in browser
-             behavior. For instance, as of 2013/07/19 some of the
-             caret movement tests fail on Firefox. This does not
-             prevent using wed on Firefox.
-
-.. warning:: As part of normal development, wed is tested on Chrome
-             first, Firefox second. Other browsers will eventually
-             be added to this list as the Selenium-based tests take
-             shape.
-
 Troubleshooting the Selenium Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

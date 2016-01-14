@@ -10,7 +10,7 @@ is capable of loading other schemas.
 
 Note that Wed does not support old browsers, mobile devices, oddball,
 or unpopular browsers. Your notion of "old" might differ from
-ours. See :ref:`usage_browser_requirements` section in :doc:`usage`.
+ours. See :ref:`help_browser_requirements` section in :doc:`usage`.
 
 See :doc:`help` to learn what wed can do. Note that saving **works
 only in the demo that uses local storage**.

@@ -67,13 +67,13 @@ caps = {
     # We have to turn this on...
     "nativeEvents": True,
     "name": name,
-    "selenium-version": "2.45.0",
+    "selenium-version": "2.48.2",
     # We cannot yet use 2.14 due to the change in how an element's
     # center is determined.
     #
     # AND SEE BELOW FOR A SPECIAL CASE.
     #
-    "chromedriver-version": "2.13",
+    "chromedriver-version": "2.20",
     "build": "version: " + version + ", git describe: " + describe
 }
 

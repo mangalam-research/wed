@@ -21,6 +21,11 @@ etc. **The following documentation covers only what the generic mode
 (bundled with wed) provides.** Custom modes will have to provide their
 own documentation.
 
+Third caveat. Make sure that wed is supported on your browser before
+`filing a bug report
+<https://github.com/mangalam-research/wed/issues>`_. See `Browser
+Requirements`_.
+
 Editing Controls
 ================
 
@@ -837,5 +842,166 @@ stick with it.
 Note that in browsers running in OS X, instead of :kbd:`Ctrl-` wed
 expects :kbd:`Command-`.
 
+.. _help_browser_requirements:
+
+Browser Requirements
+====================
+
+Wed is primarily developed using a recent version of Chrome (version
+47 now, earlier versions have also been used earlier). (But see a note
+about Chrome 34 below.)
+
+Here is the list of officially supported browsers, in order of
+decreasing priority. The higher a browser is in the list, the less
+likely you are to run into issues and the higher the priority for
+resolving bugs happening with this browser.
+
+* Chrome 47 and higher.
+
+* IE 11.
+
+* Edge, but see `the section about it <Edge_>`_.
+
+* Relatively recent versions of Chrome: older than the latest releases
+  but not very old. (Yeah, this is vague. Sorry about that.)
+
+File an issue on github if you find a problem with one of the
+supported browsers above.
+
+We would like to support phone and tablet browsers but due to a lack
+of development resources, such support is unlikely to materialize
+soon. In decreasing order of likelihood, the following cases are
+unlikely to ever be supported:
+
+* Versions of Chrome older than those mentioned above.
+
+* Firefox. It deserves its own `discussion <Firefox_>`_.
+
+* IE 10. Wed used to be routinely tested on IE 10, but Microsoft no
+  longer supports it. It is very unlikely that we'd resume support for
+  IE 10. We'd need a) a substantial demand for it and b) people
+  willing to participate in providing support.
+
+* IE 9. Same caveats as IE 10 above. Moreover, as time goes by, wed is
+  accumulating features that are not supported natively in IE 9, so
+  the possibility of supporting IE 9 is becoming more and more remote.
+
+* Chrome 34: the luminaries at Google decided to remove
+  ``Attr.ownerElement`` from Chrome 34. It was reintroduced in
+  Chrome 35. We'll probably never have support for Chrome 34.
+
+* Antique browsers.
+
+* Oddball browsers or other software or hardware systems that present
+  web pages. (E.g. gaming consoles, smart TVs.)
+
+* Operating systems or browsers no longer supported by their own
+  vendors.
+
+Firefox
+-------
+
+We're hoping that the lack of Firefox support is going to be
+temporary. For years, wed was supporting Firefox. Early on, Firefox
+was even better supported than Chrome. However, the people responsible
+for maintaining Selenium decided to stop supporting native events in
+Firefox and forced developers to use synthetic events instead. The
+problem is that Selenium's support for synthetic events on Firefox is
+unable to accurately reproduce what happens when a user is actually
+interacting with a browser, *which is the entire point of using
+Selenium in the first place*. The problem has been reported, at
+length:
+
+* In the `selenium-developers` group `here
+  <https://groups.google.com/d/msg/selenium-developers/DKnG2lA-KxM/EMLiT87ykZYJ>`__ and in following replies.
+
+* And these unresolved bugs `here
+  <https://github.com/SeleniumHQ/selenium/issues/825>`__, and `here
+  <https://github.com/SeleniumHQ/selenium/issues/1463>`__.
+
+* And these resolved bugs `here
+  <https://github.com/SeleniumHQ/selenium/issues/862>`__ and `here
+  <https://github.com/SeleniumHQ/selenium/issues/813>`__.
+
+It is taking forever for the problem to get resolved. In the meantime,
+we have no resources to devote to solving the issue of synthetic event
+support in Firefox and so Firefox support has been temporarily pulled.
+
+Edge
+----
+
+What's the deal with Edge being at a lower level of support than IE
+11? The problem is that whereas we can run test suites for IE 11, it
+is not *yet* possible to do so for Edge. Microsoft has not yet
+released a version of Edge which does support everything needed to run
+our suite. (See `this page
+<https://dev.windows.com/en-us/microsoft-edge/platform/status/webdriver/details/>`__
+for the technical details.) Therefore we cannot systematically test
+wed with Edge and thus it is not as supported as IE 11. If you do find
+a problem with Edge, report it and we'll try to fix it.
+
+OS X
+----
+
+.. warning:: If you are using any version of OS X that hides
+             scroll bars by default, you probably want to modify your
+             OS X settings so that scroll bars are always
+             shown. Otherwise, there are situations where you won't
+             know about contents being scrollable. If you need help
+             doing so, `see this blog post
+             <http://heresthethingblog.com/2013/02/25/mac-tip-missing-scroll-bars/>`__. Note
+             that wed will work either way, and you will be able to
+             scroll either way, but wed relies on the traditional
+             scroll bar behavior to indicate that something can be
+             scrolled. So if you do not make the change above, you can
+             end up in situations where something is scrollable
+             without having any visual indication that *it is*.
+
+The test suite depends on native events to do its work, but support
+for native events in OS X is spotty:
+
+* Chrome: it is possible to generate *some* native events.
+
+* Firefox reports that it does not support native events at all.
+
+* Safari does not support native events at all.
+
+Your best bet in OS X is to use Chrome because we can't run the test
+suite with Firefox or Safari.
+
+Safari
+------
+
+Safari is a vexing case. Wed may or may not work on Safari. We
+currently cannot run the automated test suite with Safari. Manual
+testing is out of the question.
+
+We would like to have wed be supported on recent versions of Safari to
+the same extent it is supported on recent versions of Chrome. The tool
+we use to test it is Selenium. For better or for worse this is the
+go-to tool to do the kind of test wed needs. We've not seen evidence
+of any collaboration between the Selenium project and Apple. Thus
+testing support for Safari is deficient, and it is not something that
+we here have the resources to fix.
+
+If you desire that wed be actually tested on Safari and are in a
+position to contribute substantial monetary or technical resources
+towards this goal, you are welcome to contact us. In particular,
+immediate problem we've run into when trying to test on Safari is this
+`Selenium issue
+<http://code.google.com/p/selenium/issues/detail?id=4136>`__. If you
+want fix it, then this would bring us one step closer to being able to
+test wed on Safari. And regarding the state of Selenium support for
+Safari, take note this response from a Selenium project member:
+
+ Safari is not a priority, sorry. But your patches are welcome!
+
+Absent these patches, wed is unlikely to support Safari.
+
+On the other hand, if you feel the urge to write an email saying "You
+should just...", then please abstain because there is nothing "just"
+about testing web applications.
+
 ..  LocalWords:  toolbars NG Ctrl tooltip autosave autosaves biblFull
-..  LocalWords:  notesStmt TEI xml kbd ESC localStorage
+..  LocalWords:  notesStmt TEI xml kbd ESC localStorage github Attr
+..  LocalWords:  ownerElement

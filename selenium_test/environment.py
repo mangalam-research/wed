@@ -183,7 +183,8 @@ def before_all(context):
     browser_to_tag_value = {
         "INTERNETEXPLORER": "ie",
         "CHROME": "ch",
-        "FIREFOX": "ff"
+        "FIREFOX": "ff",
+        "EDGE": "edge"
     }
 
     values = {
@@ -241,10 +242,15 @@ def before_all(context):
     # used.
     context.initial_window_size = {"width": 1020, "height": 700}
     context.initial_window_handle = driver.current_window_handle
-    assert_true(driver.desired_capabilities["nativeEvents"],
-                "Wed's test suite require that native events be available; "
-                "you may have to use a different version of your browser, "
-                "one for which Selenium supports native events.")
+
+    # IE and Chrome must use nativeEvents. Firefox no longer supports
+    # them. It is unclear whether Edge will...
+    if context.util.ie or context.util.chrome:
+        assert_true(
+            driver.desired_capabilities["nativeEvents"],
+            "Wed's test suite require that native events be available; "
+            "you may have to use a different version of your browser, "
+            "one for which Selenium supports native events.")
 
     behave_wait = os.environ.get("BEHAVE_WAIT_BETWEEN_STEPS")
     context.behave_wait = behave_wait and float(behave_wait)

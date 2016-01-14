@@ -6,6 +6,20 @@ Only salient changes are recorded here.
 
 * 0.25:
 
+  - Support for Firefox on all platforms has been temporarily
+    suspended. In brief, the problem is that Selenium is no longer
+    able to accurately simulate real user interaction with the
+    browser. The problem is technical, but we do not have the
+    resources to fix Selenium. Please read `the documentation
+    <https://mangalam-research.github.io/wed/>`_ for the details of
+    why it is so. (A more precise link from this file is not yet
+    possible.)
+
+  - Support for IE 10 has ended because Microsoft no longer supports
+    it. This version of wed will most likely run fine on IE 10 but
+    future versions won't be tested with IE 10 and thus may not run
+    properly.
+
   - Going foward: wed cannot be developed with Node.js earlier than
     version 4. Upgrading the development environment to 4 allows
     upgrading some of the development tools to their latest
