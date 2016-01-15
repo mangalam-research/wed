@@ -22,7 +22,10 @@ def load_and_wait_for_editor(context, text=None, options=None,
     builder = context.builder
     server = builder.WED_SERVER + "/kitchen-sink.html?"
 
-    query = {"mode": "test"}
+    query = {
+        "mode": "test",
+        "nodemo": "1"
+    }
 
     if text is not None:
         query["file"] = text
@@ -626,3 +629,12 @@ def step_impl(context):
             len(context.handles_before_help_link_click) + 1
 
     context.util.wait(check)
+
+
+@when('the user dismisses the dialog warning that it is a demo')
+def step_impl(context):
+    util = context.util
+    header = util.find_element((By.CSS_SELECTOR, ".modal.in .modal-header h3"))
+    assert_equal(header.text.strip(), "Demo")
+    button = util.find_element((By.CSS_SELECTOR, ".modal.in .btn-primary"))
+    button.click()
