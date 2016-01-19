@@ -1,5 +1,6 @@
 "use strict";
 
+import "babel-polyfill";
 import gulp from 'gulp';
 import gulpNewer from 'gulp-newer';
 import gulpFilter from 'gulp-filter';
