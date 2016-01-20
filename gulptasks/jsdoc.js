@@ -3,7 +3,7 @@
 import gulp from "gulp";
 import gutil from "gulp-util";
 import { options } from "./config";
-import { newer, execFile, stamp_path, touchAsync } from "./util";
+import { newer, checkOutputFile, stamp_path, touchAsync } from "./util";
 import Promise from "bluebird";
 
 gulp.task("jsdoc3-doc", ["stamp-dir"],
@@ -18,10 +18,10 @@ gulp.task("jsdoc3-doc", ["stamp-dir"],
                   return;
               }
 
-              yield execFile(options.jsdoc3,
-                             ["-c", "jsdoc.conf.json",
-                              "-d", "build/api",
-                              "-r", "lib", "-R", "doc/api_intro.md"]);
+              yield checkOutputFile(options.jsdoc3,
+                                    ["-c", "jsdoc.conf.json",
+                                     "-d", "build/api",
+                                     "-r", "lib", "-R", "doc/api_intro.md"]);
 
               yield touchAsync(stamp);
           }));

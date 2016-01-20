@@ -20,7 +20,7 @@ import { ArgumentParser } from "argparse";
 import * as config from "./gulptasks/config";
 import { internals } from "./gulptasks/config";
 import * as util from "./gulptasks/util";
-import { same_files, del, newer, exec, execFile, touchAsync, cprp,
+import { same_files, del, newer, exec, checkOutputFile, touchAsync, cprp,
          cprpdir, spawn, exists_in_file, sequence, mkdirpAsync, fs}
 from "./gulptasks/util";
 import requireDir from "require-dir";
@@ -411,8 +411,8 @@ gulp.task("doc", ["rst-doc", "jsdoc3-doc"]);
 // We make this a different task so that the check can be performed as
 // early as possible.
 gulp.task("gh-pages-check", Promise.coroutine(function* () {
-    const [out, err] = yield execFile("git",
-                                      ["rev-parse", "--abbrev-ref HEAD"]);
+    const [out, err] = yield checkOutputFile(
+        "git", ["rev-parse", "--abbrev-ref HEAD"]);
     if (out !== "master" && !options.force_gh_pages_build)
         throw new Error(`***
 Not on master branch. Don't build gh-pages-build on

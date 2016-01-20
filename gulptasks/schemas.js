@@ -4,7 +4,7 @@ import gulp from "gulp";
 import path from "path";
 import gutil from "gulp-util";
 import { options } from "./config";
-import { del, newer, execFile, exec, mkdirpAsync } from "./util";
+import { del, newer, checkOutputFile, exec, mkdirpAsync } from "./util";
 import Promise from "bluebird";
 
 gulp.task("copy-schemas", () => {
@@ -62,9 +62,9 @@ function xml_to_json_chain(name, dest, ns) {
         }
 
         yield mkdirpAsync(path.dirname(meta_json));
-        yield execFile("bin/tei-to-generic-meta-json",
-                       ["--dochtml", "../../../../../schemas/tei-doc/"]
-                       .concat(ns_args, json, meta_json));
+        yield checkOutputFile("bin/tei-to-generic-meta-json",
+                              ["--dochtml", "../../../../../schemas/tei-doc/"]
+                              .concat(ns_args, json, meta_json));
     }
 
     gulp.task(meta_json_task_name, [`compiled-to-json-${name}`],
@@ -94,9 +94,9 @@ gulp.task("tei-doc", ["compile-rng-myTEI"], Promise.coroutine(function* () {
 
     yield del(dest);
     yield mkdirpAsync(dest);
-    yield execFile(options.saxon,
-                   [`-s:${src}`, `-xsl:${options.odd2html}`,
-                    "STDOUT=false", "splitLevel=0", `outputDir=${dest}`]);
+    yield checkOutputFile(options.saxon,
+                          [`-s:${src}`, `-xsl:${options.odd2html}`,
+                           "STDOUT=false", "splitLevel=0", `outputDir=${dest}`]);
 }));
 
 

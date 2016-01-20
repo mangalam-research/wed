@@ -6,7 +6,7 @@ import { fs, checkOutputFile, mkdirpAsync, execFile } from "./util";
 
 export function wget(url, dest) {
     const wget_cmd = config.options.wget;
-    return execFile(
+    return checkOutputFile(
         wget_cmd,
         ["--no-use-server-timestamps", "-O", dest, url],
         { cwd: "downloads" }).catch((e) => {

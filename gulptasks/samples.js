@@ -5,7 +5,7 @@ import glob from "glob";
 import path from "path";
 import gutil from "gulp-util";
 import { options } from "./config";
-import { newer, execFile, exec, cprp } from "./util";
+import { newer, checkStatusFile, checkOutputFile, cprp } from "./util";
 import Promise from "bluebird";
 
 const samples = glob.sync("sample_documents/*.xml");
@@ -24,12 +24,12 @@ for (let sample of samples) {
         }
 
         const needs_saxon =
-                  yield execFile("grep",
-                                 ["http://www.tei-c.org/ns/1.0", sample]);
+                  yield checkStatusFile(
+                      "grep", ["http://www.tei-c.org/ns/1.0", sample]);
         if (needs_saxon) {
-            yield execFile(options.saxon,
-                           [`-s:${sample}`, `-o:${dest}`,
-                            "-xsl:test/xml-to-xml-tei.xsl"]);
+            yield checkOutputFile(options.saxon,
+                                  [`-s:${sample}`, `-o:${dest}`,
+                                   "-xsl:test/xml-to-xml-tei.xsl"]);
         }
         else {
             yield cprp(sample, dest);

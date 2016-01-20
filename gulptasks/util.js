@@ -50,7 +50,15 @@ export function exec(command, options) {
     });
 }
 
-export function execFile(file, args, options) {
+export function checkStatusFile(file, args, options) {
+    return new Promise((resolve, reject) => {
+        child_process.execFile(file, args, options,
+                               (err, stdout, stderr) =>
+                                   resolve(err ? err.code : 0));
+    });
+}
+
+export function checkOutputFile(file, args, options) {
     return new Promise((resolve, reject) => {
         child_process.execFile(file, args, options,
                                (err, stdout, stderr) => {
