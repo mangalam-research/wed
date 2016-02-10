@@ -2403,7 +2403,12 @@ describe("wed", function () {
                 src_stack.shift();
             });
 
+            // Yes, we reset before and after.
             beforeEach(function (done) {
+                global.reset(done);
+            });
+
+            afterEach(function (done) {
                 global.reset(done);
             });
 
