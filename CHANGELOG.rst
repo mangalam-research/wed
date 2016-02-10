@@ -44,6 +44,10 @@ Only salient changes are recorded here.
     appearing in a value from a double quote as attribute value
     delimiter.
 
+  - Internal: Upgraded to lodash 4. Wed won't work with earlier releases.
+
+  - Internal: Upgraded to salve 2.0.0.
+
   - Internal: Bug fix: An embarrassing mistake made it so that adding new
     attributes to an element never worked correctly, as the attriubte
     name was mangled. This has been fixed.
