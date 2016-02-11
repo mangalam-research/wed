@@ -364,6 +364,106 @@ represented in XML in multiple ways. Notably:
 * Whitespace before the start tag of the top element or after the end
   tag of the top element may not be preserved.
 
+The Generic Mode
+================
+
+Wed is bundled with a single mode, the "generic" mode. We recommend to
+developers who wish to create modes to use the generic mode as their
+basis. Therefore, the explanations here should apply to those modes
+that follow our recommendations.
+
+The generic mode is a mode that provides almost no customization of
+wed's capabilities. For instance, a custom mode could represent
+elements that are paragraphs purely through indentation changes and
+line breaks *rather than* start and end labels. (Such a mode does
+exist for the BTW project.) The generic mode does not do this: it
+represents paragraphs as any other element, with a start label and end
+label.
+
+Nonetheless, the generic mode requires a minimum amount of
+customization in order to be able to do its work. In particular, it
+needs to use a "meta" object that provides information on the schema
+being used. This meta object is necessary because Relax NG schemas
+often lack information that wed needs. For instance, while it is
+possible to include documentation about the elements that are part of
+a schema into a Relax NG schema, this is not the most convenient place
+for it. For one thing, salve (which is what wed uses for validation)
+right now does not save this information when it convert a Relax NG
+schema to use for validation. Even if it did, it would not solve all
+problems. The TEI documentation, for instance, is multilingual. Having
+it all stored in the schema would increase its size considerably, even
+if the user needs using only one language. It would be possible to
+produce schemas that include documentation only in one language but
+then you'd need one schema per language. By having the meta object be
+responsible for providing this documentation, wed can load only the
+language the user needs. Another issue that the meta object addresses
+is the fact that Relax NG schemas do not specify what prefix to use
+for namespaces. One of the jobs of the meta object is to provide
+defaults for namespace prefixes. These are used internally by the
+mode, rather than require mode developers to spell out namespace URIs
+every time they need to refer to a namespace. The XML file being
+edited can use whatever prefix desired, but the mode must have a
+standardized mapping of prefix to URI. The meta object provides this.
+
+The information provided by the meta object is not made part of the
+mode itself because the meta information it provides may be orthogonal
+to the concerns of the mode. The generic mode is a case in point: it
+can work just as well (or as "generically") for editing TEI documents
+as DocBook documents, or documents using any other schema. Or to take
+another example, TEI allows for quite a bit of customization: elements
+can be redefined, added, or removed. Entire modules can be added if a
+project calls for it. A mode specialized for editing TEI documents
+could have its meta object load only the documentation that pertains
+to the specific customization of TEI being used.
+
+Therefore, the generic mode takes a ``meta`` option which is a simple
+object which itself takes two fields:
+
+* ``path`` gives the path of the module that contains the meta object
+  to use.
+
+* ``options`` is a simple object which takes a single field named
+  ``metadata``. This field is a path to metadata that will be loaded
+  by the meta object. This is normally a JSON file. Note that this
+  path is relative to the module given in ``path`` above.
+
+Why have a meta object and a metadata file? Some tools used to manage
+and produce XML schemas are able to fairly easily generate information
+about the schemas they manage. One example are the tools provided by
+the TEI consortium. It is possible from an ODD file to generate a
+Relax NG schema, and extract the documentation for each element in the
+schema. Storing the resulting information into a JSON file is trivial,
+and it is more convenient than the alternatives.
+
+Here is an example of what the ``mode`` option passed to wed could contain::
+
+    path: 'wed/modes/generic/generic',
+    options: {
+      meta: {
+        path: 'wed/modes/generic/metas/tei_meta',
+        options: {
+          metadata:
+            '../../../../../schemas/tei-math-metadata.json'
+          }
+        }
+    }
+
+This tells wed to load the generic mode, use the meta object exported
+by ``wed/modes/generic/metas/tei_meta`` and have it load the metadata
+file ``../../../../../schemas/tei-math-metadata.json``. (Again, this
+last path is relative to the module that contains the meta object.)
+
+The way the generic mode operates entails that three elements must
+cooperate for a file to be usable by wed:
+
+* the correct schema must be passed to wed,
+
+* the correct mode must be selected,
+
+* this mode must use a meta object that is customized for the schema
+  being used. (Having the meta object load the correct metadata file
+  is implied.)
+
 Contributing
 ============
 
@@ -383,4 +483,4 @@ work.
 ..  LocalWords:  schemas init onerror CDATA versa LocalWords xmlns
 ..  LocalWords:  multiline DOM's setAttribute ESR Attr ownerElement
 ..  LocalWords:  globalKeydownHandler ajaxlog jQuery's teiCorpus
-..  LocalWords:  localhost
+..  LocalWords:  localhost metadata

@@ -305,7 +305,12 @@ these are not set::
     };
 
 
-Modes may set other options on the ``_wed_options`` property:
+Modes may set other options on the ``_wed_options`` property. This is
+essentially a mean for the mode to control how wed operates when the
+mode is active. These are not meant to be directly settable by the
+user or by the application in which wed is being used. (Although it
+would be possible for the mode to expose options to make them
+settable.)
 
 + ``label_levels``: an object with two fields:
 
