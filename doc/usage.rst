@@ -3,20 +3,32 @@ Using Wed in an Application
 ===========================
 
 Wed is a schema-aware editor for XML documents. It runs in a web
-browser. The software is at the beta stage. It is being used in a
+browser. The software is at the beta stage. It is currently used in a
 project for editing scholarly articles. We aim to make it extensible
 by means of a stable API, but the API is likely to change quickly for
 now.
 
 Known limitations:
 
-* Wed currently does understand a large subset of Relax NG, but some
-  constructs are not supported. See the `salve
-  <https://github.com/mangalam-research/salve/>`_ package for details.
+* Wed does not load documents containing XML comments (``<!--
+  ... -->``) or CDATA sections.
+
+* Wed does not load documents that include processing instructions
+  other than the ``<?xml ...>`` declaration at the very top of
+  documents. (Some hold that the XML declaration is not a processing
+  instruction. The distinction is irrelevant to the point being made
+  here.)
+
+* Wed supports most of Relax NG, with a few limitations. See the
+  `salve <https://github.com/mangalam-research/salve/>`_ package for
+  details.
 
 * Wed currently does not support schemas that allow multiple choices
-  at the root (e.g. TEI vs teiCorpus). These schemas must be
-  customized to allow only one top level element.
+  at the root of a document (e.g. a typical TEI schema will allow
+  documents to start either with ``TEI`` or ``teiCorpus``). These
+  schemas must be customized to allow only one top level
+  element. Taking TEI again as example, the schema would have to be
+  customized to allow only one of ``TEI`` or ``teiCorpus`` at the top.
 
 * Wed does not currently support ordering attributes according to some
   preference. (The order is whatever the DOM implementation does by
@@ -31,17 +43,17 @@ Known limitations:
   document as a DOM tree, not as a serialization. In a DOM tree,
   ``<foo/>`` and ``<foo></foo>`` are the same.
 
-* Elements that *cannot* contain anything appear in the editor as if
-  they *could*. The validator raises an error if these elements are
-  filled with any contents but it would be nicer if they were
-  displayed in a way that distinguished them from the elements that
-  *can* be filled with contents. We worked on a prototype that would
-  check whether an element *can* contain anything and display it
-  differently if it could not. However, this required that the
-  rendering engine query the validating engine during rendering, which
-  made rendering extremely slow. Since the editor will raise an error
-  if an element that should be empty is filled erroneously, we've
-  decided that a solution to this problem can wait.
+* Elements that *must be empty* appear in the editor as if they
+  *could* contain contents. Note that the validator raises an error if
+  these elements are filled with any contents but it would be nicer if
+  they were displayed in a way that distinguished them from the
+  elements that *can* be filled with contents. We worked on a
+  prototype that would check whether an element *can* contain anything
+  and display it differently if it could not. However, this required
+  that the rendering engine query the validating engine during
+  rendering, which made rendering extremely slow. Since the editor
+  will raise an error if an element that should be empty is filled
+  erroneously, we've decided that a solution to this problem can wait.
 
 * Eventually the plan is to handle XML namespace changes completely,
   and there is incipient code to deal with this; for now the safe
@@ -78,6 +90,9 @@ Known limitations:
   support for other languages, hence this state of affairs.
 
 * See also :ref:`help_browser_requirements`.
+
+* See also `Round-Tripping`_, as some limitations there may affect
+  whether you can use wed for your project.
 
 Dependencies
 ============
@@ -337,7 +352,7 @@ document will sent the exact same string as what it was originally
 given to edit. This is due to the fact that the same document can be
 represented in XML in multiple ways. Notably:
 
-* Comments, CDATA, and processing instructions are not preserved.
+* The XML declaration is not preserved.
 
 * The order of the attributes could differ.
 
@@ -346,8 +361,8 @@ represented in XML in multiple ways. Notably:
 * The encoding of empty elements could differ. That is, ``<foo></foo>``
   could become ``<foo/>`` or vice-versa.
 
-* The presence or absence of a newline on the last line may not be
-  preserved.
+* Whitespace before the start tag of the top element or after the end
+  tag of the top element may not be preserved.
 
 Contributing
 ============
