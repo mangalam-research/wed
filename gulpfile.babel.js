@@ -137,8 +137,22 @@ gulp.task("build-only-standalone-less", ["stamp-dir",
                   });
           });
 
-gulp.task("npm",
-          () => exec("mkdir -p node_modules; npm install"));
+gulp.task("npm", ["stamp-dir"],
+          Promise.coroutine(function* () {
+              const stamp = util.stamp_path("npm");
+
+              const is_newer = yield newer(["package.json",
+                                            "npm-shrinkwrap.json"], stamp);
+
+              if (!is_newer) {
+                  gutil.log("Skipping npm.");
+                  return;
+              }
+
+              yield mkdirpAsync("node_modules");
+              yield exec("npm install");
+              yield touchAsync(stamp);
+          }));
 
 const copy_tasks = [];
 function npm_copy_task(...args) {
