@@ -32,6 +32,13 @@ Only salient changes are recorded here.
   - GUI: Wed now has a real help page accessible through the help
     dialog (``F1``).
 
+  - API: Wed now uses the `merge-options
+    <https://github.com/schnittstabil/merge-options>`_ module to merge
+    configuration options. The upshot is that it is now possible to
+    unset options that are set through RequireJS` ``module.config()``
+    by passing ``undefined`` values to the ``init`` method of ``Editor``
+    objects.
+
   - API/GUI: Wed now allow the creation of draggable and resizable
     windows. ``Editor.makeModal`` is now allowing an ``options``
     argument to speicfy whether the modals are draggable and

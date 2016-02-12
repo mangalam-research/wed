@@ -25,6 +25,7 @@ import { same_files, del, newer, exec, checkOutputFile, touchAsync, cprp,
 from "./gulptasks/util";
 import requireDir from "require-dir";
 import rjs from "requirejs";
+import wrap_amd from "gulp-wrap-amd";
 
 // Try to load local configuration options.
 let local_config = {};
@@ -246,10 +247,15 @@ function npm_copy_task(...args) {
             stream = stream.pipe(rename(options.rename));
         }
 
-        stream.pipe(gulpNewer(stamp))
+        stream = stream.pipe(gulpNewer(stamp))
         // Remove the package from the stream...
-            .pipe(filter)
-            .pipe(gulp.dest(complete_dest))
+            .pipe(filter);
+
+        if (options.wrap_amd) {
+            stream = stream.pipe(wrap_amd({ exports: "module.exports" }));
+        }
+
+        stream.pipe(gulp.dest(complete_dest))
             .on("end", () => touchAsync(stamp).asCallback(callback));
     });
 
@@ -293,6 +299,12 @@ npm_copy_task("classlist", "classlist-polyfill/src/index.js",
 npm_copy_task("salve/lib/salve/**", "salve");
 
 npm_copy_task("interact.js/dist/interact.min.js");
+
+npm_copy_task("merge-options", "merge-options/index.js",
+              { rename: "merge-options.js", wrap_amd: true });
+
+npm_copy_task("is-plain-obj", "is-plain-obj/index.js",
+              { rename: "is-plain-obj.js", wrap_amd: true });
 
 gulp.task("build-info", Promise.coroutine(function* () {
     const dest = "build/standalone/lib/wed/build-info.js";

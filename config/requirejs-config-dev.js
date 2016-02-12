@@ -21,7 +21,9 @@ require.config({
    bootbox: 'external/bootbox',
    typeahead: 'external/typeahead.bundle.min',
    urijs: 'external/urijs',
-   interact: 'external/interact.min'
+   interact: 'external/interact.min',
+   'merge-options': 'external/merge-options',
+   'is-plain-obj': 'external/is-plain-obj'
  },
  packages: [
      {
