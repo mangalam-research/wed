@@ -77,3 +77,24 @@ Scenario: not auto-inserting elements
   And the user clicks a choice for creating a new teiHeader
   Then a new teiHeader is created inside the element
   And the teiHeader has not been filled
+
+Scenario: an empty document with multiple possible top elements is not automatically populated
+  Given an empty docbook document
+  Then the editor pane contains only a placeholder
+
+Scenario: when an empty document has multiple possible top elements, it is possible to create the top element
+  Given an empty docbook document
+  Then the editor pane contains only a placeholder
+  When the user uses the keyboard to bring up the context menu
+  And the user clicks a choice for creating a new book
+  Then the document contains only a book element
+  And 0 errors appear in the error panel
+
+Scenario: when an empty document has multiple possible top elements, it is possible to create the top element and undo the creation
+  Given an empty docbook document
+  Then the editor pane contains only a placeholder
+  When the user uses the keyboard to bring up the context menu
+  And the user clicks a choice for creating a new book
+  Then the document contains only a book element
+  When the user undoes
+  Then the editor pane contains only a placeholder

@@ -65,6 +65,11 @@ def open_doc(context):
     load_and_wait_for_editor(context)
 
 
+@given("an empty docbook document")
+def step_impl(context):
+    load_and_wait_for_editor(context, schema="@docbook")
+
+
 @when("the user opens a new window")
 def step_impl(context):
     driver = context.driver

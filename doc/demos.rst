@@ -37,12 +37,19 @@ try to save.** Rest assured that the saving functionality works, but
 it needs a server able to handle AJAX calls. Github.io is not able to
 do this.
 
-It is configured to load:
+You can load:
 
-* an `empty document <build/standalone/kitchen-sink.html>`_ using a
+* an `empty TEI document <build/standalone/kitchen-sink.html>`_ using a
   vanilla TEI schema.
+
+* an `empty DocBook document
+  <build/standalone/kitchen-sink.html?schema=%40docbook>`_.
 
 * `Sketch for a medical education
   <build/standalone/kitchen-sink.html?file=/wed/build/samples/
-  sketch_for_a_medical_education.xml>`_, a sample document from the
+  sketch_for_a_medical_education.xml>`_, a sample TEI document from the
   Oxford Text Archive.
+
+* a `sample DocBook document
+  <build/standalone/kitchen-sink.html?file=/wed/build/samples/
+  docbook_book.xml&schema=/build/schemas/docbook.js>`_.

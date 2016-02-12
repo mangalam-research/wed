@@ -122,3 +122,39 @@ def step_impl(context):
         return test
 
     util.wait(cond)
+
+
+@then(ur"the editor pane contains only a placeholder")
+def step_impl(context):
+    def check(driver):
+        return driver.execute_script("""
+        if (wed_editor.gui_root.children.length !== 1)
+            return false;
+
+        var node = wed_editor.gui_root.firstElementChild;
+
+        if (!node)
+            return false;
+
+        return node.classList.contains("_placeholder");
+        """)
+
+    context.util.wait(check)
+
+
+@then(ur"the document contains only a book element")
+def step_impl(context):
+    def check(driver):
+        return driver.execute_script("""
+        if (wed_editor.data_root.childNodes.length !== 1)
+            return false;
+
+        var node = wed_editor.data_root.firstElementChild;
+
+        if (!node)
+            return false;
+
+        return node.tagName === "book";
+        """)
+
+    context.util.wait(check)

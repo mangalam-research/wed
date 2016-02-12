@@ -23,13 +23,6 @@ Known limitations:
   `salve <https://github.com/mangalam-research/salve/>`_ package for
   details.
 
-* Wed currently does not support schemas that allow multiple choices
-  at the root of a document (e.g. a typical TEI schema will allow
-  documents to start either with ``TEI`` or ``teiCorpus``). These
-  schemas must be customized to allow only one top level
-  element. Taking TEI again as example, the schema would have to be
-  customized to allow only one of ``TEI`` or ``teiCorpus`` at the top.
-
 * Wed does not currently support ordering attributes according to some
   preference. (The order is whatever the DOM implementation does by
   default.)

@@ -104,6 +104,11 @@ def step_impl(context, choice):
         .perform()
 
 
+@when(u'the user undoes')
+def step_impl(context):
+    context.util.ctrl_equivalent_x("Z")
+
+
 @then(u'the last letter of the element\'s text is deleted')
 def step_impl(context):
     driver = context.driver

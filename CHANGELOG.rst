@@ -29,6 +29,15 @@ Only salient changes are recorded here.
 
   - Wed now uses Gulp for building, rather than ``make``.
 
+  - Wed now supports the use of schemas that allow multiple possible
+    elements as the top element of a document. Previous versions did
+    not, and required customizing schemas to narrow the possible top
+    choices to just one element. Our go-to example was TEI which
+    typically allows both ``TEI`` and ``teiCorpus`` as the top
+    element. People using TEI would have had to specially take care to
+    customize their schema to allow ony one of the two elements at the
+    top. This is no longer necessary.
+
   - GUI: Wed now has a real help page accessible through the help
     dialog (``F1``).
 
