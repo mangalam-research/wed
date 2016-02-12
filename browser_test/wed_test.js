@@ -1570,16 +1570,12 @@ describe("wed", function () {
             var initial_value = initial.nodeValue;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/plain"],
-                    getData: function (type) {
-                        return "abcdef";
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/plain"],
+                getData: function (type) {
+                    return "abcdef";
                 }
-            };
+            });
             editor.$gui_root.trigger(event);
             assert.equal(initial.nodeValue, "abcdef" + initial_value);
             dataCaretCheck(editor, initial, 6, "final position");
@@ -1591,16 +1587,12 @@ describe("wed", function () {
             var initial_value = initial.nodeValue;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/plain"],
-                    getData: function (type) {
-                        return "    \u00A0  ";
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/plain"],
+                getData: function (type) {
+                    return "    \u00A0  ";
                 }
-            };
+            });
             editor.$gui_root.trigger(event);
             assert.equal(initial.nodeValue, " " + initial_value);
             dataCaretCheck(editor, initial, 1, "final position");
@@ -1612,16 +1604,12 @@ describe("wed", function () {
             var initial_value = initial.nodeValue;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/plain"],
-                    getData: function (type) {
-                        return "\u200B\u200B";
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/plain"],
+                getData: function (type) {
+                    return "\u200B\u200B";
                 }
-            };
+            });
             editor.$gui_root.trigger(event);
             assert.equal(initial.nodeValue, initial_value);
             dataCaretCheck(editor, initial, 0, "final position");
@@ -1634,18 +1622,14 @@ describe("wed", function () {
             var initial_value = p.innerHTML;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/html", "text/plain"],
-                    getData: function (type) {
-                        // We add the zero-width space for the heck of it.
-                        // It will be stripped.
-                        return p.innerHTML + "\u200B";
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/html", "text/plain"],
+                getData: function (type) {
+                    // We add the zero-width space for the heck of it.
+                    // It will be stripped.
+                    return p.innerHTML + "\u200B";
                 }
-            };
+            });
             editor.$gui_root.trigger(event);
             assert.equal(p.innerHTML, initial_value + initial_value);
             dataCaretCheck(editor, p.childNodes[2], 6, "final position");
@@ -1659,16 +1643,12 @@ describe("wed", function () {
             var initial_value = p.innerHTML;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/html", "text/plain"],
-                    getData: function (type) {
-                        return p.outerHTML;
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/html", "text/plain"],
+                getData: function (type) {
+                    return p.outerHTML;
                 }
-            };
+            });
             var $top = editor._paste_modal.getTopLevel();
             $top.one("shown.bs.modal", function () {
                 // Wait until visible to add this handler so that it is
@@ -1697,16 +1677,13 @@ describe("wed", function () {
             var initial_outer_from_text_to_html = x.innerHTML;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/html", "text/plain"],
-                    getData: function (type) {
-                        return initial_outer;
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/html", "text/plain"],
+                getData: function (type) {
+                    return initial_outer;
                 }
-            };
+            });
+
             var $top = editor._paste_modal.getTopLevel();
             $top.one("shown.bs.modal", function () {
                 // Wait until visible to add this handler so that it is
@@ -1734,16 +1711,12 @@ describe("wed", function () {
             var initial_value = initial.value;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/plain"],
-                    getData: function (type) {
-                        return "abcdef";
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/plain"],
+                getData: function (type) {
+                    return "abcdef";
                 }
-            };
+            });
             editor.$gui_root.trigger(event);
             assert.equal(initial.value, "abcdef" + initial_value);
             dataCaretCheck(editor, initial, 6, "final position");
@@ -1937,16 +1910,12 @@ describe("wed", function () {
             var initial_value = initial.nodeValue;
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
+            var event = global.makeFakePasteEvent({
                     types: ["text/plain"],
                     getData: function (type) {
                         return "abcdef";
                     }
-                }
-            };
+            });
             editor.$gui_root.trigger(event);
             assert.equal(initial.nodeValue, "abcdef" + initial_value);
             dataCaretCheck(editor, initial, 6, "final position");
@@ -2143,16 +2112,12 @@ describe("wed", function () {
                 var initial_value = initial.textContent;
 
                 // Synthetic event
-                var event = new $.Event("paste");
-                // Provide a skeleton of clipboard data
-                var originalEvent = event.originalEvent = {
-                    clipboardData: {
-                        types: ["text/plain"],
-                        getData: function (type) {
-                            return "a";
-                        }
+                var event = global.makeFakePasteEvent({
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "a";
                     }
-                };
+                });
                 editor.$gui_root.trigger(event);
                 assert.equal(initial.textContent, initial_value);
                 dataCaretCheck(editor, initial, 0, "final position");
@@ -2164,8 +2129,13 @@ describe("wed", function () {
                 editor.setDataCaret(initial, 0);
 
                 // We have to create a new event.
-                event = new $.Event("paste");
-                event.originalEvent = originalEvent;
+                event = global.makeFakePasteEvent({
+                    types: ["text/plain"],
+                    getData: function (type) {
+                        return "a";
+                    }
+                });
+
                 editor.$gui_root.trigger(event);
                 assert.equal(initial.textContent, "a" + initial_value);
                 dataCaretCheck(editor, initial.firstChild, 4, "final position");

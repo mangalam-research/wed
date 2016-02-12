@@ -1,7 +1,7 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013-2016 Mangalam Research Center for Buddhist Languages
  */
 define(function (require, exports, module) {
 'use strict';
@@ -52,6 +52,19 @@ function too_old_on_save(done) {
 }
 
 exports.too_old_on_save = too_old_on_save;
+
+function makeFakePasteEvent(clipboardData) {
+    var event = new $.Event("paste");
+    event.originalEvent = {
+        clipboardData: clipboardData,
+        stopImmediatePropagation: function () {},
+        preventDefault: function () {},
+        stopPropagation: function () {}
+    };
+    return event;
+}
+
+exports.makeFakePasteEvent = makeFakePasteEvent;
 
 });
 

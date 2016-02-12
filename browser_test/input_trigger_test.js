@@ -5,9 +5,9 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
-        "wed/transformation", "salve/validate"],
+        "wed/transformation", "salve/validate", "browser_test/global"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
-         input_trigger_factory, transformation, validate) {
+         input_trigger_factory, transformation, validate, global) {
 'use strict';
 var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
@@ -80,16 +80,12 @@ describe("InputTrigger", function () {
             seen++;
         });
         // Synthetic event
-        var event = new $.Event("paste");
-        // Provide a skeleton of clipboard data
-        event.originalEvent = {
-            clipboardData: {
-                types: ["text/plain"],
-                getData: function (type) {
-                    return "abc;def";
-                }
+        var event = global.makeFakePasteEvent({
+            types: ["text/plain"],
+            getData: function (type) {
+                return "abc;def";
             }
-        };
+        });
         editor.setDataCaret(p, 0);
         editor.$gui_root.trigger(event);
         assert.equal(seen, 1);
@@ -159,16 +155,12 @@ describe("InputTrigger", function () {
         editor.setDataCaret(ps[0], 0);
         var text = ps[0].firstChild;
         // Synthetic event
-        var event = new $.Event("paste");
-        // Provide a skeleton of clipboard data
-        event.originalEvent = {
-            clipboardData: {
-                types: ["text/plain"],
-                getData: function (type) {
-                    return "ab;cd;ef";
-                }
+        var event = global.makeFakePasteEvent({
+            types: ["text/plain"],
+            getData: function (type) {
+                return "ab;cd;ef";
             }
-        };
+        });
         editor.$gui_root.trigger(event);
 
         ps = editor.data_root.querySelectorAll("body p");
