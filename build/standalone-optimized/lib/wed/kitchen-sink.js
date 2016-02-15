@@ -54,7 +54,7 @@ function launch(text, file, options) {
                     };
                     break;
                 case "@docbook":
-                    options.schema = "/build/schemas/docbook.js";
+                    options.schema = "../../../schemas/docbook.js";
                     options.mode = {
                         path: 'wed/modes/generic/generic',
                         options: {
