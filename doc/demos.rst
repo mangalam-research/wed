@@ -52,4 +52,4 @@ You can load:
 
 * a `sample DocBook document
   <build/standalone/kitchen-sink.html?file=/wed/build/samples/
-  docbook_book.xml&schema=/build/schemas/docbook.js>`_.
+  docbook_book.xml&schema=%40docbook>`_.
