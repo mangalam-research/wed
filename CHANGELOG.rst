@@ -12,8 +12,9 @@ Only salient changes are recorded here.
     browser. The problem is technical, but we do not have the
     resources to fix Selenium. Please read `the documentation
     <https://mangalam-research.github.io/wed/>`_ for the details of
-    why it is so. (A more precise link from this file is not yet
-    possible.)
+    why it is so. (Sorry for the imprecise link. A more precise link
+    from this file is not yet possible due to the way the
+    documentation is generated.)
 
   - Support for IE 10 has ended because Microsoft no longer supports
     it. This version of wed will most likely run fine on IE 10 but
