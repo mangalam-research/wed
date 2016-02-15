@@ -3,7 +3,6 @@
   <head>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
     <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
-    <script type="text/javascript" src="../ks/purl.js"></script>
     <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>
     <script type="text/javascript" src="lib/wed/polyfills/innerHTML_for_XML.js"></script>
     <script type="text/javascript" src="lib/requirejs/require.js"></script>
@@ -22,9 +21,13 @@
       </div>
     </div>
     <script>
-      window.test_platform = purl().param('platform');
-      window.test_browser = purl().param('browser');
-      window.test_version = purl().param('version');
+      require(["urijs/URI"], function (URI) {
+          var uri = new URI();
+          var query = uri.query(true);
+          window.test_platform = query.platform;
+          window.test_browser = query.browser;
+          window.test_version = query.version;
+      });
       // This is a yucky way to detect that we are running the
       // optimized version of the bundle, but it works.
       if (window.location.href.indexOf("standalone-optimized") != -1) {

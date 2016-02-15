@@ -4,9 +4,10 @@
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
-        "wed/wed", "wed/key", "wed/key_constants", "salve/validate"],
+        "wed/wed", "wed/key", "wed/key_constants", "salve/validate",
+        "browser_test/global"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants,
-          validate) {
+          validate, global) {
 'use strict';
 
 var assert = chai.assert;
@@ -125,16 +126,12 @@ describe("input_trigger_factory", function () {
             assert.equal(ps.length, 1);
 
             // Synthetic event
-            var event = new $.Event("paste");
-            // Provide a skeleton of clipboard data
-            event.originalEvent = {
-                clipboardData: {
-                    types: ["text/plain"],
-                    getData: function (type) {
-                        return "ab;cd;ef";
-                    }
+            var event = global.makeFakePasteEvent({
+                types: ["text/plain"],
+                getData: function (type) {
+                    return "ab;cd;ef";
                 }
-            };
+            });
             editor.setDataCaret(ps[0], 0);
             editor.$gui_root.trigger(event);
 

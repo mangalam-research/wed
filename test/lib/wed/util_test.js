@@ -5,11 +5,37 @@
  */
 'use strict';
 var requirejs = require("requirejs");
+
+var baseUrl = __dirname + '/../../../build/standalone/lib';
+
+// We have to use this so that the test can find xregexp. It is not
+// possible to just configure RequireJS to load it. The problem is
+// that when RequireJS finds the file, it loads it as an AMD
+// module. Shims do not work in Node, so there's no fixing anything
+// there. RequireJS will call on node to load it if it cannot find it,
+// but then Node won't find it either, unless the following
+// custom_require is used. Ick...
+function custom_require() {
+    if (arguments.length === 1 && arguments[0] === "xregexp")
+        return require(baseUrl + '/external/xregexp');
+
+    /* jshint validthis: true */
+    return require.apply(this, arguments);
+}
+
 requirejs.config({
-    baseUrl: __dirname + '/../../../build/standalone/lib',
-    nodeRequire: require
+    baseUrl: baseUrl,
+    packages: [
+        {
+            name: "lodash",
+            location: "external/lodash"
+        }
+    ],
+    nodeRequire: custom_require
 });
 var util = requirejs("wed/util");
+var name_patterns = requirejs("salve/name_patterns");
+var NameResolver = requirejs("salve/name_resolver").NameResolver;
 var chai = require("chai");
 var assert = chai.assert;
 
@@ -96,7 +122,80 @@ three-----four"), "btw:blah-one--two---three----four");
         });
     });
 
+    describe("convertPatternObj", function () {
+        var nr;
+        before(function () {
+            nr = new NameResolver();
+            nr.definePrefix("", "default");
+            nr.definePrefix("prefix", "uri");
+            nr.definePrefix("prefix2", "uri2");
+        });
 
+        it("converts a Name", function () {
+            var name = new name_patterns.Name("", "uri", "name");
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "prefix:name");
+        });
+
+        it("converts a Name with an unprefixed namespace", function () {
+            var name = new name_patterns.Name("", "unprefixed", "name");
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "{unprefixed}name");
+        });
+
+        it("converts a Name with a default namespace", function () {
+            var name = new name_patterns.Name("", "default", "name");
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "name");
+        });
+
+        it("converts an NsName", function () {
+            var name = new name_patterns.NsName("", "uri");
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "prefix:*");
+        });
+
+        it("converts an NsName with a default namespace", function () {
+            var name = new name_patterns.NsName("", "default");
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "*");
+        });
+
+        it("converts an NsName with an unprefixed namespace", function () {
+            var name = new name_patterns.NsName("", "unprefixed");
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "{unprefixed}*");
+        });
+
+        it("converts an NsName with exception", function () {
+            var name = new name_patterns.NsName(
+                "", "uri",
+                new name_patterns.Name("", "uri", "name"));
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "prefix:* except (prefix:name)");
+        });
+
+        it("converts an AnyName", function () {
+            var name = new name_patterns.AnyName("");
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "*:*");
+        });
+
+        it("converts an AnyName with exception", function () {
+            var name = new name_patterns.AnyName("",
+                new name_patterns.Name("", "uri", "name"));
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "*:* except (prefix:name)");
+        });
+
+        it("converts a NameChoice", function () {
+            var name = new name_patterns.NameChoice("", [
+                new name_patterns.Name("", "uri", "name"),
+                new name_patterns.Name("", "uri2", "name2")]);
+            assert.equal(util.convertPatternObj(name.toObject(), nr),
+                         "(prefix:name) or (prefix2:name2)");
+        });
+    });
 });
 
 //  LocalWords:  requirejs util chai classFromOriginalName namespace

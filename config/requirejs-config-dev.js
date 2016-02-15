@@ -7,7 +7,7 @@ require.config({
  baseUrl: 'lib/',
  paths: {
    browser_test: '../../../browser_test',
-   jquery: 'external/jquery-2.1.1',
+   jquery: 'external/jquery',
    bootstrap: 'external/bootstrap/js/bootstrap.min',
    log4javascript: 'external/log4javascript',
    'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
@@ -19,7 +19,11 @@ require.config({
    async: 'external/async',
    angular: 'external/angular',
    bootbox: 'external/bootbox',
-   typeahead: 'external/typeahead.bundle.min'
+   typeahead: 'external/typeahead.bundle.min',
+   urijs: 'external/urijs',
+   interact: 'external/interact.min',
+   'merge-options': 'external/merge-options',
+   'is-plain-obj': 'external/is-plain-obj'
  },
  packages: [
      {

@@ -5,37 +5,39 @@
 #
 # Perform these first because they are extremely cheap to perform.
 #
-Linux,FF,34
-Linux,CH,43
+Linux,CH,48
 
 
 #
 # Perform these next because IE compatibility is a major
 # issue. Finding problems early pays.
 #
-Windows 8,IE,10,Remote
 Windows 8.1,IE,11,Remote
+#
+# This won't run because Edge does not yet support webdriver to any
+# meaningful level. See:
+#
+# https://dev.windows.com/en-us/microsoft-edge/platform/status/webdriver/details/
+#
+# Windows 10,Edge,20.10240,Remote
 
 #
 # Perform these next because OS X compatibility is an issue. Again, we
 # want to find problems early.
 #
-OS X 10.9,CH,43,Remote
-OS X 10.9,CH,41,Remote
+OS X 10.9,CH,47,Remote
 # wed definitely breaks on Chrome 34.
 # OS X 10.6,CH,34,Remote
 
 #
 # The rest is unlikely to fail if the previous tests passed.
 #
-Windows 8.1,CH,43,Remote
-Windows 8.1,CH,41,Remote
+Windows 8.1,CH,47,Remote
 # wed definitely breaks on Chrome 34.
 # Windows 8.1,CH,34,Remote
 
 # ESR
-Windows 8.1,FF,31,Remote
-Windows 8.1,FF,34,Remote
+# Windows 8.1,FF,38,Remote
 
 #
 # FAILING COMBINATIONS

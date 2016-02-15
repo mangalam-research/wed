@@ -95,13 +95,18 @@ def step_impl(context):
     util.wait(condition)
 
 
-@when(u'the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE)')
+@when(u'the user types (?P<choice>ENTER|ESCAPE|DELETE|BACKSPACE|F1)')
 def step_impl(context, choice):
     driver = context.driver
     key = getattr(Keys, choice)
     ActionChains(driver)\
         .send_keys(key)\
         .perform()
+
+
+@when(u'the user undoes')
+def step_impl(context):
+    context.util.ctrl_equivalent_x("Z")
 
 
 @then(u'the last letter of the element\'s text is deleted')

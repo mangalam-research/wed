@@ -99,4 +99,6 @@ def step_impl(context):
         return wed_editor._$modification_status.hasClass("label-success");
         """)
 
-    context.util.wait(check)
+    util = context.util
+    with util.local_timeout(300):
+        util.wait(check)

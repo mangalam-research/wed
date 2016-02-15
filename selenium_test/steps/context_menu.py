@@ -607,7 +607,8 @@ def step_impl(context, what=None, items=None, other=None):
                     actual.add("add")
                 elif link.startswith("Delete "):
                     actual.add("delete")
-                elif link.startswith("Element's documentation"):
+                elif link.startswith("Element's documentation") or \
+                        link in ("Test draggable", "Test resizable"):
                     actual.add("others")
                 elif link == "Test typeahead":
                     actual.add("others")

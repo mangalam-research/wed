@@ -22,7 +22,10 @@ def load_and_wait_for_editor(context, text=None, options=None,
     builder = context.builder
     server = builder.WED_SERVER + "/kitchen-sink.html?"
 
-    query = {"mode": "test"}
+    query = {
+        "mode": "test",
+        "nodemo": "1"
+    }
 
     if text is not None:
         query["file"] = text
@@ -60,6 +63,11 @@ def doc_appears(context):
 @given("an open document")
 def open_doc(context):
     load_and_wait_for_editor(context)
+
+
+@given("an empty docbook document")
+def step_impl(context):
+    load_and_wait_for_editor(context, schema="@docbook")
 
 
 @when("the user opens a new window")
@@ -486,13 +494,18 @@ _BROWSER_TO_VALUES = {
 @then("wed handles platform variations")
 def step_impl(context):
     config = context.builder.config
+    util = context.util
 
-    # Check that the parameters were properly passed.
-    test_platform, test_browser, test_version = \
-        context.driver.execute_script("""
-        return [window.test_platform, window.test_browser,
-                window.test_version];
-        """)
+    def check(driver):
+        # Check that the parameters were properly passed.
+        ret = \
+            driver.execute_script("""
+return [window.test_platform, window.test_browser, window.test_version];
+            """)
+
+        return False if None in ret else ret
+
+    test_platform, test_browser, test_version = util.wait(check)
 
     assert_equal(test_platform, config.platform)
     assert_equal(test_browser, config.browser)
@@ -596,3 +609,37 @@ def step_impl(context):
     context.driver.execute_script("""
     wed_editor._$input_field[0].focus();
     """)
+
+
+@then("a help dialog is visible")
+def step_impl(context):
+    head = context.util.find_element(
+        (By.CSS_SELECTOR, ".modal.in .modal-header h3"))
+    assert_equal(head.text, "Help")
+
+
+@when('the user clicks the help link in the dialog')
+def step_impl(context):
+    context.handles_before_help_link_click = context.driver.window_handles
+    link = context.util.find_element(
+        (By.CSS_SELECTOR, ".modal.in .modal-body a"))
+    link.click()
+
+
+@then("the help opens in a new tab")
+def step_impl(context):
+
+    def check(driver):
+        return len(driver.window_handles) == \
+            len(context.handles_before_help_link_click) + 1
+
+    context.util.wait(check)
+
+
+@when('the user dismisses the dialog warning that it is a demo')
+def step_impl(context):
+    util = context.util
+    header = util.find_element((By.CSS_SELECTOR, ".modal.in .modal-header h3"))
+    assert_equal(header.text.strip(), "Demo")
+    button = util.find_element((By.CSS_SELECTOR, ".modal.in .btn-primary"))
+    button.click()

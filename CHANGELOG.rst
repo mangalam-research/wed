@@ -4,6 +4,96 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.25:
+
+  - Support for Firefox on all platforms has been temporarily
+    suspended. In brief, the problem is that Selenium is no longer
+    able to accurately simulate real user interaction with the
+    browser. The problem is technical, but we do not have the
+    resources to fix Selenium. Please read `the documentation
+    <https://mangalam-research.github.io/wed/>`_ for the details of
+    why it is so. (Sorry for the imprecise link. A more precise link
+    from this file is not yet possible due to the way the
+    documentation is generated.)
+
+  - Support for IE 10 has ended because Microsoft no longer supports
+    it. This version of wed will most likely run fine on IE 10 but
+    future versions won't be tested with IE 10 and thus may not run
+    properly.
+
+  - Going foward: wed cannot be developed with Node.js earlier than
+    version 4. Upgrading the development environment to 4 allows
+    upgrading some of the development tools to their latest
+    version. Supporting both Node 0.12 and Node 4 would be *doable*
+    but won't happen unless someone is willing to spend time
+    implementing it.
+
+  - Wed now uses Gulp for building, rather than ``make``.
+
+  - Wed now supports the use of schemas that allow multiple possible
+    elements as the top element of a document. Previous versions did
+    not, and required customizing schemas to narrow the possible top
+    choices to just one element. Our go-to example was TEI which
+    typically allows both ``TEI`` and ``teiCorpus`` as the top
+    element. People using TEI would have had to specially take care to
+    customize their schema to allow ony one of the two elements at the
+    top. This is no longer necessary.
+
+  - GUI: Wed now has a real help page accessible through the help
+    dialog (``F1``).
+
+  - API: Wed now uses the `merge-options
+    <https://github.com/schnittstabil/merge-options>`_ module to merge
+    configuration options. The upshot is that it is now possible to
+    unset options that are set through RequireJS` ``module.config()``
+    by passing ``undefined`` values to the ``init`` method of ``Editor``
+    objects.
+
+  - API/GUI: Wed now allow the creation of draggable and resizable
+    windows. ``Editor.makeModal`` is now allowing an ``options``
+    argument to speicfy whether the modals are draggable and
+    resizable. Wed's stock modals are not usually resizable or
+    draggable but modes may want to create such modals.
+
+  - GUI: Attribute values are now shown in black on a white
+    background. This emphasises the values relative to the rest of an
+    element label and has for effect to distinguish a double quote
+    appearing in a value from a double quote as attribute value
+    delimiter.
+
+  - Internal: Upgraded to lodash 4. Wed won't work with earlier releases.
+
+  - Internal: Upgraded to salve 2.0.0.
+
+  - Internal: Bug fix: An embarrassing mistake made it so that adding new
+    attributes to an element never worked correctly, as the attriubte
+    name was mangled. This has been fixed.
+
+  - Internal: Bug fix: Clicking onto an attribute appearing after a
+    namespace attribute would cause a spurious error to be
+    reported. This has been fixed.
+
+  - GUI: Bug fix: The march of progress made it so that Chrome is now
+    better able to detect whether touch events are available. This, in
+    turn, causes Bootstrap to assume it is on a mobile platform
+    whenever touch events are available. This causes Bootstrap to add
+    a backdrop to capture clicks outside dropdowns, which causes
+    problems with our context menus. The problem has been fixed.
+
+  - GUI: Bug fix: When a document is saved, the save status acquires a
+    tooltip that indicates what kind of save happened most recently
+    (autosave, manual save). A bug prevented the tooltip from being
+    updated correctly. This has been fixed.
+
+  - GUI: Bug fix: The default trigger for tooltips is a combination of
+    ``focus`` and ``hover``. The earlier versions of Bootstrap had a
+    bug that made it so that the combination did not work
+    correctly. Wed was inadvertently depending on this bug. 3.3.5
+    fixed the Bootstrap bug, which changed the behavior that wed was
+    depending on and thus caused problems in wed. The issue has been
+    fixed.
+
+
 * 0.24.3:
 
   - GUI: Bug fix: If a validation error occurred at the very end of a

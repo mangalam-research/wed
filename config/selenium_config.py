@@ -67,13 +67,13 @@ caps = {
     # We have to turn this on...
     "nativeEvents": True,
     "name": name,
-    "selenium-version": "2.45.0",
+    "selenium-version": "2.48.2",
     # We cannot yet use 2.14 due to the change in how an element's
     # center is determined.
     #
     # AND SEE BELOW FOR A SPECIAL CASE.
     #
-    "chromedriver-version": "2.13",
+    "chromedriver-version": "2.20",
     "build": "version: " + version + ", git describe: " + describe
 }
 
@@ -90,6 +90,7 @@ with open(os.path.join(dirname, "./browsers.txt")) as browsers:
             continue  # Skip comments and blank lines
         parts = line.split(",")
         if len(parts) == 3:
+            parts = parts + [caps, False]
             Config(*parts)
         elif len(parts) == 4:
             assert parts[-1].upper() == "REMOTE"
@@ -137,9 +138,26 @@ if browser_env:
         # --ignore-certificate-errors
         #
         # --test-type is an **experimental** option. Reevaluate this
-        # --use.
+        # use.
         #
         CHROME_OPTIONS.add_argument("test-type")
+
+        #
+        # We force touch-events to be enabled. Why? At some point
+        # along the line, Chrome gained the ability to tell whether
+        # there is touch-enabled hardware on Debian. It is unclear
+        # what gave it this capability. (It is not based on Chrome's
+        # version as version 43 used to not detect touch capabilities
+        # on Debian but later gained the capability. Is it an upgrade
+        # to Gnome that made the difference??)
+        #
+        # Bootstrap does things differently depending on whether touch
+        # events are available or not. Unfortunately an Xvfb session
+        # won't report touch to be available even if the host X server
+        # supports it. So we force it to be able to test for it. Touch
+        # is becoming mainstream.
+        #
+        CHROME_OPTIONS.add_argument("touch-events")
 
     profile = FirefoxProfile()
     # profile.set_preference("webdriver.log.file",

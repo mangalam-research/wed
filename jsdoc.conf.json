@@ -8,7 +8,6 @@
         "tables": true
     },
     "opts": {
-        "template": "build/jsdoc_template",
         "lenient": false
     }
 }

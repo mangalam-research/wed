@@ -51,7 +51,7 @@
     }
 
 
-    .fa-times, .fa-caret-square-o-up {
+    .fa-times, .fa-caret-square-o-up, .fa-exclamation {
         color: red;
     }
 
@@ -248,6 +248,15 @@ div.wed-frame {
         &._label_clicked {
             background-color: @background-color-clicked;
         }
+
+        ._attribute_value {
+            color: black;
+            background-color: white;
+        }
+
+        ._attribute._readonly ._attribute_value {
+            background-color: @readonly-color;
+        }
     }
 
 
@@ -290,6 +299,10 @@ div.wed-frame {
                 &._owns_caret {
                     background-color: @owns-caret-color;
                     background-image: none;
+                }
+
+                &._readonly {
+                    background-color: @readonly-color;
                 }
             }
         }

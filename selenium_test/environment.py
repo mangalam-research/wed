@@ -171,21 +171,20 @@ def before_all(context):
     context.tunnel = None
     context.sc_tunnel_tempdir = None
 
-    setup_screenshots(context)
-
     context.selenium_quit = os.environ.get("SELENIUM_QUIT")
     userdata = context.config.userdata
     context.builder = builder = Builder(conf_path, userdata)
     desired_capabilities = {}
     ssh_tunnel = None
     dump_config(builder)
-    if userdata.get("check_selenium_config", False):
-        exit(0)
+
+    setup_screenshots(context)
 
     browser_to_tag_value = {
         "INTERNETEXPLORER": "ie",
         "CHROME": "ch",
-        "FIREFOX": "ff"
+        "FIREFOX": "ff",
+        "EDGE": "edge"
     }
 
     values = {
@@ -243,10 +242,15 @@ def before_all(context):
     # used.
     context.initial_window_size = {"width": 1020, "height": 700}
     context.initial_window_handle = driver.current_window_handle
-    assert_true(driver.desired_capabilities["nativeEvents"],
-                "Wed's test suite require that native events be available; "
-                "you may have to use a different version of your browser, "
-                "one for which Selenium supports native events.")
+
+    # IE and Chrome must use nativeEvents. Firefox no longer supports
+    # them. It is unclear whether Edge will...
+    if context.util.ie or context.util.chrome:
+        assert_true(
+            driver.desired_capabilities["nativeEvents"],
+            "Wed's test suite require that native events be available; "
+            "you may have to use a different version of your browser, "
+            "one for which Selenium supports native events.")
 
     behave_wait = os.environ.get("BEHAVE_WAIT_BETWEEN_STEPS")
     context.behave_wait = behave_wait and float(behave_wait)
@@ -374,9 +378,8 @@ def before_step(context, step):
     if context.behave_captions:
         # We send a comment as a "script" so that we get something
         # in the record of Selenium commands.
-        context.driver.execute_script("// STEP: " + step.keyword + " "
-                                      + step.name +
-                                      "\n")
+        context.driver.execute_script("// STEP: " + step.keyword + " " +
+                                      step.name + "\n")
     if context.behave_wait:
         time.sleep(context.behave_wait)
 
@@ -385,8 +388,8 @@ def after_step(context, step):
     driver = context.driver
     if step.status == "failed":
         name = os.path.join(context.screenshots_dir_path,
-                            slugify(context.scenario.name + "_"
-                                    + step.name) + ".png")
+                            slugify(context.scenario.name + "_" +
+                                    step.name) + ".png")
         driver.save_screenshot(name)
         print("")
         print("Captured screenshot:", name)

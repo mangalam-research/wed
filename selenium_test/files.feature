@@ -81,7 +81,8 @@ Scenario: saving a file
  When the user opens the files page with a "test.xml" file already loaded, and empty
  And the user clicks the link "test.xml"
  Then the file is loaded in the editor
- When the user saves
+ When the user dismisses the dialog warning that it is a demo
+ And the user saves
  Then the modification status shows the document is unmodified
  When the user clicks the link "Go to File Management"
  Then there is one file

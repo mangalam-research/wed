@@ -2,6 +2,7 @@
   "globalstrict": true,
   "maxlen": 80,
   "multistr": true,
+  "esnext": true,
   "globals":
   { "describe": false,
     "it": false,

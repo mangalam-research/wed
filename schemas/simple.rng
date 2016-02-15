@@ -26,12 +26,17 @@
     <element name="body">
       <choice>
         <empty/>
-        <oneOrMore>
-          <choice>
-            <text/>
-            <ref name="em"/>
-          </choice>
-        </oneOrMore>
+        <group>
+          <oneOrMore>
+            <choice>
+              <text/>
+              <ref name="em"/>
+            </choice>
+          </oneOrMore>
+          <zeroOrMore>
+            <ref name="any"/>
+          </zeroOrMore>
+        </group>
       </choice>
     </element>
   </define>
@@ -49,6 +54,22 @@
       <optional>
         <attribute name="foo"/>
       </optional>
+    </element>
+  </define>
+  <define name="any">
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <attribute>
+          <anyName/>
+        </attribute>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <ref name="any"/>
+          <text/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
 </grammar>
