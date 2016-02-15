@@ -3,7 +3,7 @@
  * @desc Classes that model RNG patterns.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013-2015 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:patterns */ function (require, exports, module) {
@@ -104,17 +104,25 @@ if (DEBUG) {
         var buf = "";
         var step = " ";
 
-        var name_or_path = function(el) {
-            return (el !== undefined) ?
-                ((el.name !== undefined) ?
-                 (" named " + el.name.toString())
-                 : (" with path " + el.xml_path)) : "";
+        var name_or_path = function(walker) {
+            var el = walker.el;
+
+            if (!el)
+                return "";
+
+            if (el.name === undefined)
+                return " with path " + el.xml_path;
+
+            var named = " named " + el.name.toString();
+            if (!walker.bound_name)
+                return named;
+
+            return named + " (bound to " + walker.bound_name.toString() + ")";
         };
 
         call_dump = function (msg, name, me) {
             trace(buf + msg + name + " on class " + me.constructor.name +
-                  " id " + me.id +
-                  ((me.el !== undefined)?name_or_path(me.el):name_or_path(me)));
+                  " id " + me.id + name_or_path(me));
         };
 
         possible_tracer = function (old_method, name, args) {
@@ -773,11 +781,11 @@ function Walker() {
     this.possible_cached = undefined;
     this.suppressed_attributes = false;
     // if (DEBUG) {
-    //  wrap(this, "_possible", possible_tracer);
-    //  wrap(this, "fireEvent", fireEvent_tracer);
-    //  //wrap(this, "end", plain_tracer);
-    //  //wrap(this, "_suppressAttributes", plain_tracer);
-    //  //wrap(this, "_clone", plain_tracer);
+    //     wrap(this, "_possible", possible_tracer);
+    //     wrap(this, "fireEvent", fireEvent_tracer);
+    //     wrap(this, "end", plain_tracer);
+    //     wrap(this, "_suppressAttributes", plain_tracer);
+    //     wrap(this, "_clone", plain_tracer);
     // }
 }
 
@@ -1355,7 +1363,7 @@ ValueWalker.prototype._suppressAttributes = function () {
  * library to use. ``undefined`` means use the builtin library.
  * @param {Array.<{name: string, value: string}>} params The
  * parameters from the RNG file.
- * @param {module:patterns~Except} except The exception pattern.
+ * @param {module:patterns~Pattern} except The exception pattern.
  */
 function Data(xml_path, type, datatype_library, params, except) {
     Pattern.call(this, xml_path);
@@ -1414,6 +1422,9 @@ function DataWalker(el, name_resolver) {
 
     // An undefined el can happen when cloning.
     if (this.el) {
+        // We completely ignore the possible exception when producing
+        // the possibilities. There is no clean way to specify such an
+        // exception.
         this.possible_cached =
             new EventSet(new Event("text", this.el.datatype.regexp));
         this.context = (this.el.datatype.needs_context) ?
@@ -1443,8 +1454,24 @@ DataWalker.prototype.fireEvent = function(ev) {
     if (ev.params[0] !== "text")
         return undefined;
 
-    if (this.el.datatype.disallows(ev.params[1], this.el.params, this.context))
+    if (this.el.datatype.disallows(ev.params[1], this.el.params,
+                                   this.context))
         return undefined;
+
+    if (this.el.except) {
+        var walker = this.el.except.newWalker(this.name_resolver);
+        var except_ret = walker.fireEvent(ev);
+
+        // False, so the except does match the text, and so this
+        // pattern does not match it.
+        if (except_ret === false)
+            return undefined;
+
+        // Otherwise, it is undefined, in which case it means the
+        // except does not match the text, and we are fine. Or it
+        // would be possible for the walker to have returned an error
+        // but there is nothing we can do with such errors here.
+    }
 
     this.matched = true;
     this.possible_cached = new EventSet();
@@ -1452,8 +1479,25 @@ DataWalker.prototype.fireEvent = function(ev) {
 };
 
 DataWalker.prototype.canEnd = function (attribute) {
-    return this.matched || !this.el.datatype.disallows("", this.el.params,
-                                                       this.context);
+
+    // If we matched, we are done. salve does not allow text that
+    // appears in an XML element to be passed as two "text" events. So
+    // there is nothing to come that could falsify the match. (If a
+    // client *does* pass multiple text events one after the other, it
+    // is using salve incorrectly.)
+    if (this.matched)
+        return true;
+
+    // We have not matched anything. Therefore we have to check
+    // whether we allow the empty string.
+    if (this.el.except) {
+        var walker = this.el.except.newWalker(this.name_resolver);
+        if (walker.canEnd()) // Matches the empty string
+            return false;
+    }
+
+    return !this.el.datatype.disallows("", this.el.params,
+                                       this.context);
 };
 
 DataWalker.prototype.end = function (attribute) {
@@ -1547,7 +1591,7 @@ inherit(TextWalker, Walker);
 implement(TextWalker, NoSubwalker);
 
 // Events are constant so create the one we need just once.
-TextWalker._text_event = new Event("text", "*");
+TextWalker._text_event = new Event("text", /^.*$/);
 
 TextWalker.prototype._possible = function () {
     return this.possible_cached;
@@ -1660,20 +1704,38 @@ OneOrMoreWalker.prototype._copyInto = function (obj, memo) {
         this.next_iteration._clone(memo) : undefined;
 };
 
+OneOrMoreWalker.prototype._instantiateCurrentIteration = function () {
+    if (this.current_iteration === undefined)
+        this.current_iteration = this.el.pat.newWalker(this.name_resolver);
+};
+
+OneOrMoreWalker.prototype._instantiateNextIteration = function () {
+    if (this.next_iteration === undefined) {
+        this.next_iteration = this.el.pat.newWalker(this.name_resolver);
+
+        // Whereas _suppressAttributes calls
+        // _instantiateCurrentIteration() so that current_iteration is
+        // always existing and its _suppressAttributes() method is
+        // called before _suppressAttributes() returns, the same is
+        // not true of next_iteration. So if we create it **after**
+        // _suppressAttributes() was called we need to call
+        // _suppressAttributes() on it.
+        if (this.suppressed_attributes)
+            this.next_iteration._suppressAttributes();
+    }
+};
+
+
 OneOrMoreWalker.prototype._possible = function() {
     if (this.possible_cached !== undefined)
         return this.possible_cached;
 
-    if (this.current_iteration === undefined)
-        this.current_iteration = this.el.pat.newWalker(this.name_resolver);
-
+    this._instantiateCurrentIteration();
     this.possible_cached = this.current_iteration._possible();
 
     if (this.current_iteration.canEnd()) {
         this.possible_cached = new EventSet(this.possible_cached);
-        if (this.next_iteration === undefined) {
-            this.next_iteration = this.el.pat.newWalker(this.name_resolver);
-        }
+        this._instantiateNextIteration();
 
         var next_possible = this.next_iteration._possible(this.name_resolver);
 
@@ -1686,8 +1748,7 @@ OneOrMoreWalker.prototype._possible = function() {
 OneOrMoreWalker.prototype.fireEvent = function(ev) {
     this.possible_cached = undefined;
 
-    if (this.current_iteration === undefined)
-        this.current_iteration = this.el.pat.newWalker(this.name_resolver);
+    this._instantiateCurrentIteration();
 
     var ret = this.current_iteration.fireEvent(ev);
     if (ret === false)
@@ -1702,9 +1763,7 @@ OneOrMoreWalker.prototype.fireEvent = function(ev) {
             throw new Error("internal error; canEnd() returns "+
                             "true but end() fails");
 
-        if (this.next_iteration === undefined)
-            this.next_iteration = this.el.pat.newWalker(this.name_resolver);
-
+        this._instantiateNextIteration();
         var next_ret = this.next_iteration.fireEvent(ev);
         if (next_ret === false) {
             this.current_iteration = this.next_iteration;
@@ -1716,7 +1775,25 @@ OneOrMoreWalker.prototype.fireEvent = function(ev) {
 };
 
 OneOrMoreWalker.prototype._suppressAttributes = function () {
-    // A oneOrMore element cannot have an attribute as a child.
+    // A oneOrMore element can happen if we have the pattern
+    // ``(attribute * { text })+`` for instance. Once converted to the
+    // simplified RNG, it becomes:
+    //
+    // ``<oneOrMore><attribute><anyName/><rng:text/></attribute></oneOrMore>``
+    //
+    // An attribute in ``oneOrMore`` cannot happen when ``anyName`` is
+    // not used because an attribute of any given name cannot be
+    // repeated.
+    //
+    this._instantiateCurrentIteration();
+    if (!this.suppressed_attributes) {
+        this.suppressed_attributes = true;
+        this.possible_cached = undefined; // No longer valid.
+        this.current_iteration._suppressAttributes();
+
+        if (this.next_iteration)
+            this.next_iteration._suppressAttributes();
+    }
 };
 
 OneOrMoreWalker.prototype.canEnd = function (attribute) {
@@ -1724,8 +1801,7 @@ OneOrMoreWalker.prototype.canEnd = function (attribute) {
         if (!this.el.pat._hasAttrs())
             return true;
 
-        if (this.current_iteration === undefined)
-            this.current_iteration = this.el.pat.newWalker(this.name_resolver);
+        this._instantiateCurrentIteration();
 
         return this.current_iteration.canEnd(true);
     }
@@ -1736,9 +1812,8 @@ OneOrMoreWalker.prototype.end = function (attribute) {
     if (this.canEnd(attribute))
         return false;
 
-    // Undefined current_iteration can happen in rare case.
-    if (this.current_iteration === undefined)
-        this.current_iteration = this.el.pat.newWalker(this.name_resolver);
+    // Undefined current_iteration can happen in rare cases.
+    this._instantiateCurrentIteration();
 
     // Release next_iteration, which we won't need anymore.
     this.next_iteration = undefined;
@@ -1930,7 +2005,7 @@ ChoiceWalker.prototype.end = function (attribute) {
     var not_a_choice_error = false;
     this.walker_a.possible().forEach(function (ev) {
         if (ev.params[0] === "enterStartTag")
-            names_a.push(new EName(ev.params[1], ev.params[2]));
+            names_a.push(ev.params[1]);
         else
             not_a_choice_error = true;
     });
@@ -1938,7 +2013,7 @@ ChoiceWalker.prototype.end = function (attribute) {
     if (!not_a_choice_error) {
         this.walker_b.possible().forEach(function (ev) {
             if (ev.params[0] === "enterStartTag")
-                names_b.push(new EName(ev.params[1], ev.params[2]));
+                names_b.push(ev.params[1]);
             else
                 not_a_choice_error = true;
         });
@@ -2382,9 +2457,16 @@ Attribute.prototype._copyInto = function (obj, memo) {
 };
 
 Attribute.prototype._prepare = function (namespaces) {
+    var nss = Object.create(null);
+    this.name._recordNamespaces(nss);
+
     // A lack of namespace on an attribute should not be recorded.
-    if (this.name.ns !== "")
-        namespaces[this.name.ns] = 1;
+    delete nss[""];
+
+    // Copy the resulting namespaces.
+    var keys = Object.keys(nss);
+    for (var i = 0, key; (key = keys[i]); ++i)
+        namespaces[key] = 1;
 };
 
 Attribute.prototype._hasAttrs = function () {
@@ -2411,8 +2493,7 @@ function AttributeWalker(el, name_resolver) {
     this.seen_value = false;
     this.subwalker = undefined;
 
-    this.attr_name_event = el && new Event("attributeName",
-                                           el.name.ns, el.name.name);
+    this.attr_name_event = el && new Event("attributeName", el.name);
 }
 inherit(AttributeWalker, Walker);
 
@@ -2486,8 +2567,7 @@ AttributeWalker.prototype.fireEvent = function (ev) {
         }
     }
     else if (ev.params[0] === "attributeName" &&
-             ev.params[1] === this.el.name.ns &&
-             ev.params[2] === this.el.name.name) {
+             this.el.name.match(ev.params[1], ev.params[2])) {
         this.seen_name = true;
         return false;
     }
@@ -2500,13 +2580,10 @@ AttributeWalker.prototype._suppressAttributes = function () {
 };
 
 AttributeWalker.prototype.canEnd = function (attribute) {
-    return this.suppressed_attributes || this.seen_value;
+    return this.seen_value;
 };
 
 AttributeWalker.prototype.end = function (attribute) {
-    if (this.suppressed_attributes)
-        return false;
-
     if (!this.seen_name)
         return [new AttributeNameError("attribute missing", this.el.name)];
     else if (!this.seen_value)
@@ -2545,7 +2622,7 @@ Element.prototype._copyInto = function (obj, memo) {
 };
 
 Element.prototype._prepare = function (namespaces) {
-    namespaces[this.name.ns] = 1;
+    this.name._recordNamespaces(namespaces);
     this.pat._prepare(namespaces);
 };
 
@@ -2588,14 +2665,9 @@ function ElementWalker(el, name_resolver) {
     this.ended_start_tag = false;
     this.closed = false;
     this.walker = undefined;
-    if (el !== undefined) {
-        this.start_tag_event = new Event("enterStartTag", el.name.ns,
-                                         el.name.name);
-        this.end_tag_event = new Event("endTag", this.el.name.ns,
-                                       this.el.name.name);
-    }
-    else
-        this.start_tag_event = this.end_tag_event = undefined;
+    this.start_tag_event = el && new Event("enterStartTag", el.name);
+    this.end_tag_event = undefined;
+    this.bound_name = undefined;
 }
 inherit(ElementWalker, Walker);
 // Reuse the same event object, since they are immutable
@@ -2614,6 +2686,7 @@ ElementWalker.prototype._copyInto = function (obj, memo) {
     // No cloning needed since these are immutable.
     obj.start_tag_event = this.start_tag_event;
     obj.end_tag_event = this.end_tag_event;
+    obj.bound_name = this.bound_name;
 };
 
 ElementWalker.prototype._possible = function () {
@@ -2658,25 +2731,27 @@ ElementWalker.prototype._possible = function () {
 ElementWalker.prototype.possible = ElementWalker.prototype._possible;
 
 ElementWalker.prototype.fireEvent = function (ev) {
-    var ret;
+    var ret, errs, err, i;
     if (!this.ended_start_tag) {
         if (!this.seen_name) {
             if (ev.params[0] === "enterStartTag" &&
-                ev.params[1] === this.el.name.ns &&
-                ev.params[2] === this.el.name.name) {
+                this.el.name.match(ev.params[1], ev.params[2])) {
                 this.walker = this.el.pat.newWalker(
                     this.name_resolver);
                 this.seen_name = true;
+                this.bound_name = new name_patterns.Name(
+                    "", ev.params[1], ev.params[2]);
+                this.end_tag_event = new Event("endTag",
+                                               this.bound_name);
                 return false;
             }
         }
         else if (ev.params[0] === "leaveStartTag") {
             this.ended_start_tag = true;
 
-            var errs = this.walker.end(true);
+            errs = this.walker.end(true);
             ret = [];
-            for(var i = 0; i < errs.length; ++i) {
-                var err = errs[i];
+            for(i = 0; (err = errs[i]); ++i) {
                 if (err instanceof AttributeValueError ||
                     err instanceof AttributeNameError)
                     ret.push(err);
@@ -2700,10 +2775,23 @@ ElementWalker.prototype.fireEvent = function (ev) {
             // Our subwalker did not handle the event, so we must
             // do it here.
             if  (ev.params[0] === "endTag") {
-                if (ev.params[1] === this.el.name.ns &&
-                    ev.params[2] === this.el.name.name) {
+                if (this.bound_name.match(ev.params[1], ev.params[2])) {
                     this.closed = true;
-                    return this.walker.end();
+
+                    errs = this.walker.end();
+                    ret = [];
+
+                    // Strip out the attributes errors as we've
+                    // already reported them.
+                    for(i = 0; (err = errs[i]); ++i) {
+                        if (err instanceof AttributeValueError ||
+                            err instanceof AttributeNameError)
+                            continue;
+
+                        ret.push(err);
+                    }
+
+                    return ret.length !== 0 && ret;
                 }
             }
             else if (ev.params[0] === "leaveStartTag")
@@ -2983,8 +3071,12 @@ Grammar.prototype.whollyContextIndependent = function () {
 
 /**
  *
- * @returns {Array.<string>} An array of all namespaces used in
- * the schema.
+ * @returns {Array.<string>} An array of all namespaces used in the
+ * schema. The array may contain two special values: ``*`` indicates
+ * that there was an ``anyName`` element in the schema and thus that
+ * it is probably possible to insert more than the namespaces listed
+ * in the array, ``::except`` indicates that an ``except`` element is
+ * affecting what namespaces are acceptable to the schema.
  */
 Grammar.prototype.getNamespaces = function () {
     return Object.keys(this._namespaces);
@@ -3017,6 +3109,7 @@ function GrammarWalker(el) {
     this._swallow_attribute_value = false;
     this.suspended_ws = undefined;
     this.ignore_next_ws = false;
+    this._prev_ev_was_text = false;
 }
 
 inherit(GrammarWalker, Walker);
@@ -3037,6 +3130,7 @@ GrammarWalker.prototype._copyInto = function (obj, memo) {
     obj._name_resolver = this._cloneIfNeeded(this._name_resolver, memo);
     obj.suspended_ws = this.suspended_ws;
     obj.ignore_next_ws = this.ignore_next_ws;
+    obj._prev_ev_was_text = this._prev_ev_was_text;
 };
 
 /**
@@ -3142,6 +3236,10 @@ GrammarWalker.prototype.fireEvent = function (ev) {
         this.suspended_ws = undefined;
         break;
     case "text":
+        if (this._prev_ev_was_text)
+            throw new Error("fired two text events in a row: this is " +
+                            "disallowed by salve");
+
         if (this.ignore_next_ws) {
             this.suspended_ws = undefined;
             var trimmed = ev.params[1].replace(/^\s+/, '');
@@ -3162,6 +3260,10 @@ GrammarWalker.prototype.fireEvent = function (ev) {
             ws_err = walker.fireEvent(new Event("text", this.suspended_ws));
         this.suspended_ws = undefined;
     }
+
+    // We can update it here because we're done examining the value
+    // that was set from the previous call to fireEvent.
+    this._prev_ev_was_text = (ev.params[0] === "text");
 
     if (this._misplaced_elements.length > 0 &&
         this._misplaced_elements[0] instanceof Array) {
@@ -3210,15 +3312,16 @@ GrammarWalker.prototype.fireEvent = function (ev) {
     else if (ret === undefined) {
         switch(ev.params[0]) {
         case "enterStartTag":
-            var ename = new EName(ev.params[1], ev.params[2]);
+            var name = new name_patterns.Name("",
+                                              ev.params[1], ev.params[2]);
             ret = [new ElementNameError(
                 "tag not allowed here",
-                ename)];
+                name)];
 
             // Try to infer what element is meant by this errant
             // tag. If we can't find a candidate, then fall back to a
             // dumb mode.
-            var candidates = this.el.element_definitions[ename.toString()];
+            var candidates = this.el.element_definitions[name.toString()];
             if (candidates && candidates.length === 1) {
                 var new_walker = candidates[0].newWalker(this._name_resolver);
                 this._misplaced_elements.unshift(new_walker);
@@ -3233,12 +3336,12 @@ GrammarWalker.prototype.fireEvent = function (ev) {
         case "endTag":
             ret = [new ElementNameError(
                 "unexpected end tag",
-                new EName(ev.params[1], ev.params[2]))];
+                new name_patterns.Name("", ev.params[1], ev.params[2]))];
             break;
         case "attributeName":
             ret = [new AttributeNameError(
                 "attribute not allowed here",
-                new EName(ev.params[1], ev.params[2]))];
+                new name_patterns.Name("", ev.params[1], ev.params[2]))];
             this.swallow_attribute_value = true;
             break;
         case "attributeValue":
@@ -3327,6 +3430,7 @@ exports.__test = function () { return tret; };
 // DO NOT USE THIS OUTSIDE SALVE! THIS EXPORT MAY CHANGE AT ANY TIME!
 // YOU'VE BEEN WARNED!
 //
+var name_patterns = require("./name_patterns");
 exports.__protected = {
     Empty: Empty,
     Data: Data,
@@ -3344,7 +3448,11 @@ exports.__protected = {
     Define: Define,
     Grammar: Grammar,
     EName: EName,
-    Interleave: Interleave
+    Interleave: Interleave,
+    Name: name_patterns.Name,
+    NameChoice: name_patterns.NameChoice,
+    NsName: name_patterns.NsName,
+    AnyName: name_patterns.AnyName,
 };
 
 });

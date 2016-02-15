@@ -30,6 +30,7 @@ var icon = require("./gui/icon");
 var wed_util = require("./wed_util");
 var tooltip = require("./gui/tooltip").tooltip;
 var guiroot = require("./guiroot");
+var transformation = require("./transformation");
 var getAttrValueNode = wed_util.getAttrValueNode;
 require("bootstrap");
 require("jquery.bootstrap-growl");
@@ -142,6 +143,16 @@ Editor.prototype.makeDocumentationLink = function (doc_url) {
     return a;
 };
 
+/**
+ * This is the default menu handler called when the user right-clicks
+ * in the contents of a document or uses the keyboard shortcut.
+ *
+ * The menu handler which is invoked when a user right-clicks on an
+ * element start or end label is defined by the decorator that the
+ * mode is using.
+ *
+ * @private
+ */
 Editor.prototype._contextMenuHandler = function (e) {
     if (!this._sel_focus)
         return false;
@@ -167,6 +178,8 @@ Editor.prototype._contextMenuHandler = function (e) {
         node = ph.parentNode;
     }
 
+    var real = closestByClass(node, "_real", this.gui_root);
+    var readonly = real && real.classList.contains("_readonly");
     var method = closestByClass(node, "_attribute_value", this.gui_root) ?
             this._getMenuItemsForAttribute:
             this._getMenuItemsForElement;
@@ -179,7 +192,7 @@ Editor.prototype._contextMenuHandler = function (e) {
 
     var pos = this.computeContextMenuPosition(e);
     this.displayContextMenu(action_context_menu.ContextMenu,
-                            pos.left, pos.top, menu_items);
+                            pos.left, pos.top, menu_items, readonly);
     return false;
 };
 
@@ -225,14 +238,9 @@ Editor.prototype._getMenuItemsForElement = function (node, offset, wrap) {
 
     var menu_items = [];
 
+    var me = this;
     function pushItem(data, tr) {
-        var icon = tr.getIcon();
-        var li = domutil.htmlToElements(
-            "<li><a tabindex='0' href='#'>" + (icon ? icon + " ": "") +
-                tr.getDescriptionFor(data) + "</a></li>",
-            node.ownerDocument)[0];
-        var a = li.firstElementChild;
-        $(a).click(data, tr.bound_terminal_handler);
+        var li = me._makeMenuItemForAction(tr, data);
         menu_items.push({action: tr, item: li, data: data});
     }
 
@@ -242,7 +250,8 @@ Editor.prototype._getMenuItemsForElement = function (node, offset, wrap) {
         !node.parentNode.classList.contains("_gui")) {
 
         // We want the data node, not the gui node.
-        var data_node = this.toDataNode(node);
+        var tree_caret = this.toDataLocation(node, offset);
+        var data_node = tree_caret.node;
 
         var doc_url = this.mode.documentationLinkFor(data_node.tagName);
 
@@ -253,23 +262,16 @@ Editor.prototype._getMenuItemsForElement = function (node, offset, wrap) {
             menu_items.push({action: null, item: li, data: null});
         }
 
-        this.validator.possibleAt(
-            data_node, offset).forEach(function (ev) {
-                if (ev.params[0] !== "enterStartTag")
-                    return;
-
-                var unresolved = this.resolver.unresolveName(
-                    ev.params[1], ev.params[2]);
-
-                var trs = this.mode.getContextualActions(
-                    wrap ? "wrap" : "insert", unresolved, data_node, offset);
-
-                for(tr_ix = 0; (tr = trs[tr_ix]) !== undefined; ++tr_ix)
-                    pushItem({name: unresolved}, tr);
-            }.bind(this));
+        var trs = this.getElementTransformationsAt(tree_caret, wrap);
+        for (tr_ix = 0; (tr = trs[tr_ix]); ++tr_ix) {
+            // If tr.name is not undefined we have a real transformation.
+            // Otherwise, it is an action.
+            pushItem((tr.name !== undefined) ? {name: tr.name} : undefined,
+                     tr.tr);
+        }
 
         if (data_node !== this.data_root.firstChild) {
-            var trs = this.mode.getContextualActions(
+            trs = this.mode.getContextualActions(
                 ["unwrap", "delete-parent"], data_node.tagName, data_node, 0);
             for(tr_ix = 0; (tr = trs[tr_ix]) !== undefined; ++tr_ix)
                 pushItem({node: data_node, name: data_node.tagName }, tr);
@@ -296,6 +298,26 @@ Editor.prototype._getMenuItemsForElement = function (node, offset, wrap) {
     }
 
     return menu_items;
+};
+
+
+Editor.prototype._makeMenuItemForAction = function (action, data) {
+    var icon = action.getIcon();
+    var li = domutil.htmlToElements(
+        "<li><a tabindex='0' href='#'>" + (icon ? icon + " ": "") +
+            "</a></li>", this.doc)[0];
+
+    if (action.kind !== undefined)
+        li.setAttribute("data-kind", action.kind);
+
+    var a = li.firstElementChild;
+    // We do it this way so that to avoid an HTML interpretation of
+    // action.getDescriptionFor()`s return value.
+    var text = this.doc.createTextNode(action.getDescriptionFor(data));
+    a.appendChild(text);
+    a.normalize();
+    $(a).click(data, action.bound_terminal_handler);
+    return li;
 };
 
 /**
@@ -348,12 +370,70 @@ Editor.prototype.computeContextMenuPosition = function (e, bottom) {
     return pos;
 };
 
+/**
+ * Returns the list of element transformations for the location
+ * pointed to by the caret.
+ *
+ * @param {module:dloc~DLoc} tree_caret The location in the
+ * document. This must be a data location, not a GUI location.
+ * @param {boolean} [wrap=false] Whether the transformations return should be
+ * those for wrapping
+ * @return {Array.<{tr: module:transformation~Transformation, name: string}>}
+ * An array of objects having the fields ``tr`` which contain the actual
+ * transformation and ``name`` which is the unresolved element name
+ * for this transformation. It is exceptionally possible to have an
+ * item of the list contain a {@link module:action~Action} for ``tr``
+ * and ``undefined`` for ``name``.
+ */
+Editor.prototype.getElementTransformationsAt = function (tree_caret, wrap) {
+    wrap = !!wrap;
+
+    var mode = this.mode;
+    var resolver = this.resolver;
+    var ret = [];
+    var me = this;
+    this.validator.possibleAt(tree_caret).forEach(function (ev) {
+        if (ev.params[0] !== "enterStartTag")
+            return;
+
+        if (ev.params[1].simple()) {
+            var names = ev.params[1].toArray();
+            for (var name_ix = 0, name; (name = names[name_ix]);
+                 ++name_ix) {
+                var unresolved = resolver.unresolveName(
+                    name.ns, name.name);
+
+                var trs = mode.getContextualActions(
+                    wrap ? "wrap": "insert", unresolved, tree_caret.node,
+                    tree_caret.offset);
+                if (trs === undefined)
+                    return;
+
+                for (var tr_ix = 0, tr; (tr = trs[tr_ix]); ++tr_ix) {
+                    ret.push({tr: tr, name: unresolved});
+                }
+            }
+        }
+        else {
+            // We push an action rather than a transformation.
+            ret.push({tr: me.complex_pattern_action, name: undefined});
+        }
+    });
+
+    return ret;
+};
+
 Editor.prototype._cutHandler = function(e) {
     if (this.getDataCaret() === undefined)
         return false; // XXX alert the user?
 
     var range = this._getDOMSelectionRange();
     if (domutil.isWellFormedRange(range)) {
+        var el = closestByClass(this._sel_anchor.node, "_real", this.gui_root);
+        // We do not operate on elements that are readonly.
+        if (!el || el.classList.contains("_readonly"))
+            return false;
+
         // The only thing we need to pass is the event that triggered the
         // cut.
         this.fireTransformation(this.cut_tr, {e: e});
@@ -369,6 +449,11 @@ Editor.prototype._pasteHandler = function(e) {
     var caret = this.getDataCaret();
     if (caret === undefined)
         return false; // XXX alert the user?
+
+    var el = closestByClass(this._sel_anchor.node, "_real", this.gui_root);
+    // We do not operate on elements that are readonly.
+    if (!el || el.classList.contains("_readonly"))
+        return false;
 
     // IE puts the clipboardData as a object on the window.
     var cd = e.originalEvent.clipboardData || this.my_window.clipboardData;
@@ -1261,7 +1346,8 @@ Editor.prototype._mouseoverHandler = log.wrap(function(ev) {
             },
             container: 'body',
             delay: { show: 1000 },
-            placement: "auto top"
+            placement: "auto top",
+            trigger: 'hover'
         };
         tooltip($(label), options);
         var tt = $.data(label, 'bs.tooltip');
@@ -1393,7 +1479,28 @@ Editor.prototype._dismissDropdownMenu = function () {
  * @param items Must be a sequence of <li> elements that will form the
  * menu. The actual data type can be anything that jQuery() accepts.
  */
-Editor.prototype.displayContextMenu = function (cm_class, x, y, items) {
+Editor.prototype.displayContextMenu = function (cm_class, x, y, items,
+                                                readonly) {
+
+    // Eliminate duplicate items. We perform a check only in the
+    // description of the action, and on ``data.name``.
+    var seen = Object.create(null);
+    items = items.filter(function (x) {
+        // "\0" not a legitimate value in descriptions.
+        var key = (x.action ? x.action.getDescription() : "")+ "\0";
+        if (x.data)
+            key += x.data.name;
+        var keep = !seen[key];
+        seen[key] = true;
+
+        if (!keep || !readonly)
+            return keep;
+
+        // If we get here, then we need to filter out anything that
+        // transforms the tree.
+        return !(x.action instanceof transformation.Transformation);
+    });
+
     this._dismissDropdownMenu();
     this.pushSelection();
     this._current_dropdown = new cm_class(
@@ -1459,10 +1566,12 @@ Editor.prototype._refreshSaveStatus = log.wrap(function () {
             this._$save_status.removeClass(
                 "label-default label-info label-success").
                 addClass(to_add);
+            this._$save_status.tooltip('destroy');
             this._$save_status.tooltip({
                 title: tip,
                 container: 'body',
-                placement: "auto top"
+                placement: "auto top",
+                trigger: 'hover'
             });
         }
 
@@ -1543,6 +1652,40 @@ Editor.prototype._refreshValidationErrors = function () {
 };
 
 
+function getGUINodeIfExists(editor, node) {
+    try {
+        return editor.fromDataLocation(node, 0).node;
+    }
+    catch (ex) {
+        if (ex instanceof guiroot.AttributeNotFound)
+            return undefined;
+
+        throw ex;
+    }
+}
+
+Editor.prototype._onPossibleDueToWildcardChange = function (node) {
+    //
+    // This function is designed to execute fairly quickly. **IT IS
+    // IMPORTANT NOT TO BURDEN THIS FUNCTION.** It will be called for
+    // every element and attribute in the data tree and thus making
+    // this function slower will have a significant impact on
+    // validation speed and the speed of wed generally.
+    //
+    var gui_node = getGUINodeIfExists(this, node);
+
+    // This may happen if we are dealing with an attribute node.
+    if (gui_node && gui_node.nodeType === Node.TEXT_NODE)
+        gui_node = closestByClass(gui_node, "_attribute", this.gui_root);
+
+    if (gui_node)
+        this.decorator.setReadOnly(gui_node, node.wed_possible_due_to_wildcard);
+
+    // If the GUI node does not exist yet, then the decorator will
+    // take care of adding or removing _readonly when decorating the
+    // node.
+};
+
 // This is a utility function for _processValidationError. If the mode
 // is set to not display attributes or if a custom decorator is set to
 // not display a specific attribute, then finding the GUI location of
@@ -1583,13 +1726,31 @@ Editor.prototype._processValidationError = function (ev) {
             invisible_attribute = true;
     }
 
-    // Turn the expanded names back into qualified names.
-    var names = error.getNames();
-    for(var ix = 0; ix < names.length; ++ix) {
-        names[ix] = this.resolver.unresolveName(
-            names[ix].ns, names[ix].name,
-            error instanceof validate.AttributeNameError ||
-            error instanceof validate.AttributeValueError);
+    // Turn the names into qualified names.
+    var converted_names = [];
+    var patterns = error.getNames();
+    for(var np_ix = 0, pattern; (pattern = patterns[np_ix]);
+        ++np_ix) {
+        var names = pattern.toArray();
+        var converted_name = "";
+        if (names !== null) {
+            // Simple pattern, just translate all names one by one.
+            var conv = [];
+            for (var n_ix = 0, name; (name = names[n_ix]); ++n_ix) {
+                conv.push(this.resolver.unresolveName(
+                    name.ns, name.name,
+                    error instanceof validate.AttributeNameError ||
+                        error instanceof validate.AttributeValueError));
+            }
+            converted_name = conv.join(" or ");
+        }
+        else {
+            // We convert the complex pattern into something
+            // reasonable.
+            converted_name = util.convertPatternObj(pattern.toObject(),
+                                                    this.resolver);
+        }
+        converted_names.push(converted_name);
     }
 
     var item;
@@ -1640,7 +1801,7 @@ Editor.prototype._processValidationError = function (ev) {
 
         item = domutil.htmlToElements(
             "<li><a href='#" + marker_id + "'>" +
-                error.toStringWithNames(names) + "</a></li>",
+                error.toStringWithNames(converted_names) + "</a></li>",
             insert_at.node.ownerDocument)[0];
 
         $(item.firstElementChild).click(log.wrap(function (ev) {
@@ -1654,7 +1815,7 @@ Editor.prototype._processValidationError = function (ev) {
     }
     else {
         item = domutil.htmlToElements(
-            "<li>" + error.toStringWithNames(names) + "</li>",
+            "<li>" + error.toStringWithNames(converted_names) + "</li>",
             insert_at.node.ownerDocument)[0];
         item.title = "This error belongs to an attribute " +
             "which is not currently displayed.";
@@ -1689,8 +1850,8 @@ Editor.prototype.setNavigationList = function (items) {
     this._$navigation_panel.css("display", "");
 };
 
-Editor.prototype.makeModal = function () {
-    var ret = new modal.Modal();
+Editor.prototype.makeModal = function (options) {
+    var ret = new modal.Modal(options);
     var $top = ret.getTopLevel();
     // Ensure that we don't lose the caret when a modal is displayed.
     $top.on("show.bs.modal.modal",

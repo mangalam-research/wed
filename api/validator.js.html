@@ -11,11 +11,9 @@
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
     <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-    <link type="text/css" rel="stylesheet" href="styles/mangalam.css">
 </head>
 
 <body>
-
 
 <div id="main">
 
@@ -24,10 +22,11 @@
     
 
 
+
     
     <section>
         <article>
-            <pre class="prettyprint source"><code>/**
+            <pre class="prettyprint source linenums"><code>/**
  * @module validator
  * @desc This module is responsible for validating the document being
  * edited in wed.
@@ -41,6 +40,7 @@ define(/** @lends module:validator */ function (require, exports, module) {
 var SimpleEventEmitter =
         require("./lib/simple_event_emitter").SimpleEventEmitter;
 var validate = require("salve/validate");
+var name_patterns = require("salve/name_patterns");
 var $ = require("jquery");
 var oop = require("./oop");
 var dloc = require("./dloc");
@@ -283,7 +283,7 @@ Validator.prototype._work = function () {
     var start_date = new Date();
     while (true) {
         // Give a chance to other operations to work.
-        if ((this._max_timespan > 0) &&
+        if ((this._max_timespan > 0) &amp;&amp;
             (new Date() - start_date) >= this._max_timespan)
             return true;
 
@@ -375,6 +375,10 @@ Validator.prototype._cycle = function () {
             var cur_el_ix = cur_el.parentNode ?
                     _indexOf.call(cur_el.parentNode.childNodes, cur_el):
                     undefined;
+            // Check whether this element is going to be allowed only
+            // due to a wildcard.
+            this._setPossibleDueToWildcard(cur_el, walker, "enterStartTag",
+                                          ename.ns, ename.name);
             this._fireAndProcessEvent(
                 walker,
                 new validate.Event("enterStartTag", ename.ns, ename.name),
@@ -523,7 +527,7 @@ Validator.prototype.restartAt = function (node) {
     // We use `this._restarting` to avoid a costly reinitialization if
     // this method is called twice in a row before any work has had a
     // chance to be done.
-    if (this._initialized && !this._restarting) {
+    if (this._initialized &amp;&amp; !this._restarting) {
         this._restarting = true;
         this._resetTo(node);
     }
@@ -536,7 +540,7 @@ Validator.prototype.restartAt = function (node) {
  *
  * @private
  * @param {Node} node The element to start validation from.
- * @event module:validator~Validator#reset-errors
+ * @emits module:validator~Validator#reset-errors
  */
 Validator.prototype._resetTo = function (node) {
     // An earlier implementation was trying to be clever and to avoid
@@ -553,6 +557,7 @@ Validator.prototype._resetTo = function (node) {
         el.wed_event_index_after_start = undefined;
         el.wed_event_index_before_attributes = undefined;
         el.wed_event_index_after_attributes = undefined;
+        el.wed_possible_due_to_wildcard = undefined;
         var child = el.firstElementChild;
         while(child) {
             erase(child);
@@ -680,6 +685,8 @@ Validator.prototype._fireAttributeEvents = function (walker, el) {
 Validator.prototype._fireAttributeNameEvent = function (walker, el, attr) {
     var attr_name = attr.name;
     var ename = walker.resolveName(attr_name, true);
+    this._setPossibleDueToWildcard(attr, walker, "attributeName",
+                                   ename.ns, ename.name);
     this._fireAndProcessEvent(
         walker,
         new validate.Event("attributeName", ename.ns, ename.name), attr, 0);
@@ -727,13 +734,14 @@ Validator.prototype._fireAndProcessEvent = function (walker, event, el, ix) {
  * @param {Node} container The location up to where to validate.
  * @param {integer} index The location up to where to validate.
  * @param {boolean} [attributes=false] Whether we are interested to
- * validate up to but not including the attribute events of the node
- * pointed to by ``container, index``.
+ * validate up to and including the attribute events of the node
+ * pointed to by ``container, index``. The validation ends before leaving
+ * the start tag.
  * @throws {Error} If &lt;code>container&lt;/code> is not of element or text type.
  */
 Validator.prototype._validateUpTo = function (container, index, attributes) {
     attributes = !!attributes; // Normalize.
-    if (attributes && (!container.childNodes ||
+    if (attributes &amp;&amp; (!container.childNodes ||
                        container.childNodes[index].nodeType !==
                        Node.ELEMENT_NODE))
         throw new Error("trying to validate after attributes but before " +
@@ -750,7 +758,7 @@ Validator.prototype._validateUpTo = function (container, index, attributes) {
     // document is empty or if the user has the caret before the start
     // tag of the first element of the actual structure we want to
     // validate or after the end tag of that element.
-    if (container === this.root && index &lt;= 0) {
+    if (container === this.root &amp;&amp; index &lt;= 0) {
         if (attributes) {
             data_key = "wed_event_index_after_attributes";
             to_inspect = container.childNodes[index];
@@ -838,15 +846,15 @@ oop.inherit(EventIndexException, Error);
  * @param {boolean} [attributes=false] Whether we are interested to
  * validate up to but not including the attribute events of the node
  * pointed to by ``container, index``. If ``true`` the walker returned
- * will have all events fired on it up to, but excluding, those
- * attribute events of the element pointed to by ``container, index``.
+ * will have all events fired on it up to, and including, those
+ * attribute events on the element pointed to by ``container, index``.
  * @returns {module:validate~Walker} The walker.
  * @throws {EventIndexException} If it runs out of events or computes
  * an event index that makes no sense.
  */
 Validator.prototype._getWalkerAt = function(container, index, attributes) {
     attributes = !!attributes; // Normalize.
-    if (attributes && (!container.childNodes ||
+    if (attributes &amp;&amp; (!container.childNodes ||
                        container.childNodes[index].nodeType !==
                        Node.ELEMENT_NODE))
         throw new Error("trying to get a walker for attribute events on a " +
@@ -859,7 +867,7 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
     // document is empty or if the user has the caret before the start
     // tag of the first element of the actual structure we want to
     // validate or after the end tag of that element.
-    if (container === this.root && index &lt;= 0) {
+    if (container === this.root &amp;&amp; index &lt;= 0) {
         if (!attributes) {
             // We're before the top element, no events to fire.
             if (index === 0)
@@ -926,7 +934,7 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
             walker = cache[search_ix];
         }
         else {
-            while (!walker && --search_ix >= 0)
+            while (!walker &amp;&amp; --search_ix >= 0)
                 walker = cache[search_ix];
         }
 
@@ -1003,8 +1011,8 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
             // We will attempt to fire a text event if another text node
             // appeared between the node we care about and the element
             // just before it.
-            var prev_sibling = node && node.previousSibling;
-            if (prev_sibling &&
+            var prev_sibling = node &amp;&amp; node.previousSibling;
+            if (prev_sibling &amp;&amp;
                 // If the previous sibling is the same as the previous
                 // *element* sibbling, then there is nothing *between*
                 // that we need to take care of.
@@ -1021,8 +1029,7 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
         walker = readyWalker(el.wed_event_index_before_attributes);
 
         // Don't fire on namespace attributes.
-        if (!(container.name === "data-wed-xmlns" ||
-              container.name.lastIndexOf("data-wed-xmlns---", 0) === 0)) {
+        if (!(container.name === "xmlns" || container.prefix === "xmlns")) {
             walker = walker.clone();
             this._fireAttributeNameEvent(walker, el, container);
         }
@@ -1074,7 +1081,8 @@ Validator.prototype.possibleAt = function (container, index, attributes) {
  * possible.
  *
  * @param {Node} container A node.
- * @param {module:validate~Event} event The event to search for.
+ * @param {module:validate~Event} event The event to search for. The event
+ * should be presented in the same format used for ``fireEvent``.
  * @returns {Array.&lt;integer>} The locations in &lt;code>container&lt;/code>
  * where the event is possible.
  */
@@ -1084,6 +1092,25 @@ Validator.prototype.possibleWhere = function (container, event) {
         var possible = this.possibleAt(container, index);
         if (possible.has(event))
             ret.push(index);
+        else if (event.params[0] === "enterStartTag" ||
+                 event.params[0] === "attributeName") {
+            // In the case where we have a name pattern as the 2nd
+            // parameter, and this pattern can be complex or have
+            // wildcards, then we have to check all events one by one
+            // for a name pattern match. (While enterStartTag, endTag
+            // and attributeName all have name patterns, endTag cannot
+            // be complex or allow wildcards because what it allows
+            // much match the tag that started the current element.
+            var as_array = possible.toArray();
+            for (var ix = 0, candidate; (candidate = as_array[ix]); ++ix) {
+                if (candidate.params[0] === event.params[0] &amp;&amp;
+                    candidate.params[1].match(event.params[1],
+                                              event.params[2])) {
+                    ret.push(index);
+                    break;
+                }
+            }
+        }
     }
     return ret;
 };
@@ -1232,6 +1259,68 @@ Validator.prototype.getErrorsFor = function (node) {
     return ret;
 };
 
+// This private utility function checks whether an event is possible
+// only because there is a name_pattern wildcard that allows it.
+function isPossibleDueToWildcard(walker, event_name, ns, name) {
+    var evs = walker.possible().toArray();
+    var matched = false;
+    for (var ev_ix = 0, ev; (ev = evs[ev_ix]); ++ev_ix) {
+        if (ev.params[0] !== event_name)
+            continue;
+        var name_pattern = ev.params[1];
+        var matches = name_pattern.match(ns, name);
+
+        // Keep track of whether it ever matched anything.
+        matched = matched || matches;
+
+        // We already know that it matches, and this is not merely due
+        // to a wildcard.
+        if (matches &amp;&amp; !name_pattern.wildcardMatch(ns, name))
+            return false;
+    }
+
+    // If it never matched any pattern at all, then we must return
+    // false.  If we get here and matched is true then it means that
+    // it matched all patterns due to wildcards.
+    return matched;
+}
+
+/**
+ * Sets a flag indicating whether a node is possible only due to a
+ * name pattern wildcard, and emits an event if setting the flag is a
+ * change from the previous value of the flag. It does this by
+ * inspecting the event that would be fired when ``node`` is
+ * validated. The parameters ``event_name``, ``ns`` and ``name`` are
+ * used to determine what we are looking for among possible events.
+ *
+ * @param {Node} node The node we want to check.
+ * @param {module:validate~Walker} walker A walker whose last fired event
+ * is the one just before the event that would be fired when
+ * validating ``node``.
+ * @param {string} event_name The event name we are interested in.
+ * @param {string} ns The namespace to use with the event.
+ * @param {string} name The name to use with the event.
+ * @emits module:validator~Validator#event:possible-due-to-wildcard-change
+ *
+ */
+Validator.prototype._setPossibleDueToWildcard = function (node, walker,
+                                                          event_name,
+                                                          ns, name) {
+    var previous = node.wed_possible_due_to_wildcard;
+    var possible = isPossibleDueToWildcard(walker, event_name, ns, name);
+    node.wed_possible_due_to_wildcard = possible;
+    if (previous === undefined || previous !== possible) {
+        /**
+         * Tells the listener that a node's flag indicating whether it
+         * is possible only due to a wildcard has changed.
+         *
+         * @event module:validator~Validator#possible-due-to-wildcard-change
+         * @type {Node} The node whose flag has changed.
+         */
+        this._emit("possible-due-to-wildcard-change", node);
+    }
+};
+
 //
 // Private helper functions and classes
 //
@@ -1274,13 +1363,13 @@ exports.Validator = Validator;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="action_context_menu.html">gui/action_context_menu</a></li><li><a href="completion_menu.html">gui/completion_menu</a></li><li><a href="context_menu.html">gui/context_menu</a></li><li><a href="icon.html">gui/icon</a></li><li><a href="modal.html">gui/modal</a></li><li><a href="tooltip.html">gui/tooltip</a></li><li><a href="typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="conditioned.html">lib/conditioned</a></li><li><a href="pubsub.html">lib/pubsub</a></li><li><a href="simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="generic.html">modes/generic/generic</a></li><li><a href="generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="generic_meta.html">modes/generic/generic_meta</a></li><li><a href="generic_tr.html">modes/generic/generic_tr</a></li><li><a href="tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="test_decorator.html">modes/test/test_decorator</a></li><li><a href="test_mode.html">modes/test/test_mode</a></li><li><a href="test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="ajax.html">savers/ajax</a></li><li><a href="localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="module-action-Action.html">action~Action</a></li><li><a href="module-decorator-Decorator.html">decorator~Decorator</a></li><li><a href="module-dloc-DLoc.html">dloc~DLoc</a></li><li><a href="module-domlistener-Listener.html">domlistener~Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">exceptions~AbortTransformationException</a></li><li><a href="action_context_menu-ContextMenu.html">gui/action_context_menu~ContextMenu</a></li><li><a href="completion_menu-CompletionMenu.html">gui/completion_menu~CompletionMenu</a></li><li><a href="context_menu-ContextMenu.html">gui/context_menu~ContextMenu</a></li><li><a href="modal-Modal.html">gui/modal~Modal</a></li><li><a href="typeahead_popup-TypeaheadPopup.html">gui/typeahead_popup~TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">gui_updater~GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">input_trigger~InputTrigger</a></li><li><a href="module-key-Key.html">key~Key</a></li><li><a href="conditioned-Conditioned.html">lib/conditioned~Conditioned</a></li><li><a href="simple_event_emitter-SimpleEventEmitter.html">lib/simple_event_emitter~SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">log~Handled</a></li><li><a href="generic_decorator-GenericDecorator.html">modes/generic/generic_decorator~GenericDecorator</a></li><li><a href="generic_meta-Meta.html">modes/generic/generic_meta~Meta</a></li><li><a href="generic-Mode.html">modes/generic/generic~Mode</a></li><li><a href="tei_meta-TeiMeta.html">modes/generic/metas/tei_meta~TeiMeta</a></li><li><a href="test_decorator-TestDecorator.html">modes/test/test_decorator~TestDecorator</a></li><li><a href="test_mode-TestMode.html">modes/test/test_mode~TestMode</a></li><li><a href="module-mode-Mode.html">mode~Mode</a></li><li><a href="module-refman-ReferenceManager.html">refman~ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">refman~SenseReferenceManager</a></li><li><a href="ajax-AjaxSaver.html">savers/ajax~AjaxSaver</a></li><li><a href="module-saver-Saver.html">saver~Saver</a></li><li><a href="module-transformation-Transformation.html">transformation~Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">tree_updater~TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">undo_recorder~UndoRecorder</a></li><li><a href="module-undo-Undo.html">undo~Undo</a></li><li><a href="module-undo-UndoGroup.html">undo~UndoGroup</a></li><li><a href="module-undo-UndoList.html">undo~UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">updater_domlistener~Listener</a></li><li><a href="module-validator-EventIndexException.html">validator~EventIndexException</a></li><li><a href="module-validator-Validator.html">validator~Validator</a></li><li><a href="module-wed-Editor.html">wed~Editor</a></li><li><a href="module-wundo-MarkerUndo.html">wundo~MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">wundo~TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">wundo~UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">action~Action#disabled</a></li><li><a href="module-action-Action.html#event:enabled">action~Action#enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">gui_updater~GUIUpdater#beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">gui_updater~GUIUpdater#changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">gui_updater~GUIUpdater#deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">gui_updater~GUIUpdater#insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">gui_updater~GUIUpdater#setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">gui_updater~GUIUpdater#setTextNodeValue</a></li><li><a href="pubsub.html#event:WED">lib/pubsub#WED</a></li><li><a href="pubsub.html#event:WED_MODE">lib/pubsub#WED_MODE</a></li><li><a href="pubsub.html#event:WED_MODE_READY">lib/pubsub#WED_MODE_READY</a></li><li><a href="pubsub.html#event:WED_MODES_GENERIC_META_READY">lib/pubsub#WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">saver~Saver#autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">saver~Saver#changed</a></li><li><a href="module-saver-Saver.html#event:failed">saver~Saver#failed</a></li><li><a href="module-saver-Saver.html#event:saved">saver~Saver#saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">transformation~Transformation#disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">transformation~Transformation#enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">tree_updater~TreeUpdater#beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">tree_updater~TreeUpdater#changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">tree_updater~TreeUpdater#deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">tree_updater~TreeUpdater#insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">tree_updater~TreeUpdater#setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">tree_updater~TreeUpdater#setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">validator~Validator#error</a></li><li><a href="module-validator-Validator.html#event:reset-errors">validator~Validator#reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">validator~Validator#state-update</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="module-gui_action_context_menu.html">gui/action_context_menu</a></li><li><a href="module-gui_completion_menu.html">gui/completion_menu</a></li><li><a href="module-gui_context_menu.html">gui/context_menu</a></li><li><a href="module-gui_icon.html">gui/icon</a></li><li><a href="module-gui_modal.html">gui/modal</a></li><li><a href="module-gui_tooltip.html">gui/tooltip</a></li><li><a href="module-gui_typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="module-lib_conditioned.html">lib/conditioned</a></li><li><a href="module-lib_pubsub.html">lib/pubsub</a></li><li><a href="module-lib_simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="module-modes_generic_generic.html">modes/generic/generic</a></li><li><a href="module-modes_generic_generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="module-modes_generic_generic_meta.html">modes/generic/generic_meta</a></li><li><a href="module-modes_generic_generic_tr.html">modes/generic/generic_tr</a></li><li><a href="module-modes_generic_metas_docbook_meta.html">modes/generic/metas/docbook_meta</a></li><li><a href="module-modes_generic_metas_tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="module-modes_test_test_decorator.html">modes/test/test_decorator</a></li><li><a href="module-modes_test_test_mode.html">modes/test/test_mode</a></li><li><a href="module-modes_test_test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-savers_ajax.html">savers/ajax</a></li><li><a href="module-savers_localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="Mode.html">Mode</a></li><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-dloc-DLoc.html">DLoc</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="module-gui_action_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_completion_menu-CompletionMenu.html">CompletionMenu</a></li><li><a href="module-gui_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_modal-Modal.html">Modal</a></li><li><a href="module-gui_typeahead_popup-TypeaheadPopup.html">TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="module-lib_conditioned-Conditioned.html">Conditioned</a></li><li><a href="module-lib_simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="module-modes_generic_generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="module-modes_generic_generic_meta-Meta.html">Meta</a></li><li><a href="module-modes_generic_metas_docbook_meta-DocBookMeta.html">DocBookMeta</a></li><li><a href="module-modes_generic_metas_tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="module-modes_test_test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="module-modes_test_test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-savers_ajax-AjaxSaver.html">AjaxSaver</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-lib_pubsub.html#event:WED">WED</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE">WED_MODE</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE_READY">WED_MODE_READY</a></li><li><a href="module-lib_pubsub.html#event:WED_MODES_GENERIC_META_READY">WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">changed</a></li><li><a href="module-saver-Saver.html#event:failed">failed</a></li><li><a href="module-saver-Saver.html#event:saved">saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:possible-due-to-wildcard-change">possible-due-to-wildcard-change</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
 </nav>
 
-<br clear="both">
+<br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Mon Aug 17 2015 13:18:51 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Feb 15 2016 16:33:50 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

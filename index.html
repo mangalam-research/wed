@@ -1,153 +1,270 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; Wed v0.25.0-unclean documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Wed v0.25.0-unclean documentation" href="#"/>
+        <link rel="next" title="Demos" href="demos.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> Wed
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.25
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_notes.html">Advanced Usage Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">Wed</a>
+      </nav>
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Introduction &mdash; Wed v0.24.3 documentation</title>
-    
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     'v0.24.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.24.3 documentation" href="#" /> 
-  </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li><a href="#">Wed v0.24.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>Wed is a schema-aware editor for XML documents. It runs in a web
-browser. The software is at the beta stage. It is being used in a
-project for editing scholarly articles. We aim to make it extensible
-by means of a stable API, but the API is likely to change quickly for
-now.</p>
-<p>Wed is tested on Chrome, Firefox and Internet Explorer.</p>
-<p>Wed is used as part of the <a class="reference external" href="https://btw.mangalamresearch.org/">Buddhist Translators Workbench project</a> as the central component that
-enables a team of scholars to edit and manage lexicographical
-articles.</p>
-</div>
-<div class="section" id="demos">
-<h1>Demos<a class="headerlink" href="#demos" title="Permalink to this headline">¶</a></h1>
-<p>Wed can work with any schema (minus the limitations of
-salve). However, the wed is bundled with a single TEI schema that uses
-these TEI modules: <tt class="docutils literal"><span class="pre">tei</span></tt>, <tt class="docutils literal"><span class="pre">core</span></tt>, <tt class="docutils literal"><span class="pre">textstructure</span></tt> and
-<tt class="docutils literal"><span class="pre">header</span></tt>. So this is what the demo is currently limited to. (Future
-versions will allow loading arbitrary schemas.)</p>
-<p>Note that Wed does not support old browsers, mobile devices, oddball,
-or unpopular browsers. Your notion of &#8220;old&#8221; might differ from
-ours. See <a class="reference internal" href="usage.html#usage-browser-requirements"><em>Browser Requirements</em></a> section in <a class="reference internal" href="usage.html"><em>Basic Usage</em></a>.</p>
-<p>Things you can do:</p>
-<ul>
-<li><p class="first">Use the left mouse button to bring up a context menu. Such a menu
-exists for starting tags and all positions that are editable. This
-menu allows inserting elements.  Ctrl-/ also brings up this menu.</p>
-</li>
-<li><p class="first">Insert text where text is valid.</p>
-</li>
-<li><p class="first">Ctrl-[ to reduce the <a class="reference internal" href="usage.html#label-visibility"><em>label visibility</em></a> level.</p>
-</li>
-<li><p class="first">Ctrl-[ to increase the label visibility level.</p>
-</li>
-<li><p class="first">Ctrl-Z to undo.</p>
-</li>
-<li><p class="first">Ctrl-Y to redo.</p>
-</li>
-<li><p class="first">Ctrl-C to copy.</p>
-</li>
-<li><p class="first">Ctrl-V to paste.</p>
-</li>
-<li><p class="first">Ctrl-X to cut.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Browsers put significant obstacles into the path of any
-JavaScript code that wants to handle cutting
-itself. (It is a security issue.) Consequently, it is
-possible that cutting won&#8217;t work on your platform. Wed
-<em>cannot</em> verify that cutting <em>will</em> work on your
-platform and cannot for now <em>reliably</em> issue warnings
-about problems. So... it is possible that if you try to
-cut, the selected data will be deleted from the editing
-screen but will <strong>not</strong> be copied into the clipboard.</p>
-</div>
-</li>
-<li><p class="first">Using Ctrl-S to save <strong>works only in the demo that uses local storage</strong>.</p>
-</li>
-</ul>
-<div class="section" id="using-local-storage">
-<h2>Using Local Storage<a class="headerlink" href="#using-local-storage" title="Permalink to this headline">¶</a></h2>
-<p>You can run a demo that uses your browser&#8217;s own storage facilities to
-store documents. This demo does not come with documents, <strong>so you&#8217;d
-have to load one of your documents into it.</strong> Bear in mind the schema
-that wed currently supports. Point your browser <a class="reference external" href="build/standalone/files.html">here</a> to load this demo. You will then have
-to upload your file.</p>
-</div>
-<div class="section" id="using-a-server">
-<h2>Using a Server<a class="headerlink" href="#using-a-server" title="Permalink to this headline">¶</a></h2>
-<p>This demo is configured as if there was a server to receive the saved
-data. However, it is not possible to configure <tt class="docutils literal"><span class="pre">github.io</span></tt> to act as
-the kind of server needed for actually saving. <strong>Wed will fail if you
-try to save.</strong> Rest assured that the saving functionality works, but
-it needs a server able to handle AJAX calls. Github.io is not able to
-do this.</p>
-<p>It is configured to load:</p>
-<ul class="simple">
-<li>an <a class="reference external" href="build/standalone/kitchen-sink.html">empty document</a> using a
-vanilla TEI schema.</li>
-<li><a class="reference external" href="build/standalone/kitchen-sink.html?file=/wed/build/samples/sketch_for_a_medical_education.xml">Sketch for a medical education</a>, a sample document from the
-Oxford Text Archive.</li>
-</ul>
-</div>
-</div>
-<div class="section" id="documentation">
-<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
-<p>For information about building wed and using it on your own site, see
-the <a class="reference internal" href="usage.html"><em>Basic Usage</em></a>. For advanced usage
-information and information about wed&#8217;s internals, see the <a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a>.</p>
+browser. Wed is used as part of the <a class="reference external" href="https://btw.mangalamresearch.org/">Buddhist Translators Workbench
+project</a> as the central component
+that enables a team of scholars to edit and manage lexicographical
+articles.  We aim to make it extensible by means of a stable API, but
+the API is likely to change quickly until we hit 1.0.</p>
+<p>For now wed is not meant to be used alone. Rather, it is meant to be
+incorporated into web applications that need to edit XML documents. It
+is possible to use the <a class="reference internal" href="demos.html#demo-localstorage"><span>demo</span></a> of wed based on
+<cite>localStorage</cite> and load in it documents based on the TEI schema that
+is bundled with the demo, and edit documents that conform to this
+schema. So it would be possible to use wed as a generic XML
+editor. However, since the demo does not offer any facility for users
+to load arbitrary schemas, the usefulness of the demo as a generic XML
+editor is currently quite limited. (Wed <em>itself</em> is quite capable of
+loading arbitrary schemas. It&#8217;s just that the <em>demo</em> offers no means
+to do it.) We hope to lift this limitation and have wed be usable both
+as an editor part of a larger web application <strong>and</strong> as a generic XML
+editor but it may take a few more releases before this happens.</p>
+<p>People who are actually editing documents using wed should read
+<a class="reference internal" href="help.html"><em>Wed&#8217;s Help</em></a>.</p>
 <p>People who would like to customize wed or create a mode for it should
-consult the <a class="reference external" href="api/index.html">API documentation</a>.</p>
+consult:</p>
+<ul class="simple">
+<li><a class="reference internal" href="usage.html"><em>Using Wed in an Application</em></a> to learn how to use wed in their own application, or
+build and test it,</li>
+<li><a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a> to learn about wed&#8217;s internals, design decisions,
+or about more complex usage scenarios,</li>
+<li>the <a class="reference external" href="api/index.html">API documentation</a> to write modes or extensions
+for wed.</li>
+</ul>
+<div class="section" id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="demos.html#using-local-storage">Using Local Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demos.html#using-a-server">Using a Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="help.html#editing-controls">Editing Controls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="help.html#the-validation-progress-bar">The Validation Progress Bar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#modification-and-save-status">Modification and Save Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#the-error-pane">The Error Pane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#the-navigation-pane">The Navigation Pane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#the-location-bar">The Location Bar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#the-editing-pane">The Editing Pane</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#kinds-of-xml-operations">Kinds of XML Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#saving">Saving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#cut-copy-and-paste">Cut, Copy and Paste</a></li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#undo-and-redo">Undo and Redo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#keyboard-shortcuts">Keyboard Shortcuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#browser-requirements">Browser Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="help.html#firefox">Firefox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#edge">Edge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#os-x">OS X</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#safari">Safari</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#complex-name-patterns">Complex Name Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="help.html#brief-explanation">Brief Explanation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#long-technical-explanation">Long Technical Explanation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#building">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#local-demos">Local Demos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#demo-saving-to-local-storage">Demo Saving to Local Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#demos-saving-to-a-server">Demos Saving to a Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#label-visibility">Label Visibility</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#using">Using</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#round-tripping">Round-Tripping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#the-generic-mode">The Generic Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tech_notes.html">Advanced Usage Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#build-information">Build Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#deployment-considerations">Deployment Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#schema-and-structure-considerations">Schema and Structure Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#remote-logging">Remote Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#saving">Saving</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#ajax-saver">Ajax Saver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#localforage-saver">Localforage Saver</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#browser-independent-tests">Browser-Independent Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#in-browser-tests">In-Browser Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#selenium-based-tests">Selenium-Based Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#troubleshooting-the-selenium-tests">Troubleshooting the Selenium Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#the-tag-v0-10-0-x">The Tag v0.10.0-x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#javascript-event-handling">JavaScript Event Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#selections">Selections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#carets">Carets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#support-for-gui-controls-outside-wed">Support for GUI Controls Outside Wed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#im-support">IM Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#cut-paste-copy">Cut, Paste, Copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#contenteditable">Contenteditable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#incompatibilities">Incompatibilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#successive-elements-and-the-caret">Successive Elements and the Caret</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#vetoing-mutations">Vetoing Mutations</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div class="section" id="downloads">
-<h1>Downloads<a class="headerlink" href="#downloads" title="Permalink to this headline">¶</a></h1>
+<h2>Downloads<a class="headerlink" href="#downloads" title="Permalink to this headline">¶</a></h2>
 <p>View on <a class="reference external" href="https://github.com/mangalam-research/wed">Github</a>.</p>
 <p>Download a <a class="reference external" href="https://github.com/mangalam-research/wed/zipball/master">zip</a>
 or <a class="reference external" href="https://github.com/mangalam-research/wed/tarball/master">tarball</a>.</p>
 </div>
 <div class="section" id="license">
-<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
-<p>Wed is released under the <a class="reference external" href="http://www.mozilla.org/MPL/2.0/">Mozilla Public License version 2.0</a>. Copyright 2013, 2014 Mangalam Research
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>Wed is released under the <a class="reference external" href="http://www.mozilla.org/MPL/2.0/">Mozilla Public License version 2.0</a>. Copyright 2013-2016 Mangalam Research
 Center for Buddhist Languages, Berkeley, CA.</p>
 </div>
 <div class="section" id="credits">
-<h1>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h1>
+<h2>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h2>
 <p>Wed is designed and developed by Louis-Dominique Dubeau (<a class="reference external" href="https://github.com/lddubeau">&#64;lddubeau</a>), Director of Software Development for
 the Buddhist Translators Workbench project, Mangalam Research Center
 for Buddhist Languages.</p>
@@ -160,61 +277,72 @@ recommendations expressed in this software do not necessarily
 represent those of the National Endowment for the Humanities.</p>
 <a class="reference external image-reference" href="http://www.neh.gov/"><img alt="http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg" src="http://www.neh.gov/files/neh_logo_horizontal_rgb.jpg" /></a>
 </div>
-
-
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Introduction</a></li>
-<li><a class="reference internal" href="#demos">Demos</a><ul>
-<li><a class="reference internal" href="#using-local-storage">Using Local Storage</a></li>
-<li><a class="reference internal" href="#using-a-server">Using a Server</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#documentation">Documentation</a></li>
-<li><a class="reference internal" href="#downloads">Downloads</a></li>
-<li><a class="reference internal" href="#license">License</a></li>
-<li><a class="reference internal" href="#credits">Credits</a></li>
-</ul>
-
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="demos.html" class="btn btn-neutral float-right" title="Demos" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013-2016 Mangalam Research Center for Buddhist Languages.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li><a href="#">Wed v0.24.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2013, 2014 Mangalam Research Center for Buddhist Languages.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v0.25.0-unclean',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

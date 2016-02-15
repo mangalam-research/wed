@@ -12,6 +12,7 @@ define(/** @lends module:validator */ function (require, exports, module) {
 var SimpleEventEmitter =
         require("./lib/simple_event_emitter").SimpleEventEmitter;
 var validate = require("salve/validate");
+var name_patterns = require("salve/name_patterns");
 var $ = require("jquery");
 var oop = require("./oop");
 var dloc = require("./dloc");
@@ -346,6 +347,10 @@ Validator.prototype._cycle = function () {
             var cur_el_ix = cur_el.parentNode ?
                     _indexOf.call(cur_el.parentNode.childNodes, cur_el):
                     undefined;
+            // Check whether this element is going to be allowed only
+            // due to a wildcard.
+            this._setPossibleDueToWildcard(cur_el, walker, "enterStartTag",
+                                          ename.ns, ename.name);
             this._fireAndProcessEvent(
                 walker,
                 new validate.Event("enterStartTag", ename.ns, ename.name),
@@ -507,7 +512,7 @@ Validator.prototype.restartAt = function (node) {
  *
  * @private
  * @param {Node} node The element to start validation from.
- * @event module:validator~Validator#reset-errors
+ * @emits module:validator~Validator#reset-errors
  */
 Validator.prototype._resetTo = function (node) {
     // An earlier implementation was trying to be clever and to avoid
@@ -524,6 +529,7 @@ Validator.prototype._resetTo = function (node) {
         el.wed_event_index_after_start = undefined;
         el.wed_event_index_before_attributes = undefined;
         el.wed_event_index_after_attributes = undefined;
+        el.wed_possible_due_to_wildcard = undefined;
         var child = el.firstElementChild;
         while(child) {
             erase(child);
@@ -651,6 +657,8 @@ Validator.prototype._fireAttributeEvents = function (walker, el) {
 Validator.prototype._fireAttributeNameEvent = function (walker, el, attr) {
     var attr_name = attr.name;
     var ename = walker.resolveName(attr_name, true);
+    this._setPossibleDueToWildcard(attr, walker, "attributeName",
+                                   ename.ns, ename.name);
     this._fireAndProcessEvent(
         walker,
         new validate.Event("attributeName", ename.ns, ename.name), attr, 0);
@@ -698,8 +706,9 @@ Validator.prototype._fireAndProcessEvent = function (walker, event, el, ix) {
  * @param {Node} container The location up to where to validate.
  * @param {integer} index The location up to where to validate.
  * @param {boolean} [attributes=false] Whether we are interested to
- * validate up to but not including the attribute events of the node
- * pointed to by ``container, index``.
+ * validate up to and including the attribute events of the node
+ * pointed to by ``container, index``. The validation ends before leaving
+ * the start tag.
  * @throws {Error} If <code>container</code> is not of element or text type.
  */
 Validator.prototype._validateUpTo = function (container, index, attributes) {
@@ -809,8 +818,8 @@ oop.inherit(EventIndexException, Error);
  * @param {boolean} [attributes=false] Whether we are interested to
  * validate up to but not including the attribute events of the node
  * pointed to by ``container, index``. If ``true`` the walker returned
- * will have all events fired on it up to, but excluding, those
- * attribute events of the element pointed to by ``container, index``.
+ * will have all events fired on it up to, and including, those
+ * attribute events on the element pointed to by ``container, index``.
  * @returns {module:validate~Walker} The walker.
  * @throws {EventIndexException} If it runs out of events or computes
  * an event index that makes no sense.
@@ -992,8 +1001,7 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
         walker = readyWalker(el.wed_event_index_before_attributes);
 
         // Don't fire on namespace attributes.
-        if (!(container.name === "data-wed-xmlns" ||
-              container.name.lastIndexOf("data-wed-xmlns---", 0) === 0)) {
+        if (!(container.name === "xmlns" || container.prefix === "xmlns")) {
             walker = walker.clone();
             this._fireAttributeNameEvent(walker, el, container);
         }
@@ -1045,7 +1053,8 @@ Validator.prototype.possibleAt = function (container, index, attributes) {
  * possible.
  *
  * @param {Node} container A node.
- * @param {module:validate~Event} event The event to search for.
+ * @param {module:validate~Event} event The event to search for. The event
+ * should be presented in the same format used for ``fireEvent``.
  * @returns {Array.<integer>} The locations in <code>container</code>
  * where the event is possible.
  */
@@ -1055,6 +1064,25 @@ Validator.prototype.possibleWhere = function (container, event) {
         var possible = this.possibleAt(container, index);
         if (possible.has(event))
             ret.push(index);
+        else if (event.params[0] === "enterStartTag" ||
+                 event.params[0] === "attributeName") {
+            // In the case where we have a name pattern as the 2nd
+            // parameter, and this pattern can be complex or have
+            // wildcards, then we have to check all events one by one
+            // for a name pattern match. (While enterStartTag, endTag
+            // and attributeName all have name patterns, endTag cannot
+            // be complex or allow wildcards because what it allows
+            // much match the tag that started the current element.
+            var as_array = possible.toArray();
+            for (var ix = 0, candidate; (candidate = as_array[ix]); ++ix) {
+                if (candidate.params[0] === event.params[0] &&
+                    candidate.params[1].match(event.params[1],
+                                              event.params[2])) {
+                    ret.push(index);
+                    break;
+                }
+            }
+        }
     }
     return ret;
 };
@@ -1201,6 +1229,68 @@ Validator.prototype.getErrorsFor = function (node) {
             ret.push(error_data);
     }
     return ret;
+};
+
+// This private utility function checks whether an event is possible
+// only because there is a name_pattern wildcard that allows it.
+function isPossibleDueToWildcard(walker, event_name, ns, name) {
+    var evs = walker.possible().toArray();
+    var matched = false;
+    for (var ev_ix = 0, ev; (ev = evs[ev_ix]); ++ev_ix) {
+        if (ev.params[0] !== event_name)
+            continue;
+        var name_pattern = ev.params[1];
+        var matches = name_pattern.match(ns, name);
+
+        // Keep track of whether it ever matched anything.
+        matched = matched || matches;
+
+        // We already know that it matches, and this is not merely due
+        // to a wildcard.
+        if (matches && !name_pattern.wildcardMatch(ns, name))
+            return false;
+    }
+
+    // If it never matched any pattern at all, then we must return
+    // false.  If we get here and matched is true then it means that
+    // it matched all patterns due to wildcards.
+    return matched;
+}
+
+/**
+ * Sets a flag indicating whether a node is possible only due to a
+ * name pattern wildcard, and emits an event if setting the flag is a
+ * change from the previous value of the flag. It does this by
+ * inspecting the event that would be fired when ``node`` is
+ * validated. The parameters ``event_name``, ``ns`` and ``name`` are
+ * used to determine what we are looking for among possible events.
+ *
+ * @param {Node} node The node we want to check.
+ * @param {module:validate~Walker} walker A walker whose last fired event
+ * is the one just before the event that would be fired when
+ * validating ``node``.
+ * @param {string} event_name The event name we are interested in.
+ * @param {string} ns The namespace to use with the event.
+ * @param {string} name The name to use with the event.
+ * @emits module:validator~Validator#event:possible-due-to-wildcard-change
+ *
+ */
+Validator.prototype._setPossibleDueToWildcard = function (node, walker,
+                                                          event_name,
+                                                          ns, name) {
+    var previous = node.wed_possible_due_to_wildcard;
+    var possible = isPossibleDueToWildcard(walker, event_name, ns, name);
+    node.wed_possible_due_to_wildcard = possible;
+    if (previous === undefined || previous !== possible) {
+        /**
+         * Tells the listener that a node's flag indicating whether it
+         * is possible only due to a wildcard has changed.
+         *
+         * @event module:validator~Validator#possible-due-to-wildcard-change
+         * @type {Node} The node whose flag has changed.
+         */
+        this._emit("possible-due-to-wildcard-change", node);
+    }
 };
 
 //

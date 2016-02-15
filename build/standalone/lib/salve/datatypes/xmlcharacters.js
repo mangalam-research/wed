@@ -1,5 +1,5 @@
 /**
- * @module datatypes/xmlschema
+ * @module datatypes/xmlcharacters
  * @desc Collection of constants that model the way XML refers to
  * various characters and groups of characters.
  * @author Louis-Dominique Dubeau

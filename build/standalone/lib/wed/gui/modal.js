@@ -11,6 +11,8 @@ define(/** @lends module:gui/modal */ function (require, exports, module) {
 var $ = require("jquery");
 var util = require("../util");
 var log = require("../log");
+var interact = require("interact");
+var browsers = require("../browsers");
 require("bootstrap");
 
 /**
@@ -53,8 +55,16 @@ require("bootstrap");
  * two Modal objects should be created, one per page.</p>
  *
  * @constructor
+ *
+ * @param {Object} [options] An object whose fields are options you
+ * can set on the modal. Use ``resizable: true`` if you want the modal
+ * to be resizable. Use ``draggable: true`` if you want the modal to
+ * be draggable.
  */
-function Modal() {
+function Modal(options) {
+    var options = options || {};
+
+
     // tabindex needed to make keyboard stuff work... grumble...
     // https://github.com/twitter/bootstrap/issues/4663
     this._$dom = $(
@@ -87,7 +97,107 @@ function Modal() {
                   log.wrap(this._handleShown.bind(this)));
 
     this._$clicked = undefined;
+
+    var content = this._$dom.find('.modal-content')[0];
+    var body = this._$body[0];
+    var win = body.ownerDocument.defaultView;
+
+    if (options.resizable) {
+        body.style.overflow = "auto";
+        interact(content)
+            .resizable({
+                restrict: {
+                    restriction: {
+                        left: 0,
+                        top: 0,
+                        right: win.innerWidth - 10,
+                        bottom: win.innerHeight - 10
+                    }
+                }
+            })
+            .on('resizemove', function (event) {
+                var target = event.target;
+
+                var change = new PseudoAtomicRectChange();
+                change.updateElementRect(target, event.dx, event.dy);
+                change.updateElementRect(body, event.dx, event.dy);
+            });
+    }
+
+    if (options.draggable) {
+        interact(this._$header[0])
+            .draggable({
+                restrict: {
+                    restriction: {
+                        left: 0,
+                        top: 0,
+                        right: win.innerWidth - 10,
+                        bottom: win.innerHeight - 10
+                    }
+                }
+            })
+            .on("dragmove", function (event) {
+                var target = content;
+                var rect = target.getBoundingClientRect();
+
+                target.style.left = (event.clientX - event.clientX0) + "px";
+                target.style.top = (event.clientY - event.clientY0) + "px";
+            });
+    }
 }
+
+// This records changes in such a way that if any of the changes
+// cannot take effect, then all the changes are "rolled back". It is
+// called pseudo-atomic because it is not really meant to track any
+// changes that do not happen through instances of this class. This is
+// needed because we are changing the size of multiple elements, and
+// beyond a certain "smallness", some elements won't register any
+// change in dimensions (perhaps due to "min-..." styles.
+function PseudoAtomicRectChange() {
+    this.changes = [];
+    this.rolledback = false;
+}
+
+PseudoAtomicRectChange.prototype.updateElementRect = function (el, dx, dy) {
+    // If we've already rolled back, we don't do anything.
+    if (this.rolledback)
+        return;
+
+    var rect = el.getBoundingClientRect();
+
+    // This works around a fractional pixel issue in IE. We set the
+    // element to the dimensions returned by getBoundingClientRect and
+    // then reacquire the dimensions to account for any funny
+    // adjustments IE may decide to do.
+    if (browsers.MSIE) {
+        el.style.width = rect.width + 'px';
+        el.style.height = rect.height + 'px';
+
+        rect = el.getBoundingClientRect();
+    }
+
+    var width = rect.width + dx;
+    var height = rect.height + dy;
+    el.style.width  = width + 'px';
+    el.style.height = height + 'px';
+    this.changes.push({el: el, rect: rect});
+    var new_rect = el.getBoundingClientRect();
+
+    // Check whether the change "took". If not, roll back.
+    if (new_rect.width != width || new_rect.height != height)
+        this.rollback();
+};
+
+PseudoAtomicRectChange.prototype.rollback = function () {
+    for (var i = 0, change; (change = this.changes[i]); ++i) {
+        var el = change.el;
+        var rect = change.rect;
+        el.style.width = rect.width + 'px';
+        el.style.height = rect.height + 'px';
+    }
+
+    this.rolledback = true;
+};
 
 /**
  * @returns {jQuery} The top level node of the modal, to be inserted

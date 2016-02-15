@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: Mode</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: Mode</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>Mode</h2>
+        
+            <div class="class-description"><p>This is the class that implements the generic
+mode. This mode decorates all the elements of the file being
+edited. On the basis of the schema used by wed for validation, it
+allows the addition of the elements authorized by the schema.</p>
+<p>Recognized options:</p>
+<ul>
+<li><p><code>meta</code>: this option can be a a path (a string) pointing to a
+module that implements the meta object needed by the mode. Or it
+can be an object of the form:</p>
+<pre class="prettyprint source"><code>  {
+      path: &quot;path/to/the/meta&quot;,
+      options: {
+          // Meta-specific options.
+      }
+  }</code></pre></li>
+<li><p><code>autoinsert</code>: whether or not to fill newly inserted elements as
+much as possible. If this option is true, then when inserting a
+new element, the mode will try to detect whether the element has
+any mandatory children and if so will add these children to the
+element. For instance, if <code>foo</code> is invalid without the child
+<code>baz</code> then when inserting <code>foo</code> in the document, the
+following structure would be inserted
+<code>&lt;foo&gt;&lt;baz&gt;&lt;/baz&gt;&lt;/foo&gt;</code>. This automatic insertion of children
+happens only in non-ambiguous cases. Taking the same example as
+before, if <code>foo</code> could contain <code>a</code> or <code>b</code>, then the mode
+won't add any children. This option is <code>true</code> by default.</p>
+</li>
+</ul></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="Mode"><span class="type-signature"></span>new Mode<span class="signature">(options)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The options for the mode.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modes_generic_generic.js.html">modes/generic/generic.js</a>, <a href="modes_generic_generic.js.html#line60">line 60</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="module-mode-Mode.html">module:mode~Mode</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="_ready"><span class="type-signature"></span>_ready<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>This method is meant to be called by objects of this class to
+signal that they are ready to be used.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#_ready">module:mode~Mode#_ready</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line46">line 46</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<h5>Fires:</h5>
+<ul>
+    <li><a href="module-lib_pubsub.html#event:WED_MODE_READY">module:lib/pubsub#event:WED_MODE_READY</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="documentationLinkFor"><span class="type-signature"></span>documentationLinkFor<span class="signature">(name)</span><span class="type-signature"> &rarr; {string|null|undefined}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a URL to the documentation for an element. The element should be
+named according to the mappings reported by the resolve returned by
+<a href="module-mode-Mode.html#getAbsoluteResolver"><code>getAbsoluteResolver</code></a>. The default implementation returns
+<code>undefined</code> for everything.</p>
+<p>While this API provides for the case such URL have not been loaded
+yet or cannot be loaded, this class does not allow such eventuality
+to occur. Derived classes could allow it.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The name of the element.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#documentationLinkFor">module:mode~Mode#documentationLinkFor</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line224">line 224</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The URL. If the value returned is
+<code>undefined</code>, then the URL is not available. If the value returned is
+<code>null</code>, the URL has not been loaded yet.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+|
+
+<span class="param-type">null</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getAbsoluteResolver"><span class="type-signature"></span>getAbsoluteResolver<span class="signature">()</span><span class="type-signature"> &rarr; {module:salve/name_resolver~NameResolver}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>This method returns a name resolver that is setup to resolve
+names outside the context of an XML tree. It is sometimes useful to
+use qualified names that do not depend on how a specific XML
+document is structured, this method provides for such
+functionality.</p>
+
+<p>Modes must override this method.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#getAbsoluteResolver">module:mode~Mode#getAbsoluteResolver</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line83">line 83</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">module:salve/name_resolver~NameResolver</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getContextualActions"><span class="type-signature"></span>getContextualActions<span class="signature">(type, tag, container, offset)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="module-action-Action.html">module:action~Action</a>>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Modes must implement this method to specify what transformations
+they allow based on state. The implementation should rely on the
+<code>container</code> and <code>offset</code> position rather than
+use the caret because the editor may be seeking information about
+possible actions near to the caret.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The type or types of
+transformations to return.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>tag</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The tag name we are interested in.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>container</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The position in the data tree.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>offset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The position in the data tree.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#getContextualActions">module:mode~Mode#getContextualActions</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line112">line 112</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>An array
+of actions.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="module-action-Action.html">module:action~Action</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getStylesheets"><span class="type-signature"></span>getStylesheets<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Get additional stylesheets to use to render the HTML.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#getStylesheets">module:mode~Mode#getStylesheets</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line124">line 124</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>An array of paths to the stylesheets to
+load for this mode. These elements will be passed to RequireJS'
+<code>require.toUrl</code> so they can be paths like those passed
+to require or could be URLs.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getValidator"><span class="type-signature"></span>getValidator<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-mode_validator.html#~ModeValidator">module:mode_validator~ModeValidator</a>|null}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Allows the mode to perform mode-specific checks on the
+document. This method will be called by wed to obtain a
+mode-specific validator to give to wed's own
+validator. Mode-specific validators are meant to provide checks
+that <strong>cannot</strong> be provided by a schema. It would be conceivable
+for instance to call a schematron processor.</p>
+<p>The default implementation has no mode-specific checks and thus not
+return a validator.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#getValidator">module:mode~Mode#getValidator</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line242">line 242</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The validator
+if this mode has one, or <code>null</code> if the mode does not.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-mode_validator.html#~ModeValidator">module:mode_validator~ModeValidator</a></span>
+|
+
+<span class="param-type">null</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getWedOptions"><span class="type-signature"></span>getWedOptions<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Gets the options that the mode wants wed to use with this mode.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#getWedOptions">module:mode~Mode#getWedOptions</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line68">line 68</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The options. Callers are not allowed to modify
+the value returned.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="init"><span class="type-signature"></span>init<span class="signature">(editor)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>This is called by the editor when a mode is ready to be
+initialized. The mode could use this to add a toolbar above the
+editor or add listeners to key events, etc.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>editor</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-wed-Editor.html">module:wed~Editor</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The editor onto which the mode is
+being associated.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#init">module:mode~Mode#init</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line58">line 58</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="makeDecorator"><span class="type-signature"></span>makeDecorator<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-decorator-Decorator.html">module:decorator~Decorator</a>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Modes must override this method.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#makeDecorator">module:mode~Mode#makeDecorator</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line93">line 93</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The decorator that this mode
+will use.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-decorator-Decorator.html">module:decorator~Decorator</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="makePlaceholderFor"><span class="type-signature"></span>makePlaceholderFor<span class="signature">(element)</span><span class="type-signature"> &rarr; {Node}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>This method can be overriden by modes to provide the editor with
+different placeholders for different elements. The default
+implementation returns a default placeholder for all elements.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>element</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>This is the element for which to make a
+placeholder.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#makePlaceholderFor">module:mode~Mode#makePlaceholderFor</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line183">line 183</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A placeholder for the element.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Node</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="nodesAroundEditableContents"><span class="type-signature"></span>nodesAroundEditableContents<span class="signature">(element)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>element</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Node</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>This is the element to examine.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#nodesAroundEditableContents">module:mode~Mode#nodesAroundEditableContents</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mode.js.html">mode.js</a>, <a href="mode.js.html#line136">line 136</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>An array of two elements. The first is the
+node before editable contents, the second the node after. Either
+node can be null if there is nothing before or after editable
+contents. Both are null if there is nothing around the editable
+content.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;Node></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="shortDescriptionFor"><span class="type-signature"></span>shortDescriptionFor<span class="signature">(name)</span><span class="type-signature"> &rarr; {string|null|undefined}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a short description for an element. The element should be
+named according to the mappings reported by the resolve returned by
+<a href="module-mode-Mode.html#getAbsoluteResolver"><code>getAbsoluteResolver</code></a>. The generic mode delegates the call to the
+meta object it was asked to use.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The name of the element.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="module-mode-Mode.html#shortDescriptionFor">module:mode~Mode#shortDescriptionFor</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modes_generic_generic.js.html">modes/generic/generic.js</a>, <a href="modes_generic_generic.js.html#line190">line 190</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The description. If the value
+returned is <code>undefined</code>, then the description is not available. If the
+value returned is <code>null</code>, the description has not been loaded
+yet.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+|
+
+<span class="param-type">null</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="module-gui_action_context_menu.html">gui/action_context_menu</a></li><li><a href="module-gui_completion_menu.html">gui/completion_menu</a></li><li><a href="module-gui_context_menu.html">gui/context_menu</a></li><li><a href="module-gui_icon.html">gui/icon</a></li><li><a href="module-gui_modal.html">gui/modal</a></li><li><a href="module-gui_tooltip.html">gui/tooltip</a></li><li><a href="module-gui_typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="module-lib_conditioned.html">lib/conditioned</a></li><li><a href="module-lib_pubsub.html">lib/pubsub</a></li><li><a href="module-lib_simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="module-modes_generic_generic.html">modes/generic/generic</a></li><li><a href="module-modes_generic_generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="module-modes_generic_generic_meta.html">modes/generic/generic_meta</a></li><li><a href="module-modes_generic_generic_tr.html">modes/generic/generic_tr</a></li><li><a href="module-modes_generic_metas_docbook_meta.html">modes/generic/metas/docbook_meta</a></li><li><a href="module-modes_generic_metas_tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="module-modes_test_test_decorator.html">modes/test/test_decorator</a></li><li><a href="module-modes_test_test_mode.html">modes/test/test_mode</a></li><li><a href="module-modes_test_test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-savers_ajax.html">savers/ajax</a></li><li><a href="module-savers_localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="Mode.html">Mode</a></li><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-dloc-DLoc.html">DLoc</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="module-gui_action_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_completion_menu-CompletionMenu.html">CompletionMenu</a></li><li><a href="module-gui_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_modal-Modal.html">Modal</a></li><li><a href="module-gui_typeahead_popup-TypeaheadPopup.html">TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="module-lib_conditioned-Conditioned.html">Conditioned</a></li><li><a href="module-lib_simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="module-modes_generic_generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="module-modes_generic_generic_meta-Meta.html">Meta</a></li><li><a href="module-modes_generic_metas_docbook_meta-DocBookMeta.html">DocBookMeta</a></li><li><a href="module-modes_generic_metas_tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="module-modes_test_test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="module-modes_test_test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-savers_ajax-AjaxSaver.html">AjaxSaver</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-lib_pubsub.html#event:WED">WED</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE">WED_MODE</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE_READY">WED_MODE_READY</a></li><li><a href="module-lib_pubsub.html#event:WED_MODES_GENERIC_META_READY">WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">changed</a></li><li><a href="module-saver-Saver.html#event:failed">failed</a></li><li><a href="module-saver-Saver.html#event:saved">saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:possible-due-to-wildcard-change">possible-due-to-wildcard-change</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Feb 15 2016 16:33:50 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

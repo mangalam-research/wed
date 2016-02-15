@@ -1,3 +1,4 @@
+====================
 Advanced Usage Notes
 ====================
 
@@ -304,12 +305,17 @@ these are not set::
     };
 
 
-Modes may set other options on the ``_wed_options`` property:
+Modes may set other options on the ``_wed_options`` property. This is
+essentially a mean for the mode to control how wed operates when the
+mode is active. These are not meant to be directly settable by the
+user or by the application in which wed is being used. (Although it
+would be possible for the mode to expose options to make them
+settable.)
 
 + ``label_levels``: an object with two fields:
 
   - ``max``: determines the maximum level of
-    :ref:`label visibility <label_visiblity>`,
+    :ref:`label visibility <label_visibility>`,
 
   - ``initial`` determines the initial level of label visibility; must
     be ``1 <= initial <= max``. (Level 0 exists. It is just not valid
@@ -391,11 +397,11 @@ Browser-Independent Tests
 
 To run the tests that are not browser-dependent do::
 
-    $ make test-node
+    $ gulp test-node
 
 These tests are located in the ``test/`` directory off the wed
 root. You can also run ``mocha``
-directly from the command line but having ``make`` build the ``test``
+directly from the command line but having ``gulp`` build the ``test``
 target will trigger a build to ensure that the tests are run against
 the latest code.
 
@@ -411,11 +417,11 @@ In-Browser Tests
 
 You can run these tests from the command line by running::
 
-  $ make test-browser
+  $ gulp test-browser
 
 The browser-dependent tests are located in the ``browser_test/``
 directory off the wed root. These tests are run by launching
-``server.js`` with the option ``runner``. This starts a server that
+``./server.js`` with the option ``runner``. This starts a server that
 can:
 
 - Serve wed's files.
@@ -429,7 +435,7 @@ tests to be run in the browser. The browser is run in ``Xvfb`` so that
 it does not appear on the desktop.
 
 If you need to run the server to perform diagnosis on failing tests,
-you can ``server.js browser``. This will launch the browser on your
+you can ``./server.js browser``. This will launch the browser on your
 desktop and start the tests. The browser and server will remain
 running until you kill them.
 
@@ -467,12 +473,12 @@ override or adds some values. For instance::
 
 Finally, to run the suite issue::
 
-    $ make selenium-test BEHAVE_PARAMS="-D browser=<platform>,<browser>,<version>"
+    $ gulp selenium-test --behave-params="-D browser=<platform>,<browser>,<version>"
 
 Behind the scenes, this will launch Behave. An instance of ``./server.js``
 will be launched automatically to respond to the requests of the
-browser that the test suite launches. See the makefile
-:github:`build.mk` for information about how behave is run.
+browser that the test suite launches. See the gulpfile
+:github:`gulpfile.babel.js` for information about how behave is run.
 
 The ``browser`` variable determines which browser will run the
 test. You may omit any of ``platform``, ``browser`` or ``versions`` so
@@ -500,19 +506,6 @@ A. We've found that JavaScript is poorly supported by the various
    we want to spend our time chasing bugs, badly documented code, and
    obscure or unsupported packages, or do we want to focus on wed? We
    chose the latter.
-
-.. warning:: Some of the browser-dependent tests may fail on browsers
-             other than Chrome. Eventually, wed will work the same on
-             all browsers but at the moment development efforts are
-             spent elsewhere than hunting down differences in browser
-             behavior. For instance, as of 2013/07/19 some of the
-             caret movement tests fail on Firefox. This does not
-             prevent using wed on Firefox.
-
-.. warning:: As part of normal development, wed is tested on Chrome
-             first, Firefox second. Other browsers will eventually
-             be added to this list as the Selenium-based tests take
-             shape.
 
 Troubleshooting the Selenium Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -713,11 +706,11 @@ when the user wants to **edit** a composed character rather than
 delete or add text. Suppose that we are editing the string "livré" to
 read "livre". The way to do it without composition is in two
 operations: delete the "é" and insert "e" (or in the reverse order).
-However, with composition a character can be transformed into another character
-by one atomic change on the data. A composition method could make the
-change by replacing "é" with "e" as one operation, without there being
-a deletion followed by an insertion. The character itself is
-transformed.
+However, with composition a character can be transformed into another
+character by one atomic change on the data. A composition method could
+make the change by replacing "é" with "e" as one operation, without
+there being a deletion followed by an insertion. The character itself
+is transformed.
 
 What wed currently does is capture all keydown and keypress events
 that are capturable to edit the data tree and **cancel** the default
@@ -851,6 +844,53 @@ Classes Used by Wed
 
 ``_end_wrapper``:
   Like ``_start_wrapper`` but marks the end.
+
+``_readonly``:
+  Marks an element or attribute that cannot be edited.
+
+Possible Due to Wildcard
+========================
+
+As explained in :ref:`complex_name_patterns`, wed *can* handle the
+name patterns ``NsName`` and ``AnyName`` for the purpose of validating
+a document but will not allow editing such elements. In order to limit
+this editing, during validation wed must set a flag on every element
+and attribute to indicate whether the element's or attribute's
+existence is only possible due to a wildcard. Then, the GUI rendering
+part of wed listens to changes to this flag and adds or remove the CSS
+class ``_readonly`` to the GUI elements that render the original XML
+element. This is specifically designed to avoid having the decorator
+refresh elements because this can get pretty expensive.
+
+Note that it is not possible to set the flag once and for all on an
+element and never change it.  Suppose the following Relax NG::
+
+    start = element a { element q { empty }, any+ }
+    any = element * { any* }
+
+The file ``<a><q/><q/></a>``. The first ``q`` validates because of
+``element q`` in the schema. The second one because of ``any+``. If
+the first ``q`` is removed, then the 2nd ``q`` will become first and
+will validate because of ``element q``. In other words, the deletion
+of the first ``q`` *changes the reason* the second ``q`` is deemed
+valid. So the second ``q`` would be first flagged to be valid due to a
+wildcard, and then after the edit, the flag could be made
+false. Starting with a document that has ony one ``q`` and adding
+another ``q`` in front of it would also cause the flag to change, but
+the other way around.
+
+.. warning:: There may be ways to optimize the whole process so as to
+             allow more substantial functionality than a CSS change
+             but any such change should be considered very
+             carefully. For instance, one may think that we could just
+             have rendering code call the validator to perform a check
+             on each element. Calling the validator from rendering
+             code *is possible* but has a significant impact on
+             performance. And it is tricky. If one is not careful, it
+             is possible to create an infinite loop: rendering causes
+             validation, which emits validation events, which cause
+             rendering, which casues validation, which emits events...
+
 
 Browser Issues
 ==============

@@ -3,7 +3,7 @@
  * @desc Validation errors.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013-2015 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:errors */ function (require, exports, module) {
@@ -35,7 +35,7 @@ ValidationError.prototype.toString = function() { return this.msg; };
  * This method provides the caller with the list of all names that
  * are used in the error message.
  *
- * @returns {Array.<module:patterns~EName>} The list of names used in the
+ * @returns {Array.<module:name_patterns~Base>} The list of names used in the
  * error message.
  */
 ValidationError.prototype.getNames = function () {
@@ -47,9 +47,9 @@ ValidationError.prototype.getNames = function () {
  * but uses the names in the parameter passed to it to format the
  * string.</p>
  *
- * <p>Since salve does not support namespaces, someone using salve
- * would typically use this method so as to replace the Expanded
- * Names passed in error messages with qualified names.</p>
+ * <p>Since salve does not work with namespace prefixes, someone using
+ * salve would typically use this method so as to replace the name
+ * patterns passed in error messages with qualified names.</p>
  *
  * @param {Array.<string>} names The array of names to use. This
  * should be an array of the same length as that returned by
@@ -70,7 +70,7 @@ ValidationError.prototype.toStringWithNames = function (names) {
  * @constructor
  * @extends module:patterns~ValidationError
  * @param {string} msg The error message.
- * @param {module:patterns~EName} name The name of the XML entity at stake.
+ * @param {module:name_patterns~Base} name The name of the XML entity at stake.
  */
 function SingleNameError(msg, name) {
     ValidationError.call(this, msg);
@@ -97,7 +97,7 @@ SingleNameError.prototype.toStringWithNames = function (names) {
  * @constructor
  * @extends module:patterns~SingleNameError
  * @param {string} msg The error message.
- * @param {module:patterns~EName} name The name of the attribute at stake.
+ * @param {module:name_patterns~Base} name The name of the attribute at stake.
  */
 function AttributeNameError() {
     SingleNameError.apply(this, arguments);
@@ -110,7 +110,7 @@ inherit(AttributeNameError, SingleNameError);
  * @constructor
  * @extends module:patterns~SingleNameError
  * @param {string} msg The error message.
- * @param {module:patterns~EName} name The name of the attribute at stake.
+ * @param {module:name_patterns~Base} name The name of the attribute at stake.
  */
 function AttributeValueError() {
     SingleNameError.apply(this, arguments);
@@ -123,7 +123,7 @@ inherit(AttributeValueError, SingleNameError);
  * @constructor
  * @extends module:patterns~SingleNameError
  * @param {string} msg The error message.
- * @param {module:patterns~EName} name The name of the element at stake.
+ * @param {module:name_patterns~Base} name The name of the element at stake.
  */
 function ElementNameError() {
     SingleNameError.apply(this, arguments);
@@ -135,9 +135,9 @@ inherit(ElementNameError, SingleNameError);
  *
  * @constructor
  * @extends module:patterns~ValidationError
- * @param {Array.<module:patterns~EName>} names_a The name of the first
+ * @param {Array.<module:name_patterns~Base>} names_a The name of the first
  * XML entities at stake.
- * @param {Array.<module:patterns~EName>} names_b The name of the second
+ * @param {Array.<module:name_patterns~Base>} names_b The name of the second
  * XML entities at stake.
  */
 function ChoiceError(names_a, names_b) {

@@ -36,10 +36,22 @@ function makeTagTr(editor) {
             function (editor, data) {
 
             var caret = editor.getDataCaret();
-            var ename =
-                editor.mode.getAbsoluteResolver().resolveName(data.name);
+            var absolute_resolver = editor.mode.getAbsoluteResolver();
+            var ename = absolute_resolver.resolveName(data.name);
+            var walker = editor.validator._getWalkerAt(
+                caret.node, caret.offset, false);
+            var unresolved = walker.unresolveName(ename.ns, ename.name);
             var el = insertElement(editor.data_updater, caret.node,
                                    caret.offset, ename.ns, data.name);
+            if (!unresolved) {
+                // The namespace used by the element has not been
+                // defined yet. So we need to define it.
+                var prefix = absolute_resolver.prefixFromURI(ename.ns);
+                var name = (prefix === "") ? "xmlns" : "xmlns:" + prefix;
+                var xmlns_uri = absolute_resolver.resolveName("xmlns:q").ns;
+                editor.data_updater.setAttributeNS(
+                    el, xmlns_uri, name, ename.ns);
+            }
 
             if (editor.mode._options.autoinsert) {
                 _autoinsert(el, editor);
@@ -107,10 +119,14 @@ function makeTagTr(editor) {
             "Delete this element",
             undefined,
             function (editor, data) {
-            var parent = data.node.parentNode;
-            var index = _indexOf.call(parent.childNodes, data.node);
-            editor.data_updater.removeNode(data.node);
-            editor.setDataCaret(parent, index);
+            var node = data.node;
+            var parent = node.parentNode;
+            var index = _indexOf.call(parent.childNodes, node);
+            var gui_loc = editor.fromDataLocation(node, 0);
+            if (!gui_loc.node.classList.contains("_readonly")) {
+                editor.data_updater.removeNode(node);
+                editor.setDataCaret(parent, index);
+            }
         });
 
     ret["delete-parent"] =
@@ -120,10 +136,14 @@ function makeTagTr(editor) {
             "Delete <name>",
             undefined,
             function (editor, data) {
-            var parent = data.node.parentNode;
-            var index = _indexOf.call(parent.childNodes, data.node);
-            editor.data_updater.removeNode(data.node);
-            editor.setDataCaret(parent, index);
+            var node = data.node;
+            var parent = node.parentNode;
+            var index = _indexOf.call(parent.childNodes, node);
+            var gui_loc = editor.fromDataLocation(node, 0);
+            if (!gui_loc.node.classList.contains("_readonly")) {
+                editor.data_updater.removeNode(node);
+                editor.setDataCaret(parent, index);
+            }
         });
 
     ret["add-attribute"] =
@@ -134,10 +154,12 @@ function makeTagTr(editor) {
             undefined,
             function (editor, data) {
             var node = data.node;
-            var encoded = util.encodeAttrName(data.name);
-            editor.data_updater.setAttribute(node, encoded, "");
-            var attr = node.getAttributeNode(encoded);
-            editor.setDataCaret(attr, 0);
+            var gui_loc = editor.fromDataLocation(node, 0);
+            if (!gui_loc.node.classList.contains("_readonly")) {
+                editor.data_updater.setAttribute(node, data.name, "");
+                var attr = node.getAttributeNode(data.name);
+                editor.setDataCaret(attr, 0);
+            }
         });
 
     ret["delete-attribute"] =
@@ -148,19 +170,23 @@ function makeTagTr(editor) {
             undefined,
             function (editor, data) {
             var node = data.node;
-            var encoded = node.name;
             var element = node.ownerElement;
-            var index = _indexOf.call(element.attributes, node);
-            editor.data_updater.setAttribute(element, encoded, null);
-            // We set the caret inside the next attribute, or if it
-            // does not exist, inside the
-            var attr = element.attributes[index];
-            if (attr)
-                editor.setDataCaret(attr, 0);
-            else {
-                var gui_loc = editor.fromDataLocation(element, 0);
-                editor.setGUICaret(
-                    gui_loc.node.getElementsByClassName("_element_name")[0], 0);
+            var gui_owner_loc = editor.fromDataLocation(element, 0);
+            if (!gui_owner_loc.node.classList.contains("_readonly")) {
+                var encoded = node.name;
+                var index = _indexOf.call(element.attributes, node);
+                editor.data_updater.setAttribute(element, encoded, null);
+                // We set the caret inside the next attribute, or if it
+                // does not exist, inside the
+                var attr = element.attributes[index];
+                if (attr)
+                    editor.setDataCaret(attr, 0);
+                else {
+                    editor.setGUICaret(
+                        gui_owner_loc.node.getElementsByClassName(
+                            "_element_name")[0],
+                        0);
+                }
             }
         });
 

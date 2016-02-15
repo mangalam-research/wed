@@ -1,21 +1,27 @@
-Basic Usage
-===========
+===========================
+Using Wed in an Application
+===========================
 
 Wed is a schema-aware editor for XML documents. It runs in a web
-browser. The software is at the beta stage. It is being used in a
+browser. The software is at the beta stage. It is currently used in a
 project for editing scholarly articles. We aim to make it extensible
 by means of a stable API, but the API is likely to change quickly for
 now.
 
 Known limitations:
 
-* Wed currently does understand a large subset of Relax NG, but some
-  constructs are not supported. See the `salve
-  <https://github.com/mangalam-research/salve/>`_ package for details.
+* Wed does not load documents containing XML comments (``<!--
+  ... -->``) or CDATA sections.
 
-* Wed currently does not support schemas that allow multiple choices
-  at the root (e.g. TEI vs teiCorpus). These schemas must be
-  customized to allow only one top level element.
+* Wed does not load documents that include processing instructions
+  other than the ``<?xml ...>`` declaration at the very top of
+  documents. (Some hold that the XML declaration is not a processing
+  instruction. The distinction is irrelevant to the point being made
+  here.)
+
+* Wed supports most of Relax NG, with a few limitations. See the
+  `salve <https://github.com/mangalam-research/salve/>`_ package for
+  details.
 
 * Wed does not currently support ordering attributes according to some
   preference. (The order is whatever the DOM implementation does by
@@ -30,17 +36,17 @@ Known limitations:
   document as a DOM tree, not as a serialization. In a DOM tree,
   ``<foo/>`` and ``<foo></foo>`` are the same.
 
-* Elements that *cannot* contain anything appear in the editor as if
-  they *could*. The validator raises an error if these elements are
-  filled with any contents but it would be nicer if they were
-  displayed in a way that distinguished them from the elements that
-  *can* be filled with contents. We worked on a prototype that would
-  check whether an element *can* contain anything and display it
-  differently if it could not. However, this required that the
-  rendering engine query the validating engine during rendering, which
-  made rendering extremely slow. Since the editor will raise an error
-  if an element that should be empty is filled erroneously, we've
-  decided that a solution to this problem can wait.
+* Elements that *must be empty* appear in the editor as if they
+  *could* contain contents. Note that the validator raises an error if
+  these elements are filled with any contents but it would be nicer if
+  they were displayed in a way that distinguished them from the
+  elements that *can* be filled with contents. We worked on a
+  prototype that would check whether an element *can* contain anything
+  and display it differently if it could not. However, this required
+  that the rendering engine query the validating engine during
+  rendering, which made rendering extremely slow. Since the editor
+  will raise an error if an element that should be empty is filled
+  erroneously, we've decided that a solution to this problem can wait.
 
 * Eventually the plan is to handle XML namespace changes completely,
   and there is incipient code to deal with this; for now the safe
@@ -76,145 +82,10 @@ Known limitations:
   UI. The project for which it is developed currently does not need
   support for other languages, hence this state of affairs.
 
-* See also `Browser Requirements`_.
+* See also :ref:`help_browser_requirements`.
 
-.. _usage_browser_requirements:
-
-Browser Requirements
-====================
-
-Wed is primarily developed using a recent version of Chrome (version
-38; versions 26-37 have also been used earlier) and a recent version
-of Firefox (version 31; versions 20-30 have also been used earlier)
-for testing. (But see a note about Chrome 34 below.) The fact that wed
-is developed using these browsers influences the severity and
-frequency of bugs you can expect to run into.
-
-Here is the list of officially supported browsers, in order of
-decreasing priority:
-
-* Chrome 38 and higher and Firefox 34.
-
-  .. warning:: A very unusual situation makes it so that Firefox 35
-               and 36 are currently not officially supported. Will wed
-               run on them fine? Probably. However, it so happens that
-               the developers of FF removed an API upon which Selenium
-               relied to provide support for native events, and wed's
-               test suite requires native events to operate. This
-               situation won't be rectified until the FF developers
-               provide the means to Selenium to generate native events
-               again. Note that in light of this, we strongly
-               recommend that you use Chrome rather than Firefox.
-
-* The current ESR (Extended Support Release) of Firefox, which is
-  Firefox 31 at the time of writing.
-
-* IE 10 and 11, about equally.
-
-* Relatively recent versions of Chrome and Firefox: older than the
-  latest releases but not very old. (Yeah, this is vague. Sorry about
-  that.) In the case of Firefox this means versions newer than the
-  current ESR but older than the latest release.
-
-* The previous ESR of Firefox, provided it does not cause too much of
-  a burden. (Support for FF24 was dropped due to this: there was an
-  obscure bug that was not worth fighting against.)
-
-File an issue on github if you find a problem with one of the
-supported browsers above.
-
-We would like to support phone and tablet browsers but due to a lack
-of development resources, such support is unlikely to materialize
-soon. In decreasing order of likelihood, the following cases are
-unlikely to ever be supported:
-
-* Versions of Chrome and Firefox older than those mentioned above.
-
-* Chrome 34: the luminaries at Google decided to remove
-  ``Attr.ownerElement`` from Chrome 34. It was reintroduced in
-  Chrome 35.
-
-* IE 9. We'd need a) a substantial demand for it and b) people willing
-  to participate in providing support. As time goes by, wed is
-  accumulating features that are not supported natively in IE 9, so
-  this possibility is becoming more and more remote.
-
-* IE 8 and earlier.
-
-* Antique browsers.
-
-* Oddball browsers or other software or hardware systems that present
-  web pages. (E.g. gaming consoles, smart TVs.)
-
-* Operating systems or browsers no longer supported by their own
-  vendors.
-
-OS X
-----
-
-.. warning:: If you are using any version of OS X that hides
-             scroll bars by default, you probably want to modify your
-             OS X settings so that scroll bars are always
-             shown. Otherwise, there are situations where you won't
-             know about contents being scrollable. If you need help
-             doing so, `see this blog post
-             <http://heresthethingblog.com/2013/02/25/mac-tip-missing-scroll-bars/>`__. Note
-             that wed will work either way, and you will be able to
-             scroll either way, but wed relies on the traditional
-             scroll bar behavior to indicate that something can be
-             scrolled. So if you do not make the change above, you can
-             end up in situations where something is scrollable
-             without having any visual indication that *it is*.
-
-The test suite depends on native events to do its work, but support
-for native events in OS X is spotty:
-
-* Chrome: it is possible to generate *some* native events.
-
-* Firefox reports that it does not support native events at all.
-
-* Safari does not support native events at all.
-
-Your best bet in OS X is to use Chrome because we can't run the test
-suite with Firefox or Safari.
-
-Safari
-------
-
-Safari is a vexing case. Wed may or may not work on Safari. We
-currently cannot run the automated test suite with Safari. Manual
-testing is out of the question.
-
-We would like to have wed be supported on recent versions of Safari to
-the same extent it is supported on recent versions of Chrome, Firefox
-and IE. The tool we use to test it is Selenium. For better or for
-worse this is the go-to tool to do the kind of test wed
-needs. Selenium's support for Chrome and Firefox benefits from
-collaboration from developers who are responsible for developing these
-two browsers. In the case of IE, it appears (from reading bug reports)
-that Microsoft is communicating with the Selenium developers to
-resolve issues. However, we've not seen evidence of any collaboration
-between the Selenium project and Apple. Thus testing support for
-Safari is deficient, and it is not something that we here have the
-resources to fix.
-
-If you desire that wed be actually tested on Safari and are in a
-position to contribute substantial monetary or technical resources
-towards this goal, you are welcome to contact us. In particular,
-immediate problem we've run into when trying to test on Safari is this
-`Selenium issue
-<http://code.google.com/p/selenium/issues/detail?id=4136>`__. If you
-want fix it, then this would bring us one step closer to being able to
-test wed on Safari. And regarding the state of Selenium support for
-Safari, take note this response from a Selenium project member:
-
- Safari is not a priority, sorry. But your patches are welcome!
-
-Absent these patches, wed is unlikely to support Safari.
-
-On the other hand, if you feel the urge to write an email saying "You
-should just...", then please abstain because there is nothing "just"
-about testing web applications.
+* See also `Round-Tripping`_, as some limitations there may affect
+  whether you can use wed for your project.
 
 Dependencies
 ============
@@ -265,33 +136,41 @@ subdirectory, except for some documentation files like
 ``README.html`` and ``CHANGELOG.html``, which are in the root
 directory.
 
-For now, wed uses a ``Makefile`` and associated ``build.mk`` to build
-itself. You might want to create a ``local.mk`` file to record
-settings specific to your own build environment. See the start of the
-:github:`build.mk` to see what variables you can set. When everything
-is set, run::
+Wed uses gulp to build itself. You may want to create a
+``gulp.local.js`` file to record settings specific to your own build
+environment. Run ``gulp --help`` to see what variables you can
+set. Note that the variable names when use on the command line have
+dashes where they would have underscore in ``gulp.local.js``. For
+instance, on the command line you'd use ``--jsdoc3-default-template``
+to set the path to the jsdoc3 default template but in
+``gulp.local.js`` it would be ``jsdoc3_default_template``. Also note
+that your ``gulp.local.js`` file should return a single anonymous
+object whose fields are the values you want to set. For instance::
 
-    $ make
+  module.export = {
+      jsdoc3_default_template: "foo"
+  };
 
-.. warning:: If you get a failure please try issuing ``make`` a second
-             time. There are some (rare) usage scenarios in which make
-             can get confused about its dependencies. A second run
-             clears it up.
+When everything is set, install gulp locally (``npm install gulp``)
+and run::
 
-The Makefile will download external packages (like jquery and
-Bootstrap) and place them in ``downloads/``. It will then create a
-tree of files that could be served by a web server. The files will be
-in ``build/standalone/``. As the name "standalone" implies, this build
+    $ gulp
+
+Gulp will install locally some packages with ``npm`` and download some
+external packages that cannot be installed with ``npm`` for whatever
+reason and place them in ``downloads/``. It will then create a tree of
+files that could be served by a web server. The files will be in
+``build/standalone/``. As the name "standalone" implies, this build
 includes **everything** needed to run wed on your own server, except
 the configuration for RequireJS.
 
-Make will additionally create an optimized version of wed in
+Gulp will additionally create an optimized version of wed in
 ``build/standalone-optimized/``. This is a version that has been
 optimized using RequireJS's ``r.js`` optimizer. This optimization
 exists for illustration purposes and for testing wed. See the
-:ref:`tech_notes_deployment_considerations` section in :doc:`tech_notes` to
-determine whether this is the optimization you want to use to deploy
-wed.
+:ref:`tech_notes_deployment_considerations` section in
+:doc:`tech_notes` to determine whether this is the optimization you
+want to use to deploy wed.
 
 Testing
 =======
@@ -301,19 +180,29 @@ See :doc:`tech_notes`.
 Local Demos
 ===========
 
+The demos, you must have a minimal server running just like the one
+needed to run the browser-dependent test suite (see the
+:ref:`tech_notes_in_browser_tests` section in :doc:`tech_notes`). To
+run a server suitable for the demos, you should do::
+
+    $ ./server.js server localhost:8888 &
+
+The address and port ``localhost:8888`` is just a suggestion, but the
+link in the documentation below assume that's the address used.
+
 Demo Saving to Local Storage
 ----------------------------
 
 The demo that uses your own browser's local storage is ready to use
-once wed is built.
+once wed is built. Once the server is started, point your browser to
+`<http://localhost:8888/build/standalone/files.html>`_ or
+`<http://localhost:8888/build/standalone-optimized/files.html>`_. The
+2nd link is to the optimized application.
 
 Demos Saving to a Server
 ------------------------
 
-To see this demo, you must have a minimal server running just like the
-one needed to run the browser-dependent test suite (see the
-:ref:`tech_notes_in_browser_tests` section in :doc:`tech_notes`) and
-then point your browser to either:
+Once the server is started, point your browser to either:
 
 * `<http://localhost:8888/build/standalone/kitchen-sink.html>`_ to
   view the demo with the unoptimized file tree.
@@ -323,50 +212,17 @@ then point your browser to either:
   to view the demo with an optimized file tree.
 
 The demo currently starts with an empty document using a vanilla TEI
-schema. Things you can do:
+schema. See :doc:`help` to learn what wed can do, in general.
 
-* Hit F1 to get help. This help also displays the information
-  regarding how and when the wed instance you are using was built.
+When you save with this demo, the data is currently dumped into a file
+located at ``build/ajax/save.txt``. You won't be able to reload data
+from that file. For full functionality wed needs to be used with a
+server able to save the data and serve it intelligently.
 
-* Use the left mouse button to bring up a context menu. Such a menu
-  exists for starting tags and all positions that are editable. This
-  menu allows inserting elements. Ctrl-/ also brings up this menu.
-
-* Insert text where text is valid.
-
-* Ctrl-[ to reduce the :ref:`label visibility <label_visibility>` level.
-
-* Ctrl-[ to increase the label visibility level.
-
-* Ctrl-Z to undo.
-
-* Ctrl-Y to redo.
-
-* Ctrl-C to copy.
-
-* Ctrl-V to paste.
-
-* Ctrl-X to cut.
-
-  .. warning:: Browsers put significant obstacles into the path of any
-               JavaScript code that wants to handle cutting
-               itself. (It is a security issue.) Consequently, it is
-               possible that cutting won't work on your platform. Wed
-               *cannot* verify that cutting *will* work on your
-               platform and cannot for now *reliably* issue warnings
-               about problems. So... it is possible that if you try to
-               cut, the selected data will be deleted from the editing
-               screen but will **not** be copied into the clipboard.
-
-* Ctrl-S to save. The data is currently dumped into a file located at
-  ``build/ajax/save.txt``, and you won't be able to reload it. For full
-  functionality wed needs to be used with a server able to save the
-  data and serve it intelligently.
-
-* Ctrl-` to go into development mode. Since this is meant only for
-  developers, you should read the source code of wed to know what this
-  allows. (In particular, search for ``this._development_mode`` in the
-  ``_globalKeydownHandler`` method.)
+:kbd:`Ctrl-\`` allows to go into development mode. Since this is meant
+only for developers, you should read the source code of wed to know
+what this allows.  (In particular, search for
+``this._development_mode`` in the ``_globalKeydownHandler`` method.)
 
 It is possible to run the kitchen sink with a different mode than the
 default one (generic) by passing a ``mode`` parameter in the URL, for
@@ -435,18 +291,6 @@ To include wed in a web page you must:
     configuration from RequireJS' ``module.config()``. This may be
     necessary to handle some configuration scenarios.
 
-  Wed will get a configuration from RequireJS ``module.config()`` and
-  will **merge** it with the ``options`` parameter using jQuery's
-  ``$.extend``. So if a key appears both in the ``module.config()``
-  object and in the ``options`` object, the latter value will override
-  the former. **Note that it is not possible to undefine a value set
-  in ``module.config()``** because ``$.extend`` ignores undefined
-  values. One way around this problem is to specify
-  ``ignore_module_config`` in the ``options`` object. See the
-  RequireJS documentation. The ``wed/wed`` configuration in
-  :github:`config/requirejs-config-dev.js` gives an example of how
-  this can be used.
-
   The ``data`` parameter is a string containing the document to edit,
   in XML format.
 
@@ -489,7 +333,7 @@ document will sent the exact same string as what it was originally
 given to edit. This is due to the fact that the same document can be
 represented in XML in multiple ways. Notably:
 
-* Comments, CDATA, and processing instructions are not preserved.
+* The XML declaration is not preserved.
 
 * The order of the attributes could differ.
 
@@ -498,8 +342,108 @@ represented in XML in multiple ways. Notably:
 * The encoding of empty elements could differ. That is, ``<foo></foo>``
   could become ``<foo/>`` or vice-versa.
 
-* The presence or absence of a newline on the last line may not be
-  preserved.
+* Whitespace before the start tag of the top element or after the end
+  tag of the top element may not be preserved.
+
+The Generic Mode
+================
+
+Wed is bundled with a single mode, the "generic" mode. We recommend to
+developers who wish to create modes to use the generic mode as their
+basis. Therefore, the explanations here should apply to those modes
+that follow our recommendations.
+
+The generic mode is a mode that provides almost no customization of
+wed's capabilities. For instance, a custom mode could represent
+elements that are paragraphs purely through indentation changes and
+line breaks *rather than* start and end labels. (Such a mode does
+exist for the BTW project.) The generic mode does not do this: it
+represents paragraphs as any other element, with a start label and end
+label.
+
+Nonetheless, the generic mode requires a minimum amount of
+customization in order to be able to do its work. In particular, it
+needs to use a "meta" object that provides information on the schema
+being used. This meta object is necessary because Relax NG schemas
+often lack information that wed needs. For instance, while it is
+possible to include documentation about the elements that are part of
+a schema into a Relax NG schema, this is not the most convenient place
+for it. For one thing, salve (which is what wed uses for validation)
+right now does not save this information when it convert a Relax NG
+schema to use for validation. Even if it did, it would not solve all
+problems. The TEI documentation, for instance, is multilingual. Having
+it all stored in the schema would increase its size considerably, even
+if the user needs using only one language. It would be possible to
+produce schemas that include documentation only in one language but
+then you'd need one schema per language. By having the meta object be
+responsible for providing this documentation, wed can load only the
+language the user needs. Another issue that the meta object addresses
+is the fact that Relax NG schemas do not specify what prefix to use
+for namespaces. One of the jobs of the meta object is to provide
+defaults for namespace prefixes. These are used internally by the
+mode, rather than require mode developers to spell out namespace URIs
+every time they need to refer to a namespace. The XML file being
+edited can use whatever prefix desired, but the mode must have a
+standardized mapping of prefix to URI. The meta object provides this.
+
+The information provided by the meta object is not made part of the
+mode itself because the meta information it provides may be orthogonal
+to the concerns of the mode. The generic mode is a case in point: it
+can work just as well (or as "generically") for editing TEI documents
+as DocBook documents, or documents using any other schema. Or to take
+another example, TEI allows for quite a bit of customization: elements
+can be redefined, added, or removed. Entire modules can be added if a
+project calls for it. A mode specialized for editing TEI documents
+could have its meta object load only the documentation that pertains
+to the specific customization of TEI being used.
+
+Therefore, the generic mode takes a ``meta`` option which is a simple
+object which itself takes two fields:
+
+* ``path`` gives the path of the module that contains the meta object
+  to use.
+
+* ``options`` is a simple object which takes a single field named
+  ``metadata``. This field is a path to metadata that will be loaded
+  by the meta object. This is normally a JSON file. Note that this
+  path is relative to the module given in ``path`` above.
+
+Why have a meta object and a metadata file? Some tools used to manage
+and produce XML schemas are able to fairly easily generate information
+about the schemas they manage. One example are the tools provided by
+the TEI consortium. It is possible from an ODD file to generate a
+Relax NG schema, and extract the documentation for each element in the
+schema. Storing the resulting information into a JSON file is trivial,
+and it is more convenient than the alternatives.
+
+Here is an example of what the ``mode`` option passed to wed could contain::
+
+    path: 'wed/modes/generic/generic',
+    options: {
+      meta: {
+        path: 'wed/modes/generic/metas/tei_meta',
+        options: {
+          metadata:
+            '../../../../../schemas/tei-math-metadata.json'
+          }
+        }
+    }
+
+This tells wed to load the generic mode, use the meta object exported
+by ``wed/modes/generic/metas/tei_meta`` and have it load the metadata
+file ``../../../../../schemas/tei-math-metadata.json``. (Again, this
+last path is relative to the module that contains the meta object.)
+
+The way the generic mode operates entails that three elements must
+cooperate for a file to be usable by wed:
+
+* the correct schema must be passed to wed,
+
+* the correct mode must be selected,
+
+* this mode must use a meta object that is customized for the schema
+  being used. (Having the meta object load the correct metadata file
+  is implied.)
 
 Contributing
 ============
@@ -514,9 +458,10 @@ work.
 ..  LocalWords:  NG API namespace namespaces CSS RTL wed's UI github
 ..  LocalWords:  SauceLab's OpenSauce RequireJS config requirejs dev
 ..  LocalWords:  js jquery selectionsaverestore amd pre jsdoc rst mk
-..  LocalWords:  perl chai semver json Makefile saxon selenic
+..  LocalWords:  perl chai semver json Makefile saxon selenic npm
 ..  LocalWords:  glerbl subdirectory README html CHANGELOG TEI Ctrl
 ..  LocalWords:  RequireJS's unoptimized ajax txt tei hoc xml xsl rng
 ..  LocalWords:  schemas init onerror CDATA versa LocalWords xmlns
 ..  LocalWords:  multiline DOM's setAttribute ESR Attr ownerElement
-..  LocalWords:  globalKeydownHandler ajaxlog jQuery's
+..  LocalWords:  globalKeydownHandler ajaxlog jQuery's teiCorpus
+..  LocalWords:  localhost metadata

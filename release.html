@@ -1,127 +1,230 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; Wed v0.25.0-unclean documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Wed v0.25.0-unclean documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Wed
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.25
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tech_notes.html">Advanced Usage Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Wed</a>
+      </nav>
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>&lt;no title&gt; &mdash; Wed v0.24.3 documentation</title>
-    
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     'v0.24.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Wed v0.24.3 documentation" href="index.html" /> 
-  </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li><a href="index.html">Wed v0.24.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/release.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <p>Here is a series of steps that should typically be used to release new
 versions of wed.</p>
 <p>The following assumes that <cite>origin</cite> is <strong>a private fork</strong> and
 <cite>upstream</cite> is the main repository for wed.</p>
-<p>The following steps assume that you&#8217;ve already run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt> and
+<p>The following steps assume that you&#8217;ve already run <code class="docutils literal"><span class="pre">gulp</span> <span class="pre">test</span></code> and
 the Selenium tests beforehand and that they passed.</p>
 <ol class="arabic">
 <li><p class="first">Test that the documentation can be generated without errors:</p>
-<div class="highlight-python"><pre>``rm -rf gh-pages-build; make gh-pages-build FORCE_GH_PAGES_BUILD=1``</pre>
+<div class="highlight-python"><div class="highlight"><pre>``rm -rf gh-pages; gulp gh-pages --force-gh-pages-build``
+</pre></div>
 </div>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">start</span> <span class="pre">[new</span> <span class="pre">version,</span> <span class="pre">**without**</span> <span class="pre">the</span> <span class="pre">`v`]</span></tt></p>
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">start</span> <span class="pre">[new</span> <span class="pre">version,</span> <span class="pre">**without**</span> <span class="pre">the</span> <span class="pre">`v`]</span></code></p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">semver-sync</span> <span class="pre">-b</span> <span class="pre">[new</span> <span class="pre">version]</span></tt></p>
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">semver-sync</span> <span class="pre">-b</span> <span class="pre">[new</span> <span class="pre">version]</span></code></p>
 </li>
 <li><p class="first">Perform whatever other changes must happen and commit.</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">test</span></tt></p>
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">gulp</span> <span class="pre">test</span></code></p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">dist-notest</span></tt> This will test packaging wed and installing
-in a temporary directory. The <tt class="docutils literal"><span class="pre">notest</span></tt> bit prevents Selenium
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">gulp</span> <span class="pre">dist-notest</span></code> This will test packaging wed and installing
+in a temporary directory. The <code class="docutils literal"><span class="pre">notest</span></code> bit prevents Selenium
 tests from running.</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">finish</span> <span class="pre">[version]</span></tt></p>
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">flow</span> <span class="pre">release</span> <span class="pre">finish</span> <span class="pre">[version]</span></code></p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">make</span> <span class="pre">publish</span></tt></p>
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">gulp</span> <span class="pre">publish</span></code></p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></tt></p>
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></code></p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">upstream</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></tt></p>
+<li><p class="first"><code class="docutils literal"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">upstream</span> <span class="pre">:</span> <span class="pre">--follow-tags</span></code></p>
 </li>
-<li><p class="first">Switch to the main branch and issue <tt class="docutils literal"><span class="pre">make</span> <span class="pre">gh-pages-build</span></tt>.</p>
+<li><p class="first">Switch to the main branch and issue <code class="docutils literal"><span class="pre">gulp</span> <span class="pre">gh-pages</span></code>.</p>
 </li>
 <li><p class="first">Publish the documentation: take the result of the directory named
-<tt class="docutils literal"><span class="pre">gh-pages-build</span></tt>, copy it to the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch, commit it
-and push it to <tt class="docutils literal"><span class="pre">upstream</span></tt>.</p>
+<code class="docutils literal"><span class="pre">gh-pages</span></code>, copy it to the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch, commit it
+and push it to <code class="docutils literal"><span class="pre">upstream</span></code>.</p>
 </li>
 </ol>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/release.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013-2016 Mangalam Research Center for Buddhist Languages.
+
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li><a href="index.html">Wed v0.24.3 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2013, 2014 Mangalam Research Center for Buddhist Languages.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v0.25.0-unclean',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

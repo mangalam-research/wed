@@ -3,7 +3,7 @@
  * @desc A parser used for testing.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013-2015 Mangalam Research Center for Buddhist Languages
  */
 
 define(/** @lends module:parse */ function (require, exports, module) {
@@ -38,13 +38,7 @@ function parse(rng_source, xml_source, mute) {
     var text_buf = "";
 
     function flushTextBuf() {
-        // This is a hack to simulate cases where "text"
-        // events would be issued in sequence. Any ampersand
-        // in the source marks a break, and adds an additional
-        // "text" event.
-        var chunk = text_buf.split(/&/);
-        for(var x = 0; x < chunk.length; ++x)
-            fireEvent("text", chunk[x]);
+        fireEvent("text", text_buf);
         text_buf = "";
     }
 
@@ -91,6 +85,41 @@ function parse(rng_source, xml_source, mute) {
         fireEvent("endTag", tag_info[0], tag_info[1]);
         if (tag_info[2])
             fireEvent("leaveContext");
+    };
+
+    var entity_re = /^<!ENTITY\s+([^\s]+)\s+(['"])(.*?)\2\s*>\s*/;
+
+    parser.ondoctype = function (doctype) {
+        // This is an extremely primitive way to handle ENTITY
+        // declarations in a DOCTYPE. It is unlikely to support any
+        // kind of complicated construct. If a reminder need be given
+        // then: THIS PARSER IS NOT MEANT TO BE A GENERAL SOLUTION TO
+        // PARSING XML FILES!!! It supports just enough to perform
+        // some testing.
+        doctype = doctype
+            .replace(/^.*?\[/, '')
+            .replace(/\].*?$/, '')
+            .replace(/<!--(?:.|\n|\r)*?-->/g, '')
+            .trim();
+
+        var in_entity = false;
+
+        while (doctype.length) {
+            var match = entity_re.exec(doctype);
+            if (match) {
+                var name = match[1];
+                var quote = match[2];
+                var value = match[3];
+                doctype = doctype.slice(match[0].length);
+                if (parser.ENTITIES[name] !== undefined)
+                    throw new Error("redefining entity: " + name);
+                parser.ENTITIES[name] = value;
+            }
+            else
+                throw new Error("unexpected construct in DOCTYPE: " + doctype);
+        }
+
+        console.log(doctype);
     };
 
     parser.write(xml_source).close();

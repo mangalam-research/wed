@@ -1,5 +1,5 @@
 /**
- * @module datatypes/errors.js
+ * @module datatypes/errors
  * @desc Errors that can be raised during parsing of types.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0

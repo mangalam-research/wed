@@ -131,7 +131,13 @@ parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
     } else {
-        throw new Error(str);
+        function _parseError (msg, hash) {
+            this.message = msg;
+            this.hash = hash;
+        }
+        _parseError.prototype = new Error();
+
+        throw new _parseError(str, hash);
     }
 },
 parse: function parse(input) {
@@ -164,14 +170,14 @@ parse: function parse(input) {
         lstack.length = lstack.length - n;
     }
     _token_stack:
-        function lex() {
+        var lex = function () {
             var token;
             token = lexer.lex() || EOF;
             if (typeof token !== 'number') {
                 token = self.symbols_[token] || token;
             }
             return token;
-        }
+        };
     var symbol, preErrorSymbol, state, action, a, r, yyval = {}, p, len, newState, expected;
     while (true) {
         state = stack[stack.length - 1];

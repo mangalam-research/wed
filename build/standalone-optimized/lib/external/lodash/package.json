@@ -1,11 +1,16 @@
 {
   "name": "lodash-amd",
-  "version": "3.10.0",
-  "description": "lodash module bundles for AMD.",
-  "homepage": "https://lodash.com/",
-  "icon": "https://lodash.com/icon.svg",
+  "version": "4.3.0",
+  "description": "Lodash exported as AMD modules.",
+  "homepage": "https://lodash.com/custom-builds",
   "license": "MIT",
-  "main": "modern/main.js",
+  "main": "main.js",
+  "keywords": [
+    "amd",
+    "modules",
+    "stdlib",
+    "util"
+  ],
   "author": {
     "name": "John-David Dalton",
     "email": "john.david.dalton@gmail.com",
@@ -18,19 +23,9 @@
       "url": "http://allyoucanleet.com/"
     },
     {
-      "name": "Benjamin Tan",
-      "email": "demoneaux@gmail.com",
-      "url": "https://d10.github.io/"
-    },
-    {
       "name": "Blaine Bublitz",
-      "email": "blaine@iceddev.com",
-      "url": "http://www.iceddev.com/"
-    },
-    {
-      "name": "Kit Cambridge",
-      "email": "github@kitcambridge.be",
-      "url": "http://kitcambridge.be/"
+      "email": "blaine.bublitz@gmail.com",
+      "url": "https://github.com/phated"
     },
     {
       "name": "Mathias Bynens",
@@ -39,29 +34,46 @@
     }
   ],
   "bugs": {
-    "url": "https://github.com/lodash/lodash/issues"
+    "url": "https://github.com/lodash/lodash-cli/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lodash/lodash-amd.git"
+    "url": "git+https://github.com/lodash/lodash.git"
   },
   "scripts": {
     "test": "echo \"See https://travis-ci.org/lodash/lodash-cli for testing details.\""
   },
-  "volo": {
-    "type": "directory",
-    "ignore": [
-      ".*",
-      "*.log",
-      "*.md",
-      "bower.json",
-      "node_modules"
-    ]
+  "_id": "lodash-amd@4.3.0",
+  "_shasum": "90af655a2f40c1a5f8db667d7f006a7bf41b27af",
+  "_from": "lodash-amd@>=4.0.0 <5.0.0",
+  "_npmVersion": "2.14.18",
+  "_nodeVersion": "5.5.0",
+  "_npmUser": {
+    "name": "jdalton",
+    "email": "john.david.dalton@gmail.com"
   },
-  "readme": "# lodash-amd v3.10.0\n\nThe [compatibility & modern builds](https://github.com/lodash/lodash/wiki/Build-Differences) of [lodash](https://lodash.com/) exported as [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) modules.\n\nGenerated using [lodash-cli](https://www.npmjs.com/package/lodash-cli):\n```bash\n$ lodash modularize compat exports=amd -o ./compat && lodash compat exports=amd -d -o ./compat/main.js\n$ lodash modularize modern exports=amd -o ./modern && lodash modern exports=amd -d -o ./modern/main.js\n```\n\n## Deprecated\n\nThe `lodash-amd` package is deprecated in favor of [lodash@amd](https://github.com/lodash/lodash/tree/3.10.0-amd) & [lodash-compat@amd](https://github.com/lodash/lodash-compat/tree/3.10.0-amd) ≥ v3.0.0.\n\n## Installation\n\nDefining a build as `'lodash'`.\n\n```js\nrequire({\n  'packages': [\n    { 'name': 'lodash', 'location': 'lodash-amd/modern' }\n  ]\n}, ['lodash/array/chunk'], function(chunk) {\n  // use `chunk`\n});\n```\n\nSee the [package source](https://github.com/lodash/lodash-amd/tree/3.10.0) for more details.\n",
-  "readmeFilename": "README.md",
-  "_id": "lodash-amd@3.10.0",
-  "_shasum": "266a444ab8144b0c7739bc958493b44eae0d6617",
-  "_resolved": "https://registry.npmjs.org/lodash-amd/-/lodash-amd-3.10.0.tgz",
-  "_from": "lodash-amd@>=3.10.0 <4.0.0"
+  "dist": {
+    "shasum": "90af655a2f40c1a5f8db667d7f006a7bf41b27af",
+    "tarball": "http://registry.npmjs.org/lodash-amd/-/lodash-amd-4.3.0.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "jdalton",
+      "email": "john.david.dalton@gmail.com"
+    },
+    {
+      "name": "mathias",
+      "email": "mathias@qiwi.be"
+    },
+    {
+      "name": "phated",
+      "email": "blaine@iceddev.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-9-west.internal.npmjs.com",
+    "tmp": "tmp/lodash-amd-4.3.0.tgz_1454921740336_0.9157697260379791"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/lodash-amd/-/lodash-amd-4.3.0.tgz"
 }

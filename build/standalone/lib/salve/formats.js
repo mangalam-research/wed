@@ -4,7 +4,7 @@
  * schema format that salve uses natively.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013-2015 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:formats */ function (require, exports, module) {
 'use strict';
@@ -35,7 +35,11 @@ var code_to_constructor = [
     pro.Define,
     pro.Grammar,
     pro.EName,
-    pro.Interleave
+    pro.Interleave,
+    pro.Name,
+    pro.NameChoice,
+    pro.NsName,
+    pro.AnyName
 ];
 
 //
@@ -78,7 +82,15 @@ var name_to_constructor = {
     EName: pro.EName,
     16: pro.EName,
     Interleave: pro.Interleave,
-    17: pro.Interleave
+    17: pro.Interleave,
+    Name: pro.Name,
+    18: pro.Name,
+    NameChoice: pro.NameChoice,
+    19: pro.NameChoice,
+    NsName: pro.NsName,
+    20: pro.NsName,
+    AnyName: pro.AnyName,
+    21: pro.AnyName
 };
 
 //
@@ -219,18 +231,12 @@ V2Constructor.prototype._processObject = function (ctor, args) {
 
 };
 
-//
-// MODIFICATIONS TO THIS FUNCTION MUST BE REFLECTED IN rng-to-js.xsl
-//
 /**
- * Constructs a tree of patterns from a JSON representation of a RNG
- * schema. This representation must have been created by simplifying
- * the original RNG and then converting it with the
- * <code>rng-to-js.xsl</code> transformation provided with salve.
+ * Constructs a tree of patterns from the data structure produced by
+ * running ``salve-convert`` on an RNG file.
  *
  * @param {string} code The JSON representation.
- * @throws {Error} When the version of the JSON representation is not
- * supported.
+ * @throws {Error} When the version of the data is not supported.
  * @returns {module:validate~Pattern} The tree.
  */
 function constructTree(code) {
@@ -240,7 +246,7 @@ function constructTree(code) {
 
     var version = parsed.v;
     var options = parsed.o;
-    if (version === 2)
+    if (version === 3)
         return new V2Constructor(options).walkObject(parsed.d, options);
     else
         throw new Error("unknown version: " + version);

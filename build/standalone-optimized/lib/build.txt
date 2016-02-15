@@ -33,12 +33,11 @@ wed/wed.css
 
 external/lodash/main.js
 ----------------
-external/lodash/modern/main.js
 external/lodash/main.js
 
-external/jquery-2.1.1.js
+external/jquery.js
 ----------------
-external/jquery-2.1.1.js
+external/jquery.js
 
 wed/wed.js
 ----------------
@@ -61,6 +60,8 @@ wed/wed_core.js
 wed/dloc.js
 wed/wed_util.js
 wed/build-info.js
+external/is-plain-obj.js
+external/merge-options.js
 wed/object_check.js
 wed/preferences.js
 wed/guiroot.js
@@ -87,13 +88,14 @@ salve/datatypes/regexp.js
 salve/datatypes/xmlschema.js
 salve/datatypes.js
 salve/errors.js
+salve/name_patterns.js
 salve/patterns.js
 salve/formats.js
 salve/validate.js
 wed/validator.js
 wed/gui/modal.js
-wed/action.js
 wed/gui/icon.js
+wed/action.js
 wed/transformation.js
 wed/lib/pubsub.js
 wed/onbeforeunload.js

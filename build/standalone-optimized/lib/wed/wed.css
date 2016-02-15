@@ -42,7 +42,8 @@
   float: none;
 }
 .wed-context-menu .fa-times,
-.wed-context-menu .fa-caret-square-o-up {
+.wed-context-menu .fa-caret-square-o-up,
+.wed-context-menu .fa-exclamation {
   color: red;
 }
 .wed-context-menu .fa-plus,
@@ -197,6 +198,13 @@ div.wed-frame ._gui._label {
 div.wed-frame ._gui._label._label_clicked {
   background-color: #f0ad4e;
 }
+div.wed-frame ._gui._label ._attribute_value {
+  color: black;
+  background-color: white;
+}
+div.wed-frame ._gui._label ._attribute._readonly ._attribute_value {
+  background-color: #ff8566;
+}
 div.wed-frame ._gui._invisible {
   display: none;
 }
@@ -227,8 +235,11 @@ div.wed-frame div.wed-document div._real._inline {
   margin-left: 0em;
 }
 div.wed-frame div.wed-document div._real._owns_caret {
-  background-color: #ffffcc;
+  background-color: #FFFFCC;
   background-image: none;
+}
+div.wed-frame div.wed-document div._real._readonly {
+  background-color: #ff8566;
 }
 div.wed-frame div.wed-document ._placeholder {
   text-indent: 0px;

@@ -5,7 +5,7 @@
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(/** @lends module:datatypes/builtin */
+define(/** @lends module:datatypes/xmlschema */
     function (require, exports, module) {
 'use strict';
 
@@ -415,7 +415,7 @@ function whiteSpaceProcessed(value, param) {
 var base = {
     init: function () {
         if (this.valid_params)
-            this.param_name_to_obj = _.indexBy(this.valid_params, "name");
+            this.param_name_to_obj = _.keyBy(this.valid_params, "name");
         // Initialize this value to the same value one would get is not
         // specifying any parameters on the type.
         this.default_params = this.parseParams();
@@ -468,7 +468,7 @@ var base = {
             var prop = me.param_name_to_obj[key];
             if (value.length > 1)
                 ret[key] = prop.combine(_.reduceRight(
-                    _.pluck(value, "value"),
+                    _.map(value, "value"),
                     function (a, b) { return a.concat(b); }, []), me);
             else
                 ret[key] = ((prop.convert) ? prop.convert(value[0].value, me) :

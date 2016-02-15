@@ -14,12 +14,14 @@ var paste = wed_util.paste;
 var cut = wed_util.cut;
 var build_info = require("./build-info");
 var $ = require("jquery");
+var merge_options = require("merge-options");
 var log = require("./log");
 var preferences = require("./preferences");
 var onerror = require("./onerror");
 var domutil = require("./domutil");
 var guiroot = require("./guiroot");
 var dloc = require("./dloc");
+var makeDLoc = dloc.makeDLoc;
 var AjaxSaver = require("./savers/ajax").Saver;
 var LocalSaver = require("./savers/localforage").Saver;
 var TreeUpdater = require("./tree_updater").TreeUpdater;
@@ -30,14 +32,28 @@ var validator = require("./validator");
 var Validator = validator.Validator;
 var object_check = require("./object_check");
 var modal = require("./gui/modal");
+var icon = require("./gui/icon");
 var undo = require("./undo");
 var transformation = require("./transformation");
 var pubsub = require("./lib/pubsub");
 var onbeforeunload = require("./onbeforeunload");
+var Action = require("./action").Action;
+var oop = require("./oop");
 var closestByClass = domutil.closestByClass;
 var closest = domutil.closest;
 
 var _indexOf = Array.prototype.indexOf;
+
+function ComplexPatternAction() {
+    Action.apply(this, arguments);
+}
+
+oop.inherit(ComplexPatternAction, Action);
+
+ComplexPatternAction.prototype.execute = function (data) {
+    var editor = this._editor;
+    editor._complex_pattern_modal.modal();
+};
 
 Editor.prototype.init = log.wrap(function (widget, options, data) {
     this.max_label_level = undefined;
@@ -76,10 +92,10 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     // config. In some case, it may be difficult to just override
     // individual values.
     if (options.ignore_module_config)
-        options = $.extend(true, {}, options);
+        options = merge_options({}, options);
     else
         // This enables us to override options.
-        options = $.extend(true, {}, core.module_config, options);
+        options = merge_options({}, core.module_config, options);
 
     this.name = options.name;
 
@@ -318,6 +334,17 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this._limitation_modal = new modal.Modal();
     this._limitation_modal.setTitle("Cannot proceed");
 
+    this._complex_pattern_modal = this.makeModal();
+    this._complex_pattern_modal.setTitle("Complex Name Pattern Encountered");
+    this._complex_pattern_modal.setBody(
+        "<p>The schema contains here a complex name pattern modal. \
+         While wed has no problem validating such cases. It does not \
+         currently have facilities to add elements or attributes that \
+         match such patterns. You can continue editing your document but \
+         you will not be able to take advantage of the possibilities \
+         provided by the complex pattern here.</p>");
+    this._complex_pattern_modal.addButton("Ok", true);
+
     this._paste_modal = this.makeModal();
     this._paste_modal.setTitle("Invalid structure");
     this._paste_modal.setBody(
@@ -335,31 +362,31 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
         smaller sections.<p>");
     this.straddling_modal.addButton("Ok", true);
 
+    var doc_link = this.doc_link = require.toUrl("../../doc/index.html");
     this.help_modal = this.makeModal();
     this.help_modal.setTitle("Help");
     this.help_modal.setBody(
-        "<p>The key combinations with Ctrl below are done with Command in \
-        OS X.</p>\
-         <ul>\
-          <li>Clicking the right mouse button on the document contents \
-brings up a contextual menu.</li>\
-          <li>Clicking the right mouse button on the links in the \
-navigation panel brings up a contextual menu.</li>\
-          <li>F1: help</li>\
-          <li>Ctrl-[: Decrease the label visibility level.</li>\
-          <li>Ctrl-]: Increase the label visibility level.</li>\
-          <li>Ctrl-S: Save</li>\
-          <li>Ctrl-X: Cut</li>\
-          <li>Ctrl-V: Paste</li>\
-          <li>Ctrl-C: Copy</li>\
-          <li>Ctrl-Z: Undo</li>\
-          <li>Ctrl-Y: Redo</li>\
-          <li>Ctrl-/: Bring up a contextual menu.</li>\
-        </ul>\
-        <p class='wed-build-info'>Build descriptor: " + build_info.desc +
-            "<br/>\
-        Build date: " + build_info.date + "</p>\
-        ");
+        "\
+<p>Click <a href='" + doc_link + "' target='_blank'>this link</a> to see \
+wed's generic help. The link by default will open in a new tab.</p>\
+<p>The key combinations with Ctrl below are done with Command in OS X.</p>\
+<ul>\
+  <li>Clicking the right mouse button on the document contents brings up a \
+contextual menu.</li>\
+  <li>F1: help</li>\
+  <li>Ctrl-[: Decrease the label visibility level.</li>\
+  <li>Ctrl-]: Increase the label visibility level.</li>\
+  <li>Ctrl-S: Save</li>\
+  <li>Ctrl-X: Cut</li>\
+  <li>Ctrl-V: Paste</li>\
+  <li>Ctrl-C: Copy</li>\
+  <li>Ctrl-Z: Undo</li>\
+  <li>Ctrl-Y: Redo</li>\
+  <li>Ctrl-/: Bring up a contextual menu.</li>\
+</ul>\
+<p class='wed-build-info'>Build descriptor: " + build_info.desc + "<br/>\
+Build date: " + build_info.date + "</p>\
+");
     this.help_modal.addButton("Close", true);
 
     this._disconnect_modal = this.makeModal();
@@ -414,6 +441,11 @@ navigation panel brings up a contextual menu.</li>\
 
 
     this.mode_path = options.mode.path;
+
+    this.complex_pattern_action = new ComplexPatternAction(
+        this, "Complex name pattern", undefined, icon.makeHTML("exclamation"),
+        true);
+
     this.paste_tr = new transformation.Transformation(this, "add",
                                                       "Paste", paste);
     this.cut_tr = new transformation.Transformation(this, "delete", "Cut", cut);
@@ -501,6 +533,9 @@ Editor.prototype.onModeChange = log.wrap(function (mode) {
         "state-update", this._onValidatorStateChange.bind(this));
     this.validator.addEventListener(
         "error", this._onValidatorError.bind(this));
+    this.validator.addEventListener(
+        "possible-due-to-wildcard-change",
+        this._onPossibleDueToWildcardChange.bind(this));
     this.validator.addEventListener(
         "reset-errors", this._onResetErrors.bind(this));
 
@@ -622,6 +657,8 @@ Editor.prototype._postInitialize = log.wrap(function  () {
             // schedule it for ASAP.
             var me = this;
             setTimeout(function () {
+                if (me._destroyed)
+                    return;
                 me.validator.restartAt(el);
             }, 0);
         }
@@ -652,7 +689,7 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     this._updating_placeholder = 0;
     this.domlistener.addHandler(
         "children-changed",
-        "._real, ._phantom_wrap",
+        "._real, ._phantom_wrap, .wed-document",
         function (root, added, removed, prev, next, target) {
         if (this._updating_placeholder)
             return;
@@ -685,8 +722,15 @@ Editor.prototype._postInitialize = log.wrap(function  () {
              removed.indexOf(to_consider[0]) !== -1)) {
             if (!ph) {
                 var nodes = this.mode.nodesAroundEditableContents(target);
-                ph = this.mode.makePlaceholderFor(target);
-                this._gui_updater.insertBefore(target, ph, nodes[1]);
+                if (target === this.gui_root) {
+                    ph = this.insertTransientPlaceholderAt(
+                        makeDLoc(this.gui_root, this.gui_root, 0));
+                    this._setGUICaret(this.gui_root, 0, "text_edit");
+                }
+                else {
+                    ph = this.mode.makePlaceholderFor(target);
+                    this._gui_updater.insertBefore(target, ph, nodes[1]);
+                }
             }
         }
         else if (ph && !ph.classList.contains("_transient")) {
@@ -860,6 +904,11 @@ Editor.prototype._postInitialize = log.wrap(function  () {
             ((ev.screenX === ev.screenY) && (ev.screenX === 0)))
             return;
 
+        // We don't want to blur for clicks that are on elements part
+        // of our GUI.
+        if (this.widget.contains(ev.target))
+            return;
+
         var el = this.doc.elementFromPoint(ev.clientX, ev.clientY);
 
         if ($(el).closest(this._$excluded_from_blur).length)
@@ -906,6 +955,23 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
     this.validator.start();
 
+    var demo = this.options.demo;
+    if (demo) {
+        // Provide a generic message.
+        if (typeof demo !== "string") {
+            demo = "Some functions may not be available.";
+        }
+        var demo_modal = this.makeModal();
+        demo_modal.setTitle("Demo");
+        demo_modal.setBody(
+            "<p>This is a demo of wed. " + demo + "</p>" +
+                "<p>Click <a href='" + this.doc_link +
+                "' target='_blank'>this link</a> to see \
+wed's generic help. The link by default will open in a new tab.</p>");
+        demo_modal.addButton("Ok", true);
+        demo_modal.modal();
+    }
+
     if (this._saver) {
         // The editor is not initialized until the saver is also
         // initialized, which may take a bit.
@@ -925,6 +991,9 @@ Editor.prototype._initializeNamespaces = function () {
         // namespace mappings.
         var attrs = Object.create(null);
         this.validator.getSchemaNamespaces().forEach(function (ns) {
+            if (ns === "*" || ns === "::except")
+                return;
+
             var k = this.resolver.prefixFromURI(ns);
             // Don't create a mapping for the `xml`, seeing as it is
             // defined by default.
@@ -948,12 +1017,26 @@ Editor.prototype._initializeNamespaces = function () {
 
         var evs = this.validator.possibleAt(this.data_root, 0).toArray();
         if (evs.length === 1 && evs[0].params[0] === "enterStartTag") {
-            transformation.insertElement(
-                this.data_updater, this.data_root, 0,
-                evs[0].params[1],
-                this.resolver.unresolveName(evs[0].params[1],
-                                            evs[0].params[2]), attrs);
+            var name = evs[0].params[1];
+            // If the name pattern is not simple or it allows for a
+            // number of choices, then we skip this creation.
+            if (name.simple() && name.toArray().length === 1) {
+                transformation.insertElement(
+                    this.data_updater, this.data_root, 0,
+                    name.ns, this.resolver.unresolveName(name.ns, name.name),
+                    attrs);
+                this.setDataCaret(this.data_root.firstElementChild, 0);
+            }
         }
+
+        // Ok, we did not insert anything, let's put a placeholder there.
+        if (!this.data_root.firstChild) {
+            var ph = this.insertTransientPlaceholderAt(
+                makeDLoc(this.gui_root, this.gui_root, 0));
+            this.setGUICaret(ph, 0);
+            this._focus();
+        }
+
     }
     else {
         var namespaces = this.validator.getDocumentNamespaces();

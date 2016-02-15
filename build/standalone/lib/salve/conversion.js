@@ -4,7 +4,7 @@
  * files to the format required by salve.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright 2013-2015 Mangalam Research Center for Buddhist Languages
  */
 define(/** @lends module:conversion */ function (require, exports, module) {
 'use strict';
@@ -14,7 +14,7 @@ var walker = require("./conversion/walker");
 
 exports.Element = parser.Element;
 exports.ConversionParser = parser.ConversionParser;
-exports.ConversionWalkerV2 = walker.ConversionWalkerV2;
+exports.DefaultConversionWalker = walker.DefaultConversionWalker;
 exports.NameGatherer = walker.NameGatherer;
 exports.Renamer = walker.Renamer;
 exports.DatatypeProcessor = walker.DatatypeProcessor;
