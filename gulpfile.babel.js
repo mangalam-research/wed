@@ -437,8 +437,9 @@ gulp.task("doc", ["rst-doc", "jsdoc3-doc"]);
 // We make this a different task so that the check can be performed as
 // early as possible.
 gulp.task("gh-pages-check", Promise.coroutine(function* () {
-    const [out, err] = yield checkOutputFile(
-        "git", ["rev-parse", "--abbrev-ref HEAD"]);
+    let [out, err] = yield checkOutputFile(
+        "git", ["rev-parse", "--abbrev-ref", "HEAD"]);
+    out = out.trim();
     if (out !== "master" && !options.force_gh_pages_build)
         throw new Error(`***
 Not on master branch. Don't build gh-pages-build on
