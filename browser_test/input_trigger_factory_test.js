@@ -5,9 +5,9 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
         "wed/wed", "wed/key", "wed/key_constants", "salve/validate",
-        "browser_test/global"],
+        "browser_test/global", "wed/onerror"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants,
-          validate, global) {
+          validate, global, onerror) {
 'use strict';
 
 var assert = chai.assert;
@@ -69,10 +69,25 @@ describe("input_trigger_factory", function () {
         if (editor)
             editor.destroy();
         editor = undefined;
+        assert.isFalse(onerror.is_terminating(),
+                       "test caused an unhandled exception to occur");
+        // We don't reload our page so we need to do this.
+        onerror.__test.reset();
+
     });
 
+    function mit(name, fn) {
+        it(name, function () {
+            fn();
+            // We want to make sure the changes do not screw up
+            // validation and we want to catch these errors in the
+            // test, rather than the hook.
+            editor.validator._validateUpTo(editor.data_root, -1);
+        });
+    }
+
     describe("makeSplitMergeInputTrigger", function () {
-        it("creates an InputTrigger that handles a split triggered by a " +
+        mit("creates an InputTrigger that handles a split triggered by a " +
            "keypress event",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
@@ -93,7 +108,7 @@ describe("input_trigger_factory", function () {
                          '<term>blah2</term> blah.</p>');
         });
 
-        it("creates an InputTrigger that handles a split triggered by a " +
+        mit("creates an InputTrigger that handles a split triggered by a " +
            "keydown event",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
@@ -115,7 +130,7 @@ describe("input_trigger_factory", function () {
         });
 
 
-        it("creates an InputTrigger that handles a split triggered by a " +
+        mit("creates an InputTrigger that handles a split triggered by a " +
            "paste event",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
@@ -154,7 +169,7 @@ describe("input_trigger_factory", function () {
             src_stack.shift();
         });
 
-        it("creates an InputTrigger that backspaces in phantom text",
+        mit("creates an InputTrigger that backspaces in phantom text",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
                 editor, "p", key_constants.ENTER,
@@ -168,7 +183,7 @@ describe("input_trigger_factory", function () {
             assert.equal(ps.length, 1);
         });
 
-        it("creates an InputTrigger that deletes in phantom text",
+        mit("creates an InputTrigger that deletes in phantom text",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
                 editor, "p", key_constants.ENTER,
@@ -194,7 +209,7 @@ describe("input_trigger_factory", function () {
             src_stack.shift();
         });
 
-        it("creates an InputTrigger that merges on BACKSPACE",
+        mit("creates an InputTrigger that merges on BACKSPACE",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
                 editor, "p", key_constants.ENTER,
@@ -213,7 +228,7 @@ describe("input_trigger_factory", function () {
             assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
         });
 
-        it("creates an InputTrigger that merges on BACKSPACE, and can undo",
+        mit("creates an InputTrigger that merges on BACKSPACE, and can undo",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
                 editor, "p", key_constants.ENTER,
@@ -240,7 +255,7 @@ describe("input_trigger_factory", function () {
             assert.equal(cleanNamespace(ps[1].outerHTML), '<p>Foo</p>');
         });
 
-        it("creates an InputTrigger that merges on DELETE",
+        mit("creates an InputTrigger that merges on DELETE",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
                 editor, "p", key_constants.ENTER,
@@ -260,7 +275,7 @@ describe("input_trigger_factory", function () {
             assert.equal(cleanNamespace(ps[0].outerHTML), '<p>BarFoo</p>');
         });
 
-        it("creates an InputTrigger that merges on DELETE, and can undo",
+        mit("creates an InputTrigger that merges on DELETE, and can undo",
            function () {
             input_trigger_factory.makeSplitMergeInputTrigger(
                 editor, "p", key_constants.ENTER,

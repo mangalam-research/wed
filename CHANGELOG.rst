@@ -4,6 +4,18 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.26:
+
+  - Bugfix: Fixed a bug in the code that merge sibling elements. In
+    particular, this bug would get triggered when an input trigger
+    created with ``makeSplitMergeInputTrigger`` would merge two
+    elements where the preceding element ends with a text node and the
+    next starts with a text node. The two text nodes would become
+    adjacent, which caused validation to crash because salve does not
+    accept two ``text`` events in succession. The merging code has
+    been fixed so that if two text nodes become adjacent, they are
+    merged into one node.
+
 * 0.25:
 
   - Support for Firefox on all platforms has been temporarily
