@@ -63,7 +63,7 @@ Only salient changes are recorded here.
 
   - API/GUI: Wed now allow the creation of draggable and resizable
     windows. ``Editor.makeModal`` is now allowing an ``options``
-    argument to speicfy whether the modals are draggable and
+    argument to specify whether the modals are draggable and
     resizable. Wed's stock modals are not usually resizable or
     draggable but modes may want to create such modals.
 
