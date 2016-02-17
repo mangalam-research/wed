@@ -15,24 +15,26 @@ the Selenium tests beforehand and that they passed.
 
 3. ``$ semver-sync -b [new version]``
 
-4. Perform whatever other changes must happen and commit.
+4. ``$ npm shrinkwrap``
 
-5. ``$ gulp test``
+5. Perform whatever other changes must happen and commit.
 
-6. ``$ gulp dist-notest`` This will test packaging wed and installing
+6. ``$ gulp test``
+
+7. ``$ gulp dist-notest`` This will test packaging wed and installing
    in a temporary directory. The ``notest`` bit prevents Selenium
    tests from running.
 
-7. ``$ git flow release finish [version]``
+8. ``$ git flow release finish [version]``
 
-8. ``$ gulp publish``
+9. ``$ gulp publish``
 
-9. ``$ git push origin : --follow-tags``
+10. ``$ git push origin : --follow-tags``
 
-10. ``$ git push upstream : --follow-tags``
+11. ``$ git push upstream : --follow-tags``
 
-11. Switch to the main branch and issue ``gulp gh-pages``.
+12. Switch to the main branch and issue ``gulp gh-pages``.
 
-12. Publish the documentation: take the result of the directory named
+13. Publish the documentation: take the result of the directory named
     ``gh-pages``, copy it to the ``gh-pages`` branch, commit it
     and push it to ``upstream``.

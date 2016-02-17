@@ -1,41 +1,101 @@
 {
-  "name": "lodash-amd",
-  "version": "4.3.0",
+  "_args": [
+    [
+      "lodash-amd@>=4 <5",
+      "/home/ldd/src/git-repos/wed"
+    ]
+  ],
+  "_from": "lodash-amd@>=4.0.0 <5.0.0",
+  "_id": "lodash-amd@4.5.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/lodash-amd",
+  "_nodeVersion": "5.5.0",
+  "_npmOperationalInternal": {
+    "host": "packages-9-west.internal.npmjs.com",
+    "tmp": "tmp/lodash-amd-4.5.0.tgz_1455698419757_0.9314346266910434"
+  },
+  "_npmUser": {
+    "email": "john.david.dalton@gmail.com",
+    "name": "jdalton"
+  },
+  "_npmVersion": "2.14.18",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "lodash-amd",
+    "raw": "lodash-amd@>=4 <5",
+    "rawSpec": ">=4 <5",
+    "scope": null,
+    "spec": ">=4.0.0 <5.0.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "#DEV:/"
+  ],
+  "_resolved": "https://registry.npmjs.org/lodash-amd/-/lodash-amd-4.5.0.tgz",
+  "_shasum": "9ae3b416150bee6983f8b4e4fe3ae50cc2a279a6",
+  "_shrinkwrap": null,
+  "_spec": "lodash-amd@>=4 <5",
+  "_where": "/home/ldd/src/git-repos/wed",
+  "author": {
+    "email": "john.david.dalton@gmail.com",
+    "name": "John-David Dalton",
+    "url": "http://allyoucanleet.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/lodash/lodash-cli/issues"
+  },
+  "contributors": [
+    {
+      "email": "john.david.dalton@gmail.com",
+      "name": "John-David Dalton",
+      "url": "http://allyoucanleet.com/"
+    },
+    {
+      "email": "blaine.bublitz@gmail.com",
+      "name": "Blaine Bublitz",
+      "url": "https://github.com/phated"
+    },
+    {
+      "email": "mathias@qiwi.be",
+      "name": "Mathias Bynens",
+      "url": "https://mathiasbynens.be/"
+    }
+  ],
+  "dependencies": {},
   "description": "Lodash exported as AMD modules.",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "9ae3b416150bee6983f8b4e4fe3ae50cc2a279a6",
+    "tarball": "http://registry.npmjs.org/lodash-amd/-/lodash-amd-4.5.0.tgz"
+  },
   "homepage": "https://lodash.com/custom-builds",
-  "license": "MIT",
-  "main": "main.js",
   "keywords": [
     "amd",
     "modules",
     "stdlib",
     "util"
   ],
-  "author": {
-    "name": "John-David Dalton",
-    "email": "john.david.dalton@gmail.com",
-    "url": "http://allyoucanleet.com/"
-  },
-  "contributors": [
+  "license": "MIT",
+  "main": "main.js",
+  "maintainers": [
     {
-      "name": "John-David Dalton",
       "email": "john.david.dalton@gmail.com",
-      "url": "http://allyoucanleet.com/"
+      "name": "jdalton"
     },
     {
-      "name": "Blaine Bublitz",
-      "email": "blaine.bublitz@gmail.com",
-      "url": "https://github.com/phated"
-    },
-    {
-      "name": "Mathias Bynens",
       "email": "mathias@qiwi.be",
-      "url": "https://mathiasbynens.be/"
+      "name": "mathias"
+    },
+    {
+      "email": "blaine@iceddev.com",
+      "name": "phated"
     }
   ],
-  "bugs": {
-    "url": "https://github.com/lodash/lodash-cli/issues"
-  },
+  "name": "lodash-amd",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lodash/lodash.git"
@@ -43,37 +103,5 @@
   "scripts": {
     "test": "echo \"See https://travis-ci.org/lodash/lodash-cli for testing details.\""
   },
-  "_id": "lodash-amd@4.3.0",
-  "_shasum": "90af655a2f40c1a5f8db667d7f006a7bf41b27af",
-  "_from": "lodash-amd@>=4.0.0 <5.0.0",
-  "_npmVersion": "2.14.18",
-  "_nodeVersion": "5.5.0",
-  "_npmUser": {
-    "name": "jdalton",
-    "email": "john.david.dalton@gmail.com"
-  },
-  "dist": {
-    "shasum": "90af655a2f40c1a5f8db667d7f006a7bf41b27af",
-    "tarball": "http://registry.npmjs.org/lodash-amd/-/lodash-amd-4.3.0.tgz"
-  },
-  "maintainers": [
-    {
-      "name": "jdalton",
-      "email": "john.david.dalton@gmail.com"
-    },
-    {
-      "name": "mathias",
-      "email": "mathias@qiwi.be"
-    },
-    {
-      "name": "phated",
-      "email": "blaine@iceddev.com"
-    }
-  ],
-  "_npmOperationalInternal": {
-    "host": "packages-9-west.internal.npmjs.com",
-    "tmp": "tmp/lodash-amd-4.3.0.tgz_1454921740336_0.9157697260379791"
-  },
-  "directories": {},
-  "_resolved": "https://registry.npmjs.org/lodash-amd/-/lodash-amd-4.3.0.tgz"
+  "version": "4.5.0"
 }

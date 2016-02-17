@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage Notes &mdash; Wed v0.25.0-2-gf26053e-unclean documentation</title>
+  <title>Advanced Usage Notes &mdash; Wed v0.26.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Wed v0.25.0-2-gf26053e-unclean documentation" href="index.html"/>
+    <link rel="top" title="Wed v0.26.0 documentation" href="index.html"/>
         <link rel="prev" title="Using Wed in an Application" href="usage.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                v0.25
+                v0.26
               </div>
             
           
@@ -578,7 +578,7 @@ available on your <code class="docutils literal"><span class="pre">PYTHONPATH</s
 need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a>
 installed and available on your <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>.</p>
 <p>It is very likely that you&#8217;ll want to override some of the values in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/selenium_config.py">config/selenium_config.py</a> by creating
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a> by creating
 <code class="docutils literal"><span class="pre">local_config/selenium_config.py</span></code> that loads the default file but
 override or adds some values. For instance:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c1"># If used, must appear before the default file is loaded. The</span>
@@ -600,11 +600,11 @@ override or adds some values. For instance:</p>
 <p>Behind the scenes, this will launch Behave. An instance of <code class="docutils literal"><span class="pre">./server.js</span></code>
 will be launched automatically to respond to the requests of the
 browser that the test suite launches. See the gulpfile
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/gulpfile.babel.js">gulpfile.babel.js</a> for information about how behave is run.</p>
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/gulpfile.babel.js">gulpfile.babel.js</a> for information about how behave is run.</p>
 <p>The <code class="docutils literal"><span class="pre">browser</span></code> variable determines which browser will run the
 test. You may omit any of <code class="docutils literal"><span class="pre">platform</span></code>, <code class="docutils literal"><span class="pre">browser</span></code> or <code class="docutils literal"><span class="pre">versions</span></code> so
 long as the parts that are specified are enough to match a <strong>single</strong>
-configuration defined in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/selenium_config.py">config/selenium_config.py</a>. See the
+configuration defined in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a>. See the
 list of configurations there to see what has been configured. If you
 want something different from the list there, you&#8217;ll have to configure
 it in the copy you made into <code class="docutils literal"><span class="pre">local_config</span></code>.</p>
@@ -1133,7 +1133,7 @@ the incremental changes, but some obsolete code may still remain.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.25.0-2-gf26053e-unclean',
+            VERSION:'v0.26.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
