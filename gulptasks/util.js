@@ -65,9 +65,9 @@ export function checkOutputFile(file, args, options) {
                                    if (err) {
                                        gutil.log(stdout);
                                        gutil.log(stderr);
-                                       reject(err);
+                                       return reject(err);
                                    }
-                                   resolve(stdout, stderr);
+                                   resolve([stdout, stderr]);
                                });
     });
 }
