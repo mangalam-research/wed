@@ -14,3 +14,10 @@ Scenario: Handle Platform Variations
 Scenario: Check that innerHTML on XML nodes produces valid values.
   Given the platform variation page is loaded
   Then the innerHTML field of XML nodes produces valid values
+
+@only.with_browser=ie
+Scenario: Check that normalize works.
+  Given the platform variation page is loaded
+  Then normalize is a polyfill
+  And normalize joins adjacent text nodes
+  And normalize deletes empty text nodes

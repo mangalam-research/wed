@@ -487,16 +487,21 @@ describe("domutil", function () {
         it("works fine with offset beyond text length",
            function () {
             var parent = root.getElementsByTagName("title")[0];
+            assert.equal(parent.childNodes.length, 1,
+                        "the parent should start with one child");
             var node = parent.firstChild;
             var el = node.ownerDocument.createElement("span");
             var pair = domutil.insertIntoText(node, node.nodeValue.length, el);
+            assert.equal(parent.childNodes.length, 2,
+                        "the parent should have two children after insertion");
             assert.equal(pair[0][0].nodeValue, "abcd");
             assert.equal(pair[0][0], parent.firstChild);
             assert.equal(pair[0][0].nextSibling, el);
             assert.equal(pair[0][1], 4);
             assert.equal(pair[1][0], parent);
             assert.equal(pair[1][1], 2);
-            assert.equal(parent.childNodes.length, 2);
+            assert.equal(parent.childNodes.length, 2,
+                         "parent.childNodes.length should be 2");
             assert.equal(parent.lastChild, el);
             });
 
