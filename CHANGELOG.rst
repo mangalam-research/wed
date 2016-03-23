@@ -6,6 +6,9 @@ Only salient changes are recorded here.
 
 * 0.26.1:
 
+  - Bug fix: the kitchen sink lacked a polyfill, which could have
+    caused it to fail when loaded in IE.
+
   - Internal: the unit tests now load the polyfills so that they can be
     run on all platforms.
 
