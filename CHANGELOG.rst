@@ -4,6 +4,11 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.26.1:
+
+  - Internal: the unit tests now load the polyfills so that they can be
+    run on all platforms.
+
 * 0.26:
 
   - Bugfix: Fixed a bug in the code that merge sibling elements. In
