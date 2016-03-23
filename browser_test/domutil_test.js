@@ -12,6 +12,12 @@ var assert = chai.assert;
 var root = window.parent.document.getElementById("domroot");
 var test_para = window.parent.document.getElementById("test-para");
 
+// Utility function for XML nodes.
+function empty(node) {
+    while (node.firstChild)
+        node.removeChild(node.firstChild);
+}
+
 describe("domutil", function () {
     describe("nextCaretPosition", function () {
         var caret;
@@ -614,7 +620,7 @@ describe("domutil", function () {
 
         it("creates a text node if needed", function () {
             var node = root.getElementsByTagName("title")[0];
-            node.innerHTML = null;
+            empty(node);
             var pair = domutil.insertText(node, 0, "test");
             assert.isUndefined(pair[0]);
             assert.equal(pair[1], node.firstChild);
@@ -633,7 +639,10 @@ describe("domutil", function () {
         it("inserts in the correct position if it needs to create " +
            "a text node", function () {
             var node = root.getElementsByTagName("title")[0];
-            node.innerHTML = "<b>q</b>";
+            empty(node);
+            var b = node.ownerDocument.createElement("b");
+            b.textContent = "q";
+            node.appendChild(b);
             var pair = domutil.insertText(node, 1, "test");
             assert.isUndefined(pair[0]);
             assert.equal(pair[1], node.lastChild);
@@ -848,9 +857,7 @@ describe("domutil", function () {
 
             // Check that we're doing what we think we're doing.
             assert.equal(p.childNodes.length, 1);
-            assert.equal(
-                p.outerHTML,
-                '<p xmlns="http://www.tei-c.org/ns/1.0">befoter</p>');
+            assert.equal(p.innerHTML, 'befoter');
 
             assert.isTrue(ret.length > 0);
             assert.equal(ret[0][0], p.firstChild);
