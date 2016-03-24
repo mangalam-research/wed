@@ -6,6 +6,13 @@ Only salient changes are recorded here.
 
 * 0.26.1:
 
+  - Bug fix: The firstElementChild_etc.js polyfill mixed tests and
+    patches for two different DOM interfaces. The way it used to
+    perform its test was unreliable, with the end result that it could
+    yield errors on IE 11. The code has been fixed to handle the two
+    DOM interfaces separately, even though they are handled by a
+    single file.
+
   - Bug fix: the kitchen sink lacked a polyfill, which could have
     caused it to fail when loaded in IE.
 
