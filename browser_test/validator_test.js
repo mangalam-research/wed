@@ -1040,7 +1040,9 @@ describe("validator", function () {
 
         makeTest("with actual contents, errors in the tag examined",
                  function (tree) {
-            tree.getElementsByTagName("em")[0].innerHTML += "<foo></foo>";
+            var el = tree.getElementsByTagName("em")[0];
+            el.appendChild(el.ownerDocument.createElement("foo"));
+            // tree.getElementsByTagName("em")[0].innerHTML += "<foo></foo>";
         },
                  function (p, tree) {
             var errors = p.getErrorsFor(tree.getElementsByTagName("em")[0]);
@@ -1051,7 +1053,9 @@ describe("validator", function () {
 
         makeTest("with actual contents, errors but not in the tag examined",
                  function (tree) {
-            tree.getElementsByTagName("em")[0].innerHTML += "<foo></foo>";
+            var el = tree.getElementsByTagName("em")[0];
+            el.appendChild(el.ownerDocument.createElement("foo"));
+            // tree.getElementsByTagName("em")[0].innerHTML += "<foo></foo>";
         },
                  function (p, tree) {
             var errors = p.getErrorsFor(tree.getElementsByTagName("em")[1]);
