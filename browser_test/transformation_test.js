@@ -5,17 +5,21 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/wed",
         "wed/domutil", "wed/onerror", "wed/log",
-        "wed/dloc", "wed/util", "salve/validate", "wed/transformation"],
+        "wed/dloc", "wed/util", "salve/validate", "wed/transformation",
+        "requirejs/text!../../build/schemas/tei-simplified-rng.js",
+        "requirejs/text!../../build/test-files/wed_test_data/" +
+        "source_converted.xml"],
        function (mocha, chai, $, wed, domutil,
-                onerror, log, dloc, util, validate, transformation) {
+                 onerror, log, dloc, util, validate, transformation,
+                 schema, source) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
 
 var options = {
-    schema: '../../../schemas/tei-simplified-rng.js',
+    schema: undefined,
     mode: {
-        path: 'test',
+        path: 'wed/modes/test/test_mode',
         options: {
             meta: {
                 path: 'wed/modes/generic/metas/tei_meta',
@@ -30,7 +34,6 @@ var assert = chai.assert;
 
 var wedroot = window.parent.document.getElementById("wedframe")
         .contentWindow.document.getElementById("wedroot");
-var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];
 
 function caretCheck(editor, container, offset, msg) {
@@ -56,26 +59,18 @@ function dataCaretCheck(editor, container, offset, msg) {
 }
 
 describe("transformation", function () {
-    before(function (done) {
+    before(function () {
         // Resolve the schema to a grammar.
-        $.get(require.toUrl(options.schema), function (x) {
-            options.schema = validate.constructTree(x);
-            done();
-        }, "text").fail(
-            function (jqXHR, textStatus, errorThrown) {
-            throw new Error(textStatus + " " + errorThrown);
-        });
+        options.schema = validate.constructTree(schema);
     });
 
     var editor;
     beforeEach(function (done) {
-        require(["requirejs/text!" + src_stack[0]], function(data) {
-            editor = new wed.Editor();
-            editor.addEventListener("initialized", function () {
-                done();
-            });
-            editor.init(wedroot, option_stack[0], data);
+        editor = new wed.Editor();
+        editor.addEventListener("initialized", function () {
+            done();
         });
+        editor.init(wedroot, option_stack[0], source);
     });
 
     afterEach(function () {

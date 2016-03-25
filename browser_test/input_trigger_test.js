@@ -5,17 +5,21 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
-        "wed/transformation", "salve/validate", "browser_test/global"],
+        "wed/transformation", "salve/validate", "browser_test/global",
+        "requirejs/text!../../build/schemas/tei-simplified-rng.js",
+        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
+        "source_converted.xml"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
-         input_trigger_factory, transformation, validate, global) {
+         input_trigger_factory, transformation, validate, global, schema,
+         source) {
 'use strict';
 var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
 
 var options = {
-    schema: '../../../schemas/tei-simplified-rng.js',
+    schema: undefined,
     mode: {
-        path: 'generic',
+        path: 'wed/modes/generic/generic',
         options: {
             meta: {
                 path: 'wed/modes/generic/metas/tei_meta',
@@ -30,7 +34,6 @@ var options = {
 var wedroot = window.parent.document.getElementById("wedframe")
         .contentWindow.document.getElementById("wedroot");
 var $wedroot = $(wedroot);
-var source = "../../test-files/input_trigger_test_data/source_converted.xml";
 
 // This is an ad-hoc function meant for these tests *only*. The XML
 // serialization adds an xmlns declaration that we don't care
@@ -42,25 +45,17 @@ function cleanNamespace(str) {
 describe("InputTrigger", function () {
     var editor;
 
-    before(function (done) {
+    before(function () {
         // Resolve the schema to a grammar.
-        $.get(require.toUrl(options.schema), function (x) {
-            options.schema = validate.constructTree(x);
-            done();
-        }, "text").fail(
-            function (jqXHR, textStatus, errorThrown) {
-            throw new Error(textStatus + " " + errorThrown);
-        });
+        options.schema = validate.constructTree(schema);
     });
 
     beforeEach(function (done) {
-        require(["requirejs/text!" + source], function(data) {
-            editor = new wed.Editor();
-            editor.addEventListener("initialized", function () {
-                done();
-            });
-            editor.init(wedroot, options, data);
+        editor = new wed.Editor();
+        editor.addEventListener("initialized", function () {
+            done();
         });
+        editor.init(wedroot, options, source);
     });
 
     afterEach(function () {

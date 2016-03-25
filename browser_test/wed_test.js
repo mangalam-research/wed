@@ -5,9 +5,11 @@
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-        "wed/key", "wed/dloc", "wed/util", "salve/validate"],
+        "wed/key", "wed/dloc", "wed/util", "salve/validate",
+        "requirejs/text!../../build/test-files/wed_test_data/" +
+        "source_converted.xml"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util, validate) {
+                onerror, log, key, dloc, util, validate, source) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -15,7 +17,7 @@ var _indexOf = Array.prototype.indexOf;
 var options = {
     schema: '../../../schemas/tei-simplified-rng.js',
     mode: {
-        path: 'test',
+        path: 'wed/modes/test/test_mode',
         options: {
             meta: {
                 path: 'wed/modes/generic/metas/tei_meta',
@@ -2637,15 +2639,13 @@ describe("wed", function () {
     describe("(not state-sensitive)", function () {
         var editor, ps;
         before(function (done) {
-            require(["requirejs/text!" + src_stack[0]], function(data) {
-                editor = new wed.Editor();
-                editor.addEventListener("initialized", function () {
-                    editor.validator._validateUpTo(editor.data_root, -1);
-                    ps = editor.gui_root.querySelectorAll(".body>.p");
-                    done();
-                });
-                editor.init(wedroot, options, data);
+            editor = new wed.Editor();
+            editor.addEventListener("initialized", function () {
+                editor.validator._validateUpTo(editor.data_root, -1);
+                ps = editor.gui_root.querySelectorAll(".body>.p");
+                done();
             });
+            editor.init(wedroot, options, source);
         });
 
         after(function () {
