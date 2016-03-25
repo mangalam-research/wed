@@ -6,6 +6,13 @@ Only salient changes are recorded here.
 
 * 0.26.1:
 
+  - Bug fix: There was an inconsistency between IE11 and other
+    browsers in the way deletion of attributes was handled. When an
+    attribute is deleted, the caret is put in the "next"
+    attribute. IE11 disagreed with other browsers as to which
+    attribute was next in the data tree. This has been fixed by
+    relying on the GUI tree.
+
   - Bug fix: The firstElementChild_etc.js polyfill mixed tests and
     patches for two different DOM interfaces. The way it used to
     perform its test was unreliable, with the end result that it could
