@@ -6,10 +6,11 @@
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
         "wed/key", "wed/dloc", "wed/util", "salve/validate",
+        "wed/browsers",
         "requirejs/text!../../build/test-files/wed_test_data/" +
         "source_converted.xml"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util, validate, source) {
+                onerror, log, key, dloc, util, validate, browsers, source) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -144,6 +145,7 @@ function contextMenuHasNoTransforms(editor) {
                  "transform the document");
 }
 
+var itNoIE = browsers.MSIE  ? it.skip : it;
 
 describe("wed", function () {
     describe("(state-sensitive)", function () {
@@ -1375,8 +1377,9 @@ describe("wed", function () {
             tr.execute(data);
 
             assert.equal(
-                initial.innerHTML,
-                'abc<hi xmlns="http://www.tei-c.org/ns/1.0">de</hi>fghij');
+                initial.outerHTML,
+                '<p xmlns="http://www.tei-c.org/ns/1.0">abc<hi>de' +
+                    '</hi>fghij</p>');
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
 
@@ -1388,9 +1391,9 @@ describe("wed", function () {
             tr.execute(data);
 
             assert.equal(
-                initial.innerHTML,
-                '<hi xmlns="http://www.tei-c.org/ns/1.0">abc'+
-                    '<hi>de</hi></hi>fghij');
+                initial.outerHTML,
+                '<p xmlns="http://www.tei-c.org/ns/1.0"><hi>abc'+
+                    '<hi>de</hi></hi>fghij</p>');
             assert.equal(initial.childNodes.length, 2,
                          "length after second wrap");
 
@@ -1420,8 +1423,9 @@ describe("wed", function () {
             tr.execute(data);
 
             assert.equal(
-                initial.innerHTML,
-                'abc<hi xmlns="http://www.tei-c.org/ns/1.0">de</hi>fghij');
+                initial.outerHTML,
+                '<p xmlns="http://www.tei-c.org/ns/1.0">abc<hi>de' +
+                    '</hi>fghij</p>');
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
 
@@ -1440,9 +1444,9 @@ describe("wed", function () {
             tr.execute(data);
 
             assert.equal(
-                initial.innerHTML,
-                'ab<hi xmlns="http://www.tei-c.org/ns/1.0">c<hi>de</hi>' +
-                    'fghij</hi>');
+                initial.outerHTML,
+                '<p xmlns="http://www.tei-c.org/ns/1.0">ab<hi>c<hi>de</hi>' +
+                    'fghij</hi></p>');
             assert.equal(initial.childNodes.length, 2,
                          "length after second wrap");
         });
@@ -1471,8 +1475,9 @@ describe("wed", function () {
             assert.equal(initial.childNodes.length, 3,
                          "length after first wrap");
             assert.equal(
-                initial.innerHTML,
-                'abc<hi xmlns="http://www.tei-c.org/ns/1.0">de</hi>fghij');
+                initial.outerHTML,
+                '<p xmlns="http://www.tei-c.org/ns/1.0">abc<hi>de' +
+                    '</hi>fghij</p>');
 
             caret = editor.fromDataLocation(initial.firstChild, 2);
             editor.setSelectionRange(caret.makeRange(
@@ -1482,9 +1487,9 @@ describe("wed", function () {
 
             assert.equal(initial.childNodes.length, 3,
                          "length after second wrap");
-            assert.equal(initial.innerHTML,
-                         'ab<hi xmlns="http://www.tei-c.org/ns/1.0">c' +
-                         '<hi>de</hi>fg</hi>hij');
+            assert.equal(initial.outerHTML,
+                         '<p xmlns="http://www.tei-c.org/ns/1.0">ab<hi>c' +
+                         '<hi>de</hi>fg</hi>hij</p>');
         });
 
 
@@ -1511,8 +1516,9 @@ describe("wed", function () {
 
             assert.equal(initial.childNodes.length, 1, "length after wrap");
             assert.equal(
-                initial.innerHTML,
-                '<hi xmlns="http://www.tei-c.org/ns/1.0">abcdefghij</hi>');
+                initial.outerHTML,
+                '<p xmlns="http://www.tei-c.org/ns/1.0">' +
+                '<hi>abcdefghij</hi></p>');
         });
 
 
@@ -1623,17 +1629,23 @@ describe("wed", function () {
             editor.setDataCaret(initial, 0);
             var initial_value = p.innerHTML;
 
+            var to_paste = 'Blah <term xmlns="http://www.tei-c.org/ns/1.0">' +
+                'blah</term> blah.';
             // Synthetic event
             var event = global.makeFakePasteEvent({
                 types: ["text/html", "text/plain"],
                 getData: function (type) {
                     // We add the zero-width space for the heck of it.
                     // It will be stripped.
-                    return p.innerHTML + "\u200B";
+                    return to_paste + "\u200B";
                 }
             });
             editor.$gui_root.trigger(event);
-            assert.equal(p.innerHTML, initial_value + initial_value);
+            var expected = to_paste + initial_value;
+            if (browsers.MSIE)
+                expected = expected.replace(
+                    ' xmlns="http://www.tei-c.org/ns/1.0"', '');
+            assert.equal(p.innerHTML, expected);
             dataCaretCheck(editor, p.childNodes[2], 6, "final position");
         });
 
@@ -1809,7 +1821,9 @@ describe("wed", function () {
                           Math.round(editor._$fake_caret.offset().top));
         });
 
-        it("handles properly caret position for elements that span lines",
+        // We cannot right now run this on IE.
+        itNoIE(
+            "handles properly caret position for elements that span lines",
            function () {
             var p = editor.data_root.querySelectorAll("body>p")[5];
             var text_loc = editor.fromDataLocation(p.lastChild, 2);
@@ -2295,6 +2309,7 @@ describe("wed", function () {
                 // after the first time.
                 var autosaved = false;
                 editor.addEventListener("autosaved", function () {
+                    var delay = Date.now() - start;
                     if (autosaved)
                         throw new Error("autosaved more than once");
                     autosaved = true;
@@ -2310,17 +2325,15 @@ describe("wed", function () {
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
+                        // We use ``delay`` so that we can ajust for a case
+                        // where communications are slow.
+                        setTimeout(done, delay * 2);
                     });
                 });
+                var start = Date.now();
                 editor.data_updater.removeNode(
                     editor.data_root.querySelector("p"));
-                var interval = 50;
-                editor._saver.setAutosaveInterval(interval);
-                // This leaves ample time.
-                setTimeout(function () {
-                    assert.isTrue(autosaved, "should have been saved");
-                    done();
-                }, interval * 4);
+                editor._saver.setAutosaveInterval(50);
             });
 
             it("autosaves when the document is modified after a " +
@@ -2330,6 +2343,7 @@ describe("wed", function () {
                 // after the first time.
                 var autosaved = false;
                 editor.addEventListener("autosaved", function () {
+                    var delay = Date.now() - start;
                     if (autosaved)
                         throw new Error("autosaved more than once");
                     autosaved = true;
@@ -2345,20 +2359,20 @@ describe("wed", function () {
                         };
                         var expected = "\n***\n" + JSON.stringify(obj);
                         assert.equal(data, expected);
+                        // We use ``delay`` so that we can ajust for a case
+                        // where communications are slow.
+                        setTimeout(done, delay * 2);
                     });
                 });
                 var interval = 50;
+                var start;
                 editor._saver.setAutosaveInterval(interval);
                 setTimeout(function () {
                     assert.isFalse(autosaved, "should not have been saved yet");
+                    start = Date.now();
                     editor.data_updater.removeNode(
                         editor.data_root.querySelector("p"));
                 }, interval * 2);
-                // This leaves ample time.
-                setTimeout(function () {
-                    assert.isTrue(autosaved, "should have been saved");
-                    done();
-                }, interval * 4);
             });
 
         });
@@ -3254,8 +3268,10 @@ describe("wed", function () {
                          "the number of markers should be the same");
         });
 
-        it("shows validation errors for inline elements in a correct " +
-           "position", function () {
+        // This cannot be run on IE due to the way IE screws up the
+        // formatting of contenteditable elements.
+        itNoIE("shows validation errors for inline elements in a correct " +
+               "position", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
 
             var p = ps[11];
