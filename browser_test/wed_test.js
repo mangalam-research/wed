@@ -2536,7 +2536,7 @@ describe("wed", function () {
                         });
                     }, 1000);
                     throw new Error("I'm failing!");
-                }, 0);
+                }, 5);
             });
         });
 
