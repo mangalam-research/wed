@@ -6,6 +6,8 @@ Only salient changes are recorded here.
 
 * 0.26.1:
 
+  - Added a polyfill for ``Element.prototype.closest``.
+
   - Bug fix: There was an inconsistency between IE11 and other
     browsers in the way deletion of attributes was handled. When an
     attribute is deleted, the caret is put in the "next"
