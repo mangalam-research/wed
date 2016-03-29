@@ -1,19 +1,8 @@
 Misc
 ====
 
-- The Editor._onValidatorError calls Editor._processValidationError
-   immediately. This surely has an impact on validation
-   performance. We should decouple the two so that validation errors
-   that need to be added to the list are recorded for *future*
-   addition to the list rather than immediately added. (This probably
-   has an impact on the time-to-first-display of a document when a
-   mode is first decorating a large document. BTW's mode in particular
-   does a lot of calls to _validateUpTo, which in turn may cause calls
-   to _onValidatorError.)
-
 - util.stackTrace should be updated to take advantage of
    console.trace.
-
 
 Testing
 =======

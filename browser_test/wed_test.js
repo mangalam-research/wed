@@ -2611,6 +2611,8 @@ describe("wed", function () {
                 while (editor._current_label_level)
                     editor.decreaseLabelVisiblityLevel();
 
+                // Force the processing of errors
+                editor._processValidationErrors();
                 var errors = editor._validation_errors;
                 var attribute_errors = [];
                 var $items = editor.$error_list.children("li");
@@ -3247,6 +3249,8 @@ describe("wed", function () {
 
         it("processes validation errors added by the mode", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
+            // Force the processing of errors
+            editor._processValidationErrors();
             var last =
                 editor._validation_errors[editor._validation_errors.length - 1];
             assert.equal(last.error.toString(), "Test");
@@ -3256,6 +3260,9 @@ describe("wed", function () {
            function () {
             var gui_root = editor.gui_root;
             editor.validator._validateUpTo(editor.data_root, -1);
+            // Force the processing of errors
+            editor._processValidationErrors();
+
             var count = editor._validation_errors.length;
             var list_count = editor.$error_list.children("li").length;
             var marker_count =
@@ -3278,6 +3285,8 @@ describe("wed", function () {
         itNoIE("shows validation errors for inline elements in a correct " +
                "position", function () {
             editor.validator._validateUpTo(editor.data_root, -1);
+            // Force the processing of errors
+            editor._processValidationErrors();
 
             var p = ps[11];
             var data_p = editor.toDataNode(p);
