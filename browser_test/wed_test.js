@@ -180,10 +180,15 @@ describe("wed", function () {
             if (editor)
                 editor.destroy();
             editor = undefined;
-            assert.isFalse(onerror.is_terminating(),
-                           "test caused an unhandled exception to occur");
+
+            // We read the state, reset, and do the assertion later so
+            // that if the assertion fails, we still have our reset.
+            var was_terminating = onerror.is_terminating();
+
             // We don't reload our page so we need to do this.
             onerror.__test.reset();
+            assert.isFalse(was_terminating,
+                           "test caused an unhandled exception to occur");
         });
 
         it("starts with undefined carets and selection ranges", function () {
