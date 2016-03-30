@@ -293,6 +293,9 @@ function runserver() {
     var failures = [];
     app.on("test-result", function (result) {
         switch(result[0]) {
+        case 'start':
+            failures = [];
+            break;
         case 'fail':
             failures.push(result);
             process.stdout.write(colors.red('.'));

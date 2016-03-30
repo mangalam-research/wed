@@ -4,6 +4,41 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.26.1:
+
+  - This release consists mostly of fixes to issues on IE11, and a few
+    performance improvements that benefit IE11, but also other
+    platforms.
+
+  - Added a polyfill for ``Element.prototype.closest``.
+
+  - Bug fix: There was an inconsistency between IE11 and other
+    browsers in the way deletion of attributes was handled. When an
+    attribute is deleted, the caret is put in the "next"
+    attribute. IE11 disagreed with other browsers as to which
+    attribute was next in the data tree. This has been fixed by
+    relying on the GUI tree.
+
+  - Bug fix: The firstElementChild_etc.js polyfill mixed tests and
+    patches for two different DOM interfaces. The way it used to
+    perform its test was unreliable, with the end result that it could
+    yield errors on IE 11. The code has been fixed to handle the two
+    DOM interfaces separately, even though they are handled by a
+    single file.
+
+  - Bug fix: the kitchen sink lacked a polyfill, which could have
+    caused it to fail when loaded in IE.
+
+  - Internal: validation status reporting revamped for performance and
+    internal consistency.
+
+  - Internal: validation error processing now batches errors for
+    display rather than display them immediately when each error is
+    reported by the validator. This helps with performance.
+
+  - Internal: the unit tests now load the polyfills so that they can be
+    run on all platforms.
+
 * 0.26:
 
   - Bugfix: Fixed a bug in the code that merge sibling elements. In

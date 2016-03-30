@@ -5,17 +5,24 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
         "wed/wed", "wed/key", "wed/key_constants", "salve/validate",
-        "browser_test/global", "wed/onerror"],
+        "browser_test/global", "wed/onerror",
+        "requirejs/text!../../build/schemas/tei-simplified-rng.js",
+        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
+        "source_converted.xml",
+        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
+        "source2_converted.xml",
+        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
+        "source3_converted.xml"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants,
-          validate, global, onerror) {
+          validate, global, onerror, schema, generic_src, source2, source3) {
 'use strict';
 
 var assert = chai.assert;
 
 var options = {
-    schema: '../../../schemas/tei-simplified-rng.js',
+    schema: undefined,
     mode: {
-        path: 'generic',
+        path: 'wed/modes/generic/generic',
         options: {
             meta: {
                 path: 'wed/modes/generic/metas/tei_meta',
@@ -31,8 +38,7 @@ var wedroot = window.parent.document.getElementById("wedframe")
         .contentWindow.document.getElementById("wedroot");
 var $wedroot = $(wedroot);
 // Yes, we use *input_trigger* test data.
-var src_stack =
-        ["../../test-files/input_trigger_test_data/source_converted.xml"];
+var src_stack = [generic_src];
 
 // This is an ad-hoc function meant for these tests *only*. The XML
 // serialization adds an xmlns declaration that we don't care
@@ -44,25 +50,17 @@ function cleanNamespace(str) {
 describe("input_trigger_factory", function () {
     var editor;
 
-    before(function (done) {
+    before(function () {
         // Resolve the schema to a grammar.
-        $.get(require.toUrl(options.schema), function (x) {
-            options.schema = validate.constructTree(x);
-            done();
-        }, "text").fail(
-            function (jqXHR, textStatus, errorThrown) {
-            throw new Error(textStatus + " " + errorThrown);
-        });
+        options.schema = validate.constructTree(schema);
     });
 
     beforeEach(function (done) {
-        require(["requirejs/text!" + src_stack[0]], function(data) {
-            editor = new wed.Editor();
-            editor.addEventListener("initialized", function () {
-                done();
-            });
-            editor.init(wedroot, options, data);
+        editor = new wed.Editor();
+        editor.addEventListener("initialized", function () {
+            done();
         });
+        editor.init(wedroot, options, src_stack[0]);
     });
 
     afterEach(function () {
@@ -162,8 +160,7 @@ describe("input_trigger_factory", function () {
 
     describe("makeSplitMergeInputTrigger", function () {
         before(function () {
-            src_stack.unshift("../../test-files/input_trigger_test_data" +
-                              "/source2_converted.xml");
+            src_stack.unshift(source2);
         });
         after(function () {
             src_stack.shift();
@@ -202,8 +199,7 @@ describe("input_trigger_factory", function () {
 
     describe("makeSplitMergeInputTrigger", function () {
         before(function () {
-            src_stack.unshift("../../test-files/input_trigger_test_data" +
-                              "/source3_converted.xml");
+            src_stack.unshift(source3);
         });
         after(function () {
             src_stack.shift();

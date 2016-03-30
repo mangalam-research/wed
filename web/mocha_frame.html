@@ -3,6 +3,12 @@
   <head>
     <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
     <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
+    <script type="text/javascript" src="lib/wed/polyfills/contains.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/closest.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/innerHTML_for_XML.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/firstElementChild_etc.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/normalize.js"></script>
     <script type="text/javascript" src="lib/requirejs/require.js"></script>
     <script type="text/javascript" src="requirejs-config.js"></script>
   </head>
@@ -40,6 +46,7 @@
           wed_bundle.push(
               "wed/validator",
               "salve/validate",
+              "salve/name_patterns",
               "wed/oop",
               "wed/key",
               "wed/key_constants",
@@ -61,16 +68,7 @@
       }
 
       require(["jquery", "mocha/mocha", "chai", "browser_test/global",
-               "wed/onerror", "urijs/URI",
-               "browser_test/validator_test",
-               "browser_test/jquery.findandself_test",
-               "browser_test/domutil_test",
-               "browser_test/wed_test", "browser_test/input_trigger_test",
-               "browser_test/input_trigger_factory_test",
-               "browser_test/modal_test",
-               "browser_test/updater_domlistener_test",
-               "browser_test/convert_test",
-               "browser_test/transformation_test"],
+               "wed/onerror", "urijs/URI"],
               function ($, mocha, chai, global, onerror, URI) {
           var assert = chai.assert;
 
@@ -109,7 +107,9 @@
               });
           });
 
-          var nohtml = new URI().query(true).nohtml;
+          var query = new URI().query(true);
+          var nohtml = query.nohtml;
+          var timeout = query.timeout;
 
           var ReporterBase = !nohtml ? mocha.Mocha.reporters.HTML :
               mocha.Mocha.reporters.Base;
@@ -160,7 +160,20 @@
 
           mocha.mocha.reporter(MyReporter);
 
-          mocha.mocha.run();
+          if (timeout !== undefined)
+            mocha.mocha.timeout(parseInt(timeout));
+
+          require(["browser_test/validator_test",
+                    "browser_test/jquery.findandself_test",
+                    "browser_test/domutil_test",
+                    "browser_test/wed_test", "browser_test/input_trigger_test",
+                    "browser_test/input_trigger_factory_test",
+                    "browser_test/modal_test",
+                    "browser_test/updater_domlistener_test",
+                    "browser_test/convert_test",
+                    "browser_test/transformation_test"], function () {
+              mocha.mocha.run();
+          });
       });
     </script>
   </body>
