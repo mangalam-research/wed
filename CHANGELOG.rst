@@ -6,6 +6,10 @@ Only salient changes are recorded here.
 
 * 0.26.1:
 
+  - This release consists mostly of fixes to issues on IE11, and a few
+    performance improvements that benefit IE11, but also other
+    platforms.
+
   - Added a polyfill for ``Element.prototype.closest``.
 
   - Bug fix: There was an inconsistency between IE11 and other
