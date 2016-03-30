@@ -20,6 +20,17 @@ easier:
 Wed Itself
 ==========
 
+Eliminate Contenteditable
+-------------------------
+
+Some tests were made in March 2016 to eliminate
+``contenteditable``. Turning off ``contenteditable`` on IE11 causes
+issues with maintaining the DOM selection in elements of the GUI
+tree. (When using the keyboard to perform a selection, the focus moves
+from ``.wed-comp-field`` to ``body``, which means that subsequent
+keystrokes are lost.) There does not seem to be a way forward here,
+short of having wed take over selection functions.
+
 Store the Caret as a (Path, Offset) Pair
 ----------------------------------------
 
