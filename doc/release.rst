@@ -15,7 +15,8 @@ the Selenium tests beforehand and that they passed.
 
 3. ``$ semver-sync -b [new version]``
 
-4. ``$ npm shrinkwrap``
+4. ``$ npm shrinkwrap`` We have to shrinkwrap so as to update the
+   version number recorded in the file.
 
 5. Perform whatever other changes must happen and commit.
 
