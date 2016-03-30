@@ -16,8 +16,7 @@ var name_patterns = require("salve/name_patterns");
 var $ = require("jquery");
 var oop = require("./oop");
 var dloc = require("./dloc");
-
-var _indexOf = Array.prototype.indexOf;
+var indexOf = require("./domutil").indexOf;
 
 // validation_stage values
 
@@ -113,7 +112,7 @@ function Validator(schema, root, mode) {
     // called to validate a text node.
     this._cur_el.wed_event_index_after_start = this._events.length;
 
-    this._setWorkingState(INCOMPLETE);
+    this._setWorkingState(INCOMPLETE, 0);
 
 }
 
@@ -266,6 +265,14 @@ Validator.prototype._work = function () {
     return true;
 };
 
+//
+// These are constants. So create them once rather than over and over
+// again.
+//
+var _enter_context_event = new validate.Event("enterContext");
+var _leave_start_tag_event = new validate.Event("leaveStartTag");
+var _leave_context_event = new validate.Event("leaveContext");
+
 /**
  * Performs one cycle of validation. "One cycle" is an arbitrarily
  * small unit of work.
@@ -280,13 +287,6 @@ Validator.prototype._cycle = function () {
     // If we got here after a restart, then we've finished restarting.
     // If we were not restarting, then this is a noop.
     this._restarting = false;
-
-    // Damn hoisting
-    var event_result, ename, attr_ix, attr, name;
-
-    var walker = this._validation_walker;
-
-    var portion = this._validation_stack[0].portion;
 
     //
     // This check is meant to catch problems that could be hard to
@@ -312,22 +312,31 @@ Validator.prototype._cycle = function () {
     //
     this.cycle_entered++;
 
+    // Damn hoisting
+    var event_result, ename, attr_ix, attr, name;
+
+    var walker = this._validation_walker;
+
+    var stack = this._validation_stack;
+    var portion = stack[0].portion;
+    var events = this._events;
+    var stage = this._validation_stage;
+
     stage_change:
     while (true) {
         var cur_el = this._cur_el;
-        switch(this._validation_stage) {
+        switch(stage) {
         case START_TAG:
-            this._validation_stack.unshift(
-                new ProgressState(this._part_done, portion));
+            stack.unshift(new ProgressState(this._part_done, portion));
 
             // These are currently not needed:
-            // $cur_el.data("wed_state_index_before", this._events.length - 1);
-            // $cur_el.data("wed_event_index_before", this._events.length - 1);
+            // $cur_el.data("wed_state_index_before", events.length - 1);
+            // $cur_el.data("wed_event_index_before", events.length - 1);
 
             // Handle namespace declarations. Yes, this must
             // happen before we deal with the tag name.
             this._fireAndProcessEvent(
-                walker, new validate.Event("enterContext"), cur_el, 0);
+                walker, _enter_context_event, cur_el, 0);
             var attr_ix_lim = cur_el.attributes.length;
             for(attr_ix = 0; attr_ix < attr_ix_lim; ++attr_ix) {
                 attr = cur_el.attributes[attr_ix];
@@ -344,9 +353,6 @@ Validator.prototype._cycle = function () {
                         cur_el, 0);
             }
             ename = walker.resolveName(cur_el.tagName);
-            var cur_el_ix = cur_el.parentNode ?
-                    _indexOf.call(cur_el.parentNode.childNodes, cur_el):
-                    undefined;
             // Check whether this element is going to be allowed only
             // due to a wildcard.
             this._setPossibleDueToWildcard(cur_el, walker, "enterStartTag",
@@ -354,18 +360,18 @@ Validator.prototype._cycle = function () {
             this._fireAndProcessEvent(
                 walker,
                 new validate.Event("enterStartTag", ename.ns, ename.name),
-                cur_el.parentNode, cur_el_ix);
-            cur_el.wed_event_index_before_attributes = this._events.length;
+                cur_el.parentNode, cur_el.parentNode && cur_el);
+            cur_el.wed_event_index_before_attributes = events.length;
 
             this._fireAttributeEvents(walker, cur_el);
-            cur_el.wed_event_index_after_attributes = this._events.length;
+            cur_el.wed_event_index_after_attributes = events.length;
 
             // Leave the start tag.
             this._fireAndProcessEvent(
-                walker, new validate.Event("leaveStartTag"), cur_el, 0);
+                walker, _leave_start_tag_event, cur_el, 0);
 
-            this._validation_stage = CONTENTS;
-            cur_el.wed_event_index_after_start = this._events.length;
+            stage = this._validation_stage = CONTENTS;
+            cur_el.wed_event_index_after_start = events.length;
             this.cycle_entered--;
             return true; // state change
             // break would be unreachable.
@@ -384,12 +390,12 @@ Validator.prototype._cycle = function () {
                     if (event_result)
                         this._processEventResult(
                             event_result, node.parentNode,
-                            _indexOf.call(node.parentNode.childNodes, node));
+                            indexOf(node.parentNode.childNodes, node));
                     break;
                 case Node.ELEMENT_NODE:
                     portion /= cur_el.childElementCount;
                     this._cur_el = cur_el = node;
-                    this._validation_stage = START_TAG;
+                    stage = this._validation_stage = START_TAG;
                     this._previous_child = null;
                     continue stage_change;
                 default:
@@ -399,7 +405,7 @@ Validator.prototype._cycle = function () {
             }
 
             if (node === null)
-                this._validation_stage = END_TAG;
+                stage = this._validation_stage = END_TAG;
             break;
         case END_TAG:
             // We've reached the end...
@@ -409,10 +415,9 @@ Validator.prototype._cycle = function () {
                     this._processEventResult(event_result, cur_el,
                                              cur_el.childNodes.length);
                 this._runDocumentValidation();
-                this._part_done = 1;
                 this._setWorkingState(this._errors.length > 0 ? INVALID :
-                                      VALID);
-                cur_el.wed_event_index_after = this._events.length;
+                                      VALID, 1);
+                cur_el.wed_event_index_after = events.length;
                 this.stop();
                 this.cycle_entered--;
                 return false;
@@ -426,24 +431,25 @@ Validator.prototype._cycle = function () {
                 new validate.Event("endTag", ename.ns, ename.name),
                 cur_el, cur_el.childNodes.length);
             this._fireAndProcessEvent(
-                walker, new validate.Event("leaveContext"),
+                walker, _leave_context_event,
                 cur_el, cur_el.childNodes.length);
 
             // Go back to the parent
             this._previous_child = cur_el;
             this._cur_el = cur_el = cur_el.parentNode;
 
+            var next_done = this._part_done;
             if (cur_el !== this.root) {
-                this._validation_stack.shift();
-                this._part_done =
-                    this._validation_stack[0].part_done += portion;
-                portion = this._validation_stack[0].portion;
+                stack.shift();
+                var first = stack[0];
+                next_done = first.part_done += portion;
+                portion = first.portion;
             }
 
-            this._setWorkingState(WORKING, this._part_done);
+            this._setWorkingState(WORKING, next_done);
 
             original_element.wed_event_index_after = this._events.length;
-            this._validation_stage = CONTENTS;
+            stage = this._validation_stage = CONTENTS;
             this.cycle_entered--;
             return true; // state_change
 
@@ -482,7 +488,7 @@ Validator.prototype.stop = function () {
 
     // We are stopping prematurely, update the state
     if (this._working_state === WORKING)
-        this._setWorkingState(INCOMPLETE);
+        this._setWorkingState(INCOMPLETE, this._part_done);
 };
 
 /**
@@ -560,21 +566,32 @@ Validator.prototype._resetTo = function (node) {
 
 /**
  * Sets the working state of the validator. Emits a "state-update"
- * event if the state is really new.
+ * event if the state has changed.
  *
  * @private
  * @param new_state The new state of the validator.
+ * @param new_done The new portion of work done.
  * @emits module:validator~Validator#state-update
  */
-Validator.prototype._setWorkingState = function (new_state) {
-    if (this._working_state !== new_state || new_state === WORKING) {
+Validator.prototype._setWorkingState = function (new_state, new_done) {
+    var changed = false;
+    if (this._working_state !== new_state) {
         this._working_state = new_state;
+        changed = true;
+    }
+
+    if (this._part_done !== new_done) {
+        this._part_done = new_done;
+        changed = true;
+    }
+
+    if (changed) {
         /**
          * Tells the listener that the validator has changed state.
          *
          * @event module:validator~Validator#state-update
          */
-        this._emit("state-update");
+        this._emit("state-update", { state: new_state, part_done: new_done });
     }
 };
 
@@ -671,15 +688,23 @@ Validator.prototype._fireAttributeNameEvent = function (walker, el, attr) {
  * @private
  * @param {module:validate~Walker} walker The walker on which to fire events.
  * @param {module:validate~Event} event The event to fire.
- * @param {Node} el The DOM node associated with this event.
- * @param {integer} ix The index into <code>el</code> associated with this
- event.
+ * @param {Node} [el] The DOM node associated with this event. Both ``el``
+ * and ``ix`` can be undefined for events that have no location
+ * associated with them.
+ * @param {integer|Node} [ix] The index into <code>el</code> associated with this
+ * event, or a ``Node`` which must be a child of ``el``. The index will
+ * be computed from the location of the child passed as this parameter
+ * in ``el``.
  */
 Validator.prototype._fireAndProcessEvent = function (walker, event, el, ix) {
     this._events.push(event);
     var event_result = walker.fireEvent(event);
-    if (event_result)
+    if (event_result) {
+        if (el && ix && typeof ix !== "number") {
+            ix = el ? indexOf(el.childNodes, ix) : undefined;
+        }
         this._processEventResult(event_result, el, ix);
+    }
 };
 
 /**
@@ -1221,7 +1246,7 @@ Validator.prototype.speculativelyValidateFragment = function (container, index,
 Validator.prototype.getErrorsFor = function (node) {
     // Validate to after the closing tag of the node.
     this._validateUpTo(node.parentNode,
-                       _indexOf.call(node.parentNode.childNodes, node) + 1);
+                       indexOf(node.parentNode.childNodes, node) + 1);
     var ret = [];
     for(var i = 0, limit = this._errors.length; i < limit; ++i) {
         var error_data = this._errors[i];

@@ -9,6 +9,7 @@ define(/** @lends module:modes/test/test_decorator */
 function (require, exports, module) {
 'use strict';
 
+var indexOf = require("wed/domutil").indexOf;
 var Decorator = require("wed/decorator").Decorator;
 var GenericDecorator =
         require("wed/modes/generic/generic_decorator").GenericDecorator;
@@ -21,8 +22,6 @@ var makeDLoc = require("wed/dloc").makeDLoc;
 var key = require("wed/key");
 var key_constants = require("wed/key_constants");
 var input_trigger_factory = require("wed/input_trigger_factory");
-
-var _indexOf = Array.prototype.indexOf;
 
 /**
  * @class
@@ -138,7 +137,7 @@ TestDecorator.prototype._navigationContextMenuHandler = log.wrap(
 
     // container, offset: location of the node in its parent.
     var container = node.parentNode;
-    var offset = _indexOf.call(container.childNodes, node);
+    var offset = indexOf(container.childNodes, node);
 
     // List of items to put in the contextual menu.
     var tuples = [];

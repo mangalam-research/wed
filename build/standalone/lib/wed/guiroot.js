@@ -12,9 +12,8 @@ var oop = require("./oop");
 var dloc = require("./dloc");
 var util = require("./util");
 var domutil = require("./domutil");
+var indexOf = domutil.indexOf;
 var closestByClass = domutil.closestByClass;
-
-var _indexOf = Array.prototype.indexOf;
 
 function AttributeNotFound(message) {
     this.message = message;
@@ -86,7 +85,7 @@ GUIRoot.prototype.nodeToPath = function (node) {
         }
         else {
             parent = node.parentNode;
-            location = _indexOf.call(parent.childNodes, node);
+            location = indexOf(parent.childNodes, node);
             for (i = 0; i < location; ++i) {
                 child = parent.childNodes[i];
                 if ((child.nodeType === Node.TEXT_NODE) ||

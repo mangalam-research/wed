@@ -22,9 +22,7 @@ require("bootstrap");
 require("jquery.bootstrap-growl");
 var closestByClass = domutil.closestByClass;
 
-var _indexOf = Array.prototype.indexOf;
-
-exports.version = "0.26.0";
+exports.version = "0.26.1";
 var version = exports.version;
 
 /**
@@ -463,6 +461,9 @@ Editor.prototype.destroy = function () {
 
     if (this._save_status_interval)
         clearInterval(this._save_status_interval);
+
+    if (this._process_validation_errors_timeout)
+        clearTimeout(this._process_validation_errors_timeout);
 
     try {
         if (this.validator)

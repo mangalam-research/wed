@@ -40,8 +40,13 @@ var $ = require("jquery");
 var rangy = require("rangy");
 var util = require("./util");
 
-var _indexOf = Array.prototype.indexOf;
-
+function indexOf(a, target) {
+    var length = a.length;
+    for (var i = 0; i &lt; length; ++i) {
+        if (a[i] === target) return i;
+    }
+    return -1;
+}
 
 /**
  * Gets the first range in the selection.
@@ -165,7 +170,7 @@ function nextCaretPosition(caret, container, no_text) {
                 if (container !== undefined &amp;&amp; node === container)
                     break search_loop;
 
-                offset = _indexOf.call(parent.childNodes, node) + 1;
+                offset = indexOf(parent.childNodes, node) + 1;
                 node = parent;
             }
             else {
@@ -182,7 +187,7 @@ function nextCaretPosition(caret, container, no_text) {
                     (container !== undefined &amp;&amp; node === container))
                     break search_loop;
 
-                offset = _indexOf.call(parent.childNodes, node) + 1;
+                offset = indexOf(parent.childNodes, node) + 1;
                 node = parent;
                 found = true;
             }
@@ -203,7 +208,7 @@ function nextCaretPosition(caret, container, no_text) {
 
     parent = node.parentNode;
     return (no_text &amp;&amp; node.nodeType === Node.TEXT_NODE) ?
-        [parent, _indexOf.call(parent.childNodes, node)] : [node, offset];
+        [parent, indexOf(parent.childNodes, node)] : [node, offset];
 }
 
 /**
@@ -258,7 +263,7 @@ function prevCaretPosition(caret, container, no_text) {
                 if (container !== undefined &amp;&amp; node === container)
                     break search_loop;
 
-                offset = _indexOf.call(parent.childNodes, node);
+                offset = indexOf(parent.childNodes, node);
                 node = parent;
             }
             else
@@ -273,7 +278,7 @@ function prevCaretPosition(caret, container, no_text) {
                     (container !== undefined &amp;&amp; node === container))
                     break search_loop;
 
-                offset = _indexOf.call(parent.childNodes, node);
+                offset = indexOf(parent.childNodes, node);
                 node = parent;
                 found = true;
             }
@@ -301,7 +306,7 @@ function prevCaretPosition(caret, container, no_text) {
 
     parent = node.parentNode;
     return (no_text &amp;&amp; node.nodeType === Node.TEXT_NODE) ?
-        [parent, _indexOf.call(parent.childNodes, node)] : [node, offset];
+        [parent, indexOf(parent.childNodes, node)] : [node, offset];
 }
 
 /**
@@ -325,7 +330,7 @@ function correspondingNode(tree_a, tree_b, node_in_a) {
         var parent = current.parentNode;
         if (!parent)
             throw new Error("node_in_a is not tree_a or a child of tree_a");
-        path.unshift(_indexOf.call(parent.childNodes, current));
+        path.unshift(indexOf(parent.childNodes, current));
         current = parent;
     }
 
@@ -465,7 +470,7 @@ function _genericInsertIntoText(text_node, index, node, clean) {
     var is_fragment = node &amp;&amp; (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE);
 
     var parent = text_node.parentNode;
-    var text_node_at = _indexOf.call(parent.childNodes, text_node);
+    var text_node_at = indexOf(parent.childNodes, text_node);
     if (clean &amp;&amp; (!node || (is_fragment &amp;&amp; node.childNodes.length === 0)))
     {
         start_caret = end_caret = [text_node, index];
@@ -751,7 +756,7 @@ function mergeTextNodes(node) {
     }
 
     var parent = node.parentNode;
-    return [parent, _indexOf.call(parent.childNodes, node) + 1];
+    return [parent, indexOf(parent.childNodes, node) + 1];
 }
 
 /**
@@ -794,7 +799,7 @@ function genericCutFunction (start_caret, end_caret) {
     if (start_container.nodeType === Node.TEXT_NODE &amp;&amp;
         start_offset === 0) {
         // We are at the start of a text node, move up to the parent.
-        start_offset = _indexOf.call(parent.childNodes, start_container);
+        start_offset = indexOf(parent.childNodes, start_container);
         start_container = parent;
         parent = start_container.parent;
     }
@@ -802,7 +807,7 @@ function genericCutFunction (start_caret, end_caret) {
     if (start_container.nodeType === Node.TEXT_NODE) {
         var same_container = start_container === end_container;
 
-        var start_container_offset = _indexOf.call(
+        var start_container_offset = indexOf(
             parent.childNodes, start_container);
 
         var end_text_offset = same_container ? end_offset :
@@ -837,7 +842,7 @@ function genericCutFunction (start_caret, end_caret) {
     var end_text;
     if (end_container.nodeType === Node.TEXT_NODE) {
         parent = end_container.parentNode;
-        var end_container_offset = _indexOf.call(
+        var end_container_offset = indexOf(
             parent.childNodes, end_container);
 
         end_text = parent.ownerDocument.createTextNode(
@@ -1419,6 +1424,7 @@ exports.htmlToElements = htmlToElements;
 exports.getCharacterImmediatelyAt = getCharacterImmediatelyAt;
 exports.getCharacterImmediatelyBefore = getCharacterImmediatelyBefore;
 exports.isNotDisplayed = isNotDisplayed;
+exports.indexOf = indexOf;
 
 });
 
@@ -1446,7 +1452,7 @@ exports.isNotDisplayed = isNotDisplayed;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Feb 17 2016 09:30:21 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Mar 30 2016 15:48:03 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

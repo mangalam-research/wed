@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage Notes &mdash; Wed v0.26.0 documentation</title>
+  <title>Advanced Usage Notes &mdash; Wed v0.26.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Wed v0.26.0 documentation" href="index.html"/>
+    <link rel="top" title="Wed v0.26.1 documentation" href="index.html"/>
         <link rel="prev" title="Using Wed in an Application" href="usage.html"/> 
 
   
@@ -118,6 +118,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#contenteditable">Contenteditable</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#incompatibilities">Incompatibilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#successive-elements-and-the-caret">Successive Elements and the Caret</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ie11-and-line-breaks">IE11 and line breaks</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
@@ -146,7 +147,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -1036,6 +1037,23 @@ non-existent (editing is not possible).</p>
 <p>So to allow editing between successive elements, wed has to create a
 placeholder to allow the user to put their caret between elements.</p>
 </div>
+<div class="section" id="ie11-and-line-breaks">
+<h3>IE11 and line breaks<a class="headerlink" href="#ie11-and-line-breaks" title="Permalink to this headline">¶</a></h3>
+<p>We&#8217;ve discovered late that IE11 has a rendering issue with elements
+that are <code class="docutils literal"><span class="pre">contenteditable</span></code>. Take the following:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;p&gt;This is a paragraph &lt;hi&gt;with
+highlighting&lt;/hi&gt; and more&lt;/p&gt;
+</pre></div>
+</div>
+<p>Read it as an abstract representation of the GUI tree. The start and
+end tags have corresponding labels in the GUI tree. More importantly,
+there is a line break between <code class="docutils literal"><span class="pre">with</span></code> and <code class="docutils literal"><span class="pre">highlighting</span></code>. This is
+as we want it. This it how it works in Chrome and FF. In IE11,
+however, the <code class="docutils literal"><span class="pre">hi</span></code> element will be kept on one line, no matter
+what. The only way to have IE break it is to remove the
+<code class="docutils literal"><span class="pre">contenteditable</span></code> attribute from the element created for the GUI
+tree!</p>
+</div>
 </div>
 <div class="section" id="synthetic-keyboard-events">
 <h2>Synthetic Keyboard Events<a class="headerlink" href="#synthetic-keyboard-events" title="Permalink to this headline">¶</a></h2>
@@ -1133,7 +1151,7 @@ the incremental changes, but some obsolete code may still remain.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.26.0',
+            VERSION:'v0.26.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

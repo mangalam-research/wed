@@ -956,6 +956,24 @@ non-existent (editing is not possible).
 So to allow editing between successive elements, wed has to create a
 placeholder to allow the user to put their caret between elements.
 
+IE11 and line breaks
+~~~~~~~~~~~~~~~~~~~~
+
+We've discovered late that IE11 has a rendering issue with elements
+that are ``contenteditable``. Take the following::
+
+    <p>This is a paragraph <hi>with
+    highlighting</hi> and more</p>
+
+Read it as an abstract representation of the GUI tree. The start and
+end tags have corresponding labels in the GUI tree. More importantly,
+there is a line break between ``with`` and ``highlighting``. This is
+as we want it. This it how it works in Chrome and FF. In IE11,
+however, the ``hi`` element will be kept on one line, no matter
+what. The only way to have IE break it is to remove the
+``contenteditable`` attribute from the element created for the GUI
+tree!
+
 Synthetic Keyboard Events
 -------------------------
 

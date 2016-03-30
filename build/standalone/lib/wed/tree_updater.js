@@ -11,6 +11,7 @@ define(/** @lends module:tree_updater */ function (require, exports, module) {
 'use strict';
 
 var domutil = require("./domutil");
+var indexOf = domutil.indexOf;
 var oop = require("./oop");
 var SimpleEventEmitter =
         require("./lib/simple_event_emitter").SimpleEventEmitter;
@@ -204,7 +205,7 @@ TreeUpdater.prototype.splitAt = function (top, loc, index) {
     var pair = this._splitAt(cloned_top, cloned_node, index);
 
     var parent = top.parentNode;
-    var at = Array.prototype.indexOf.call(parent.childNodes, top);
+    var at = indexOf(parent.childNodes, top);
     this.deleteNode(top);
     this.insertNodeAt(parent, at, pair[0]);
     this.insertNodeAt(parent, at + 1, pair[1]);
@@ -274,7 +275,7 @@ TreeUpdater.prototype._splitAt = function (top, node, index) {
         return ret;
 
     return this._splitAt(
-        top, parent, Array.prototype.indexOf.call(parent.childNodes, node) + 1);
+        top, parent, indexOf(parent.childNodes, node) + 1);
 };
 
 /**
@@ -294,7 +295,7 @@ TreeUpdater.prototype.insertBefore = function (parent, to_insert,
                                                before_this) {
     // Convert it to an insertAt operation.
     var index = !before_this ? parent.childNodes.length :
-            Array.prototype.indexOf.call(parent.childNodes, before_this);
+            indexOf(parent.childNodes, before_this);
     if (index === -1)
         throw new Error("insertBefore called with a before_this value "+
                         "which is not a child of parent");
@@ -540,7 +541,7 @@ TreeUpdater.prototype.removeNode = function (node) {
     var prev = node.previousSibling;
     var next = node.nextSibling;
     var parent = node.parentNode;
-    var ix = Array.prototype.indexOf.call(parent.childNodes, node);
+    var ix = indexOf(parent.childNodes, node);
     this.deleteNode(node);
     if (!prev)
         return makeDLoc(this._tree, parent, ix);
@@ -583,7 +584,7 @@ TreeUpdater.prototype.removeNodes = function (nodes) {
     var prev = nodes[0].previousSibling;
     var next = nodes[nodes.length - 1].nextSibling;
     var parent = nodes[0].parentNode;
-    var ix = Array.prototype.indexOf.call(parent.childNodes, nodes[0]);
+    var ix = indexOf(parent.childNodes, nodes[0]);
     for(var i = 0; i < nodes.length; ++i) {
         if (i < nodes.length - 1 && nodes[i].nextSibling !== nodes[i + 1])
             throw new Error("nodes are not immediately contiguous in " +
@@ -642,7 +643,7 @@ TreeUpdater.prototype.mergeTextNodes = function (node) {
 
     var parent = node.parentNode;
     return makeDLoc(this._tree, parent,
-                    Array.prototype.indexOf.call(parent.childNodes, node) + 1);
+                    indexOf(parent.childNodes, node) + 1);
 };
 
 /**

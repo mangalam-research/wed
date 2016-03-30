@@ -11,12 +11,11 @@ define(/** @lends module:transformation */function (require, exports, module) {
 
 var util = require("./util");
 var domutil = require("./domutil");
+var indexOf = domutil.indexOf;
 var Action = require("./action").Action;
 var oop = require("./oop");
 var icon = require("./gui/icon");
 var _ = require("lodash");
-
-var _indexOf = Array.prototype.indexOf;
 
 var TYPE_TO_KIND = _.extend(Object.create(null), {
     // These are not actually type names. It is possible to use a kind
@@ -260,7 +259,7 @@ function wrapTextInElement (data_updater, node, offset, end_offset,
     var text_to_wrap = node.data.slice(offset, end_offset);
 
     var parent = node.parentNode;
-    var node_offset = _indexOf.call(parent.childNodes, node);
+    var node_offset = indexOf(parent.childNodes, node);
 
     data_updater.deleteText(node, offset, text_to_wrap.length);
     var new_element = makeElement(node.ownerDocument, ns, name, attrs);
@@ -297,7 +296,7 @@ function wrapTextInElement (data_updater, node, offset, end_offset,
  */
 function _wie_splitTextNode(data_updater, container, offset) {
     var parent = container.parentNode;
-    var container_offset = _indexOf.call(parent.childNodes, container);
+    var container_offset = indexOf(parent.childNodes, container);
     // The first two cases here just move the start outside of the
     // text node rather than make a split that will create a
     // useless empty text node.
@@ -402,7 +401,7 @@ function unwrap(data_updater, node) {
     data_updater.deleteNode(node);
 
     // We want to calculate this index *after* removal.
-    var next_ix = next ? _indexOf.call(parent.childNodes, next):
+    var next_ix = next ? indexOf(parent.childNodes, next):
             parent.childNodes.length;
 
     var last_child = node.lastChild;
@@ -531,7 +530,7 @@ function swapWithPreviousHomogeneousSibling (editor, node) {
     var parent = prev.parentNode;
     editor.data_updater.removeNode(node);
     editor.data_updater.insertBefore(parent, node, prev);
-    editor.setDataCaret(parent, _indexOf.call(parent.childNodes, node));
+    editor.setDataCaret(parent, indexOf(parent.childNodes, node));
 }
 
 /**
