@@ -14,6 +14,7 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
+var isAttr = domutil.isAttr;
 
 var options = {
     schema: '../../../schemas/tei-simplified-rng.js',
@@ -2618,7 +2619,7 @@ describe("wed", function () {
                 var $items = editor.$error_list.children("li");
                 var cases = 0;
                 for (var i = 0, error; (error = errors[i]); ++i) {
-                    if (error.node.nodeType === Node.ATTRIBUTE_NODE) {
+                    if (isAttr(error.node)) {
                         var item = $items[i];
                         assert.isTrue(
                             item.getElementsByTagName("a").length === 0,

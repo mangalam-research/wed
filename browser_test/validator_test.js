@@ -4,7 +4,8 @@
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "wed/validator", "salve/validate",
-        "salve/name_patterns", "wed/mode_validator", "wed/oop", "jquery",
+        "salve/name_patterns", "wed/mode_validator", "wed/oop",
+        "wed/domutil", "jquery",
         "requirejs/text!../../build/schemas/simplified-rng.js",
         "requirejs/text!../../build/schemas/tei-simplified-rng.js",
         "requirejs/text!../../build/test-files/validator_test_data/" +
@@ -12,7 +13,7 @@ define(["mocha/mocha", "chai", "wed/validator", "salve/validate",
         "requirejs/text!../../build/test-files/" +
         "validator_test_data/percent_to_parse_converted.xml"],
 function (mocha, chai, validator, validate, name_patterns,
-          mode_validator, oop, $, schema_text, tei_schema_text,
+          mode_validator, oop, domutil, $, schema_text, tei_schema_text,
           multiple_namespaces, percent_to_parse) {
 'use strict';
 
@@ -25,6 +26,8 @@ var to_parse_stack =
 var assert = chai.assert;
 var ValidationError = validate.ValidationError;
 var Name = name_patterns.Name;
+var isAttr = domutil.isAttr;
+
 describe("validator", function () {
     var parser = new window.DOMParser();
     var frag = document.createDocumentFragment();
@@ -294,7 +297,7 @@ describe("validator", function () {
             p.addEventListener("possible-due-to-wildcard-change",
                                function (node) {
                 assert.isTrue(node.nodeType === Node.ELEMENT_NODE ||
-                              node.nodeType === Node.ATTRIBUTE_NODE);
+                              isAttr(node));
                 assert.isDefined(node.wed_possible_due_to_wildcard);
                 if (node.nodeType === Node.ELEMENT_NODE) {
                     if (node.tagName === "foo:bar")
