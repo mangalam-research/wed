@@ -1,6 +1,11 @@
 Misc
 ====
 
+- Investigate what version of Mocha we can upgrade to. See:
+
+  https://github.com/mochajs/mocha/issues/2067
+  https://github.com/mochajs/mocha/pull/2068/files#r53067135
+
 - util.stackTrace should be updated to take advantage of
    console.trace.
 
