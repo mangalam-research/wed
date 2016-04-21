@@ -13,6 +13,8 @@ Only salient changes are recorded here.
     to handle to the issue. Unclear whether there was actually a bug
     in wed or whether the change in Chrome 50 is a bug.
 
+  - Removed old code that was meant to support Chrome 31 and Chrome 37.
+
 * 0.26.1:
 
   - This release consists mostly of fixes to issues on IE11, and a few

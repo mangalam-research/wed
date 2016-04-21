@@ -451,7 +451,6 @@ def step_impl(context):
 _BROWSER_TO_VALUES = {
     "CHROME": {
         u"CHROME": True,
-        u"CHROME_31": False,
         u"FIREFOX": False,
         u"FIREFOX_24": False,
         u"GECKO": False,
@@ -463,7 +462,6 @@ _BROWSER_TO_VALUES = {
     },
     "FIREFOX": {
         u"CHROME": False,
-        u"CHROME_31": False,
         u"FIREFOX": True,
         u"FIREFOX_24": False,
         u"GECKO": True,
@@ -475,7 +473,6 @@ _BROWSER_TO_VALUES = {
     },
     "INTERNETEXPLORER": {
         u"CHROME": False,
-        u"CHROME_31": False,
         u"FIREFOX": False,
         u"FIREFOX_24": False,
         u"GECKO": False,
@@ -529,10 +526,7 @@ return [window.test_platform, window.test_browser, window.test_version];
     """)
     expected_values = _BROWSER_TO_VALUES[config.browser]
 
-    if config.browser == "CHROME":
-        if config.version == "31":
-            expected_values[u"CHROME_31"] = True
-    elif config.browser == "INTERNETEXPLORER":
+    if config.browser == "INTERNETEXPLORER":
         if int(config.version) <= 10:
             expected_values[u"MSIE_TO_10"] = True
         else:
