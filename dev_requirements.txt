@@ -6,4 +6,5 @@ behave>=1.2.5,<2
 selenium==2.49.0
 requests>=2.7.0,<3
 PyVirtualDisplay>=0.1.5,<1
-slugify>=0.0.1,<1
+slugify>=0.0.1,<1,
+pylint>=1.5.5,<2
