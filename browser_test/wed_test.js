@@ -148,6 +148,54 @@ function contextMenuHasNoTransforms(editor) {
 
 var itNoIE = browsers.MSIE  ? it.skip : it;
 
+// Utility to check whether we have stray timeouts.
+function patchTimeouts(window) {
+    var timeouts = [];
+
+    var old_st = window.setTimeout;
+    window.setTimeout = function () {
+        var ret;
+        if (typeof arguments[0] === "function" ) {
+            var fn = arguments[0];
+            var fn_args = Array.prototype.slice.call(arguments, 2);
+            ret = old_st(function () {
+                console.log("timeout executed", ret);
+
+                // Remove the timeout from the list.
+                var ix = timeouts.indexOf(ret);
+                if (ix >= 0)
+                    timeouts.splice(ix, ret);
+                fn.apply(this, fn_args);
+            }, arguments[1]);
+        }
+        else {
+            // We don't support the first argument being something
+            // else than a function. We'll get erroneous uncleared
+            // timeouts but, oh well.
+            ret = old_st.apply(this, arguments);
+        }
+        console.log("setTimeout returned", ret, "from", arguments);
+        console.log(new Error().stack);
+        timeouts.push(ret);
+        return ret;
+    };
+
+    var old_ct = window.clearTimeout;
+    window.clearTimeout = function () {
+        console.log("clearTimeout", arguments);
+        console.log(new Error().stack);
+        var ix = timeouts.indexOf(arguments[0]);
+        if (ix >= 0)
+            timeouts.splice(ix, 1);
+        return old_ct.apply(this, arguments);
+    };
+
+    window.checkTimeouts = function () {
+        console.log("uncleared", timeouts);
+        timeouts = [];
+    };
+}
+
 describe("wed", function () {
     describe("(state-sensitive)", function () {
         // These are tests that required a brand new editor. Since it
