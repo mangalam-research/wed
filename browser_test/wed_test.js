@@ -32,8 +32,8 @@ var options = {
 };
 var assert = chai.assert;
 
-var wedroot = window.parent.document.getElementById("wedframe")
-        .contentWindow.document.getElementById("wedroot");
+var wedframe = window.parent.document.getElementById("wedframe");
+var wedwin = wedframe.contentWindow;
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];
 
@@ -214,6 +214,7 @@ describe("wed", function () {
             });
         });
 
+        var force_reload = false;
         var editor;
         beforeEach(function (done) {
             require(["requirejs/text!" + src_stack[0]], function(data) {
@@ -221,11 +222,13 @@ describe("wed", function () {
                 editor.addEventListener("initialized", function () {
                     done();
                 });
+                var wedroot = wedwin.document.getElementById("wedroot");
                 editor.init(wedroot, option_stack[0], data);
             });
+            force_reload = false;
         });
 
-        afterEach(function () {
+        afterEach(function (done) {
             if (editor)
                 editor.destroy();
             editor = undefined;
@@ -238,6 +241,17 @@ describe("wed", function () {
             onerror.__test.reset();
             assert.isFalse(was_terminating,
                            "test caused an unhandled exception to occur");
+
+            if (force_reload) {
+                wedframe.onload = function () {
+                    wedframe.onload = undefined;
+                    done();
+                };
+                wedwin.location.reload();
+            }
+            else {
+                done();
+            }
         });
 
         it("starts with undefined carets and selection ranges", function () {
@@ -1791,18 +1805,26 @@ describe("wed", function () {
         });
 
         it("handles cutting a well formed selection", function (done) {
+            force_reload = true;
             var p = editor.data_root.querySelector("body>p");
             var gui_start = editor.fromDataLocation(p.firstChild, 4);
             editor.setGUICaret(gui_start);
             var range = gui_start.makeRange(
                 editor.fromDataLocation(p.childNodes[2], 5)).range;
-            rangy.getSelection(editor.my_window).setSingleRange(range);
+            var sel = editor.my_window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range.nativeRange);
 
             // Synthetic event
             var event = new $.Event("cut");
             editor.$gui_root.trigger(event);
             window.setTimeout(function () {
-                assert.equal(p.innerHTML, "Blah.");
+                try {
+                    assert.equal(p.innerHTML, "Blah.");
+                }
+                catch (ex) {
+                    return done(ex);
+                }
                 done();
             }, 1);
         });
@@ -1838,6 +1860,7 @@ describe("wed", function () {
         });
 
         it("handles cutting in attributes", function (done) {
+            force_reload = true;
             var p = editor.data_root.querySelector("body>p:nth-of-type(8)");
             var initial = p.getAttributeNode("rend");
             var initial_value = initial.value;
@@ -1851,8 +1874,13 @@ describe("wed", function () {
             var event = new $.Event("cut");
             editor.$gui_root.trigger(event);
             window.setTimeout(function () {
-                assert.equal(initial.value, initial_value.slice(0, 2) +
-                             initial_value.slice(4));
+                try {
+                    assert.equal(initial.value, initial_value.slice(0, 2) +
+                                 initial_value.slice(4));
+                }
+                catch (ex) {
+                    return done(ex);
+                }
                 done();
             }, 1);
         });
@@ -2715,6 +2743,7 @@ describe("wed", function () {
                 ps = editor.gui_root.querySelectorAll(".body>.p");
                 done();
             });
+            var wedroot = wedwin.document.getElementById("wedroot");
             editor.init(wedroot, options, source);
         });
 

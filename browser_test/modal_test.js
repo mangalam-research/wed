@@ -10,9 +10,10 @@ var assert = chai.assert;
 var Modal = modal.Modal;
 
 describe("Modal", function () {
-    var $wedroot = $("#wedframe-invisible").contents().find("#wedroot");
+    var $wedroot;
     var modal;
     beforeEach(function () {
+        $wedroot = $("#wedframe-invisible").contents().find("#wedroot");
         modal = new Modal();
     });
     describe("setTitle", function () {
