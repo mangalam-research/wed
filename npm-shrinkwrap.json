@@ -1,6 +1,6 @@
 {
   "name": "wed",
-  "version": "0.26.1",
+  "version": "0.26.2",
   "dependencies": {
     "abab": {
       "version": "1.0.3",
@@ -2860,11 +2860,6 @@
       "version": "3.0.1",
       "from": "webidl-conversions@>=3.0.1 <4.0.0",
       "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-3.0.1.tgz"
-    },
-    "whatwg-url": {
-      "version": "1.0.1",
-      "from": "whatwg-url@>=1.0.0 <2.0.0",
-      "resolved": "https://registry.npmjs.org/whatwg-url/-/whatwg-url-1.0.1.tgz"
     },
     "when": {
       "version": "3.7.7",
