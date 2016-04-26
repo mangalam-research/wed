@@ -34,9 +34,6 @@ var options = {
     }
 };
 
-var wedroot = window.parent.document.getElementById("wedframe")
-        .contentWindow.document.getElementById("wedroot");
-var $wedroot = $(wedroot);
 // Yes, we use *input_trigger* test data.
 var src_stack = [generic_src];
 
@@ -60,6 +57,8 @@ describe("input_trigger_factory", function () {
         editor.addEventListener("initialized", function () {
             done();
         });
+        var wedroot = window.parent.document.getElementById("wedframe")
+            .contentWindow.document.getElementById("wedroot");
         editor.init(wedroot, options, src_stack[0]);
     });
 

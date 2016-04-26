@@ -14,6 +14,7 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
+var isAttr = domutil.isAttr;
 
 var options = {
     schema: '../../../schemas/tei-simplified-rng.js',
@@ -31,8 +32,8 @@ var options = {
 };
 var assert = chai.assert;
 
-var wedroot = window.parent.document.getElementById("wedframe")
-        .contentWindow.document.getElementById("wedroot");
+var wedframe = window.parent.document.getElementById("wedframe");
+var wedwin = wedframe.contentWindow;
 var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];
 
@@ -147,6 +148,54 @@ function contextMenuHasNoTransforms(editor) {
 
 var itNoIE = browsers.MSIE  ? it.skip : it;
 
+// Utility to check whether we have stray timeouts.
+function patchTimeouts(window) {
+    var timeouts = [];
+
+    var old_st = window.setTimeout;
+    window.setTimeout = function () {
+        var ret;
+        if (typeof arguments[0] === "function" ) {
+            var fn = arguments[0];
+            var fn_args = Array.prototype.slice.call(arguments, 2);
+            ret = old_st(function () {
+                console.log("timeout executed", ret);
+
+                // Remove the timeout from the list.
+                var ix = timeouts.indexOf(ret);
+                if (ix >= 0)
+                    timeouts.splice(ix, ret);
+                fn.apply(this, fn_args);
+            }, arguments[1]);
+        }
+        else {
+            // We don't support the first argument being something
+            // else than a function. We'll get erroneous uncleared
+            // timeouts but, oh well.
+            ret = old_st.apply(this, arguments);
+        }
+        console.log("setTimeout returned", ret, "from", arguments);
+        console.log(new Error().stack);
+        timeouts.push(ret);
+        return ret;
+    };
+
+    var old_ct = window.clearTimeout;
+    window.clearTimeout = function () {
+        console.log("clearTimeout", arguments);
+        console.log(new Error().stack);
+        var ix = timeouts.indexOf(arguments[0]);
+        if (ix >= 0)
+            timeouts.splice(ix, 1);
+        return old_ct.apply(this, arguments);
+    };
+
+    window.checkTimeouts = function () {
+        console.log("uncleared", timeouts);
+        timeouts = [];
+    };
+}
+
 describe("wed", function () {
     describe("(state-sensitive)", function () {
         // These are tests that required a brand new editor. Since it
@@ -165,6 +214,7 @@ describe("wed", function () {
             });
         });
 
+        var force_reload = false;
         var editor;
         beforeEach(function (done) {
             require(["requirejs/text!" + src_stack[0]], function(data) {
@@ -172,11 +222,13 @@ describe("wed", function () {
                 editor.addEventListener("initialized", function () {
                     done();
                 });
+                var wedroot = wedwin.document.getElementById("wedroot");
                 editor.init(wedroot, option_stack[0], data);
             });
+            force_reload = false;
         });
 
-        afterEach(function () {
+        afterEach(function (done) {
             if (editor)
                 editor.destroy();
             editor = undefined;
@@ -189,6 +241,17 @@ describe("wed", function () {
             onerror.__test.reset();
             assert.isFalse(was_terminating,
                            "test caused an unhandled exception to occur");
+
+            if (force_reload) {
+                wedframe.onload = function () {
+                    wedframe.onload = undefined;
+                    done();
+                };
+                wedwin.location.reload();
+            }
+            else {
+                done();
+            }
         });
 
         it("starts with undefined carets and selection ranges", function () {
@@ -1742,18 +1805,26 @@ describe("wed", function () {
         });
 
         it("handles cutting a well formed selection", function (done) {
+            force_reload = true;
             var p = editor.data_root.querySelector("body>p");
             var gui_start = editor.fromDataLocation(p.firstChild, 4);
             editor.setGUICaret(gui_start);
             var range = gui_start.makeRange(
                 editor.fromDataLocation(p.childNodes[2], 5)).range;
-            rangy.getSelection(editor.my_window).setSingleRange(range);
+            var sel = editor.my_window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range.nativeRange);
 
             // Synthetic event
             var event = new $.Event("cut");
             editor.$gui_root.trigger(event);
             window.setTimeout(function () {
-                assert.equal(p.innerHTML, "Blah.");
+                try {
+                    assert.equal(p.innerHTML, "Blah.");
+                }
+                catch (ex) {
+                    return done(ex);
+                }
                 done();
             }, 1);
         });
@@ -1789,6 +1860,7 @@ describe("wed", function () {
         });
 
         it("handles cutting in attributes", function (done) {
+            force_reload = true;
             var p = editor.data_root.querySelector("body>p:nth-of-type(8)");
             var initial = p.getAttributeNode("rend");
             var initial_value = initial.value;
@@ -1802,8 +1874,13 @@ describe("wed", function () {
             var event = new $.Event("cut");
             editor.$gui_root.trigger(event);
             window.setTimeout(function () {
-                assert.equal(initial.value, initial_value.slice(0, 2) +
-                             initial_value.slice(4));
+                try {
+                    assert.equal(initial.value, initial_value.slice(0, 2) +
+                                 initial_value.slice(4));
+                }
+                catch (ex) {
+                    return done(ex);
+                }
                 done();
             }, 1);
         });
@@ -2618,7 +2695,7 @@ describe("wed", function () {
                 var $items = editor.$error_list.children("li");
                 var cases = 0;
                 for (var i = 0, error; (error = errors[i]); ++i) {
-                    if (error.node.nodeType === Node.ATTRIBUTE_NODE) {
+                    if (isAttr(error.node)) {
                         var item = $items[i];
                         assert.isTrue(
                             item.getElementsByTagName("a").length === 0,
@@ -2666,6 +2743,7 @@ describe("wed", function () {
                 ps = editor.gui_root.querySelectorAll(".body>.p");
                 done();
             });
+            var wedroot = wedwin.document.getElementById("wedroot");
             editor.init(wedroot, options, source);
         });
 

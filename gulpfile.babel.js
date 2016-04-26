@@ -675,3 +675,11 @@ gulp.task("clean", () => del(["build", "gh-pages", "*.html"]));
 
 gulp.task("distclean", ["clean"],
           () => del(["downloads", "node_modules"]));
+
+const venv_path = ".venv";
+gulp.task("venv", [],
+          () => fs.accessAsync(venv_path).catch(
+                  () => exec('virtualenv .venv')));
+
+gulp.task("dev-venv", ['venv'],
+          () => exec('.venv/bin/pip install -r dev_requirements.txt'));

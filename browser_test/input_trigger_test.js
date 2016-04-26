@@ -31,10 +31,6 @@ var options = {
     }
 };
 
-var wedroot = window.parent.document.getElementById("wedframe")
-        .contentWindow.document.getElementById("wedroot");
-var $wedroot = $(wedroot);
-
 // This is an ad-hoc function meant for these tests *only*. The XML
 // serialization adds an xmlns declaration that we don't care
 // for. So...
@@ -55,6 +51,8 @@ describe("InputTrigger", function () {
         editor.addEventListener("initialized", function () {
             done();
         });
+        var wedroot = window.parent.document.getElementById("wedframe")
+            .contentWindow.document.getElementById("wedroot");
         editor.init(wedroot, options, source);
     });
 

@@ -8,3 +8,4 @@
 /*.html
 *_flymake.*
 *.pyc
+/.venv

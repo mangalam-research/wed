@@ -23,7 +23,7 @@ describe("dloc", function () {
     var window;
     var $root, root;
     var root_obj;
-    var dloc;
+    var dloc, domutil, isAttr;
     var $;
 
     this.timeout(0);
@@ -31,10 +31,13 @@ describe("dloc", function () {
         fw = new jsdomfw.FW();
         fw.create(function () {
             window = fw.window;
-            window.require(["wed/dloc", "jquery"], function (_dloc, _$) {
+            window.require(["wed/dloc", "wed/domutil",
+                            "jquery"], function (_dloc, _domutil, _$) {
                 try {
                     assert.isUndefined(window.document.errors);
                     dloc = _dloc;
+                    domutil = _domutil;
+                    isAttr = domutil.isAttr;
                     $ = _$;
                     $root = $("#root");
                     root = defined($root[0]);
@@ -261,7 +264,7 @@ describe("dloc", function () {
            function () {
             var c = defined($(".quote")[0].getAttributeNode(
                     "data-wed-type"));
-            assert.equal(c.nodeType, window.Node.ATTRIBUTE_NODE);
+            assert.isTrue(isAttr(c));
             assert.Throw(dloc.makeDLoc.bind(undefined, root, c, 100),
                          window.Error,
                          /^offset greater than allowable value/);
@@ -293,7 +296,7 @@ describe("dloc", function () {
            function () {
             var c = defined($(".quote")[0].getAttributeNode(
                     "data-wed-type"));
-            assert.equal(c.nodeType, window.Node.ATTRIBUTE_NODE);
+            assert.isTrue(isAttr(c));
             var loc = dloc.makeDLoc(root, c, 100, true);
             assert.equal(loc.offset, c.value.length);
         });
@@ -417,7 +420,7 @@ describe("dloc", function () {
                function () {
                 var a = defined($(".quote")[0].getAttributeNode(
                     "data-wed-type"));
-                assert.equal(a.nodeType, window.Node.ATTRIBUTE_NODE);
+                assert.isTrue(isAttr(a));
                 var loc = dloc.makeDLoc(root, a, 0);
                 assert.isTrue(loc.isValid());
             });
@@ -449,7 +452,7 @@ describe("dloc", function () {
                function () {
                 $root.append("<div class='__test' foo='bar'></div>");
                 var t = defined($(".__test")[0].attributes.foo);
-                assert.equal(t.nodeType, window.Node.ATTRIBUTE_NODE);
+                assert.isTrue(isAttr(t));
                 var loc = dloc.makeDLoc(root, t, 0);
                 t.ownerElement.removeAttribute("foo");
                 assert.isFalse(loc.isValid());
@@ -482,7 +485,7 @@ describe("dloc", function () {
                function () {
                 $root.append("<div class='__test' foo='bar'></div>");
                 var t = defined($(".__test")[0].attributes.foo);
-                assert.equal(t.nodeType, window.Node.ATTRIBUTE_NODE);
+                assert.isTrue(isAttr(t));
                 var loc = dloc.makeDLoc(root, t, 3);
                 t.value = "f";
                 assert.isFalse(loc.isValid());
@@ -526,7 +529,7 @@ describe("dloc", function () {
                function () {
                 $root.append("<div class='__test' foo='bar'></div>");
                 var t = defined($(".__test")[0].attributes.foo);
-                assert.equal(t.nodeType, window.Node.ATTRIBUTE_NODE);
+                assert.isTrue(isAttr(t));
                 var loc = dloc.makeDLoc(root, t, 3);
                 t.value = "f";
                 assert.isFalse(loc.isValid());

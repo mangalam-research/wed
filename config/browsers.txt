@@ -5,7 +5,7 @@
 #
 # Perform these first because they are extremely cheap to perform.
 #
-Linux,CH,49
+Linux,CH,50
 
 
 #
@@ -31,7 +31,7 @@ OS X 10.11,CH,48,Remote
 #
 # The rest is unlikely to fail if the previous tests passed.
 #
-Windows 8.1,CH,49,Remote
+Windows 8.1,CH,50,Remote
 
 # ESR
 # Windows 8.1,FF,38,Remote

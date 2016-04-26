@@ -32,8 +32,6 @@ var options = {
 };
 var assert = chai.assert;
 
-var wedroot = window.parent.document.getElementById("wedframe")
-        .contentWindow.document.getElementById("wedroot");
 var option_stack = [options];
 
 function caretCheck(editor, container, offset, msg) {
@@ -70,6 +68,8 @@ describe("transformation", function () {
         editor.addEventListener("initialized", function () {
             done();
         });
+        var wedroot = window.parent.document.getElementById("wedframe")
+            .contentWindow.document.getElementById("wedroot");
         editor.init(wedroot, option_stack[0], source);
     });
 
