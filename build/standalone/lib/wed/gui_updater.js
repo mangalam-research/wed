@@ -11,6 +11,7 @@ define(/** @lends module:gui_updater */ function (require, exports, module) {
 'use strict';
 
 var domutil = require("./domutil");
+var isAttr = domutil.isAttr;
 var indexOf = domutil.indexOf;
 var $ = require("jquery");
 var oop = require("./oop");
@@ -132,7 +133,7 @@ GUIUpdater.prototype.fromDataLocation = function (loc, offset) {
     if (node.nodeType === Node.TEXT_NODE)
         return makeDLoc(this._gui_tree, gui_node, offset);
 
-    if (node.nodeType === Node.ATTRIBUTE_NODE) {
+    if (isAttr(node)) {
         if (gui_node.firstChild &&
             // The check for the node type is to avoid getting a location
             // inside a placeholder.

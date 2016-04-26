@@ -9,6 +9,7 @@ define(/** @lends module:wed */function (require, exports, module) {
 var $ = require("jquery");
 var log = require("./log");
 var domutil = require("./domutil");
+var isAttr = domutil.isAttr;
 var oop = require("./oop");
 var wundo = require("./wundo");
 var SimpleEventEmitter =
@@ -22,7 +23,7 @@ require("bootstrap");
 require("jquery.bootstrap-growl");
 var closestByClass = domutil.closestByClass;
 
-exports.version = "0.26.1";
+exports.version = "0.26.2";
 var version = exports.version;
 
 /**
@@ -116,8 +117,7 @@ Editor.prototype._fireTransformation = function(tr, transformation_data) {
             // A data node could be an attribute node but
             // unfortunately, ``contains`` does not work on such nodes
             // so we need to manually handle it.
-            var check = (node.nodeType === Node.ATTRIBUTE_NODE) ?
-                    node.ownerElement : node;
+            var check = isAttr(node) ? node.ownerElement : node;
             if (!this.data_root.contains(check))
                 throw new Error("node is neither in the gui tree nor "+
                                 "the data tree");

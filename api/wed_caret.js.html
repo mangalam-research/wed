@@ -741,24 +741,26 @@ Editor.prototype._findLocationInElementAt = function(node, x, y, text_ok) {
 
     var min;
 
-    // Check function for the general case (not IE). In the general
-    // case, ``rects`` will always be undefined. When the IE check
-    // function calls it, it may be defined to a pre-built rect.
-    function checkRangeNormal(node, start, rects) {
-        if (!rects) {
-            if (node.nodeType === Node.TEXT_NODE) {
-                range.setStart(node, start);
-                range.setEnd(node, start + 1);
-                rects = [range.getBoundingClientRect()];
-            }
-            else
-                rects = node.childNodes[start].getClientRects();
+    //
+    // This function works only in cases where a space that is
+    // effectively rendered as a line break on the screen has a height
+    // and width of zero. (Logically this makes sense, there is no
+    // part of the screen which really belongs to the space.)
+    //
+    function checkRange(node, start) {
+        var rects;
+        if (node.nodeType === Node.TEXT_NODE) {
+            range.setStart(node, start);
+            range.setEnd(node, start + 1);
+            rects = range.getClientRects();
         }
+        else
+            rects = node.childNodes[start].getClientRects();
 
         for(var rect_ix = 0, rect; (rect = rects[rect_ix]) !== undefined;
             ++rect_ix) {
             // Not a contender...
-            if (rect.height === 0 &amp;&amp; rect.width === 0)
+            if (rect.height === 0 || rect.width === 0)
                 continue;
 
             var dist = util.distsFromRect(x, y, rect.left, rect.top,
@@ -777,108 +779,6 @@ Editor.prototype._findLocationInElementAt = function(node, x, y, text_ok) {
         }
 
         return false;
-    }
-
-    function checkRangeIE(node, start) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            if (node.length === 0)
-                return false;
-
-            if (node.length === 1)
-                return checkRangeNormal(node, start);
-
-            var prev_rect, next_rect, rect;
-            if (start > 0 &amp;&amp; start &lt; node.length - 1) {
-                range.setStart(node, start - 1);
-                range.setEnd(node, start);
-                prev_rect = range.getBoundingClientRect();
-                range.setStart(node, start + 1);
-                range.setEnd(node, start + 2);
-                next_rect = range.getBoundingClientRect();
-
-                // The characters before and after the one we are
-                // interested in are on different lines. So the character
-                // we are looking at participates in the line break.
-                if (prev_rect.top !== next_rect.top)
-                    return false;
-            }
-            else if (start === 0) {
-                range.setStart(node, start);
-                range.setEnd(node, start + 1);
-                rect = range.getBoundingClientRect();
-                range.setStart(node, start + 1);
-                range.setEnd(node, start + 2);
-                next_rect = range.getBoundingClientRect();
-
-                // We might be able to salvage a rectangle like in the
-                // next case, but I've never seen a case like
-                // this. The current safe thing to do is to reject
-                // this character.
-                if (rect.top !== next_rect.top)
-                    return false;
-            }
-            else if (start === node.length - 1) {
-                range.setStart(node, start);
-                range.setEnd(node, start + 1);
-                rect = range.getBoundingClientRect();
-                range.setStart(node, start - 1);
-                range.setEnd(node, start);
-                prev_rect = range.getBoundingClientRect();
-
-                if (rect.bottom !== prev_rect.bottom) {
-                    // Perform the check with a rect salvaged from the
-                    // information obtained from the previous character.
-                    return checkRangeNormal(
-                        node, start,
-                        [{
-                            top: rect.top,
-                            left: prev_rect.right,
-                            right: rect.right,
-                            bottom: prev_rect.bottom
-                        }]);
-                }
-            }
-        }
-
-        // Not problematic...
-        return checkRangeNormal(node, start);
-    }
-
-    var checkRange = checkRangeNormal;
-
-    if (browsers.MSIE || (browsers.CHROME_37 &amp;&amp; browsers.WINDOWS)) {
-        //
-        // IE is a special case. There would presumably be a way to
-        // test for this by creating a multiline paragraph on the
-        // screen and then checking what rectangles are
-        // returned. Maybe a future version of wed will do this. For
-        // now, however, we use browsers.MSIE to determine that we are
-        // running in IE and act accoringly.
-        //
-        // The problem being worked around here is what happens when
-        // we query the rectangle around a space which the browser has
-        // determined is where it will break a line. Chrome and FF
-        // will return a rectangle with a width of 0, which is a
-        // sensible value, as no space is dedicated to **this** space,
-        // and the rectangle returned does not include in it the
-        // rectangle of any other characters in the range. IE, on the
-        // other hand, idiotically returns a rectangle which
-        // encompasses the line of the character before the space and
-        // the line of the character after the space. Basically, the
-        // rectangle encompasses two lines and overlaps with a whole
-        // bunch of other rectangles.
-        //
-        // The strategy here is to replace the usual checkRange
-        // function with one which will skip the problematic
-        // rects. This way, any work that must be done to work around
-        // IE's moronic return values is born only by those who use
-        // IE.
-        //
-        // Chrome 37 on Windows suffers from a similar problem. Chrome
-        // 38 is fine. Chrome 36 is fine. See
-        // https://code.google.com/p/chromium/issues/detail?id=412127.
-        //
-        checkRange = checkRangeIE;
     }
 
     var child = node.firstChild;
@@ -1567,7 +1467,7 @@ Editor.prototype._caretPositionOnScreen = function () {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Mar 30 2016 15:48:03 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Apr 26 2016 16:35:13 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -44,7 +44,9 @@ var name_patterns = require("salve/name_patterns");
 var $ = require("jquery");
 var oop = require("./oop");
 var dloc = require("./dloc");
-var indexOf = require("./domutil").indexOf;
+var domutil = require("./domutil");
+var indexOf = domutil.indexOf;
+var isAttr = domutil.isAttr;
 
 // validation_stage values
 
@@ -796,40 +798,42 @@ Validator.prototype._validateUpTo = function (container, index, attributes) {
     else {
         // Damn hoisting.
         var prev;
-        switch(container.nodeType) {
-        case Node.TEXT_NODE:
-            to_inspect = container.previousElementSibling;
-            if (!to_inspect) {
-                to_inspect =  container.parentNode;
-                data_key = "wed_event_index_after_start";
-            }
-            break;
-        case Node.ELEMENT_NODE:
-        case Node.DOCUMENT_FRAGMENT_NODE:
-        case Node.DOCUMENT_NODE:
-            var node = container.childNodes[index];
-
-            prev = !node ?
-                container.lastElementChild : node.previousElementSibling;
-
-            if (prev)
-                to_inspect = prev;
-            // to_inspect's default is fine for the next few options
-            else {
-                if (attributes) {
-                    data_key = "wed_event_index_after_attributes";
-                    to_inspect = node;
-                }
-                else
-                    data_key = "wed_event_index_after_start";
-            }
-            break;
-        case Node.ATTRIBUTE_NODE:
+        if (isAttr(container)) {
             to_inspect = container.ownerElement;
             data_key = "wed_event_index_before_attributes";
-            break;
-        default:
-            throw new Error("unexpected node type: " + container.nodeType);
+        }
+        else {
+            switch(container.nodeType) {
+            case Node.TEXT_NODE:
+                to_inspect = container.previousElementSibling;
+                if (!to_inspect) {
+                    to_inspect =  container.parentNode;
+                    data_key = "wed_event_index_after_start";
+                }
+                break;
+            case Node.ELEMENT_NODE:
+            case Node.DOCUMENT_FRAGMENT_NODE:
+            case Node.DOCUMENT_NODE:
+                var node = container.childNodes[index];
+
+                prev = !node ?
+                    container.lastElementChild : node.previousElementSibling;
+
+                if (prev)
+                    to_inspect = prev;
+                // to_inspect's default is fine for the next few options
+                else {
+                    if (attributes) {
+                        data_key = "wed_event_index_after_attributes";
+                        to_inspect = node;
+                    }
+                    else
+                        data_key = "wed_event_index_after_start";
+                }
+                break;
+            default:
+                throw new Error("unexpected node type: " + container.nodeType);
+            }
         }
     }
 
@@ -994,62 +998,7 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
 
     // Damn hoisting
     var prev, event_index, walker_disp;
-    switch(container.nodeType) {
-    case Node.TEXT_NODE:
-        prev = container.previousElementSibling;
-        walker = readyWalker(prev ? prev.wed_event_index_after :
-                             container.parentNode.wed_event_index_after_start);
-
-        // We will attempt to fire a text event if our location
-        // is inside the current text node.
-        //
-        // A previous version of this code was also checking whether
-        // there is a text node between this text node and prev but
-        // this cannot happen because the tree on which validation is
-        // performed cannot have two adjacent text nodes. It was also
-        // checking whether there was a _text element between prev
-        // and this text node but this also cannot happen.
-        if (index > 0) {
-            walker = walker.clone();
-            fireTextEvent(container);
-        }
-
-        break;
-    case Node.ELEMENT_NODE:
-    case Node.DOCUMENT_NODE:
-    case Node.DOCUMENT_FRAGMENT_NODE:
-        var node = container.childNodes[index];
-
-        if (!attributes) {
-            prev = !node ? container.lastElementChild :
-                node.previousElementSibling;
-
-            event_index = prev ? prev.wed_event_index_after :
-                container.wed_event_index_after_start;
-        }
-        else
-            event_index = node.wed_event_index_after_attributes;
-
-        walker = readyWalker(event_index);
-
-        if (!attributes) {
-            // We will attempt to fire a text event if another text node
-            // appeared between the node we care about and the element
-            // just before it.
-            var prev_sibling = node &amp;&amp; node.previousSibling;
-            if (prev_sibling &amp;&amp;
-                // If the previous sibling is the same as the previous
-                // *element* sibbling, then there is nothing *between*
-                // that we need to take care of.
-                prev_sibling !== prev) {
-                if (prev_sibling.nodeType === Node.TEXT_NODE) {
-                    walker = walker.clone();
-                    fireTextEvent(prev_sibling);
-                }
-            }
-        }
-        break;
-    case Node.ATTRIBUTE_NODE:
+    if (isAttr(container)) {
         var el = container.ownerElement;
         walker = readyWalker(el.wed_event_index_before_attributes);
 
@@ -1058,9 +1007,67 @@ Validator.prototype._getWalkerAt = function(container, index, attributes) {
             walker = walker.clone();
             this._fireAttributeNameEvent(walker, el, container);
         }
-        break;
-    default:
-        throw new Error("unexpected node type: " + container.nodeType);
+    }
+    else {
+        switch(container.nodeType) {
+        case Node.TEXT_NODE:
+            prev = container.previousElementSibling;
+            walker = readyWalker(
+                prev ? prev.wed_event_index_after :
+                    container.parentNode.wed_event_index_after_start);
+
+            // We will attempt to fire a text event if our location
+            // is inside the current text node.
+            //
+            // A previous version of this code was also checking whether
+            // there is a text node between this text node and prev but
+            // this cannot happen because the tree on which validation is
+            // performed cannot have two adjacent text nodes. It was also
+            // checking whether there was a _text element between prev
+            // and this text node but this also cannot happen.
+            if (index > 0) {
+                walker = walker.clone();
+                fireTextEvent(container);
+            }
+
+            break;
+        case Node.ELEMENT_NODE:
+        case Node.DOCUMENT_NODE:
+        case Node.DOCUMENT_FRAGMENT_NODE:
+            var node = container.childNodes[index];
+
+            if (!attributes) {
+                prev = !node ? container.lastElementChild :
+                    node.previousElementSibling;
+
+                event_index = prev ? prev.wed_event_index_after :
+                    container.wed_event_index_after_start;
+            }
+            else
+                event_index = node.wed_event_index_after_attributes;
+
+            walker = readyWalker(event_index);
+
+            if (!attributes) {
+                // We will attempt to fire a text event if another text node
+                // appeared between the node we care about and the element
+                // just before it.
+                var prev_sibling = node &amp;&amp; node.previousSibling;
+                if (prev_sibling &amp;&amp;
+                    // If the previous sibling is the same as the previous
+                    // *element* sibbling, then there is nothing *between*
+                    // that we need to take care of.
+                    prev_sibling !== prev) {
+                    if (prev_sibling.nodeType === Node.TEXT_NODE) {
+                        walker = walker.clone();
+                        fireTextEvent(prev_sibling);
+                    }
+                }
+            }
+            break;
+        default:
+            throw new Error("unexpected node type: " + container.nodeType);
+        }
     }
 
     return walker;
@@ -1394,7 +1401,7 @@ exports.Validator = Validator;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Mar 30 2016 15:48:03 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Apr 26 2016 16:35:13 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

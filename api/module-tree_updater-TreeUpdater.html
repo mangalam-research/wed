@@ -586,190 +586,6 @@ of TreeUpdater and by some low-level facilities of wed.</p>
 
     
 
-    <h4 class="name" id="deleteText"><span class="type-signature"></span>deleteText<span class="signature">(loc, length)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>A complex method. Deletes text from a text node. If the text node
-becomes empty, it is deleted.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>loc</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Where to delete.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>length</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The length of text to delete.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line369">line 369</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <p>If <code>node</code> is not a text Node type.</p>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
     <h4 class="name" id="deleteText"><span class="type-signature"></span>deleteText<span class="signature">(node, index, length)</span><span class="type-signature"></span></h4>
 
     
@@ -972,17 +788,15 @@ becomes empty, it is deleted.</p>
 
     
 
-    <h4 class="name" id="insertAt"><span class="type-signature"></span>insertAt<span class="signature">(loc, what)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="deleteText"><span class="type-signature"></span>deleteText<span class="signature">(loc, length)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>A complex method. This is a convenience method that will call
-primitive methods to insert the specified item at the specified
-location. Note that this method returns nothing even if the
-primitives it uses return some information.</p>
+    <p>A complex method. Deletes text from a text node. If the text node
+becomes empty, it is deleted.</p>
 </div>
 
 
@@ -1034,17 +848,22 @@ primitives it uses return some information.</p>
 
             
 
-            <td class="description last"><p>The location where to insert.</p></td>
+            <td class="description last"><p>Where to delete.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>what</code></td>
+                <td class="name"><code>length</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
             
             </td>
 
@@ -1052,8 +871,7 @@ primitives it uses return some information.</p>
 
             
 
-            <td class="description last"><p>The data to insert. This can be a string, a DOM Node of
-TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
+            <td class="description last"><p>The length of text to delete.</p></td>
         </tr>
 
     
@@ -1094,7 +912,7 @@ TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line113">line 113</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line369">line 369</a>
     </li></ul></dd>
     
 
@@ -1122,8 +940,7 @@ TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
 <dl>
     <dt>
         <div class="param-desc">
-        <p>If <code>loc</code> is not in an element or text node or if
-<code>what</code> is not an element or text node.</p>
+        <p>If <code>node</code> is not a text Node type.</p>
         </div>
     </dt>
     <dd></dd>
@@ -1323,6 +1140,189 @@ TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
     <dt>
         <div class="param-desc">
         <p>If <code>node</code> is not in an element or text node or if
+<code>what</code> is not an element or text node.</p>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="insertAt"><span class="type-signature"></span>insertAt<span class="signature">(loc, what)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>A complex method. This is a convenience method that will call
+primitive methods to insert the specified item at the specified
+location. Note that this method returns nothing even if the
+primitives it uses return some information.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>loc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The location where to insert.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>what</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The data to insert. This can be a string, a DOM Node of
+TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line113">line 113</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <p>If <code>loc</code> is not in an element or text node or if
 <code>what</code> is not an element or text node.</p>
         </div>
     </dt>
@@ -4764,15 +4764,11 @@ of TreeUpdater and by some low-level facilities of wed.</p>
 
     
 
-    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, loc)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
+    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, node, index)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
 
     
 
 
-
-<div class="description">
-    <p>A complex method. Splits a DOM tree into two halves.</p>
-</div>
 
 
 
@@ -4832,13 +4828,13 @@ above this node.</p></td>
 
         <tr>
             
-                <td class="name"><code>loc</code></td>
+                <td class="name"><code>node</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
+<span class="param-type">Node</span>
 
 
             
@@ -4848,8 +4844,30 @@ above this node.</p></td>
 
             
 
-            <td class="description last"><p>The location where to start the
-split.</p></td>
+            <td class="description last"><p>The node at which to start the split.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The index at which to start in the node.</p></td>
         </tr>
 
     
@@ -4974,11 +4992,15 @@ second half of the split.</p>
 
     
 
-    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, node, index)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
+    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, loc)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
 
     
 
 
+
+<div class="description">
+    <p>A complex method. Splits a DOM tree into two halves.</p>
+</div>
 
 
 
@@ -5038,13 +5060,13 @@ above this node.</p></td>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>loc</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Node</span>
+<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
 
 
             
@@ -5054,30 +5076,8 @@ above this node.</p></td>
 
             
 
-            <td class="description last"><p>The node at which to start the split.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The index at which to start in the node.</p></td>
+            <td class="description last"><p>The location where to start the
+split.</p></td>
         </tr>
 
     
@@ -6209,7 +6209,7 @@ before it was removed.</p></td>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Mar 30 2016 15:48:04 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Apr 26 2016 16:35:14 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

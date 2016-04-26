@@ -11,6 +11,7 @@ define(/** @lends module:dloc */function (require, exports, module) {
 var $ = require("jquery");
 var rangy = require("rangy");
 var domutil = require("./domutil");
+var isAttr = domutil.isAttr;
 var oop = require("./oop");
 
 /**
@@ -94,7 +95,7 @@ DLoc.prototype.toArray = function () {
  * reversed, that is, if the end comes before the start.
  */
 DLoc.prototype.makeRange = function (other) {
-    if (this.node.nodeType === Node.ATTRIBUTE_NODE)
+    if (isAttr(this.node))
         throw new Error("cannot make range from attribute node");
 
     if (!other) {
@@ -103,7 +104,7 @@ DLoc.prototype.makeRange = function (other) {
         return range;
     }
     else {
-        if (other.node.nodeType === Node.ATTRIBUTE_NODE)
+        if (isAttr(other.node))
             throw new Error("cannot make range from attribute node");
         return domutil.rangeFromPoints(this.node, this.offset,
                                        other.node, other.offset);
@@ -122,27 +123,26 @@ DLoc.prototype.isValid = function () {
     var node = this.node;
     // We do not check that offset is greater than 0 as this would be
     // done while constructing the object.
-    return this.root.contains(
-        (node.nodeType === Node.ATTRIBUTE_NODE) ?
-            node.ownerElement :
-            node) &&
-            this.offset <= getTestLength(node);
+    return this.root.contains(isAttr(node) ? node.ownerElement : node) &&
+        this.offset <= getTestLength(node);
 };
 
 function getTestLength(node) {
     var test_length;
-    switch(node.nodeType) {
-    case Node.ATTRIBUTE_NODE:
+    if (isAttr(node)) {
         test_length = node.value.length;
-        break;
-    case Node.TEXT_NODE:
-        test_length = node.data.length;
-        break;
-    case Node.ELEMENT_NODE:
-        test_length = node.childNodes.length;
-        break;
-    default:
-        throw new Error("unexpected node type");
+    }
+    else {
+        switch(node.nodeType) {
+        case Node.TEXT_NODE:
+            test_length = node.data.length;
+            break;
+        case Node.ELEMENT_NODE:
+            test_length = node.childNodes.length;
+            break;
+        default:
+            throw new Error("unexpected node type");
+        }
     }
     return test_length;
 }
@@ -224,7 +224,7 @@ function makeDLoc(root, node, offset, normalize) {
     else if (!$.data(root, "wed-dloc-root"))
         throw new Error("root has not been marked as a root: " + root);
 
-    if (node.nodeType === Node.ATTRIBUTE_NODE) {
+    if (isAttr(node)) {
         if (!root.contains(node.ownerElement))
             throw new Error("node not in root");
     }
@@ -311,7 +311,7 @@ DLocRoot.prototype.nodeToPath = function (node) {
         return "";
 
     var check_node = node;
-    if (node.nodeType === Node.ATTRIBUTE_NODE)
+    if (isAttr(node))
         check_node = node.ownerElement;
 
     if (!root.contains(check_node))
@@ -320,7 +320,7 @@ DLocRoot.prototype.nodeToPath = function (node) {
     var ret = [];
     while (node !== root) {
         var parent;
-        if (node.nodeType === Node.ATTRIBUTE_NODE) {
+        if (isAttr(node)) {
             parent = node.ownerElement;
             ret.unshift("@" + node.name);
         }

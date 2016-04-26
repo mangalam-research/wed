@@ -17,6 +17,7 @@ define(/** @lends module:wed */function (require, exports, module) {
 
 var makeDLoc = require("./dloc").makeDLoc;
 var domutil = require("./domutil");
+var isAttr = domutil.isAttr;
 var closestByClass = domutil.closestByClass;
 var indexOf = domutil.indexOf;
 
@@ -171,7 +172,7 @@ function cut(editor, data) {
     var end_caret = editor.toDataLocation(range.endContainer, range.endOffset);
     while(editor._cut_buffer.firstChild)
         editor._cut_buffer.removeChild(editor._cut_buffer.firstChild);
-    if (start_caret.node instanceof editor.my_window.Attr) {
+    if (isAttr(start_caret.node)) {
         var attr = start_caret.node;
         if (attr !== end_caret.node)
             throw new Error("attribute selection that does not start " +
@@ -190,8 +191,9 @@ function cut(editor, data) {
         var nodes = cut_ret[1];
         var parser = new editor.my_window.DOMParser();
         var doc = parser.parseFromString("<div></div>", "text/xml");
-        for(var i = 0, limit = nodes.length; i < limit; ++i)
-            doc.firstChild.appendChild(nodes[i]);
+        for(var i = 0, limit = nodes.length; i < limit; ++i) {
+            doc.firstChild.appendChild(doc.adoptNode(nodes[i]));
+        }
         editor._cut_buffer.textContent = doc.firstChild.innerHTML;
         editor.setDataCaret(cut_ret[0]);
     }
@@ -224,7 +226,7 @@ function paste(editor, data) {
     // Handle the case where we are pasting only text.
     if (to_paste.childNodes.length === 1 &&
         to_paste.firstChild.nodeType === Node.TEXT_NODE) {
-        if (caret.node.nodeType === Node.ATTRIBUTE_NODE) {
+        if (isAttr(caret.node)) {
             var gui_caret = editor.getGUICaret();
             editor._spliceAttribute(
                 closestByClass(gui_caret.node, "_attribute_value",

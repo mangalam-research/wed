@@ -6,20 +6,20 @@
     ]
   ],
   "_from": "lodash-amd@>=4.0.0 <5.0.0",
-  "_id": "lodash-amd@4.6.1",
+  "_id": "lodash-amd@4.11.1",
   "_inCache": true,
   "_installable": true,
   "_location": "/lodash-amd",
   "_nodeVersion": "5.5.0",
   "_npmOperationalInternal": {
-    "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/lodash-amd-4.6.1.tgz_1456902105237_0.7625879966653883"
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/lodash-amd-4.11.1.tgz_1460618277396_0.5989776086062193"
   },
   "_npmUser": {
     "email": "john.david.dalton@gmail.com",
     "name": "jdalton"
   },
-  "_npmVersion": "2.14.17",
+  "_npmVersion": "2.15.3",
   "_phantomChildren": {},
   "_requested": {
     "name": "lodash-amd",
@@ -32,8 +32,8 @@
   "_requiredBy": [
     "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/lodash-amd/-/lodash-amd-4.6.1.tgz",
-  "_shasum": "7bece2cb0e9bfd56b35a0f3b0cbc8477a259750b",
+  "_resolved": "https://registry.npmjs.org/lodash-amd/-/lodash-amd-4.11.1.tgz",
+  "_shasum": "b316992bcc08bfbc0972f7b2e270d9cd50e179c3",
   "_shrinkwrap": null,
   "_spec": "lodash-amd@>=4 <5",
   "_where": "/home/ldd/src/git-repos/wed",
@@ -67,8 +67,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "7bece2cb0e9bfd56b35a0f3b0cbc8477a259750b",
-    "tarball": "http://registry.npmjs.org/lodash-amd/-/lodash-amd-4.6.1.tgz"
+    "shasum": "b316992bcc08bfbc0972f7b2e270d9cd50e179c3",
+    "tarball": "https://registry.npmjs.org/lodash-amd/-/lodash-amd-4.11.1.tgz"
   },
   "homepage": "https://lodash.com/custom-builds",
   "keywords": [
@@ -103,5 +103,5 @@
   "scripts": {
     "test": "echo \"See https://travis-ci.org/lodash/lodash-cli for testing details.\""
   },
-  "version": "4.6.1"
+  "version": "4.11.1"
 }

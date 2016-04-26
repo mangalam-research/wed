@@ -115,13 +115,8 @@ packages:
 * rst2html
 * perl (a stop-gap measure which we plan to get rid of eventually)
 
-Running wed's selenium-based tests **additionally** requires the
-following:
-
-* Python 2.7.
-* Python's Selenium package.
-* `selenic <http://github.com/mangalam-research/selenic>`_
-* behave (the python package)
+Running wed's selenium-based tests **additionally** requires Python
+2.7 and the packages listed in ``dev_requirements.txt``.
 
 If you want to contribute to wed, your code will have to pass the
 checks listed in :github:`.glerbl/repo_conf.py`. So you either have to
