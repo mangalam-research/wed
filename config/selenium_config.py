@@ -13,6 +13,17 @@ import selenic
 filename = inspect.getframeinfo(inspect.currentframe()).filename
 dirname = os.path.dirname(os.path.abspath(filename))
 
+# Support for older versions of our build setup which do not use builder_args
+if 'builder_args' not in globals():
+    builder_args = {
+        # The config is obtained from the TEST_BROWSER environment variable.
+        'browser': os.environ.get("TEST_BROWSER", None),
+        'service': "saucelabs"
+    }
+
+if 'REMOTE_SERVICE' not in globals():
+    REMOTE_SERVICE = builder_args.get("service")
+
 #
 # LOGS determines whether Selenium tests will capture logs. Turning it
 # on makes the tests much slower.
@@ -28,12 +39,14 @@ dirname = os.path.dirname(os.path.abspath(filename))
 if "LOGS" not in globals():
     LOGS = False
 
-# If we are running in something like Buildbot or Jenkins, we don't
-# want to have the logs be turned on because we forgot to turn them
-# off. So unless LOGS is set to "force", we turn off the logs when
-# running in that environment.
-if LOGS and LOGS != "force" and \
-   (os.environ.get('BUILDBOT') or os.environ.get('JENKINS_HOME')):
+# Detect whether we are running in a builder like Buildbot. (Note that
+# this is unrelated to selenic's Builder class.)
+in_builder = os.environ.get('BUILDBOT')
+
+# If we are running in a builder, we don't want to have the logs be
+# turned on because we forgot to turn them off. So unless LOGS is set
+# to "force", we turn off the logs when running in that environment.
+if LOGS and LOGS != "force" and in_builder:
     LOGS = False
 
 
@@ -64,24 +77,48 @@ with open("package.json") as pk:
 version = version_data["version"]
 
 caps = {
+    "name": name,
     # We have to turn this on...
     "nativeEvents": True,
-    "name": name,
-    "selenium-version": "2.48.2",
     # We cannot yet use 2.14 due to the change in how an element's
     # center is determined.
     #
     # AND SEE BELOW FOR A SPECIAL CASE.
     #
-    "chromedriver-version": "2.20",
     "build": "version: " + version + ", git describe: " + describe
 }
 
-if not LOGS:
-    caps["record-screenshots"] = "false"
-    caps["record-video"] = "false"
-    caps["record-logs"] = "false"
-    caps["sauce-advisor"] = "false"
+selenium_version = "2.48.2"
+
+if REMOTE_SERVICE == "saucelabs":
+    caps.update({
+        "selenium-version": selenium_version,
+        "chromedriver-version": "2.20",
+    })
+
+    if not LOGS:
+        caps.update({
+            "record-screenshots": "false",
+            "record-video": "false",
+            "record-logs": "false",
+            "sauce-advisor": "false"
+        })
+
+elif REMOTE_SERVICE == "browserstack":
+    caps.update({
+        'project': 'Wed',
+        'browserstack.selenium_version': selenium_version,
+    })
+
+    if LOGS:
+        caps.update({
+            'browserstack.debug': True
+        })
+    else:
+        caps.update({
+            'browserstack.video': False
+        })
+
 
 with open(os.path.join(dirname, "./browsers.txt")) as browsers:
     for line in browsers.readlines():
@@ -103,7 +140,8 @@ with open(os.path.join(dirname, "./browsers.txt")) as browsers:
             if parts[0].lower().startswith("windows ") and \
                parts[1].lower() == "ch" and parts[2] == "39":
                 caps = dict(caps)
-                caps["chromedriver-version"] = "2.12"
+                if REMOTE_SERVICE == "saucelabs":
+                    caps["chromedriver-version"] = "2.12"
 
             # Here we add the capabilities to the arguments we use to
             # call Config.
@@ -112,75 +150,74 @@ with open(os.path.join(dirname, "./browsers.txt")) as browsers:
         else:
             raise ValueError("bad line: " + line)
 
-# Support for older versions of our build setup which do not use builder_args
-if 'builder_args' not in globals():
-    builder_args = {
-        # The config is obtained from the TEST_BROWSER environment variable.
-        'browser': os.environ.get("TEST_BROWSER", None)
-    }
-
 # The 'browser' argument determines what browser we load.
-browser_env = builder_args.get('browser', None)
-if browser_env:
-    # When invoked from a Jenkins setup, the spaces that would
-    # normally appear in names like "Windows 8.1" will appear as
-    # underscores instead. And the separators will be "|" rather than
-    # ",".
-    parts = re.split(r"[,|]", browser_env.replace("_", " "))
-    CONFIG = selenic.get_config(
-        platform=parts[0] or None, browser=parts[1] or None,
-        version=parts[2] or None)
+browser_env = builder_args.get(
+    'browser',
+    # Yep, we now have a default! But not when we are running in a builder.
+    # In a builder we have to explicitly tell what browser we want.
+    'Linux,CH,' if not in_builder else None)
 
-    if CONFIG.browser == "CHROME":
-        CHROME_OPTIONS = Options()
-        #
-        # This prevents getting message shown in Chrome about
-        # --ignore-certificate-errors
-        #
-        # --test-type is an **experimental** option. Reevaluate this
-        # use.
-        #
-        CHROME_OPTIONS.add_argument("test-type")
+if browser_env is None:
+    raise ValueError("you must specify a browser to run")
 
-        #
-        # We force touch-events to be enabled. Why? At some point
-        # along the line, Chrome gained the ability to tell whether
-        # there is touch-enabled hardware on Debian. It is unclear
-        # what gave it this capability. (It is not based on Chrome's
-        # version as version 43 used to not detect touch capabilities
-        # on Debian but later gained the capability. Is it an upgrade
-        # to Gnome that made the difference??)
-        #
-        # Bootstrap does things differently depending on whether touch
-        # events are available or not. Unfortunately an Xvfb session
-        # won't report touch to be available even if the host X server
-        # supports it. So we force it to be able to test for it. Touch
-        # is becoming mainstream.
-        #
-        CHROME_OPTIONS.add_argument("touch-events")
+parts = [part or None for part in browser_env.split(",")]
+CONFIG = selenic.get_config(platform=parts[0], browser=parts[1],
+                            version=parts[2])
 
-    profile = FirefoxProfile()
-    # profile.set_preference("webdriver.log.file",
-    #                        "/tmp/firefox_webdriver.log")
-    # profile.set_preference("webdriver.firefox.logfile",
-    #                         "/tmp/firefox.log")
+if CONFIG.browser == "CHROME":
+    CHROME_OPTIONS = Options()
+    #
+    # This prevents getting message shown in Chrome about
+    # --ignore-certificate-errors
+    #
+    # --test-type is an **experimental** option. Reevaluate this
+    # use.
+    #
+    CHROME_OPTIONS.add_argument("test-type")
 
     #
-    # This turns off the downloading prompt in FF.
+    # We force touch-events to be enabled. Why? At some point
+    # along the line, Chrome gained the ability to tell whether
+    # there is touch-enabled hardware on Debian. It is unclear
+    # what gave it this capability. (It is not based on Chrome's
+    # version as version 43 used to not detect touch capabilities
+    # on Debian but later gained the capability. Is it an upgrade
+    # to Gnome that made the difference??)
     #
-    tmp_path = "selenium_tests/tmp"
+    # Bootstrap does things differently depending on whether touch
+    # events are available or not. Unfortunately an Xvfb session
+    # won't report touch to be available even if the host X server
+    # supports it. So we force it to be able to test for it. Touch
+    # is becoming mainstream.
+    #
+    CHROME_OPTIONS.add_argument("touch-events")
+
+profile = FirefoxProfile()
+# profile.set_preference("webdriver.log.file",
+#                        "/tmp/firefox_webdriver.log")
+# profile.set_preference("webdriver.firefox.logfile",
+#                         "/tmp/firefox.log")
+
+#
+# This turns off the downloading prompt in FF.
+#
+tmp_path = "selenium_tests/tmp"
+shutil.rmtree(tmp_path, True)
+os.makedirs(tmp_path)
+profile.set_preference("browser.download.folderList", 2)
+profile.set_preference("browser.download.manager.showWhenStarting",
+                       False)
+profile.set_preference("browser.download.dir", tmp_path)
+profile.set_preference(
+    "browser.helperApps.neverAsk.saveToDisk", "text/xml")
+FIREFOX_PROFILE = profile
+
+
+def post_execution():
     shutil.rmtree(tmp_path, True)
-    os.makedirs(tmp_path)
-    profile.set_preference("browser.download.folderList", 2)
-    profile.set_preference("browser.download.manager.showWhenStarting",
-                           False)
-    profile.set_preference("browser.download.dir", tmp_path)
-    profile.set_preference(
-        "browser.helperApps.neverAsk.saveToDisk", "text/xml")
-    FIREFOX_PROFILE = profile
 
-    def post_execution():
-        shutil.rmtree(tmp_path, True)
+if CONFIG.remote and not REMOTE_SERVICE:
+    raise ValueError("you must pass a service argument to behave")
 
 # May be required to get native events.
 # FIREFOX_BINARY = FirefoxBinary("/home/ldd/src/firefox-24/firefox")

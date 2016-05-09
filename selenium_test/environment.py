@@ -5,7 +5,6 @@ import subprocess
 import atexit
 import signal
 import threading
-import shutil
 import datetime
 import httplib
 
@@ -43,8 +42,7 @@ def cleanup(context, failed):
                           "on-success"))
     if driver:
         try:
-            builder.set_test_status(
-                driver.session_id, not (failed or context.failed))
+            builder.set_test_status(not (failed or context.failed))
         except httplib.HTTPException:
             # Ignore cases where we can't set the status.
             pass
@@ -64,13 +62,15 @@ def cleanup(context, failed):
                 pass
         context.driver = None
 
+    if context.tunnel_id:
+        # The tunnel was created by selenic, ask selenic to kill it.
+        builder.stop_tunnel()
+        context.tunnel_id = None
+
     if context.tunnel:
+        # Tunnel created by us...
         context.tunnel.send_signal(signal.SIGTERM)
         context.tunnel = None
-
-    if context.sc_tunnel_tempdir:
-        shutil.rmtree(context.sc_tunnel_tempdir, True)
-        context.sc_tunnel_tempdir = None
 
     if actually_quit:
         if context.wm:
@@ -91,8 +91,7 @@ def cleanup(context, failed):
 
 def start_server(context):
     builder = context.builder
-    port = outil.get_unused_port() if not builder.remote else \
-        outil.get_unused_sauce_port()
+    port = builder.get_unused_port()
 
     if port is None:
         raise Exception("unable to find a port for the server")
@@ -169,12 +168,11 @@ def before_all(context):
     context.display = None
     context.server = None
     context.tunnel = None
-    context.sc_tunnel_tempdir = None
+    context.tunnel_id = None
 
     context.selenium_quit = os.environ.get("SELENIUM_QUIT")
     userdata = context.config.userdata
     context.builder = builder = Builder(conf_path, userdata)
-    desired_capabilities = {}
     ssh_tunnel = None
     dump_config(builder)
 
@@ -219,13 +217,11 @@ def before_all(context):
 
         ssh_tunnel = builder.WED_SSH_TUNNEL
         if not ssh_tunnel:
-            sc_tunnel_id = os.environ.get("SC_TUNNEL_ID")
-            if not sc_tunnel_id:
-                user, key = builder.SAUCELABS_CREDENTIALS.split(":")
-                context.tunnel, sc_tunnel_id, \
-                    context.sc_tunnel_tempdir = \
-                    outil.start_sc(builder.SC_TUNNEL_PATH, user, key)
-            desired_capabilities["tunnel-identifier"] = sc_tunnel_id
+            tunnel_id = os.environ.get("TUNNEL_ID")
+            if not tunnel_id:
+                context.tunnel_id = builder.start_tunnel()
+            else:
+                builder.set_tunnel_id(tunnel_id)
         else:
             context.tunnel = \
                 subprocess.Popen(
@@ -233,7 +229,7 @@ def before_all(context):
                      "-R", str(ssh_tunnel["ssh_port"]) + ":localhost:" +
                      context.server_port, "-N"])
 
-    driver = builder.get_driver(desired_capabilities)
+    driver = builder.get_driver()
     context.driver = driver
     context.util = selenic.util.Util(driver,
                                      # Give more time if we are remote.

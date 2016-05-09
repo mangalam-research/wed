@@ -19,6 +19,19 @@ Wed is released under the `Mozilla Public License version 2.0
 <http://www.mozilla.org/MPL/2.0/>`_. Copyright 2013, 2014 Mangalam
 Research Center for Buddhist Languages, Berkeley, CA.
 
+Acknowledgments
+===============
+
+.. image:: https://www.browserstack.com/images/mail/browserstack-logo-footer.png
+   :target: https://www.browserstack.com
+
+Wed is tested using `BrowserStack
+<https://www.browserstack.com>`_. BrowserStack provides this service for
+free under their program for supporting open-source software.
+
+Wed is also tested using `Sauce Labs <https://saucelabs.com/>`_.  Sauce
+Labs provides this service for free under their Open Sauce program.
+
 Credits
 =======
 
