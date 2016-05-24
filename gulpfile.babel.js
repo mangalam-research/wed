@@ -425,9 +425,8 @@ gulp.task("rst-doc", () =>
               const dest = file.path.substr(
                   0, file.path.length - path.extname(file.path).length) +
                         ".html";
-              exec(`${options.rst2html} ${file.path} | perl -np -e ` +
-                   `'s/href="(.*?)\.rst(#.*?)"/href="$$1.html$$2"/g'` +
-                   ` > ${dest}`).asCallback(callback);
+              exec(`${options.rst2html} ${file.path}` +
+                   ` ${dest}`).asCallback(callback);
           })));
 
 gulp.task("default", ["build"]);
