@@ -42,7 +42,8 @@ abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd abcd \
 abcd \
 abcd abcd abcd abcd abcd abcd abcd abcd</p>\
 <p rend="rend_value" style="style_value">Blah</p><p rend="abc">Blah</p>\
-<p part="">Blah</p><div sample=""/><p rend="foo"/><p><monogr>\
+<p part="">Blah</p><div sample=""/><p rend="foo"/><p rend="wrap">Something</p>\
+<p><monogr>\
 This paragraph and its content are designed to test how error markers \
 are shown for inline elements that end up spanning multiple lines. \
 This paragraph and its content are designed to test how error markers \

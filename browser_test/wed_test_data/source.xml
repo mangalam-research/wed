@@ -27,6 +27,7 @@
       <div sample="">
       </div>
       <p rend="foo"></p>
+      <p rend="wrap">Something</p>
       <p><monogr>This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines. This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines. This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines.</monogr></p>
     </body>
   </text>

@@ -4,6 +4,12 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.26.3:
+
+  - When getting a data node from a ``_phantom_wrap`` element, the
+    caret coversion logic now moves into the ``_phantom_wrap`` to find
+    the real element. This is not considered a caret approximation.
+
 * 0.26.2:
 
   - In Chrome 50, the values returned by Region.getBoundingClientRect
