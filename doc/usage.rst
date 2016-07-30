@@ -283,8 +283,9 @@ To include wed in a web page you must:
   + ``save``: See the documentation about :ref:`saving <saving>`.
 
   + ``ignore_module_config``: This tells wed to not try to get a
-    configuration from RequireJS' ``module.config()``. This may be
-    necessary to handle some configuration scenarios.
+    configuration from RequireJS' ``module.config()`` or from the
+    configuration module named ``wed/config``. This may be necessary
+    to handle some configuration scenarios.
 
   The ``data`` parameter is a string containing the document to edit,
   in XML format.
@@ -305,12 +306,78 @@ The ``mode.options`` will be passed to the generic mode when it is
 created. What options are accepted and what they mean is determined by
 each mode.
 
+Sources of Configuration
+------------------------
+
+Besides the ``options`` object that can be passed directly to a new
+``Editor`` instance (described above), it is possible to pass
+configuration to wed using two mechanisms:
+
+* You can create a module with the name ``wed/config``. This module
+  should export a single ``config`` symbol at the top level. This
+  symbol should contain the same configuration structure as mentioned
+  above. For instance::
+
+        define("wed/config", {
+          config: {
+            schema: 'test/tei-simplified-rng.js',
+            mode: {
+              path: 'wed/modes/generic/generic',
+              options: {
+                meta: 'test/tei-meta'
+              }
+            }
+          }
+        });
+
+* You can use RequireJS' module config facility. The configuration for
+  wed editors must be under the ``wed/wed`` key. For instance::
+
+        require.config({
+          config: {
+            'wed/wed': {
+              schema: 'test/tei-simplified-rng.js',
+              mode: {
+                path: 'wed/modes/generic/generic',
+                options: {
+                  meta: 'test/tei-meta'
+                }
+              }
+            }
+          }
+        });
+
+.. warning:: Using RequireJS' module config facility is
+             deprecated. Support for it will eventually be removed. Use
+             the ``wed/config`` module instead.
+
+             You cannot use RequireJS' module config facility *at the
+             same time* as the ``wed/config`` module. If yyou use
+             ``wed/config``, then RequireJS' module config facility
+             will be completely ignored.
+
+Errors
+======
+
 The :github:`lib/wed/onerror.js` module installs a global onerror
 handler. By default it calls whatever onerror handler already existed
 at the time of installation. Sometimes this is not the desired
 behavior (for instance when testing with mocha). In such cases the
 ``suppress_old_onerror`` option set to a true value will prevent the
 module from calling the old onerror.
+
+If you are using the ``wed/config`` module, the option is set like this::
+
+    define("wed/config", {
+      config: {
+        onerror: {
+          suppress_old_onerror: true
+        }
+      }
+    });
+
+If you are using the deprecated RequireJS module config, you must set
+``suppress_old_onerror`` under ``wed/onerror`` (not ``wed/wed``!!!).
 
 .. warning:: Wed installs its own handler so that if any error occurs
              it knows about it, attempts to save the data and forces

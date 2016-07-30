@@ -89,7 +89,12 @@ FW.prototype.create = function (done) {
         me.log_buffer.push(Array.prototype.slice.call(arguments));
     });
     vc.on("jsdomError", function (er) {
-       throw er;
+        // We do not report these. This will happen when using RequireJS'
+        // optional! plugin.
+        if (er.message.lastIndexOf("Could not load script", 0) === 0) {
+            return;
+        }
+        throw er;
     });
     jsdom.env({
         html: html,

@@ -6,6 +6,16 @@ Only salient changes are recorded here.
 
 * 0.26.3:
 
+  - Wed now supports passing configuration through a module named
+    ``wed/config`` rather than through RequireJS' configuration. See
+    the documentation for details as to how to upgrade to the new
+    method.
+
+  - Deprecation: Passing configuration to wed through RequireJS'
+    configuration is deprecated and support for it will be removed
+    eventually. This way of passing configuration is not supported by
+    other loaders.
+
   - When getting a data node from a ``_phantom_wrap`` element, the
     caret coversion logic now moves into the ``_phantom_wrap`` to find
     the real element. This is not considered a caret approximation.

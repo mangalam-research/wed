@@ -273,6 +273,8 @@ npm_copy_task("text-plugin", "requirejs-text/text.js", "requirejs");
 
 npm_copy_task("requirejs/require.js", "requirejs");
 
+npm_copy_task("optional-plugin", "requirejs-optional/optional.js", "requirejs");
+
 npm_copy_task("typeahead", "typeahead.js/dist/typeahead.bundle.min.js");
 
 npm_copy_task("pubsub", "pubsub-js/src/pubsub.js");
@@ -390,8 +392,7 @@ gulp.task("build-optimized-config", ["config"],
         return;
 
     yield mkdirpAsync(path.dirname(optimized_config));
-    yield exec(`node ${script} --skip lodash ${config} ` +
-               `${build_config} > ${optimized_config}`);
+    yield exec(`node ${script} ${config} > ${optimized_config}`);
 }));
 
 function* build_standalone_optimized() {

@@ -16,7 +16,10 @@ describe("onbeforeunload", function () {
         // Leak into the global space.
         global.window = {};
         requirejs.config({
-            baseUrl: __dirname + '/../../../build/standalone/lib'
+            baseUrl: __dirname + '/../../../build/standalone/lib',
+            paths: {
+                optional: "requirejs/optional",
+            }
         });
         onbeforeunload = requirejs("wed/onbeforeunload");
     });

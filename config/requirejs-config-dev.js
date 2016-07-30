@@ -16,6 +16,7 @@ require.config({
    'pubsub-js': 'external/pubsub',
    xregexp: 'external/xregexp',
    text: 'requirejs/text',
+   optional: 'requirejs/optional',
    localforage: 'external/localforage',
    async: 'external/async',
    angular: 'external/angular',
@@ -77,35 +78,36 @@ require.config({
        exports: 'Bloodhound'
    }
  },
- config: {
-     'wed/wed': {
-         schema: '../../../schemas/tei-simplified-rng.js',
-         mode: {
-             path: 'wed/modes/generic/generic',
-             options: {
-                 meta: {
-                     path: 'wed/modes/generic/metas/tei_meta',
-                     options: {
-                         metadata: '../../../../../schemas/tei-metadata.json'
-                     }
-                 }
-             }
-         },
-         // You certainly do not want this in actual deployment.
-         ajaxlog: {
-             url: "/build/ajax/log.txt"
-         },
-         // You certainly do not want this in actual deployment.
-         save: {
-             path: 'wed/savers/ajax',
-             options: {
-                 url: "/build/ajax/save.txt"
-             }
-         }
-     }
- },
  waitSeconds: 12,
  enforceDefine: true
+});
+
+define("wed/config", {
+    config: {
+        schema: '../../../schemas/tei-simplified-rng.js',
+        mode: {
+            path: 'wed/modes/generic/generic',
+            options: {
+                meta: {
+                    path: 'wed/modes/generic/metas/tei_meta',
+                    options: {
+                        metadata: '../../../../../schemas/tei-metadata.json'
+                    }
+                }
+            }
+        },
+        // You certainly do not want this in actual deployment.
+        ajaxlog: {
+            url: "/build/ajax/log.txt"
+        },
+        // You certainly do not want this in actual deployment.
+        save: {
+            path: 'wed/savers/ajax',
+            options: {
+                url: "/build/ajax/save.txt"
+            }
+        }
+    }
 });
 
 //  LocalWords:  popup onerror findandself jQuery Dubeau MPL Mangalam
