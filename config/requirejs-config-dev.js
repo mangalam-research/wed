@@ -7,6 +7,7 @@ require.config({
  baseUrl: 'lib/',
  paths: {
    browser_test: '../../../browser_test',
+   'test-files': '../../test-files/',
    jquery: 'external/jquery',
    bootstrap: 'external/bootstrap/js/bootstrap.min',
    log4javascript: 'external/log4javascript',

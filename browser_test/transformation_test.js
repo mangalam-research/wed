@@ -6,8 +6,8 @@
 define(["mocha/mocha", "chai", "jquery", "wed/wed",
         "wed/domutil", "wed/onerror", "wed/log",
         "wed/dloc", "wed/util", "salve/validate", "wed/transformation",
-        "requirejs/text!../../build/schemas/tei-simplified-rng.js",
-        "requirejs/text!../../build/test-files/wed_test_data/" +
+        "text!../../build/schemas/tei-simplified-rng.js",
+        "text!../../build/test-files/wed_test_data/" +
         "source_converted.xml"],
        function (mocha, chai, $, wed, domutil,
                  onerror, log, dloc, util, validate, transformation,

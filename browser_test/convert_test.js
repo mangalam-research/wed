@@ -27,20 +27,19 @@ describe("convert", function () {
 
     function makeTest(name, differs_on_IE) {
         var converted_name = name.replace(/ /g, '-');
-        var source_path = "../../test-files/convert_test_data/" +
+        var source_path = "test-files/convert_test_data/" +
                 converted_name + ".xml";
 
         // If the test differs on IE and we are on IE, then
         // add -ie to the basename.
-        var expected_path = "../../test-files/convert_test_data/" +
+        var expected_path = "test-files/convert_test_data/" +
                 converted_name +
                 ((differs_on_IE && browsers.MSIE) ? "-ie": "") +
                 ".html";
 
         describe("", function () {
             before(function () {
-                reqs = ["requirejs/text!" + source_path,
-                        "requirejs/text!" + expected_path];
+                reqs = ["text!" + source_path, "text!" + expected_path];
             });
 
             it(name, function (done) {

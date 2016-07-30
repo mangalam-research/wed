@@ -356,11 +356,11 @@ describe("domutil", function () {
     });
 
     describe("splitTextNode", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var root;
         var parser = new window.DOMParser();
         beforeEach(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 root = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -401,11 +401,11 @@ describe("domutil", function () {
     });
 
     describe("insertIntoText", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var root;
         var parser = new window.DOMParser();
         beforeEach(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 root = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -584,11 +584,11 @@ describe("domutil", function () {
     });
 
     describe("insertText", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var root;
         var parser = new window.DOMParser();
         beforeEach(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 root = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -651,11 +651,11 @@ describe("domutil", function () {
     });
 
     describe("deleteText", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var root;
         var parser = new window.DOMParser();
         beforeEach(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 root = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -682,11 +682,11 @@ describe("domutil", function () {
     });
 
     describe("firstDescendantOrSelf", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var root;
         var parser = new window.DOMParser();
         before(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 root = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -718,11 +718,11 @@ describe("domutil", function () {
     });
 
     describe("correspondingNode", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var root;
         var parser = new window.DOMParser();
         before(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 root = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -747,11 +747,11 @@ describe("domutil", function () {
     });
 
     describe("linkTrees", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var doc;
         var parser = new window.DOMParser();
         before(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 doc = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -799,11 +799,11 @@ describe("domutil", function () {
     });
 
     describe("genericCutFunction", function () {
-        var source = '../../test-files/domutil_test_data/source_converted.xml';
+        var source = 'test-files/domutil_test_data/source_converted.xml';
         var root;
         var parser = new window.DOMParser();
         beforeEach(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 root = parser.parseFromString(data, "application/xml");
                 done();
             });
@@ -1141,12 +1141,11 @@ describe("domutil", function () {
     });
 
     describe("dataFind/dataFindAll", function () {
-        var source =
-            '../../test-files/domutil_test_data/dataFind_converted.xml';
+        var source = 'test-files/domutil_test_data/dataFind_converted.xml';
         var data_root;
         var gui_root;
         before(function (done) {
-            require(["requirejs/text!" + source], function(data) {
+            require(["text!" + source], function(data) {
                 var parser = new window.DOMParser();
                 var data_doc = parser.parseFromString(data, "application/xml");
                 data_root = data_doc.firstChild;

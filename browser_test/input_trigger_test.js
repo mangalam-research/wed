@@ -6,9 +6,8 @@
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
         "wed/transformation", "salve/validate", "browser_test/global",
-        "requirejs/text!../../build/schemas/tei-simplified-rng.js",
-        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
-        "source_converted.xml"],
+        "text!../../build/schemas/tei-simplified-rng.js",
+        "text!test-files/input_trigger_test_data/source_converted.xml"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
          input_trigger_factory, transformation, validate, global, schema,
          source) {

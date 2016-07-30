@@ -6,13 +6,10 @@
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
         "wed/wed", "wed/key", "wed/key_constants", "salve/validate",
         "browser_test/global", "wed/onerror",
-        "requirejs/text!../../build/schemas/tei-simplified-rng.js",
-        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
-        "source_converted.xml",
-        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
-        "source2_converted.xml",
-        "requirejs/text!../../build/test-files/input_trigger_test_data/" +
-        "source3_converted.xml"],
+        "text!../../build/schemas/tei-simplified-rng.js",
+        "text!test-files/input_trigger_test_data/source_converted.xml",
+        "text!test-files/input_trigger_test_data/source2_converted.xml",
+        "text!test-files/input_trigger_test_data/source3_converted.xml"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants,
           validate, global, onerror, schema, generic_src, source2, source3) {
 'use strict';

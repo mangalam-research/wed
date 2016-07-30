@@ -7,10 +7,10 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
         "wed/key", "wed/dloc", "wed/util", "salve/validate",
         "wed/browsers",
-        "requirejs/text!../../build/test-files/wed_test_data/" +
-        "source_converted.xml"],
+        "text!test-files/wed_test_data/source_converted.xml", "require"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util, validate, browsers, source) {
+                onerror, log, key, dloc, util, validate, browsers, source,
+                require) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -34,7 +34,7 @@ var assert = chai.assert;
 
 var wedframe = window.parent.document.getElementById("wedframe");
 var wedwin = wedframe.contentWindow;
-var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
+var src_stack = ["test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];
 
 function caretCheck(editor, container, offset, msg) {
@@ -217,7 +217,7 @@ describe("wed", function () {
         var force_reload = false;
         var editor;
         beforeEach(function (done) {
-            require(["requirejs/text!" + src_stack[0]], function(data) {
+            require(["text!" + src_stack[0]], function(data) {
                 editor = new wed.Editor();
                 editor.addEventListener("initialized", function () {
                     done();
@@ -2133,7 +2133,7 @@ describe("wed", function () {
                 new_options.schema = '../../../schemas/simplified-rng.js';
                 option_stack.unshift(new_options);
                 src_stack.unshift(
-                    '../../test-files/wed_test_data/wildcard_converted.xml');
+                    'test-files/wed_test_data/wildcard_converted.xml');
             });
 
             after(function () {
@@ -2320,7 +2320,7 @@ describe("wed", function () {
 
         describe("interacts with the server:", function () {
             before(function () {
-                src_stack.unshift("../../test-files/wed_test_data" +
+                src_stack.unshift("test-files/wed_test_data" +
                                   "/server_interaction_converted.xml");
             });
 
@@ -2463,7 +2463,7 @@ describe("wed", function () {
 
         describe("fails as needed and recovers:", function () {
             before(function () {
-                src_stack.unshift("../../test-files/wed_test_data/" +
+                src_stack.unshift("test-files/wed_test_data/" +
                                   "server_interaction_converted.xml");
             });
 
