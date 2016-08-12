@@ -20,6 +20,11 @@ Only salient changes are recorded here.
     caret coversion logic now moves into the ``_phantom_wrap`` to find
     the real element. This is not considered a caret approximation.
 
+  - The DOM element which wraps the title of a modal dialog created
+    through wed nows bears the ``modal-title`` class name. This allows
+    isolating the modal title from the close button which is also
+    included in the element that has the class ``modal-header``.
+
 * 0.26.2:
 
   - In Chrome 50, the values returned by Region.getBoundingClientRect
