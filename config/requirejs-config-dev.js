@@ -33,6 +33,14 @@ require.config({
          location: "external/lodash"
      }
  ],
+ map: {
+   "*": {
+     bootstrap: "wed/patches/bootstrap",
+   },
+   "wed/patches/bootstrap": {
+     bootstrap: "bootstrap",
+   },
+ },
  shim: {
    xregexp: {
      // RequireJS wants to have this here even if the ``init`` field

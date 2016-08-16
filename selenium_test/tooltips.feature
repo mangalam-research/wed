@@ -11,6 +11,12 @@ Scenario: a tooltip comes up when the user moves the mouse on a start label
   When the user moves the mouse over a start label
   Then a tooltip comes up
 
+Scenario: a tooltip disappears when the user moves the mouse off of a start label
+  When the user moves the mouse over a start label
+  Then a tooltip comes up
+  When the user moves the mouse off the start label
+  Then there are no tooltips
+
 Scenario: a tooltip disappears when the user types ESCAPE
   When the user moves the mouse over a start label
   Then a tooltip comes up

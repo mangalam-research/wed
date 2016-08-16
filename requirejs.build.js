@@ -36,7 +36,8 @@
                 "async",
                 "angular",
                 "bootbox",
-                "typeahead"
+                "typeahead",
+                "wed/patches/bootstrap",
             ]
         }
     ],

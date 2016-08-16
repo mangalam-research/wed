@@ -6,6 +6,10 @@ Only salient changes are recorded here.
 
 * 0.26.3:
 
+  - Wed works around a bug with tooltips and popovers in Bootstrap
+    3.3.7 whereby destroying a tooltip or popover more than once would
+    cause a crash. (See https://github.com/twbs/bootstrap/issues/20511).
+
   - Wed now supports passing configuration through a module named
     ``wed/config`` rather than through RequireJS' configuration. See
     the documentation for details as to how to upgrade to the new
