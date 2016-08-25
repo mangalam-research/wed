@@ -61,23 +61,28 @@
           focus_popup: true, // For testing only.
         };
 
-        config.onerror = {
-          suppress_old_onerror: true, // For testing only.
-        };
-
         config.test = true;
 
         require(["jquery", "mocha/mocha", "chai", "browser_test/global",
-               "wed/onerror", "urijs/URI"], start);
+               "wed/onerror", "urijs/URI", "last-resort"], start);
       });
 
-      function start($, mocha, chai, global, onerror, URI) {
+      function start($, mocha, chai, global, onerror, URI, lr) {
           var assert = chai.assert;
 
           // Reset the server before doing anything.
           before(function (done) {
+              // This eliminates the global 'uncaughtException' handler so
+              // that our own handler can detect errors and handle them.
+              mocha.Mocha.process.removeListener('uncaughtException');
               global.reset(done);
-              onerror.register(window);
+          });
+
+          beforeEach(function () {
+              // We want to reinstall with each test so that
+              // the state of the onError object is fresh.
+              var onError = lr.install(window, { force: true });
+              onError.register(onerror.handler);
           });
 
           afterEach(function () {
@@ -175,6 +180,7 @@
                     "browser_test/convert_test",
                     "browser_test/guiroot_test",
                     "browser_test/transformation_test"], function () {
+              mocha.mocha.allowUncaught();
               mocha.mocha.run();
           });
       }

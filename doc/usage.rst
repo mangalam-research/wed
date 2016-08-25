@@ -359,33 +359,28 @@ configuration to wed using two mechanisms:
 Errors
 ======
 
-The :github:`lib/wed/onerror.js` module installs a global onerror
-handler. By default it calls whatever onerror handler already existed
-at the time of installation. Sometimes this is not the desired
-behavior (for instance when testing with mocha). In such cases the
-``suppress_old_onerror`` option set to a true value will prevent the
-module from calling the old onerror.
+The :github:`lib/wed/onerror.js` module provides an error handler that
+could be used with `last-resort
+<https://github.com/lddubeau/last-resort>`_ or with any other error
+handler that can call a handler that takes a single argument which is
+an ``error`` DOM event. This handler tries to save the data in all
+editors that exist in the window. Here is an example that uses
+``last-resort``::
 
-If you are using the ``wed/config`` module, the option is set like this::
+    define(function (require) {
 
-    define("wed/config", {
-      config: {
-        onerror: {
-          suppress_old_onerror: true
-        }
-      }
-    });
+    var lr = require("last-resort");
+    var onerror = require("wed/onerror");
+    var onError = lr.install(window);
+    onError.register(onerror.handler);
+    //...
 
-If you are using the deprecated RequireJS module config, you must set
-``suppress_old_onerror`` under ``wed/onerror`` (not ``wed/wed``!!!).
-
-.. warning:: Wed installs its own handler so that if any error occurs
-             it knows about it, attempts to save the data and forces
-             the user to reload. The unfortunate upshot of this is
-             that any other JavaScript executing on a page where wed
-             is running could trip wed's onerror handler and cause wed
-             to think it crashed. For this reason you must not run
-             wed with JavaScript code that causes onerror to fire.
+.. warning:: **IF YOU DO NOT SET THE HANDLER TO BE CALLED ON UNCAUGHT
+             EXCEPTIONS, WED CANNOT DO ERROR RECOVERY.** Previous
+             versions of wed would automatically install a handler but
+             the problem with this is that it makes wed a bad player
+             when it is used on pages that already have their
+             handlers.
 
 Round-Tripping
 ==============

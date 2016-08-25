@@ -25,7 +25,9 @@ require.config({
    urijs: 'external/urijs',
    interact: 'external/interact.min',
    'merge-options': 'external/merge-options',
-   'is-plain-obj': 'external/is-plain-obj'
+   'is-plain-obj': 'external/is-plain-obj',
+   bluebird: 'external/bluebird',
+   'last-resort': 'external/last-resort',
  },
  packages: [
      {
@@ -36,6 +38,10 @@ require.config({
  map: {
    "*": {
      bootstrap: "wed/patches/bootstrap",
+     "last-resort": "wed/glue/last-resort",
+   },
+   "wed/glue/last-resort": {
+     "last-resort": "last-resort",
    },
    "wed/patches/bootstrap": {
      bootstrap: "bootstrap",

@@ -308,6 +308,10 @@ npm_copy_task("merge-options", "merge-options/index.js",
 npm_copy_task("is-plain-obj", "is-plain-obj/index.js",
               { rename: "is-plain-obj.js", wrap_amd: true });
 
+npm_copy_task("bluebird/js/browser/bluebird.js");
+
+npm_copy_task("last-resort/dist/last-resort.js**");
+
 gulp.task("build-info", Promise.coroutine(function* () {
     const dest = "build/standalone/lib/wed/build-info.js";
     const is_newer = yield newer(["lib/**", "!**/*_flymake.*"], dest);

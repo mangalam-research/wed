@@ -4,7 +4,20 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
-* 0.26.3:
+* 0.27.0:
+
+  - Fatal errors and recovery: previous versions of wed would
+    automatically install window-wide error handler that would trap
+    all unhandled exceptions. This had a few undesirable
+    side-effects. For one thing it would hinder integrating wed into
+    applications and pages that have their own error handling. **Wed
+    no longers install a global error handler.** An application using
+    wed should install its own global handler (for instance
+    `last-resort <https://github.com/lddubeau/last-resort>`_) and have
+    it call the handler exported by the ``wed/onerror`` module.
+
+    Consequently, wed configuration option ``suppress_old_onerror`` no
+    longer has any effect.
 
   - Wed works around a bug with tooltips and popovers in Bootstrap
     3.3.7 whereby destroying a tooltip or popover more than once would
