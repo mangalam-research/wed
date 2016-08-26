@@ -24,7 +24,8 @@ as an editor part of a larger web application **and** as a generic XML
 editor but it may take a few more releases before this happens.
 
 People who are actually editing documents using wed should read
-:doc:`help`.
+:doc:`help`. You should also read it if you want to know about which
+browsers wed supports.
 
 People who would like to customize wed or create a mode for it should
 consult:

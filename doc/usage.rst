@@ -8,6 +8,9 @@ project for editing scholarly articles. We aim to make it extensible
 by means of a stable API, but the API is likely to change quickly for
 now.
 
+Make sure to read :ref:`help_browser_requirements` to learn which
+browsers are supported by wed.
+
 Known limitations:
 
 * Wed does not load documents containing XML comments (``<!--
