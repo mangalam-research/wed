@@ -15,9 +15,29 @@ function captureConfigObject(config) {
     require.config = function (config) {
         captured = config;
     };
+
+    var wedConfig = undefined;
+    function define(name, obj) {
+        if (typeof name !== "string" ||
+            typeof obj !== "object" ||
+            name !== "wed/config" ||
+            arguments.length > 2) {
+            throw new Error("captureConfigObject is designed to capture only " +
+                            "a single define call that defines `wed/config`.");
+        }
+
+        if (wedConfig !== undefined) {
+            throw new Error("`wed/config` defined more than once");
+        }
+
+        wedConfig = obj;
+    }
     /* jshint evil: true */
     eval(config);
-    return captured;
+    return {
+        requireConfig: captured,
+        wedConfig: wedConfig
+    };
 }
 
 function fileAsString(p) {

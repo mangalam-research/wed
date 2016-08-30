@@ -7,9 +7,32 @@ var fileAsString = util.fileAsString;
 var ArgumentParser = require("argparse").ArgumentParser;
 
 var parser = new ArgumentParser({
-    version: "0.0.1",
+    version: "0.1.0",
     addHelp: true,
     description: 'Modifies a requirejs config file.'});
+
+//
+// This is a very ad-hoc tool designed to modify our stock requirejs
+// configuration to produce one suitable for the generated
+// documentation. It expects a file that contains only calls to:
+//
+// - require.config
+//
+// - define: this define call must appear only once and can only
+//   define "wed/config" and the value of the module must be an
+//   object.
+//
+//
+// Key names that begin with ``config`` perform manipulations of the
+// "wed/config" module. Otherwise, they perform manipulations of the
+// RequireJS configuration. (Note that because of this, this tool
+// cannot operate on the "config" part of a RequireJS
+// configuration. However, that way of configuring wed has been
+// deprecated, and wed's own codebase no longer uses it.)
+//
+// Functions may appear in the RequireJS configuration but not in
+// "wed/config".
+//
 
 parser.addArgument(["-d", "--delete"],
                    { help: "Delete a configuration key. Hierarchichal keys " +
@@ -31,17 +54,27 @@ if (/>>>F<<</.test(config_as_string)) {
     process.exit(1);
 }
 
+function deleteFrom(obj, parts) {
+    var step = obj;
+
+    parts.slice(0, -1).forEach(function (x) {
+        if (step) {
+            step = step[x];
+        }
+    });
+
+    if (step) {
+        delete step[parts[parts.length - 1]];
+    }
+}
+
 var config = captureConfigObject(config_as_string);
 if (args.del) {
     args.del.forEach(function (x) {
         var parts = x.split('.');
-        var step = config;
-        parts.slice(0, -1).forEach(function (x) {
-            if (step)
-                step = step[x];
-        });
-        if (step)
-            delete step[parts[parts.length - 1]];
+        deleteFrom(
+            config[parts[0] === "config" ? "wedConfig" : "requireConfig"],
+            parts);
     });
 }
 
@@ -71,9 +104,14 @@ function handler(key, value) {
     return value;
 }
 
-var pre = JSON.stringify(config, handler, 4);
+var pre = JSON.stringify(config.requireConfig, handler, 4);
 
 var post = pre.replace(new RegExp('"' + placeholder + '"', 'g'),
                        functions.shift.bind(functions));
 
 console.log("require.config(" + post + ");");
+
+if (config.wedConfig && Object.keys(config.wedConfig).length > 0) {
+    console.log("define(\"wed/config\", " +
+                JSON.stringify(config.wedConfig, undefined, 4) + ");");
+}
