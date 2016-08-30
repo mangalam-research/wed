@@ -31,67 +31,42 @@ var path = require("path");
 var util = require("./util");
 var ArgumentParser = require("argparse").ArgumentParser;
 
-var captureConfigObject = util.captureConfigObject;
 var fileAsString = util.fileAsString;
 
 var parser = new ArgumentParser({
-    version: "0.0.1",
+    version: "0.0.2",
     addHelp: true,
     description: 'Creates an optimized configuration from a base' +
-        ' configuration and the optimizer\'s build file.'});
+        ' configuration.'});
 
-parser.addArgument(["-k", "--skip"],
-                   { help: "Skip a module from processing.",
-                     action: "append",
-                     dest: "skip"});
+parser.addArgument(["--system"],
+                   { help: "Process a SystemJS configuration.",
+                     action: "storeTrue",
+                     dest: "system"});
 
 parser.addArgument(["config"]);
-parser.addArgument(["build"]);
 
 var args = parser.parseArgs();
 
 var config_file_path = args.config;
-var build_file_path = args.build;
 var config_file_text = fileAsString(config_file_path);
-var build_file_text = fileAsString(build_file_path);
 
-var config = captureConfigObject(config_file_text);
-
-/* jshint evil: true */
-var build = eval(build_file_text);
-
-var path_config = config.paths;
-if (build.modules) {
-    build.modules.forEach(function (module) {
-        if (args.skip.indexOf(module))
-            return;
-        //
-        // Scan each module for:
-        //
-        // define("...",
-        var module_path = path.join(build.dir, module.name) + ".js";
-        var text = fileAsString(module_path);
-        text.match(/define\(["'](.*?)["']/g).forEach(function (match) {
-            var name = match.slice(8, -1);
-            path_config[name] = module.name;
-        });
+var bundle_name = "wed/wed";
+var modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
+               "wed/browsers"];
+if (args.system) {
+    bundle_name += "-system.js";
+    modules = modules.map(function (x) {
+        return x + ".js";
     });
+    modules.push("wed/wed.js");
 }
 
-config.paths = path_config;
+var additional_config = { bundles: {} };
+additional_config.bundles[bundle_name] = modules;
 
-config.bundles = {
-    "wed/wed": ["wed/log", "wed/onerror", "wed/savers/localforage",
-                "wed/browsers"]
-};
-
-// Node that this serialization does not preserve functions that could
-// have originally appeared in the runtime configuration. However, our
-// current use of RequireJS does not require that such functions be
-// preserved. We use them only for the ``init`` parameters in
-// shims. These functions are incorporated inside the optimized bundle
-// so they do not need to be present in the config that uses the
-// bundle.
-console.log("require.config(" +
-            JSON.stringify(config, null, 4) +
-           ");");
+console.log(config_file_text);
+var call = args.system ? "SystemJS.config" : "require.config";
+console.log(call + "(" +
+            JSON.stringify(additional_config, null, 2) +
+            ");");

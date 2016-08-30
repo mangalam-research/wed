@@ -20,6 +20,18 @@ def step_impl(context):
         .perform()
 
 
+@when(ur"the user moves the mouse off the start label")
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    body = util.find_element((By.TAG_NAME, "body"))
+
+    ActionChains(driver) \
+        .move_to_element_with_offset(body, 10, 10) \
+        .perform()
+
+
 @when(ur"the user clicks")
 def step_impl(context):
     driver = context.driver
@@ -39,5 +51,5 @@ def step_impl(context):
 @then(ur"there are no tooltips")
 def step_impl(context):
     context.util.wait(lambda driver:
-                      len(driver.find_elements_by_css_selector(".tooltip"))
-                      == 0)
+                      len(driver.find_elements_by_css_selector(".tooltip")) ==
+                      0)

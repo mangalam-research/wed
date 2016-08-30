@@ -4,6 +4,44 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.27.0:
+
+  - Fatal errors and recovery: previous versions of wed would
+    automatically install window-wide error handler that would trap
+    all unhandled exceptions. This had a few undesirable
+    side-effects. For one thing it would hinder integrating wed into
+    applications and pages that have their own error handling. **Wed
+    no longers install a global error handler.** An application using
+    wed should install its own global handler (for instance
+    `last-resort <https://github.com/lddubeau/last-resort>`_) and have
+    it call the handler exported by the ``wed/onerror`` module.
+
+    Consequently, wed configuration option ``suppress_old_onerror`` no
+    longer has any effect.
+
+  - Wed works around a bug with tooltips and popovers in Bootstrap
+    3.3.7 whereby destroying a tooltip or popover more than once would
+    cause a crash. (See https://github.com/twbs/bootstrap/issues/20511).
+
+  - Wed now supports passing configuration through a module named
+    ``wed/config`` rather than through RequireJS' configuration. See
+    the documentation for details as to how to upgrade to the new
+    method.
+
+  - Deprecation: Passing configuration to wed through RequireJS'
+    configuration is deprecated and support for it will be removed
+    eventually. This way of passing configuration is not supported by
+    other loaders.
+
+  - When getting a data node from a ``_phantom_wrap`` element, the
+    caret coversion logic now moves into the ``_phantom_wrap`` to find
+    the real element. This is not considered a caret approximation.
+
+  - The DOM element which wraps the title of a modal dialog created
+    through wed nows bears the ``modal-title`` class name. This allows
+    isolating the modal title from the close button which is also
+    included in the element that has the class ``modal-header``.
+
 * 0.26.2:
 
   - In Chrome 50, the values returned by Region.getBoundingClientRect

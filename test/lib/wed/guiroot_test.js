@@ -84,7 +84,7 @@ describe("guiroot", function () {
 
                 $root.find(".p").wrap("<div class='_phantom_wrap'>");
                 var node = defined($root.find(".p").get(-1));
-                assert.equal(root_obj.nodeToPath(node), "0/1/0/1/0");
+                assert.equal(root_obj.nodeToPath(node), "0/1/0/1");
             });
 
             it("returns a correct path on later text node", function () {
@@ -180,7 +180,7 @@ describe("guiroot", function () {
               function () {
                $root.find(".p").wrap("<div class='_phantom_wrap'>");
                var node = defined($root.find(".p").get(-1));
-               assert.equal(root_obj.pathToNode("0/1/0/1/0"), node);
+               assert.equal(root_obj.pathToNode("0/1/0/1"), node);
            });
 
             it("accepts more than one digit per path step",

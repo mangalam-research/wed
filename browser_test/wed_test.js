@@ -7,10 +7,10 @@ define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
         "wed/key", "wed/dloc", "wed/util", "salve/validate",
         "wed/browsers",
-        "requirejs/text!../../build/test-files/wed_test_data/" +
-        "source_converted.xml"],
+        "text!test-files/wed_test_data/source_converted.xml", "require"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util, validate, browsers, source) {
+                onerror, log, key, dloc, util, validate, browsers, source,
+                require) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -34,7 +34,7 @@ var assert = chai.assert;
 
 var wedframe = window.parent.document.getElementById("wedframe");
 var wedwin = wedframe.contentWindow;
-var src_stack = ["../../test-files/wed_test_data/source_converted.xml"];
+var src_stack = ["test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];
 
 function caretCheck(editor, container, offset, msg) {
@@ -217,7 +217,7 @@ describe("wed", function () {
         var force_reload = false;
         var editor;
         beforeEach(function (done) {
-            require(["requirejs/text!" + src_stack[0]], function(data) {
+            require(["text!" + src_stack[0]], function(data) {
                 editor = new wed.Editor();
                 editor.addEventListener("initialized", function () {
                     done();
@@ -2133,7 +2133,7 @@ describe("wed", function () {
                 new_options.schema = '../../../schemas/simplified-rng.js';
                 option_stack.unshift(new_options);
                 src_stack.unshift(
-                    '../../test-files/wed_test_data/wildcard_converted.xml');
+                    'test-files/wed_test_data/wildcard_converted.xml');
             });
 
             after(function () {
@@ -2320,7 +2320,7 @@ describe("wed", function () {
 
         describe("interacts with the server:", function () {
             before(function () {
-                src_stack.unshift("../../test-files/wed_test_data" +
+                src_stack.unshift("test-files/wed_test_data" +
                                   "/server_interaction_converted.xml");
             });
 
@@ -2463,7 +2463,7 @@ describe("wed", function () {
 
         describe("fails as needed and recovers:", function () {
             before(function () {
-                src_stack.unshift("../../test-files/wed_test_data/" +
+                src_stack.unshift("test-files/wed_test_data/" +
                                   "server_interaction_converted.xml");
             });
 
@@ -2740,7 +2740,7 @@ describe("wed", function () {
             editor = new wed.Editor();
             editor.addEventListener("initialized", function () {
                 editor.validator._validateUpTo(editor.data_root, -1);
-                ps = editor.gui_root.querySelectorAll(".body>.p");
+                ps = editor.gui_root.querySelectorAll(".body .p");
                 done();
             });
             var wedroot = wedwin.document.getElementById("wedroot");
@@ -2782,7 +2782,22 @@ describe("wed", function () {
                     editor.gui_root.querySelector(
                         ".__start_label._p_label ._attribute_value"));
                 contextMenuHasAttributeOption(editor);
+               });
+
+            it("on elements inside _phantom_wrap", function () {
+                var p = editor.gui_root
+                        .querySelector(".body .p[data-wed-rend='wrap']");
+                var data_node = $.data(p, "wed_mirror_node");
+                console.log(data_node);
+                var rend = data_node.attributes.rend;
+                if (rend) {
+                    rend = rend.value;
+                }
+                // Make sure the paragraph has rend="wrap".
+                assert.equal(rend, "wrap");
+                activateContextMenu(editor, p);
             });
+
         });
 
         describe("has a completion menu", function () {
@@ -3366,7 +3381,7 @@ describe("wed", function () {
             // Force the processing of errors
             editor._processValidationErrors();
 
-            var p = ps[11];
+            var p = ps[12];
             var data_p = editor.toDataNode(p);
             var data_monogr = data_p.childNodes[0];
             var monogr = $.data(data_monogr, "wed_mirror_node");

@@ -6,12 +6,11 @@
 define(["mocha/mocha", "chai", "wed/validator", "salve/validate",
         "salve/name_patterns", "wed/mode_validator", "wed/oop",
         "wed/domutil", "jquery",
-        "requirejs/text!../../build/schemas/simplified-rng.js",
-        "requirejs/text!../../build/schemas/tei-simplified-rng.js",
-        "requirejs/text!../../build/test-files/validator_test_data/" +
+        "text!../../build/schemas/simplified-rng.js",
+        "text!../../build/schemas/tei-simplified-rng.js",
+        "text!test-files/validator_test_data/" +
         "multiple_namespaces_on_same_node_converted.xml",
-        "requirejs/text!../../build/test-files/" +
-        "validator_test_data/percent_to_parse_converted.xml"],
+        "text!test-files/validator_test_data/percent_to_parse_converted.xml"],
 function (mocha, chai, validator, validate, name_patterns,
           mode_validator, oop, domutil, $, schema_text, tei_schema_text,
           multiple_namespaces, percent_to_parse) {
@@ -22,7 +21,7 @@ var schema = '../../../schemas/simplified-rng.js';
 // Remember that relative paths are resolved against requirejs'
 // baseUrl configuration value.
 var to_parse_stack =
-        ['../../test-files/validator_test_data/to_parse_converted.xml'];
+        ['test-files/validator_test_data/to_parse_converted.xml'];
 var assert = chai.assert;
 var ValidationError = validate.ValidationError;
 var Name = name_patterns.Name;
@@ -44,7 +43,7 @@ describe("validator", function () {
                                                           "text/xml");
         percent_to_parse_tree = parser.parseFromString(percent_to_parse,
                                                           "text/xml");
-        require(["requirejs/text!" + to_parse_stack[0]], function (data) {
+        require(["text!" + to_parse_stack[0]], function (data) {
             generic_tree = parser.parseFromString(data, "text/xml");
             done();
         });
@@ -270,8 +269,8 @@ describe("validator", function () {
         var data;
         before(function(done) {
             to_parse_stack.unshift(
-                '../../test-files/validator_test_data/wildcard_converted.xml');
-            require(["requirejs/text!" + to_parse_stack[0]],
+                'test-files/validator_test_data/wildcard_converted.xml');
+            require(["text!" + to_parse_stack[0]],
                     function(data_) {
                 data = data_;
                 done();
@@ -602,9 +601,9 @@ describe("validator", function () {
             var data;
             before(function(done) {
                 to_parse_stack.unshift(
-                    '../../test-files/validator_test_data/' +
+                    'test-files/validator_test_data/' +
                         'multiple_namespaces_on_same_node_converted.xml');
-                require(["requirejs/text!" + to_parse_stack[0]],
+                require(["text!" + to_parse_stack[0]],
                         function(data_) {
                     data = data_;
                     done();
@@ -659,9 +658,9 @@ describe("validator", function () {
             var data, data_tree;
             before(function(done) {
                 to_parse_stack.unshift(
-                    '../../test-files/validator_test_data/' +
+                    'test-files/validator_test_data/' +
                         'caching_to_parse_converted.xml');
-                require(["requirejs/text!" + to_parse_stack[0]],
+                require(["text!" + to_parse_stack[0]],
                         function(data_) {
                     data = data_;
                     data_tree = parser.parseFromString(data, "text/xml");
@@ -968,7 +967,7 @@ describe("validator", function () {
     describe("getDocumentNamespaces", function () {
         var p, tree;
         beforeEach(function (done) {
-            require(["requirejs/text!" + to_parse_stack[0]],
+            require(["text!" + to_parse_stack[0]],
                     function(data) {
                 tree = parser.parseFromString(data, "application/xml");
                 p = new validator.Validator(grammar, tree);
@@ -980,7 +979,7 @@ describe("validator", function () {
         describe("simple document", function () {
             before(function () {
                 to_parse_stack.unshift(
-                    '../../test-files/validator_test_data/' +
+                    'test-files/validator_test_data/' +
                         'getDocumentNamespaces1_to_parse_converted.xml');
             });
 
@@ -997,7 +996,7 @@ describe("validator", function () {
         describe("document with redefined namespaces", function () {
             before(function () {
                 to_parse_stack.unshift(
-                    '../../test-files/validator_test_data/' +
+                    'test-files/validator_test_data/' +
                         'getDocumentNamespaces_redefined_to_parse' +
                         '_converted.xml');
             });

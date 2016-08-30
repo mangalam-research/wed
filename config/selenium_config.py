@@ -88,7 +88,7 @@ caps = {
     "build": "version: " + version + ", git describe: " + describe
 }
 
-selenium_version = "2.48.2"
+selenium_version = "2.49.0"
 
 if REMOTE_SERVICE == "saucelabs":
     caps.update({

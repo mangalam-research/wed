@@ -273,6 +273,8 @@ npm_copy_task("text-plugin", "requirejs-text/text.js", "requirejs");
 
 npm_copy_task("requirejs/require.js", "requirejs");
 
+npm_copy_task("optional-plugin", "requirejs-optional/optional.js", "requirejs");
+
 npm_copy_task("typeahead", "typeahead.js/dist/typeahead.bundle.min.js");
 
 npm_copy_task("pubsub", "pubsub-js/src/pubsub.js");
@@ -305,6 +307,10 @@ npm_copy_task("merge-options", "merge-options/index.js",
 
 npm_copy_task("is-plain-obj", "is-plain-obj/index.js",
               { rename: "is-plain-obj.js", wrap_amd: true });
+
+npm_copy_task("bluebird/js/browser/bluebird.js");
+
+npm_copy_task("last-resort/dist/last-resort.js**");
 
 gulp.task("build-info", Promise.coroutine(function* () {
     const dest = "build/standalone/lib/wed/build-info.js";
@@ -390,8 +396,7 @@ gulp.task("build-optimized-config", ["config"],
         return;
 
     yield mkdirpAsync(path.dirname(optimized_config));
-    yield exec(`node ${script} --skip lodash ${config} ` +
-               `${build_config} > ${optimized_config}`);
+    yield exec(`node ${script} ${config} > ${optimized_config}`);
 }));
 
 function* build_standalone_optimized() {
@@ -425,9 +430,8 @@ gulp.task("rst-doc", () =>
               const dest = file.path.substr(
                   0, file.path.length - path.extname(file.path).length) +
                         ".html";
-              exec(`${options.rst2html} ${file.path} | perl -np -e ` +
-                   `'s/href="(.*?)\.rst(#.*?)"/href="$$1.html$$2"/g'` +
-                   ` > ${dest}`).asCallback(callback);
+              exec(`${options.rst2html} ${file.path}` +
+                   ` ${dest}`).asCallback(callback);
           })));
 
 gulp.task("default", ["build"]);
@@ -474,8 +478,8 @@ function* gh_pages() {
     for (let tree of ["standalone", "standalone-optimized"]) {
 	const config=`${dest}/build/${tree}/requirejs-config.js`;
 	yield fs.moveAsync(config, `${config}.t`);
-	yield exec(`node misc/modify_config.js -d config.wed/wed.ajaxlog ` +
-		   `-d config.wed/wed.save -d paths.browser_test ` +
+	yield exec(`node misc/modify_config.js -d config.ajaxlog ` +
+		   `-d config.save -d paths.browser_test ` +
 		   `${config}.t > ${config}`);
         yield del([`${config}.t`,
                    `${dest}/build/${tree}/test.html`,

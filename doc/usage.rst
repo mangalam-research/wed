@@ -8,6 +8,9 @@ project for editing scholarly articles. We aim to make it extensible
 by means of a stable API, but the API is likely to change quickly for
 now.
 
+Make sure to read :ref:`help_browser_requirements` to learn which
+browsers are supported by wed.
+
 Known limitations:
 
 * Wed does not load documents containing XML comments (``<!--
@@ -283,8 +286,9 @@ To include wed in a web page you must:
   + ``save``: See the documentation about :ref:`saving <saving>`.
 
   + ``ignore_module_config``: This tells wed to not try to get a
-    configuration from RequireJS' ``module.config()``. This may be
-    necessary to handle some configuration scenarios.
+    configuration from RequireJS' ``module.config()`` or from the
+    configuration module named ``wed/config``. This may be necessary
+    to handle some configuration scenarios.
 
   The ``data`` parameter is a string containing the document to edit,
   in XML format.
@@ -305,20 +309,81 @@ The ``mode.options`` will be passed to the generic mode when it is
 created. What options are accepted and what they mean is determined by
 each mode.
 
-The :github:`lib/wed/onerror.js` module installs a global onerror
-handler. By default it calls whatever onerror handler already existed
-at the time of installation. Sometimes this is not the desired
-behavior (for instance when testing with mocha). In such cases the
-``suppress_old_onerror`` option set to a true value will prevent the
-module from calling the old onerror.
+Sources of Configuration
+------------------------
 
-.. warning:: Wed installs its own handler so that if any error occurs
-             it knows about it, attempts to save the data and forces
-             the user to reload. The unfortunate upshot of this is
-             that any other JavaScript executing on a page where wed
-             is running could trip wed's onerror handler and cause wed
-             to think it crashed. For this reason you must not run
-             wed with JavaScript code that causes onerror to fire.
+Besides the ``options`` object that can be passed directly to a new
+``Editor`` instance (described above), it is possible to pass
+configuration to wed using two mechanisms:
+
+* You can create a module with the name ``wed/config``. This module
+  should export a single ``config`` symbol at the top level. This
+  symbol should contain the same configuration structure as mentioned
+  above. For instance::
+
+        define("wed/config", {
+          config: {
+            schema: 'test/tei-simplified-rng.js',
+            mode: {
+              path: 'wed/modes/generic/generic',
+              options: {
+                meta: 'test/tei-meta'
+              }
+            }
+          }
+        });
+
+* You can use RequireJS' module config facility. The configuration for
+  wed editors must be under the ``wed/wed`` key. For instance::
+
+        require.config({
+          config: {
+            'wed/wed': {
+              schema: 'test/tei-simplified-rng.js',
+              mode: {
+                path: 'wed/modes/generic/generic',
+                options: {
+                  meta: 'test/tei-meta'
+                }
+              }
+            }
+          }
+        });
+
+.. warning:: Using RequireJS' module config facility is
+             deprecated. Support for it will eventually be removed. Use
+             the ``wed/config`` module instead.
+
+             You cannot use RequireJS' module config facility *at the
+             same time* as the ``wed/config`` module. If yyou use
+             ``wed/config``, then RequireJS' module config facility
+             will be completely ignored.
+
+Errors
+======
+
+The :github:`lib/wed/onerror.js` module provides an error handler that
+could be used with `last-resort
+<https://github.com/lddubeau/last-resort>`_ or with any other error
+handler that can call a handler that takes a single argument which is
+an ``error`` DOM event. This handler tries to save the data in all
+editors that exist in the window. Here is an example that uses
+``last-resort``::
+
+    define(function (require) {
+
+    var lr = require("last-resort");
+    var onerror = require("wed/onerror");
+    var onError = lr.install(window);
+    onError.register(onerror.handler);
+    //...
+
+.. warning:: **IF YOU DO NOT SET THE HANDLER TO BE CALLED ON UNCAUGHT
+             EXCEPTIONS, WED CANNOT DO ERROR RECOVERY.** Previous
+             versions of wed would automatically install a handler but
+             the problem with this is that it makes wed a bad player
+             when it is used on pages that already have their
+             handlers.
 
 Round-Tripping
 ==============

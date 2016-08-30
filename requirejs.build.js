@@ -7,7 +7,8 @@
     skipDirOptimize: true,
     useStrict: false,
     paths: {
-        "browser_test": "empty:"
+        "browser_test": "empty:",
+        "wed/config": "empty:",
     },
     modules: [
         {
@@ -35,7 +36,8 @@
                 "async",
                 "angular",
                 "bootbox",
-                "typeahead"
+                "typeahead",
+                "wed/patches/bootstrap",
             ]
         }
     ],

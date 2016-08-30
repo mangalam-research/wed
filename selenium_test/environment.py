@@ -206,7 +206,7 @@ def before_all(context):
     server_thread = start_server(context)
 
     if not builder.remote:
-        visible = context.selenium_quit in ("never", "on-success")
+        visible = context.selenium_quit in ("never", "on-success", "on-enter")
         context.display = Display(visible=visible, size=(1024, 768))
         context.display.start()
         builder.update_ff_binary_env('DISPLAY')
@@ -280,6 +280,24 @@ def control(server, command, errmsg):
 
 def reset(server):
     control(server, 'reset', 'failed to reset')
+
+
+def dump_javascript_log(context):
+    driver = context.driver
+    # Perform this query only if SELENIUM_LOGS is on.
+    if context.selenium_logs:
+        logs = driver.execute_script("""
+        var log = window.selenium_log;
+        window.selenium_log = [];
+        return log;
+        """)
+        print("")
+        if logs:
+            print("JavaScript log:")
+            print("\n".join(repr(x) for x in logs))
+        else:
+            print("JavaScript log empty")
+        print("")
 
 
 def before_scenario(context, scenario):
@@ -358,6 +376,7 @@ def after_scenario(context, _scenario):
       }
     });
     """)
+    dump_javascript_log(context)
     assert_false(terminating, "should not have experienced a fatal error")
 
     # Close all extra tabs.
@@ -391,19 +410,7 @@ def after_step(context, step):
         print("Captured screenshot:", name)
         print("")
 
-    # Perform this query only if SELENIUM_LOGS is on.
-    if context.selenium_logs:
-        logs = driver.execute_script("""
-        return window.selenium_log;
-        """)
-        if logs:
-            print("")
-            print("JavaScript log:")
-            print("\n".join(repr(x) for x in logs))
-            print("")
-            driver.execute_script("""
-            window.selenium_log = [];
-            """)
+    dump_javascript_log(context)
 
 
 def after_all(context):
