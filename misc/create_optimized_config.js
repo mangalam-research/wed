@@ -31,7 +31,6 @@ var path = require("path");
 var util = require("./util");
 var ArgumentParser = require("argparse").ArgumentParser;
 
-var captureConfigObject = util.captureConfigObject;
 var fileAsString = util.fileAsString;
 
 var parser = new ArgumentParser({
