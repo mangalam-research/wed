@@ -9,7 +9,8 @@ define(/** @lends module:modes/test/test_decorator */
 function (require, exports, module) {
 'use strict';
 
-var indexOf = require("wed/domutil").indexOf;
+var domutil = require("wed/domutil");
+var indexOf = domutil.indexOf;
 var Decorator = require("wed/decorator").Decorator;
 var GenericDecorator =
         require("wed/modes/generic/generic_decorator").GenericDecorator;
@@ -64,11 +65,20 @@ TestDecorator.prototype.addHandlers = function () {
 };
 
 TestDecorator.prototype.elementDecorator = function (root, el) {
+    var data_node = this._editor.toDataNode(el);
+    var rend = data_node.attributes.rend;
+    if (rend) {
+        rend = rend.value;
+    }
+
     var orig_name = util.getOriginalName(el);
-    Decorator.prototype.elementDecorator.call(
-        this, root, el, this._element_level[orig_name] || 1,
-        log.wrap(this._contextMenuHandler.bind(this, true)),
-        log.wrap(this._contextMenuHandler.bind(this, false)));
+    // We don't run the default when we wrap p.
+    if (!(orig_name === "p" && rend === "wrap")) {
+        Decorator.prototype.elementDecorator.call(
+            this, root, el, this._element_level[orig_name] || 1,
+            log.wrap(this._contextMenuHandler.bind(this, true)),
+            log.wrap(this._contextMenuHandler.bind(this, false)));
+    }
 
     if (orig_name === "ref") {
         $(el).children("._text._phantom").remove();
@@ -88,11 +98,8 @@ TestDecorator.prototype.elementDecorator = function (root, el) {
     }
 
     if (orig_name === "p") {
-        var data_node = this._editor.toDataNode(el);
-        var rend = data_node.attributes.rend;
-        if (rend)
-            rend = rend.value;
-        if (rend === "foo") {
+        switch(rend) {
+        case "foo":
             $(el).children("._gui_test").remove();
             this._gui_updater
                 .insertBefore(
@@ -122,6 +129,17 @@ TestDecorator.prototype.elementDecorator = function (root, el) {
                       "btn-default'>Foo3</div>")[0],
                     el.lastChild);
             }
+            break;
+        case "wrap":
+            if (domutil.closestByClass(el, "_gui_test")) {
+                break;
+            }
+
+            var wrapper = $("<div class='_gui _phantom_wrap _gui_test btn "+
+                            "btn-default'></div>")[0];
+            this._gui_updater.insertBefore(el.parentNode, wrapper, el);
+            this._gui_updater.insertBefore(wrapper, el, null);
+            break;
         }
     }
 

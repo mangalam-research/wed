@@ -848,7 +848,7 @@ Browser Requirements
 ====================
 
 Wed is primarily developed using a recent version of Chrome (version
-47 now, earlier versions have also been used earlier). (But see a note
+51 now, earlier versions have also been used earlier). (But see a note
 about Chrome 34 below.)
 
 Here is the list of officially supported browsers, in order of
@@ -856,7 +856,7 @@ decreasing priority. The higher a browser is in the list, the less
 likely you are to run into issues and the higher the priority for
 resolving bugs happening with this browser.
 
-* Chrome 47 and higher.
+* Chrome 51 and higher.
 
 * IE 11.
 
@@ -902,9 +902,15 @@ Firefox
 -------
 
 We're hoping that the lack of Firefox support is going to be
-temporary. For years, wed was supporting Firefox. Early on, Firefox
-was even better supported than Chrome. However, the people responsible
-for maintaining Selenium decided to stop supporting native events in
+temporary.
+
+Update Summer 2016: things are looking up. The Firefox developers have
+been working on a driver named "Marionette" that *should* solve the
+support problems. Stay tuned.
+
+For years, wed was supporting Firefox. Early on, Firefox was even
+better supported than Chrome. However, the people responsible for
+maintaining Selenium decided to stop supporting native events in
 Firefox and forced developers to use synthetic events instead. The
 problem is that Selenium's support for synthetic events on Firefox is
 unable to accurately reproduce what happens when a user is actually

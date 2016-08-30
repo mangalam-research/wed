@@ -9,7 +9,9 @@ define(/** @lends module:wed */function (require, exports, module) {
 'use strict';
 
 var core = require("./wed_core");
-core.module_config = module.config();
+var config = require("optional!./config");
+var util = require("./util");
+core.module_config = util.grabConfig(module, config).config;
 require("./wed_init");
 require("./wed_caret");
 require("./wed_gui");

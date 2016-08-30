@@ -115,12 +115,10 @@ Action.prototype.terminalEventHandler = function (e) {
     return false;
 };
 
-
-
 /**
  * Gets a description for this action.
  *
- * @returns {string} A description for the action
+ * @returns {string} A description for the action.
  */
 Action.prototype.getDescription = function () {
     return this._desc;
@@ -139,9 +137,9 @@ Action.prototype.getDescriptionFor = function (data) {
 };
 
 /**
- * Gets the abbreviated  description for this action.
+ * Gets the abbreviated description for this action.
  *
- * @returns {string} An abbreviated description
+ * @returns {string} An abbreviated description.
  */
 Action.prototype.getAbbreviatedDescription = function () {
     return this._abbreviated_desc;
@@ -176,7 +174,6 @@ Action.prototype.getLabelFor = function (data) {
 
     return desc;
 };
-
 
 /**
  * Converts this action to a string. By default calls {@link

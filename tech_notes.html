@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage Notes &mdash; Wed v0.26.2 documentation</title>
+  <title>Advanced Usage Notes &mdash; Wed v0.27.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Wed v0.26.2 documentation" href="index.html"/>
+    <link rel="top" title="Wed v0.27.0 documentation" href="index.html"/>
         <link rel="prev" title="Using Wed in an Application" href="usage.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                v0.26
+                v0.27
               </div>
             
           
@@ -84,7 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Advanced Usage Notes</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage Notes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#build-information">Build Information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#deployment-considerations">Deployment Considerations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#schema-and-structure-considerations">Schema and Structure Considerations</a></li>
@@ -232,10 +232,10 @@ right places.</p>
 at <code class="docutils literal"><span class="pre">build/standalone-optimized/requirejs-config.js</span></code>. This
 configuration allows an external custom mode to load individual
 modules of wed, because it has mappings like these:</p>
-<div class="highlight-python"><div class="highlight"><pre>&quot;wed/log&quot;: &quot;wed/wed&quot;,
-&quot;wed/oop&quot;: &quot;wed/wed&quot;,
-&quot;wed/lib/simple_event_emitter&quot;: &quot;wed/wed&quot;,
-[...]
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;wed/log&quot;</span><span class="p">:</span> <span class="s2">&quot;wed/wed&quot;</span><span class="p">,</span>
+<span class="s2">&quot;wed/oop&quot;</span><span class="p">:</span> <span class="s2">&quot;wed/wed&quot;</span><span class="p">,</span>
+<span class="s2">&quot;wed/lib/simple_event_emitter&quot;</span><span class="p">:</span> <span class="s2">&quot;wed/wed&quot;</span><span class="p">,</span>
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>which map each individual module forming wed to the single bundle file
@@ -267,8 +267,8 @@ concerns rather than your interchange concerns or your standard
 conformance concerns. Here&#8217;s an example. Suppose that you use a schema
 based on the TEI markup, and that for interchange purposes with
 another system it makes sense to encode something like:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;p&gt;&lt;term&gt;&lt;foreign xml:lang=&quot;fr&quot;&gt;Étranger&lt;/foreign&gt;&lt;/term&gt; is a foreign
-term.&lt;/p&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;&lt;</span><span class="n">term</span><span class="o">&gt;&lt;</span><span class="n">foreign</span> <span class="n">xml</span><span class="p">:</span><span class="n">lang</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="o">&gt;</span><span class="n">Étranger</span><span class="o">&lt;/</span><span class="n">foreign</span><span class="o">&gt;&lt;/</span><span class="n">term</span><span class="o">&gt;</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">foreign</span>
+<span class="n">term</span><span class="o">.&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>However, you do not want to allow your users to insert text inside the
@@ -276,8 +276,8 @@ term.&lt;/p&gt;
 meaningless in your project. Wed is not designed to easily enforce
 this restriction. Wed will allow your users to create something
 like:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;p&gt;&lt;term&gt;The term &lt;foreign xml:lang=&quot;fr&quot;&gt;étranger&lt;/foreign&gt;
-&lt;/term&gt;is a foreign term.&lt;/p&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;&lt;</span><span class="n">term</span><span class="o">&gt;</span><span class="n">The</span> <span class="n">term</span> <span class="o">&lt;</span><span class="n">foreign</span> <span class="n">xml</span><span class="p">:</span><span class="n">lang</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="o">&gt;</span><span class="n">étranger</span><span class="o">&lt;/</span><span class="n">foreign</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">term</span><span class="o">&gt;</span><span class="ow">is</span> <span class="n">a</span> <span class="n">foreign</span> <span class="n">term</span><span class="o">.&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>The solution here is to represent the
@@ -298,10 +298,10 @@ does not log anything to a remote server; however, if the <code class="docutils 
 option is passed to wed, it will add an <code class="docutils literal"><span class="pre">AjaxAppender</span></code> to the logger
 and log messages using <code class="docutils literal"><span class="pre">XmlLayout</span></code>. The <code class="docutils literal"><span class="pre">ajaxlog</span></code> option is of the
 form:</p>
-<div class="highlight-python"><div class="highlight"><pre>ajaxlog: {
-    url: &quot;...&quot;,
-    headers: { ... }
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ajaxlog</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">url</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+    <span class="n">headers</span><span class="p">:</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal"><span class="pre">url</span></code> parameter is the URL where log4javascript will send the
@@ -314,11 +314,11 @@ headers.</p>
 <span id="id2"></span><h2>Saving<a class="headerlink" href="#saving" title="Permalink to this headline">¶</a></h2>
 <p>Wed saves documents using Ajax queries to a server. Where wed saves is
 determined by the <code class="docutils literal"><span class="pre">save</span></code> option. It is of the form:</p>
-<div class="highlight-python"><div class="highlight"><pre>save: {
-    path: &quot;...&quot;,
-    options: {
-    }
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">save</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal"><span class="pre">path</span></code> parameter is the path to the module that implements the
@@ -328,15 +328,15 @@ determined by the <code class="docutils literal"><span class="pre">save</span></
 <h3>Ajax Saver<a class="headerlink" href="#ajax-saver" title="Permalink to this headline">¶</a></h3>
 <p>The Ajax saver requires a server that understands the wire protocol
 used by this saver. The configuration for it is as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>save: {
-    path: &quot;wed/savers/ajax&quot;,
-    options: {
-        url: &quot;...&quot;,
-        headers: { ... }
-        autosave: ...,
-        initial_etag: ...,
-    }
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">save</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;wed/savers/ajax&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">url</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+        <span class="n">headers</span><span class="p">:</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+        <span class="n">autosave</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+        <span class="n">initial_etag</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal"><span class="pre">url</span></code> option is required. It is the URL where wed will send the
@@ -412,12 +412,12 @@ document, otherwise a subsequent save will (erroneously) go through.</p>
 <h3>Localforage Saver<a class="headerlink" href="#localforage-saver" title="Permalink to this headline">¶</a></h3>
 <p>This saver uses <a class="reference external" href="https://github.com/mozilla/localForage">localForage</a> to store the data in the
 browser. It is configured as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>save: {
-    path: &quot;wed/savers/localforage&quot;,
-    options: {
-        name: &quot;...&quot;
-    }
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">save</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;wed/savers/localforage&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal"><span class="pre">name</span></code> parameter is the name to use for saving the document in
@@ -428,7 +428,7 @@ localForage. It is the &#8220;file name&#8221; of sorts of the document.</p>
 mode. The first thing you must do is set the metadata on the
 <code class="docutils literal"><span class="pre">_wed_options</span></code> object because wed will refuse to load your mode if
 these are not set:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">this</span><span class="o">.</span><span class="n">_wed_options</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">this</span><span class="o">.</span><span class="n">_wed_options</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">name</span><span class="p">:</span> <span class="s2">&quot;Foo&quot;</span><span class="p">,</span>
     <span class="n">authors</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ty Coon&quot;</span><span class="p">],</span>
     <span class="n">description</span><span class="p">:</span>
@@ -448,7 +448,7 @@ settable.)</p>
 <li><p class="first"><code class="docutils literal"><span class="pre">label_levels</span></code>: an object with two fields:</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">max</span></code>: determines the maximum level of
-<a class="reference internal" href="usage.html#label-visibility"><span>label visibility</span></a>,</li>
+<a class="reference internal" href="usage.html#label-visibility"><span class="std std-ref">label visibility</span></a>,</li>
 <li><code class="docutils literal"><span class="pre">initial</span></code> determines the initial level of label visibility; must
 be <code class="docutils literal"><span class="pre">1</span> <span class="pre">&lt;=</span> <span class="pre">initial</span> <span class="pre">&lt;=</span> <span class="pre">max</span></code>. (Level 0 exists. It is just not valid
 to start at that level.)</li>
@@ -524,7 +524,7 @@ to control a browser.</li>
 <div class="section" id="browser-independent-tests">
 <h2>Browser-Independent Tests<a class="headerlink" href="#browser-independent-tests" title="Permalink to this headline">¶</a></h2>
 <p>To run the tests that are not browser-dependent do:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ gulp test-node
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp test-node
 </pre></div>
 </div>
 <p>These tests are located in the <code class="docutils literal"><span class="pre">test/</span></code> directory off the wed
@@ -543,7 +543,7 @@ the suite will run against <strong>old code!</strong></p>
 <div class="section" id="in-browser-tests">
 <span id="tech-notes-in-browser-tests"></span><h2>In-Browser Tests<a class="headerlink" href="#in-browser-tests" title="Permalink to this headline">¶</a></h2>
 <p>You can run these tests from the command line by running:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ gulp test-browser
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp test-browser
 </pre></div>
 </div>
 <p>The browser-dependent tests are located in the <code class="docutils literal"><span class="pre">browser_test/</span></code>
@@ -582,12 +582,12 @@ installed and available on your <code class="docutils literal"><span class="pre"
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a> by creating
 <code class="docutils literal"><span class="pre">local_config/selenium_config.py</span></code> that loads the default file but
 override or adds some values. For instance:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c1"># If used, must appear before the default file is loaded. The</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># If used, must appear before the default file is loaded. The</span>
 <span class="c1"># default is to not log anything.</span>
-<span class="n">LOGS</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">LOGS</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="c1"># Load the default file</span>
-<span class="nb">execfile</span><span class="p">(</span><span class="s2">&quot;config/selenium_config.py&quot;</span><span class="p">)</span>
+<span class="n">execfile</span><span class="p">(</span><span class="s2">&quot;config/selenium_config.py&quot;</span><span class="p">)</span>
 
 <span class="c1"># Add some local values...</span>
 <span class="n">SAUCELABS_CREDENTIALS</span> <span class="o">=</span> <span class="s2">&quot;foo:bar&quot;</span>
@@ -595,7 +595,7 @@ override or adds some values. For instance:</p>
 </pre></div>
 </div>
 <p>Finally, to run the suite issue:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ gulp selenium-test --behave-params=&quot;-D browser=&lt;platform&gt;,&lt;browser&gt;,&lt;version&gt;&quot;
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp selenium-test --behave-params=&quot;-D browser=&lt;platform&gt;,&lt;browser&gt;,&lt;version&gt;&quot;
 </pre></div>
 </div>
 <p>Behind the scenes, this will launch Behave. An instance of <code class="docutils literal"><span class="pre">./server.js</span></code>
@@ -911,6 +911,9 @@ this class.</dd>
 <dd>All elements that are text added to represent some XML data. That
 is, there is some node in the data tree that corresponds
 specifically to this element.</dd>
+<dt><code class="docutils literal"><span class="pre">_phantom_wrap</span></code>: An element which is not itself editable but</dt>
+<dd>contains editable (<code class="docutils literal"><span class="pre">_real</span></code>) children. This cannot be used to
+wrap nodes that are text nodes in the data tree.</dd>
 <dt><code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_decoration_text</span></code>:</dt>
 <dd>All elements that are text added for purely decorative purposes. The
 difference between these elements and those which are <code class="docutils literal"><span class="pre">_phantom</span>
@@ -943,7 +946,7 @@ then the phantom text <code class="docutils literal"><span class="pre">(</span><
 <dt><code class="docutils literal"><span class="pre">_readonly</span></code>:</dt>
 <dd>Marks an element or attribute that cannot be edited.</dd>
 </dl>
-<p>As explained in <a class="reference internal" href="help.html#complex-name-patterns"><span>Complex Name Patterns</span></a>, wed <em>can</em> handle the
+<p>As explained in <a class="reference internal" href="help.html#complex-name-patterns"><span class="std std-ref">Complex Name Patterns</span></a>, wed <em>can</em> handle the
 name patterns <code class="docutils literal"><span class="pre">NsName</span></code> and <code class="docutils literal"><span class="pre">AnyName</span></code> for the purpose of validating
 a document but will not allow editing such elements. In order to limit
 this editing, during validation wed must set a flag on every element
@@ -955,8 +958,8 @@ element. This is specifically designed to avoid having the decorator
 refresh elements because this can get pretty expensive.</p>
 <p>Note that it is not possible to set the flag once and for all on an
 element and never change it.  Suppose the following Relax NG:</p>
-<div class="highlight-python"><div class="highlight"><pre>start = element a { element q { empty }, any+ }
-any = element * { any* }
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">element</span> <span class="n">a</span> <span class="p">{</span> <span class="n">element</span> <span class="n">q</span> <span class="p">{</span> <span class="n">empty</span> <span class="p">},</span> <span class="nb">any</span><span class="o">+</span> <span class="p">}</span>
+<span class="nb">any</span> <span class="o">=</span> <span class="n">element</span> <span class="o">*</span> <span class="p">{</span> <span class="nb">any</span><span class="o">*</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>The file <code class="docutils literal"><span class="pre">&lt;a&gt;&lt;q/&gt;&lt;q/&gt;&lt;/a&gt;</span></code>. The first <code class="docutils literal"><span class="pre">q</span></code> validates because of
@@ -1018,8 +1021,8 @@ contenteditable element.)</p>
 <div class="section" id="successive-elements-and-the-caret">
 <h3>Successive Elements and the Caret<a class="headerlink" href="#successive-elements-and-the-caret" title="Permalink to this headline">¶</a></h3>
 <p>Suppose the structure:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;p contenteditable=&quot;true&quot;&gt;foo &lt;button contenteditable=&quot;false&quot;&gt;A&lt;/button&gt;
-&lt;button contenteditable=&quot;false&quot;&gt;B&lt;/button&gt; bar&lt;/p&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span> <span class="n">contenteditable</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="o">&gt;</span><span class="n">foo</span> <span class="o">&lt;</span><span class="n">button</span> <span class="n">contenteditable</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="o">&gt;</span><span class="n">A</span><span class="o">&lt;/</span><span class="n">button</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">button</span> <span class="n">contenteditable</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="o">&gt;</span><span class="n">B</span><span class="o">&lt;/</span><span class="n">button</span><span class="o">&gt;</span> <span class="n">bar</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>If you place the caret just before the space before &#8220;bar&#8221; and hit the
@@ -1041,8 +1044,8 @@ placeholder to allow the user to put their caret between elements.</p>
 <h3>IE11 and line breaks<a class="headerlink" href="#ie11-and-line-breaks" title="Permalink to this headline">¶</a></h3>
 <p>We&#8217;ve discovered late that IE11 has a rendering issue with elements
 that are <code class="docutils literal"><span class="pre">contenteditable</span></code>. Take the following:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;p&gt;This is a paragraph &lt;hi&gt;with
-highlighting&lt;/hi&gt; and more&lt;/p&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">paragraph</span> <span class="o">&lt;</span><span class="n">hi</span><span class="o">&gt;</span><span class="k">with</span>
+<span class="n">highlighting</span><span class="o">&lt;/</span><span class="n">hi</span><span class="o">&gt;</span> <span class="ow">and</span> <span class="n">more</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>Read it as an abstract representation of the GUI tree. The start and
@@ -1151,7 +1154,7 @@ the incremental changes, but some obsolete code may still remain.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.26.2',
+            VERSION:'v0.27.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

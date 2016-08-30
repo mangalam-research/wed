@@ -65,7 +65,6 @@ Listener.prototype.clearPending = function () {
     }
 };
 
-
 /**
  * Handles {@link module:tree_updater~TreeUpdater#event:insertNodeAt
  * insertNodeAt} events.
@@ -172,7 +171,7 @@ Listener.prototype._deleteNodeHandler = function (ev) {
  * @param {Array.<Node>} removed Removed children.
  * @param {Node|undefined} prev Node preceding the children.
  * @param {Node|undefined} next Node following the children.
- * @returns {Array.<Array>} An list of call signatures. Each signature
+ * @returns {Array.<Array>} A list of call signatures. Each signature
  * is a list which has a function for first element and the parameters
  * to pass to this function.
  */
@@ -232,7 +231,6 @@ Listener.prototype._setTextNodeValueHandler = function (ev) {
     this._scheduleProcessTriggers();
 };
 
-
 /**
  * Handles {@link module:tree_updater~TreeUpdater#event:setAttributeNS
  * setAttributeNS} events.
@@ -262,7 +260,6 @@ Listener.prototype._setAttributeNSHandler = function (ev) {
     this._scheduleProcessTriggers();
 };
 
-
 /**
  * Sets a timeout to run the triggers that must be run.
  * @private
@@ -286,7 +283,7 @@ Listener.prototype._scheduleProcessTriggers = function () {
  * @param {Node} node The node added or removed.
  * @param {Node} target The parent of this node.
  *
- * @returns {Array.<Array>} An list of call signatures. Each signature
+ * @returns {Array.<Array>} A list of call signatures. Each signature
  * is a list which has a function for first element and the parameters
  * to pass to this function.
  */
@@ -320,7 +317,7 @@ Listener.prototype._addRemCalls = function (name, node, target) {
  * which we must issue the events.
  * @param {Node} target The parent of this node.
  *
- * @returns {Array.<Array>} An list of call signatures. Each signature
+ * @returns {Array.<Array>} A list of call signatures. Each signature
  * is a list which has a function for first element and the parameters
  * to pass to this function.
  */

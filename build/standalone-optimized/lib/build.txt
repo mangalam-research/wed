@@ -41,11 +41,13 @@ external/jquery.js
 
 wed/wed.js
 ----------------
+wed/util.js
+requirejs/optional.js
+optional!wed/config
 wed/log.js
 external/rangy/rangy-core.js
 external/rangy/rangy-selectionsaverestore.js
 rangy.js
-wed/util.js
 wed/domutil.js
 wed/oop.js
 wed/undo.js

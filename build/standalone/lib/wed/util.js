@@ -253,7 +253,7 @@ function _exceptionStackTrace(err) {
  * in the compact notation is equivalent to ``<anyName/>`` in the
  * expanded notation. And ``foo:*`` is equivalent to ``<nsName
  * ns="uri_of_foo">`` where ``uri_of_foo`` is the URI that has been
- * assocated with ``foo`` in the compact schema. It would be nice is
+ * assocated with ``foo`` in the compact schema. It would be nice if
  * the function here could reuse this notation, but we
  * cannot. Consider the case where an Relax NG schema in the compact
  * notation wants to declare a name pattern which means "any name in
@@ -324,7 +324,22 @@ function convertPatternObj(obj, resolver) {
     return ret;
 }
 
-
+function grabConfig(module, config_module) {
+    var rjsConfig = module.config();
+    var rjsConfigEmpty = (Object.keys(rjsConfig).length === 0);
+    if (Object.keys(config_module).length !== 0) {
+        if (!rjsConfigEmpty) {
+            console.warn("RequireJS' module configuration shadowed " +
+                         "by ``wed/config``.");
+        }
+        return { from: "module", config: config_module.config };
+    }
+    if (!rjsConfigEmpty) {
+        console.warn("Deprecation Warning: using RequireJS' module " +
+                     "configuration is deprecated");
+    }
+    return { from: "requirejs", config: rjsConfig };
+}
 
 exports.escapeCSSClass = escapeCSSClass;
 exports.getOriginalName = getOriginalName;
@@ -340,6 +355,7 @@ exports.distsFromRect = distsFromRect;
 exports.seleniumLog = seleniumLog;
 exports.stackTrace = stackTrace;
 exports.convertPatternObj = convertPatternObj;
+exports.grabConfig = grabConfig;
 });
 
 //  LocalWords:  Mangalam MPL Dubeau util CSS wed's unencoded

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; Wed v0.26.2 documentation</title>
+  <title>Introduction &mdash; Wed v0.27.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Wed v0.26.2 documentation" href="#"/>
+    <link rel="top" title="Wed v0.27.0 documentation" href="#"/>
         <link rel="next" title="Demos" href="demos.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                v0.26
+                v0.27
               </div>
             
           
@@ -139,7 +139,7 @@ articles.  We aim to make it extensible by means of a stable API, but
 the API is likely to change quickly until we hit 1.0.</p>
 <p>For now wed is not meant to be used alone. Rather, it is meant to be
 incorporated into web applications that need to edit XML documents. It
-is possible to use the <a class="reference internal" href="demos.html#demo-localstorage"><span>demo</span></a> of wed based on
+is possible to use the <a class="reference internal" href="demos.html#demo-localstorage"><span class="std std-ref">demo</span></a> of wed based on
 <cite>localStorage</cite> and load in it documents based on the TEI schema that
 is bundled with the demo, and edit documents that conform to this
 schema. So it would be possible to use wed as a generic XML
@@ -151,13 +151,14 @@ to do it.) We hope to lift this limitation and have wed be usable both
 as an editor part of a larger web application <strong>and</strong> as a generic XML
 editor but it may take a few more releases before this happens.</p>
 <p>People who are actually editing documents using wed should read
-<a class="reference internal" href="help.html"><em>Wed&#8217;s Help</em></a>.</p>
+<a class="reference internal" href="help.html"><span class="doc">Wed&#8217;s Help</span></a>. You should also read it if you want to know about which
+browsers wed supports.</p>
 <p>People who would like to customize wed or create a mode for it should
 consult:</p>
 <ul class="simple">
-<li><a class="reference internal" href="usage.html"><em>Using Wed in an Application</em></a> to learn how to use wed in their own application, or
+<li><a class="reference internal" href="usage.html"><span class="doc">Using Wed in an Application</span></a> to learn how to use wed in their own application, or
 build and test it,</li>
-<li><a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a> to learn about wed&#8217;s internals, design decisions,
+<li><a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a> to learn about wed&#8217;s internals, design decisions,
 or about more complex usage scenarios,</li>
 <li>the <a class="reference external" href="api/index.html">API documentation</a> to write modes or extensions
 for wed.</li>
@@ -210,7 +211,11 @@ for wed.</li>
 <li class="toctree-l3"><a class="reference internal" href="usage.html#label-visibility">Label Visibility</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#using">Using</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#using">Using</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#sources-of-configuration">Sources of Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#errors">Errors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#round-tripping">Round-Tripping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#the-generic-mode">The Generic Mode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#contributing">Contributing</a></li>
@@ -319,7 +324,7 @@ represent those of the National Endowment for the Humanities.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.26.2',
+            VERSION:'v0.27.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

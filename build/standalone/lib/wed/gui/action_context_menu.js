@@ -45,17 +45,17 @@ var TYPE_FILTERS = TYPES.concat(undefined);
  * ``Transformation`` and then by the text associated with the
  * ``Transformation``. The kinds, in order, are:
  *
- * - other kinds than those listed below,
+ * - other kinds than those listed below
  *
- * - undefined ``kind``,
+ * - undefined ``kind``
  *
- * - ``"add"``,
+ * - ``"add"``
  *
- * - ``"delete"``,
+ * - ``"delete"``
  *
- * - ``"wrap"``,
+ * - ``"wrap"``
  *
- * - ``"unwrap"``,
+ * - ``"unwrap"``
  *
  * The text associated with the transformation is the text value of
  * the DOM ``Element`` object stored in the ``item`` field of the
@@ -72,7 +72,7 @@ var TYPE_FILTERS = TYPES.concat(undefined);
  * Typing text (e.g. "foo") will narrow the list of items to the text
  * that the user typed. Let's suppose that ``item`` is successively
  * taking the values in the ``items`` array. The filtering algorithm
- * first checks whether there is a ``item.data.name`` field. If there
+ * first checks whether there is an ``item.data.name`` field. If there
  * is, the match is performed against this field. If not, the match is
  * performed against the text of ``item.item``.
  *

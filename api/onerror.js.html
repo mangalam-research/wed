@@ -28,7 +28,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>/**
  * @module onerror
- * @desc The onerror handler for wed.
+ * @desc The error handler for wed.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
@@ -36,8 +36,20 @@
 define(/** @lends module:onerror */function (require, exports, module) {
 'use strict';
 
-var options = module.config();
-var suppress_old_onerror = options &amp;&amp; options.suppress_old_onerror;
+var util = require("./util");
+var config_module = require("optional!./config");
+
+
+var config_results = util.grabConfig(module, config_module);
+var options = config_results.config;
+if (config_results.from !== "module") {
+    // Normalize the options obtained through module.config into the format
+    // we get through the config module.
+    options = {
+        test: options.test,
+    };
+}
+
 var test = options &amp;&amp; options.test;
 
 var log = require("./log");
@@ -54,6 +66,8 @@ aria-hidden="true">&amp;times;&lt;/button>\
         &lt;h3>Fatal Error&lt;/h3>\
       &lt;/div>\
       &lt;div class="modal-body">\
+        &lt;div class="save-messages">&lt;/div>\
+        &lt;div class="error-message">&lt;/div>\
       &lt;/div>\
       &lt;div class="modal-footer">\
         &lt;a href="#" class="btn btn-primary" data-dismiss="modal">Reload&lt;/a>\
@@ -61,8 +75,6 @@ aria-hidden="true">&amp;times;&lt;/button>\
     &lt;/div>\
   &lt;/div>\
 &lt;/div>');
-
-
 
 // Normally onerror will be reset by reloading but when testing with
 // mocha we don't want reloading, so we export this function.
@@ -89,41 +101,9 @@ if (test) {
         reset: _reset
     };
 }
-
-// We install onto whatever window is current ASAP to catch early errors.
-installOnError(window);
-
-/**
- * &lt;p>Aggressively installs an onerror handler. It will install it both
- * in the window passed as parameter and into the root window if the
- * window passed happens to be an iframe. While running wed in an
- * iframe on Chrome 28.0.1500.95, we've noticed that the onerror
- * handlers set on iframe windows did not catch anything, hence this
- * behavior.&lt;/p>
- *
- * &lt;p>This function will inspect the value of &lt;code>win.onerror&lt;/code>
- * and call it after it does its own bookkeeping. If this behavior is
- * not desired, set &lt;code>suppress_old_onerror&lt;/code> as a
- * configuration option for this module in your RequireJS setup.&lt;/p>
- *
- * &lt;p>Note that it is extremely unlikely that wed would play well with
- * any onerror handler set by other software if this handler tries
- * to do something as substantial as wed does. Note also that this
- * handler will catch any JavaScript error so any other JavaScript
- * running on the same page as wed will trip it.&lt;/p>
- *
- * @param {Window} win The window to install on.
- */
-function register(win) {
-    installOnError(win);
-}
-
-exports.register = register;
-
 /**
  * An array into which wed editors register themselves at creation and
- * unregister themselves when destroyed. (Note that this is not
- * related to this module's register function.)
+ * unregister themselves when destroyed.
  */
 var editors = [];
 
@@ -134,83 +114,90 @@ var termination_timeout;
 // So that we can issue clearTimeout elsewhere.
 var termination_window;
 
-/**
- * Installs an &lt;code>onerror&lt;/code> handler.
- *
- * @private
- * @param {Window} win The window to install it on.
- */
-function installOnError(win) {
-    // Install globally too.
-    var root = win;
-    while(root !== root.parent)
-        root = root.parent;
+function showModal(saveMessages, errorMessage) {
+    $(document.body).append($modal);
+    $modal.find(".save-messages")[0].innerHTML = saveMessages;
+    $modal.find(".error-message")[0].textContent = errorMessage;
+    $modal.on("hide.bs.modal.modal", function () {
+        $modal.remove();
+        window.location.reload();
+    });
+    $modal.modal();
+}
 
-    if (root !== win) // Don't invoke if we're already root.
-        installOnError(root);
+function _handler(ev) {
+    ev.preventDefault();
+    // This avoids an infinite loop.
+    if (terminating) {
+        return false;
+    }
+    terminating = true;
 
-    if (win.wed_installed_onerror === win.onerror)
-        return;
+    var errorMessage = eventToMessage(ev);
 
-    var old_onerror = win.onerror;
-    win.onerror = onerror;
-    win.wed_installed_onerror = onerror;
-    function onerror(msg, url, linenumber) {
-        // This avoids an infinite loop.
-        if (terminating)
-            return false;
-        terminating = true;
+    var total = editors.length;
+    var results = [];
+    var messages = [];
 
-        var total = editors.length;
-        var results = [];
-        var messages = [];
+    var root = window;
+    termination_timeout = root.setTimeout(terminate, TERMINATION_TIMEOUT);
+    termination_window = root;
+    function terminate() {
+        if (termination_timeout)
+            root.clearTimeout(termination_timeout);
 
-        termination_timeout = root.setTimeout(terminate, TERMINATION_TIMEOUT);
-        termination_window = root;
-        function terminate() {
-            if (termination_timeout)
-                root.clearTimeout(termination_timeout);
-            if (total === 1)
-                messages.push(to_msg(undefined,
-                                     results[0] ? results[0][1] : undefined));
-            else {
-                for(var r_ix = 0, result;
-                    (result = results[r_ix]) !== undefined;
-                    ++r_ix)
-                    messages.push(to_msg(editors[result[0]].name, result[1]));
+        if (total === 1) {
+            messages.push(to_msg(undefined,
+                                 results[0] ? results[0][1] : undefined));
+        }
+        else {
+            for(var r_ix = 0, result; (result = results[r_ix]) !== undefined;
+                ++r_ix) {
+                messages.push(to_msg(editors[result[0]].name, result[1]));
             }
-            $(document.body).append($modal);
-            $modal.find(".modal-body").contents().replaceWith(
-                messages.join(""));
-            $modal.on("hide.bs.modal.modal", function () {
-                $modal.remove();
-                root.location.reload();
-            });
-            $modal.modal();
         }
+        showModal(messages.join(""), errorMessage);
+    }
 
-        function done(success) {
-            /* jshint validthis:true */
-            results.push([this, success]);
-            if (results.length === total)
-                terminate();
-        }
+    function done(success) {
+        /* jshint validthis:true */
+        results.push([this, success]);
+        if (results.length === total)
+            terminate();
+    }
 
-        log.error(msg, url, linenumber);
+    log.error(errorMessage);
+    for(var i = 0, editor; (editor = editors[i]) !== undefined; ++i) {
+        var saver = editor._saver;
         try {
-            if (old_onerror &amp;&amp; !suppress_old_onerror)
-                old_onerror.apply(undefined, arguments);
-        }
-        finally {
-            for(var i = 0, editor; (editor = editors[i]) !== undefined; ++i) {
-                var saver = editor._saver;
-                if (saver)
-                    saver.recover(done.bind(i));
+            if (saver) {
+                saver.recover(done.bind(i));
             }
-            return false;
+        }
+        catch (ex) {
+            results.push([i, undefined]);
         }
     }
+    return false;
 }
+
+function handler(ev) {
+    try {
+        try {
+            _handler(ev);
+        }
+        catch (ex) {
+            showModal("", "Error while trying to handle fatal error: " +
+                      ex.toString());
+        }
+    }
+    catch (ex) {
+        console.error("Error while trying to handle fatal error:");
+        console.error(ex);
+    }
+}
+
+exports.handler = handler;
 
 /**
  *
@@ -240,6 +227,50 @@ function to_msg(name, result) {
     return ret.join('');
 }
 
+function eventToMessage(ev) {
+    var msg = "";
+    if (ev.type === "error") {
+        var message = ev.message;
+        var filename = ev.filename;
+        var lineno = ev.lineno;
+        var colno = ev.colno;
+        var err = ev.error;
+
+        if (err) {
+            msg = err.stack;
+        }
+        else {
+            msg = filename + ":" + lineno;
+            if (colno) {
+                msg += "." + colno;
+            }
+            msg += ": " + message;
+        }
+    }
+    else {
+        msg += "Unhandled promise rejection!\n";
+        var reason;
+        var promise;
+        var source = ev.promise ? ev : ev.detail;
+        if (source) {
+            reason = source.reason;
+            promise = source.promise;
+        }
+
+        if (reason) {
+            msg += "Reason: ";
+            if (reason.stack)
+                msg += "\n" + reason.stack;
+            else
+                msg += reason;
+        }
+        else if (promise) {
+            msg += "Promise: " + promise;
+        }
+    }
+    return msg;
+}
+
 exports.editors = editors;
 
 });
@@ -257,13 +288,13 @@ exports.editors = editors;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="module-gui_action_context_menu.html">gui/action_context_menu</a></li><li><a href="module-gui_completion_menu.html">gui/completion_menu</a></li><li><a href="module-gui_context_menu.html">gui/context_menu</a></li><li><a href="module-gui_icon.html">gui/icon</a></li><li><a href="module-gui_modal.html">gui/modal</a></li><li><a href="module-gui_tooltip.html">gui/tooltip</a></li><li><a href="module-gui_typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="module-lib_conditioned.html">lib/conditioned</a></li><li><a href="module-lib_pubsub.html">lib/pubsub</a></li><li><a href="module-lib_simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="module-modes_generic_generic.html">modes/generic/generic</a></li><li><a href="module-modes_generic_generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="module-modes_generic_generic_meta.html">modes/generic/generic_meta</a></li><li><a href="module-modes_generic_generic_tr.html">modes/generic/generic_tr</a></li><li><a href="module-modes_generic_metas_docbook_meta.html">modes/generic/metas/docbook_meta</a></li><li><a href="module-modes_generic_metas_tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="module-modes_test_test_decorator.html">modes/test/test_decorator</a></li><li><a href="module-modes_test_test_mode.html">modes/test/test_mode</a></li><li><a href="module-modes_test_test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-savers_ajax.html">savers/ajax</a></li><li><a href="module-savers_localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="Mode.html">Mode</a></li><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-dloc-DLoc.html">DLoc</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="module-gui_action_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_completion_menu-CompletionMenu.html">CompletionMenu</a></li><li><a href="module-gui_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_modal-Modal.html">Modal</a></li><li><a href="module-gui_typeahead_popup-TypeaheadPopup.html">TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="module-lib_conditioned-Conditioned.html">Conditioned</a></li><li><a href="module-lib_simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="module-modes_generic_generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="module-modes_generic_generic_meta-Meta.html">Meta</a></li><li><a href="module-modes_generic_metas_docbook_meta-DocBookMeta.html">DocBookMeta</a></li><li><a href="module-modes_generic_metas_tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="module-modes_test_test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="module-modes_test_test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-savers_ajax-AjaxSaver.html">AjaxSaver</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-lib_pubsub.html#event:WED">WED</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE">WED_MODE</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE_READY">WED_MODE_READY</a></li><li><a href="module-lib_pubsub.html#event:WED_MODES_GENERIC_META_READY">WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">changed</a></li><li><a href="module-saver-Saver.html#event:failed">failed</a></li><li><a href="module-saver-Saver.html#event:saved">saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:possible-due-to-wildcard-change">possible-due-to-wildcard-change</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="module-gui_action_context_menu.html">gui/action_context_menu</a></li><li><a href="module-gui_completion_menu.html">gui/completion_menu</a></li><li><a href="module-gui_context_menu.html">gui/context_menu</a></li><li><a href="module-gui_icon.html">gui/icon</a></li><li><a href="module-gui_modal.html">gui/modal</a></li><li><a href="module-gui_tooltip.html">gui/tooltip</a></li><li><a href="module-gui_typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="module-lib_conditioned.html">lib/conditioned</a></li><li><a href="module-lib_pubsub.html">lib/pubsub</a></li><li><a href="module-lib_simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="module-modes_generic_generic.html">modes/generic/generic</a></li><li><a href="module-modes_generic_generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="module-modes_generic_generic_meta.html">modes/generic/generic_meta</a></li><li><a href="module-modes_generic_generic_tr.html">modes/generic/generic_tr</a></li><li><a href="module-modes_generic_metas_docbook_meta.html">modes/generic/metas/docbook_meta</a></li><li><a href="module-modes_generic_metas_tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="module-modes_test_test_decorator.html">modes/test/test_decorator</a></li><li><a href="module-modes_test_test_mode.html">modes/test/test_mode</a></li><li><a href="module-modes_test_test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-patches_bootstrap.html">patches/bootstrap</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-savers_ajax.html">savers/ajax</a></li><li><a href="module-savers_localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="Mode.html">Mode</a></li><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-dloc-DLoc.html">DLoc</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="module-gui_action_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_completion_menu-CompletionMenu.html">CompletionMenu</a></li><li><a href="module-gui_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_modal-Modal.html">Modal</a></li><li><a href="module-gui_typeahead_popup-TypeaheadPopup.html">TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="module-lib_conditioned-Conditioned.html">Conditioned</a></li><li><a href="module-lib_simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="module-modes_generic_generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="module-modes_generic_generic_meta-Meta.html">Meta</a></li><li><a href="module-modes_generic_metas_docbook_meta-DocBookMeta.html">DocBookMeta</a></li><li><a href="module-modes_generic_metas_tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="module-modes_test_test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="module-modes_test_test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-savers_ajax-AjaxSaver.html">AjaxSaver</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-lib_pubsub.html#event:WED">WED</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE">WED_MODE</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE_READY">WED_MODE_READY</a></li><li><a href="module-lib_pubsub.html#event:WED_MODES_GENERIC_META_READY">WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">changed</a></li><li><a href="module-saver-Saver.html#event:failed">failed</a></li><li><a href="module-saver-Saver.html#event:saved">saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:possible-due-to-wildcard-change">possible-due-to-wildcard-change</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Apr 26 2016 16:35:13 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Aug 30 2016 13:18:14 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

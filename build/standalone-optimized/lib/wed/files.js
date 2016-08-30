@@ -1,6 +1,6 @@
 /**
  * @module files
- * @desc A module to load and manage files stored in local forage.
+ * @desc A module to load and manage files stored in localForage.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright 2014 Mangalam Research Center for Buddhist Languages
@@ -16,7 +16,7 @@ var async = require("async");
 var angular = require("angular");
 var bootbox = require("bootbox");
 var browsers = require("./browsers");
-require("./onerror");
+var lastResort = require("last-resort");
 require("bootstrap");
 
 var makeFileRecord = localforage_saver.makeFileRecord;
@@ -190,7 +190,6 @@ Files.prototype.onClear = log.wrap(function (ev) {
     });
 });
 
-
 Files.prototype.onNewFile = log.wrap(function (ev) {
     var me = this;
     bootbox.prompt("Give a name to your new file", function (name) {
@@ -219,7 +218,6 @@ Files.prototype._updateProgress = function () {
     var percent = this._progress_count / this._progress_total * 100;
     this._progress_bar.style.width = "" + percent + "%";
 };
-
 
 Files.prototype._stopProcessing = log.wrap(function () {
     this._$processing.modal('hide');

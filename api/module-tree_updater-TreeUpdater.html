@@ -449,7 +449,7 @@ item is a list of nodes, the cut contents.</p>
 
 <div class="description">
     <p>A primitive method. Removes a node from the DOM tree. This method
-must not be called directly by code that perform changes of the DOM
+must not be called directly by code that performs changes of the DOM
 tree at a high level, because it does not prevent two text nodes
 from being contiguous after deletion of the node. Call <a href="module-tree_updater-TreeUpdater.html#removeNode"><code>removeNode</code></a>
 instead. This method is meant to be used by other complex methods
@@ -576,6 +576,190 @@ of TreeUpdater and by some low-level facilities of wed.</p>
 
 
 
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="deleteText"><span class="type-signature"></span>deleteText<span class="signature">(loc, length)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>A complex method. Deletes text from a text node. If the text node
+becomes empty, it is deleted.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>loc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Where to delete.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>length</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The length of text to delete.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line369">line 369</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <p>If <code>node</code> is not a text Node type.</p>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
 
 
 
@@ -788,15 +972,17 @@ of TreeUpdater and by some low-level facilities of wed.</p>
 
     
 
-    <h4 class="name" id="deleteText"><span class="type-signature"></span>deleteText<span class="signature">(loc, length)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="insertAt"><span class="type-signature"></span>insertAt<span class="signature">(loc, what)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>A complex method. Deletes text from a text node. If the text node
-becomes empty, it is deleted.</p>
+    <p>A complex method. This is a convenience method that will call
+primitive methods to insert the specified item at the specified
+location. Note that this method returns nothing even if the
+primitives it uses return some information.</p>
 </div>
 
 
@@ -848,22 +1034,17 @@ becomes empty, it is deleted.</p>
 
             
 
-            <td class="description last"><p>Where to delete.</p></td>
+            <td class="description last"><p>The location where to insert.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>length</code></td>
+                <td class="name"><code>what</code></td>
             
 
             <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
             
             </td>
 
@@ -871,7 +1052,8 @@ becomes empty, it is deleted.</p>
 
             
 
-            <td class="description last"><p>The length of text to delete.</p></td>
+            <td class="description last"><p>The data to insert. This can be a string, a DOM Node of
+TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
         </tr>
 
     
@@ -912,7 +1094,7 @@ becomes empty, it is deleted.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line369">line 369</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line113">line 113</a>
     </li></ul></dd>
     
 
@@ -940,7 +1122,8 @@ becomes empty, it is deleted.</p>
 <dl>
     <dt>
         <div class="param-desc">
-        <p>If <code>node</code> is not a text Node type.</p>
+        <p>If <code>loc</code> is not in an element or text node or if
+<code>what</code> is not an element or text node.</p>
         </div>
     </dt>
     <dd></dd>
@@ -1140,189 +1323,6 @@ TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
     <dt>
         <div class="param-desc">
         <p>If <code>node</code> is not in an element or text node or if
-<code>what</code> is not an element or text node.</p>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="insertAt"><span class="type-signature"></span>insertAt<span class="signature">(loc, what)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>A complex method. This is a convenience method that will call
-primitive methods to insert the specified item at the specified
-location. Note that this method returns nothing even if the
-primitives it uses return some information.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>loc</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The location where to insert.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>what</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The data to insert. This can be a string, a DOM Node of
-TEXT_NODE or ELEMENT_NODE type, or an array of these.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line113">line 113</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <p>If <code>loc</code> is not in an element or text node or if
 <code>what</code> is not an element or text node.</p>
         </div>
     </dt>
@@ -3269,7 +3269,7 @@ no node to remove.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line778">line 778</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line777">line 777</a>
     </li></ul></dd>
     
 
@@ -3423,7 +3423,7 @@ tree we are updating.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line788">line 788</a>
+        <a href="tree_updater.js.html">tree_updater.js</a>, <a href="tree_updater.js.html#line787">line 787</a>
     </li></ul></dd>
     
 
@@ -4577,7 +4577,7 @@ value <code>null</code> or <code>undefined</code> deletes the attribute.</p>
 
 <div class="description">
     <p>A primitive method. Sets a text node to a specified value. This
-method must not be called directly by code that perform changes of
+method must not be called directly by code that performs changes of
 the DOM tree at a high level, because it does not prevent a text
 node from becoming empty. Call <a href="module-tree_updater-TreeUpdater.html#removeNode"><code>setTextNode</code></a>
 instead. This method is meant to be used by other complex methods
@@ -4764,11 +4764,15 @@ of TreeUpdater and by some low-level facilities of wed.</p>
 
     
 
-    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, node, index)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
+    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, loc)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
 
     
 
 
+
+<div class="description">
+    <p>A complex method. Splits a DOM tree into two halves.</p>
+</div>
 
 
 
@@ -4828,13 +4832,13 @@ above this node.</p></td>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>loc</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Node</span>
+<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
 
 
             
@@ -4844,30 +4848,8 @@ above this node.</p></td>
 
             
 
-            <td class="description last"><p>The node at which to start the split.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The index at which to start in the node.</p></td>
+            <td class="description last"><p>The location where to start the
+split.</p></td>
         </tr>
 
     
@@ -4992,15 +4974,11 @@ second half of the split.</p>
 
     
 
-    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, loc)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
+    <h4 class="name" id="splitAt"><span class="type-signature"></span>splitAt<span class="signature">(top, node, index)</span><span class="type-signature"> &rarr; {Array.&lt;Node>}</span></h4>
 
     
 
 
-
-<div class="description">
-    <p>A complex method. Splits a DOM tree into two halves.</p>
-</div>
 
 
 
@@ -5060,13 +5038,13 @@ above this node.</p></td>
 
         <tr>
             
-                <td class="name"><code>loc</code></td>
+                <td class="name"><code>node</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-dloc-DLoc.html">module:dloc~DLoc</a></span>
+<span class="param-type">Node</span>
 
 
             
@@ -5076,8 +5054,30 @@ above this node.</p></td>
 
             
 
-            <td class="description last"><p>The location where to start the
-split.</p></td>
+            <td class="description last"><p>The node at which to start the split.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The index at which to start in the node.</p></td>
         </tr>
 
     
@@ -6203,13 +6203,13 @@ before it was removed.</p></td>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="module-gui_action_context_menu.html">gui/action_context_menu</a></li><li><a href="module-gui_completion_menu.html">gui/completion_menu</a></li><li><a href="module-gui_context_menu.html">gui/context_menu</a></li><li><a href="module-gui_icon.html">gui/icon</a></li><li><a href="module-gui_modal.html">gui/modal</a></li><li><a href="module-gui_tooltip.html">gui/tooltip</a></li><li><a href="module-gui_typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="module-lib_conditioned.html">lib/conditioned</a></li><li><a href="module-lib_pubsub.html">lib/pubsub</a></li><li><a href="module-lib_simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="module-modes_generic_generic.html">modes/generic/generic</a></li><li><a href="module-modes_generic_generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="module-modes_generic_generic_meta.html">modes/generic/generic_meta</a></li><li><a href="module-modes_generic_generic_tr.html">modes/generic/generic_tr</a></li><li><a href="module-modes_generic_metas_docbook_meta.html">modes/generic/metas/docbook_meta</a></li><li><a href="module-modes_generic_metas_tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="module-modes_test_test_decorator.html">modes/test/test_decorator</a></li><li><a href="module-modes_test_test_mode.html">modes/test/test_mode</a></li><li><a href="module-modes_test_test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-savers_ajax.html">savers/ajax</a></li><li><a href="module-savers_localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="Mode.html">Mode</a></li><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-dloc-DLoc.html">DLoc</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="module-gui_action_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_completion_menu-CompletionMenu.html">CompletionMenu</a></li><li><a href="module-gui_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_modal-Modal.html">Modal</a></li><li><a href="module-gui_typeahead_popup-TypeaheadPopup.html">TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="module-lib_conditioned-Conditioned.html">Conditioned</a></li><li><a href="module-lib_simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="module-modes_generic_generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="module-modes_generic_generic_meta-Meta.html">Meta</a></li><li><a href="module-modes_generic_metas_docbook_meta-DocBookMeta.html">DocBookMeta</a></li><li><a href="module-modes_generic_metas_tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="module-modes_test_test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="module-modes_test_test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-savers_ajax-AjaxSaver.html">AjaxSaver</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-lib_pubsub.html#event:WED">WED</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE">WED_MODE</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE_READY">WED_MODE_READY</a></li><li><a href="module-lib_pubsub.html#event:WED_MODES_GENERIC_META_READY">WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">changed</a></li><li><a href="module-saver-Saver.html#event:failed">failed</a></li><li><a href="module-saver-Saver.html#event:saved">saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:possible-due-to-wildcard-change">possible-due-to-wildcard-change</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-action.html">action</a></li><li><a href="module-browsers.html">browsers</a></li><li><a href="module-convert.html">convert</a></li><li><a href="module-decorator.html">decorator</a></li><li><a href="module-dloc.html">dloc</a></li><li><a href="module-domlistener.html">domlistener</a></li><li><a href="module-domutil.html">domutil</a></li><li><a href="module-exceptions.html">exceptions</a></li><li><a href="module-files.html">files</a></li><li><a href="module-gui_action_context_menu.html">gui/action_context_menu</a></li><li><a href="module-gui_completion_menu.html">gui/completion_menu</a></li><li><a href="module-gui_context_menu.html">gui/context_menu</a></li><li><a href="module-gui_icon.html">gui/icon</a></li><li><a href="module-gui_modal.html">gui/modal</a></li><li><a href="module-gui_tooltip.html">gui/tooltip</a></li><li><a href="module-gui_typeahead_popup.html">gui/typeahead_popup</a></li><li><a href="module-gui_updater.html">gui_updater</a></li><li><a href="module-guiroot.html">guiroot</a></li><li><a href="module-input_trigger.html">input_trigger</a></li><li><a href="module-input_trigger_factory.html">input_trigger_factory</a></li><li><a href="module-key.html">key</a></li><li><a href="module-key_constants.html">key_constants</a></li><li><a href="module-kitchen-sink.html">kitchen-sink</a></li><li><a href="module-lib_conditioned.html">lib/conditioned</a></li><li><a href="module-lib_pubsub.html">lib/pubsub</a></li><li><a href="module-lib_simple_event_emitter.html">lib/simple_event_emitter</a></li><li><a href="module-log.html">log</a></li><li><a href="module-mode.html">mode</a></li><li><a href="module-mode_validator.html">mode_validator</a></li><li><a href="module-modes_generic_generic.html">modes/generic/generic</a></li><li><a href="module-modes_generic_generic_decorator.html">modes/generic/generic_decorator</a></li><li><a href="module-modes_generic_generic_meta.html">modes/generic/generic_meta</a></li><li><a href="module-modes_generic_generic_tr.html">modes/generic/generic_tr</a></li><li><a href="module-modes_generic_metas_docbook_meta.html">modes/generic/metas/docbook_meta</a></li><li><a href="module-modes_generic_metas_tei_meta.html">modes/generic/metas/tei_meta</a></li><li><a href="module-modes_test_test_decorator.html">modes/test/test_decorator</a></li><li><a href="module-modes_test_test_mode.html">modes/test/test_mode</a></li><li><a href="module-modes_test_test_mode_validator.html">modes/test/test_mode_validator</a></li><li><a href="module-object_check.html">object_check</a></li><li><a href="module-onbeforeunload.html">onbeforeunload</a></li><li><a href="module-onerror.html">onerror</a></li><li><a href="module-oop.html">oop</a></li><li><a href="module-patches_bootstrap.html">patches/bootstrap</a></li><li><a href="module-preferences.html">preferences</a></li><li><a href="module-refman.html">refman</a></li><li><a href="module-saver.html">saver</a></li><li><a href="module-savers_ajax.html">savers/ajax</a></li><li><a href="module-savers_localforage.html">savers/localforage</a></li><li><a href="module-serializer.html">serializer</a></li><li><a href="module-transformation.html">transformation</a></li><li><a href="module-tree_updater.html">tree_updater</a></li><li><a href="module-undo.html">undo</a></li><li><a href="module-undo_recorder.html">undo_recorder</a></li><li><a href="module-updater_domlistener.html">updater_domlistener</a></li><li><a href="module-util.html">util</a></li><li><a href="module-validator.html">validator</a></li><li><a href="module-wed.html">wed</a></li><li><a href="module-wundo.html">wundo</a></li></ul><h3>Externals</h3><ul><li><a href="external-jQuery.html">jQuery</a></li></ul><h3>Classes</h3><ul><li><a href="Mode.html">Mode</a></li><li><a href="module-action-Action.html">Action</a></li><li><a href="module-decorator-Decorator.html">Decorator</a></li><li><a href="module-dloc-DLoc.html">DLoc</a></li><li><a href="module-domlistener-Listener.html">Listener</a></li><li><a href="module-exceptions-AbortTransformationException.html">AbortTransformationException</a></li><li><a href="module-gui_action_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_completion_menu-CompletionMenu.html">CompletionMenu</a></li><li><a href="module-gui_context_menu-ContextMenu.html">ContextMenu</a></li><li><a href="module-gui_modal-Modal.html">Modal</a></li><li><a href="module-gui_typeahead_popup-TypeaheadPopup.html">TypeaheadPopup</a></li><li><a href="module-gui_updater-GUIUpdater.html">GUIUpdater</a></li><li><a href="module-input_trigger-InputTrigger.html">InputTrigger</a></li><li><a href="module-key-Key.html">Key</a></li><li><a href="module-lib_conditioned-Conditioned.html">Conditioned</a></li><li><a href="module-lib_simple_event_emitter-SimpleEventEmitter.html">SimpleEventEmitter</a></li><li><a href="module-log-Handled.html">Handled</a></li><li><a href="module-modes_generic_generic_decorator-GenericDecorator.html">GenericDecorator</a></li><li><a href="module-modes_generic_generic_meta-Meta.html">Meta</a></li><li><a href="module-modes_generic_metas_docbook_meta-DocBookMeta.html">DocBookMeta</a></li><li><a href="module-modes_generic_metas_tei_meta-TeiMeta.html">TeiMeta</a></li><li><a href="module-modes_test_test_decorator-TestDecorator.html">TestDecorator</a></li><li><a href="module-modes_test_test_mode-TestMode.html">TestMode</a></li><li><a href="module-mode-Mode.html">Mode</a></li><li><a href="module-refman-ReferenceManager.html">ReferenceManager</a></li><li><a href="module-refman-SenseReferenceManager.html">SenseReferenceManager</a></li><li><a href="module-savers_ajax-AjaxSaver.html">AjaxSaver</a></li><li><a href="module-saver-Saver.html">Saver</a></li><li><a href="module-transformation-Transformation.html">Transformation</a></li><li><a href="module-tree_updater-TreeUpdater.html">TreeUpdater</a></li><li><a href="module-undo_recorder-UndoRecorder.html">UndoRecorder</a></li><li><a href="module-undo-Undo.html">Undo</a></li><li><a href="module-undo-UndoGroup.html">UndoGroup</a></li><li><a href="module-undo-UndoList.html">UndoList</a></li><li><a href="module-updater_domlistener-Listener.html">Listener</a></li><li><a href="module-validator-EventIndexException.html">EventIndexException</a></li><li><a href="module-validator-Validator.html">Validator</a></li><li><a href="module-wed-Editor.html">Editor</a></li><li><a href="module-wundo-MarkerUndo.html">MarkerUndo</a></li><li><a href="module-wundo-TextUndoGroup.html">TextUndoGroup</a></li><li><a href="module-wundo-UndoGroup.html">UndoGroup</a></li></ul><h3>Events</h3><ul><li><a href="module-action-Action.html#event:disabled">disabled</a></li><li><a href="module-action-Action.html#event:enabled">enabled</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:changed">changed</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-gui_updater-GUIUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-lib_pubsub.html#event:WED">WED</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE">WED_MODE</a></li><li><a href="module-lib_pubsub.html#event:WED_MODE_READY">WED_MODE_READY</a></li><li><a href="module-lib_pubsub.html#event:WED_MODES_GENERIC_META_READY">WED_MODES_GENERIC_META_READY</a></li><li><a href="module-saver-Saver.html#event:autosaved">autosaved</a></li><li><a href="module-saver-Saver.html#event:changed">changed</a></li><li><a href="module-saver-Saver.html#event:failed">failed</a></li><li><a href="module-saver-Saver.html#event:saved">saved</a></li><li><a href="module-transformation-Transformation.html#event:disabled">disabled</a></li><li><a href="module-transformation-Transformation.html#event:enabled">enabled</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:beforeDeleteNode">beforeDeleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:changed">changed</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:deleteNode">deleteNode</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:insertNodeAt">insertNodeAt</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setAttributeNS">setAttributeNS</a></li><li><a href="module-tree_updater-TreeUpdater.html#event:setTextNodeValue">setTextNodeValue</a></li><li><a href="module-validator-Validator.html#event:error">error</a></li><li><a href="module-validator-Validator.html#event:possible-due-to-wildcard-change">possible-due-to-wildcard-change</a></li><li><a href="module-validator-Validator.html#event:reset-errors">reset-errors</a></li><li><a href="module-validator-Validator.html#event:state-update">state-update</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Apr 26 2016 16:35:14 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Aug 30 2016 13:18:14 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

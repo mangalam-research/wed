@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using Wed in an Application &mdash; Wed v0.26.2 documentation</title>
+  <title>Using Wed in an Application &mdash; Wed v0.27.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Wed v0.26.2 documentation" href="index.html"/>
+    <link rel="top" title="Wed v0.27.0 documentation" href="index.html"/>
         <link rel="next" title="Advanced Usage Notes" href="tech_notes.html"/>
         <link rel="prev" title="Wed’s Help" href="help.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                v0.26
+                v0.27
               </div>
             
           
@@ -84,7 +84,7 @@
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Using Wed in an Application</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using Wed in an Application</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building">Building</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
@@ -94,7 +94,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#label-visibility">Label Visibility</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#using">Using</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using">Using</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sources-of-configuration">Sources of Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#errors">Errors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#round-tripping">Round-Tripping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#the-generic-mode">The Generic Mode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#contributing">Contributing</a></li>
@@ -152,6 +156,8 @@ browser. The software is at the beta stage. It is currently used in a
 project for editing scholarly articles. We aim to make it extensible
 by means of a stable API, but the API is likely to change quickly for
 now.</p>
+<p>Make sure to read <a class="reference internal" href="help.html#help-browser-requirements"><span class="std std-ref">Browser Requirements</span></a> to learn which
+browsers are supported by wed.</p>
 <p>Known limitations:</p>
 <ul>
 <li><p class="first">Wed does not load documents containing XML comments (<code class="docutils literal"><span class="pre">&lt;!--</span>
@@ -225,7 +231,7 @@ inherent reason wed could not support other languages for the
 UI. The project for which it is developed currently does not need
 support for other languages, hence this state of affairs.</p>
 </li>
-<li><p class="first">See also <a class="reference internal" href="help.html#help-browser-requirements"><span>Browser Requirements</span></a>.</p>
+<li><p class="first">See also <a class="reference internal" href="help.html#help-browser-requirements"><span class="std std-ref">Browser Requirements</span></a>.</p>
 </li>
 <li><p class="first">See also <a class="reference internal" href="#round-tripping">Round-Tripping</a>, as some limitations there may affect
 whether you can use wed for your project.</p>
@@ -281,14 +287,14 @@ to set the path to the jsdoc3 default template but in
 <code class="docutils literal"><span class="pre">gulp.local.js</span></code> it would be <code class="docutils literal"><span class="pre">jsdoc3_default_template</span></code>. Also note
 that your <code class="docutils literal"><span class="pre">gulp.local.js</span></code> file should return a single anonymous
 object whose fields are the values you want to set. For instance:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">module</span><span class="o">.</span><span class="n">export</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">module</span><span class="o">.</span><span class="n">export</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">jsdoc3_default_template</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span>
 <span class="p">};</span>
 </pre></div>
 </div>
 <p>When everything is set, install gulp locally (<code class="docutils literal"><span class="pre">npm</span> <span class="pre">install</span> <span class="pre">gulp</span></code>)
 and run:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ gulp
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp
 </pre></div>
 </div>
 <p>Gulp will install locally some packages with <code class="docutils literal"><span class="pre">npm</span></code> and download some
@@ -302,21 +308,21 @@ the configuration for RequireJS.</p>
 <code class="docutils literal"><span class="pre">build/standalone-optimized/</span></code>. This is a version that has been
 optimized using RequireJS&#8217;s <code class="docutils literal"><span class="pre">r.js</span></code> optimizer. This optimization
 exists for illustration purposes and for testing wed. See the
-<a class="reference internal" href="tech_notes.html#tech-notes-deployment-considerations"><span>Deployment Considerations</span></a> section in
-<a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a> to determine whether this is the optimization you
+<a class="reference internal" href="tech_notes.html#tech-notes-deployment-considerations"><span class="std std-ref">Deployment Considerations</span></a> section in
+<a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a> to determine whether this is the optimization you
 want to use to deploy wed.</p>
 </div>
 <div class="section" id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
-<p>See <a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a>.</p>
+<p>See <a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a>.</p>
 </div>
 <div class="section" id="local-demos">
 <h2>Local Demos<a class="headerlink" href="#local-demos" title="Permalink to this headline">¶</a></h2>
 <p>The demos, you must have a minimal server running just like the one
 needed to run the browser-dependent test suite (see the
-<a class="reference internal" href="tech_notes.html#tech-notes-in-browser-tests"><span>In-Browser Tests</span></a> section in <a class="reference internal" href="tech_notes.html"><em>Advanced Usage Notes</em></a>). To
+<a class="reference internal" href="tech_notes.html#tech-notes-in-browser-tests"><span class="std std-ref">In-Browser Tests</span></a> section in <a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a>). To
 run a server suitable for the demos, you should do:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ ./server.js server localhost:8888 &amp;
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./server.js server localhost:8888 &amp;
 </pre></div>
 </div>
 <p>The address and port <code class="docutils literal"><span class="pre">localhost:8888</span></code> is just a suggestion, but the
@@ -340,7 +346,7 @@ view the demo with the unoptimized file tree.</li>
 to view the demo with an optimized file tree.</li>
 </ul>
 <p>The demo currently starts with an empty document using a vanilla TEI
-schema. See <a class="reference internal" href="help.html"><em>Wed&#8217;s Help</em></a> to learn what wed can do, in general.</p>
+schema. See <a class="reference internal" href="help.html"><span class="doc">Wed&#8217;s Help</span></a> to learn what wed can do, in general.</p>
 <p>When you save with this demo, the data is currently dumped into a file
 located at <code class="docutils literal"><span class="pre">build/ajax/save.txt</span></code>. You won&#8217;t be able to reload data
 from that file. For full functionality wed needs to be used with a
@@ -375,9 +381,9 @@ designed the mode.</p>
 <li><p class="first">Require <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/wed.js">lib/wed/wed.js</a></p>
 </li>
 <li><p class="first">Instantiate an <code class="docutils literal"><span class="pre">Editor</span></code> object of that module as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>var editor = new wed.Editor();
-[...]
-editor.init(widget, options, data);
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="n">editor</span> <span class="o">=</span> <span class="n">new</span> <span class="n">wed</span><span class="o">.</span><span class="n">Editor</span><span class="p">();</span>
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">editor</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Between the creation of the <code class="docutils literal"><span class="pre">Editor</span></code> object and the call to
@@ -403,13 +409,14 @@ given the path <code class="docutils literal"><span class="pre">&quot;foo&quot;<
 this fails, it will try to load <code class="docutils literal"><span class="pre">modes/foo/foo_mode</span></code>. These
 paths are all relative to the <code class="docutils literal"><span class="pre">wed/</span></code> root directory.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">ajaxlog</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#remote-logging"><span>remote logging</span></a>.</p>
+<li><p class="first"><code class="docutils literal"><span class="pre">ajaxlog</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#remote-logging"><span class="std std-ref">remote logging</span></a>.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">save</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#saving"><span>saving</span></a>.</p>
+<li><p class="first"><code class="docutils literal"><span class="pre">save</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#saving"><span class="std std-ref">saving</span></a>.</p>
 </li>
 <li><p class="first"><code class="docutils literal"><span class="pre">ignore_module_config</span></code>: This tells wed to not try to get a
-configuration from RequireJS&#8217; <code class="docutils literal"><span class="pre">module.config()</span></code>. This may be
-necessary to handle some configuration scenarios.</p>
+configuration from RequireJS&#8217; <code class="docutils literal"><span class="pre">module.config()</span></code> or from the
+configuration module named <code class="docutils literal"><span class="pre">wed/config</span></code>. This may be necessary
+to handle some configuration scenarios.</p>
 </li>
 </ul>
 <p>The <code class="docutils literal"><span class="pre">data</span></code> parameter is a string containing the document to edit,
@@ -417,7 +424,7 @@ in XML format.</p>
 </li>
 </ul>
 <p>Here is an example of an <code class="docutils literal"><span class="pre">options</span></code> object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
      <span class="n">schema</span><span class="p">:</span> <span class="s1">&#39;test/tei-simplified-rng.js&#39;</span><span class="p">,</span>
      <span class="n">mode</span><span class="p">:</span> <span class="p">{</span>
          <span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/generic&#39;</span><span class="p">,</span>
@@ -431,21 +438,86 @@ in XML format.</p>
 <p>The <code class="docutils literal"><span class="pre">mode.options</span></code> will be passed to the generic mode when it is
 created. What options are accepted and what they mean is determined by
 each mode.</p>
-<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/onerror.js">lib/wed/onerror.js</a> module installs a global onerror
-handler. By default it calls whatever onerror handler already existed
-at the time of installation. Sometimes this is not the desired
-behavior (for instance when testing with mocha). In such cases the
-<code class="docutils literal"><span class="pre">suppress_old_onerror</span></code> option set to a true value will prevent the
-module from calling the old onerror.</p>
+<div class="section" id="sources-of-configuration">
+<h3>Sources of Configuration<a class="headerlink" href="#sources-of-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Besides the <code class="docutils literal"><span class="pre">options</span></code> object that can be passed directly to a new
+<code class="docutils literal"><span class="pre">Editor</span></code> instance (described above), it is possible to pass
+configuration to wed using two mechanisms:</p>
+<ul>
+<li><p class="first">You can create a module with the name <code class="docutils literal"><span class="pre">wed/config</span></code>. This module
+should export a single <code class="docutils literal"><span class="pre">config</span></code> symbol at the top level. This
+symbol should contain the same configuration structure as mentioned
+above. For instance:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;wed/config&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="n">config</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="s1">&#39;test/tei-simplified-rng.js&#39;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="p">{</span>
+      <span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/generic&#39;</span><span class="p">,</span>
+      <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">meta</span><span class="p">:</span> <span class="s1">&#39;test/tei-meta&#39;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">You can use RequireJS&#8217; module config facility. The configuration for
+wed editors must be under the <code class="docutils literal"><span class="pre">wed/wed</span></code> key. For instance:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">require</span><span class="o">.</span><span class="n">config</span><span class="p">({</span>
+  <span class="n">config</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;wed/wed&#39;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="n">schema</span><span class="p">:</span> <span class="s1">&#39;test/tei-simplified-rng.js&#39;</span><span class="p">,</span>
+      <span class="n">mode</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/generic&#39;</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
+          <span class="n">meta</span><span class="p">:</span> <span class="s1">&#39;test/tei-meta&#39;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</li>
+</ul>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Wed installs its own handler so that if any error occurs
-it knows about it, attempts to save the data and forces
-the user to reload. The unfortunate upshot of this is
-that any other JavaScript executing on a page where wed
-is running could trip wed&#8217;s onerror handler and cause wed
-to think it crashed. For this reason you must not run
-wed with JavaScript code that causes onerror to fire.</p>
+<p>Using RequireJS&#8217; module config facility is
+deprecated. Support for it will eventually be removed. Use
+the <code class="docutils literal"><span class="pre">wed/config</span></code> module instead.</p>
+<p class="last">You cannot use RequireJS&#8217; module config facility <em>at the
+same time</em> as the <code class="docutils literal"><span class="pre">wed/config</span></code> module. If yyou use
+<code class="docutils literal"><span class="pre">wed/config</span></code>, then RequireJS&#8217; module config facility
+will be completely ignored.</p>
+</div>
+</div>
+</div>
+<div class="section" id="errors">
+<h2>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/onerror.js">lib/wed/onerror.js</a> module provides an error handler that
+could be used with <a class="reference external" href="https://github.com/lddubeau/last-resort">last-resort</a> or with any other error
+handler that can call a handler that takes a single argument which is
+an <code class="docutils literal"><span class="pre">error</span></code> DOM event. This handler tries to save the data in all
+editors that exist in the window. Here is an example that uses
+<code class="docutils literal"><span class="pre">last-resort</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">define</span><span class="p">(</span><span class="n">function</span> <span class="p">(</span><span class="n">require</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="n">var</span> <span class="n">lr</span> <span class="o">=</span> <span class="n">require</span><span class="p">(</span><span class="s2">&quot;last-resort&quot;</span><span class="p">);</span>
+<span class="n">var</span> <span class="n">onerror</span> <span class="o">=</span> <span class="n">require</span><span class="p">(</span><span class="s2">&quot;wed/onerror&quot;</span><span class="p">);</span>
+<span class="n">var</span> <span class="n">onError</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="n">window</span><span class="p">);</span>
+<span class="n">onError</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">onerror</span><span class="o">.</span><span class="n">handler</span><span class="p">);</span>
+<span class="o">//...</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><strong>IF YOU DO NOT SET THE HANDLER TO BE CALLED ON UNCAUGHT
+EXCEPTIONS, WED CANNOT DO ERROR RECOVERY.</strong> Previous
+versions of wed would automatically install a handler but
+the problem with this is that it makes wed a bad player
+when it is used on pages that already have their
+handlers.</p>
 </div>
 </div>
 <div class="section" id="round-tripping">
@@ -529,16 +601,16 @@ Relax NG schema, and extract the documentation for each element in the
 schema. Storing the resulting information into a JSON file is trivial,
 and it is more convenient than the alternatives.</p>
 <p>Here is an example of what the <code class="docutils literal"><span class="pre">mode</span></code> option passed to wed could contain:</p>
-<div class="highlight-python"><div class="highlight"><pre>path: &#39;wed/modes/generic/generic&#39;,
-options: {
-  meta: {
-    path: &#39;wed/modes/generic/metas/tei_meta&#39;,
-    options: {
-      metadata:
-        &#39;../../../../../schemas/tei-math-metadata.json&#39;
-      }
-    }
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/generic&#39;</span><span class="p">,</span>
+<span class="n">options</span><span class="p">:</span> <span class="p">{</span>
+  <span class="n">meta</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/metas/tei_meta&#39;</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
+      <span class="n">metadata</span><span class="p">:</span>
+        <span class="s1">&#39;../../../../../schemas/tei-math-metadata.json&#39;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This tells wed to load the generic mode, use the meta object exported
@@ -607,7 +679,7 @@ work.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.26.2',
+            VERSION:'v0.27.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

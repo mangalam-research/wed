@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Wed’s Help &mdash; Wed v0.26.2 documentation</title>
+  <title>Wed’s Help &mdash; Wed v0.27.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Wed v0.26.2 documentation" href="index.html"/>
+    <link rel="top" title="Wed v0.27.0 documentation" href="index.html"/>
         <link rel="next" title="Using Wed in an Application" href="usage.html"/>
         <link rel="prev" title="Demos" href="demos.html"/> 
 
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                v0.26
+                v0.27
               </div>
             
           
@@ -83,7 +83,7 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Wed&#8217;s Help</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Wed&#8217;s Help</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#editing-controls">Editing Controls</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-validation-progress-bar">The Validation Progress Bar</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#modification-and-save-status">Modification and Save Status</a></li>
@@ -912,14 +912,14 @@ expects <code class="kbd docutils literal"><span class="pre">Command-</span></co
 <div class="section" id="browser-requirements">
 <span id="help-browser-requirements"></span><h2>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h2>
 <p>Wed is primarily developed using a recent version of Chrome (version
-47 now, earlier versions have also been used earlier). (But see a note
+51 now, earlier versions have also been used earlier). (But see a note
 about Chrome 34 below.)</p>
 <p>Here is the list of officially supported browsers, in order of
 decreasing priority. The higher a browser is in the list, the less
 likely you are to run into issues and the higher the priority for
 resolving bugs happening with this browser.</p>
 <ul class="simple">
-<li>Chrome 47 and higher.</li>
+<li>Chrome 51 and higher.</li>
 <li>IE 11.</li>
 <li>Edge, but see <a class="reference internal" href="#edge">the section about it</a>.</li>
 <li>Relatively recent versions of Chrome: older than the latest releases
@@ -953,9 +953,13 @@ vendors.</li>
 <div class="section" id="firefox">
 <h3>Firefox<a class="headerlink" href="#firefox" title="Permalink to this headline">¶</a></h3>
 <p>We&#8217;re hoping that the lack of Firefox support is going to be
-temporary. For years, wed was supporting Firefox. Early on, Firefox
-was even better supported than Chrome. However, the people responsible
-for maintaining Selenium decided to stop supporting native events in
+temporary.</p>
+<p>Update Summer 2016: things are looking up. The Firefox developers have
+been working on a driver named &#8220;Marionette&#8221; that <em>should</em> solve the
+support problems. Stay tuned.</p>
+<p>For years, wed was supporting Firefox. Early on, Firefox was even
+better supported than Chrome. However, the people responsible for
+maintaining Selenium decided to stop supporting native events in
 Firefox and forced developers to use synthetic events instead. The
 problem is that Selenium&#8217;s support for synthetic events on Firefox is
 unable to accurately reproduce what happens when a user is actually
@@ -1061,15 +1065,15 @@ the explanation that follows.</p>
 <h3>Long Technical Explanation<a class="headerlink" href="#long-technical-explanation" title="Permalink to this headline">¶</a></h3>
 <p>A Relax NG schema normally constrains the set of possible valid
 structures to a limited set. Take the following schema:</p>
-<div class="highlight-python"><div class="highlight"><pre>start = element a { (element b { empty } | element c { empty })+ }
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">element</span> <span class="n">a</span> <span class="p">{</span> <span class="p">(</span><span class="n">element</span> <span class="n">b</span> <span class="p">{</span> <span class="n">empty</span> <span class="p">}</span> <span class="o">|</span> <span class="n">element</span> <span class="n">c</span> <span class="p">{</span> <span class="n">empty</span> <span class="p">})</span><span class="o">+</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>If we have finished reading the start tag for <code class="docutils literal"><span class="pre">a</span></code>, then there are
 only two possibilities: either a start tag for the element named <code class="docutils literal"><span class="pre">b</span></code>
 or a start tag for the element named <code class="docutils literal"><span class="pre">c</span></code>. However, Relax NG allows
 schemas that effectively say &#8220;any element is fine here&#8221;. For instance:</p>
-<div class="highlight-python"><div class="highlight"><pre>start = element a { any+ }
-any = element * { any* }
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">element</span> <span class="n">a</span> <span class="p">{</span> <span class="nb">any</span><span class="o">+</span> <span class="p">}</span>
+<span class="nb">any</span> <span class="o">=</span> <span class="n">element</span> <span class="o">*</span> <span class="p">{</span> <span class="nb">any</span><span class="o">*</span> <span class="p">}</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal"><span class="pre">*</span></code> that appears after the second <code class="docutils literal"><span class="pre">element</span></code> tells the
@@ -1159,7 +1163,7 @@ problems mentioned above.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.26.2',
+            VERSION:'v0.27.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

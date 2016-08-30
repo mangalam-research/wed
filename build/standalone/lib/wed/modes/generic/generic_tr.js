@@ -237,7 +237,7 @@ function err_filter(err) {
  *
  * @param {Node} el The element that should be subject to the
  * autoinsertion algorithm.
- * @param {module:wed~Editor} editor The editor which own the element.
+ * @param {module:wed~Editor} editor The editor which owns the element.
  */
 function _autoinsert(el, editor) {
     while(true) {

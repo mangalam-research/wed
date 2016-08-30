@@ -1,6 +1,6 @@
 /**
  * @module onerror
- * @desc The onerror handler for wed.
+ * @desc The error handler for wed.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
@@ -8,8 +8,20 @@
 define(/** @lends module:onerror */function (require, exports, module) {
 'use strict';
 
-var options = module.config();
-var suppress_old_onerror = options && options.suppress_old_onerror;
+var util = require("./util");
+var config_module = require("optional!./config");
+
+
+var config_results = util.grabConfig(module, config_module);
+var options = config_results.config;
+if (config_results.from !== "module") {
+    // Normalize the options obtained through module.config into the format
+    // we get through the config module.
+    options = {
+        test: options.test,
+    };
+}
+
 var test = options && options.test;
 
 var log = require("./log");
@@ -26,6 +38,8 @@ aria-hidden="true">&times;</button>\
         <h3>Fatal Error</h3>\
       </div>\
       <div class="modal-body">\
+        <div class="save-messages"></div>\
+        <div class="error-message"></div>\
       </div>\
       <div class="modal-footer">\
         <a href="#" class="btn btn-primary" data-dismiss="modal">Reload</a>\
@@ -33,8 +47,6 @@ aria-hidden="true">&times;</button>\
     </div>\
   </div>\
 </div>');
-
-
 
 // Normally onerror will be reset by reloading but when testing with
 // mocha we don't want reloading, so we export this function.
@@ -61,41 +73,9 @@ if (test) {
         reset: _reset
     };
 }
-
-// We install onto whatever window is current ASAP to catch early errors.
-installOnError(window);
-
-/**
- * <p>Aggressively installs an onerror handler. It will install it both
- * in the window passed as parameter and into the root window if the
- * window passed happens to be an iframe. While running wed in an
- * iframe on Chrome 28.0.1500.95, we've noticed that the onerror
- * handlers set on iframe windows did not catch anything, hence this
- * behavior.</p>
- *
- * <p>This function will inspect the value of <code>win.onerror</code>
- * and call it after it does its own bookkeeping. If this behavior is
- * not desired, set <code>suppress_old_onerror</code> as a
- * configuration option for this module in your RequireJS setup.</p>
- *
- * <p>Note that it is extremely unlikely that wed would play well with
- * any onerror handler set by other software if this handler tries
- * to do something as substantial as wed does. Note also that this
- * handler will catch any JavaScript error so any other JavaScript
- * running on the same page as wed will trip it.</p>
- *
- * @param {Window} win The window to install on.
- */
-function register(win) {
-    installOnError(win);
-}
-
-exports.register = register;
-
 /**
  * An array into which wed editors register themselves at creation and
- * unregister themselves when destroyed. (Note that this is not
- * related to this module's register function.)
+ * unregister themselves when destroyed.
  */
 var editors = [];
 
@@ -106,83 +86,90 @@ var termination_timeout;
 // So that we can issue clearTimeout elsewhere.
 var termination_window;
 
-/**
- * Installs an <code>onerror</code> handler.
- *
- * @private
- * @param {Window} win The window to install it on.
- */
-function installOnError(win) {
-    // Install globally too.
-    var root = win;
-    while(root !== root.parent)
-        root = root.parent;
+function showModal(saveMessages, errorMessage) {
+    $(document.body).append($modal);
+    $modal.find(".save-messages")[0].innerHTML = saveMessages;
+    $modal.find(".error-message")[0].textContent = errorMessage;
+    $modal.on("hide.bs.modal.modal", function () {
+        $modal.remove();
+        window.location.reload();
+    });
+    $modal.modal();
+}
 
-    if (root !== win) // Don't invoke if we're already root.
-        installOnError(root);
+function _handler(ev) {
+    ev.preventDefault();
+    // This avoids an infinite loop.
+    if (terminating) {
+        return false;
+    }
+    terminating = true;
 
-    if (win.wed_installed_onerror === win.onerror)
-        return;
+    var errorMessage = eventToMessage(ev);
 
-    var old_onerror = win.onerror;
-    win.onerror = onerror;
-    win.wed_installed_onerror = onerror;
-    function onerror(msg, url, linenumber) {
-        // This avoids an infinite loop.
-        if (terminating)
-            return false;
-        terminating = true;
+    var total = editors.length;
+    var results = [];
+    var messages = [];
 
-        var total = editors.length;
-        var results = [];
-        var messages = [];
+    var root = window;
+    termination_timeout = root.setTimeout(terminate, TERMINATION_TIMEOUT);
+    termination_window = root;
+    function terminate() {
+        if (termination_timeout)
+            root.clearTimeout(termination_timeout);
 
-        termination_timeout = root.setTimeout(terminate, TERMINATION_TIMEOUT);
-        termination_window = root;
-        function terminate() {
-            if (termination_timeout)
-                root.clearTimeout(termination_timeout);
-            if (total === 1)
-                messages.push(to_msg(undefined,
-                                     results[0] ? results[0][1] : undefined));
-            else {
-                for(var r_ix = 0, result;
-                    (result = results[r_ix]) !== undefined;
-                    ++r_ix)
-                    messages.push(to_msg(editors[result[0]].name, result[1]));
+        if (total === 1) {
+            messages.push(to_msg(undefined,
+                                 results[0] ? results[0][1] : undefined));
+        }
+        else {
+            for(var r_ix = 0, result; (result = results[r_ix]) !== undefined;
+                ++r_ix) {
+                messages.push(to_msg(editors[result[0]].name, result[1]));
             }
-            $(document.body).append($modal);
-            $modal.find(".modal-body").contents().replaceWith(
-                messages.join(""));
-            $modal.on("hide.bs.modal.modal", function () {
-                $modal.remove();
-                root.location.reload();
-            });
-            $modal.modal();
         }
+        showModal(messages.join(""), errorMessage);
+    }
 
-        function done(success) {
-            /* jshint validthis:true */
-            results.push([this, success]);
-            if (results.length === total)
-                terminate();
-        }
+    function done(success) {
+        /* jshint validthis:true */
+        results.push([this, success]);
+        if (results.length === total)
+            terminate();
+    }
 
-        log.error(msg, url, linenumber);
+    log.error(errorMessage);
+    for(var i = 0, editor; (editor = editors[i]) !== undefined; ++i) {
+        var saver = editor._saver;
         try {
-            if (old_onerror && !suppress_old_onerror)
-                old_onerror.apply(undefined, arguments);
-        }
-        finally {
-            for(var i = 0, editor; (editor = editors[i]) !== undefined; ++i) {
-                var saver = editor._saver;
-                if (saver)
-                    saver.recover(done.bind(i));
+            if (saver) {
+                saver.recover(done.bind(i));
             }
-            return false;
+        }
+        catch (ex) {
+            results.push([i, undefined]);
         }
     }
+    return false;
 }
+
+function handler(ev) {
+    try {
+        try {
+            _handler(ev);
+        }
+        catch (ex) {
+            showModal("", "Error while trying to handle fatal error: " +
+                      ex.toString());
+        }
+    }
+    catch (ex) {
+        console.error("Error while trying to handle fatal error:");
+        console.error(ex);
+    }
+}
+
+exports.handler = handler;
 
 /**
  *
@@ -210,6 +197,50 @@ function to_msg(name, result) {
     }
     ret.push("</p>");
     return ret.join('');
+}
+
+function eventToMessage(ev) {
+    var msg = "";
+    if (ev.type === "error") {
+        var message = ev.message;
+        var filename = ev.filename;
+        var lineno = ev.lineno;
+        var colno = ev.colno;
+        var err = ev.error;
+
+        if (err) {
+            msg = err.stack;
+        }
+        else {
+            msg = filename + ":" + lineno;
+            if (colno) {
+                msg += "." + colno;
+            }
+            msg += ": " + message;
+        }
+    }
+    else {
+        msg += "Unhandled promise rejection!\n";
+        var reason;
+        var promise;
+        var source = ev.promise ? ev : ev.detail;
+        if (source) {
+            reason = source.reason;
+            promise = source.promise;
+        }
+
+        if (reason) {
+            msg += "Reason: ";
+            if (reason.stack)
+                msg += "\n" + reason.stack;
+            else
+                msg += reason;
+        }
+        else if (promise) {
+            msg += "Promise: " + promise;
+        }
+    }
+    return msg;
 }
 
 exports.editors = editors;

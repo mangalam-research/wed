@@ -1,6 +1,7 @@
 require.config({
     "baseUrl": "lib/",
     "paths": {
+        "test-files": "../../test-files/",
         "jquery": "external/jquery",
         "bootstrap": "external/bootstrap/js/bootstrap.min",
         "log4javascript": "external/log4javascript",
@@ -9,6 +10,7 @@ require.config({
         "pubsub-js": "external/pubsub",
         "xregexp": "external/xregexp",
         "text": "requirejs/text",
+        "optional": "requirejs/optional",
         "localforage": "external/localforage",
         "async": "external/async",
         "angular": "external/angular",
@@ -17,7 +19,9 @@ require.config({
         "urijs": "external/urijs",
         "interact": "external/interact.min",
         "merge-options": "external/merge-options",
-        "is-plain-obj": "external/is-plain-obj"
+        "is-plain-obj": "external/is-plain-obj",
+        "bluebird": "external/bluebird",
+        "last-resort": "external/last-resort"
     },
     "packages": [
         {
@@ -25,6 +29,18 @@ require.config({
             "location": "external/lodash"
         }
     ],
+    "map": {
+        "*": {
+            "bootstrap": "wed/patches/bootstrap",
+            "last-resort": "wed/glue/last-resort"
+        },
+        "wed/glue/last-resort": {
+            "last-resort": "last-resort"
+        },
+        "wed/patches/bootstrap": {
+            "bootstrap": "bootstrap"
+        }
+    },
     "shim": {
         "xregexp": {
             "exports": "XRegExp",
@@ -76,22 +92,22 @@ require.config({
             "exports": "Bloodhound"
         }
     },
+    "waitSeconds": 12,
+    "enforceDefine": true
+});
+define("wed/config", {
     "config": {
-        "wed/wed": {
-            "schema": "../../../schemas/tei-simplified-rng.js",
-            "mode": {
-                "path": "wed/modes/generic/generic",
-                "options": {
-                    "meta": {
-                        "path": "wed/modes/generic/metas/tei_meta",
-                        "options": {
-                            "metadata": "../../../../../schemas/tei-metadata.json"
-                        }
+        "schema": "../../../schemas/tei-simplified-rng.js",
+        "mode": {
+            "path": "wed/modes/generic/generic",
+            "options": {
+                "meta": {
+                    "path": "wed/modes/generic/metas/tei_meta",
+                    "options": {
+                        "metadata": "../../../../../schemas/tei-metadata.json"
                     }
                 }
             }
         }
-    },
-    "waitSeconds": 12,
-    "enforceDefine": true
+    }
 });

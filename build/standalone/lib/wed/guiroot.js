@@ -24,7 +24,6 @@ AttributeNotFound.prototype.name = "AttributeNotFound";
 
 exports.AttributeNotFound = AttributeNotFound;
 
-
 /**
  * @classdesc This is a DLocRoot class customized for use to mark the
  * root of the GUI tree.
@@ -36,6 +35,46 @@ function GUIRoot(node) {
 }
 
 oop.inherit(GUIRoot, dloc.DLocRoot);
+
+/**
+ * Count the number of relevant nodes in the _phantom_wrap.
+ *
+ * @param {Node} top The top _phantom_wrap to consider.
+ */
+function countInPhantomWrap(top) {
+    if (!top.classList ||
+        !top.classList.contains("_phantom_wrap")) {
+        throw new Error("the node should be a _phantom_wrap element");
+    }
+
+    var count = 0;
+    var child = top.firstChild;
+    while (child) {
+        if (child.classList) {
+            if (child.classList.contains("_phantom_wrap")) {
+                count += countInPhantomWrap(child);
+            }
+            else if (child.classList.contains("_real")) {
+                count += 1;
+            }
+            else if (child.classList.contains("_phantom")) {
+                // Phantoms don't count.
+            }
+            else {
+                throw new Error("unexpected element in _phantom_wrap");
+            }
+        }
+        else if (child.nodeType === Node.TEXT_NODE) {
+            // Text nodes also do not count.
+        }
+        else {
+            throw new Error("unexpected node in _phantom_wrap");
+        }
+        child = child.nextSibling;
+    }
+
+    return count;
+}
 
 /**
  * Converts a node to a path suitable to be used by the {@link
@@ -67,8 +106,8 @@ GUIRoot.prototype.nodeToPath = function (node) {
     while (node !== root) {
         var parent, child;
         var location;
-        var offset = 0;
         var i;
+        var offset = 0;
 
         if (node.nodeType !== Node.TEXT_NODE &&
             !node.matches("._real, ._phantom_wrap, ._attribute_value"))
@@ -90,17 +129,69 @@ GUIRoot.prototype.nodeToPath = function (node) {
                 child = parent.childNodes[i];
                 if ((child.nodeType === Node.TEXT_NODE) ||
                     (child.nodeType === Node.ELEMENT_NODE &&
-                     child.matches("._real, ._phantom_wrap")))
+                     child.classList.contains("_real")))
                     offset++;
+                else if ((child.nodeType === Node.ELEMENT_NODE) &&
+                         child.classList.contains("_phantom_wrap")) {
+                    offset += countInPhantomWrap(child);
+                }
             }
 
-            ret.unshift("" + offset);
+            if (!parent.classList.contains("_phantom_wrap")) {
+                ret.unshift("" + offset);
+            }
         }
         node = parent;
     }
 
     return ret.join("/");
 };
+
+function findInPhantomWrap(top, index) {
+    if (!top.classList ||
+        !top.classList.contains("_phantom_wrap")) {
+        throw new Error("the node should be a _phantom_wrap element");
+    }
+
+    var originalIndex = index;
+    var found;
+    var child = top.firstChild;
+    while (!found && child) {
+        if (child.classList) {
+            if (child.classList.contains("_phantom_wrap")) {
+                var result = findInPhantomWrap(child, index);
+                if (result.found) {
+                    found = result.found;
+                }
+                index -= result.count;
+            }
+            else if (child.classList.contains("_real")) {
+                index -= 1;
+                if (index < 0) {
+                    found = child;
+                }
+            }
+            else if (child.classList.contains("_phantom")) {
+                // Phantoms don't count.
+            }
+            else {
+                throw new Error("unexpected element in _phantom_wrap");
+            }
+        }
+        else if (child.nodeType === Node.TEXT_NODE) {
+            // Text nodes do not count.
+        }
+        else {
+            throw new Error("unexpected node in _phantom_wrap");
+        }
+        child = child.nextSibling;
+    }
+
+    return {
+        found: found,
+        count: originalIndex - index,
+    };
+}
 
 /**
  * This function recovers a DOM node on the basis of a path previously
@@ -141,8 +232,17 @@ GUIRoot.prototype.pathToNode = function (path) {
                 node = parent.childNodes[i];
                 if ((node.nodeType === Node.TEXT_NODE ||
                      (node.nodeType === Node.ELEMENT_NODE &&
-                      node.matches("._real, ._phantom_wrap"))) && --index < 0)
+                      node.classList.contains("_real"))) && --index < 0) {
                     found = node;
+                }
+                else if (node.nodeType === Node.ELEMENT_NODE &&
+                      node.classList.contains("_phantom_wrap")) {
+                    var result = findInPhantomWrap(node, index);
+                    if (result.found) {
+                        found = result.found;
+                    }
+                    index -= result.count;
+                }
             }
 
             if (!found)
@@ -168,7 +268,6 @@ GUIRoot.prototype.pathToNode = function (path) {
 
     return parent;
 };
-
 
 exports.GUIRoot = GUIRoot;
 

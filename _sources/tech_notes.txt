@@ -810,6 +810,10 @@ Classes Used by Wed
   is, there is some node in the data tree that corresponds
   specifically to this element.
 
+``_phantom_wrap``: An element which is not itself editable but
+  contains editable (``_real``) children. This cannot be used to
+  wrap nodes that are text nodes in the data tree.
+
 ``_phantom _decoration_text``:
   All elements that are text added for purely decorative purposes. The
   difference between these elements and those which are ``_phantom

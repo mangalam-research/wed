@@ -28,7 +28,7 @@ function ReferenceManager (name) {
 }
 
 /**
- * <p>Allocate a label for an id. The relation between id an label
+ * <p>Allocate a label for an id. The relation between id and label
  * remains constant until {@link
  * module:refman~ReferenceManager#deallocateAll deallocateAll} is
  * called.</p>
@@ -79,7 +79,6 @@ ReferenceManager.prototype.nextNumber = function () {
     return ++this._highest_number;
 };
 
-
 exports.ReferenceManager = ReferenceManager;
 
 var sense_labels = 'abcdefghijklmnopqrstuvwxyz';
@@ -112,7 +111,6 @@ SenseReferenceManager.prototype.allocateLabel = function (id) {
 SenseReferenceManager.prototype._deallocateAllLabels = function () {
     this._next_sense_label_ix = 0;
 };
-
 
 exports.___test_rm = new SenseReferenceManager();
 

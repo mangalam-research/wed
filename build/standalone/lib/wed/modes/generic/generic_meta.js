@@ -23,7 +23,7 @@ var WED_MODES_GENERIC_META_READY =
  * @classdesc Meta-information for the generic mode. This is
  * information that cannot be simply derived from the schema.
  *
- * Object of this class take the following options:
+ * Objects of this class take the following options:
  *
  * + ``metadata``: a URL to a JSON file that contains metadata that
  * this meta should read.
@@ -52,7 +52,6 @@ function Meta (options) {
 Meta.prototype._ready = function () {
     pubsub.publish(WED_MODES_GENERIC_META_READY, this);
 };
-
 
 /**
  * Resolves the metadata option from a URL to actual data.

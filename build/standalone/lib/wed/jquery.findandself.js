@@ -37,4 +37,4 @@
     };
 }));
 
-//  LocalWords:  Mangalam MPL Dubeau findandself jquery
+//  LocalWords: Mangalam MPL Dubeau findandself jquery
