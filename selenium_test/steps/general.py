@@ -549,20 +549,6 @@ def step_impl(context):
     context.driver.refresh()
 
 
-@then(ur'(?P<what>an alert|a reload prompt) with the text "(?P<text>.*?)" '
-      ur'comes up')
-def step_impl(context, what, text):
-    # Firefox does not allow changing the text of the prompt. So we
-    # don't test for it. There is currently a bug in IEDriver. The IE
-    # exclusion should be revisited some time after we upgrade to 2.44
-    # or later. The FF exception probably won't ever be lifted.
-    if what == "a reload prompt" and \
-       (context.util.firefox or context.util.ie):
-        return
-
-    assert_equal(context.driver.switch_to.alert.text, text)
-
-
 @when(ur'the user cancels the alert')
 def step_imp(context):
     context.driver.switch_to.alert.dismiss()

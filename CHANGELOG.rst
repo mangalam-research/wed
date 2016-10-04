@@ -4,6 +4,12 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.28.0:
+
+  - Wed no longer tries to set a custom message for the ``onbeforeunload``
+    handler. It worked only on Chrome but Chrome has ceased to support
+    the custom message.
+
 * 0.27.0:
 
   - Fatal errors and recovery: previous versions of wed would
