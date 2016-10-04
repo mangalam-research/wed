@@ -82,10 +82,6 @@ export var options = {};
  * a local configuration file or through command line options.
  */
 export const internals = {
-    // The basename of the version of rangy to download.
-    rangy_file: "rangy-1.3alpha.804.tar.gz",
-
-
     bootstrap_growl_url:
     "https://github.com/ifightcrime/bootstrap-growl/archive/v1.1.0.zip",
 

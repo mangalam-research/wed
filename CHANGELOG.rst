@@ -15,6 +15,12 @@ Only salient changes are recorded here.
     handler. It worked only on Chrome but Chrome has ceased to support
     the custom message.
 
+  - Upgrade to Rangy 1.3.0. The alpha of 1.3 that we were using is no
+    longer downloadable, and the stable release is accessible through
+    NPM. So it is time to upgrade. Note that wed no longer loads
+    rangy-selectionsaverestore implicitly so code that depended to
+    this behavior will have to load that module explicitly.
+
 * 0.27.0:
 
   - Fatal errors and recovery: previous versions of wed would

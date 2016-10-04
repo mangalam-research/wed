@@ -28,6 +28,7 @@ require.config({
    'is-plain-obj': 'external/is-plain-obj',
    bluebird: 'external/bluebird',
    'last-resort': 'external/last-resort',
+   rangy: 'external/rangy/rangy-core',
  },
  packages: [
      {
@@ -61,14 +62,6 @@ require.config({
      deps: ["jquery"],
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
-   },
-   'external/rangy/rangy-core': {
-     exports: "rangy",
-     init: function() { return this.rangy; }
-   },
-   'external/rangy/rangy-selectionsaverestore': {
-     deps: ["external/rangy/rangy-core"],
-     exports: "rangy.modules.SaveRestore"
    },
    'jquery.bootstrap-growl': {
      deps: ["jquery", "bootstrap"],
