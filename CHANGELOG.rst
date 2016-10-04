@@ -6,6 +6,11 @@ Only salient changes are recorded here.
 
 * 0.28.0:
 
+  - Wed no longer puts its ``data_root`` in a document fragment. The
+    ``data_root`` is now the XML document itself. This caused issues
+    with ``ownerDocument``, and being unable to use CSS selectors to
+    match elements.
+
   - Wed no longer tries to set a custom message for the ``onbeforeunload``
     handler. It worked only on Chrome but Chrome has ceased to support
     the custom message.
