@@ -282,6 +282,21 @@ describe("wed", function () {
                 editor._$modification_status.hasClass("label-warning"));
         });
 
+        it("onbeforeunload returns falsy on unmodified doc", function () {
+            assert.isFalse(!!editor.my_window.onbeforeunload());
+        });
+
+        it("onbeforeunload returns truthy on modified doc", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            // Text node inside title.
+            var initial = editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            editor.setGUICaret(initial, 0);
+            editor.type(" ");
+
+            assert.isTrue(!!editor.my_window.onbeforeunload());
+        });
+
         it("has a modification status showing an unmodified document " +
            "when the document is modified but saved", function (done) {
             editor.validator._validateUpTo(editor.data_root, -1);
