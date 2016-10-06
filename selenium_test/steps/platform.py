@@ -88,3 +88,18 @@ def step_impl(context):
 
     assert_equal(results[0], 1, "the fragment should have one child")
     assert_equal(results[1], 0, "the p element should have no children")
+
+
+@then(u"String.prototype.repeat works")
+def step_impl(context):
+    results = context.driver.execute_script("""
+    return [
+      "".repeat(10),
+      "a".repeat(0),
+      "b".repeat(3),
+    ];
+    """)
+
+    assert_equal(results[0], "")
+    assert_equal(results[1], "")
+    assert_equal(results[2], "bbb")

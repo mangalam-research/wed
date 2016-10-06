@@ -21,6 +21,14 @@ Only salient changes are recorded here.
     rangy-selectionsaverestore implicitly so code that depended to
     this behavior will have to load that module explicitly.
 
+  - Wed now counts on ``String.prototype.repeat`` being available. So
+    it includes a polyfill for it.
+
+  - API: ``wed/refman`` has been renamed ``wed/labelman`` because it
+    was really a label manager more than a reference manager. It is
+    also better documented and has acquired a concerete implementation
+    in the form of ``AlphabeticLabelManager``.
+
 * 0.27.0:
 
   - Fatal errors and recovery: previous versions of wed would
