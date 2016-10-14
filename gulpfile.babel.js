@@ -26,6 +26,7 @@ from "./gulptasks/util";
 import requireDir from "require-dir";
 import rjs from "requirejs";
 import wrap_amd from "gulp-wrap-amd";
+import versync from "versync";
 
 // Try to load local configuration options.
 let local_config = {};
@@ -593,8 +594,12 @@ const test_node = {
     name: "test-node",
     deps: ['build-standalone', 'build-test-files'],
     func: function* test_node() {
-        if (!options.skip_semver)
-            yield exec("semver-sync -v");
+        if (!options.skip_semver) {
+            yield versync.run({
+                verify: true,
+                onMessage: gutil.log,
+            });
+        }
 
         yield spawn("./node_modules/.bin/mocha",
                     options.mocha_params ? options.mocha_params.split(): [],

@@ -30,7 +30,7 @@
         "less": ">=2 <3",
         "mocha": "^2.5.0",
         "chai": ">=3 <4",
-        "semver-sync": ">=1.2.0 <2",
+        "versync": "^3.1.0",
         "express": ">=4.10.2 <5",
         "compression": ">=1.2.0 <2",
         "serve-static": ">=1.7.1 <2",
