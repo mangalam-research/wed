@@ -90,6 +90,9 @@ Known limitations:
 * See also `Round-Tripping`_, as some limitations there may affect
   whether you can use wed for your project.
 
+* Wed does not use XPath nor is it currently recommended to use
+  XPath. See :ref:`tech_notes_xpath`.
+
 Dependencies
 ============
 

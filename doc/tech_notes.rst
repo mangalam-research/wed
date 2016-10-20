@@ -3,7 +3,7 @@ Advanced Usage Notes
 ====================
 
 Build Information
------------------
+=================
 
 Every time a build is performed, the building process stores
 information about the build into a file which at run time is available
@@ -27,7 +27,7 @@ bug in gitflow.
 .. _tech_notes_deployment_considerations:
 
 Deployment Considerations
--------------------------
+=========================
 
 .. warning:: As of version 0.10.0 there is a nasty bug in the
              optimized bundle. You may still experiment with the
@@ -95,7 +95,7 @@ created, it is guaranteed that by the time the mode runs, all of wed's
 modules are available.
 
 Schema and Structure Considerations
------------------------------------
+===================================
 
 The following discussion covers schema design considerations if you
 wish to use wed to enforce editing constraints. It is possible to rely
@@ -136,7 +136,7 @@ your project.
 .. _remote_logging:
 
 Remote Logging
---------------
+==============
 
 Wed uses log4javascript to log anything worth logging. By default, wed
 does not log anything to a remote server; however, if the ``ajaxlog``
@@ -158,7 +158,7 @@ headers.
 .. _saving:
 
 Saving
-------
+======
 
 Wed saves documents using Ajax queries to a server. Where wed saves is
 determined by the ``save`` option. It is of the form::
@@ -174,7 +174,7 @@ The ``path`` parameter is the path to the module that implements the
 ``wed/savers/ajax`` and ``wed/savers/localforage``.
 
 Ajax Saver
-~~~~~~~~~~
+----------
 
 The Ajax saver requires a server that understands the wire protocol
 used by this saver. The configuration for it is as follows::
@@ -271,7 +271,7 @@ document, otherwise a subsequent save will (erroneously) go through.
 This may not correspond to how other systems use ``ETag``.
 
 Localforage Saver
-~~~~~~~~~~~~~~~~~
+-----------------
 
 This saver uses `localForage
 <https://github.com/mozilla/localForage>`_ to store the data in the
@@ -752,7 +752,7 @@ responsible for inserting and deleting the nodes of the GUI tree that
 corresponds to those of the data tree whenever the latter is modified.
 
 Elements of the GUI Tree
-========================
+------------------------
 
 Wed operates on an HTML structure constructed as follows:
 
@@ -796,7 +796,7 @@ HTML:
   with a dash, so there cannot be a clash.
 
 Classes Used by Wed
-===================
+-------------------
 
 ``_phantom``:
   All elements added by wed for representing the data to the user are of
@@ -853,7 +853,7 @@ Classes Used by Wed
   Marks an element or attribute that cannot be edited.
 
 Possible Due to Wildcard
-========================
+------------------------
 
 As explained in :ref:`complex_name_patterns`, wed *can* handle the
 name patterns ``NsName`` and ``AnyName`` for the purpose of validating
@@ -1006,6 +1006,56 @@ elements. In practice, a single keyboard key (like BACKSPACE) hit
 might result in 5-6 mutations of the DOM tree, and there is no simple
 way to know that these 5-6 mutations were all initiated by a single
 key.
+
+.. _tech_notes_xpath:
+
+The XPath Problem
+-----------------
+
+Wed does not use XPath internally. A mode that you develop for wed
+**could** require the use of XPath but please read on before making
+that choice.
+
+The issues:
+
+1. Browsers only natively support XPath 1.
+
+2. On some browsers (any version of Internet Explorer, for instance),
+   the way to perform XPath queries is radically different from other
+   browsers. Most browsers will allow performing queries on a document
+   produced with ``DOMParser``. Moreover the document produced by
+   ``DOMParser`` is a DOM document with support for all the DOM
+   methods normally found on a document.
+
+   The machinery for XPath queries on IE browsers on the other hand
+   produce an "document" which is not an actual DOM document. It is an
+   entirely different beast. (Just to name one simple difference: you
+   can use ``querySelector`` on documents created using
+   ``DOMParser``. You cannot do the same on the document created
+   through IE's ActiveXObject nonsense.)
+
+   So using the browser machinery would require (at least) two
+   significantly different methods of working with XML documents.
+
+3. There are non-native solutions that *should* work on various
+   browsers. However,
+
+   + `Wicked Good XPath
+     <https://github.com/google/wicked-good-xpath/>`__ has a `basic
+     flaw <https://github.com/google/wicked-good-xpath/issues/46>`_ in
+     how it handles case-sensitivity. It works inconsistently across
+     platforms.
+
+   + `This library <https://github.com/ilinsky/xpath.js>`__ seems a
+     better choice but it is currently in flux and has no clear
+     releases.
+
+   + The version of Saxon that loads in browsers has support for XPath
+     but this means loading a huge library.
+
+There's no trivial way to support XPath right now. We're keeping an
+eye on development of XPath libraries to determine a moment when
+adding such support is reasonable.
 
 Historical Notes
 ================
