@@ -93,7 +93,7 @@ selenium_version = "2.49.0"
 if REMOTE_SERVICE == "saucelabs":
     caps.update({
         "selenium-version": selenium_version,
-        "chromedriver-version": "2.22",
+        "chromedriver-version": "2.24",
     })
 
     if not LOGS:
