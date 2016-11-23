@@ -5,11 +5,11 @@
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-        "wed/key", "wed/dloc", "wed/util", "salve/validate",
+        "wed/key", "wed/dloc", "wed/util", "salve",
         "wed/browsers",
         "text!test-files/wed_test_data/source_converted.xml", "require"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util, validate, browsers, source,
+                onerror, log, key, dloc, util, salve, browsers, source,
                 require) {
 'use strict';
 
@@ -206,7 +206,7 @@ describe("wed", function () {
         before(function (done) {
             // Resolve the schema to a grammar.
             $.get(require.toUrl(options.schema), function (x) {
-                options.schema = validate.constructTree(x);
+                options.schema = salve.constructTree(x);
                 done();
             }, "text").fail(
                 function (jqXHR, textStatus, errorThrown) {

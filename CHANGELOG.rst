@@ -6,6 +6,8 @@ Only salient changes are recorded here.
 
 * 0.28.0:
 
+  - Wed now uses salve 3.0.0.
+
   - Wed no longer puts its ``data_root`` in a document fragment. The
     ``data_root`` is now the XML document itself. This caused issues
     with ``ownerDocument``, and being unable to use CSS selectors to

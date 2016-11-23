@@ -288,9 +288,6 @@ npm_copy_task("angular/angular.js");
 
 npm_copy_task("bootbox", "bootbox.js/bootbox.js");
 
-npm_copy_task("xregexp", "salve/node_modules/xregexp/xregexp-all.js",
-              { rename: "xregexp.js"});
-
 npm_copy_task("urijs/src/**", "external/urijs");
 
 npm_copy_task("lodash", "lodash-amd/{modern/**,main.js,package.json}",
@@ -299,7 +296,7 @@ npm_copy_task("lodash", "lodash-amd/{modern/**,main.js,package.json}",
 npm_copy_task("classlist", "classlist-polyfill/src/index.js",
               { rename: "classList.js"});
 
-npm_copy_task("salve/lib/salve/**", "salve");
+npm_copy_task("salve/salve*");
 
 npm_copy_task("interact.js/dist/interact.min.js");
 

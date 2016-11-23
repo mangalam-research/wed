@@ -4,14 +4,14 @@
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
-        "wed/wed", "wed/key", "wed/key_constants", "salve/validate",
+        "wed/wed", "wed/key", "wed/key_constants", "salve",
         "browser_test/global", "wed/onerror",
         "text!../../build/schemas/tei-simplified-rng.js",
         "text!test-files/input_trigger_test_data/source_converted.xml",
         "text!test-files/input_trigger_test_data/source2_converted.xml",
         "text!test-files/input_trigger_test_data/source3_converted.xml"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants,
-          validate, global, onerror, schema, generic_src, source2, source3) {
+          salve, global, onerror, schema, generic_src, source2, source3) {
 'use strict';
 
 var assert = chai.assert;
@@ -46,7 +46,7 @@ describe("input_trigger_factory", function () {
 
     before(function () {
         // Resolve the schema to a grammar.
-        options.schema = validate.constructTree(schema);
+        options.schema = salve.constructTree(schema);
     });
 
     beforeEach(function (done) {
