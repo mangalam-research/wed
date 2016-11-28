@@ -1,6 +1,6 @@
 {
   "name": "wed",
-  "version": "0.28.0",
+  "version": "0.28.2",
   "dependencies": {
     "abab": {
       "version": "1.0.3",
@@ -3801,9 +3801,9 @@
       }
     },
     "salve": {
-      "version": "3.0.0",
-      "from": "salve@3.0.0",
-      "resolved": "https://registry.npmjs.org/salve/-/salve-3.0.0.tgz",
+      "version": "3.0.1",
+      "from": "salve@>=3.0.1 <4.0.0",
+      "resolved": "https://registry.npmjs.org/salve/-/salve-3.0.1.tgz",
       "dependencies": {
         "sax": {
           "version": "1.2.1",
@@ -4430,6 +4430,11 @@
           "dev": true
         }
       }
+    },
+    "xregexp": {
+      "version": "3.1.1",
+      "from": "xregexp@>=3.0.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/xregexp/-/xregexp-3.1.1.tgz"
     },
     "xtend": {
       "version": "4.0.1",
