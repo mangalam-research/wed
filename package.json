@@ -20,7 +20,7 @@
         "amd-loader": "(Yes, these are comments. Next line overwrites them.)",
         "amd-loader": "~0.0.4",
         "argparse": ">=1.0.3 <2",
-        "salve": ">=3 <4",
+        "salve": ">=3.0.1 <4",
         "urijs": ">=1.16.1 <2"
     },
     "devDependencies": {
