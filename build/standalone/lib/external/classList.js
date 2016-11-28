@@ -18,7 +18,9 @@
 if ("document" in window.self) {
 
   // Full polyfill for browsers with no classList support
-  if (!("classList" in document.createElement("_"))) {
+  // Including IE < Edge missing SVGElement.classList
+  if (!("classList" in document.createElement("_"))
+    || document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
 
   (function (view) {
 

@@ -13,7 +13,7 @@ the Selenium tests beforehand and that they passed.
 
 2. ``$ git flow release start [new version, **without** the `v`]``
 
-3. ``$ semver-sync -b [new version]``
+3. ``$ versync -b [new version]``
 
 4. ``$ npm shrinkwrap --dev`` We have to shrinkwrap so as to update the
    version number recorded in the file.

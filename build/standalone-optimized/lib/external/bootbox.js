@@ -1,10 +1,29 @@
 /**
- * bootbox.js v4.0.0
+ * bootbox.js [v4.3.0]
  *
  * http://bootboxjs.com/license.txt
  */
-// @see https://github.com/makeusabrew/bootbox/issues/71
-window.bootbox = window.bootbox || (function init($, undefined) {
+
+// @see https://github.com/makeusabrew/bootbox/issues/180
+// @see https://github.com/makeusabrew/bootbox/issues/186
+(function (root, factory) {
+
+  "use strict";
+  if (typeof define === "function" && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(["jquery"], factory);
+  } else if (typeof exports === "object") {
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like environments that support module.exports,
+    // like Node.
+    module.exports = factory(require("jquery"));
+  } else {
+    // Browser globals (root is window)
+    root.bootbox = factory(root.jQuery);
+  }
+
+}(this, function init($, undefined) {
+
   "use strict";
 
   // the base DOM structure needed to create a modal
@@ -24,17 +43,30 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     footer:
       "<div class='modal-footer'></div>",
     closeButton:
-      "<button type='button' class='bootbox-close-button close'>&times;</button>",
+      "<button type='button' class='bootbox-close-button close' data-dismiss='modal' aria-hidden='true'>&times;</button>",
     form:
       "<form class='bootbox-form'></form>",
     inputs: {
       text:
-        "<input class='bootbox-input form-control' autocomplete=off type=text />"
+        "<input class='bootbox-input bootbox-input-text form-control' autocomplete=off type=text />",
+      textarea:
+        "<textarea class='bootbox-input bootbox-input-textarea form-control'></textarea>",
+      email:
+        "<input class='bootbox-input bootbox-input-email form-control' autocomplete='off' type='email' />",
+      select:
+        "<select class='bootbox-input bootbox-input-select form-control'></select>",
+      checkbox:
+        "<div class='checkbox'><label><input class='bootbox-input bootbox-input-checkbox' type='checkbox' /></label></div>",
+      date:
+        "<input class='bootbox-input bootbox-input-date form-control' autocomplete=off type='date' />",
+      time:
+        "<input class='bootbox-input bootbox-input-time form-control' autocomplete=off type='time' />",
+      number:
+        "<input class='bootbox-input bootbox-input-number form-control' autocomplete=off type='number' />",
+      password:
+        "<input class='bootbox-input bootbox-input-password form-control' autocomplete='off' type='password' />"
     }
   };
-
-  // cache a reference to the jQueryfied body element
-  var appendTo = $("body");
 
   var defaults = {
     // default language
@@ -48,7 +80,9 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     // whether or not to include a close button
     closeButton: true,
     // show the dialog immediately by default
-    show: true
+    show: true,
+    // dialog container
+    container: "body"
   };
 
   // our public object; augmented after our private API
@@ -63,6 +97,7 @@ window.bootbox = window.bootbox || (function init($, undefined) {
   }
 
   function processCallback(e, dialog, callback) {
+    e.stopPropagation();
     e.preventDefault();
 
     // by default we assume a callback will get rid of the dialog,
@@ -97,7 +132,6 @@ window.bootbox = window.bootbox || (function init($, undefined) {
   function sanitize(options) {
     var buttons;
     var total;
-
 
     if (typeof options !== "object") {
       throw new Error("Please supply an object of options");
@@ -156,6 +190,15 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     return options;
   }
 
+  /**
+   * map a flexible set of arguments into a single returned object
+   * if args.length is already one just return it, otherwise
+   * use the properties argument to map the unnamed args to
+   * object properties
+   * so in the latter case:
+   * mapArguments(["foo", $.noop], ["message", "callback"])
+   * -> { message: "foo", callback: $.noop }
+   */
   function mapArguments(args, properties) {
     var argn = args.length;
     var options = {};
@@ -174,17 +217,56 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     return options;
   }
 
+  /**
+   * merge a set of default dialog options with user supplied arguments
+   */
   function mergeArguments(defaults, args, properties) {
-    return $.extend(true, {}, defaults, mapArguments(args, properties));
+    return $.extend(
+      // deep merge
+      true,
+      // ensure the target is an empty, unreferenced object
+      {},
+      // the base options object for this type of dialog (often just buttons)
+      defaults,
+      // args could be an object or array; if it's an array properties will
+      // map it to a proper options object
+      mapArguments(
+        args,
+        properties
+      )
+    );
   }
 
-  function mergeButtons(labels, args, properties) {
+  /**
+   * this entry-level method makes heavy use of composition to take a simple
+   * range of inputs and return valid options suitable for passing to bootbox.dialog
+   */
+  function mergeDialogOptions(className, labels, properties, args) {
+    //  build up a base set of dialog properties
+    var baseOptions = {
+      className: "bootbox-" + className,
+      buttons: createLabels.apply(null, labels)
+    };
+
+    // ensure the buttons properties generated, *after* merging
+    // with user args are still valid against the supplied labels
     return validateButtons(
-      mergeArguments(createButtons.apply(null, labels), args, properties),
+      // merge the generated base properties with user supplied arguments
+      mergeArguments(
+        baseOptions,
+        args,
+        // if args.length > 1, properties specify how each arg maps to an object key
+        properties
+      ),
       labels
     );
   }
 
+  /**
+   * from a given list of arguments return a suitable object of button labels
+   * all this does is normalise the given labels and translate them where possible
+   * e.g. "ok", "confirm" -> { ok: "OK, cancel: "Annuleren" }
+   */
   function createLabels() {
     var buttons = {};
 
@@ -199,12 +281,6 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     }
 
     return buttons;
-  }
-
-  function createButtons() {
-    return {
-      buttons: createLabels.apply(null, arguments)
-    };
   }
 
   function validateButtons(options, buttons) {
@@ -225,7 +301,7 @@ window.bootbox = window.bootbox || (function init($, undefined) {
   exports.alert = function() {
     var options;
 
-    options = mergeButtons(["ok"], arguments, ["message", "callback"]);
+    options = mergeDialogOptions("alert", ["ok"], ["message", "callback"], arguments);
 
     if (options.callback && !$.isFunction(options.callback)) {
       throw new Error("alert requires callback property to be a function when provided");
@@ -247,7 +323,7 @@ window.bootbox = window.bootbox || (function init($, undefined) {
   exports.confirm = function() {
     var options;
 
-    options = mergeButtons(["cancel", "confirm"], arguments, ["message", "callback"]);
+    options = mergeDialogOptions("confirm", ["cancel", "confirm"], ["message", "callback"], arguments);
 
     /**
      * overrides; undo anything the user tried to set they shouldn't have
@@ -275,6 +351,7 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     var form;
     var input;
     var shouldShow;
+    var inputOptions;
 
     // we have to create our form first otherwise
     // its value is undefined when gearing up our options
@@ -282,9 +359,16 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     // be a function instead...
     form = $(templates.form);
 
+    // prompt defaults are more complex than others in that
+    // users can override more defaults
+    // @TODO I don't like that prompt has to do a lot of heavy
+    // lifting which mergeDialogOptions can *almost* support already
+    // just because of 'value' and 'inputType' - can we refactor?
     defaults = {
+      className: "bootbox-prompt",
       buttons: createLabels("cancel", "confirm"),
-      value: ""
+      value: "",
+      inputType: "text"
     };
 
     options = validateButtons(
@@ -307,7 +391,34 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     };
 
     options.buttons.confirm.callback = function() {
-      return options.callback(input.val());
+      var value;
+
+      switch (options.inputType) {
+        case "text":
+        case "textarea":
+        case "email":
+        case "select":
+        case "date":
+        case "time":
+        case "number":
+        case "password":
+          value = input.val();
+          break;
+
+        case "checkbox":
+          var checkedItems = input.find("input:checked");
+
+          // we assume that checkboxes are always multiple,
+          // hence we default to an empty array
+          value = [];
+
+          each(checkedItems, function(_, item) {
+            value.push($(item).val());
+          });
+          break;
+      }
+
+      return options.callback(value);
     };
 
     options.show = false;
@@ -321,15 +432,114 @@ window.bootbox = window.bootbox || (function init($, undefined) {
       throw new Error("prompt requires a callback");
     }
 
-    // create the input
-    input = $(templates.inputs.text);
-    input.val(options.value);
+    if (!templates.inputs[options.inputType]) {
+      throw new Error("invalid prompt type");
+    }
+
+    // create the input based on the supplied type
+    input = $(templates.inputs[options.inputType]);
+
+    switch (options.inputType) {
+      case "text":
+      case "textarea":
+      case "email":
+      case "date":
+      case "time":
+      case "number":
+      case "password":
+        input.val(options.value);
+        break;
+
+      case "select":
+        var groups = {};
+        inputOptions = options.inputOptions || [];
+
+        if (!inputOptions.length) {
+          throw new Error("prompt with select requires options");
+        }
+
+        each(inputOptions, function(_, option) {
+
+          // assume the element to attach to is the input...
+          var elem = input;
+
+          if (option.value === undefined || option.text === undefined) {
+            throw new Error("given options in wrong format");
+          }
+
+
+          // ... but override that element if this option sits in a group
+
+          if (option.group) {
+            // initialise group if necessary
+            if (!groups[option.group]) {
+              groups[option.group] = $("<optgroup/>").attr("label", option.group);
+            }
+
+            elem = groups[option.group];
+          }
+
+          elem.append("<option value='" + option.value + "'>" + option.text + "</option>");
+        });
+
+        each(groups, function(_, group) {
+          input.append(group);
+        });
+
+        // safe to set a select's value as per a normal input
+        input.val(options.value);
+        break;
+
+      case "checkbox":
+        var values   = $.isArray(options.value) ? options.value : [options.value];
+        inputOptions = options.inputOptions || [];
+
+        if (!inputOptions.length) {
+          throw new Error("prompt with checkbox requires options");
+        }
+
+        if (!inputOptions[0].value || !inputOptions[0].text) {
+          throw new Error("given options in wrong format");
+        }
+
+        // checkboxes have to nest within a containing element, so
+        // they break the rules a bit and we end up re-assigning
+        // our 'input' element to this container instead
+        input = $("<div/>");
+
+        each(inputOptions, function(_, option) {
+          var checkbox = $(templates.inputs[options.inputType]);
+
+          checkbox.find("input").attr("value", option.value);
+          checkbox.find("label").append(option.text);
+
+          // we've ensured values is an array so we can always iterate over it
+          each(values, function(_, value) {
+            if (value === option.value) {
+              checkbox.find("input").prop("checked", true);
+            }
+          });
+
+          input.append(checkbox);
+        });
+        break;
+    }
+
+    if (options.placeholder) {
+      input.attr("placeholder", options.placeholder);
+    }
+
+    if(options.pattern){
+      input.attr("pattern", options.pattern);
+    }
 
     // now place it in our form
     form.append(input);
 
     form.on("submit", function(e) {
       e.preventDefault();
+      // Fix for SammyJS (or similar JS routing library) hijacking the form post.
+      e.stopPropagation();
       // @TODO can we actually click *the* button object instead?
       // e.g. buttons.confirm.click() or similar
       dialog.find(".btn-primary").click();
@@ -356,6 +566,7 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     options = sanitize(options);
 
     var dialog = $(templates.dialog);
+    var innerDialog = dialog.find(".modal-dialog");
     var body = dialog.find(".modal-body");
     var buttons = options.buttons;
     var buttonStr = "";
@@ -380,6 +591,14 @@ window.bootbox = window.bootbox || (function init($, undefined) {
 
     if (options.className) {
       dialog.addClass(options.className);
+    }
+
+    if (options.size === "large") {
+      innerDialog.addClass("modal-lg");
+    }
+
+    if (options.size === "small") {
+      innerDialog.addClass("modal-sm");
     }
 
     if (options.title) {
@@ -478,7 +697,7 @@ window.bootbox = window.bootbox || (function init($, undefined) {
     // functionality and then giving the resulting object back
     // to our caller
 
-    appendTo.append(dialog);
+    $(options.container).append(dialog);
 
     dialog.modal({
       backdrop: options.backdrop,
@@ -514,12 +733,24 @@ window.bootbox = window.bootbox || (function init($, undefined) {
 
   };
 
-  exports.setDefaults = function(values) {
+  exports.setDefaults = function() {
+    var values = {};
+
+    if (arguments.length === 2) {
+      // allow passing of single key/value...
+      values[arguments[0]] = arguments[1];
+    } else {
+      // ... and as an object too
+      values = arguments[0];
+    }
+
     $.extend(defaults, values);
   };
 
   exports.hideAll = function() {
     $(".bootbox").modal("hide");
+
+    return exports;
   };
 
 
@@ -533,6 +764,11 @@ window.bootbox = window.bootbox || (function init($, undefined) {
       CANCEL  : "Cancelar",
       CONFIRM : "Sim"
     },
+    cs : {
+      OK      : "OK",
+      CANCEL  : "Zrušit",
+      CONFIRM : "Potvrdit"
+    },
     da : {
       OK      : "OK",
       CANCEL  : "Annuller",
@@ -542,6 +778,11 @@ window.bootbox = window.bootbox || (function init($, undefined) {
       OK      : "OK",
       CANCEL  : "Abbrechen",
       CONFIRM : "Akzeptieren"
+    },
+    el : {
+      OK      : "Εντάξει",
+      CANCEL  : "Ακύρωση",
+      CONFIRM : "Επιβεβαίωση"
     },
     en : {
       OK      : "OK",
@@ -553,6 +794,11 @@ window.bootbox = window.bootbox || (function init($, undefined) {
       CANCEL  : "Cancelar",
       CONFIRM : "Aceptar"
     },
+    et : {
+      OK      : "OK",
+      CANCEL  : "Katkesta",
+      CONFIRM : "OK"
+    },
     fi : {
       OK      : "OK",
       CANCEL  : "Peruuta",
@@ -563,25 +809,70 @@ window.bootbox = window.bootbox || (function init($, undefined) {
       CANCEL  : "Annuler",
       CONFIRM : "D'accord"
     },
+    he : {
+      OK      : "אישור",
+      CANCEL  : "ביטול",
+      CONFIRM : "אישור"
+    },
+    id : {
+      OK      : "OK",
+      CANCEL  : "Batal",
+      CONFIRM : "OK"
+    },
     it : {
       OK      : "OK",
       CANCEL  : "Annulla",
       CONFIRM : "Conferma"
+    },
+    ja : {
+      OK      : "OK",
+      CANCEL  : "キャンセル",
+      CONFIRM : "確認"
+    },
+    lt : {
+      OK      : "Gerai",
+      CANCEL  : "Atšaukti",
+      CONFIRM : "Patvirtinti"
+    },
+    lv : {
+      OK      : "Labi",
+      CANCEL  : "Atcelt",
+      CONFIRM : "Apstiprināt"
     },
     nl : {
       OK      : "OK",
       CANCEL  : "Annuleren",
       CONFIRM : "Accepteren"
     },
+    no : {
+      OK      : "OK",
+      CANCEL  : "Avbryt",
+      CONFIRM : "OK"
+    },
     pl : {
       OK      : "OK",
       CANCEL  : "Anuluj",
       CONFIRM : "Potwierdź"
     },
+    pt : {
+      OK      : "OK",
+      CANCEL  : "Cancelar",
+      CONFIRM : "Confirmar"
+    },
     ru : {
       OK      : "OK",
       CANCEL  : "Отмена",
       CONFIRM : "Применить"
+    },
+    sv : {
+      OK      : "OK",
+      CANCEL  : "Avbryt",
+      CONFIRM : "OK"
+    },
+    tr : {
+      OK      : "Tamam",
+      CANCEL  : "İptal",
+      CONFIRM : "Onayla"
     },
     zh_CN : {
       OK      : "OK",
@@ -596,9 +887,8 @@ window.bootbox = window.bootbox || (function init($, undefined) {
   };
 
   exports.init = function(_$) {
-    window.bootbox = init(_$ || $);
+    return init(_$ || $);
   };
 
   return exports;
-
-}(window.jQuery));
+}));

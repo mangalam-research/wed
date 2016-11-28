@@ -17,7 +17,7 @@ var validator = require("./validator");
 var util = require("./util");
 var domutil = require("./domutil");
 var isAttr = domutil.isAttr;
-var validate = require("salve/validate");
+var salve = require("salve");
 var key_constants = require("./key_constants");
 var modal = require("./gui/modal");
 var context_menu = require("./gui/context_menu");
@@ -1758,8 +1758,8 @@ Editor.prototype._processValidationError = function (ev) {
             for (var n_ix = 0, name; (name = names[n_ix]); ++n_ix) {
                 conv.push(this.resolver.unresolveName(
                     name.ns, name.name,
-                    error instanceof validate.AttributeNameError ||
-                        error instanceof validate.AttributeValueError));
+                    error instanceof salve.AttributeNameError ||
+                        error instanceof salve.AttributeValueError));
             }
             converted_name = conv.join(" or ");
         }
@@ -1950,7 +1950,7 @@ Editor.prototype._closeAllTooltips = function () {
 //  LocalWords:  offscreen validthis jshint enterStartTag xmlns xml
 //  LocalWords:  namespace mousedown mouseup mousemove compositionend
 //  LocalWords:  compositionupdate revalidate tabindex hoc stylesheet
-//  LocalWords:  SimpleEventEmitter minified css onbeforeunload Ctrl
+//  LocalWords:  SimpleEventEmitter minified css Ctrl
 //  LocalWords:  Ok contenteditable namespaces errorlist navlist li
 //  LocalWords:  ul nav sb href jQuery DOM html mixins onerror gui
 //  LocalWords:  wundo domlistener oop domutil util validator

@@ -146,6 +146,7 @@ TreeUpdater.prototype.insertAt = function (loc, offset, what) {
         case Node.TEXT_NODE:
             this.insertIntoText(parent, index, what);
             break;
+        case Node.DOCUMENT_NODE:
         case Node.ELEMENT_NODE:
             this.insertNodeAt(parent, index, what);
             break;

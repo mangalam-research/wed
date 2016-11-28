@@ -21,7 +21,9 @@ require.config({
         "merge-options": "external/merge-options",
         "is-plain-obj": "external/is-plain-obj",
         "bluebird": "external/bluebird",
-        "last-resort": "external/last-resort"
+        "last-resort": "external/last-resort",
+        "rangy": "external/rangy/rangy-core",
+        "salve": "external/salve"
     },
     "packages": [
         {
@@ -42,26 +44,12 @@ require.config({
         }
     },
     "shim": {
-        "xregexp": {
-            "exports": "XRegExp",
-            "init": function () { return {XRegExp: XRegExp}; }
-        },
         "bootstrap": {
             "deps": [
                 "jquery"
             ],
             "exports": "jQuery.fn.popover",
             "init": function () { jQuery.noConflict() }
-        },
-        "external/rangy/rangy-core": {
-            "exports": "rangy",
-            "init": function () { return this.rangy; }
-        },
-        "external/rangy/rangy-selectionsaverestore": {
-            "deps": [
-                "external/rangy/rangy-core"
-            ],
-            "exports": "rangy.modules.SaveRestore"
         },
         "jquery.bootstrap-growl": {
             "deps": [

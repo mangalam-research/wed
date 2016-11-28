@@ -137,6 +137,7 @@ function getTestLength(node) {
         case Node.TEXT_NODE:
             test_length = node.data.length;
             break;
+        case Node.DOCUMENT_NODE:
         case Node.ELEMENT_NODE:
             test_length = node.childNodes.length;
             break;

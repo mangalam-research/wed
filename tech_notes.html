@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage Notes &mdash; Wed v0.27.0 documentation</title>
+  <title>Advanced Usage Notes &mdash; Wed v0.28.1 documentation</title>
   
 
   
@@ -30,7 +30,10 @@
   
 
   
-    <link rel="top" title="Wed v0.27.0 documentation" href="index.html"/>
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Wed v0.28.1 documentation" href="index.html"/>
         <link rel="prev" title="Using Wed in an Application" href="usage.html"/> 
 
   
@@ -59,7 +62,7 @@
             
             
               <div class="version">
-                v0.27
+                v0.28
               </div>
             
           
@@ -91,38 +94,46 @@
 <li class="toctree-l2"><a class="reference internal" href="#remote-logging">Remote Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#saving">Saving</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ajax-saver">Ajax Saver</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#localforage-saver">Localforage Saver</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#creating-a-mode">Creating a Mode</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#localforage-saver">Localforage Saver</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-mode">Creating a Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#browser-independent-tests">Browser-Independent Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#in-browser-tests">In-Browser Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#selenium-based-tests">Selenium-Based Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#troubleshooting-the-selenium-tests">Troubleshooting the Selenium Tests</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#browser-independent-tests">Browser-Independent Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#in-browser-tests">In-Browser Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#selenium-based-tests">Selenium-Based Tests</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#troubleshooting-the-selenium-tests">Troubleshooting the Selenium Tests</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#internals">Internals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#internals">Internals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-tag-v0-10-0-x">The Tag v0.10.0-x</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#javascript-event-handling">JavaScript Event Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#selections">Selections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#carets">Carets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#support-for-gui-controls-outside-wed">Support for GUI Controls Outside Wed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#im-support">IM Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#elements-of-the-gui-tree">Elements of the GUI Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#classes-used-by-wed">Classes Used by Wed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#possible-due-to-wildcard">Possible Due to Wildcard</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#browser-issues">Browser Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cut-paste-copy">Cut, Paste, Copy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contenteditable">Contenteditable</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#incompatibilities">Incompatibilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#successive-elements-and-the-caret">Successive Elements and the Caret</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ie11-and-line-breaks">IE11 and line breaks</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#the-tag-v0-10-0-x">The Tag v0.10.0-x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#javascript-event-handling">JavaScript Event Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#selections">Selections</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#carets">Carets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#support-for-gui-controls-outside-wed">Support for GUI Controls Outside Wed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#im-support">IM Support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cut-paste-copy">Cut, Paste, Copy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#contenteditable">Contenteditable</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#incompatibilities">Incompatibilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#successive-elements-and-the-caret">Successive Elements and the Caret</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ie11-and-line-breaks">IE11 and line breaks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vetoing-mutations">Vetoing Mutations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-xpath-problem">The XPath Problem</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#vetoing-mutations">Vetoing Mutations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#historical-notes">Historical Notes</a></li>
 </ul>
 </li>
 </ul>
@@ -422,8 +433,10 @@ browser. It is configured as follows:</p>
 </div>
 <p>The <code class="docutils literal"><span class="pre">name</span></code> parameter is the name to use for saving the document in
 localForage. It is the &#8220;file name&#8221; of sorts of the document.</p>
+</div>
+</div>
 <div class="section" id="creating-a-mode">
-<h4>Creating a Mode<a class="headerlink" href="#creating-a-mode" title="Permalink to this headline">¶</a></h4>
+<h2>Creating a Mode<a class="headerlink" href="#creating-a-mode" title="Permalink to this headline">¶</a></h2>
 <p>We recommend creating new modes by inheriting from the generic
 mode. The first thing you must do is set the metadata on the
 <code class="docutils literal"><span class="pre">_wed_options</span></code> object because wed will refuse to load your mode if
@@ -491,7 +504,7 @@ be responsible for putting a proper <code class="docutils literal"><span class="
 </ul>
 </div>
 <div class="section" id="testing">
-<h4>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h4>
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
 <p>Note that due to the asynchronous nature of the JavaScript environments
 used to run the tests, if the test suites are run on a system
 experiencing heavy load or if the OS has to swap a lot of memory from
@@ -518,11 +531,8 @@ run these in Node.js.</li>
 <li>Selenium-based tests which run <em>outside</em> the browser but use selenium
 to control a browser.</li>
 </ul>
-</div>
-</div>
-</div>
 <div class="section" id="browser-independent-tests">
-<h2>Browser-Independent Tests<a class="headerlink" href="#browser-independent-tests" title="Permalink to this headline">¶</a></h2>
+<h3>Browser-Independent Tests<a class="headerlink" href="#browser-independent-tests" title="Permalink to this headline">¶</a></h3>
 <p>To run the tests that are not browser-dependent do:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp test-node
 </pre></div>
@@ -541,7 +551,7 @@ the suite will run against <strong>old code!</strong></p>
 </div>
 </div>
 <div class="section" id="in-browser-tests">
-<span id="tech-notes-in-browser-tests"></span><h2>In-Browser Tests<a class="headerlink" href="#in-browser-tests" title="Permalink to this headline">¶</a></h2>
+<span id="tech-notes-in-browser-tests"></span><h3>In-Browser Tests<a class="headerlink" href="#in-browser-tests" title="Permalink to this headline">¶</a></h3>
 <p>You can run these tests from the command line by running:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp test-browser
 </pre></div>
@@ -573,7 +583,7 @@ not at this moment a solid reason to get rid of it in favor of Karma.</li>
 </ol>
 </div>
 <div class="section" id="selenium-based-tests">
-<h2>Selenium-Based Tests<a class="headerlink" href="#selenium-based-tests" title="Permalink to this headline">¶</a></h2>
+<h3>Selenium-Based Tests<a class="headerlink" href="#selenium-based-tests" title="Permalink to this headline">¶</a></h3>
 <p>Everything that follows is specific to wed. You need to have <a class="reference external" href="http://github.com/mangalam-research/selenic">selenic</a> installed and
 available on your <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>. Read its documentation.  You also
 need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a>
@@ -630,20 +640,26 @@ obscure or unsupported packages, or do we want to focus on wed? We
 chose the latter.</li>
 </ol>
 <div class="section" id="troubleshooting-the-selenium-tests">
-<h3>Troubleshooting the Selenium Tests<a class="headerlink" href="#troubleshooting-the-selenium-tests" title="Permalink to this headline">¶</a></h3>
+<h4>Troubleshooting the Selenium Tests<a class="headerlink" href="#troubleshooting-the-selenium-tests" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="symptom-all-tests-fail">
+<h5>Symptom: All tests fail!<a class="headerlink" href="#symptom-all-tests-fail" title="Permalink to this headline">¶</a></h5>
 <p>Make sure that SauceConnect is running.</p>
+</div>
+<div class="section" id="symptom-some-firefox-tests-fail-and-i-am-at-a-loss-to-know-why">
+<h5>Symptom: Some Firefox tests fail and I am at a loss to know why.<a class="headerlink" href="#symptom-some-firefox-tests-fail-and-i-am-at-a-loss-to-know-why" title="Permalink to this headline">¶</a></h5>
 <p>Firefox is picky. Make sure you have a windows manager that manages
 FF&#8217;s window. (This would come into play if you use Xephyr or Xnest for
 instance. You&#8217;d have to start a window manager running on the server
 they create.) Some tests that failed in Xephyr have also stopped
 failing once leftover windows from previous tests were closed.</p>
+</div>
+</div>
+</div>
+</div>
 <div class="section" id="internals">
-<h4>Internals<a class="headerlink" href="#internals" title="Permalink to this headline">¶</a></h4>
-</div>
-</div>
-</div>
+<h2>Internals<a class="headerlink" href="#internals" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="the-tag-v0-10-0-x">
-<h2>The Tag v0.10.0-x<a class="headerlink" href="#the-tag-v0-10-0-x" title="Permalink to this headline">¶</a></h2>
+<h3>The Tag v0.10.0-x<a class="headerlink" href="#the-tag-v0-10-0-x" title="Permalink to this headline">¶</a></h3>
 <p>The git repository contains tags v0.10.0 and v0.10.0-x. What&#8217;s the
 deal? Both tags represent the same state of development. The first
 points into the master branch, the second into the develop branch. The
@@ -652,7 +668,7 @@ second tag was created to work around a bug that prevents using <code class="doc
 with wed, use the <a class="reference external" href="https://github.com/petervanderdoes/gitflow">AVH edition</a>.</p>
 </div>
 <div class="section" id="javascript-event-handling">
-<h2>JavaScript Event Handling<a class="headerlink" href="#javascript-event-handling" title="Permalink to this headline">¶</a></h2>
+<h3>JavaScript Event Handling<a class="headerlink" href="#javascript-event-handling" title="Permalink to this headline">¶</a></h3>
 <p>Modes are free to bind whatever handlers they want to those GUI
 elements they themselves are responsible for creating, managing and
 destroying. However, modes <strong>must not</strong> bind their own event handlers
@@ -734,7 +750,7 @@ to a truthy value. This field must be set <strong>in the DOM</strong> as an
 attribute (and not merely using jQuery&#8217;s <code class="docutils literal"><span class="pre">data()</span></code> method.</p>
 </div>
 <div class="section" id="selections">
-<h2>Selections<a class="headerlink" href="#selections" title="Permalink to this headline">¶</a></h2>
+<h3>Selections<a class="headerlink" href="#selections" title="Permalink to this headline">¶</a></h3>
 <p>Wed works with multiple types of selections:</p>
 <dl class="docutils">
 <dt>DOM selection</dt>
@@ -758,7 +774,7 @@ workaround for now is to <strong>clear</strong> the range before setting a new
 range.</p>
 </div>
 <div class="section" id="carets">
-<h2>Carets<a class="headerlink" href="#carets" title="Permalink to this headline">¶</a></h2>
+<h3>Carets<a class="headerlink" href="#carets" title="Permalink to this headline">¶</a></h3>
 <p>Wed works with multiple types of carets:</p>
 <dl class="docutils">
 <dt>Fake caret</dt>
@@ -772,7 +788,7 @@ not correspond to a DOM caret. Modes usually want to work with this caret.</dd>
 </dl>
 </div>
 <div class="section" id="support-for-gui-controls-outside-wed">
-<h2>Support for GUI Controls Outside Wed<a class="headerlink" href="#support-for-gui-controls-outside-wed" title="Permalink to this headline">¶</a></h2>
+<h3>Support for GUI Controls Outside Wed<a class="headerlink" href="#support-for-gui-controls-outside-wed" title="Permalink to this headline">¶</a></h3>
 <p>By default, wed does not provide any kind of drop down menus or
 toolbar to perform actions like undo/redo, etc. The application that
 embeds wed into it, however, might need such tools. Now, the problem
@@ -801,7 +817,7 @@ events should prevent the default browser behavior.</p>
 </div>
 </div>
 <div class="section" id="im-support">
-<h2>IM Support<a class="headerlink" href="#im-support" title="Permalink to this headline">¶</a></h2>
+<h3>IM Support<a class="headerlink" href="#im-support" title="Permalink to this headline">¶</a></h3>
 <p>As usual, the browsers and various web standards make a mess of what
 ought to be simple. On both Firefox 23 and Chrome 29, entering text
 using IBus does not generate <code class="docutils literal"><span class="pre">keypress</span></code> events. The only events
@@ -842,7 +858,7 @@ keys for the input triggers.</p>
 </div>
 </div>
 <div class="section" id="gui-tree-and-data-tree">
-<h2>GUI Tree and Data Tree<a class="headerlink" href="#gui-tree-and-data-tree" title="Permalink to this headline">¶</a></h2>
+<h3>GUI Tree and Data Tree<a class="headerlink" href="#gui-tree-and-data-tree" title="Permalink to this headline">¶</a></h3>
 <p>Wed maintains two trees of DOM nodes:</p>
 <ul class="simple">
 <li>A data tree which is not attached to the browser&#8217;s document. (It is
@@ -866,6 +882,9 @@ view and controler aspects of the MVC pattern.</li>
 <p>The <code class="docutils literal"><span class="pre">GUIUpdater</span></code> object stored in <code class="docutils literal"><span class="pre">Editor._gui_updater</span></code> is
 responsible for inserting and deleting the nodes of the GUI tree that
 corresponds to those of the data tree whenever the latter is modified.</p>
+</div>
+<div class="section" id="elements-of-the-gui-tree">
+<h3>Elements of the GUI Tree<a class="headerlink" href="#elements-of-the-gui-tree" title="Permalink to this headline">¶</a></h3>
 <p>Wed operates on an HTML structure constructed as follows:</p>
 <ul class="simple">
 <li>All elements from the XML document become HTML <code class="docutils literal"><span class="pre">div</span></code> elements.</li>
@@ -901,6 +920,9 @@ correspond to any XML attributes. They are encoded as
 <code class="docutils literal"><span class="pre">data-wed--[name]</span></code>. An XML attribute name or prefix may not begin
 with a dash, so there cannot be a clash.</li>
 </ul>
+</div>
+<div class="section" id="classes-used-by-wed">
+<h3>Classes Used by Wed<a class="headerlink" href="#classes-used-by-wed" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
 <dt><code class="docutils literal"><span class="pre">_phantom</span></code>:</dt>
 <dd>All elements added by wed for representing the data to the user are of
@@ -946,6 +968,9 @@ then the phantom text <code class="docutils literal"><span class="pre">(</span><
 <dt><code class="docutils literal"><span class="pre">_readonly</span></code>:</dt>
 <dd>Marks an element or attribute that cannot be edited.</dd>
 </dl>
+</div>
+<div class="section" id="possible-due-to-wildcard">
+<h3>Possible Due to Wildcard<a class="headerlink" href="#possible-due-to-wildcard" title="Permalink to this headline">¶</a></h3>
 <p>As explained in <a class="reference internal" href="help.html#complex-name-patterns"><span class="std std-ref">Complex Name Patterns</span></a>, wed <em>can</em> handle the
 name patterns <code class="docutils literal"><span class="pre">NsName</span></code> and <code class="docutils literal"><span class="pre">AnyName</span></code> for the purpose of validating
 a document but will not allow editing such elements. In order to limit
@@ -986,11 +1011,14 @@ is possible to create an infinite loop: rendering causes
 validation, which emits validation events, which cause
 rendering, which casues validation, which emits events...</p>
 </div>
+</div>
+</div>
+<div class="section" id="browser-issues">
+<h2>Browser Issues<a class="headerlink" href="#browser-issues" title="Permalink to this headline">¶</a></h2>
 <p>The sad fact is that browsers are limited in functionality, buggy, or
 incompatible with each other. This section documents such issues.</p>
-</div>
 <div class="section" id="cut-paste-copy">
-<h2>Cut, Paste, Copy<a class="headerlink" href="#cut-paste-copy" title="Permalink to this headline">¶</a></h2>
+<h3>Cut, Paste, Copy<a class="headerlink" href="#cut-paste-copy" title="Permalink to this headline">¶</a></h3>
 <p>Copying and pasting don&#8217;t present any special difficulties. However,
 cutting is problematic, because:</p>
 <ol class="arabic simple">
@@ -1008,9 +1036,9 @@ veto them, but this is about the maximum level of control that can be
 achieved cross-browser.</p>
 </div>
 <div class="section" id="contenteditable">
-<h2>Contenteditable<a class="headerlink" href="#contenteditable" title="Permalink to this headline">¶</a></h2>
+<h3>Contenteditable<a class="headerlink" href="#contenteditable" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="incompatibilities">
-<h3>Incompatibilities<a class="headerlink" href="#incompatibilities" title="Permalink to this headline">¶</a></h3>
+<h4>Incompatibilities<a class="headerlink" href="#incompatibilities" title="Permalink to this headline">¶</a></h4>
 <p>One area of incompatibility is the implementation of contenteditable
 across browsers. Even a single browser can behave inconsistently
 depending on how the DOM tree is structured. (In Firefox 20, the
@@ -1019,7 +1047,7 @@ way BACKSPACE is handled when the caret is at the start of a
 contenteditable element.)</p>
 </div>
 <div class="section" id="successive-elements-and-the-caret">
-<h3>Successive Elements and the Caret<a class="headerlink" href="#successive-elements-and-the-caret" title="Permalink to this headline">¶</a></h3>
+<h4>Successive Elements and the Caret<a class="headerlink" href="#successive-elements-and-the-caret" title="Permalink to this headline">¶</a></h4>
 <p>Suppose the structure:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span> <span class="n">contenteditable</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="o">&gt;</span><span class="n">foo</span> <span class="o">&lt;</span><span class="n">button</span> <span class="n">contenteditable</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="o">&gt;</span><span class="n">A</span><span class="o">&lt;/</span><span class="n">button</span><span class="o">&gt;</span>
 <span class="o">&lt;</span><span class="n">button</span> <span class="n">contenteditable</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="o">&gt;</span><span class="n">B</span><span class="o">&lt;/</span><span class="n">button</span><span class="o">&gt;</span> <span class="n">bar</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
@@ -1041,7 +1069,7 @@ non-existent (editing is not possible).</p>
 placeholder to allow the user to put their caret between elements.</p>
 </div>
 <div class="section" id="ie11-and-line-breaks">
-<h3>IE11 and line breaks<a class="headerlink" href="#ie11-and-line-breaks" title="Permalink to this headline">¶</a></h3>
+<h4>IE11 and line breaks<a class="headerlink" href="#ie11-and-line-breaks" title="Permalink to this headline">¶</a></h4>
 <p>We&#8217;ve discovered late that IE11 has a rendering issue with elements
 that are <code class="docutils literal"><span class="pre">contenteditable</span></code>. Take the following:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">paragraph</span> <span class="o">&lt;</span><span class="n">hi</span><span class="o">&gt;</span><span class="k">with</span>
@@ -1059,7 +1087,7 @@ tree!</p>
 </div>
 </div>
 <div class="section" id="synthetic-keyboard-events">
-<h2>Synthetic Keyboard Events<a class="headerlink" href="#synthetic-keyboard-events" title="Permalink to this headline">¶</a></h2>
+<h3>Synthetic Keyboard Events<a class="headerlink" href="#synthetic-keyboard-events" title="Permalink to this headline">¶</a></h3>
 <p>In Firefox 20, it seems impossible to get the browser to handle a
 synthetic keyboard event exactly as if the user had typed it. The
 event can be created and dispatched, and it will trigger event
@@ -1074,13 +1102,60 @@ simulation is very imperfect. Cursory testing sending BACKSPACE using
 sendkeys and BACKSPACE using the keyboard shows inconsistent behavior.</p>
 </div>
 <div class="section" id="vetoing-mutations">
-<h2>Vetoing Mutations<a class="headerlink" href="#vetoing-mutations" title="Permalink to this headline">¶</a></h2>
+<h3>Vetoing Mutations<a class="headerlink" href="#vetoing-mutations" title="Permalink to this headline">¶</a></h3>
 <p>It might seem that using MutationObserver to check on a DOM tree, one
 would be able to veto a user-initiated change inside contenteditable
 elements. In practice, a single keyboard key (like BACKSPACE) hit
 might result in 5-6 mutations of the DOM tree, and there is no simple
 way to know that these 5-6 mutations were all initiated by a single
 key.</p>
+</div>
+<div class="section" id="the-xpath-problem">
+<span id="tech-notes-xpath"></span><h3>The XPath Problem<a class="headerlink" href="#the-xpath-problem" title="Permalink to this headline">¶</a></h3>
+<p>Wed does not use XPath internally. A mode that you develop for wed
+<strong>could</strong> require the use of XPath but please read on before making
+that choice.</p>
+<p>The issues:</p>
+<ol class="arabic">
+<li><p class="first">Browsers only natively support XPath 1.</p>
+</li>
+<li><p class="first">On some browsers (any version of Internet Explorer, for instance),
+the way to perform XPath queries is radically different from other
+browsers. Most browsers will allow performing queries on a document
+produced with <code class="docutils literal"><span class="pre">DOMParser</span></code>. Moreover the document produced by
+<code class="docutils literal"><span class="pre">DOMParser</span></code> is a DOM document with support for all the DOM
+methods normally found on a document.</p>
+<p>The machinery for XPath queries on IE browsers on the other hand
+produce an &#8220;document&#8221; which is not an actual DOM document. It is an
+entirely different beast. (Just to name one simple difference: you
+can use <code class="docutils literal"><span class="pre">querySelector</span></code> on documents created using
+<code class="docutils literal"><span class="pre">DOMParser</span></code>. You cannot do the same on the document created
+through IE&#8217;s ActiveXObject nonsense.)</p>
+<p>So using the browser machinery would require (at least) two
+significantly different methods of working with XML documents.</p>
+</li>
+<li><p class="first">There are non-native solutions that <em>should</em> work on various
+browsers. However,</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/google/wicked-good-xpath/">Wicked Good XPath</a> has a <a class="reference external" href="https://github.com/google/wicked-good-xpath/issues/46">basic
+flaw</a> in
+how it handles case-sensitivity. It works inconsistently across
+platforms.</li>
+<li><a class="reference external" href="https://github.com/ilinsky/xpath.js">This library</a> seems a
+better choice but it is currently in flux and has no clear
+releases.</li>
+<li>The version of Saxon that loads in browsers has support for XPath
+but this means loading a huge library.</li>
+</ul>
+</li>
+</ol>
+<p>There&#8217;s no trivial way to support XPath right now. We&#8217;re keeping an
+eye on development of XPath libraries to determine a moment when
+adding such support is reasonable.</p>
+</div>
+</div>
+<div class="section" id="historical-notes">
+<h2>Historical Notes<a class="headerlink" href="#historical-notes" title="Permalink to this headline">¶</a></h2>
 <p>Initially wed was designed with the idea that <code class="docutils literal"><span class="pre">contenteditable</span></code>
 would take care of caret management, selection management, text entry,
 etc. Consequently, wed would let the browser drive the management of
@@ -1154,7 +1229,7 @@ the incremental changes, but some obsolete code may still remain.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.27.0',
+            VERSION:'v0.28.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

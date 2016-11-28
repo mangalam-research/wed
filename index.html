@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; Wed v0.27.0 documentation</title>
+  <title>Introduction &mdash; Wed v0.28.1 documentation</title>
   
 
   
@@ -30,7 +30,10 @@
   
 
   
-    <link rel="top" title="Wed v0.27.0 documentation" href="#"/>
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Wed v0.28.1 documentation" href="#"/>
         <link rel="next" title="Demos" href="demos.html"/> 
 
   
@@ -59,7 +62,7 @@
             
             
               <div class="version">
-                v0.27
+                v0.28
               </div>
             
           
@@ -231,28 +234,35 @@ for wed.</li>
 <li class="toctree-l3"><a class="reference internal" href="tech_notes.html#localforage-saver">Localforage Saver</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#browser-independent-tests">Browser-Independent Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#in-browser-tests">In-Browser Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#selenium-based-tests">Selenium-Based Tests</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#troubleshooting-the-selenium-tests">Troubleshooting the Selenium Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#creating-a-mode">Creating a Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#browser-independent-tests">Browser-Independent Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#in-browser-tests">In-Browser Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#selenium-based-tests">Selenium-Based Tests</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#the-tag-v0-10-0-x">The Tag v0.10.0-x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#javascript-event-handling">JavaScript Event Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#selections">Selections</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#carets">Carets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#support-for-gui-controls-outside-wed">Support for GUI Controls Outside Wed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#im-support">IM Support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#cut-paste-copy">Cut, Paste, Copy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#contenteditable">Contenteditable</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#incompatibilities">Incompatibilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#successive-elements-and-the-caret">Successive Elements and the Caret</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#ie11-and-line-breaks">IE11 and line breaks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#internals">Internals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#the-tag-v0-10-0-x">The Tag v0.10.0-x</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#javascript-event-handling">JavaScript Event Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#selections">Selections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#carets">Carets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#support-for-gui-controls-outside-wed">Support for GUI Controls Outside Wed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#im-support">IM Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#gui-tree-and-data-tree">GUI Tree and Data Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#elements-of-the-gui-tree">Elements of the GUI Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#classes-used-by-wed">Classes Used by Wed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#possible-due-to-wildcard">Possible Due to Wildcard</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#vetoing-mutations">Vetoing Mutations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#browser-issues">Browser Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#cut-paste-copy">Cut, Paste, Copy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#contenteditable">Contenteditable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#synthetic-keyboard-events">Synthetic Keyboard Events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#vetoing-mutations">Vetoing Mutations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#the-xpath-problem">The XPath Problem</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#historical-notes">Historical Notes</a></li>
 </ul>
 </li>
 </ul>
@@ -324,7 +334,7 @@ represent those of the National Endowment for the Humanities.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.27.0',
+            VERSION:'v0.28.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

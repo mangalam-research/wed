@@ -81,38 +81,34 @@ ReferenceManager.prototype.nextNumber = function () {
 
 exports.ReferenceManager = ReferenceManager;
 
-var sense_labels = 'abcdefghijklmnopqrstuvwxyz';
-
-/**
- * @classdesc Implementation required for testing the base
- * ReferenceManager object. It is used by the test suite.
- * @extends module:refman~ReferenceManager
- *
- * @constructor
- */
-function SenseReferenceManager() {
-    ReferenceManager.call(this, "sense");
-    this._next_sense_label_ix = 0;
+function AlphabeticLabelManager(name) {
+    ReferenceManager.call(this, name);
+    this._nextSenseLabelIx = 0;
 }
 
-oop.inherit(SenseReferenceManager, ReferenceManager);
+oop.inherit(AlphabeticLabelManager, ReferenceManager);
 
-SenseReferenceManager.prototype.allocateLabel = function (id) {
-    // More than 26 senses in a single article seems much.
-    if (this._next_sense_label_ix >= sense_labels.length)
-        throw new Error("hit the hard limit of 26 sense " +
-                        "labels in a single article");
+var AlphabeticLabelManagerP = AlphabeticLabelManager.prototype;
 
-    /* jshint boss:true */
-    return this._id_to_label[id] = sense_labels[
-        this._next_sense_label_ix++];
+var alphabet = "abcdefghijklmnopqrstuvwxyz";
+AlphabeticLabelManagerP.allocateLabel = function allocateLabel(id) {
+    var label = this._id_to_label[id];
+    if (label === undefined) {
+        var ix = this._nextSenseLabelIx++;
+        var round = Math.floor(ix / 26) + 1;
+        var charIx = ix % 26;
+        label = alphabet[charIx].repeat(round);
+        this._id_to_label[id] = label;
+    }
+
+    return label;
 };
 
-SenseReferenceManager.prototype._deallocateAllLabels = function () {
-    this._next_sense_label_ix = 0;
+AlphabeticLabelManagerP._deallocateAllLabels = function _deallocateAllLabels() {
+    this._nextSenseLabelIx = 0;
 };
 
-exports.___test_rm = new SenseReferenceManager();
+exports.AlphabeticLabelManager = AlphabeticLabelManager;
 
 });
 

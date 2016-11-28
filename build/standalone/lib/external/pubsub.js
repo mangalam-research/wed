@@ -4,15 +4,6 @@ License: MIT - http://mrgnrdrck.mit-license.org
 
 https://github.com/mroderick/PubSubJS
 */
-/*jslint white:true, plusplus:true, stupid:true*/
-/*global
-	setTimeout,
-	module,
-	exports,
-	define,
-	require,
-	window
-*/
 (function (root, factory){
 	'use strict';
 
@@ -24,11 +15,13 @@ https://github.com/mroderick/PubSubJS
         // CommonJS
         factory(exports);
 
-    } else {
-        // Browser globals
-        factory((root.PubSub = {}));
-
     }
+
+    // Browser globals
+    var PubSub = {};
+    root.PubSub = PubSub;
+    factory(PubSub);
+    
 }(( typeof window === 'object' && window ) || this, function (PubSub){
 	'use strict';
 
@@ -96,7 +89,7 @@ https://github.com/mroderick/PubSubJS
 			while( position !== -1 ){
 				topic = topic.substr( 0, position );
 				position = topic.lastIndexOf('.');
-				deliverMessage( message, topic, data );
+				deliverMessage( message, topic, data, immediateExceptions );
 			}
 		};
 	}
@@ -179,8 +172,19 @@ https://github.com/mroderick/PubSubJS
 
 	/* Public: Clears all subscriptions
 	 */
-	PubSub.clearAllSubscriptions = function clearSubscriptions(){
+	PubSub.clearAllSubscriptions = function clearAllSubscriptions(){
 		messages = {};
+	};
+
+	/*Public: Clear subscriptions by the topic
+	*/
+	PubSub.clearSubscriptions = function clearSubscriptions(topic){
+		var m; 
+		for (m in messages){
+			if (messages.hasOwnProperty(m) && m.indexOf(topic) === 0){
+				delete messages[m];
+			}
+		}
 	};
 
 	/* Public: removes subscriptions.
@@ -207,7 +211,7 @@ https://github.com/mroderick/PubSubJS
 			isToken    = !isTopic && typeof value === 'string',
 			isFunction = typeof value === 'function',
 			result = false,
-			m, message, t, token;
+			m, message, t;
 
 		if (isTopic){
 			delete messages[value];
@@ -223,7 +227,9 @@ https://github.com/mroderick/PubSubJS
 					result = value;
 					// tokens are unique, so we can just stop here
 					break;
-				} else if (isFunction) {
+				}
+
+				if (isFunction) {
 					for ( t in message ){
 						if (message.hasOwnProperty(t) && message[t] === value){
 							delete message[t];
