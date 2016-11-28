@@ -32,7 +32,10 @@ var html = '<html>\
 </html>'.replace('@BASE@', base_path);
 
 //
-// Mock the DOM Range object.
+// Mock the DOM Range and Selection objects. We're doing only just
+// enough to prevent Rangy from going nuts. Note that this is not
+// enough to be able to use Rangy for general Range and Selection
+// manipulations.
 //
 
 function Range() {
@@ -76,6 +79,38 @@ Range.prototype._setCollapsed = function () {
          this.startOffset === this.endOffset);
 };
 
+function Selection() {
+    this.anchorNode = null;
+    this.anchorOffset = null;
+    this.baseNode = null;
+    this.baseOffset = null;
+    this.extentNode = null;
+    this.extentOffset = null;
+    this.focusNode = null;
+    this.focusOffset = null;
+    this.isCollapsed = true;
+    this._ranges = [];
+    this.type = "Range";
+}
+
+Object.defineProperty(Selection.prototype, 'rangeCount', {
+    get: function () {
+        return this._ranges.length;
+    },
+    enumerable: true,
+    configurable: true,
+});
+
+Selection.prototype.addRange = function addRange(r) {
+    this._ranges.push(r);
+};
+
+Selection.prototype.removeAllRanges = function removeAllRanges() {
+    this._ranges = [];
+};
+
+
+
 function FW() {
     this.window = undefined;
     this.log_buffer = [];
@@ -117,22 +152,19 @@ FW.prototype.create = function (done) {
                 return range;
             };
 
+            // Mock window.getSelection for rangy.
+            w.getSelection = function () {
+                return new Selection();
+            };
+
             // Check that rangy loaded properly...
             w.require(["rangy"], function (rangy) {
                 assert.isTrue(rangy.initialized, "rangy initialized.");
                 assert.isTrue(rangy.supported,
                               "rangy supports our environment");
 
-                // Rangy won't be able to initialize its internal
-                // WrappedSelection module. That's fine.
-                assert.equal(me.log_buffer.length, 1);
-                assert.deepEqual(
-                    me.log_buffer[0][0],
-                    'Module \'WrappedSelection\' failed to load: ' +
-                        'Module \'WrappedSelection\' failed to load: Neither ' +
-                        'document.selection or window.getSelection() detected.'
-                );
-                me.log_buffer = []; // Flush
+                // There should not be any errors.
+                assert.equal(me.log_buffer.length, 0);
             });
         },
         done: function (error, w) {

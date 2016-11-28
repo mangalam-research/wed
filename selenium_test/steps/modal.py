@@ -99,9 +99,6 @@ def step_impl(context):
 
     new_size = resizable.size
 
-    print(driver.execute_script("""
-    return arguments[0].getBoundingClientRect();
-    """, resizable))
     assert_equal(orig_size["height"] + 10, new_size["height"],
                  "the height should be 10 more than it was")
     assert_equal(orig_size["width"] - 10, new_size["width"],

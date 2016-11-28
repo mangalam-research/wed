@@ -21,3 +21,7 @@ Scenario: Check that normalize works.
   Then normalize is a polyfill
   And normalize joins adjacent text nodes
   And normalize deletes empty text nodes
+
+Scenario: Check that string repetition works.
+  Given the platform variation page is loaded
+  Then String.prototype.repeat works

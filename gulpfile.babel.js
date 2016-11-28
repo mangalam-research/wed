@@ -26,6 +26,7 @@ from "./gulptasks/util";
 import requireDir from "require-dir";
 import rjs from "requirejs";
 import wrap_amd from "gulp-wrap-amd";
+import versync from "versync";
 
 // Try to load local configuration options.
 let local_config = {};
@@ -287,9 +288,6 @@ npm_copy_task("angular/angular.js");
 
 npm_copy_task("bootbox", "bootbox.js/bootbox.js");
 
-npm_copy_task("xregexp", "salve/node_modules/xregexp/xregexp-all.js",
-              { rename: "xregexp.js"});
-
 npm_copy_task("urijs/src/**", "external/urijs");
 
 npm_copy_task("lodash", "lodash-amd/{modern/**,main.js,package.json}",
@@ -298,7 +296,7 @@ npm_copy_task("lodash", "lodash-amd/{modern/**,main.js,package.json}",
 npm_copy_task("classlist", "classlist-polyfill/src/index.js",
               { rename: "classList.js"});
 
-npm_copy_task("salve/lib/salve/**", "salve");
+npm_copy_task("salve/salve*");
 
 npm_copy_task("interact.js/dist/interact.min.js");
 
@@ -311,6 +309,8 @@ npm_copy_task("is-plain-obj", "is-plain-obj/index.js",
 npm_copy_task("bluebird/js/browser/bluebird.js");
 
 npm_copy_task("last-resort/dist/last-resort.js**");
+
+npm_copy_task("rangy/lib/**", "external/rangy");
 
 gulp.task("build-info", Promise.coroutine(function* () {
     const dest = "build/standalone/lib/wed/build-info.js";
@@ -341,7 +341,6 @@ gulp.task("build-standalone",
               "build-only-standalone",
               "build-only-standalone-less",
               "build-only-standalone-config",
-              "copy-rangy",
               "copy-log4javascript",
               "copy-bootstrap-growl",
               "copy-typeaheadjs.css",
@@ -592,8 +591,12 @@ const test_node = {
     name: "test-node",
     deps: ['build-standalone', 'build-test-files'],
     func: function* test_node() {
-        if (!options.skip_semver)
-            yield exec("semver-sync -v");
+        if (!options.skip_semver) {
+            yield versync.run({
+                verify: true,
+                onMessage: gutil.log,
+            });
+        }
 
         yield spawn("./node_modules/.bin/mocha",
                     options.mocha_params ? options.mocha_params.split(): [],

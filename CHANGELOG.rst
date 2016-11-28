@@ -4,6 +4,33 @@ work correctly when viewed there.
 
 Only salient changes are recorded here.
 
+* 0.28.0:
+
+  - Wed now uses salve 3.0.0.
+
+  - Wed no longer puts its ``data_root`` in a document fragment. The
+    ``data_root`` is now the XML document itself. This caused issues
+    with ``ownerDocument``, and being unable to use CSS selectors to
+    match elements.
+
+  - Wed no longer tries to set a custom message for the ``onbeforeunload``
+    handler. It worked only on Chrome but Chrome has ceased to support
+    the custom message.
+
+  - Upgrade to Rangy 1.3.0. The alpha of 1.3 that we were using is no
+    longer downloadable, and the stable release is accessible through
+    NPM. So it is time to upgrade. Note that wed no longer loads
+    rangy-selectionsaverestore implicitly so code that depended to
+    this behavior will have to load that module explicitly.
+
+  - Wed now counts on ``String.prototype.repeat`` being available. So
+    it includes a polyfill for it.
+
+  - API: ``wed/refman`` has been renamed ``wed/labelman`` because it
+    was really a label manager more than a reference manager. It is
+    also better documented and has acquired a concerete implementation
+    in the form of ``AlphabeticLabelManager``.
+
 * 0.27.0:
 
   - Fatal errors and recovery: previous versions of wed would

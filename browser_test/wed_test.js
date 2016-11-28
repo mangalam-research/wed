@@ -5,11 +5,11 @@
  */
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
-        "wed/key", "wed/dloc", "wed/util", "salve/validate",
+        "wed/key", "wed/dloc", "wed/util", "salve",
         "wed/browsers",
         "text!test-files/wed_test_data/source_converted.xml", "require"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util, validate, browsers, source,
+                onerror, log, key, dloc, util, salve, browsers, source,
                 require) {
 'use strict';
 
@@ -206,7 +206,7 @@ describe("wed", function () {
         before(function (done) {
             // Resolve the schema to a grammar.
             $.get(require.toUrl(options.schema), function (x) {
-                options.schema = validate.constructTree(x);
+                options.schema = salve.constructTree(x);
                 done();
             }, "text").fail(
                 function (jqXHR, textStatus, errorThrown) {
@@ -280,6 +280,21 @@ describe("wed", function () {
 
             assert.isTrue(
                 editor._$modification_status.hasClass("label-warning"));
+        });
+
+        it("onbeforeunload returns falsy on unmodified doc", function () {
+            assert.isFalse(!!editor.my_window.onbeforeunload());
+        });
+
+        it("onbeforeunload returns truthy on modified doc", function () {
+            editor.validator._validateUpTo(editor.data_root, -1);
+            // Text node inside title.
+            var initial = editor.gui_root.getElementsByClassName("title")[0]
+                .childNodes[1];
+            editor.setGUICaret(initial, 0);
+            editor.type(" ");
+
+            assert.isTrue(!!editor.my_window.onbeforeunload());
         });
 
         it("has a modification status showing an unmodified document " +

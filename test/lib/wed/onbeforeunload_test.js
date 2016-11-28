@@ -31,8 +31,7 @@ describe("onbeforeunload", function () {
 
     it("automatically installs itself on window", function () {
         assert.isDefined(window.onbeforeunload);
-        assert.equal(window.onbeforeunload(),
-                     "Do you really want to navigate away from this page?");
+        assert.isTrue(window.onbeforeunload());
     });
 
     describe("install", function () {
@@ -43,16 +42,16 @@ describe("onbeforeunload", function () {
         });
 
         it("works when force is set", function () {
-            onbeforeunload.install(window, "foo", null, true);
-            assert.equal(window.onbeforeunload(), "foo");
+            onbeforeunload.install(window, null, true);
+            assert.isTrue(window.onbeforeunload());
         });
 
         it("a true check results in a prompt", function () {
             var check = sinon.stub();
             check.returns(true);
 
-            onbeforeunload.install(window, "foo", check, true);
-            assert.equal(window.onbeforeunload(), "foo");
+            onbeforeunload.install(window, check, true);
+            assert.isTrue(window.onbeforeunload());
             assert.isTrue(check.calledOnce);
         });
 
@@ -60,8 +59,8 @@ describe("onbeforeunload", function () {
             var check = sinon.stub();
             check.returns(false);
 
-            onbeforeunload.install(window, "foo", check, true);
-            assert.equal(window.onbeforeunload(), undefined);
+            onbeforeunload.install(window, check, true);
+            assert.isUndefined(window.onbeforeunload());
             assert.isTrue(check.calledOnce);
         });
     });

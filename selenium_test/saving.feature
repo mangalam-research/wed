@@ -19,15 +19,26 @@ Scenario: serializes multiple top namespaces properly
   And the user saves
   Then the data saved is properly serialized
 
-Scenario: reloading a modified document brings up a prompt
-  Given a document containing a top level element, a p element, and text.
-  And that the user has deleted all the text in an element
-  When the user reloads
-  Then a reload prompt with the text "The document has unsaved modifications. Do you really want to leave without saving?" comes up
-  When the user cancels the alert
-  And waits for the editor
+#
+# We no longer perform the reload tests through Selenium. Around the
+# time of Chrome 52-53, Selenium started hanging on driver.refresh()
+# if onbeforeunload showed a dialog box. This seems to be a bug in
+# Chrome or chromedriver or something. Rather than chase the bug,
+# we've dropped these tests here and instead check in wed_test.js that
+# onbeforeunload returns expected values. This won't trap issues with
+# bizarro platforms, unfortunately but that was the expedient thing to
+# do.
+#
 
-Scenario: reloading an unmodified document does not bring up a prompt
-  Given a document containing a top level element, a p element, and text.
-  When the user reloads
-  And waits for the editor
+#
+# Scenario: reloading a modified document brings up a prompt
+#   Given a document containing a top level element, a p element, and text.
+#   And that the user has deleted all the text in an element
+#   When the user reloads
+#   And the user cancels the alert
+#   And waits for the editor
+
+# Scenario: reloading an unmodified document does not bring up a prompt
+#   Given a document containing a top level element, a p element, and text.
+#   When the user reloads
+#   And waits for the editor

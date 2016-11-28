@@ -5,12 +5,12 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/wed",
         "wed/domutil", "wed/onerror", "wed/log",
-        "wed/dloc", "wed/util", "salve/validate", "wed/transformation",
+        "wed/dloc", "wed/util", "salve", "wed/transformation",
         "text!../../build/schemas/tei-simplified-rng.js",
         "text!../../build/test-files/wed_test_data/" +
         "source_converted.xml"],
        function (mocha, chai, $, wed, domutil,
-                 onerror, log, dloc, util, validate, transformation,
+                 onerror, log, dloc, util, salve, transformation,
                  schema, source) {
 'use strict';
 
@@ -59,7 +59,7 @@ function dataCaretCheck(editor, container, offset, msg) {
 describe("transformation", function () {
     before(function () {
         // Resolve the schema to a grammar.
-        options.schema = validate.constructTree(schema);
+        options.schema = salve.constructTree(schema);
     });
 
     var editor;

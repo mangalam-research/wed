@@ -28,6 +28,8 @@ require.config({
    'is-plain-obj': 'external/is-plain-obj',
    bluebird: 'external/bluebird',
    'last-resort': 'external/last-resort',
+   rangy: 'external/rangy/rangy-core',
+   salve: 'external/salve',
  },
  packages: [
      {
@@ -48,27 +50,10 @@ require.config({
    },
  },
  shim: {
-   xregexp: {
-     // RequireJS wants to have this here even if the ``init`` field
-     // makes it pointless.
-     exports: "XRegExp",
-     // We do it this way because salve is developed in Node and in
-     // Node when we require XRegExp we get a module which has an
-     // XRegExp field on it.
-     init: function () { return {XRegExp: XRegExp}; }
-   },
    bootstrap: {
      deps: ["jquery"],
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
-   },
-   'external/rangy/rangy-core': {
-     exports: "rangy",
-     init: function() { return this.rangy; }
-   },
-   'external/rangy/rangy-selectionsaverestore': {
-     deps: ["external/rangy/rangy-core"],
-     exports: "rangy.modules.SaveRestore"
    },
    'jquery.bootstrap-growl': {
      deps: ["jquery", "bootstrap"],

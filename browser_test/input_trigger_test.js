@@ -5,11 +5,11 @@
  */
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
-        "wed/transformation", "salve/validate", "browser_test/global",
+        "wed/transformation", "salve", "browser_test/global",
         "text!../../build/schemas/tei-simplified-rng.js",
         "text!test-files/input_trigger_test_data/source_converted.xml"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
-         input_trigger_factory, transformation, validate, global, schema,
+         input_trigger_factory, transformation, salve, global, schema,
          source) {
 'use strict';
 var assert = chai.assert;
@@ -42,7 +42,7 @@ describe("InputTrigger", function () {
 
     before(function () {
         // Resolve the schema to a grammar.
-        options.schema = validate.constructTree(schema);
+        options.schema = salve.constructTree(schema);
     });
 
     beforeEach(function (done) {

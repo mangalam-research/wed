@@ -3,15 +3,14 @@
  * @license MPL 2.0
  * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
  */
-define(["mocha/mocha", "chai", "wed/validator", "salve/validate",
-        "salve/name_patterns", "wed/mode_validator", "wed/oop",
-        "wed/domutil", "jquery",
+define(["mocha/mocha", "chai", "wed/validator", "salve", "wed/mode_validator",
+        "wed/oop", "wed/domutil", "jquery",
         "text!../../build/schemas/simplified-rng.js",
         "text!../../build/schemas/tei-simplified-rng.js",
         "text!test-files/validator_test_data/" +
         "multiple_namespaces_on_same_node_converted.xml",
         "text!test-files/validator_test_data/percent_to_parse_converted.xml"],
-function (mocha, chai, validator, validate, name_patterns,
+function (mocha, chai, validator, salve,
           mode_validator, oop, domutil, $, schema_text, tei_schema_text,
           multiple_namespaces, percent_to_parse) {
 'use strict';
@@ -23,8 +22,8 @@ var schema = '../../../schemas/simplified-rng.js';
 var to_parse_stack =
         ['test-files/validator_test_data/to_parse_converted.xml'];
 var assert = chai.assert;
-var ValidationError = validate.ValidationError;
-var Name = name_patterns.Name;
+var ValidationError = salve.ValidationError;
+var Name = salve.Name;
 var isAttr = domutil.isAttr;
 
 describe("validator", function () {
@@ -38,7 +37,7 @@ describe("validator", function () {
     var percent_to_parse_tree;
 
     before(function (done) {
-        grammar = validate.constructTree(schema_text);
+        grammar = salve.constructTree(schema_text);
         multiple_namespaces_tree = parser.parseFromString(multiple_namespaces,
                                                           "text/xml");
         percent_to_parse_tree = parser.parseFromString(percent_to_parse,
@@ -109,7 +108,7 @@ describe("validator", function () {
         // wed moved from HTML to XML for the data tree.
         it("with two namespaces on the same node", function (done) {
             var tree = multiple_namespaces_tree.cloneNode(true);
-            var tei_grammar = validate.constructTree(tei_schema_text);
+            var tei_grammar = salve.constructTree(tei_schema_text);
             var p = new validator.Validator(tei_grammar, tree);
             p._max_timespan = 0; // Work forever.
 
@@ -341,7 +340,7 @@ describe("validator", function () {
             var evs = p.possibleAt(empty_tree, 0);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("enterStartTag",
+                [new salve.Event("enterStartTag",
                                     new Name("", "", "html"))]);
         }, empty_tree);
 
@@ -349,7 +348,7 @@ describe("validator", function () {
             var evs = p.possibleAt(tree, 0);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("enterStartTag",
+                [new salve.Event("enterStartTag",
                                     new Name("", "", "html"))]);
         });
 
@@ -362,7 +361,7 @@ describe("validator", function () {
             var evs = p.possibleAt(tree.getElementsByTagName("html")[0], 0);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("enterStartTag",
+                [new salve.Event("enterStartTag",
                                     new Name("", "", "head"))]);
         });
 
@@ -370,7 +369,7 @@ describe("validator", function () {
             var evs = p.possibleAt(tree.getElementsByTagName("head")[0], 0);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("enterStartTag",
+                [new salve.Event("enterStartTag",
                                     new Name("", "", "title"))]);
         });
 
@@ -383,8 +382,8 @@ describe("validator", function () {
             var evs = p.possibleAt(el, 0);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("endTag", new Name("", "", "title")),
-                 new validate.Event("text", /^.*$/)]);
+                [new salve.Event("endTag", new Name("", "", "title")),
+                 new salve.Event("text", /^.*$/)]);
         });
 
         makeTest("with actual contents, index inside text node",
@@ -395,8 +394,8 @@ describe("validator", function () {
             var evs = p.possibleAt(el, 1);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("endTag", new Name("", "", "title")),
-                 new validate.Event("text", /^.*$/)]);
+                [new salve.Event("endTag", new Name("", "", "title")),
+                 new salve.Event("text", /^.*$/)]);
         });
 
         makeTest("with actual contents, end of title", function (p, tree) {
@@ -404,8 +403,8 @@ describe("validator", function () {
             var evs = p.possibleAt(title, title.childNodes.length);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("endTag", new Name("", "", "title")),
-                 new validate.Event("text", /^.*$/)]);
+                [new salve.Event("endTag", new Name("", "", "title")),
+                 new salve.Event("text", /^.*$/)]);
         });
 
         makeTest("with actual contents, end of head", function (p, tree) {
@@ -413,7 +412,7 @@ describe("validator", function () {
             var evs = p.possibleAt(el, el.childNodes.length);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("endTag", new Name("", "", "head"))]);
+                [new salve.Event("endTag", new Name("", "", "head"))]);
         });
 
         makeTest("with actual contents, after head", function (p, tree) {
@@ -423,7 +422,7 @@ describe("validator", function () {
                 Array.prototype.indexOf.call(el.parentNode.childNodes, el) + 1);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("enterStartTag",
+                [new salve.Event("enterStartTag",
                                     new Name("", "", "body"))]);
         });
         makeTest("with actual contents, attributes on root",
@@ -431,7 +430,7 @@ describe("validator", function () {
             var evs = p.possibleAt(tree, 0, true);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("leaveStartTag")]);
+                [new salve.Event("leaveStartTag")]);
         });
         makeTest("with actual contents, attributes on element",
                  function (p, tree) {
@@ -443,7 +442,7 @@ describe("validator", function () {
                 true);
             assert.sameMembers(
                 evs.toArray(),
-                [new validate.Event("leaveStartTag")]);
+                [new salve.Event("leaveStartTag")]);
         });
 
     });
@@ -472,7 +471,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("enterStartTag",
+                    [new salve.Event("enterStartTag",
                                         new Name("", "", "html"))]);
             }, empty_tree);
 
@@ -481,7 +480,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("enterStartTag",
+                    [new salve.Event("enterStartTag",
                                         new Name("", "", "html"))]);
             });
 
@@ -499,7 +498,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("enterStartTag",
+                    [new salve.Event("enterStartTag",
                                         new Name("", "", "head"))]);
             });
 
@@ -509,7 +508,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("enterStartTag",
+                    [new salve.Event("enterStartTag",
                                         new Name("", "", "title"))]);
             });
 
@@ -523,8 +522,8 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("endTag", new Name("", "", "title")),
-                     new validate.Event("text", /^.*$/)]);
+                    [new salve.Event("endTag", new Name("", "", "title")),
+                     new salve.Event("text", /^.*$/)]);
             });
 
             makeTest("with actual contents, index inside text node",
@@ -536,8 +535,8 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("endTag", new Name("", "", "title")),
-                     new validate.Event("text", /^.*$/)]);
+                    [new salve.Event("endTag", new Name("", "", "title")),
+                     new salve.Event("text", /^.*$/)]);
             });
 
             makeTest("with actual contents, end of title", function (p, tree) {
@@ -547,8 +546,8 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("endTag", new Name("", "", "title")),
-                     new validate.Event("text", /^.*$/)]);
+                    [new salve.Event("endTag", new Name("", "", "title")),
+                     new salve.Event("text", /^.*$/)]);
             });
 
             makeTest("with actual contents, end of head", function (p, tree) {
@@ -557,7 +556,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("endTag", new Name("", "", "head"))]);
+                    [new salve.Event("endTag", new Name("", "", "head"))]);
             });
 
             makeTest("with actual contents, after head", function (p, tree) {
@@ -569,7 +568,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("enterStartTag",
+                    [new salve.Event("enterStartTag",
                                         new Name("", "", "body"))]);
             });
 
@@ -579,7 +578,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("leaveStartTag")]);
+                    [new salve.Event("leaveStartTag")]);
             });
 
             makeTest("with actual contents, attributes on element",
@@ -593,7 +592,7 @@ describe("validator", function () {
                 var evs = walker.possible();
                 assert.sameMembers(
                     evs.toArray(),
-                    [new validate.Event("leaveStartTag")]);
+                    [new salve.Event("leaveStartTag")]);
             });
         });
 
@@ -618,7 +617,7 @@ describe("validator", function () {
                 it(name, function (done) {
                     var tree = top || parser.parseFromString(data,
                                                              "application/xml");
-                    var tei_grammar = validate.constructTree(tei_schema_text);
+                    var tei_grammar = salve.constructTree(tei_schema_text);
                     var p = new validator.Validator(tei_grammar, tree);
                     p.initialize(function () {
                         try {
@@ -803,28 +802,28 @@ describe("validator", function () {
 
         makeTest("multiple locations", function (p, tree) {
             var el = tree.querySelector("body");
-            var locs = p.possibleWhere(el, new validate.Event(
+            var locs = p.possibleWhere(el, new salve.Event(
                 "enterStartTag", new Name("", "", "em")));
             assert.sameMembers(locs, [0, 1, 2, 3]);
         });
 
         makeTest("no locations", function (p, tree) {
             var el = tree.querySelector("title");
-            var locs = p.possibleWhere(el, new validate.Event(
+            var locs = p.possibleWhere(el, new salve.Event(
                 "enterStartTag", new Name("", "", "impossible")));
             assert.sameMembers(locs, []);
         });
 
         makeTest("one location", function (p, tree) {
             var el = tree.querySelector("html");
-            var locs = p.possibleWhere(el, new validate.Event(
+            var locs = p.possibleWhere(el, new salve.Event(
                 "enterStartTag", new Name("", "", "body")));
             assert.sameMembers(locs, [2, 3]);
         });
 
         makeTest("empty element", function (p, tree) {
             var el = tree.querySelector("em em");
-            var locs = p.possibleWhere(el, new validate.Event(
+            var locs = p.possibleWhere(el, new salve.Event(
                 "enterStartTag", new Name("", "", "em")));
             assert.sameMembers(locs, [0]);
         });
@@ -835,7 +834,7 @@ describe("validator", function () {
             // can match only due to a wildcard. So the code of
             // possibleWhere has to check every possibility one by one
             // rather than use ``.has`` on the event set.
-            var locs = p.possibleWhere(el, new validate.Event(
+            var locs = p.possibleWhere(el, new salve.Event(
                 "enterStartTag", new Name("", "uri", "foreign")));
             assert.sameMembers(locs, [1, 2, 3]);
         });

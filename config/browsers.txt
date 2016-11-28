@@ -5,7 +5,7 @@
 #
 # Perform these first because they are extremely cheap to perform.
 #
-Linux,CH,51
+Linux,CH,54
 
 
 #
@@ -25,13 +25,12 @@ Windows 8.1,IE,11,Remote
 # Perform these next because OS X compatibility is an issue. Again, we
 # want to find problems early.
 #
-# 49 not available yet.
-OS X 10.11,CH,48,Remote
+OS X 10.11,CH,54,Remote
 
 #
 # The rest is unlikely to fail if the previous tests passed.
 #
-Windows 8.1,CH,50,Remote
+Windows 8.1,CH,54,Remote
 
 # ESR
 # Windows 8.1,FF,38,Remote
