@@ -320,6 +320,15 @@ def before_scenario(context, scenario):
 def after_scenario(context, _scenario):
     driver = context.driver
 
+    # Close all extra tabs.
+    handles = driver.window_handles
+    if handles:
+        for handle in handles:
+            if handle != context.initial_window_handle:
+                driver.switch_to_window(handle)
+                driver.close()
+        driver.switch_to_window(context.initial_window_handle)
+
     #
     # Make sure we did not trip a fatal error.
     #
@@ -378,15 +387,6 @@ def after_scenario(context, _scenario):
     """)
     dump_javascript_log(context)
     assert_false(terminating, "should not have experienced a fatal error")
-
-    # Close all extra tabs.
-    handles = driver.window_handles
-    if handles:
-        for handle in handles:
-            if handle != context.initial_window_handle:
-                driver.switch_to_window(handle)
-                driver.close()
-        driver.switch_to_window(context.initial_window_handle)
 
 
 def before_step(context, step):
