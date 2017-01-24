@@ -76,7 +76,7 @@ Scenario: clicking outside the context menu makes it disappear.
 
 Scenario: clicking an option of the context menu makes it disappear.
   Given that a context menu is open
-  When the user clicks the first context menu option
+  When the user clicks a choice for creating a new hi
   Then a context menu is not visible
 
 Scenario: bringing up the context menu with the mouse when the main editor pane is scrolled off screen
