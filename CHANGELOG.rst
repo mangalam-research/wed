@@ -2,7 +2,8 @@ Please note that Github currently does not implement all
 reStructuredText directives, so some links in this document may not
 work correctly when viewed there.
 
-Only salient changes are recorded here.
+Only salient changes are recorded here. Releases that contain only the
+odd bug fix may not get mentioned here at all.
 
 * 0.28.0:
 
