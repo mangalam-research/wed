@@ -15,12 +15,8 @@
         "url": "https://www.mozilla.org/MPL/2.0/"
     } ],
     "dependencies": {
-        "amd-loader": "We need amd-loader in the normal dependencies because ",
-        "amd-loader": "otherwise salve won't have amd-loader.",
-        "amd-loader": "(Yes, these are comments. Next line overwrites them.)",
-        "amd-loader": "~0.0.4",
         "argparse": ">=1.0.3 <2",
-        "salve": ">=3.0.1 <4",
+        "salve": ">=4.0.2 <5",
         "urijs": ">=1.16.1 <2"
     },
     "devDependencies": {
