@@ -55,17 +55,12 @@
           });
       }
 
-      require(["wed/config"], function (config) {
-        config = config.config;
-        config.log = {
-          focus_popup: true, // For testing only.
-        };
+      window.__WED_TESTING = {
+        testing: true,
+      };
 
-        config.test = true;
-
-        require(["jquery", "mocha/mocha", "chai", "browser_test/global",
-               "wed/onerror", "urijs/URI", "last-resort"], start);
-      });
+      require(["jquery", "mocha/mocha", "chai", "browser_test/global",
+      "wed/onerror", "urijs/URI", "last-resort"], start);
 
       function start($, mocha, chai, global, onerror, URI, lr) {
           var assert = chai.assert;

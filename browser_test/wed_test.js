@@ -6,11 +6,11 @@
 define(["mocha/mocha", "chai", "browser_test/global", "jquery", "wed/wed",
         "wed/domutil", "rangy", "wed/key_constants", "wed/onerror", "wed/log",
         "wed/key", "wed/dloc", "wed/util", "salve",
-        "wed/browsers",
+        "wed/browsers", "global-config", "merge-options",
         "text!test-files/wed_test_data/source_converted.xml", "require"],
        function (mocha, chai, global, $, wed, domutil, rangy, key_constants,
-                onerror, log, key, dloc, util, salve, browsers, source,
-                require) {
+                 onerror, log, key, dloc, util, salve, browsers, globalConfig,
+                 mergeOptions, source, require) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -36,6 +36,19 @@ var wedframe = window.parent.document.getElementById("wedframe");
 var wedwin = wedframe.contentWindow;
 var src_stack = ["test-files/wed_test_data/source_converted.xml"];
 var option_stack = [options];
+
+function mergeWithGlobal(options) {
+    var ret;
+    // Simulate the old ignore_module_config.
+    if (options.ignore_module_config) {
+        ret = mergeOptions({}, options);
+        delete ret.ignore_module_config;
+    }
+    else {
+        ret = mergeOptions({}, globalConfig.config, options);
+    }
+    return ret;
+}
 
 function caretCheck(editor, container, offset, msg) {
     var caret = editor.getGUICaret(true);
@@ -223,7 +236,7 @@ describe("wed", function () {
                     done();
                 });
                 var wedroot = wedwin.document.getElementById("wedroot");
-                editor.init(wedroot, option_stack[0], data);
+                editor.init(wedroot, mergeWithGlobal(option_stack[0]), data);
             });
             force_reload = false;
         });
@@ -2759,7 +2772,7 @@ describe("wed", function () {
                 done();
             });
             var wedroot = wedwin.document.getElementById("wedroot");
-            editor.init(wedroot, options, source);
+            editor.init(wedroot, mergeWithGlobal(option_stack[0]), source);
         });
 
         after(function () {
@@ -2803,7 +2816,6 @@ describe("wed", function () {
                 var p = editor.gui_root
                         .querySelector(".body .p[data-wed-rend='wrap']");
                 var data_node = $.data(p, "wed_mirror_node");
-                console.log(data_node);
                 var rend = data_node.attributes.rend;
                 if (rend) {
                     rend = rend.value;

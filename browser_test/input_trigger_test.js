@@ -7,10 +7,11 @@ define(["mocha/mocha", "chai", "jquery", "wed/input_trigger", "wed/wed",
         "wed/key", "wed/key_constants", "wed/input_trigger_factory",
         "wed/transformation", "salve", "browser_test/global",
         "text!../../build/schemas/tei-simplified-rng.js",
+        "global-config", "merge-options",
         "text!test-files/input_trigger_test_data/source_converted.xml"],
 function (mocha, chai, $, input_trigger, wed, key, key_constants,
-         input_trigger_factory, transformation, salve, global, schema,
-         source) {
+          input_trigger_factory, transformation, salve, global, schema,
+          globalConfig, mergeOptions, source) {
 'use strict';
 var assert = chai.assert;
 var InputTrigger = input_trigger.InputTrigger;
@@ -52,7 +53,9 @@ describe("InputTrigger", function () {
         });
         var wedroot = window.parent.document.getElementById("wedframe")
             .contentWindow.document.getElementById("wedroot");
-        editor.init(wedroot, options, source);
+        editor.init(wedroot,
+                    mergeOptions({}, globalConfig.config, options),
+                    source);
     });
 
     afterEach(function () {

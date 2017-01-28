@@ -53,7 +53,7 @@ var config_file_text = fileAsString(config_file_path);
 
 var bundle_name = "wed/wed";
 var modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
-               "wed/browsers"];
+               "wed/browsers", "merge-options"];
 if (args.system) {
     bundle_name += "-system.js";
     modules = modules.map(function (x) {

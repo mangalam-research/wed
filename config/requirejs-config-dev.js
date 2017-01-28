@@ -81,7 +81,7 @@ require.config({
  enforceDefine: true
 });
 
-define("wed/config", {
+define("global-config", {
     config: {
         schema: '../../../schemas/tei-simplified-rng.js',
         mode: {

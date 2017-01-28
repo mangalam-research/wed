@@ -5,6 +5,37 @@ work correctly when viewed there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 0.29.0:
+
+  - Wed now uses salve 4.0.2.
+
+  - Breaking change: wed no longer supports a "global default
+    configuration" against which configuration options passed to
+    ``Editor.init`` instances are merged. This means:
+
+    + Passing configuration through ``module.config`` is no longer
+      possible. This was deprecated in 0.27.0
+
+    + Using the special ``wed/config`` to pass configuration is no
+      longer possible. This was introduced in 0.27.0. I would have
+      liked to formally deprecate it first but it proved a substantial
+      obstacle to moving forward, and engineering a solution that
+      would still support this method *and* provided for the new needs
+      would have cost substantial time. The whole notion of a global
+      configuration managed by wed was ill-advised from the get-go.
+
+    From now on if you want defaults that are common to all your wed
+    instances, you need to come up with your own method of combining
+    global default and special cases, and pass the result to
+    ``Editor.init``. Wed used the `merge-options
+    <https://github.com/schnittstabil/merge-options>`_ module to merge
+    options. It should be trivial to do a ``mergeOptions({}, globals,
+    specifics)`` and pass the result to ``Editor.init``. It would
+    replicate what wed did internally.
+
+  - The ``ignore_module_config`` option is no longer useful, due to
+    the preceding change.
+
 * 0.28.0:
 
   - Wed now uses salve 3.0.0.

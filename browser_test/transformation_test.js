@@ -8,10 +8,10 @@ define(["mocha/mocha", "chai", "jquery", "wed/wed",
         "wed/dloc", "wed/util", "salve", "wed/transformation",
         "text!../../build/schemas/tei-simplified-rng.js",
         "text!../../build/test-files/wed_test_data/" +
-        "source_converted.xml"],
+        "source_converted.xml", "merge-options", "global-config"],
        function (mocha, chai, $, wed, domutil,
                  onerror, log, dloc, util, salve, transformation,
-                 schema, source) {
+                 schema, source, mergeOptions, globalConfig) {
 'use strict';
 
 var _indexOf = Array.prototype.indexOf;
@@ -70,7 +70,9 @@ describe("transformation", function () {
         });
         var wedroot = window.parent.document.getElementById("wedframe")
             .contentWindow.document.getElementById("wedroot");
-        editor.init(wedroot, option_stack[0], source);
+        editor.init(wedroot,
+                    mergeOptions({}, globalConfig.config, option_stack[0]),
+                    source);
     });
 
     afterEach(function () {
