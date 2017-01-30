@@ -36,6 +36,9 @@ odd bug fix may not get mentioned here at all.
   - The ``ignore_module_config`` option is no longer useful, due to
     the preceding change.
 
+  - The ``.xsl`` files have been moved out of the JavaScript codebase
+    and into the ``misc`` directory.
+
 * 0.28.0:
 
   - Wed now uses salve 3.0.0.

@@ -7,44 +7,35 @@
 var child_process = require("child_process");
 var fs = require("fs");
 var assert = require("chai").assert;
-describe("html-to-xml", function () {
+describe("xml-to-html", function () {
     this.timeout(0);
     // Reminder: paths are relative to where mocha is run.
     // I.e. the root of our source tree!
-    var XSL = "lib/wed/html-to-xml.xsl";
-    function makeTest(name, alternate_name) {
-        var converted_name =
-                (alternate_name !== undefined) ?
-                alternate_name.replace(/ /g, '-') :
-                name.replace(/ /g, '-');
+    var XSL = "misc/xml-to-html.xsl";
+    function makeTest(name) {
+        var converted_name = name.replace(/ /g, '-');
         it(name, function (done) {
-            var source = "test/lib/wed/" + converted_name + ".html";
+            var source = "test/lib/wed/" + converted_name + ".xml";
             var p = child_process.spawn('saxon', ['-xsl:' + XSL,
                                                   '-s:' + source]);
-            var xml = [];
-            var data = p.stdout.on('data', xml.push.bind(xml, data));
+            var html = [];
+            var data = p.stdout.on('data', html.push.bind(html, data));
             p.on('close', function (code) {
-                xml.push("\n");
                 assert.equal(code, 0, "saxon failed");
-                assert.equal(xml.join(""),
+                assert.equal(html.join(""),
                              fs.readFileSync('test/lib/wed/' +
-                                             converted_name + ".xml",
+                                             converted_name + ".html",
                                              'utf-8'));
                 done();
             });
         });
     }
 
-    makeTest("should convert html to xml",
-             "should convert xml to html");
-
-    // We reuse the files used
-    // for the opposite
-    // conversion.
+    makeTest("should convert xml to html");
     makeTest("should encode name prefixes");
     makeTest("should encode dashes in attribute names");
     makeTest("should encode namespace changes");
 });
 
-//  LocalWords:  Mangalam MPL Dubeau namespace utf saxon xsl html xml
-//  LocalWords:  chai fs
+//  LocalWords:  namespace xml xsl saxon utf chai Dubeau MPL Mangalam
+//  LocalWords:  html
