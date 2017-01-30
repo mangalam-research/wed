@@ -420,7 +420,8 @@ gulp.task("build-standalone-optimized",
           ["stamp-dir",
            "build-standalone",
            "build-html-optimized",
-           "build-optimized-config"],
+           "build-optimized-config",
+           "build-test-files"],
           Promise.coroutine(build_standalone_optimized));
 
 gulp.task("rst-doc", () =>
