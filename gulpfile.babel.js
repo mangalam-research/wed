@@ -312,6 +312,8 @@ npm_copy_task("last-resort/dist/last-resort.js**");
 
 npm_copy_task("rangy/lib/**", "external/rangy");
 
+npm_copy_task("bootstrap-notify/bootstrap-notify*.js");
+
 gulp.task("build-info", Promise.coroutine(function* () {
     const dest = "build/standalone/lib/wed/build-info.js";
     const is_newer = yield newer(["lib/**", "!**/*_flymake.*"], dest);
@@ -342,7 +344,6 @@ gulp.task("build-standalone",
               "build-only-standalone-less",
               "build-only-standalone-config",
               "copy-log4javascript",
-              "copy-bootstrap-growl",
               "copy-typeaheadjs.css",
               copy_tasks,
               "build-schemas",

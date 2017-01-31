@@ -29,7 +29,7 @@
                 "interact",
                 "bootstrap",
                 "log4javascript",
-                "jquery.bootstrap-growl",
+                "bootstrap-notify",
                 "pubsub-js",
                 "lodash",
                 "localforage",

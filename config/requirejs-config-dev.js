@@ -11,7 +11,6 @@ require.config({
    jquery: 'external/jquery',
    bootstrap: 'external/bootstrap/js/bootstrap.min',
    log4javascript: 'external/log4javascript',
-   'jquery.bootstrap-growl': 'external/jquery.bootstrap-growl',
    'font-awesome': 'external/font-awesome',
    'pubsub-js': 'external/pubsub',
    xregexp: 'external/xregexp',
@@ -30,6 +29,7 @@ require.config({
    'last-resort': 'external/last-resort',
    rangy: 'external/rangy/rangy-core',
    salve: 'external/salve',
+   "bootstrap-notify": "external/bootstrap-notify",
  },
  packages: [
      {
@@ -54,10 +54,6 @@ require.config({
      deps: ["jquery"],
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
-   },
-   'jquery.bootstrap-growl': {
-     deps: ["jquery", "bootstrap"],
-     exports: "jQuery.bootstrapGrowl"
    },
    log4javascript: {
        exports: "log4javascript"

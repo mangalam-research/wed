@@ -9,6 +9,12 @@ odd bug fix may not get mentioned here at all.
 
   - Wed now uses salve 4.0.2.
 
+  - Switched from bootstrap-growl to bootstrap-notify to provide
+    notifications. The latter supports modules out of the box, and is
+    actively maintained and released. (Bootstrap-growl required module
+    system glue and special dependency handling because the latest npm
+    for it was obsolete (newer version on github).)
+
   - Breaking change: wed no longer supports a "global default
     configuration" against which configuration options passed to
     ``Editor.init`` instances are merged. This means:

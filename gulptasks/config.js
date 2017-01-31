@@ -82,9 +82,6 @@ export var options = {};
  * a local configuration file or through command line options.
  */
 export const internals = {
-    bootstrap_growl_url:
-    "https://github.com/ifightcrime/bootstrap-growl/archive/v1.1.0.zip",
-
     log4javascript_url:
     "http://downloads.sourceforge.net/project/log4javascript/" +
         "log4javascript/1.4.6/log4javascript-1.4.6.zip",
