@@ -86,9 +86,5 @@ export const internals = {
     "http://downloads.sourceforge.net/project/log4javascript/" +
         "log4javascript/1.4.6/log4javascript-1.4.6.zip",
 
-    typeahead_bootstrap_url:
-    "https://github.com/bassjobsen/typeahead.js-bootstrap-css/" +
-        "archive/1.0.1.zip",
-
     stamp_dir: "build/stamps"
 };

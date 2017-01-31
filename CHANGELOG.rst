@@ -15,6 +15,8 @@ odd bug fix may not get mentioned here at all.
     system glue and special dependency handling because the latest npm
     for it was obsolete (newer version on github).)
 
+  - Upgraded typeaheadjs.css. We now install it with npm.
+
   - Breaking change: wed no longer supports a "global default
     configuration" against which configuration options passed to
     ``Editor.init`` instances are merged. This means:
