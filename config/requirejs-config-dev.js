@@ -48,22 +48,24 @@ require.config({
    "wed/patches/bootstrap": {
      bootstrap: "bootstrap",
    },
+   // bootbox is buggy. It only requires jquery but it needs bootstrap too.
+   // Loading bootstrap works due to the init we have below which makes
+   // bootstrap return $.
+   "bootbox": {
+     jquery: "bootstrap",
+   },
  },
  shim: {
    bootstrap: {
      deps: ["jquery"],
      exports: "jQuery.fn.popover",
-     init: function () { jQuery.noConflict() }
+     init: function ($) { return $; }
    },
    angular: {
        // AngularJS can use jQuery optionally. However, in our application
        // we MUST have jQuery loaded and available for Angular to use it.
        deps: ["jquery"],
        exports: "angular"
-   },
-   bootbox: {
-       deps: ["bootstrap"],
-       exports: "bootbox"
    },
    typeahead: {
        deps: ['jquery'],

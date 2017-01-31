@@ -286,7 +286,7 @@ npm_copy_task("async/lib/async.js");
 
 npm_copy_task("angular/angular.js");
 
-npm_copy_task("bootbox", "bootbox.js/bootbox.js");
+npm_copy_task("bootbox/bootbox*.js");
 
 npm_copy_task("urijs/src/**", "external/urijs");
 
