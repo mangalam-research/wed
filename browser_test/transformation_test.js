@@ -83,6 +83,7 @@ describe("transformation", function () {
                        "test caused an unhandled exception to occur");
         // We don't reload our page so we need to do this.
         onerror.__test.reset();
+        log.clearAppenders();
     });
 
     describe("swapWithPreviousHomogeneousSibling", function () {

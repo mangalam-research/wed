@@ -252,6 +252,7 @@ describe("wed", function () {
 
             // We don't reload our page so we need to do this.
             onerror.__test.reset();
+            log.clearAppenders();
             assert.isFalse(was_terminating,
                            "test caused an unhandled exception to occur");
 

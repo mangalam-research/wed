@@ -55,9 +55,6 @@ require.config({
      exports: "jQuery.fn.popover",
      init: function () { jQuery.noConflict() }
    },
-   log4javascript: {
-       exports: "log4javascript"
-   },
    angular: {
        // AngularJS can use jQuery optionally. However, in our application
        // we MUST have jQuery loaded and available for Angular to use it.

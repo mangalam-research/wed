@@ -83,8 +83,7 @@ export var options = {};
  */
 export const internals = {
     log4javascript_url:
-    "http://downloads.sourceforge.net/project/log4javascript/" +
-        "log4javascript/1.4.6/log4javascript-1.4.6.zip",
-
+    "https://downloads.sourceforge.net/project/log4javascript/" +
+        "1.4.13/log4javascript-1.4.13.zip",
     stamp_dir: "build/stamps"
 };

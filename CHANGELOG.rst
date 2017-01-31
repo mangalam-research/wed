@@ -17,6 +17,8 @@ odd bug fix may not get mentioned here at all.
 
   - Upgraded typeaheadjs.css. We now install it with npm.
 
+  - Upgraded to log4javascript 1.4.13, which is AMD-compatible.
+
   - Breaking change: wed no longer supports a "global default
     configuration" against which configuration options passed to
     ``Editor.init`` instances are merged. This means:

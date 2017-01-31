@@ -6,12 +6,13 @@
 define(["mocha/mocha", "chai", "jquery", "wed/input_trigger_factory",
         "wed/wed", "wed/key", "wed/key_constants", "salve",
         "browser_test/global", "wed/onerror",
+        "wed/log",
         "text!../../build/schemas/tei-simplified-rng.js",
         "text!test-files/input_trigger_test_data/source_converted.xml",
         "text!test-files/input_trigger_test_data/source2_converted.xml",
         "text!test-files/input_trigger_test_data/source3_converted.xml"],
 function (mocha, chai, $, input_trigger_factory, wed, key, key_constants,
-          salve, global, onerror, schema, generic_src, source2, source3) {
+          salve, global, onerror, log, schema, generic_src, source2, source3) {
 'use strict';
 
 var assert = chai.assert;
@@ -67,7 +68,7 @@ describe("input_trigger_factory", function () {
                        "test caused an unhandled exception to occur");
         // We don't reload our page so we need to do this.
         onerror.__test.reset();
-
+        log.clearAppenders();
     });
 
     function mit(name, fn) {
