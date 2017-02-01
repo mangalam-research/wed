@@ -85,7 +85,7 @@ define("global-config", {
                 meta: {
                     path: 'wed/modes/generic/metas/tei_meta',
                     options: {
-                        metadata: '../../../../../schemas/tei-metadata.json'
+                        metadata: '/build/schemas/tei-metadata.json'
                     }
                 }
             }

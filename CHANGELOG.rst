@@ -28,6 +28,11 @@ odd bug fix may not get mentioned here at all.
     loader/bundler that replicates what ``require.toUrl`` does, which
     was problematic.
 
+  - Breaking change: The ``meta.options.meta.options.metadata`` option
+    is interpreted as-is. Its previous interpretation was the same as
+    a path ``schema`` and the rationale for the change is the
+    same. (See above.)
+
   - Breaking change: wed no longer supports a "global default
     configuration" against which configuration options passed to
     ``Editor.init`` instances are merged. This means:
