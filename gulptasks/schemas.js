@@ -63,7 +63,7 @@ function xml_to_json_chain(name, dest, ns) {
 
         yield mkdirpAsync(path.dirname(meta_json));
         yield checkOutputFile("bin/tei-to-generic-meta-json",
-                              ["--dochtml", "../../../../../schemas/tei-doc/"]
+                              ["--dochtml", "/build/schemas/tei-doc/"]
                               .concat(ns_args, json, meta_json));
     }
 

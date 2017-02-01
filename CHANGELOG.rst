@@ -33,6 +33,12 @@ odd bug fix may not get mentioned here at all.
     a path ``schema`` and the rationale for the change is the
     same. (See above.)
 
+  - Breaking change: The ``dochtml`` field embedded in the generated
+    metadata JSON file is now interpreted as-is. If you used such
+    metadata, you need to regenerate your files with an updated
+    path. The problem here was the same as above: dependence on
+    ``require.toUrl``.
+
   - Breaking change: wed no longer supports a "global default
     configuration" against which configuration options passed to
     ``Editor.init`` instances are merged. This means:
