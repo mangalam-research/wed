@@ -15,8 +15,6 @@ function (mocha, chai, validator, salve,
           multiple_namespaces, percent_to_parse) {
 'use strict';
 
-// The test subdirectory is one of the paths required to be in the config
-var schema = '../../../schemas/simplified-rng.js';
 // Remember that relative paths are resolved against requirejs'
 // baseUrl configuration value.
 var to_parse_stack =

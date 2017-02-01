@@ -19,6 +19,15 @@ odd bug fix may not get mentioned here at all.
 
   - Upgraded to log4javascript 1.4.13, which is AMD-compatible.
 
+  - Breaking change: When a path is passed in the ``schema`` option,
+    this path is interpreted as-is.
+
+    It used to be interpreted relative to the location of wed among
+    the modules loaded by RequireJS. This worked but was frankly a bit
+    bizarre. More importantly, it made wed's code dependent on a
+    loader/bundler that replicates what ``require.toUrl`` does, which
+    was problematic.
+
   - Breaking change: wed no longer supports a "global default
     configuration" against which configuration options passed to
     ``Editor.init`` instances are merged. This means:

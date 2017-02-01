@@ -78,7 +78,7 @@ require.config({
 
 define("global-config", {
     config: {
-        schema: '../../../schemas/tei-simplified-rng.js',
+        schema: '/build/schemas/tei-simplified-rng.js',
         mode: {
             path: 'wed/modes/generic/generic',
             options: {

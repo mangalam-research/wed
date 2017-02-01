@@ -17,7 +17,7 @@ var _indexOf = Array.prototype.indexOf;
 var isAttr = domutil.isAttr;
 
 var options = {
-    schema: '../../../schemas/tei-simplified-rng.js',
+    schema: '/build/schemas/tei-simplified-rng.js',
     mode: {
         path: 'wed/modes/test/test_mode',
         options: {
@@ -2159,7 +2159,7 @@ describe("wed", function () {
         describe("", function () {
             before(function() {
                 var new_options = $.extend(true, {}, option_stack[0]);
-                new_options.schema = '../../../schemas/simplified-rng.js';
+                new_options.schema = '/build/schemas/simplified-rng.js';
                 option_stack.unshift(new_options);
                 src_stack.unshift(
                     'test-files/wed_test_data/wildcard_converted.xml');
@@ -2655,7 +2655,7 @@ describe("wed", function () {
             before(function() {
                 var new_options =
                 {
-                    schema: '../../../schemas/tei-simplified-rng.js',
+                    schema: '/build/schemas/tei-simplified-rng.js',
                     mode: {
                         path: 'wed/modes/generic/generic',
                         options: {
