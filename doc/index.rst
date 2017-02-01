@@ -62,7 +62,7 @@ License
 =======
 
 Wed is released under the `Mozilla Public License version 2.0
-<http://www.mozilla.org/MPL/2.0/>`_. Copyright 2013-2016 Mangalam Research
+<http://www.mozilla.org/MPL/2.0/>`_. Copyright Mangalam Research
 Center for Buddhist Languages, Berkeley, CA.
 
 Credits

@@ -1,7 +1,7 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright Mangalam Research Center for Buddhist Languages
  */
 define(["mocha/mocha", "chai", "jquery", "wed/domutil", "wed/convert"],
 function (mocha, chai, $, domutil, convert) {
