@@ -4,8 +4,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { CaretManager } from "wed/caret-manager";
-import { EditingMenuManager } from "wed/gui/editing-menu-manager";
 import { Editor } from "wed/editor";
+import { EditingMenuManager } from "wed/gui/editing-menu-manager";
 
 import * as globalConfig from "../base-config";
 import { delay } from "../util";

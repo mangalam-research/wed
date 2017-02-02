@@ -19,11 +19,14 @@ const sourcemaps = require("gulp-sourcemaps");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
 const createOptimizedConfig = require("../misc/create_optimized_config").create;
+const cpp = require("child-process-promise");
 
 const config = require("./config");
 const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
         cprpdir, spawn, sequence, mkdirpAsync, fs, stampPath } =
       require("./util");
+
+const execFile = cpp.execFile;
 
 const { test, seleniumTest } = require("./tests");
 
@@ -93,7 +96,7 @@ gulp.task("config", () => {
 
 const buildDeps = ["build-standalone", "build-bundled-doc"];
 if (options.optimize) {
-  buildDeps.push("build-standalone-optimized");
+  buildDeps.push("build-standalone-optimized", "webpack");
 }
 gulp.task("build", buildDeps);
 
@@ -619,6 +622,12 @@ gulp.task("build-standalone-optimized", [
   "build-test-files",
 ], Promise.coroutine(buildStandaloneOptimized));
 
+gulp.task("webpack", ["build-standalone"], () =>
+          execFile("./node_modules/.bin/webpack", ["--color"])
+          .then((result) => {
+            gutil.log(result.stdout);
+          }));
+
 gulp.task("rst-doc", () =>
           gulp.src("*.rst", { read: false })
           // eslint-disable-next-line array-callback-return
@@ -689,19 +698,21 @@ gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
 
 const distNoTest = {
   name: "dist-notest",
-  deps: ["build"],
+  deps: ["build-standalone", "build-standalone-optimized", "webpack"],
   *func() {
     yield del("build/wed-*.tgz");
     const dist = "build/dist";
     yield fs.emptyDirAsync(dist);
     yield cprpdir(["build/standalone", "build/standalone-optimized",
-                   "bin", "package.json", "npm-shrinkwrap.json"],
+                   "build/packed", "bin", "package.json",
+                   "npm-shrinkwrap.json"],
                   dist);
     yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
 *
 !standalone/**
 !standalone-optimized/**
 !bin/**
+!packed/**
 standalone/lib/tests/**
 standalone-optimized/lib/tests/**
 `);

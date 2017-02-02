@@ -105,22 +105,22 @@ function runKarma(localOptions) {
 }
 
 gulp.task("test-karma", ["build-standalone", "build-test-files"],
-          Promise.coroutine(function *testKarma() {
-            if (!options.skip_semver) {
-              yield versync.run({
-                verify: true,
-                onMessage: gutil.log,
-              });
-            }
+          () => runKarma(["start", "--single-run"]));
 
-            return runKarma(["start", "--single-run"]);
-          }));
+gulp.task("test-karma-webpack", ["webpack", "build-test-files"],
+          () => runKarma(["start", "karma-webpack.conf.js", "--single-run"]));
 
 const test = {
   name: "test",
-  deps: ["lint", "test-karma"],
-  // eslint-disable-next-line no-empty-function
-  *func() {},
+  deps: ["lint", "test-karma", "test-karma-webpack"],
+  *func() {
+    if (!options.skip_semver) {
+      yield versync.run({
+        verify: true,
+        onMessage: gutil.log,
+      });
+    }
+  },
 };
 exports.test = test;
 

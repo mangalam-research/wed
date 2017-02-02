@@ -13,7 +13,7 @@ import { BeforeDeleteNodeEvent, BeforeInsertNodeAtEvent, DeleteNodeEvent,
          TextInsertionResult, TreeUpdater,
          TreeUpdaterEvents } from "wed/tree-updater";
 
-import * as sourceXML from "../tree_updater_test_data/source_converted.xml";
+import { DataProvider } from "../util";
 
 const assert = chai.assert;
 
@@ -45,15 +45,19 @@ describe("TreeUpdater", () => {
   let root: HTMLElement;
   let htmlTree: Node;
 
-  before(() => {
-    root = document.createElement("div");
-    document.body.appendChild(root);
-    new DLocRoot(root);
+  before(() =>
+         new DataProvider(
+           "/base/build/standalone/lib/tests/tree_updater_test_data/")
+         .getText("source_converted.xml")
+         .then((sourceXML) => {
+           root = document.createElement("div");
+           document.body.appendChild(root);
+           new DLocRoot(root);
 
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-    htmlTree = convert.toHTMLTree(document, xmlDoc.firstElementChild!);
-  });
+           const parser = new DOMParser();
+           const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+           htmlTree = convert.toHTMLTree(document, xmlDoc.firstElementChild!);
+         }));
 
   let tu: TreeUpdater;
 

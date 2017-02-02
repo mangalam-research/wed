@@ -3,9 +3,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as wed from "wed";
+import { keyConstants, version } from "wed";
 import { Editor } from "wed/editor";
-import * as keyConstants from "wed/key-constants";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup, WedServer } from "../wed-test-util";
@@ -43,7 +42,7 @@ server_interaction_converted.xml",
       .then(() => {
         assert.deepEqual(server.lastSaveRequest, {
           command: "save",
-          version: wed.version,
+          version: version,
           data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
@@ -61,7 +60,7 @@ server_interaction_converted.xml",
       .then(() => {
         assert.deepEqual(server.lastSaveRequest, {
           command: "save",
-          version: wed.version,
+          version: version,
           data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt><p><abbr/></p></publicationStmt><sourceDesc><p/></sourceDesc>\
@@ -104,7 +103,7 @@ server_interaction_converted.xml",
         autosaved = true;
         assert.deepEqual(server.lastSaveRequest, {
           command: "autosave",
-          version: wed.version,
+          version: version,
           data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt/><sourceDesc><p/></sourceDesc>\
@@ -136,7 +135,7 @@ server_interaction_converted.xml",
              autosaved = true;
              assert.deepEqual(server.lastSaveRequest, {
                command: "autosave",
-               version: wed.version,
+               version: version,
                data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt/><sourceDesc><p/></sourceDesc>\

@@ -11,7 +11,7 @@ import * as convert from "wed/convert";
 import { DLoc, DLocRange, DLocRoot, findRoot, getRoot } from "wed/dloc";
 import { isAttr } from "wed/domutil";
 
-import * as sourceXML from "../dloc_test_data/source_converted.xml";
+import { DataProvider } from "../util";
 
 const assert = chai.assert;
 
@@ -27,17 +27,20 @@ describe("dloc", () => {
   let root: HTMLElement;
   let rootObj: DLocRoot;
 
-  before(() => {
-    root = document.createElement("div");
-    document.body.appendChild(root);
-    $root = $(root);
-    const parser = new window.DOMParser();
-    const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-    const htmlTree = convert.toHTMLTree(window.document,
-                                        xmlDoc.firstElementChild!);
-    root.appendChild(htmlTree);
-    rootObj = new DLocRoot(root);
-  });
+  before(() =>
+         new DataProvider("/base/build/standalone/lib/tests/dloc_test_data/")
+         .getText("source_converted.xml")
+         .then((sourceXML) => {
+           root = document.createElement("div");
+           document.body.appendChild(root);
+           $root = $(root);
+           const parser = new window.DOMParser();
+           const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+           const htmlTree = convert.toHTMLTree(window.document,
+                                               xmlDoc.firstElementChild!);
+           root.appendChild(htmlTree);
+           rootObj = new DLocRoot(root);
+         }));
 
   after(() => {
     document.body.removeChild(root);

@@ -12,11 +12,11 @@ import { expect } from "chai";
 import qs = require("qs");
 import * as sinon from "sinon";
 
-import { makeEditor } from "wed";
-import { childByClass, childrenByClass } from "wed/domutil";
+import { domutil, makeEditor, Options } from "wed";
 import { Editor } from "wed/editor";
 import * as onerror from "wed/onerror";
-import { Options } from "wed/options";
+
+const { childByClass, childrenByClass } = domutil;
 
 import { DataProvider } from "./util";
 
