@@ -117,10 +117,9 @@ if (localstorage) {
     // Show the link...
     var file_management_link = document.getElementById("fm-link");
     file_management_link.style.display = "";
-    require(["localforage", "wed/savers/localforage"], function (
-        localforage, wed_localforage) {
-        wed_localforage.config();
-        localforage.getItem(localstorage).then(function (value) {
+    require(["wed/savers/localforage"], function (localforage) {
+        var store = localforage.config();
+        store.getItem(localstorage).then(function (value) {
             launch(value.data, undefined, {
                 save: {
                     path: "wed/savers/localforage",

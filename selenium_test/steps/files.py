@@ -31,10 +31,10 @@ def step_impl(context, already=None, empty=None):
             error = driver.execute_async_script("""
             var contents = arguments[0];
             var done = arguments[1];
-            require(["angular", "localforage", "wed/savers/localforage"],
-            function (ng, lf, saver) {
-                saver.config();
-                lf.setItem("test.xml",
+            require(["angular", "wed/savers/localforage"],
+            function (ng, saver) {
+                var store = saver.config();
+                store.setItem("test.xml",
                            saver.makeFileRecord("test.xml", contents),
                            function () {
                     var scope = ng.element(
@@ -283,9 +283,9 @@ def step_impl(context, name, contents=None):
     ret = driver.execute_async_script("""
     var name = arguments[0];
     var done = arguments[1];
-    require(["localforage", "wed/savers/localforage"], function (lf, saver) {
-        saver.config();
-        lf.getItem(name).then(function (item) {
+    require(["wed/savers/localforage"], function (saver) {
+        var store = saver.config();
+        store.getItem(name).then(function (item) {
             done([null, item.data]);
         });
     }, function (err) {

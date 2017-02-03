@@ -101,5 +101,5 @@ def step_impl(context):
         """)
 
     util = context.util
-    with util.local_timeout(300):
+    with util.local_timeout(10):
         util.wait(check)

@@ -8,7 +8,6 @@
 define(/** @lends module:files */function (require, exports, module) {
 'use strict';
 
-var localforage = require("localforage");
 var localforage_saver = require("wed/savers/localforage");
 var $ = require("jquery");
 var log = require("wed/log");
@@ -20,6 +19,8 @@ var lastResort = require("last-resort");
 require("bootstrap");
 
 var makeFileRecord = localforage_saver.makeFileRecord;
+
+var store = localforage_saver.config();
 
 // The default behavior for bootbox.confirm is to make the default
 // button be the one that says "yes".
@@ -65,12 +66,11 @@ function Files() {
         // http://stackoverflow.com/q/23984471/1906307
         //
         $provide.factory('files-service', [ "$q", function ($q) {
-            localforage_saver.config();
             var ret = {};
             ret.getRecords = function () {
                 return $q(function (resolve, reject) {
                     var result = [];
-                    localforage.iterate(function (value) {
+                    store.iterate(function (value) {
                         result.push(value);
                     }, function () {
                         resolve(result);
@@ -79,11 +79,11 @@ function Files() {
             };
 
             ret.deleteRecord = function (record) {
-                return localforage.removeItem(record.name);
+                return store.removeItem(record.name);
             };
 
             ret.updateRecord = function (record) {
-                return localforage.setItem(record.name, record);
+                return store.setItem(record.name, record);
             };
 
             return ret;
@@ -155,7 +155,6 @@ function Files() {
     this._$processing = $(processing);
     this._progress_bar = processing.getElementsByClassName("bar")[0];
     load.addEventListener("change", this.onLoadChange.bind(this));
-    localforage_saver.config();
 
     this._bound_stopProcessing = this._stopProcessing.bind(this);
     this._controller = angular.element('[ng-controller="files-controller"]');
@@ -184,7 +183,7 @@ Files.prototype.onClear = log.wrap(function (ev) {
         if (!result)
             return;
 
-        localforage.clear().then(function () {
+        store.clear().then(function () {
             me._controller.scope().$apply('refresh()');
         });
     });
@@ -197,11 +196,11 @@ Files.prototype.onNewFile = log.wrap(function (ev) {
             return;
         writeFileCheck(name, function (go) {
             if (go) {
-                localforage.setItem(name,
-                                    makeFileRecord(name, ""),
-                                    function () {
-                    me._controller.scope().$apply('refresh()');
-                });
+                store.setItem(name,
+                              makeFileRecord(name, ""),
+                              function () {
+                                  me._controller.scope().$apply('refresh()');
+                              });
             }
         });
     });
@@ -230,7 +229,7 @@ Files.prototype._incrementProgress = function () {
 };
 
 function writeFileCheck (name, cb) {
-    localforage.getItem(name).then(function (value) {
+    store.getItem(name).then(function (value) {
         if (value === null)
             cb(true);
         else
@@ -250,9 +249,9 @@ Files.prototype.loadFile = log.wrap(function(file, cb) {
     function load() {
         var reader = new FileReader();
         reader.onload = log.wrap(function () {
-            localforage.setItem(file.name,
-                                makeFileRecord(file.name, reader.result),
-                                finish);
+            store.setItem(file.name,
+                          makeFileRecord(file.name, reader.result),
+                          finish);
         });
         reader.onerror = finish;
         reader.readAsText(file);

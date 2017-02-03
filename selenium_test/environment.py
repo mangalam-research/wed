@@ -350,16 +350,16 @@ def after_scenario(context, _scenario):
     deps.push(onerror_defined ? "wed/onerror" : "undefined");
 
     deps = deps.concat(require.defined("wed/savers/localforage") ?
-      ["wed/savers/localforage", "localforage"] : ["undefined", "undefined"]);
+      ["wed/savers/localforage"] : ["undefined"]);
 
-    require(deps, function (onerror, saver, lf) {
+    require(deps, function (onerror, saver) {
       var terminating = onerror && onerror.is_terminating();
       // This clears localforage on pages where it has been loaded
       // and configured by Wed code. We detect this by checking whether the
       // saver has been loaded.
       if (saver) {
-        saver.config();
-        lf.clear().then(function () {
+        var store = saver.config();
+        store.clear().then(function () {
             // This rigmarole is required to work around a bug in IndexedDB.
             //
             // See https://github.com/mozilla/localForage/issues/154
@@ -367,7 +367,7 @@ def after_scenario(context, _scenario):
             // We're basically polling until the length of the database is 0.
             //
             function check() {
-                lf.length(function (length) {
+                store.length(function (length) {
                     if (length)
                         setTimeout(check, 100);
                     else {
