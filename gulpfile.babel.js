@@ -98,6 +98,13 @@ gulp.task("build-only-standalone", () => {
         .pipe(gulp.dest(dest));
 });
 
+gulp.task("build-standalone-web", () => {
+    let dest = "build/standalone/lib";
+    return gulp.src(["web/**/*.js", "!**/*_flymake.*", "!**/*.less"])
+        .pipe(gulpNewer(dest))
+        .pipe(gulp.dest(dest));
+});
+
 gulp.task("build-only-standalone-config", ["config"], () => {
     const dest = "build/standalone";
     return gulp.src("build/config/requirejs-config-dev.js")
@@ -343,6 +350,7 @@ html_task('-optimized');
 gulp.task("build-standalone",
           [].concat(
               "build-only-standalone",
+              "build-standalone-web",
               "build-only-standalone-less",
               "build-only-standalone-config",
               "copy-log4javascript",

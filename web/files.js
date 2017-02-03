@@ -9,13 +9,13 @@ define(/** @lends module:files */function (require, exports, module) {
 'use strict';
 
 var localforage = require("localforage");
-var localforage_saver = require("./savers/localforage");
+var localforage_saver = require("wed/savers/localforage");
 var $ = require("jquery");
-var log = require("./log");
+var log = require("wed/log");
 var async = require("async");
 var angular = require("angular");
 var bootbox = require("bootbox");
-var browsers = require("./browsers");
+var browsers = require("wed/browsers");
 var lastResort = require("last-resort");
 require("bootstrap");
 
