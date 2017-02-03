@@ -1,4 +1,7 @@
-'use strict';
+/* eslint strict: "off" */
+"use strict";
+
+/* eslint-disable no-console */
 
 // This script takes 2 arguments:
 //
@@ -27,46 +30,42 @@
 //     "C": "foo.js",
 //     "D": "bar.js"
 //
-var path = require("path");
-var util = require("./util");
-var ArgumentParser = require("argparse").ArgumentParser;
+const util = require("./util");
+const ArgumentParser = require("argparse").ArgumentParser;
 
-var fileAsString = util.fileAsString;
+const fileAsString = util.fileAsString;
 
-var parser = new ArgumentParser({
-    version: "0.0.2",
-    addHelp: true,
-    description: 'Creates an optimized configuration from a base' +
-        ' configuration.'});
+const parser = new ArgumentParser({
+  version: "0.0.2",
+  addHelp: true,
+  description: "Creates an optimized configuration from a base configuration.",
+});
 
-parser.addArgument(["--system"],
-                   { help: "Process a SystemJS configuration.",
-                     action: "storeTrue",
-                     dest: "system"});
+parser.addArgument(["--system"], {
+  help: "Process a SystemJS configuration.",
+  action: "storeTrue",
+  dest: "system",
+});
 
 parser.addArgument(["config"]);
 
-var args = parser.parseArgs();
+const args = parser.parseArgs();
 
-var config_file_path = args.config;
-var config_file_text = fileAsString(config_file_path);
+const configFilePath = args.config;
+const configFileText = fileAsString(configFilePath);
 
-var bundle_name = "wed/wed";
-var modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
+let bundleName = "wed/wed";
+let modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
                "wed/browsers", "merge-options"];
 if (args.system) {
-    bundle_name += "-system.js";
-    modules = modules.map(function (x) {
-        return x + ".js";
-    });
-    modules.push("wed/wed.js");
+  bundleName += "-system.js";
+  modules = modules.map(x => `${x}.js`);
+  modules.push("wed/wed.js");
 }
 
-var additional_config = { bundles: {} };
-additional_config.bundles[bundle_name] = modules;
+const additionalConfig = { bundles: {} };
+additionalConfig.bundles[bundleName] = modules;
 
-console.log(config_file_text);
-var call = args.system ? "SystemJS.config" : "require.config";
-console.log(call + "(" +
-            JSON.stringify(additional_config, null, 2) +
-            ");");
+console.log(configFileText);
+const call = args.system ? "SystemJS.config" : "require.config";
+console.log(`${call}(${JSON.stringify(additionalConfig, null, 2)});`);

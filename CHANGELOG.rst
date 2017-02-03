@@ -19,6 +19,9 @@ odd bug fix may not get mentioned here at all.
 
   - Upgraded to log4javascript 1.4.13, which is AMD-compatible.
 
+  - API: ``Decorator.startListening`` no longer takes an
+    argument. That it took an argument was a bug. It was never used.
+
   - Breaking change: When a path is passed in the ``schema`` option,
     this path is interpreted as-is.
 

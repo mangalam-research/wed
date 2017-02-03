@@ -1,96 +1,111 @@
-'use strict';
+/* eslint strict: "off" */
+"use strict";
+
+/* eslint-disable no-console */
 
 //
 // Safety harness...
 //
 
+/* eslint-disable no-console */
 
 function Fatal(msg) {
-    this.name = "Fatal";
-    this.message = msg;
+  this.name = "Fatal";
+  this.message = msg;
 }
 Fatal.prototype = new Error();
 Fatal.prototype.constructor = Fatal;
 
-process.on('uncaughtException', function (ex) {
-    if (ex instanceof Fatal) {
-        process.stderr.write(ex.message + "\n");
-        process.exit(1);
-    }
-    else
-        throw ex;
+process.on("uncaughtException", (ex) => {
+  if (ex instanceof Fatal) {
+    process.stderr.write(`${ex.message}\n`);
+    process.exit(1);
+  }
+  else {
+    throw ex;
+  }
 });
 
 //
 // Actual logic
 //
 
-var spawn = require("child_process").spawn;
-var semver = require("semver");
-var util = require("util");
-var ArgumentParser = require("argparse").ArgumentParser;
+const spawn = require("child_process").spawn;
+const semver = require("semver");
+const ArgumentParser = require("argparse").ArgumentParser;
 
-var parser = new ArgumentParser({
-    addHelp: true,
-    description: 'Generates build information.'});
-
-parser.addArgument(["--unclean"],
-                   { help: "Allows building an id on an unclean tree.",
-                     action: "storeTrue" });
-parser.addArgument(["--module"],
-                   { help: "Output a module.",
-                     action: "storeTrue"});
-
-var args = parser.parseArgs();
-
-var git = spawn("git", ["status", "--porcelain"]);
-
-var unclean_wt = false;
-git.stdout.on('data', function (data) {
-    unclean_wt = true;
+const parser = new ArgumentParser({
+  addHelp: true,
+  description: "Generates build information.",
 });
 
-git.on('close', function (code) {
-    if (code !== 0)
-        throw new Fatal("git status exit code: " + code);
+parser.addArgument(["--unclean"], {
+  help: "Allows building an id on an unclean tree.",
+  action: "storeTrue",
+});
+parser.addArgument(["--module"], {
+  help: "Output a module.",
+  action: "storeTrue",
+});
 
-    if (!args.unclean && unclean_wt)
-        throw new Fatal("Unclean tree. Stopping.");
+const args = parser.parseArgs();
 
-    git = spawn("git", ["describe", "--match", "v*"],
-                { stdio: [null, "pipe", 2] });
+let git = spawn("git", ["status", "--porcelain"]);
 
-    var desc = "";
-    git.stdout.on('data', function (data) {
-        desc += data;
-    });
+let uncleanWT = false;
+git.stdout.on("data", () => {
+  uncleanWT = true;
+});
 
-    git.on('close', function (code) {
-        if (code !== 0)
-            throw new Fatal("git describe exit code: " + code);
+git.on("close", (code) => {
+  if (code !== 0) {
+    throw new Fatal(`git status exit code: ${code}`);
+  }
 
-        desc = desc.replace(/^\s+|\s+$/g, '');
+  if (!args.unclean && uncleanWT) {
+    throw new Fatal("Unclean tree. Stopping.");
+  }
 
-        if (unclean_wt)
-            desc += "-unclean";
+  git = spawn("git", ["describe", "--match", "v*"],
+              { stdio: [null, "pipe", 2] });
 
-        var sep_ix = desc.indexOf("-");
-        var version = (sep_ix !== -1) ? desc.slice(1, sep_ix) : desc;
-        if (!semver.valid(version))
-            throw new Fatal("invalid version: " + version);
+  let desc = "";
+  git.stdout.on("data", (data) => {
+    desc += data;
+  });
 
-        if (semver.lt(version, '0.10.0'))
-            throw new Fatal("your development branch does not have all the " +
-                            "tags; issue a git pull with the --tags option");
+  git.on("close", (code) => { // eslint-disable-line no-shadow
+    if (code !== 0) {
+      throw new Fatal(`git describe exit code: ${code}`);
+    }
 
-        if (args.module)
-            console.log("define([], function () {\n" +
-                        "return {\n" +
-                        "    desc: '" + desc + "',\n" +
-                        "    date: '" + new Date() + "'\n" +
-                        "};\n" +
-                        "});\n");
-        else
-            console.log(desc);
-    });
+    desc = desc.replace(/^\s+|\s+$/g, "");
+
+    if (uncleanWT) {
+      desc += "-unclean";
+    }
+
+    const sepIx = desc.indexOf("-");
+    const version = (sepIx !== -1) ? desc.slice(1, sepIx) : desc;
+    if (!semver.valid(version)) {
+      throw new Fatal(`invalid version: ${version}`);
+    }
+
+    if (semver.lt(version, "0.10.0")) {
+      throw new Fatal("your development branch does not have all the " +
+                      "tags; issue a git pull with the --tags option");
+    }
+
+    if (args.module) {
+      console.log(`define([], function () {
+  return {
+    desc: '${desc}',
+    date: '${new Date()}'
+  };
+});`);
+    }
+    else {
+      console.log(desc);
+    }
+  });
 });
