@@ -76,33 +76,5 @@ require.config({
  enforceDefine: true
 });
 
-define("global-config", {
-    config: {
-        schema: '/build/schemas/tei-simplified-rng.js',
-        mode: {
-            path: 'wed/modes/generic/generic',
-            options: {
-                meta: {
-                    path: 'wed/modes/generic/metas/tei_meta',
-                    options: {
-                        metadata: '/build/schemas/tei-metadata.json'
-                    }
-                }
-            }
-        },
-        // You certainly do not want this in actual deployment.
-        ajaxlog: {
-            url: "/build/ajax/log.txt"
-        },
-        // You certainly do not want this in actual deployment.
-        save: {
-            path: 'wed/savers/ajax',
-            options: {
-                url: "/build/ajax/save.txt"
-            }
-        }
-    }
-});
-
 //  LocalWords:  popup onerror findandself jQuery Dubeau MPL Mangalam
 //  LocalWords:  txt tei ajax jquery
