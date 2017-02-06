@@ -19,6 +19,10 @@ odd bug fix may not get mentioned here at all.
 
   - Upgraded to log4javascript 1.4.13, which is AMD-compatible.
 
+  - Integrated a linting check. This revealed a smattering of problems
+    in the code. Nothing that would cause crashes or incorrect results
+    but there were unused variables here and there, for instance.
+
   - API: ``Decorator.startListening`` no longer takes an
     argument. That it took an argument was a bug. It was never used.
 
