@@ -484,8 +484,7 @@ function *ghPages() {
   for (const tree of ["standalone", "standalone-optimized"]) {
     const rjsConfig = `${dest}/build/${tree}/requirejs-config.js`;
     yield fs.moveAsync(rjsConfig, `${rjsConfig}.t`);
-    yield exec("node misc/modify_config.js -d config.ajaxlog " +
-               "-d config.save -d paths.browser_test " +
+    yield exec("node misc/modify_config.js -d paths.browser_test " +
                `${rjsConfig}.t > ${rjsConfig}`);
     yield del([`${rjsConfig}.t`,
                `${dest}/build/${tree}/test.html`,
