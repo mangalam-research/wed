@@ -1,0 +1,27 @@
+{
+  "extends": "tslint:latest",
+  "rules": {
+    "one-line": false,
+    "no-reference": false,
+    "interface-name": false,
+    "member-access": false,
+    "max-classes-per-file": false,
+    "semicolon": [true, "always"],
+    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}],
+    "object-literal-sort-keys": false,
+    "typedef": [true, "call-signature", "parameter",
+                "property-declaration", "member-variable-declaration"],
+    "variable-name": [true, "check-format", "allow-leading-underscore",
+                      "allow-trailing-underscore", "ban-keywords"],
+    "no-angle-bracket-type-assertion": true,
+    "member-ordering": [false,
+                        "off because it forces moving apart code that ",
+                        "is logically related to one another"],
+    "interface-over-type-literal": false,
+    "no-string-literal": [false,
+                          "off because of ",
+                          "https://github.com/palantir/tslint/issues/1257"]
+  },
+  "rulesDirectory": [
+  ]
+}

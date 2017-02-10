@@ -126,13 +126,15 @@ define(function f(require) {
     // Show the link...
     var file_management_link = document.getElementById("fm-link");
     file_management_link.style.display = "";
-    require(["wed/savers/localforage"], function loaded(localforage) {
-      var store = localforage.config();
-      store.getItem(localstorage).then(function then(value) {
+    require(["wed-store"], function loaded(store) {
+      store.get(localstorage).then(function then(value) {
         launch(value.data, undefined, {
           save: {
-            path: "wed/savers/localforage",
+            path: "wed/savers/indexeddb",
             options: {
+              getStore: function getStore() {
+                return store;
+              },
               name: localstorage,
             },
           },

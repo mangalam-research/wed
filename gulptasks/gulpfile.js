@@ -17,7 +17,10 @@ import rjs from "requirejs";
 import wrapAmd from "gulp-wrap-amd";
 import eslint from "gulp-eslint";
 import versync from "versync";
+import webpack from "webpack";
 import { ArgumentParser } from "argparse";
+import tslint from "gulp-tslint";
+import webWebpackConfig from "../web/webpack.config";
 import * as config from "./config";
 import { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
          cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath }
@@ -97,11 +100,40 @@ gulp.task("build-only-standalone", () => {
     .pipe(gulp.dest(dest));
 });
 
-gulp.task("build-standalone-web", () => {
-  const dest = "build/standalone/lib";
-  return gulp.src(["web/**/*.js", "!**/*_flymake.*", "!**/*.less"])
-    .pipe(gulpNewer(dest))
-    .pipe(gulp.dest(dest));
+gulp.task("build-standalone-optimized-web", (callback) => {
+  webpack(webWebpackConfig, (err, stats) => {
+    if (err) {
+      callback(new gutil.PluginError("webpack", err));
+      return;
+    }
+
+    const errors = stats.toJson().errors;
+    if (errors.length) {
+      callback(new gutil.PluginError("webpack", errors.join("")));
+      return;
+    }
+
+    gutil.log("[webpack]", stats.toString({ colors: true }));
+    callback();
+  });
+});
+
+gulp.task("build-standalone-web", (callback) => {
+  webpack(webWebpackConfig, (err, stats) => {
+    if (err) {
+      callback(new gutil.PluginError("webpack", err));
+      return;
+    }
+
+    const errors = stats.toJson().errors;
+    if (errors.length) {
+      callback(new gutil.PluginError("webpack", errors.join("")));
+      return;
+    }
+
+    gutil.log("[webpack]", stats.toString({ colors: true }));
+    callback();
+  });
 });
 
 gulp.task("build-only-standalone-config", ["config"], () => {
@@ -281,8 +313,6 @@ npmCopyTask("localforage/dist/localforage.js");
 
 npmCopyTask("async/lib/async.js");
 
-npmCopyTask("angular/angular.js");
-
 npmCopyTask("bootbox/bootbox*.js");
 
 npmCopyTask("urijs/src/**", "external/urijs");
@@ -313,6 +343,12 @@ npmCopyTask("bootstrap-notify/bootstrap-notify*.js");
 
 npmCopyTask("typeahead.js-bootstrap-css/typeaheadjs.css");
 
+npmCopyTask("dexie/dist/dexie{,.min}.js{.map,}");
+
+npmCopyTask("core-js/client/shim.min.js", { rename: "core-js.min.js" });
+
+npmCopyTask("zone.js/dist/zone.js");
+
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
   const isNewer = yield newer(["lib/**", "!**/*_flymake.*"], dest);
@@ -329,7 +365,7 @@ gulp.task("build-info", Promise.coroutine(function *task() {
 function htmlTask(suffix) {
   gulp.task(`build-html${suffix}`, () => {
     const dest = `build/standalone${suffix}`;
-    return gulp.src("web/**.html")
+    return gulp.src("web/**/*.html")
       .pipe(gulpNewer(dest))
       .pipe(gulp.dest(dest));
   });
@@ -427,6 +463,7 @@ gulp.task("build-standalone-optimized", [
   "build-html-optimized",
   "build-optimized-config",
   "build-test-files",
+  "build-standalone-optimized-web",
 ], Promise.coroutine(buildStandaloneOptimized));
 
 gulp.task("rst-doc", () =>
@@ -586,12 +623,21 @@ gulp.task("build-test-files", ["copy-test-files",
                                "convert-html-test-files",
                                "convert-xml-test-files"]);
 
-gulp.task("lint", () =>
+gulp.task("tslint", () =>
+          gulp.src(["lib/**/*.ts", "web/**/*.ts"])
+          .pipe(tslint({
+            formatter: "verbose",
+          }))
+          .pipe(tslint.report()));
+
+gulp.task("eslint", () =>
           gulp.src(["**/*.js", "!build/**/*.js", "!schemas/**/*.js",
                     "!node_modules/**/*.js"])
           .pipe(eslint())
           .pipe(eslint.format())
           .pipe(eslint.failAfterError()));
+
+gulp.task("lint", ["eslint", "tslint"]);
 
 const testNode = {
   name: "test-node",

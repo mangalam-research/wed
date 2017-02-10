@@ -1,0 +1,61 @@
+<div>
+  <div>
+    <p>This is the collection of XML files that you may edit. In order to edit a
+    file, you must associate it with a pack. It is the pack that will determine
+    what wed mode, what schema and what associated settings will be used to open
+    and edit the file.</p>
+  </div>
+  <table class="table">
+    <tbody>
+      <tr>
+        <th>Operations</th>
+        <th>File</th>
+        <th>Saved</th>
+        <th>Uploaded</th>
+        <th>Downloaded</th>
+      </tr>
+      <tr *ngFor="let record of records; let $last = last; trackBy: record?.name" [class.last]="$last" [attr.data-record-name]="record.name" (click)="showDetails(record)">
+        <td>
+          <a class="btn btn-default" href="#"
+             (click)="edit(record); $event.stopPropagation()"
+             title="Edit"><i class="fa fa-edit"></i></a>
+          <a class="btn btn-default"
+             (click)="del(record); $event.stopPropagation()"
+             href="#"
+             title="Delete"><i class="fa fa-times"></i></a>
+          <a class="btn btn-default"
+             (click)="download(record); $event.stopPropagation()"
+             href="#" title="Download"><i class="fa fa-download"></i></a>
+          <div class="btn-group">
+            <a class="btn btn-default dropdown-toggle"
+               data-toggle="dropdown"
+               aria-haspopup="true"
+               aria-expanded="false"
+               href="#"
+               title="Upload">
+              <i class="fa fa-upload"></i> <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <input type="file" (change)="upload(record, $event)"
+                       title="Upload">
+              </li>
+            </ul>
+          </div>
+        </td>
+        <td>{{record.name}}</td>
+        <td>{{record.saved.toLocaleString()}}</td>
+        <td>{{record.uploaded.toLocaleString()}}</td>
+        <td>{{record.downloaded.toLocaleString()}}</td>
+      </tr>
+      <tr *ngIf="!records || !records.length" class="files-table-empty">
+        <td colspan="5">No files!</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="form-inline">
+    <upload-component></upload-component>
+    <button class="form-control" name="new-file" (click)="newFile()">New File</button>
+    <clear-store-component></clear-store-component>
+  </div>
+</div>

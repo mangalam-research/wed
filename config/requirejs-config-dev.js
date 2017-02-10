@@ -30,6 +30,7 @@ require.config({
     rangy: "external/rangy/rangy-core",
     salve: "external/salve",
     "bootstrap-notify": "external/bootstrap-notify",
+    dexie: "external/dexie.min",
   },
   packages: [
     {

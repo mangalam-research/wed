@@ -181,8 +181,16 @@ function dumpData(request, options, callback) {
   });
 }
 
-function makePaths(str) {
-  return [str, `/forever${str}`];
+function makePaths(strs) {
+  if (!(strs instanceof Array)) {
+    strs = [strs];
+  }
+
+  const ret = [];
+  strs.forEach((x) => {
+    ret.push(x, `/forever${x}`);
+  });
+  return ret;
 }
 
 app.post(makePaths("/build/ajax/log.txt"), (request, response) => {

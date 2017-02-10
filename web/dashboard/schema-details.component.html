@@ -1,0 +1,16 @@
+<div *ngIf="file">
+  <h2>File: {{file.name}}</h2>
+  <div class="form-inline">
+    <label for="name">Name: </label>
+    <input name="name" class="form-control" [(ngModel)]="file.name"
+           placeholder="name">
+    <hr>
+    <label for="uploaded">Last uploaded: </label>
+    <input name="uploaded" class="form-control"
+           [ngModel]="file.uploaded.toLocaleString()" readonly="true">
+    <label for="downloaded">Last downloaded: </label>
+    <input name="downloaded" class="form-control"
+           [ngModel]="file.downloaded.toLocaleString()" readonly="true">
+  </div>
+  <button class="btn btn-default" (click)="goBack()">Back</button>
+</div>

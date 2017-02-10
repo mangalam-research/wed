@@ -66,20 +66,20 @@ Scenario: downloading a file
 Scenario: clearing the local storage and accepting the operation
  When the user opens the files page with a "test.xml" file already loaded
  Then there is one file
- When the user clicks the "Clear Local Storage" button
+ When the user clicks the "Clear these files from storage" button
  And accepts the clear local storage dialog
  Then there are no files
 
 Scenario: clearing the local storage and canceling the operation
  When the user opens the files page with a "test.xml" file already loaded
  Then there is one file
- When the user clicks the "Clear Local Storage" button
+ When the user clicks the "Clear these files from storage" button
  And cancels the clear local storage dialog
  Then there is one file
 
 Scenario: saving a file
  When the user opens the files page with a "test.xml" file already loaded, and empty
- And the user clicks the link "test.xml"
+ And the user clicks the edit button for the "test.xml" file
  Then the file is loaded in the editor
  When the user dismisses the dialog warning that it is a demo
  And the user saves

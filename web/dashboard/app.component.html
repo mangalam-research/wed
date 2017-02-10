@@ -1,0 +1,23 @@
+<div class="container">
+  <processing-component></processing-component>
+  <div class="row">
+    <div>
+      <nav>
+        <a class="btn btn-primary" routerLink="/xml"
+           routerLinkActive="active">XML</a>
+        <a class="btn btn-primary" routerLink="/packs"
+           routerLinkActive="active">Packs</a>
+        <a class="btn btn-primary" routerLink="/schemas"
+           routerLinkActive="active">Schemas</a>
+        <a class="btn btn-primary" routerLink="/metadata"
+         routerLinkActive="active">Metadata</a>
+        <a class="btn btn-primary" routerLink="/control"
+         routerLinkActive="active">Control Panel</a>
+      </nav>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <router-outlet></router-outlet>
+  </div>
+</div>
