@@ -55,7 +55,7 @@ define(function f(require) {
 
     describe("", function firstBlock() {
       function makeValidator(tree) {
-        var p = new validator.Validator(grammar, tree);
+        var p = new validator.Validator(null, grammar, tree);
         p._max_timespan = 0; // Work forever.
         return p;
       }
@@ -112,7 +112,7 @@ define(function f(require) {
       it("with two namespaces on the same node", function test(done) {
         var tree = multiple_namespaces_tree.cloneNode(true);
         var tei_grammar = salve.constructTree(tei_schema_text);
-        var p = new validator.Validator(tei_grammar, tree);
+        var p = new validator.Validator(null, tei_grammar, tree);
         p._max_timespan = 0; // Work forever.
 
         // Manipulate stop so that we know when the work is done.
@@ -285,7 +285,7 @@ define(function f(require) {
 
       function makeValidator() {
         var tree = parser.parseFromString(data, "application/xml");
-        var p = new validator.Validator(grammar, tree);
+        var p = new validator.Validator(null, grammar, tree);
         p._max_timespan = 0; // Work forever.
         return p;
       }
@@ -334,7 +334,7 @@ define(function f(require) {
       function makeTest(name, stop_fn, top) {
         it(name, function test(done) {
           var tree = top || generic_tree.cloneNode(true);
-          var p = new validator.Validator(grammar, tree);
+          var p = new validator.Validator(null, grammar, tree);
           p.initialize(function initialized() {
             stop_fn(p, tree);
             done();
@@ -448,7 +448,7 @@ define(function f(require) {
       function makeTest(name, stop_fn, top) {
         it(name, function test(done) {
           var tree = top || generic_tree.cloneNode(true);
-          var p = new validator.Validator(grammar, tree);
+          var p = new validator.Validator(null, grammar, tree);
           p.initialize(function initialized() {
             try {
               stop_fn(p, tree);
@@ -601,7 +601,7 @@ define(function f(require) {
           it(name, function test(done) {
             var tree = top || parser.parseFromString(data, "application/xml");
             var tei_grammar = salve.constructTree(tei_schema_text);
-            var p = new validator.Validator(tei_grammar, tree);
+            var p = new validator.Validator(null, tei_grammar, tree);
             p.initialize(function initialized() {
               try {
                 stop_fn(p, tree);
@@ -656,7 +656,7 @@ define(function f(require) {
         function makeTest(name, stop_fn, top) {
           it(name, function test(done) {
             var tree = top || data_tree.cloneNode(true);
-            var p = new validator.Validator(grammar, tree);
+            var p = new validator.Validator(null, grammar, tree);
             p.initialize(function initialized() {
               try {
                 assert.equal(Object.keys(p._walker_cache).length, 0);
@@ -756,7 +756,7 @@ define(function f(require) {
       function makeTest(name, stop_fn) {
         it(name, function test(done) {
           var tree = generic_tree.cloneNode(true);
-          var p = new validator.Validator(grammar, tree);
+          var p = new validator.Validator(null, grammar, tree);
           p._max_timespan = 0; // Work forever.
           var old_stop = p.stop;
           p.stop = function stop() {
@@ -815,7 +815,7 @@ define(function f(require) {
 
       before(function before() {
         tree = generic_tree.cloneNode(true);
-        p = new validator.Validator(grammar, tree);
+        p = new validator.Validator(null, grammar, tree);
         p._max_timespan = 0; // Work forever.
       });
 
@@ -904,7 +904,7 @@ define(function f(require) {
 
       before(function before() {
         tree = generic_tree.cloneNode(true);
-        p = new validator.Validator(grammar, tree);
+        p = new validator.Validator(null, grammar, tree);
         p._max_timespan = 0; // Work forever.
       });
 
@@ -929,7 +929,7 @@ define(function f(require) {
       beforeEach(function beforeEach(done) {
         require(["text!" + to_parse_stack[0]], function loaded(data) {
           tree = parser.parseFromString(data, "application/xml");
-          p = new validator.Validator(grammar, tree);
+          p = new validator.Validator(null, grammar, tree);
           p._max_timespan = 0; // Work forever.
           done();
         });
@@ -978,7 +978,7 @@ define(function f(require) {
           var tree = generic_tree.cloneNode(true);
           pre_fn(tree);
 
-          var p = new validator.Validator(grammar, tree);
+          var p = new validator.Validator(null, grammar, tree);
           p._max_timespan = 0; // Work forever.
           var old_stop = p.stop;
           p.stop = function stop() {
@@ -1047,7 +1047,7 @@ define(function f(require) {
           }];
         };
 
-        p = new validator.Validator(grammar, tree, new Validator());
+        p = new validator.Validator(null, grammar, tree, new Validator());
         p._max_timespan = 0; // Work forever.
       });
 

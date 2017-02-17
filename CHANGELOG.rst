@@ -23,10 +23,38 @@ odd bug fix may not get mentioned here at all.
     in the code. Nothing that would cause crashes or incorrect results
     but there were unused variables here and there, for instance.
 
+  - Wed now uses `Bluejax <https://github.com/lddubeau/bluejax>`_.
+
+  - API: You can pass Bluejax configuration options that are used globally by
+    setting the ``bluejaxOptions`` option in the option object you pass to your
+    editor.
+
+  - API: The ``Editor`` object now allows passing a ``module:runtime~Runtime``
+    object in the place where you'd pass options. If you pass an anonymous
+    options object, wed will create a runtime with it. If you pass an actual
+    ``Runtime`` object, it will extract its options from it.
+
   - API: ``Decorator.startListening`` no longer takes an
     argument. That it took an argument was a bug. It was never used.
 
-  - Breaking change: When a path is passed in the ``schema`` option,
+  - API: wed is now able to load data from an IndexedDB database. This is mainly
+    used for demonstration purposes but could eventually be expanded to
+    something more flexible.
+
+  - New saver: wed now has an IndexedDB saver. This is mainly used for
+    demonstration purposes.
+
+  - Breaking API change: ``module:mode~Mode`` objects now take the editor as
+    their first argument. (This matters only if you created your own modes.)
+
+  - Breaking API change: ``module:mode~Mode#init`` no longer takes any
+    arguments. (This matters only if you created your own modes.)
+
+  - Breaking API change: The ``Meta`` objects created for modes derived from the
+    generic mode now take a ``module:runtime~Runtime`` object as their first
+    argument. (This matters only if you created your own modes.)
+
+  - Breaking API change: When a path is passed in the ``schema`` option,
     this path is interpreted as-is.
 
     It used to be interpreted relative to the location of wed among
@@ -35,18 +63,18 @@ odd bug fix may not get mentioned here at all.
     loader/bundler that replicates what ``require.toUrl`` does, which
     was problematic.
 
-  - Breaking change: The ``meta.options.meta.options.metadata`` option
+  - Breaking API change: The ``meta.options.meta.options.metadata`` option
     is interpreted as-is. Its previous interpretation was the same as
     a path ``schema`` and the rationale for the change is the
     same. (See above.)
 
-  - Breaking change: The ``dochtml`` field embedded in the generated
+  - Breaking API change: The ``dochtml`` field embedded in the generated
     metadata JSON file is now interpreted as-is. If you used such
     metadata, you need to regenerate your files with an updated
     path. The problem here was the same as above: dependence on
     ``require.toUrl``.
 
-  - Breaking change: wed no longer supports a "global default
+  - Breaking API change: wed no longer supports a "global default
     configuration" against which configuration options passed to
     ``Editor.init`` instances are merged. This means:
 

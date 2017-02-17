@@ -56,7 +56,7 @@ const configFileText = fileAsString(configFilePath);
 
 let bundleName = "wed/wed";
 let modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
-               "wed/browsers", "merge-options"];
+               "wed/browsers", "wed/runtime", "merge-options"];
 if (args.system) {
   bundleName += "-system.js";
   modules = modules.map(x => `${x}.js`);

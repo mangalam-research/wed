@@ -38,6 +38,7 @@
         "typeahead",
         "wed/patches/bootstrap",
         "dexie",
+        "bluebird",
       ],
     },
   ],

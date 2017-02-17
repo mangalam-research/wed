@@ -21,11 +21,11 @@ define(function f(require) {
   }
 
   WedStore.prototype.get = function get(name) {
-    return this._store.files.get({ name: name });
+    return this._store.xmlfiles.get({ name: name });
   };
 
   WedStore.prototype.put = function put(rec) {
-    return this._store.files.put(rec);
+    return this._store.xmlfiles.put(rec);
   };
 
   // Right now this function is mostly used in testing.

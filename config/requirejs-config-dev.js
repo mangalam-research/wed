@@ -31,6 +31,8 @@ require.config({
     salve: "external/salve",
     "bootstrap-notify": "external/bootstrap-notify",
     dexie: "external/dexie.min",
+    bluejax: "external/bluejax",
+    "bluejax.try": "external/bluejax.try",
   },
   packages: [
     {

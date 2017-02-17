@@ -349,6 +349,10 @@ npmCopyTask("core-js/client/shim.min.js", { rename: "core-js.min.js" });
 
 npmCopyTask("zone.js/dist/zone.js");
 
+npmCopyTask("bluejax/index.js", { rename: "bluejax.js" });
+
+npmCopyTask("bluejax.try/index.js", { rename: "bluejax.try.js" });
+
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
   const isNewer = yield newer(["lib/**", "!**/*_flymake.*"], dest);
@@ -360,6 +364,63 @@ gulp.task("build-info", Promise.coroutine(function *task() {
 
   yield exec("node misc/generate_build_info.js --unclean " +
              `--module > ${dest}`);
+}));
+
+function *generateModes(x) {
+  const common = `wed/modes/${x}/`;
+  yield `${common}${x}`;
+  yield `${common}${x}_mode`;
+}
+
+gulp.task("generate-mode-map", Promise.coroutine(function *task() {
+  const dest = "build/standalone/lib/wed/mode-map.js";
+  const isNewer = yield newer(["lib/wed/modes/**", "!**/*_flymake.*"], dest);
+  if (!isNewer) {
+    return;
+  }
+
+  yield mkdirpAsync(path.dirname(dest));
+
+  const modeDirs = yield fs.readdirAsync("lib/wed/modes");
+  const modes = {};
+  modeDirs.forEach((x) => {
+    for (const mode of generateModes(x)) {
+      try {
+        fs.accessSync(path.join("./lib", `${mode}.js`));
+        modes[x] = mode;
+        break;
+      }
+      catch (e) {} // eslint-disable-line no-empty
+    }
+  });
+
+  const exporting = { modes };
+
+  yield fs.writeFileAsync(dest, `define(${JSON.stringify(exporting)});`);
+}));
+
+gulp.task("generate-meta-map", Promise.coroutine(function *task() {
+  const dest = "build/standalone/lib/wed/meta-map.js";
+  const isNewer = yield newer(["lib/wed/modes/**/metas/*_meta.js",
+                               "!**/*_flymake.*"], dest);
+  if (!isNewer) {
+    return;
+  }
+
+  yield mkdirpAsync(path.dirname(dest));
+
+  const modeDirs = glob.sync("lib/wed/modes/**/metas/*_meta.js");
+  const metas = {};
+  modeDirs.forEach((x) => {
+    // Drop initial "lib/" and final ".js"
+    x = x.substring(4, x.length - 3);
+    const name = x.replace(/^.*\/(.*?)_meta$/, "$1");
+    metas[name] = x;
+  });
+
+  const exporting = { metas };
+
+  yield fs.writeFileAsync(dest, `define(${JSON.stringify(exporting)});`);
 }));
 
 function htmlTask(suffix) {
@@ -385,7 +446,9 @@ gulp.task("build-standalone",
             "build-schemas",
             "build-samples",
             "build-html",
-            "build-info"),
+            "build-info",
+            "generate-mode-map",
+            "generate-meta-map"),
           () => mkdirpAsync("build/ajax"));
 
 gulp.task("build-bundled-doc", ["build-standalone"],

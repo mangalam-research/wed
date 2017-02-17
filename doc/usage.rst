@@ -259,37 +259,60 @@ To include wed in a web page you must:
     [...]
     editor.init(widget, options, data);
 
-  Between the creation of the ``Editor`` object and the call to
-  ``init``, there conceivably could be some calls to add event
-  handlers or condition handlers. The ``widget`` parameter must be an
-  element (preferably a ``div``) that wed will take over to install
-  its GUI. The ``options`` parameter is a dictionary which at present
-  understands the following keys:
+  Between the creation of the ``Editor`` object and the call to ``init``, there
+  conceivably could be some calls to add event handlers or condition
+  handlers. The ``widget`` parameter must be an element (preferably a ``div``)
+  that wed will take over to install its GUI. The ``options`` parameter is
+  either an anonymous JavaScript object that contains the options to pass to the
+  editor, or it can be a ``module:runtime~Runtime`` object. If the latter, the
+  options are passed to the ``Runtime`` and the runtime is passed to the
+  ``Editor`` instance. The ``data`` parameter is a string containing the
+  document to edit, in XML format.
 
-  + ``schema``: the path to the schema to use for interpreting the
-    document. This file must contain the result of doing the schema
-    conversion required by salve since wed uses salve. See
-    salve's documentation.
+Options
+-------
 
-  + ``mode``: a simple object recording mode parameters. This object
-    must have a ``path`` field set to the RequireJS path of the
-    mode. An optional ``options`` field may contain options to be
-    passed to the mode. Wed comes bundled with a generic mode located
-    at :github:`lib/wed/modes/generic/generic.js`.
+The ``options`` parameter is a dictionary which at present understands the
+following keys:
 
-    The ``path`` field may be abbreviated. For instance if wed is
-    given the path ``"foo"``, it will try to load the module
-    ``foo``. If this fails, it will try to load ``modes/foo/foo``.  If
-    this fails, it will try to load ``modes/foo/foo_mode``. These
-    paths are all relative to the ``wed/`` root directory.
+* ``schema``: the path to the schema to use for interpreting the document. This
+  file must contain the result of doing the schema conversion required by salve
+  since wed uses salve. See salve's documentation.
 
-  + ``ajaxlog``: See the documentation about :ref:`remote logging
-    <remote_logging>`.
+* ``mode``: a simple object recording mode parameters. This object must have a
+  ``path`` field set to the RequireJS path of the mode. An optional ``options``
+  field may contain options to be passed to the mode. Wed comes bundled with a
+  generic mode located at :github:`lib/wed/modes/generic/generic.js`.
 
-  + ``save``: See the documentation about :ref:`saving <saving>`.
+  The ``path`` field may be abbreviated. For instance if wed is given the path
+  ``"foo"``, it will try to load the module ``foo``. If this fails, it will try
+  to load ``modes/foo/foo``.  If this fails, it will try to load
+  ``modes/foo/foo_mode``. These paths are all relative to the ``wed/`` root
+  directory.
 
-  The ``data`` parameter is a string containing the document to edit,
-  in XML format.
+* ``ajaxlog``: See the documentation about :ref:`remote logging
+  <remote_logging>`.
+
+* ``save``: See the documentation about :ref:`saving <saving>`.
+
+* ``bluejaxOptions``: This is passed directly to `Bluejax
+  <https://github.com/lddubeau/bluejax>`_ when the editor uses Bluejax. So you
+  can use this to configure how many times wed would retry a failing connection,
+  and whether it would provide error checking. The default value is::
+
+        {
+          tries: 3,
+          delay: 100,
+          diagnose: {
+            on: true,
+            knownServers: [
+              "http://www.google.com/",
+              "http://www.cloudfront.com/",
+            ],
+          },
+        };
+
+  There is no ``serverURL`` set because there's no good default value for it.
 
 Here is an example of an ``options`` object::
 
