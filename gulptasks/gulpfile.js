@@ -20,6 +20,8 @@ import versync from "versync";
 import webpack from "webpack";
 import { ArgumentParser } from "argparse";
 import tslint from "gulp-tslint";
+import ts from "gulp-typescript";
+import sourcemaps from "gulp-sourcemaps";
 import webWebpackConfig from "../web/webpack.config";
 import * as config from "./config";
 import { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
@@ -118,23 +120,35 @@ gulp.task("build-standalone-optimized-web", (callback) => {
   });
 });
 
-gulp.task("build-standalone-web", (callback) => {
-  webpack(webWebpackConfig, (err, stats) => {
-    if (err) {
-      callback(new gutil.PluginError("webpack", err));
-      return;
-    }
+const webProject = ts.createProject("web/tsconfig.json");
+gulp.task("tsc-web", () => {
+  // The .once nonsense is to work around a gulp-typescript bug
+  //
+  // See: https://github.com/ivogabe/gulp-typescript/issues/295
+  //
+  // For the fix see:
+  // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-197299175
+  //
+  const result = webProject.src()
+          .pipe(sourcemaps.init({ loadMaps: true }))
+          .pipe(webProject())
+          .once("error", function onError() {
+            this.once("finish", () => {
+              process.exit(1);
+            });
+          });
 
-    const errors = stats.toJson().errors;
-    if (errors.length) {
-      callback(new gutil.PluginError("webpack", errors.join("")));
-      return;
-    }
-
-    gutil.log("[webpack]", stats.toString({ colors: true }));
-    callback();
-  });
+  const dest = "build/standalone/lib";
+  return es.merge(result.js
+                  .pipe(sourcemaps.write("."))
+                  .pipe(gulp.dest(dest)),
+                  result.dts.pipe(gulp.dest(dest)));
 });
+
+gulp.task("copy-js-web",
+          () => gulp.src("web/**/*.js").pipe(gulp.dest("build/standalone/lib/")));
+
+gulp.task("build-standalone-web", ["tsc-web", "copy-js-web"]);
 
 gulp.task("build-only-standalone-config", ["config"], () => {
   const dest = "build/standalone";
@@ -352,6 +366,8 @@ npmCopyTask("zone.js/dist/zone.js");
 npmCopyTask("bluejax/index.js", { rename: "bluejax.js" });
 
 npmCopyTask("bluejax.try/index.js", { rename: "bluejax.try.js" });
+
+npmCopyTask("blueimp-md5/js/md5.js", { rename: "blueimp-md5.js" });
 
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";

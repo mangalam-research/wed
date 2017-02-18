@@ -14,16 +14,20 @@
     <script type="text/javascript" src="../lib/wed/polyfills/contains.js"></script>
     <script type="text/javascript" src="../lib/wed/polyfills/matches.js"></script>
     <script type="text/javascript" src="../lib/wed/polyfills/innerHTML_for_XML.js"></script>
-    <script type="text/javascript" src="../lib/requirejs/require.js"></script>
-    <script type="text/javascript" src="../requirejs-config.js"></script>
+    <script type="text/javascript" src="../../../node_modules/systemjs/dist/system.js"></script>
+    <script type="text/javascript" src="../lib/system.config.js"></script>
   </head>
   <body>
-    <dashboard-app></dashboard-app>
+    <dashboard-app>
+      <p style="text-align: center; font-size: large">
+        Loading <i class="fa fa-spinner fa-spin fa-fw"></i>
+      </p>
+    </dashboard-app>
     <script>
-      require.config({
-        baseUrl: "../lib",
-      });
-      require(["dashboard"]);
+      systemJSConfig.baseURL = "../lib";
+      SystemJS.config(systemJSConfig);
+      delete window.systemJSConfig;
+      SystemJS.import("dashboard");
     </script>
   </body>
 </html>

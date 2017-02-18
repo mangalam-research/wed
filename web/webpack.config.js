@@ -12,7 +12,10 @@ function correctPath(x) {
 
 const externals = {};
 ["jquery", "bootstrap", "dexie", "wed/log", "wed/mode-map", "wed/meta-map",
- "dashboard/store", "dashboard/xml-file"]
+ // These need to be out of the bundle because they are loaded by the
+ // kitchen-sink. dashboard/store needs the rest.
+ "dashboard/store", "dashboard/xml-file", "dashboard/pack", "dashboard/meta",
+ "dashboard/metadata"]
   .forEach((name) => {
     externals[name] = name;
   });
