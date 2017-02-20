@@ -45,6 +45,7 @@ window.systemJSConfig = {
   },
   packageConfigPaths: [
     "npm:@angular/*/package.json",
+    "npm:@angular/*/testing/package.json",
     "npm:*/package.json",
   ],
 };

@@ -16,6 +16,7 @@ import requireDir from "require-dir";
 import rjs from "requirejs";
 import wrapAmd from "gulp-wrap-amd";
 import eslint from "gulp-eslint";
+import replace from "gulp-replace";
 import versync from "versync";
 import webpack from "webpack";
 import { ArgumentParser } from "argparse";
@@ -121,6 +122,7 @@ gulp.task("build-standalone-optimized-web", (callback) => {
 });
 
 const webProject = ts.createProject("web/tsconfig.json");
+const moduleFix = /^(define\(\["require", "exports")(.*?\], function \(require, exports)(.*)$/m;
 gulp.task("tsc-web", () => {
   // The .once nonsense is to work around a gulp-typescript bug
   //
@@ -140,13 +142,22 @@ gulp.task("tsc-web", () => {
 
   const dest = "build/standalone/lib";
   return es.merge(result.js
+                  //
+                  // This ``replace`` to work around the problem that ``module``
+                  // is not defined when compiling to "amd". See:
+                  //
+                  // https://github.com/Microsoft/TypeScript/issues/13591
+                  //
+                  // We need to compile to "amd" for now.
+                  //
+                  .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
                   .pipe(sourcemaps.write("."))
                   .pipe(gulp.dest(dest)),
                   result.dts.pipe(gulp.dest(dest)));
 });
 
 gulp.task("copy-js-web",
-          () => gulp.src("web/**/*.js").pipe(gulp.dest("build/standalone/lib/")));
+          () => gulp.src("web/**/*.{js,html}").pipe(gulp.dest("build/standalone/lib/")));
 
 gulp.task("build-standalone-web", ["tsc-web", "copy-js-web"]);
 
