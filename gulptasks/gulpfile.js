@@ -32,7 +32,7 @@ from "./util";
 // Try to load local configuration options.
 let localConfig = {};
 try {
-  // eslint-disable-next-line global-require
+  // eslint-disable-next-line global-require, import/no-unresolved
   localConfig = require("../gulp.local");
 }
 catch (e) {
