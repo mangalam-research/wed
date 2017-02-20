@@ -1,4 +1,3 @@
-/* eslint strict: "off" */
 "use strict";
 
 /* eslint-disable no-console */
