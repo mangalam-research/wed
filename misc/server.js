@@ -298,6 +298,19 @@ app.post(makePaths("/test-results"), (request, response) => {
   });
 });
 
+app.get(makePaths(["/build/standalone/dashboard",
+                   "/build/standalone-optimized/dashboard"]),
+        (request, response) => {
+          response.redirect(`${request.path}/index.html`);
+        });
+
+app.get(makePaths(["/build/standalone/dashboard/*",
+                   "/build/standalone-optimized/dashboard/*"]),
+        (request, response) => {
+          response.redirect(`${request.path}`.replace(/dashboard\/.*$/,
+                                                      "dashboard/"));
+        });
+
 // Setting up the test environment requires getting *any* page from
 // the server in some cases. It does not matter what the content of
 // the page is. This serves the purpose.
