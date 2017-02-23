@@ -9,7 +9,7 @@ const captureConfigObject = util.captureConfigObject;
 const fileAsString = util.fileAsString;
 
 const parser = new ArgumentParser({
-  version: "0.1.0",
+  version: "0.2.0",
   addHelp: true,
   description: "Modifies a requirejs config file.",
 });
@@ -21,25 +21,21 @@ const parser = new ArgumentParser({
 //
 // - require.config
 //
-// - define: this define call must appear only once and can only define
-//   "wed/config" and the value of the module must be an object.
-//
+// - define: this define call must appear only once and the value of the module
+//   must be an object. The form of the define must be define({...}).
 //
 // Key names that begin with ``config`` perform manipulations of the
-// "wed/config" module. Otherwise, they perform manipulations of the RequireJS
+// module. Otherwise, they perform manipulations of the RequireJS
 // configuration. (Note that because of this, this tool cannot operate on the
 // "config" part of a RequireJS configuration. However, that way of configuring
 // wed has been deprecated, and wed's own codebase no longer uses it.)
 //
-// Functions may appear in the RequireJS configuration but not in "wed/config".
+// Functions may appear in the RequireJS configuration but not in the module.
 //
 
 parser.addArgument(["-d", "--delete"], {
   help: "Delete a configuration key. Hierarchichal keys " +
-    "are possible. For instance: config.wed/wed.x would " +
-    "delete the 'x' key in the object associated with the " +
-    "'wed/wed' key in the object associated with the " +
-    "'config' key in the configuration passed to requirejs.",
+    "are possible.",
   action: "append",
   dest: "del",
 });
@@ -102,14 +98,16 @@ function handler(key, value) {
   return value;
 }
 
-const pre = JSON.stringify(config.requireConfig, handler, 4);
+if (config.requireConfig) {
+  const pre = JSON.stringify(config.requireConfig, handler, 4);
 
-const post = pre.replace(new RegExp(`"${placeholder}"`, "g"),
-                         functions.shift.bind(functions));
+  const post = pre.replace(new RegExp(`"${placeholder}"`, "g"),
+                           functions.shift.bind(functions));
 
-console.log(`require.config(${post});`);
+  console.log(`require.config(${post});`);
+}
 
 if (config.wedConfig && Object.keys(config.wedConfig).length > 0) {
   console.log(
-    `define("wed/config", ${JSON.stringify(config.wedConfig, undefined, 4)});`);
+    `define(${JSON.stringify(config.wedConfig, undefined, 4)});`);
 }

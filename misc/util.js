@@ -22,19 +22,24 @@ function captureConfigObject(config) {
 
   // eslint-disable-next-line no-unused-vars
   function define(name, obj) {
-    if (typeof name !== "string" ||
-        typeof obj !== "object" ||
-        name !== "wed/config" ||
-        arguments.length > 2) {
-      throw new Error("captureConfigObject is designed to capture only " +
-                      "a single define call that defines `wed/config`.");
-    }
-
     if (wedConfig !== undefined) {
-      throw new Error("`wed/config` defined more than once");
+      throw new Error("more than one define");
     }
 
-    wedConfig = obj;
+    switch (arguments.length) {
+    case 0:
+      throw new Error("no arguments to the define!");
+    case 1:
+      if (typeof name !== "object") {
+        throw new Error("if define has only one argument, it must be an " +
+                        "object");
+      }
+      wedConfig = name;
+      break;
+    default:
+      throw new Error("captureConfigObject is designed to capture a " +
+                      "maximum of two arguments.");
+    }
   }
 
   eval(config); // eslint-disable-line no-eval

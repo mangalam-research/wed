@@ -610,10 +610,17 @@ function *ghPages() {
 
   for (const tree of ["standalone", "standalone-optimized"]) {
     const rjsConfig = `${dest}/build/${tree}/requirejs-config.js`;
+    const globalConfig = `${dest}/build/${tree}/lib/global-config.js`;
     yield fs.moveAsync(rjsConfig, `${rjsConfig}.t`);
     yield exec("node misc/modify_config.js -d paths.browser_test " +
                `${rjsConfig}.t > ${rjsConfig}`);
+
+    yield fs.moveAsync(globalConfig, `${globalConfig}.t`);
+    yield exec("node misc/modify_config.js -d config.ajaxlog -d config.save " +
+               `${globalConfig}.t > ${globalConfig}`);
+
     yield del([`${rjsConfig}.t`,
+               `${globalConfig}.t`,
                `${dest}/build/${tree}/test.html`,
                `${dest}/build/${tree}/mocha_frame.html`,
                `${dest}/build/${tree}/wed_test.html`]);
