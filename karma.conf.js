@@ -73,7 +73,16 @@ module.exports = function configure(config) {
       },
       transformPath: (path) => path.replace(/\.ts$/, ".js"),
     },
-    reporters: ["progress"],
+    reporters: ["progress", "coverage", "remap-coverage"],
+    coverageReporter: {
+      type: "in-memory",
+    },
+    remapCoverageReporter: {
+      html: "coverage/karma",
+    },
+    remapOptions: {
+      basePath: "web/dashboard/",
+    },
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
