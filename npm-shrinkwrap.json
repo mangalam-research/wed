@@ -2124,9 +2124,9 @@
           "dev": true
         },
         "readable-stream": {
-          "version": "2.2.2",
+          "version": "2.2.3",
           "from": "readable-stream@>=2.2.2 <3.0.0",
-          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.2.2.tgz",
+          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.2.3.tgz",
           "dev": true
         }
       }
@@ -2855,9 +2855,9 @@
       }
     },
     "eslint": {
-      "version": "3.15.0",
-      "from": "eslint@>=3.14.1 <4.0.0",
-      "resolved": "https://registry.npmjs.org/eslint/-/eslint-3.15.0.tgz",
+      "version": "3.16.1",
+      "from": "eslint@3.16.1",
+      "resolved": "https://registry.npmjs.org/eslint/-/eslint-3.16.1.tgz",
       "dev": true,
       "dependencies": {
         "acorn": {
@@ -2977,9 +2977,9 @@
       "dev": true
     },
     "eslint-config-lddubeau-base": {
-      "version": "1.0.3",
-      "from": "eslint-config-lddubeau-base@>=1.0.3 <2.0.0",
-      "resolved": "https://registry.npmjs.org/eslint-config-lddubeau-base/-/eslint-config-lddubeau-base-1.0.3.tgz",
+      "version": "1.0.4",
+      "from": "eslint-config-lddubeau-base@1.0.4",
+      "resolved": "https://registry.npmjs.org/eslint-config-lddubeau-base/-/eslint-config-lddubeau-base-1.0.4.tgz",
       "dev": true
     },
     "eslint-import-resolver-node": {
@@ -5686,9 +5686,9 @@
       "dev": true
     },
     "ignore": {
-      "version": "3.2.2",
+      "version": "3.2.4",
       "from": "ignore@>=3.2.0 <4.0.0",
-      "resolved": "https://registry.npmjs.org/ignore/-/ignore-3.2.2.tgz",
+      "resolved": "https://registry.npmjs.org/ignore/-/ignore-3.2.4.tgz",
       "dev": true
     },
     "image-size": {
