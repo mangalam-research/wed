@@ -729,6 +729,7 @@ gulp.task("tslint", () =>
 
 gulp.task("eslint", () =>
           gulp.src(["**/*.js", "!build/**/*.js", "!schemas/**/*.js",
+                    "!gh-pages/**/*.js", "!coverage/**/*.js",
                     "!node_modules/**/*.js"])
           .pipe(eslint())
           .pipe(eslint.format())
