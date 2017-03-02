@@ -384,7 +384,7 @@ define(function f(require) {
                  assert.sameMembers(
                    evs.toArray(),
                    [new salve.Event("endTag", new Name("", "", "title")),
-                     new salve.Event("text", /^.*$/)]);
+                    new salve.Event("text", /^.*$/)]);
                });
 
       makeTest("with actual contents, index inside text node",
@@ -396,7 +396,7 @@ define(function f(require) {
                  assert.sameMembers(
                    evs.toArray(),
                    [new salve.Event("endTag", new Name("", "", "title")),
-                     new salve.Event("text", /^.*$/)]);
+                    new salve.Event("text", /^.*$/)]);
                });
 
       makeTest("with actual contents, end of title", function stop(p, tree) {
@@ -405,7 +405,7 @@ define(function f(require) {
         assert.sameMembers(
           evs.toArray(),
           [new salve.Event("endTag", new Name("", "", "title")),
-            new salve.Event("text", /^.*$/)]);
+           new salve.Event("text", /^.*$/)]);
       });
 
       makeTest("with actual contents, end of head", function stop(p, tree) {
@@ -512,7 +512,7 @@ define(function f(require) {
                    assert.sameMembers(
                      evs.toArray(),
                      [new salve.Event("endTag", new Name("", "", "title")),
-                       new salve.Event("text", /^.*$/)]);
+                      new salve.Event("text", /^.*$/)]);
                  });
 
         makeTest("with actual contents, index inside text node",
@@ -525,7 +525,7 @@ define(function f(require) {
                    assert.sameMembers(
                      evs.toArray(),
                      [new salve.Event("endTag", new Name("", "", "title")),
-                       new salve.Event("text", /^.*$/)]);
+                      new salve.Event("text", /^.*$/)]);
                  });
 
         makeTest("with actual contents, end of title", function stop(p, tree) {
@@ -535,7 +535,7 @@ define(function f(require) {
           assert.sameMembers(
             evs.toArray(),
             [new salve.Event("endTag", new Name("", "", "title")),
-              new salve.Event("text", /^.*$/)]);
+             new salve.Event("text", /^.*$/)]);
         });
 
         makeTest("with actual contents, end of head", function stop(p, tree) {
