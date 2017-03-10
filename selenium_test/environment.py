@@ -300,12 +300,21 @@ def dump_javascript_log(context):
         print("")
 
 
+def before_feature(context, feature):
+    if "skip" in feature.tags:
+        feature.skip("The feature was marked with @skip")
+
+
 def before_scenario(context, scenario):
-    driver = context.driver
+    if "skip" in scenario.effective_tags:
+        scenario.skip("The scenario was marked with @skip")
+        return
 
     if context.active_tag_matcher.should_exclude_with(scenario.effective_tags):
-        scenario.skip(reason="Disabled by an active tag")
+        scenario.skip("Disabled by an active tag")
         return
+
+    driver = context.driver
 
     if context.behave_captions:
         # We send a comment as a "script" so that we get something
