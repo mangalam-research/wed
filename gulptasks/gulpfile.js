@@ -297,7 +297,9 @@ function npmCopyTask(...args) {
   const fullName = `copy-${name}`;
   const stamp = stampPath(fullName);
   gulp.task(fullName, ["stamp-dir", "npm"], (callback) => {
-    let stream = gulp.src([pack].concat(completeSrc));
+    let stream = gulp.src([pack].concat(completeSrc), {
+      allowEmpty: false,
+    });
 
     if (copyOptions.rename) {
       stream = stream.pipe(rename(copyOptions.rename));
@@ -349,6 +351,8 @@ npmCopyTask("classlist", "classlist-polyfill/src/index.js",
             { rename: "classList.js" });
 
 npmCopyTask("salve/salve*");
+
+npmCopyTask("salve-dom/salve-dom*");
 
 npmCopyTask("interact.js/dist/interact.min.js");
 

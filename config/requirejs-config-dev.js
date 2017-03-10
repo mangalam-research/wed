@@ -29,6 +29,7 @@ require.config({
     "last-resort": "external/last-resort",
     rangy: "external/rangy/rangy-core",
     salve: "external/salve",
+    "salve-dom": "external/salve-dom",
     "bootstrap-notify": "external/bootstrap-notify",
     dexie: "external/dexie.min",
     bluejax: "external/bluejax",

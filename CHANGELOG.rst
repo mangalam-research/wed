@@ -25,6 +25,10 @@ odd bug fix may not get mentioned here at all.
 
   - Wed now uses `Bluejax <https://github.com/lddubeau/bluejax>`_.
 
+  - The validation engine has been mostly extracted from the code base and spun
+    into an independent library to be published `here
+    <https://github.com/mangalam-research/salve-dom/>`_.
+
   - API: You can pass Bluejax configuration options that are used globally by
     setting the ``bluejaxOptions`` option in the option object you pass to your
     editor.
