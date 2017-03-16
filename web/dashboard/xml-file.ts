@@ -1,14 +1,16 @@
-import { RecordCommon } from "./record-common";
+import { Chunk } from "./chunk";
+import { ChunkedRecord } from "./chunked-record";
 
-export class XMLFile extends RecordCommon {
-  public data: string;
-  public saved: "never" | Date = "never";
-  public pack: number | undefined = undefined;
+export class XMLFile extends ChunkedRecord {
+  saved: "never" | Date = "never";
+  pack: number | undefined = undefined;
 
-  constructor(name: string, data: string) {
-    super(name);
-    this.name = name;
-    this.data = data;
+  /**
+   * Calling code is responsible for ensuring that ``chunk`` already exists in
+   * the database.
+   */
+  constructor(name: string, chunk: string | Chunk) {
+    super(name, chunk);
   }
 
   get recordType(): "XMLFile" {

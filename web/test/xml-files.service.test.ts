@@ -6,6 +6,7 @@ const expect = chai.expect;
 
 import { db } from "../dashboard/store";
 
+import { ChunksService } from "../dashboard/chunks.service";
 import { XMLFile } from "../dashboard/xml-file";
 import { XMLFilesService } from "../dashboard/xml-files.service";
 
@@ -14,7 +15,7 @@ describe("XMLFilesService", () => {
   let file: XMLFile;
 
   before(() => {
-    service = new XMLFilesService();
+    service = new XMLFilesService(new ChunksService());
     return service.makeRecord("foo", "bar")
       .then((newFile) => file = newFile)
       .then(() => service.updateRecord(file));
@@ -34,5 +35,10 @@ describe("XMLFilesService", () => {
     it("produces a correct URL, with parameter",
        () => expect(service.makeIndexedDBURL(file, "data")).to.equal(
          "indexeddb://v1/wed/xmlfiles/number/1/data"));
+  });
+
+  describe("#getDownloadData", () => {
+    it("returns the right data", () =>
+       expect(service.getDownloadData(file)).to.eventually.equal("bar"));
   });
 });

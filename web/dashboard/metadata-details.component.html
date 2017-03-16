@@ -13,12 +13,12 @@
            [ngModel]="file.downloaded.toLocaleString()" readonly="true">
     <hr>
     <h3>Selected data extracted from the file:</h3>
-    <p>Generator: {{file.generator}}</p>
-    <p>Creation date: {{file.creationDate}}</p>
-    <p>Format version: {{file.version}}</p>
+    <p>Generator: {{file.getGenerator() | async}}</p>
+    <p>Creation date: {{file.getCreationDate() | async}}</p>
+    <p>Format version: {{file.getVersion() | async}}</p>
     <p>Namespaces:</p>
       <ul>
-        <li *ngFor="let pair of file.prefixNamespacePairs">
+        <li *ngFor="let pair of file.getPrefixNamespacePairs() | async">
           {{pair.prefix}}: {{pair.uri}}
         </li>
       </ul>

@@ -6,7 +6,7 @@ import { Metadata } from "./metadata";
 import { MetadataService } from "./metadata.service";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "metadata-details-component",
   templateUrl: "./metadata-details.component.html",
 })
@@ -20,7 +20,13 @@ export class MetadataDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.route.params
       .switchMap((params: Params) => this.files.getRecordById(+params["id"]))
-      .subscribe((record) => this.file = record);
+      .subscribe((record) => {
+        if (!record) {
+          throw new Error("record does not exist");
+        }
+
+        this.file = record;
+      });
   }
 
   goBack(): void {

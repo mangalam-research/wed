@@ -1,0 +1,8 @@
+table.table tr[data-record-name]:hover {
+  background-color: #46a4f7;
+}
+
+table.table td.buttons {
+  width: 1%;
+  white-space: nowrap;
+}

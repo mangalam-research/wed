@@ -7,8 +7,9 @@
 "use strict";
 
 import { Injectable } from "@angular/core";
-import md5 = require("blueimp-md5");
 
+import { Chunk } from "./chunk";
+import { ChunksService } from "./chunks.service";
 import { DBService, NameIdArray as NAI } from "./db.service";
 import { Schema } from "./schema";
 import { db } from "./store";
@@ -17,26 +18,17 @@ export type NameIdArray = NAI<number>;
 
 @Injectable()
 export class SchemasService extends DBService<Schema, number> {
-  constructor() {
+  constructor(private readonly chunksService: ChunksService) {
     super(db.schemas);
   }
 
   makeRecord(name: string, data: string): Promise<Schema> {
-    return Promise.resolve(new Schema(name, data));
+    return Chunk.makeChunk(data)
+      .then((chunk) => this.chunksService.updateRecord(chunk))
+      .then((chunk) => new Schema(name, chunk));
   }
 
-  getByData(data: string): Promise<Schema> {
-    return this.table.get({ sum: md5(data) });
-  }
-
-  getOrCreateByData(packName: string, data: string): Promise<Schema> {
-    return this.getByData(data)
-      .then((record) => {
-        if (record) {
-          return record;
-        }
-
-        return this.updateRecord(new Schema(`@@${packName}`, data));
-      });
+  getDownloadData(record: Schema): Promise<string> {
+    return record.getData();
   }
 }

@@ -1,4 +1,4 @@
-/* global SystemJS chai */
+/* global Promise SystemJS chai */
 (function main() {
   "use strict";
 
@@ -21,6 +21,7 @@
   config.paths["npm:"] = "/base/node_modules/";
   config.map["chai-as-promised"] = "npm:chai-as-promised/lib/chai-as-promised.js";
   config.map.sinon = "npm:sinon";
+  config.map["sinon-chai"] = "npm:sinon-chai";
   config.map["check-error"] = "npm:check-error/check-error.js";
   config.packages[""].map = {
     "../dashboard": "/base/build/standalone/lib/dashboard",
@@ -35,11 +36,11 @@
     return SystemJS.import(file);
   }
 
-  var Promise;
+  // var Promise;
   importIt("bluebird").then(function bbLoaded(bluebird) {
-    Promise = bluebird;
+    // Promise = bluebird;
 
-    Promise.config({
+    bluebird.config({
       warnings: true,
       longStackTraces: true,
     });
@@ -71,7 +72,7 @@
     testing.TestBed.initTestEnvironment(browser.BrowserDynamicTestingModule,
                                         browser.platformBrowserDynamicTesting());
 
-    return Promise.all(allTestFiles.map(importIt));
+    return Promise.all(allTestFiles.reverse().map(importIt));
   })
     .then(window.__karma__.start);
 }());

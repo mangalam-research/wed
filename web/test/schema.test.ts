@@ -4,19 +4,34 @@ import "mocha";
 
 const expect = chai.expect;
 
+import { db } from "../dashboard/store";
+
+import { Chunk } from "../dashboard/chunk";
 import { Schema } from "../dashboard/schema";
 
 describe("Schema", () => {
-  const schema1 = new Schema("a", "content");
-  const schema2 = new Schema("b", "content");
-  const schema3 = new Schema("b", "different content");
+  let chunkOne: Chunk;
+  let one: Schema;
 
-  it("instances with same content have same sum",
-     () => expect(schema1.sum).to.equal(schema2.sum));
+  before(() => {
+    return Promise.all(
+      [Chunk.makeChunk(new File(["schema content"], "a"))])
+      .then((chunks) => Promise.all(chunks.map((x) => db.chunks.put(x)))
+            .then(() => chunks))
+      .then(([newChunk]) => {
+        chunkOne = newChunk;
+        one = new Schema("a", chunkOne.id);
+      });
+  });
 
-  it("instances with different content have different sum",
-     () => expect(schema1.sum).to.not.equal(schema3.sum));
+  after(() => db.delete().then(() => db.open()));
 
-  it("instances have a Schema type",
-     () => expect(schema1.recordType).to.equal("Schema"));
+  it("#recordType is 'Schema'",
+     () => expect(one.recordType).to.equal("Schema"));
+
+  it("#chunk is correct",
+     () => expect(one.chunk).to.equal(chunkOne.id));
+
+  it("#data is correct",
+     () => expect(one.getData()).to.eventually.equal("schema content"));
 });

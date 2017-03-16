@@ -7,20 +7,25 @@
 
 import { Component, Inject } from "@angular/core";
 
+import { ConfirmService } from "./confirm.service";
 import { Loader } from "./db.service";
 import { ProcessingService } from "./processing.service";
-import { safeConfirm } from "./util";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "upload-component",
   templateUrl: "./upload.component.html",
 })
 export class UploadComponent {
   constructor(private processing: ProcessingService,
+              private readonly confirmService: ConfirmService,
               @Inject("Loader") private db: Loader) {};
 
-  change(ev: Event): void {
+  inputChange(ev: Event): void {
+    this.change(ev);
+  }
+
+  change(ev: Event): Promise<undefined> {
     const target = (ev.target as HTMLInputElement);
     const filesToLoad = target.files;
     if (filesToLoad && filesToLoad.length > 0) {
@@ -29,14 +34,19 @@ export class UploadComponent {
       // tslint:disable-next-line:prefer-const
       let next: () => Promise<undefined> = () => {
         const file: File = fileArray.shift()!;
-        return this.db.safeLoadFromFile(file, safeConfirm)
-          .then(() => fileArray.length ? next() : undefined);
+        return this.db.safeLoadFromFile(
+          file,
+          this.confirmService.confirm.bind(this.confirmService))
+          .then(() => fileArray.length ? next() : undefined)
+          .then(() => this.processing.increment());
       };
 
-      next().then(() => {
+      return next().then(() => {
         this.processing.stop();
         target.value = "";
       });
     }
+
+    return Promise.resolve();
   }
 }

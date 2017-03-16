@@ -8,7 +8,11 @@ const expect = chai.expect;
 import { XMLFile } from "../dashboard/xml-file";
 
 describe("RecordCommon", () => {
-  const one = new XMLFile("a", "content");
+  let one: XMLFile;
+
+  before(() => {
+    one = new XMLFile("a", "xmlfile content");
+  });
 
   it("starts with downloaded set to 'never'",
      () => expect(one.downloaded).to.equal("never"));

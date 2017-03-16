@@ -4,7 +4,9 @@ import { BrowserModule } from "@angular/platform-browser";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
+import { ChunksService } from "./chunks.service";
 import { ClearStoreComponent } from "./clear-store.component";
+import { ConfirmService } from "./confirm.service";
 import { ControlComponent } from "./control.component";
 import { MetadataDetailsComponent } from "./metadata-details.component";
 import { MetadataComponent } from "./metadata.component";
@@ -46,6 +48,8 @@ import { XMLFilesService } from "./xml-files.service";
     ControlComponent,
   ],
   providers: [
+    ConfirmService,
+    ChunksService,
     XMLFilesService,
     PacksService,
     ProcessingService,

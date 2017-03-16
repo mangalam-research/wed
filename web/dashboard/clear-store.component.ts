@@ -1,30 +1,38 @@
 "use strict";
 
 import { Component, Inject } from "@angular/core";
+
+import { ConfirmService } from "./confirm.service";
 import { Clearable } from "./db.service";
-import { safeConfirm } from "./util";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "clear-store-component",
   template: `\
-<button (click)="clear()" class="form-control pull-right" name="clear-all">\
+<button (click)="clearClicked()" class="form-control pull-right" \
+name="clear-all">\
 Clear these files from storage\
 </button>&nbsp;\
 `,
 })
 export class ClearStoreComponent {
-  constructor(@Inject("Clearable") private db: Clearable) {}
+  constructor(@Inject("Clearable") private readonly db: Clearable,
+              private readonly confirmService: ConfirmService) {}
 
-  clear(): void {
-    safeConfirm("Are you sure you want to clear from local storage all the " +
-                "files associated with wed?")
+  clearClicked(): void {
+    this.clear();
+  }
+
+  clear(): Promise<void> {
+    return this.confirmService.confirm(
+      "Are you sure you want to clear from local storage all the " +
+        "files associated with wed?")
       .then((result: boolean) => {
         if (!result) {
           return;
         }
 
-        this.db.clear();
+        return this.db.clear();
       });
   }
 }

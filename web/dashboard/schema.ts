@@ -1,15 +1,13 @@
-import md5 = require("blueimp-md5");
+import { Chunk } from "./chunk";
+import { ChunkedRecord } from "./chunked-record";
 
-import { RecordCommon } from "./record-common";
-
-export class Schema extends RecordCommon {
-  public data: string;
-  public sum: string;
-
-  constructor(name: string, data: string) {
-    super(name);
-    this.data = data;
-    this.sum = md5(data);
+export class Schema extends ChunkedRecord {
+  /**
+   * Calling code is responsible for ensuring that ``chunk`` already exists in
+   * the database.
+   */
+  constructor(name: string, chunk: string | Chunk) {
+    super(name, chunk);
   }
 
   get recordType(): "Schema" {

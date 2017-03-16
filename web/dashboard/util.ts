@@ -8,6 +8,8 @@
 import { NgForm } from "@angular/forms";
 import * as bootbox from "bootbox";
 
+import { readFile } from "./store-util";
+
 // The default behavior for bootbox.confirm is to make the default button be the
 // one that says "yes".
 export function safeConfirm(message: string): Promise<boolean> {
@@ -52,15 +54,25 @@ export function triggerDownload(name: string, data: string): void {
   }
 }
 
-export function readFile(file: File): Promise<string> {
-  const reader = new FileReader();
-  return new Promise((resolve, reject) => {
-    reader.onload = () => {
-      resolve(reader.result);
-    };
-    reader.onerror = reject;
-    reader.readAsText(file);
-  });
+/**
+ * Checks if the contents of two files are equal. File names are ignored.
+ *
+ * @param a File to compare.
+ *
+ * @param b File to compare.
+ *
+ * @returns Whether they are equal.
+ */
+export function filesEqual(a: File, b: File): Promise<boolean> {
+  return Promise.resolve()
+    .then(() => {
+      if (a.size !== b.size) {
+        return false;
+      }
+
+      return Promise.all([readFile(a), readFile(b)])
+        .then(([contentA, contentB]) => contentA === contentB);
+    });
 }
 
 type FormErrors = {[name: string]: string };

@@ -13,45 +13,70 @@ import { PACKS } from "./route-paths";
 
 import { GenericRecordsComponent } from "./generic-records.component";
 
-import { MetadataService } from "./metadata.service";
+import { ConfirmService } from "./confirm.service";
 import { PacksService } from "./packs.service";
 import { ProcessingService } from "./processing.service";
-import { SchemasService } from "./schemas.service";
+import { XMLFilesService } from "./xml-files.service";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "packs-component",
   templateUrl: "./packs.component.html",
+  styleUrls: ["./generic-records.component.css"],
   providers: [
     { provide: "Loader", useExisting: PacksService },
     { provide: "Clearable", useExisting: PacksService },
   ],
 })
-export class PacksComponent extends GenericRecordsComponent<Pack, PacksService> {
+export class PacksComponent extends
+GenericRecordsComponent<Pack, PacksService> {
   // We must have the constructor here so that it can be annotated by the
   // decorator and Angular can find its bearings.
   constructor(router: Router,
               files: PacksService,
               processing: ProcessingService,
-              private readonly schemasService: SchemasService,
-              private readonly metadataService: MetadataService) {
-    super(router, files, processing, PACKS);
+              confirmService: ConfirmService,
+              private readonly xmlFiles: XMLFilesService) {
+    super(router, files, processing, confirmService, PACKS);
   }
 
-  protected getDownloadData(record: Pack): Promise<string> {
-    // We need to resolve the record ids stored for the schema and metadata.
-    return Promise.all([
-      this.schemasService.getRecordById(+record.schema),
-      this.metadataService.getRecordById(+record.metadata),
-    ]).then(([schema, metadata]) => {
-      return JSON.stringify({
-        interchangeVersion: 1,
-        name: record.name,
-        schema: schema.data,
-        mode: record.mode,
-        meta: record.meta,
-        metadata: metadata.data,
+  del(record: Pack): Promise<void> {
+    const handleResponse = (result: boolean) => {
+      if (!result) {
+        return;
+      }
+
+      return this.xmlFiles.getByPack(record.id!)
+        .then((xmlFiles) => {
+          const promises = [];
+          for (const file of xmlFiles) {
+            file.pack = undefined;
+            promises.push(this.xmlFiles.updateRecord(file));
+          }
+
+          return Promise.all(promises);
+        })
+        .then(() => this.files.deleteRecord(record));
+    };
+
+    // Packs are special. They may be referrenced from an XML file. If that is
+    // the case we cannot just delete the pack. So we check whether the pack is
+    // in use. If so, we present a special confirmation prompt.
+    return this.xmlFiles.isPackUsed(record.id!)
+      .then((used) => {
+        if (used) {
+          return this.confirmService.confirm(
+            `This pack is used by some XML files. If you delete it, the pack \
+set for the files that use it will be reset and you will have to reassociated \
+the files with this pack. Do you really want to delete "${record.name}"?`)
+            .then(handleResponse);
+        }
+
+        // We always ask for confirmation.
+        return this.confirmService.confirm(
+          `Do you really want to delete "${record.name}"?`)
+          .then(handleResponse);
       });
-    });
+
   }
 }

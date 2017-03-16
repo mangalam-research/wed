@@ -34,16 +34,11 @@ define(function f(require) {
   var localstorage = query.localstorage;
   var options_param = query.options;
   var nodemo = query.nodemo;
+  var managementURL = query.management;
 
   if (file !== undefined && localstorage !== undefined) {
     throw new Error("file and localstorage defined: use one or " +
                     "the other");
-  }
-
-  function makeURL(table, id) {
-    var url = "indexeddb://v1/" + store.db.name + "/" + table.name +
-        "/number/" + id;
-    return url;
   }
 
   Promise.try(function initial() {
@@ -51,6 +46,9 @@ define(function f(require) {
       // Show the link...
       var file_management_link = document.getElementById("fm-link");
       file_management_link.style.display = "";
+      if (managementURL) {
+        file_management_link.href = managementURL;
+      }
 
       return new Promise(function makePromise(resolve, reject) {
         require(["wed-store"], resolve, reject);
@@ -173,30 +171,45 @@ define(function f(require) {
           return undefined;
         }
 
-        // This is a file from the indexeddb system. Resolve the pack.
-        text = resolvedFile.data;
-
+        var packURL = store.db.makeIndexedDBURL(store.db.packs,
+                                                resolvedFile.pack);
         // At this stage options.save.options.name contains a bogus value. Put
         // the file name there.
         options.save.options.name = resolvedFile.name;
+        return Promise.all([
+          store.db.chunks.get(resolvedFile.savedChunk)
+            .then(function loadedChunk(chunk) {
+              return chunk.getData();
+            })
+            .then(function resolvedData(data) {
+              // This is a file from the indexeddb system. Resolve the pack.
+              text = data;
+            }),
+          r.resolve(packURL).then(function packResolved(pack) {
+            var schemaURL = store.db.makeIndexedDBURL(store.db.chunks,
+                                                      pack.schema) + "/file";
+            var metadataURL = pack.metadata &&
+                (store.db.makeIndexedDBURL(store.db.chunks, pack.metadata) +
+                 "/file");
+            options.schema = schemaURL;
+            options.mode = {
+              path: modeMap[pack.mode],
+              options: {},
+            };
 
-        var packURL = makeURL(store.db.packs, resolvedFile.pack);
-        return r.resolve(packURL).then(function packResolved(pack) {
-          var schemaURL = makeURL(store.db.schemas, pack.schema) + "/data";
-          var metadataURL = makeURL(store.db.metadata, pack.metadata) + "/data";
-          options.schema = schemaURL;
-          options.mode = {
-            path: modeMap[pack.mode],
-            options: {
-              meta: {
+            var modeOptions = options.mode.options;
+            if (pack.meta) {
+              modeOptions.meta = {
                 path: metaMap[pack.meta],
-                options: {
-                  metadata: metadataURL,
-                },
-              },
-            },
-          };
-        });
+                options: {},
+              };
+
+              if (metadataURL) {
+                modeOptions.meta.options.metadata = metadataURL;
+              }
+            }
+          }),
+        ]);
       })
       .then(function start() {
         $(function ready() {

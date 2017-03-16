@@ -9,7 +9,7 @@
 import Dexie from "dexie";
 import { Subject } from "rxjs";
 
-import { readFile } from "./util";
+import { readFile } from "./store-util";
 
 export interface IValue<Key> {
   id?: Key;
@@ -18,7 +18,8 @@ export interface IValue<Key> {
 
 export interface Loader {
   loadFromFile(file: File, record?: any | null): Promise<any>;
-  safeLoadFromFile(file: File, intoRecord?: any): Promise<any | undefined>;
+  safeLoadFromFile(file: File,
+                   confirmerOrIntoRecord?: any): Promise<any | undefined>;
 }
 
 export interface Clearable {
@@ -73,11 +74,11 @@ Loader, Clearable {
     });
   };
 
-  getRecordById(id: number): Promise<Value> {
+  getRecordById(id: number): Promise<Value | undefined> {
     return this.table.get({ id });
   }
 
-  getRecordByName(name: string): Promise<Value> {
+  getRecordByName(name: string): Promise<Value | undefined> {
     return this.table.get({ name });
   }
 
@@ -146,14 +147,16 @@ Loader, Clearable {
 
   abstract makeRecord(name: string, data: string): Promise<Value>;
 
-  get nameIdArray(): Promise<NameIdArray<Key>> {
+  abstract getDownloadData(record: Value): Promise<string>;
+
+  getNameIdArray(): Promise<NameIdArray<Key>> {
     return this.getRecords()
       .then((records) =>
             records.map((record: Value) => ({ name: record.name,
                                               id: record.id })));
   }
 
-  get recordCount(): Promise<number> {
+  getRecordCount(): Promise<number> {
     return this.table.count();
   }
 }

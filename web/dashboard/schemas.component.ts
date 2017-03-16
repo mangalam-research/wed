@@ -8,6 +8,7 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
+import { ConfirmService } from "./confirm.service";
 import { GenericRecordsComponent } from "./generic-records.component";
 import { ProcessingService } from "./processing.service";
 import { SCHEMAS } from "./route-paths";
@@ -15,9 +16,10 @@ import { Schema } from "./schema";
 import { SchemasService } from "./schemas.service";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "schemas-component",
   templateUrl: "./schemas.component.html",
+  styleUrls: ["./generic-records.component.css"],
   providers: [
     { provide: "Loader", useExisting: SchemasService },
     { provide: "Clearable", useExisting: SchemasService },
@@ -29,11 +31,8 @@ GenericRecordsComponent<Schema, SchemasService> {
   // decorator and Angular can find its bearings.
   constructor(router: Router,
               files: SchemasService,
-              processing: ProcessingService) {
-    super(router, files, processing, SCHEMAS);
-  }
-
-  protected getDownloadData(record: Schema): Promise<string> {
-    return Promise.resolve(record.data);
+              processing: ProcessingService,
+              confirmService: ConfirmService) {
+    super(router, files, processing, confirmService, SCHEMAS);
   }
 }

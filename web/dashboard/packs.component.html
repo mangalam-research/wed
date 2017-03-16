@@ -40,15 +40,11 @@
       </tr>
       <tr *ngFor="let record of records; let $last = last; trackBy: record?.name" [class.last]="$last" [attr.data-record-name]="record.name" (click)="showDetails(record)">
         <td>
-          <a class="btn btn-default"
-             href="#"
-             (click)="edit(record); $event.stopPropagation()"
-             title="Edit"><i class="fa fa-edit"></i></a>
-          <a class="btn btn-default"
+          <a class="btn btn-default delete-button"
              (click)="del(record); $event.stopPropagation()"
              href="#"
              title="Delete"><i class="fa fa-times"></i></a>
-          <a class="btn btn-default"
+          <a class="btn btn-default download-button"
              (click)="download(record); $event.stopPropagation()"
              href="#" title="Download"><i class="fa fa-download"></i></a>
           <div class="btn-group">

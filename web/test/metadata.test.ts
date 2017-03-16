@@ -4,9 +4,13 @@ import "mocha";
 
 const expect = chai.expect;
 
+import { db } from "../dashboard/store";
+
+import { Chunk } from "../dashboard/chunk";
 import { Metadata } from "../dashboard/metadata";
 
 describe("Metadata", () => {
+  // tslint:disable-next-line:mocha-no-side-effect-code
   const content = JSON.stringify({
     generator: "gen1",
     date: "date1",
@@ -17,6 +21,7 @@ describe("Metadata", () => {
     },
   });
 
+  // tslint:disable-next-line:mocha-no-side-effect-code
   const different = JSON.stringify({
     generator: "gen2",
     date: "date2",
@@ -27,36 +32,47 @@ describe("Metadata", () => {
     },
   });
 
-  const metadata1 = new Metadata("a", content);
-  const metadata2 = new Metadata("b", content);
-  const metadata3 = new Metadata("b", different);
+  let contentChunk: Chunk;
+  let differentChunk: Chunk;
 
-  it("instances with same content have same sum",
-     () => expect(metadata1.sum).to.equal(metadata2.sum));
+  let metadata1: Metadata;
 
-  it("instances with different content have different sum",
-     () => expect(metadata1.sum).to.not.equal(metadata3.sum));
+  before(() => {
+    return Promise.all(
+      [Chunk.makeChunk(new File([content], "a")),
+       Chunk.makeChunk(new File([different], "b"))])
+      .then((chunks) => Promise.all(chunks.map((x) => db.chunks.put(x)))
+            .then(() => chunks))
+      .then(([a, b]) => {
+        contentChunk = a;
+        differentChunk = b;
+        metadata1 = new Metadata("a", contentChunk);
+      });
+  });
+
+  after(() => db.delete().then(() => db.open()));
 
   it("instances have a Metadata type",
      () => expect(metadata1.recordType).to.equal("Metadata"));
 
   it("to have a generator value which is extracted from the data",
-     () => expect(metadata1.generator).to.equal("gen1"));
+     () => expect(metadata1.getGenerator()).to.eventually.equal("gen1"));
 
   it("to have a creationDate which is extracted from the data",
-     () => expect(metadata1.creationDate).to.equal("date1"));
+     () => expect(metadata1.getCreationDate()).to.eventually.equal("date1"));
 
   it("to have a version which is extracted from the data",
-     () => expect(metadata1.version).to.equal("ver1"));
+     () => expect(metadata1.getVersion()).to.eventually.equal("ver1"));
 
   it("to have namespaces extracted from the data",
-     () => expect(metadata1.namespaces).to.deep.equal({
+     () => expect(metadata1.getNamespaces()).to.eventually.deep.equal({
        foo: "foouri",
        bar: "baruri",
      }));
 
   it("to have prefixNamespacePairs extracted from the data",
-     () => expect(metadata1.prefixNamespacePairs).to.deep.equal([
+     () => expect(metadata1.getPrefixNamespacePairs())
+     .to.eventually.deep.equal([
        {
          prefix: "foo",
          uri: "foouri",
@@ -66,4 +82,9 @@ describe("Metadata", () => {
          uri: "baruri",
        },
      ]));
+
+  it("setting the chunk changes the data", () => {
+    metadata1.chunk = differentChunk.id;
+    return expect(metadata1.getGenerator()).to.eventually.equal("gen2");
+  });
 });

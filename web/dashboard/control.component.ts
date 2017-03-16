@@ -3,10 +3,11 @@ import * as bootbox from "bootbox";
 
 import { ProcessingService } from "./processing.service";
 import { db } from "./store";
-import { readFile, safeConfirm, triggerDownload } from "./util";
+import { readFile } from "./store-util";
+import { safeConfirm, triggerDownload } from "./util";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "control-component",
   templateUrl: "./control.component.html",
 })

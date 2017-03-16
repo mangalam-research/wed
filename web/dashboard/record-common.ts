@@ -12,4 +12,15 @@ export abstract class RecordCommon {
   constructor(name: string) {
     this.name = name;
   }
+
+  copyInto(into: RecordCommon): void {
+    if ("id" in this) {
+      into.id = this.id;
+    }
+    into.name = this.name;
+    into.recordVersion = this.recordVersion;
+    into.uploaded = this.uploaded;
+    into.downloaded = this.downloaded;
+    into.notes = this.notes;
+  }
 }

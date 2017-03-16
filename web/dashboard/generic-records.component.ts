@@ -1,17 +1,19 @@
 import { Router } from "@angular/router";
 
+import { ConfirmService } from "./confirm.service";
 import { DBService } from "./db.service";
 import { ProcessingService } from "./processing.service";
 import { RecordCommon } from "./record-common";
-import { safeConfirm, triggerDownload } from "./util";
+import { triggerDownload } from "./util";
 
 export abstract class GenericRecordsComponent<RecordType extends RecordCommon,
 RecordService extends DBService<any, any>> {
   records: RecordType[];
 
-  constructor(private readonly router: Router,
+  constructor(protected readonly router: Router,
               protected readonly files: RecordService,
-              private readonly processing: ProcessingService,
+              protected readonly processing: ProcessingService,
+              protected readonly confirmService: ConfirmService,
               protected readonly detailRoutePrefix: string) {}
 
   ngAfterViewInit(): void {
@@ -25,47 +27,56 @@ RecordService extends DBService<any, any>> {
     });
   };
 
-  del(record: RecordType): void {
+  del(record: RecordType): Promise<void> {
     const handleResponse = (result: boolean) => {
       if (!result) {
         return;
       }
-      this.files.deleteRecord(record);
+
+      return this.files.deleteRecord(record);
     };
 
-    safeConfirm(`Do you really want to delete "${record.name}"?`)
+    return this.confirmService.confirm(
+      `Do you really want to delete "${record.name}"?`)
       .then(handleResponse);
   };
 
-  protected abstract getDownloadData(record: RecordType): Promise<string>;
-
-  download(record: RecordType): void {
-    this.getDownloadData(record).then((data) => {
-      triggerDownload(record.name, data);
+  /**
+   * The promise returned will resolve once the download has *started*.
+   */
+  download(record: RecordType): Promise<void> {
+    return this.files.getDownloadData(record).then((data) => {
+      this.triggerDownload(record.name, data);
     });
   };
 
-  upload(record: RecordType, event: Event): void {
-    const target = (event.target as HTMLInputElement);
-    const filesToLoad = target.files;
-    if (!filesToLoad) {
-      return;
-    }
+  protected triggerDownload(name: string, data: string): void {
+    triggerDownload(name, data);
+  }
 
-    switch (filesToLoad.length) {
-    case 0:
-      return;
-    case 1:
-      this.processing.start(1);
-        this.files.safeLoadFromFile(filesToLoad[0], record).then(() => {
-        this.processing.stop();
-        target.value = "";
-      });
-      break;
-    default:
-      throw new Error("internal error: the upload econtrol cannot " +
-                      "be used for multiple files");
-    }
+  upload(record: RecordType, event: Event): Promise<void> {
+    return Promise.resolve().then(() => {
+      const target = (event.target as HTMLInputElement);
+      const filesToLoad = target.files;
+      if (!filesToLoad) {
+        return;
+      }
+
+      switch (filesToLoad.length) {
+      case 0:
+        return;
+      case 1:
+        this.processing.start(1);
+        return this.files.safeLoadFromFile(filesToLoad[0], record).then(() => {
+          this.processing.increment();
+          this.processing.stop();
+          target.value = "";
+        });
+      default:
+        throw new Error("internal error: the upload control cannot " +
+                        "be used for multiple files");
+      }
+    });
   };
 
   showDetails(record: RecordType): void {

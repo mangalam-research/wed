@@ -35,13 +35,15 @@ describe("ProcessingComponent", () => {
   });
 
   it("starts with an invisible modal", () => {
-    expect(el.classList.contains("in")).to.be.false;
+    expect(el.classList.contains("in"),
+           "modal should not have 'in' class").to.be.false;
   });
 
   it("shows a modal on processing start", () => {
     service.start(3);
     fixture.detectChanges();
-    expect(el.classList.contains("in")).to.be.true;
+    expect(el.classList.contains("in"),
+           "modal should have 'in' class").to.be.true;
   });
 
   it("shows a 0% long bar on processing start", () => {
@@ -60,9 +62,11 @@ describe("ProcessingComponent", () => {
   it("hides modal on stop", () => {
     service.start(3);
     fixture.detectChanges();
-    expect(el.classList.contains("in")).to.be.true;
+    expect(el.classList.contains("in"),
+           "modal should have 'in' class").to.be.true;
     service.stop();
     fixture.detectChanges();
-    expect(el.classList.contains("in")).to.be.false;
+    expect(el.classList.contains("in"),
+           "modal should not have 'in' class").to.be.false;
   });
 });

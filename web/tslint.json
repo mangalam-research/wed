@@ -1,27 +1,15 @@
 {
-  "extends": "tslint:latest",
+  "extends": "tslint-config-lddubeau",
   "rules": {
-    "one-line": false,
+    "missing-jsdoc": [false, "Experimental code."],
+    "completed-docs": [false, "Experimental code."],
+    "promise-function-async": [false, "Need to investigate the impact of the async/await",
+                               "conversion done by tsc."],
+    "chai-vague-errors": [false, "This rule is too generally restrictive to be left on all the time.",
+                          "It is worth turning it on from time to time and check the assertions."],
     "no-reference": false,
-    "interface-name": false,
-    "member-access": false,
-    "max-classes-per-file": false,
-    "semicolon": [true, "always"],
-    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}],
-    "object-literal-sort-keys": false,
-    "typedef": [true, "call-signature", "parameter",
-                "property-declaration", "member-variable-declaration"],
-    "variable-name": [true, "check-format", "allow-leading-underscore",
-                      "allow-trailing-underscore", "ban-keywords"],
-    "no-angle-bracket-type-assertion": true,
-    "member-ordering": [false,
-                        "off because it forces moving apart code that ",
-                        "is logically related to one another"],
-    "interface-over-type-literal": false,
     "no-string-literal": [false,
                           "off because of ",
                           "https://github.com/palantir/tslint/issues/1257"]
-  },
-  "rulesDirectory": [
-  ]
+  }
 }

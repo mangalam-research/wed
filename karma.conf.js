@@ -1,6 +1,19 @@
 /* eslint-env node */
 "use strict";
 
+//
+// karma-typescript-preprocessor does not support loading a tsconfig.json. There
+// is an old issue saying it can but probably the TS API changed and it no
+// longer works properly.
+//
+// karma-typescript-preprocessor2 has issues with supporting recent TS:
+//
+// - The gulp-typescript it uses will load a local typescript. This local
+//   typescript must be removed.
+//
+// - The gulp-typescript it uses does not support "extends".
+//
+
 module.exports = function configure(config) {
   const coverage = !config.debug ? ["coverage"] : [];
   config.set({
@@ -29,11 +42,12 @@ module.exports = function configure(config) {
       "build/standalone/lib/wed/polyfills/contains.js",
       "build/standalone/lib/wed/polyfills/matches.js",
       "build/standalone/lib/wed/polyfills/innerHTML_for_XML.js",
-      "node_modules/systemjs/dist/system.js",
+      "node_modules/systemjs/dist/system.src.js",
       "build/standalone/lib/system.config.js",
       "web/test/karma-main.js",
       { pattern: "web/test/**/*.ts", included: false },
-      { pattern: "build/standalone/lib/**/*.@(js|html|map)", included: false },
+      { pattern: "build/standalone/lib/**/*.@(js|html|map|css)",
+        included: false },
       { pattern: "node_modules/{*,*/*,*/*/*}/package.json",
         included: false },
       { pattern: "node_modules/bluebird/js/browser/bluebird.js",
@@ -60,6 +74,8 @@ module.exports = function configure(config) {
         included: false },
       { pattern: "node_modules/sinon/lib/**/*.js",
         included: false },
+      { pattern: "node_modules/sinon-chai/lib/**/*.js",
+        included: false },
     ].reduce((acc, x) => acc.concat(x), []),
     exclude: [],
     preprocessors: {
@@ -68,10 +84,15 @@ module.exports = function configure(config) {
       "build/standalone/lib/dashboard/**/!(*.map).js": coverage,
     },
     typescriptPreprocessor: {
-      options: {
-        project: "./web/tsconfig.json",
+      tsconfigPath: "./web/test/tsconfig.json",
+      compilerOptions: {
+        typescript: require("typescript"),
+        sourceMap: false,
+        // We have to have them inline for the browser to find them.
+        inlineSourceMap: true,
+        inlineSources: true,
       },
-      transformPath: (path) => path.replace(/\.ts$/, ".js"),
+      // transformPath: (path) => path.replace(/\.ts$/, ".js"),
     },
     reporters: ["progress", "coverage", "remap-coverage"],
     coverageReporter: {

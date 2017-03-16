@@ -8,6 +8,7 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
+import { ConfirmService } from "./confirm.service";
 import { GenericRecordsComponent } from "./generic-records.component";
 import { Metadata } from "./metadata";
 import { MetadataService } from "./metadata.service";
@@ -15,9 +16,10 @@ import { ProcessingService } from "./processing.service";
 import { METADATA } from "./route-paths";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "metadata-component",
   templateUrl: "./metadata.component.html",
+  styleUrls: ["./generic-records.component.css"],
   providers: [
     { provide: "Loader", useExisting: MetadataService },
     { provide: "Clearable", useExisting: MetadataService },
@@ -29,11 +31,8 @@ GenericRecordsComponent<Metadata, MetadataService> {
   // decorator and Angular can find its bearings.
   constructor(router: Router,
               files: MetadataService,
-              processing: ProcessingService) {
-    super(router, files, processing, METADATA);
-  }
-
-  protected getDownloadData(record: Metadata): Promise<string> {
-    return Promise.resolve(record.data);
+              processing: ProcessingService,
+              confirmService: ConfirmService) {
+    super(router, files, processing, confirmService, METADATA);
   }
 }

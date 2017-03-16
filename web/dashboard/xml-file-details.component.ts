@@ -10,7 +10,7 @@ import { XMLFile } from "./xml-file";
 import { XMLFilesService } from "./xml-files.service";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "xml-file-details-component",
   templateUrl: "./xml-file-details.component.html",
 })
@@ -38,11 +38,17 @@ export class XMLFileDetailsComponent implements OnInit {
               private location: Location) {}
 
   ngOnInit(): void {
-    this.packService.nameIdArray.then(
+    this.packService.getNameIdArray().then(
       (packs) => this.packs = packs).then(() =>  {
         this.route.params
           .switchMap((params: Params) => this.files.getRecordById(+params["id"]))
-          .subscribe((record) => this.file = record);
+          .subscribe((record) => {
+            if (!record) {
+              throw new Error("record does not exist");
+            }
+
+            this.file = record;
+          });
       });
   }
 

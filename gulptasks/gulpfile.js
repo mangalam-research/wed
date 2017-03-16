@@ -157,7 +157,8 @@ gulp.task("tsc-web", () => {
 });
 
 gulp.task("copy-js-web",
-          () => gulp.src("web/**/*.{js,html}").pipe(gulp.dest("build/standalone/lib/")));
+          () => gulp.src("web/**/*.{js,html,css}")
+          .pipe(gulp.dest("build/standalone/lib/")));
 
 gulp.task("build-standalone-web", ["tsc-web", "copy-js-web"]);
 
@@ -457,7 +458,8 @@ gulp.task("generate-meta-map", Promise.coroutine(function *task() {
 function htmlTask(suffix) {
   gulp.task(`build-html${suffix}`, () => {
     const dest = `build/standalone${suffix}`;
-    return gulp.src("web/**/*.html")
+    return gulp.src(["web/*.html", "web/dashboard/index.html"],
+                    { base: "web" })
       .pipe(gulpNewer(dest))
       .pipe(gulp.dest(dest));
   });

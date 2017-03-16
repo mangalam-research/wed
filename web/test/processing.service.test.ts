@@ -18,14 +18,15 @@ describe("ProcessingService", () => {
 
   describe("#start", () => {
     it("fails when called with 0", () =>
-       expect(() => service.start(0))
-       .to.throw(Error,
-                 /cannot start processing with a total of 0/));
+       expect(() => {
+         service.start(0);
+       }).to.throw(Error, /cannot start processing with a total of 0/));
 
     it("fails when already started", () => {
       service.start(10);
-      expect(() => service.start(10))
-        .to.throw(Error, /there is already something in progress/);
+      expect(() => {
+        service.start(10);
+      }).to.throw(Error, /there is already something in progress/);
     });
 
     it("emits a change", () => {
@@ -50,15 +51,17 @@ describe("ProcessingService", () => {
 
   describe("#increment", () => {
     it("fails when called and nothing is in progress", () =>
-       expect(() => service.increment())
-       .to.throw(Error,
-                 /increment called when there is nothing in progress/));
+       expect(() => {
+         service.increment();
+       }).to.throw(Error,
+                   /increment called when there is nothing in progress/));
 
     it("fails when incrementing beyond the total", () => {
       service.start(1);
       service.increment();
-      expect(() => service.increment())
-        .to.throw(Error, /incrementing beyond the total/);
+      expect(() => {
+        service.increment();
+      }).to.throw(Error, /incrementing beyond the total/);
     });
 
     it("emits a change", () => {
@@ -66,7 +69,7 @@ describe("ProcessingService", () => {
       service.start(total);
       // elementAt(1): we need to skip the default that is automatically emitted
       // on subscription.
-      function test(index: number): Promise<any> {
+      function test(index: number): Promise<void> {
         const p = service.state.elementAt(1).toPromise();
         service.increment();
         return expect(p).to.eventually.deep.equal({ total, count: index })
@@ -76,7 +79,7 @@ describe("ProcessingService", () => {
             }
 
             return undefined;
-          }) as Promise<any>;
+          }) as Promise<void>;
       }
 
       return test(1);

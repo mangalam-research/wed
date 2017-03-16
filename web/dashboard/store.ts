@@ -16,35 +16,41 @@
 //
 import Dexie from "dexie";
 
+import { Chunk } from "./chunk";
 import { Metadata } from "./metadata";
 import { Pack } from "./pack";
 import { Schema } from "./schema";
+import { readFile } from "./store-util";
 import { XMLFile } from "./xml-file";
 
 export type XMLFilesTable = Dexie.Table<XMLFile, number>;
 export type PackTable = Dexie.Table<Pack, number>;
 export type SchemaTable = Dexie.Table<Schema, number>;
 export type MetadataTable = Dexie.Table<Metadata, number>;
+export type ChunkTable = Dexie.Table<Chunk, string>;
 
 export class Store extends Dexie {
   xmlfiles: XMLFilesTable;
   packs: PackTable;
   schemas: SchemaTable;
   metadata: MetadataTable;
+  chunks: ChunkTable;
 
   constructor() {
     super("wed");
     this.version(1).stores({
       xmlfiles: "++id,&name",
       packs: "++id,&name",
-      schemas: "++id,&name,&sum",
-      metadata: "++id,&name,&sum",
+      schemas: "++id,&name",
+      metadata: "++id,&name",
+      chunks: "++id",
     });
 
     this.xmlfiles.mapToClass(XMLFile);
     this.packs.mapToClass(Pack);
     this.schemas.mapToClass(Schema);
     this.metadata.mapToClass(Metadata);
+    this.chunks.mapToClass(Chunk);
 
     // As a matter of convention in this application we remove keys that
     // start with __.
@@ -73,14 +79,22 @@ export class Store extends Dexie {
     }
   }
 
-  makeIndexedDBURL(table: Dexie.Table<any, any>, object: any,
+  makeIndexedDBURL(table: Dexie.Table<any, any>,
+                   object: string | number | { [name: string]: any },
                    property?: string): string {
-    const keyPath = table.schema.primKey.keyPath;
-    if (keyPath instanceof Array) {
-      throw new Error("does not support compound indexes");
+    let key: number | string;
+    if (typeof object === "object") {
+      const keyPath = table.schema.primKey.keyPath;
+      if (keyPath instanceof Array) {
+        throw new Error("does not support compound indexes");
+      }
+
+      key = object[keyPath];
+    }
+    else {
+      key = object;
     }
 
-    const key = object[keyPath];
     const keyType = typeof key;
 
     if (["number", "string"].indexOf(keyType) === -1) {
@@ -95,6 +109,17 @@ export class Store extends Dexie {
     }
 
     return url;
+  }
+
+  chunkIdToData(id: string): Promise<string> {
+    return this.chunks.get(id)
+      .then((chunk) => {
+        if (!chunk) {
+          throw new Error("missing chunk");
+        }
+
+        return readFile(chunk.file);
+      });
   }
 };
 

@@ -15,7 +15,7 @@ import { NameIdArray as SchemaInfoArray,
 import { updateFormErrors } from "./util";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "pack-details-component",
   templateUrl: "./pack-details.component.html",
 })
@@ -63,9 +63,9 @@ export class PackDetailsComponent implements OnInit {
     this.modes = this.modesService.modes;
     this.metas = this.metasService.metas;
     Promise.all(
-      [this.schemasService.nameIdArray.then(
+      [this.schemasService.getNameIdArray().then(
         (schemas) => this.schemas = schemas),
-       this.metadataService.nameIdArray.then(
+       this.metadataService.getNameIdArray().then(
          (metadata) => this.metadata = metadata)])
       .then(() => {
         this.route.params
@@ -74,7 +74,7 @@ export class PackDetailsComponent implements OnInit {
             return id ? this.files.getRecordById(id) :
               Promise.resolve(new Pack(""));
           })
-          .subscribe((record) => this.file = record);
+          .subscribe((record) => this.file = record!);
       });
   }
 
@@ -106,12 +106,23 @@ export class PackDetailsComponent implements OnInit {
     updateFormErrors(this.form, this.formErrors, this.validationMessages);
   }
 
-  onSubmit(event: Event): void {
+  onSubmit(event: Event): Promise<Pack> {
     event.stopPropagation();
     event.preventDefault();
 
-    const file = this.file;
-    this.files.updateRecord(file);
+    const file = this.file.clone();
+    return Promise.resolve()
+      .then(() => {
+        return Promise.all([
+          this.schemasService.getRecordById(+file.schema),
+          this.metadataService.getRecordById(+file.metadata),
+        ]);
+      })
+      .then(([schema, metadata]) => {
+        file.schema = schema!.chunk;
+        file.metadata = metadata!.chunk;
+        return this.files.updateRecord(file);
+      });
   }
 
   goBack(): void {

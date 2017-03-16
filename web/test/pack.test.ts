@@ -7,6 +7,7 @@ const expect = chai.expect;
 import { Pack } from "../dashboard/pack";
 
 describe("Pack", () => {
+  // tslint:disable-next-line:mocha-no-side-effect-code
   const one = new Pack("a");
 
   it("has recordType which is 'Pack'",

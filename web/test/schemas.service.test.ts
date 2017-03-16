@@ -6,15 +6,18 @@ const expect = chai.expect;
 
 import { db } from "../dashboard/store";
 
+import { ChunksService } from "../dashboard/chunks.service";
 import { Schema } from "../dashboard/schema";
 import { SchemasService } from "../dashboard/schemas.service";
 
 describe("SchemasService", () => {
+  let chunkService: ChunksService;
   let service: SchemasService;
   let file: Schema;
 
   before(() => {
-    service = new SchemasService();
+    chunkService = new ChunksService();
+    service = new SchemasService(chunkService);
     return service.makeRecord("foo", "bar")
       .then((newFile) => file = newFile)
       .then(() => service.updateRecord(file));
@@ -22,35 +25,13 @@ describe("SchemasService", () => {
 
   after(() => db.delete().then(() => db.open()));
 
-  describe("getByData", () => {
-    it("returns a record", () => {
-      return expect(service.getByData("bar")).to.eventually.deep.equal(file);
-    });
+  it("saves a record", () =>
+     service.getRecordByName("foo")
+     .then((md) => chunkService.getRecordById(md!.chunk))
+     .then((chunk) => expect(chunk!.getData()).to.eventually.equal("bar")));
 
-    it("returns undefined, when the record does not exist", () => {
-      return expect(service.getByData("none")).to.eventually.be.undefined;
-    });
-  });
-
-  describe("getOrCreateByData", () => {
-    let originalCount: number;
-
-    beforeEach(() => service.recordCount.then((count) => originalCount = count));
-
-    it("does not create a record, if the data is already there",
-       () => expect(service.getOrCreateByData("pack", "bar"))
-       .to.eventually.deep.equal(file)
-       .then(() => expect(service.recordCount)
-             .to.eventually.equal(originalCount)));
-
-    it("does creates a record, if the data is not there",
-       () => service.getOrCreateByData("pack", "none")
-       .then((record) => {
-         expect(record.name).to.equal("@@pack");
-         expect(record.id).to.not.be.undefined;
-         expect(record.data).to.equal("none");
-       })
-       .then(() => expect(service.recordCount)
-             .to.eventually.equal(originalCount + 1)));
+  describe("#getDownloadData", () => {
+    it("returns the right data", () =>
+       expect(service.getDownloadData(file)).to.eventually.equal("bar"));
   });
 });

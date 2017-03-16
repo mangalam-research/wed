@@ -6,7 +6,7 @@ import { Schema } from "./schema";
 import { SchemasService } from "./schemas.service";
 
 @Component({
-  // moduleId: module.id,
+  moduleId: module.id,
   selector: "schema-details-component",
   templateUrl: "./schema-details.component.html",
 })
@@ -20,7 +20,13 @@ export class SchemaDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.route.params
       .switchMap((params: Params) => this.files.getRecordById(+params["id"]))
-      .subscribe((record) => this.file = record);
+      .subscribe((record) => {
+        if (!record) {
+          throw new Error("record does not exist");
+        }
+
+        this.file = record;
+      });
   }
 
   goBack(): void {
