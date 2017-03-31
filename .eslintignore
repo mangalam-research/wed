@@ -3,3 +3,6 @@
 web/webpack.config.js
 # Same for this file... sigh...
 karma.conf.js
+# These are auto generated.
+web/mmwp/internal-schemas/condordance.js
+web/mmwp/internal-schemas/doc-unannotated.js

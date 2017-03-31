@@ -30,6 +30,18 @@ window.systemJSConfig = {
     "blueimp-md5": "npm:blueimp-md5",
     dexie: "npm:dexie",
     bluebird: "npm:bluebird/js/browser/bluebird.js",
+    salve: "npm:salve",
+    "salve-dom": "npm:salve-dom",
+    json: "npm:systemjs-plugin-json",
+    slug: "npm:slug",
+    bluejax: "npm:bluejax",
+    "bluejax.try": "npm:bluejax.try",
+    rangy: "npm:rangy",
+  },
+  meta: {
+    "mmwp/internal-schemas/*": {
+      loader: "json",
+    },
   },
   packages: {
     "": {

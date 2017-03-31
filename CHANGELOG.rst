@@ -7,7 +7,7 @@ odd bug fix may not get mentioned here at all.
 
 * 0.29.0:
 
-  - Wed now uses salve 4.0.2.
+  - Wed now uses salve 4.0.5.
 
   - Switched from bootstrap-growl to bootstrap-notify to provide
     notifications. The latter supports modules out of the box, and is

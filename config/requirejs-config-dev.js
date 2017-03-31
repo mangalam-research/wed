@@ -35,6 +35,7 @@ require.config({
     bluejax: "external/bluejax",
     "bluejax.try": "external/bluejax.try",
     "blueimp-md5": "external/blueimp-md5",
+    slug: "external/slug",
   },
   packages: [
     {

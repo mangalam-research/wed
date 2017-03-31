@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="doc">
+    <element name="doc">
+      <attribute name="version">
+        <value>1</value>
+      </attribute>
+      <attribute name="title"/>
+      <attribute name="genre"/>
+      <attribute name="author"/>
+      <attribute name="tradition"/>
+      <attribute name="school"/>
+      <attribute name="period"/>
+      <oneOrMore>
+        <ref name="cit"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="cit.content">
+    <oneOrMore>
+      <ref name="s"/>
+    </oneOrMore>
+  </define>
+  <define name="cit">
+    <element name="cit">
+      <attribute name="id">
+        <data type="positiveInteger"/>
+      </attribute>
+      <optional>
+        <attribute name="ref"/>
+      </optional>
+      <ref name="cit.content"/>
+    </element>
+  </define>
+  <define name="s.content">
+    <oneOrMore>
+      <choice>
+        <ref name="word"/>
+        <text/>
+      </choice>
+    </oneOrMore>
+  </define>
+  <define name="s">
+    <element name="s">
+      <attribute name="id">
+        <data type="positiveInteger"/>
+      </attribute>
+      <ref name="s.content"/>
+    </element>
+  </define>
+  <define name="word.attrs">
+    <attribute name="id">
+      <data type="positiveInteger"/>
+    </attribute>
+    <optional>
+      <attribute name="lem"/>
+    </optional>
+    <optional>
+      <attribute name="case">
+        <choice>
+          <value>nominative</value>
+          <value>accusative</value>
+          <value>instrumental</value>
+          <value>dative</value>
+          <value>ablative</value>
+          <value>genitive</value>
+          <value>locative</value>
+          <value>vocative</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="sem.type"/>
+    </optional>
+    <optional>
+      <attribute name="sem.field"/>
+    </optional>
+    <optional>
+      <attribute name="uncertainty">
+        <choice>
+          <value>na</value>
+          <value>philological</value>
+          <value>disputed</value>
+          <value>vague</value>
+          <value>other</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="conc.rel">
+        <choice>
+          <value>leading.to</value>
+          <value>caused.by</value>
+          <value>equal</value>
+          <value>possessing</value>
+          <value>belonging.to</value>
+          <value>locus.of</value>
+          <value>located.in</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="conc.head">
+        <data type="positiveInteger"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="dep.rel">
+        <choice>
+          <value>subject.agent</value>
+          <value>object.patient</value>
+          <value>modifies</value>
+          <value>modified.by</value>
+          <value>listed.with</value>
+          <value>contrasted.with</value>
+          <value>glossed.by</value>
+          <value>glossing</value>
+          <value>dep</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="dep.head">
+        <data type="positiveInteger"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="word">
+    <element name="word">
+      <ref name="word.attrs"/>
+      <text/>
+    </element>
+  </define>
+</grammar>

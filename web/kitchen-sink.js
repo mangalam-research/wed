@@ -10,8 +10,6 @@ define(function f(require) {
 
   var wed = require("wed/wed");
   var runtime = require("wed/runtime");
-  var modeMap = require("wed/mode-map").modes;
-  var metaMap = require("wed/meta-map").metas;
   var store = require("dashboard/store");
   var $ = require("jquery");
   var URI = require("urijs/URI");
@@ -193,15 +191,19 @@ define(function f(require) {
                  "/file");
             options.schema = schemaURL;
             options.mode = {
-              path: modeMap[pack.mode],
-              options: {},
+              path: pack.mode,
+              options: {
+                meta: undefined,
+              },
             };
 
-            var modeOptions = options.mode.options;
             if (pack.meta) {
+              var modeOptions = options.mode.options;
               modeOptions.meta = {
-                path: metaMap[pack.meta],
-                options: {},
+                path: pack.meta,
+                options: {
+                  metadata: undefined,
+                },
               };
 
               if (metadataURL) {

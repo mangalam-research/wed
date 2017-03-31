@@ -1,0 +1,5 @@
+default namespace = "http://mangalamresearch.org/ns/mmwp/doc"
+
+include "doc-common.rnc"
+
+start = doc

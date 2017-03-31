@@ -385,6 +385,8 @@ npmCopyTask("bluejax.try/index.js", { rename: "bluejax.try.js" });
 
 npmCopyTask("blueimp-md5/js/md5.js", { rename: "blueimp-md5.js" });
 
+npmCopyTask("slug/slug-browser.js", { rename: "slug.js" });
+
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
   const isNewer = yield newer(["lib/**", "!**/*_flymake.*"], dest);
@@ -458,7 +460,8 @@ gulp.task("generate-meta-map", Promise.coroutine(function *task() {
 function htmlTask(suffix) {
   gulp.task(`build-html${suffix}`, () => {
     const dest = `build/standalone${suffix}`;
-    return gulp.src(["web/*.html", "web/dashboard/index.html"],
+    return gulp.src(["web/*.html", "web/dashboard/index.html",
+                     "web/mmwp/index.html"],
                     { base: "web" })
       .pipe(gulpNewer(dest))
       .pipe(gulp.dest(dest));
@@ -734,9 +737,8 @@ gulp.task("tslint", () =>
           .pipe(tslint.report()));
 
 gulp.task("eslint", () =>
-          gulp.src(["**/*.js", "!build/**/*.js", "!schemas/**/*.js",
-                    "!gh-pages/**/*.js", "!coverage/**/*.js",
-                    "!node_modules/**/*.js"])
+          gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",
+                    "gulptasks/**/*.js", "misc/**/*.js", "test/**/*.js"])
           .pipe(eslint())
           .pipe(eslint.format())
           .pipe(eslint.failAfterError()));

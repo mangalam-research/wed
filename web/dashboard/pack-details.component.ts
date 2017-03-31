@@ -66,13 +66,19 @@ export class PackDetailsComponent implements OnInit {
         this.route.params
           .switchMap((params: Params) => {
             const idParam = params["id"];
-            if (idParam !== undefined) {
+            if (idParam !== "new") {
               const id = +idParam;
               return this.files.getRecordById(id);
             }
             return Promise.resolve(new Pack(""));
           })
-          .subscribe((record) => this.file = record!);
+          .subscribe((record) => {
+            this.file = record!;
+            // We need to convert the full path back to a mode name for display.
+            this.file.mode = this.modesService.pathToMode(this.file.mode);
+            // We need to convert the full path back to a meta name for display.
+            this.file.meta = this.metasService.pathToMeta(this.file.meta);
+          });
       });
   }
 
@@ -115,7 +121,8 @@ export class PackDetailsComponent implements OnInit {
       .then(() => {
         return Promise.all([
           this.schemasService.getRecordById(+file.schema),
-          file.metadata != null ? this.metadataService.getRecordById(+file.metadata) : undefined,
+          file.metadata != null ?
+            this.metadataService.getRecordById(+file.metadata) : undefined,
         ]);
       })
       .then(([schema, metadata]) => {
@@ -123,6 +130,12 @@ export class PackDetailsComponent implements OnInit {
         if (metadata !== undefined) {
           file.metadata = metadata.chunk;
         }
+
+        // We need to record the full path in the pack.
+        file.mode = this.modesService.modeToPath(file.mode);
+
+        // We need to record the full path in the pack.
+        file.meta = this.metasService.metaToPath(file.meta);
         return this.files.updateRecord(file);
       });
   }

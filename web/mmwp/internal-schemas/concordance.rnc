@@ -1,0 +1,36 @@
+start = concordance
+
+concordance = element concordance { heading, lines }
+
+heading = element heading { corpus, hits, query }
+
+corpus = element corpus { text }
+hits = element hits { text }
+query = element query { text }
+
+vard.elements = notvariant | normalised
+vard.and.text = vard.elements | text
+
+lines = element lines { line+ }
+line = element line {
+    (ref | left_context | kwic | right_context | page.number |
+     vard.and.text)*
+}
+
+ref = element ref { vard.and.text* }
+left_context = element left_context { vard.and.text* }
+kwic = element kwic { vard.and.text* }
+right_context = element right_context { vard.and.text* }
+page.number = element page.number { text }
+
+notvariant = element notvariant {
+    text,
+    attribute a_id { text }?
+}
+
+normalised = element normalised {
+    text,
+    attribute a_id { text }?,
+    attribute orig { text },
+    attribute auto { text }
+}

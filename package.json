@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "argparse": ">=1.0.3 <2",
-    "salve": ">=4.0.2 <5",
+    "salve": ">=4.0.5 <5",
     "urijs": ">=1.16.1 <2"
   },
   "devDependencies": {
@@ -121,6 +121,7 @@
     "sinon-chai": "^2.9.0",
     "slug": "^0.9.1",
     "systemjs": "^0.20.9",
+    "systemjs-plugin-json": "^0.3.0",
     "touch": ">=1.0.0 <2",
     "ts-loader": "^2.0.0",
     "tslint": "^4.4.2",
