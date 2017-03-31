@@ -3,7 +3,7 @@ import { ChunkedRecord } from "./chunked-record";
 
 export class XMLFile extends ChunkedRecord {
   saved: "never" | Date = "never";
-  pack: number | undefined = undefined;
+  pack: number | undefined;
 
   /**
    * Calling code is responsible for ensuring that ``chunk`` already exists in

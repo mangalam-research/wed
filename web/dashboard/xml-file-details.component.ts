@@ -17,8 +17,8 @@ import { XMLFilesService } from "./xml-files.service";
 export class XMLFileDetailsComponent implements OnInit {
   form?: NgForm;
   @ViewChild("form")
-  currentForm: NgForm;
-  formSub: Subscription;
+  currentForm?: NgForm;
+  formSub: Subscription | undefined;
   readonly formErrors: {[name: string]: string } = {};
   readonly validationMessages: {[name: string]: {[name: string]: string}}= {
     name: {
@@ -29,7 +29,7 @@ export class XMLFileDetailsComponent implements OnInit {
     },
   };
 
-  file: XMLFile;
+  file: XMLFile | undefined;
   packs: NameIdArray;
 
   constructor(private files: XMLFilesService,
@@ -38,12 +38,14 @@ export class XMLFileDetailsComponent implements OnInit {
               private location: Location) {}
 
   ngOnInit(): void {
+    // tslint:disable-next-line:no-floating-promises
     this.packService.getNameIdArray().then(
       (packs) => this.packs = packs).then(() =>  {
         this.route.params
-          .switchMap((params: Params) => this.files.getRecordById(+params["id"]))
+          .switchMap((params: Params) =>
+                     this.files.getRecordById(+params["id"]))
           .subscribe((record) => {
-            if (!record) {
+            if (record === undefined) {
               throw new Error("record does not exist");
             }
 
@@ -61,19 +63,21 @@ export class XMLFileDetailsComponent implements OnInit {
       return;
     }
 
-    if (this.formSub) {
+    if (this.formSub !== undefined) {
       this.formSub.unsubscribe();
     }
 
     this.form = this.currentForm;
-    if (this.form) {
+    if (this.form !== undefined) {
       this.formSub = this.form.valueChanges
-        .subscribe(() => this.onValueChanged());
+        .subscribe(() => {
+          this.onValueChanged();
+        });
     }
   }
 
   onValueChanged(): void {
-    if (!this.form) {
+    if (this.form === undefined) {
       return;
     }
 
@@ -85,6 +89,11 @@ export class XMLFileDetailsComponent implements OnInit {
     event.preventDefault();
 
     const file = this.file;
+    if (file === undefined) {
+      throw new Error("no file to update");
+    }
+
+    // tslint:disable-next-line:no-floating-promises
     this.files.updateRecord(file);
   }
 

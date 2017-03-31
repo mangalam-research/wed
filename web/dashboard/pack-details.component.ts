@@ -22,8 +22,8 @@ import { updateFormErrors } from "./util";
 export class PackDetailsComponent implements OnInit {
   form?: NgForm;
   @ViewChild("form")
-  currentForm: NgForm;
-  formSub: Subscription;
+  currentForm?: NgForm;
+  formSub: Subscription | undefined;
   readonly formErrors: {[name: string]: string } = {
     name: "",
   };
@@ -36,12 +36,6 @@ export class PackDetailsComponent implements OnInit {
     },
     schema: {
       required: "Schema is required.",
-    },
-    meta: {
-      required: "Meta is required.",
-    },
-    Metadata: {
-      required: "Metadata is required.",
     },
   };
 
@@ -62,6 +56,7 @@ export class PackDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.modes = this.modesService.modes;
     this.metas = this.metasService.metas;
+    // tslint:disable-next-line:no-floating-promises
     Promise.all(
       [this.schemasService.getNameIdArray().then(
         (schemas) => this.schemas = schemas),
@@ -70,9 +65,12 @@ export class PackDetailsComponent implements OnInit {
       .then(() => {
         this.route.params
           .switchMap((params: Params) => {
-            const id = +params["id"];
-            return id ? this.files.getRecordById(id) :
-              Promise.resolve(new Pack(""));
+            const idParam = params["id"];
+            if (idParam !== undefined) {
+              const id = +idParam;
+              return this.files.getRecordById(id);
+            }
+            return Promise.resolve(new Pack(""));
           })
           .subscribe((record) => this.file = record!);
       });
@@ -87,19 +85,21 @@ export class PackDetailsComponent implements OnInit {
       return;
     }
 
-    if (this.formSub) {
+    if (this.formSub !== undefined) {
       this.formSub.unsubscribe();
     }
 
     this.form = this.currentForm;
-    if (this.form) {
+    if (this.form !== undefined) {
       this.formSub = this.form.valueChanges
-        .subscribe(() => this.onValueChanged());
+        .subscribe(() => {
+          this.onValueChanged();
+        });
     }
   }
 
   onValueChanged(): void {
-    if (!this.form) {
+    if (this.form === undefined) {
       return;
     }
 
@@ -115,12 +115,14 @@ export class PackDetailsComponent implements OnInit {
       .then(() => {
         return Promise.all([
           this.schemasService.getRecordById(+file.schema),
-          this.metadataService.getRecordById(+file.metadata),
+          file.metadata != null ? this.metadataService.getRecordById(+file.metadata) : undefined,
         ]);
       })
       .then(([schema, metadata]) => {
         file.schema = schema!.chunk;
-        file.metadata = metadata!.chunk;
+        if (metadata !== undefined) {
+          file.metadata = metadata.chunk;
+        }
         return this.files.updateRecord(file);
       });
   }

@@ -12,7 +12,7 @@ import { SchemasComponent } from "./schemas.component";
 import { XMLFileDetailsComponent } from "./xml-file-details.component";
 import { XMLFilesComponent } from "./xml-files.component";
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: "", redirectTo: "/xml", pathMatch: "full" },
   { path: paths.XML_FILES,  component: XMLFilesComponent },
   { path: paths.XML_FILE_DETAILS, component: XMLFileDetailsComponent },
@@ -25,6 +25,7 @@ const routes: Routes = [
   { path: paths.METADATA_DETAILS, component: MetadataDetailsComponent },
   { path: paths.CONTROL, component: ControlComponent },
 ];
+//tslint:disable-next-line:no-stateless-class
 @NgModule({
   imports: [ RouterModule.forRoot(routes, {
     useHash: true,

@@ -34,7 +34,7 @@ export abstract class ChunkedRecord extends RecordCommon {
   }
 
   getData(): Promise<string> {
-    if (!this.__data) {
+    if (this.__data === undefined) {
       this.__data = db.chunkIdToData(this.chunk);
     }
 

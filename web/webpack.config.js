@@ -38,9 +38,9 @@ module.exports = {
       test: /\.tsx?$/,
       loader: ["ts-loader", "angular2-template-loader"],
     }, {
-      test: /\.html$/,
-      loader: "html-loader"
-    }],
+      test: /\.(html|css)$/,
+      loader: "raw-loader"
+    }, ],
   },
   externals: function makeExternals(context, request, callback) {
     // If the request is relative to the module it is in, we want to turn it

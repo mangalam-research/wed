@@ -5,7 +5,7 @@
  */
 "use strict";
 
-import { Component } from "@angular/core";
+import { Component, Inject, Optional } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { ConfirmService } from "./confirm.service";
@@ -15,6 +15,7 @@ import { ProcessingService } from "./processing.service";
 import { XML_FILES } from "./route-paths";
 import { XMLFile } from "./xml-file";
 import { XMLFilesService } from "./xml-files.service";
+import { XMLTransformService } from "./xml-transform.service";
 
 @Component({
   moduleId: module.id,
@@ -28,12 +29,12 @@ import { XMLFilesService } from "./xml-files.service";
 })
 export class XMLFilesComponent
 extends GenericRecordsComponent<XMLFile, XMLFilesService> {
-  // We must have the constructor here so that it can be annotated by the
-  // decorator and Angular can find its bearings.
   constructor(router: Router,
               files: XMLFilesService,
               processing: ProcessingService,
               confirmService: ConfirmService,
+              @Optional() @Inject(XMLTransformService)
+              readonly xmlTransforms: XMLTransformService[] | null,
               private readonly packsService: PacksService) {
     super(router, files, processing, confirmService, XML_FILES);
   }
@@ -51,17 +52,18 @@ extends GenericRecordsComponent<XMLFile, XMLFilesService> {
 
   edit(record: XMLFile): Promise<void> {
     return Promise.resolve().then(() => {
-      if (!record.pack) {
+      if (record.pack === undefined) {
         throw new Error("edit launched on file without a pack");
       }
 
       const base = "../kitchen-sink.html?nodemo=1&localstorage=";
       return this.packsService.getRecordById(record.pack).then((pack) => {
-        if (!pack) {
+        if (pack === undefined) {
           throw new Error(`cannot load pack: ${record.pack}`);
         }
         const here = window.location.href;
-        const url = `${base}${this.files.makeIndexedDBURL(record)}&management=${here}`;
+        const url =
+          `${base}${this.files.makeIndexedDBURL(record)}&management=${here}`;
         this.goTo(url);
       });
     });
@@ -72,13 +74,14 @@ extends GenericRecordsComponent<XMLFile, XMLFilesService> {
   }
 
   editButtonTitle(record: XMLFile): string {
-    return record.pack ? "Edit" : "This file needs a pack before editing.";
+    return record.pack !== undefined ? "Edit" :
+      "This file needs a pack before editing.";
   }
 
   newFile(): Promise<void> {
     return this.confirmService.prompt("Give a name to your new file")
       .then((name) => {
-        if (!name) {
+        if (name === "") {
           return;
         }
 
@@ -90,7 +93,7 @@ extends GenericRecordsComponent<XMLFile, XMLFilesService> {
 
             return this.files.makeRecord(name, "")
               .then((newRecord) => {
-                if (record) {
+                if (record !== null) {
                   newRecord.id = record.id;
                 }
 

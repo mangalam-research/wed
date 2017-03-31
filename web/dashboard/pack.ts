@@ -13,7 +13,7 @@ export interface PackPayload {
    * the actual serialized metadata. In the database, this field is an id that
    * refers to the chunk that contains the metadata.
    */
-  metadata: string;
+  metadata?: string;
 
   /**
    * The name of the mode.
@@ -23,18 +23,18 @@ export interface PackPayload {
   /**
    * The name of the meta object.
    */
-  meta: string;
+  meta?: string;
 }
 
 export class Pack extends RecordCommon implements PackPayload {
   public schema: string;
-  public metadata: string;
+  public metadata?: string;
   public mode: string;
-  public meta: string;
+  public meta?: string;
 
   constructor(name: string, payload?: PackPayload) {
     super(name);
-    if (payload) {
+    if (payload !== undefined) {
       this.schema =  payload.schema;
       this.metadata = payload.metadata;
       this.mode = payload.mode;

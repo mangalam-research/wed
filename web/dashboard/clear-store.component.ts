@@ -20,6 +20,7 @@ export class ClearStoreComponent {
               private readonly confirmService: ConfirmService) {}
 
   clearClicked(): void {
+    // tslint:disable-next-line:no-floating-promises
     this.clear();
   }
 

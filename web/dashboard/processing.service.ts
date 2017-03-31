@@ -56,4 +56,4 @@ export class ProcessingService {
       count: newCount,
     });
   }
-};
+}

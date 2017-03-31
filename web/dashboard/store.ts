@@ -14,7 +14,7 @@
 //
 // https://github.com/inexorabletash/indexeddb-promises
 //
-import Dexie from "dexie";
+import Dexie from "dexie"; // tslint:disable-line:import-name
 
 import { Chunk } from "./chunk";
 import { Metadata } from "./metadata";
@@ -28,6 +28,8 @@ export type PackTable = Dexie.Table<Pack, number>;
 export type SchemaTable = Dexie.Table<Schema, number>;
 export type MetadataTable = Dexie.Table<Metadata, number>;
 export type ChunkTable = Dexie.Table<Chunk, string>;
+export type AllTables = XMLFilesTable | PackTable | SchemaTable |
+  MetadataTable | ChunkTable;
 
 export class Store extends Dexie {
   xmlfiles: XMLFilesTable;
@@ -39,7 +41,7 @@ export class Store extends Dexie {
   constructor() {
     super("wed");
     this.version(1).stores({
-      xmlfiles: "++id,&name",
+      xmlfiles: "++id,&name,pack",
       packs: "++id,&name",
       schemas: "++id,&name",
       metadata: "++id,&name",
@@ -54,6 +56,7 @@ export class Store extends Dexie {
 
     // As a matter of convention in this application we remove keys that
     // start with __.
+    // tslint:disable:no-any
     function creationHook(_key: any, obj: any): void {
       for (const prop in obj) {
         if (prop.lastIndexOf("__", 0) === 0) {
@@ -72,6 +75,7 @@ export class Store extends Dexie {
       }
       return ret;
     }
+    // tslint:enable
 
     for (const table of this.tables) {
       table.hook("creating", creationHook);
@@ -79,7 +83,8 @@ export class Store extends Dexie {
     }
   }
 
-  makeIndexedDBURL(table: Dexie.Table<any, any>,
+  makeIndexedDBURL(table: AllTables,
+                   //tslint:disable-next-line:no-any
                    object: string | number | { [name: string]: any },
                    property?: string): string {
     let key: number | string;
@@ -104,7 +109,7 @@ export class Store extends Dexie {
     const dbname = this.name;
     const tname = table.name;
     let url = `indexeddb://v1/${dbname}/${tname}/${keyType}/${key}`;
-    if (property) {
+    if (property !== undefined) {
       url += `/${property}`;
     }
 
@@ -114,13 +119,13 @@ export class Store extends Dexie {
   chunkIdToData(id: string): Promise<string> {
     return this.chunks.get(id)
       .then((chunk) => {
-        if (!chunk) {
+        if (chunk === undefined) {
           throw new Error("missing chunk");
         }
 
         return readFile(chunk.file);
       });
   }
-};
+}
 
 export const db: Store = new Store();

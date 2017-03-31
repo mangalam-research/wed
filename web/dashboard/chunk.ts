@@ -1,3 +1,4 @@
+// tslint:disable-next-line:import-name no-require-imports
 import md5 = require("blueimp-md5");
 import { readFile } from "./store-util";
 
@@ -25,7 +26,7 @@ export class Chunk {
   }
 
   getData(): Promise<string> {
-    if (!this.__data) {
+    if (this.__data === undefined) {
       this.__data = readFile(this.file);
     }
 

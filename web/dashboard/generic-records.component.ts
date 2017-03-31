@@ -7,7 +7,7 @@ import { RecordCommon } from "./record-common";
 import { triggerDownload } from "./util";
 
 export abstract class GenericRecordsComponent<RecordType extends RecordCommon,
-RecordService extends DBService<any, any>> {
+RecordService extends DBService<RecordType, number>> {
   records: RecordType[];
 
   constructor(protected readonly router: Router,
@@ -17,15 +17,18 @@ RecordService extends DBService<any, any>> {
               protected readonly detailRoutePrefix: string) {}
 
   ngAfterViewInit(): void {
-    this.files.change.subscribe(() => this.refresh());
+    this.files.change.subscribe(() => {
+      this.refresh();
+    });
     this.refresh();
   }
 
   protected refresh(): void {
+    // tslint:disable-next-line:no-floating-promises
     this.files.getRecords().then((records: RecordType[]) => {
       this.records = records;
     });
-  };
+  }
 
   del(record: RecordType): Promise<void> {
     const handleResponse = (result: boolean) => {
@@ -39,7 +42,7 @@ RecordService extends DBService<any, any>> {
     return this.confirmService.confirm(
       `Do you really want to delete "${record.name}"?`)
       .then(handleResponse);
-  };
+  }
 
   /**
    * The promise returned will resolve once the download has *started*.
@@ -48,7 +51,7 @@ RecordService extends DBService<any, any>> {
     return this.files.getDownloadData(record).then((data) => {
       this.triggerDownload(record.name, data);
     });
-  };
+  }
 
   protected triggerDownload(name: string, data: string): void {
     triggerDownload(name, data);
@@ -58,7 +61,7 @@ RecordService extends DBService<any, any>> {
     return Promise.resolve().then(() => {
       const target = (event.target as HTMLInputElement);
       const filesToLoad = target.files;
-      if (!filesToLoad) {
+      if (filesToLoad == null) {
         return;
       }
 
@@ -77,9 +80,17 @@ RecordService extends DBService<any, any>> {
                         "be used for multiple files");
       }
     });
-  };
+  }
 
-  showDetails(record: RecordType): void {
+  showDetails(record: RecordType, $event?: Event): void {
+    if ($event !== undefined) {
+      const target = $event.target as Element;
+      if (!document.contains(target) || target.closest("td.buttons") !== null) {
+        return;
+      }
+    }
+
+    // tslint:disable-next-line:no-floating-promises
     this.router.navigate([this.detailRoutePrefix, record.id]);
   }
 }

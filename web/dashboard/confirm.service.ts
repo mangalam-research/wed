@@ -24,10 +24,10 @@ export class ConfirmService {
   // the default value. Sigh...
   constructor(@Optional() @Inject("Confirmer") confirmer: Confirmer,
               @Optional() @Inject("Prompter") prompter: Prompter) {
-    if (confirmer) {
+    if (confirmer != null) {
       this.confirmer = confirmer;
     }
-    if (prompter) {
+    if (prompter != null) {
       this.prompter = prompter;
     }
   }

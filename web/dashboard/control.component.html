@@ -1,5 +1,23 @@
-<div class="form">
-  <label for="load-file">Upload:</label> <input type="file" class="form-control" name="load-file" (change)="change($event)"/>
-  <button class="btn btn-default" (click)="download()">Download All</button>
-  <button class="btn btn-default" (click)="clear()">Clear All</button>
+<div>
+  <div class="well well-default">
+    <p>
+      This control panel allows you to perform maintenance operations pertaining
+      to the whole database.
+    </p>
+  </div>
+  <div class="form">
+    <label for="load-file">Upload a backup:</label> <input type="file" class="form-control" name="load-file" (change)="change($event)"/>
+    <p>
+      Note that uploading a backup will wipe the data currently in your
+      database.
+    </p>
+    <hr>
+    <button class="btn btn-default download-button" (click)="download()">Download a Backup</button>
+    <hr>
+    <button class="btn btn-default clear-button" (click)="clear()">Clear the Database</button>
+    <p>
+      Clearing the database removes all data that is currently in the database
+      and is not reversible.
+    </p>
+  </div>
 </div>

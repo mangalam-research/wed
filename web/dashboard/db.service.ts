@@ -6,7 +6,7 @@
  */
 "use strict";
 
-import Dexie from "dexie";
+import Dexie from "dexie"; // tslint:disable-line:import-name
 import { Subject } from "rxjs";
 
 import { readFile } from "./store-util";
@@ -14,12 +14,13 @@ import { readFile } from "./store-util";
 export interface IValue<Key> {
   id?: Key;
   name: string;
-};
+}
 
-export interface Loader {
-  loadFromFile(file: File, record?: any | null): Promise<any>;
+export interface Loader<Value> {
+  loadFromFile(file: File, record?: Value | null): Promise<Value>;
   safeLoadFromFile(file: File,
-                   confirmerOrIntoRecord?: any): Promise<any | undefined>;
+                   confirmerOrIntoRecord?: Confirmer | Value):
+  Promise<Value | undefined>;
 }
 
 export interface Clearable {
@@ -29,10 +30,10 @@ export interface Clearable {
 type Confirmer = (message: string) => Promise<boolean>;
 export type WriteCheckResult<Value> = {write: boolean, record: Value | null};
 
-export type NameIdArray<Key> = Array<{name: string, id: Key}>;
+export type NameIdArray<Key> = {name: string, id: Key}[];
 
-export abstract class DBService<Value extends IValue<Key>, Key> implements
-Loader, Clearable {
+export abstract class DBService<Value extends IValue<Key>,
+Key extends string | number> implements Loader<Value>, Clearable {
   private readonly boundModified: <R>(arg: R) => R;
   public readonly change: Subject<void> = new Subject<void>();
 
@@ -49,7 +50,7 @@ Loader, Clearable {
     return this.table.toArray();
   };
 
-  deleteRecord(record: Value): Promise<any> {
+  deleteRecord(record: Value): Promise<void> {
     return Promise.resolve().then(() => {
       if (record.id === undefined) {
         throw new Error("missing id!");
@@ -65,7 +66,7 @@ Loader, Clearable {
 
   updateRecord(record: Value): Promise<Value> {
     return this.table.put(record).then((key) => {
-      if (!record.id) {
+      if (record.id == null) {
         record.id = key;
       }
 
@@ -86,7 +87,7 @@ Loader, Clearable {
     return readFile(file)
       .then((data) => this.makeRecord(file.name, data))
       .then((newRecord) => {
-        if (record) {
+        if (record != null) {
           newRecord.id = record.id;
           newRecord.name = record.name;
         }
@@ -101,7 +102,7 @@ Loader, Clearable {
     return this.getRecordByName(name)
       .then((record):
             Promise<WriteCheckResult<Value>> | WriteCheckResult<Value> => {
-        if (!record) {
+        if (record == null) {
           return {write: true, record: null};
         }
 
@@ -121,7 +122,7 @@ Loader, Clearable {
       intoRecord = confirmerOrIntoRecord;
     }
 
-    if (intoRecord) {
+    if (intoRecord != null) {
       return this.loadFromFile(file, intoRecord);
     }
     else {

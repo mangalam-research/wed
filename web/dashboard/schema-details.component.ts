@@ -21,7 +21,7 @@ export class SchemaDetailsComponent implements OnInit {
     this.route.params
       .switchMap((params: Params) => this.files.getRecordById(+params["id"]))
       .subscribe((record) => {
-        if (!record) {
+        if (record === undefined) {
           throw new Error("record does not exist");
         }
 

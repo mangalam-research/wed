@@ -13,7 +13,7 @@ import { readFile } from "./store-util";
 // The default behavior for bootbox.confirm is to make the default button be the
 // one that says "yes".
 export function safeConfirm(message: string): Promise<boolean> {
-  return new Promise((resolve) => {
+  return new Promise((resolve) => { // tslint:disable-line:promise-must-complete
     bootbox.confirm({
       message,
       buttons: {
@@ -33,13 +33,14 @@ export function safeConfirm(message: string): Promise<boolean> {
 
 export function triggerDownload(name: string, data: string): void {
   const file = new window.Blob([data], { type: "text/xml" });
+  // tslint:disable-next-line:strict-boolean-expressions no-any
   const URL = (window as any).webkitURL || window.URL;
   const downloadUrl = URL.createObjectURL(file);
 
   // We need this for IE 10, 11. For lesser versions of IE we'll fall into
   // the other branch that won't work but we don't support those old
   // browsers anyway.
-  if (window.navigator.msSaveBlob) {
+  if (window.navigator.msSaveBlob !== undefined) {
     window.navigator.msSaveBlob(file, name);
   }
   else {
@@ -89,7 +90,7 @@ export function updateFormErrors(ngForm: NgForm,
     formErrors[field] = "";
     const control = form.get(field);
 
-    if (control && control.dirty && !control.valid) {
+    if (control != null && control.dirty && !control.valid) {
       const messages = validationMessages[field];
       for (const key in control.errors) {
         formErrors[field] += messages[key] + " ";
@@ -98,3 +99,28 @@ export function updateFormErrors(ngForm: NgForm,
   }
   /* tslint:enable:forin */
 }
+
+/**
+ * This is required to work around a problem when extending built-in classes
+ * like ``Error``. Some of the constructors for these classes return a value
+ * from the constructor, which is then picked up by the constructors generated
+ * by TypeScript (same with ES6 code transpiled through Babel), and this messes
+ * up the inheritance chain.
+ *
+ * See https://github.com/Microsoft/TypeScript/issues/12123.
+ */
+// tslint:disable:ban-types no-any
+export function fixPrototype(obj: any, parent: Function): void {
+  const oldProto: Function = Object.getPrototypeOf !== undefined ?
+    Object.getPrototypeOf(obj) : (obj as any).__proto__;
+
+  if (oldProto !== parent) {
+    if (Object.setPrototypeOf !== undefined) {
+      Object.setPrototypeOf(obj, parent.prototype);
+    }
+    else {
+      (obj as any).__proto__ = parent.prototype;
+    }
+  }
+}
+// tslint:enable:ban-types no-any

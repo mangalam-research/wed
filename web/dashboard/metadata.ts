@@ -2,12 +2,14 @@ import { Chunk } from "./chunk";
 import { ChunkedRecord } from "./chunked-record";
 
 export type PrefixNamespacePair = { prefix: string, uri: string };
+//tslint:disable-next-line:no-any
+export type ParsedData = any;
 
 export class Metadata extends ChunkedRecord {
   // Double underscore is a local convention that tells store.ts to not
   // store the field.
   // tslint:disable:variable-name
-  private __parsed: Promise<any> | undefined;
+  private __parsed: Promise<ParsedData> | undefined;
   private __generator: Promise<string> | undefined;
   private __creationDate: Promise<string> | undefined;
   private __version: Promise<string> | undefined;
@@ -49,8 +51,8 @@ export class Metadata extends ChunkedRecord {
       .get!.call(this);
   }
 
-  private getParsed(): Promise<any> {
-    if (!this.__parsed) {
+  private getParsed(): Promise<ParsedData> {
+    if (this.__parsed === undefined) {
       this.__parsed = this.getData().then((data) => JSON.parse(data));
     }
 
@@ -58,21 +60,21 @@ export class Metadata extends ChunkedRecord {
   }
 
   getGenerator(): Promise<string> {
-    if (!this.__generator) {
+    if (this.__generator === undefined) {
       this.__generator = this.getParsed().then((parsed) => parsed.generator);
     }
     return this.__generator;
   }
 
   getCreationDate(): Promise<string> {
-    if (!this.__creationDate) {
+    if (this.__creationDate === undefined) {
       this.__creationDate =  this.getParsed().then((parsed) => parsed.date);
     }
     return this.__creationDate;
   }
 
   getVersion(): Promise<string> {
-    if (!this.__version) {
+    if (this.__version === undefined) {
       this.__version = this.getParsed().then((parsed) => parsed.version);
     }
 
@@ -80,14 +82,14 @@ export class Metadata extends ChunkedRecord {
   }
 
   getNamespaces(): Promise<Record<string, string>> {
-    if (!this.__namespaces) {
+    if (this.__namespaces === undefined) {
       this.__namespaces = this.getParsed().then((parsed) => parsed.namespaces);
     }
     return this.__namespaces;
   }
 
   getPrefixNamespacePairs(): Promise<PrefixNamespacePair[]> {
-    if (!this.__prefixNamespacePairs) {
+    if (this.__prefixNamespacePairs === undefined) {
       this.__prefixNamespacePairs = this.getNamespaces()
         .then((namespaces) =>
               Object.keys(namespaces).map(

@@ -26,6 +26,7 @@ import { XMLFileDetailsComponent } from "./xml-file-details.component";
 import { XMLFilesComponent } from "./xml-files.component";
 import { XMLFilesService } from "./xml-files.service";
 
+//tslint:disable-next-line:no-stateless-class
 @NgModule({
   imports: [
     BrowserModule,

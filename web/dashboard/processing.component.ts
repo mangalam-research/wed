@@ -27,7 +27,7 @@ export class ProcessingComponent {
       }
       else {
         const percent = count / total * 100;
-        this.progress.style.width = "" + percent + "%";
+        this.progress.style.width = `${percent}%`;
         this.$modal.modal("show");
       }
     });

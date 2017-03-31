@@ -27,7 +27,7 @@
     </div>
 
     <label for="meta">Meta: </label>
-    <select name="meta" class="form-control" [(ngModel)]="file.meta" required>
+    <select name="meta" class="form-control" [(ngModel)]="file.meta">
       <option *ngFor="let meta of metas" [value]="meta">{{meta}}</option>
     </select>
     <div *ngIf="formErrors.meta" class="alert alert-danger">
@@ -35,8 +35,7 @@
     </div>
 
     <label for="metadata">Metadata: </label>
-    <select name="metadata" class="form-control" [(ngModel)]="file.metadata"
-            required>
+    <select name="metadata" class="form-control" [(ngModel)]="file.metadata">
       <option *ngFor="let m of metadata" [value]="m.id">{{m.name}}</option>
     </select>
     <div *ngIf="formErrors.metadata" class="alert alert-danger">

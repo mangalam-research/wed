@@ -1,4 +1,10 @@
 <div>
+  <div class="well well-default">
+    <p>
+      This is where you can upload schemas into the database. Unless you design
+      packs, you do not need to upload schemas.
+    </p>
+  </div>
   <table class="table">
     <tbody>
       <tr>
@@ -7,24 +13,22 @@
         <th>Uploaded</th>
         <th>Downloaded</th>
       </tr>
-      <tr *ngFor="let record of records; let $last = last; trackBy: record?.name" [class.last]="$last" [attr.data-record-name]="record.name" (click)="showDetails(record)">
-        <td>
-          <a class="btn btn-default delete-button"
-             (click)="del(record); $event.stopPropagation()"
-             href="#"
-             title="Delete"><i class="fa fa-times"></i></a>
-          <a class="btn btn-default download-button"
-             (click)="download(record); $event.stopPropagation()"
-             href="#" title="Download"><i class="fa fa-download"></i></a>
+      <tr *ngFor="let record of records; let $last = last; trackBy: record?.name" [class.last]="$last" [attr.data-record-name]="record.name" (click)="showDetails(record, $event)">
+        <td class="buttons">
+          <button class="btn btn-default delete-button"
+                  (click)="del(record)"
+                  title="Delete"><i class="fa fa-times"></i></button>
+          <button class="btn btn-default download-button"
+                  (click)="download(record)"
+                  title="Download"><i class="fa fa-download"></i></button>
           <div class="btn-group">
-            <a class="btn btn-default dropdown-toggle"
-               data-toggle="dropdown"
-               aria-haspopup="true"
-               aria-expanded="false"
-               href="#"
-               title="Upload">
+            <button class="btn btn-default dropdown-toggle"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    title="Upload">
               <i class="fa fa-upload"></i> <span class="caret"></span>
-            </a>
+            </button>
             <ul class="dropdown-menu">
               <li>
                 <input type="file" (change)="upload(record, $event)"
@@ -44,7 +48,6 @@
   </table>
   <div class="form-inline">
     <upload-component></upload-component>
-    <button class="form-control" name="new-file" (click)="newFile()">New File</button>
     <clear-store-component></clear-store-component>
   </div>
 </div>
