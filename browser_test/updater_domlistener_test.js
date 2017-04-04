@@ -16,7 +16,7 @@ define(function f(require) {
   "use strict";
   var domlistener = require("wed/updater_domlistener");
   var generic = require("./domlistener_generic_test");
-  var tree_updater = require("wed/tree_updater");
+  var tree_updater = require("wed/tree-updater");
 
   generic(domlistener, "updater_domlistener", tree_updater.TreeUpdater);
 });

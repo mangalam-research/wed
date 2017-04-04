@@ -276,6 +276,42 @@ describe("dloc", function dlocBlock() {
     });
   });
 
+  describe("mustMakeDLoc", function makeDLoc() {
+    it("throws when called with undefined location", function test() {
+      assert.throws(dloc.DLoc.mustMakeDLoc.bind(undefined, root, undefined),
+                    window.Error,
+                    /^called mustMakeDLoc with an absent node$/);
+    });
+
+    it("returns a valid DLoc", function test() {
+      var a = defined($(".p")[0]);
+      var loc = dloc.DLoc.mustMakeDLoc(root, a, 0);
+      assert.equal(loc.node, a);
+      assert.equal(loc.offset, 0);
+      assert.equal(loc.root, root);
+      assert.isTrue(loc.isValid());
+    });
+
+    it("returns a valid DLoc when called with an array", function test() {
+      var a = defined($(".p")[0]);
+      var loc = dloc.DLoc.mustMakeDLoc(root, new window.Array(a, 0));
+      assert.equal(loc.node, a);
+      assert.equal(loc.offset, 0);
+      assert.equal(loc.root, root);
+      assert.isTrue(loc.isValid());
+    });
+
+    it("throws when called with an array that has an undefined first member",
+       function test() {
+         assert.throws(dloc.DLoc.mustMakeDLoc.bind(
+           undefined,
+           root,
+           new window.Array(undefined, 0)),
+                       window.Error,
+                      /^called mustMakeDLoc with an absent node$/);
+       });
+  });
+
   describe("DLoc", function DLoc() {
     describe("clone", function clone() {
       it("clones", function test() {

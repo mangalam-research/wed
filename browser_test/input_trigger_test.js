@@ -9,7 +9,7 @@ define(function f(require) {
   var input_trigger = require("wed/input_trigger");
   var wed = require("wed/wed");
   var key = require("wed/key");
-  var key_constants = require("wed/key_constants");
+  var key_constants = require("wed/key-constants");
   var input_trigger_factory = require("wed/input_trigger_factory");
   var salve = require("salve");
   var global = require("browser_test/global");

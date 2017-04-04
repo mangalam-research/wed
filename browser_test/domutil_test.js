@@ -72,7 +72,7 @@ define(function f(require) {
           domroot.appendChild(data);
           caret = [data.firstChild, 2];
         });
-        testPair([data, 0], [data.firstChild, 3]);
+        testPair([data, 0], [data.firstChild, 3], domroot);
       });
 
       describe("move into child from text", function moveInto() {
@@ -86,7 +86,7 @@ define(function f(require) {
           caret[1] = caret[0].nodeValue.length;
         });
         testPair([data.lastElementChild, 0],
-                 [data.lastElementChild.firstChild, 0]);
+                 [data.lastElementChild.firstChild, 0], domroot);
       });
 
       describe("move to parent", function moveToParent() {
@@ -100,7 +100,7 @@ define(function f(require) {
           caret[1] = caret[0].nodeValue.length;
         });
         // This position is between the two b elements.
-        testPair([data, 2]);
+        testPair([data, 2], undefined, domroot);
       });
 
       describe("enter empty elements", function enterEmpty() {
@@ -112,7 +112,7 @@ define(function f(require) {
           // Just after the first <i>.
           caret = [data, 1];
         });
-        testPair([data.getElementsByTagName("i")[1], 0]);
+        testPair([data.getElementsByTagName("i")[1], 0], undefined, domroot);
       });
 
       describe("white-space: normal", function whiteSpaceNormal() {
@@ -126,7 +126,7 @@ define(function f(require) {
           caret = [data.firstElementChild.firstChild, 4];
         });
         // Ends between the two s elements.
-        testPair([data, 1]);
+        testPair([data, 1], undefined, domroot);
       });
 
       describe("white-space: normal, not at end of parent node",
@@ -143,7 +143,7 @@ define(function f(require) {
                    caret = [data.firstChild, 4];
                  });
                  // Ends after the space
-                 testPair([data, 0], [data.firstChild, 5]);
+                 testPair([data, 0], [data.firstChild, 5], domroot);
                });
 
       describe("white-space: pre", function whiteSpacePre() {
@@ -160,7 +160,7 @@ define(function f(require) {
           caret = [s.firstChild, 4];
         });
 
-        testPair([s, 0], [s.firstChild, 5]);
+        testPair([s, 0], [s.firstChild, 5], domroot);
       });
 
       describe("does not move out of text container", function notMoveText() {
@@ -189,7 +189,7 @@ define(function f(require) {
         before(function before() {
           caret = [document.body.parentNode, 30000];
         });
-        testPair(null, null);
+        testPair(null, null, document);
       });
     });
 
@@ -242,7 +242,7 @@ define(function f(require) {
           domroot.appendChild(data);
           caret = [data.firstChild, 2];
         });
-        testPair([data, 0], [data.firstChild, 1]);
+        testPair([data, 0], [data.firstChild, 1], domroot);
       });
 
       describe("move into child", function moveInto() {
@@ -255,7 +255,7 @@ define(function f(require) {
           caret = [data.lastChild, 0];
         });
         testPair([data.lastElementChild, 0],
-                 [data.lastElementChild.firstChild, 4]);
+                 [data.lastElementChild.firstChild, 4], domroot);
       });
 
       describe("move to parent", function moveToParent() {
@@ -267,7 +267,7 @@ define(function f(require) {
           // This puts the caret at the start of the text node in <b>
           caret = [data.lastElementChild.firstChild, 0];
         });
-        testPair([data, 1]);
+        testPair([data, 1], undefined, domroot);
       });
 
       describe("enter empty elements", function enterEmpty() {
@@ -279,7 +279,7 @@ define(function f(require) {
           // This puts the caret after the 2nd <i>.
           caret = [data, 2];
         });
-        testPair([data.getElementsByTagName("i")[1], 0]);
+        testPair([data.getElementsByTagName("i")[1], 0], undefined, domroot);
       });
 
       describe("white-space: normal", function whiteSpaceNormal() {
@@ -292,7 +292,7 @@ define(function f(require) {
           // Place the caret just after the whitespace in the 2nd <s> node.
           caret = [data.lastElementChild.firstChild, 3];
         });
-        testPair([data, 1]);
+        testPair([data, 1], undefined, domroot);
       });
 
       describe("white-space: normal, not at start of parent node",
@@ -307,7 +307,7 @@ define(function f(require) {
                    // Place the caret just after the whitespace in the top node
                    caret = [data.childNodes[1], 3];
                  });
-                 testPair([data, 1], [data.childNodes[1], 2]);
+                 testPair([data, 1], [data.childNodes[1], 2], domroot);
                });
 
 
@@ -323,7 +323,7 @@ define(function f(require) {
           // in the 2nd <s> node.
           caret = [s.firstChild, 3];
         });
-        testPair([s, 0], [s.firstChild, 2]);
+        testPair([s, 0], [s.firstChild, 2], domroot);
       });
 
       describe("does not move out of text container", function notMoveText() {
@@ -350,9 +350,9 @@ define(function f(require) {
 
       describe("can't find a node", function noNode() {
         beforeEach(function beforeEach() {
-          caret = [document.body.parentNode, 0];
+          caret = [document.body.parentNode.parentNode, 0];
         });
-        testPair(null, null);
+        testPair(null, null, document);
       });
     });
 
@@ -685,8 +685,8 @@ define(function f(require) {
         assert.isNull(domutil.firstDescendantOrSelf(null));
       });
 
-      it("returns undefined when passed undefined", function test() {
-        assert.isUndefined(domutil.firstDescendantOrSelf(undefined));
+      it("returns null when passed undefined", function test() {
+        assert.isNull(domutil.firstDescendantOrSelf(undefined));
       });
 
       it("returns the node when it has no descendants", function test() {
@@ -702,6 +702,41 @@ define(function f(require) {
         assert.isDefined(node); // make sure we got something
         assert.equal(domutil.firstDescendantOrSelf(node),
                      root.getElementsByTagName("title")[0].firstChild);
+      });
+    });
+
+    describe("lastDescendantOrSelf", function lastDescendantOrSelf() {
+      var source = "test-files/domutil_test_data/source_converted.xml";
+      var parser = new window.DOMParser();
+      var root;
+      before(function before(done) {
+        require(["text!" + source], function loaded(data) {
+          root = parser.parseFromString(data, "application/xml");
+          done();
+        });
+      });
+
+      it("returns null when passed null", function test() {
+        assert.isNull(domutil.lastDescendantOrSelf(null));
+      });
+
+      it("returns null when passed undefined", function test() {
+        assert.isNull(domutil.lastDescendantOrSelf(undefined));
+      });
+
+      it("returns the node when it has no descendants", function test() {
+        var node = root.getElementsByTagName("title")[0].firstChild;
+        assert.isNotNull(node); // make sure we got something
+        assert.isDefined(node); // make sure we got something
+        assert.equal(domutil.lastDescendantOrSelf(node), node);
+      });
+
+      it("returns the last descendant", function test() {
+        var node = root;
+        assert.isNotNull(node); // make sure we got something
+        assert.isDefined(node); // make sure we got something
+        assert.equal(domutil.lastDescendantOrSelf(node),
+                     root.getElementsByTagName("p")[5].lastChild);
       });
     });
 
@@ -727,7 +762,7 @@ define(function f(require) {
         var clone = root.cloneNode(true);
         assert.throws(
           domutil.correspondingNode.bind(domutil, root, clone, document.body),
-          Error, "node_in_a is not tree_a or a child of tree_a");
+          Error, "nodeInA is not treeA or a child of treeA");
       });
     });
 

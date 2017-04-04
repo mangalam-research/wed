@@ -102,11 +102,82 @@ odd bug fix may not get mentioned here at all.
     specifics)`` and pass the result to ``Editor.init``. It would
     replicate what wed did internally.
 
+  - Potentially Breaking API change: ``domutil.linkTrees`` and
+    ``domutil.unlinkTree`` no longer accept arguments that are not Elements. The
+    operations don't make sense for non-Elements. (This is "potentially
+    breaking" because in most cases this should be used only by wed internally.)
+
+  - Breaking API change: the ``domutil.nextCaretPosition`` and
+    ``domutil.prevCaretPosition`` functions now have their arguments all
+    mandatory. Wed itself never called them without all arguments, and
+    maintaining the versions with optional arguments was not straightforward,
+    actually. It makes good sense to always require a container. And the default
+    of ``noText`` being ``true`` was rather arbitrary.
+
+  - Breaking API change: ``TreeUpdater`` and derived classes (like
+    ``GUIUpdater``) now use the Rxjs observer system to emit events rather than
+    using the local homegrown mixin. So you have to subscribe to ``events``
+    rather than use ``addEventListener``, etc.
+
+  - Breaking API change: the class ``ModeValidator`` is gone and replaced with
+    an interface in ``wed/validator``.
+
+  - Breaking API change: the ``getValidator`` method of ``Mode`` now returns
+    ``undefined`` when there is no validator to be gotten.
+
+  - Breaking API change: ``mode.Mode`` is now ``mode.BaseMode``.
+
+  - Breaking API change: ``BaseMode``'s (formerly ``Mode``) ``init`` method must
+    return a promise that resolves when the mode is ready. Same with the
+    ``Meta`` objects used by the generic mode: they now have an ``init`` method
+    that must return a promise that resolves when the object is ready to be
+    used.
+
+    Concomitant with this change, the ``pubsub`` module has been removed and wed
+    no longer uses PubsubJS.
+
+  - Fix: the ``domutil.makePlaceholder`` function used to treat its argument as
+    HTML, it now treats it as text.
+
+  - Fix: ``Action`` and ``Transformation`` are no longer implementing
+    ``SimpleEventEmitter``. This was actually a leftover from a very early
+    experiment, and none of the functionalities of ``SimpleEventEmitter`` were
+    ever used on ``Action`` and ``Transformation`` objects.
+
   - The ``ignore_module_config`` option is no longer useful, due to
     the preceding change.
 
   - The ``.xsl`` files have been moved out of the JavaScript codebase
     and into the ``misc`` directory.
+
+  + Variable name changes:
+
+    - ``Action`` class:
+
+       * To camelCase: ``needs_input``, ``_abbreviated_desc``, ``bound_handler``,
+         ``bound_terminal_handler``.
+
+       * Loss of underscore: ``_editor``, ``_desc``, ``_abbreviated_desc``,
+         ``_icon``.
+
+    - ``Transform`` class:
+
+        * To camelCase: ``needs_input``, ``node_type``, ``abbreviated_desc``,
+          ``icon_html``.
+
+        * ``type`` was renamed to ``transformationType`` to avoid the keyword.
+
+    - ``TreeUpdater`` class (and derived classes like ``GUIUpdater``):
+
+        * To camelCase, event fields ``old_value``, ``former_parent``,
+          ``new_value``.
+
+    - ``BaseMode`` (formerly known as ``Mode``):
+
+        * To camelCase: ``_wed_options``.
+
+        * Loss of leading underscore: ``_editor``, ``_options``,
+          ``_wed_options``.
 
 * 0.28.0:
 

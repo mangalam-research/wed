@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "rootDirs": [
+      "."
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "rangy": ["../types/rangy"],
+      "merge-options": ["../types/merge-options"],
+      "interact": ["interact.js"]
+    },
+    "declaration": true,
+    "module": "amd",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "skipDefaultLibCheck": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "outDir": "build/standalone/lib",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "target": "es5",
+    "lib": ["dom", "es2015"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.d.ts"
+  ]
+}

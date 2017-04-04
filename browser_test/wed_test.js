@@ -11,7 +11,7 @@ define(function f(require) {
   var wed = require("wed/wed");
   var domutil = require("wed/domutil");
   var rangy = require("rangy");
-  var key_constants = require("wed/key_constants");
+  var key_constants = require("wed/key-constants");
   var onerror = require("wed/onerror");
   var log = require("wed/log");
   var key = require("wed/key");

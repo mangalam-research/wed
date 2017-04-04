@@ -20,8 +20,10 @@ import replace from "gulp-replace";
 import versync from "versync";
 import webpack from "webpack";
 import { ArgumentParser } from "argparse";
-import tslint from "gulp-tslint";
-import ts from "gulp-typescript";
+import gulpTslint from "gulp-tslint";
+import * as tslint from "tslint";
+import gulpTs from "gulp-typescript";
+import * as ts from "typescript";
 import sourcemaps from "gulp-sourcemaps";
 import webWebpackConfig from "../web/webpack.config";
 import * as config from "./config";
@@ -96,12 +98,53 @@ if (options.optimize) {
 }
 gulp.task("build", buildDeps);
 
-gulp.task("build-only-standalone", () => {
+gulp.task("build-only-standalone", ["copy-wed-source", "tsc-wed"]);
+
+gulp.task("copy-wed-source", () => {
   const dest = "build/standalone/";
-  return gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/*.less"], { base: "." })
+  return gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/flycheck*",
+                   "!**/*.{less,ts}"], { base: "." })
     .pipe(gulpNewer(dest))
     .pipe(gulp.dest(dest));
 });
+
+const moduleFix = /^(define\(\["require", "exports")(.*?\], function \(require, exports)(.*)$/m;
+function tsc(project) {
+  // The .once nonsense is to work around a gulp-typescript bug
+  //
+  // See: https://github.com/ivogabe/gulp-typescript/issues/295
+  //
+  // For the fix see:
+  // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-197299175
+  //
+  const result = project.src()
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(project())
+        .once("error", function onError() {
+          this.once("finish", () => {
+            process.exit(1);
+          });
+        });
+
+  const dest = "build/standalone/lib";
+  return es.merge(result.js
+                  //
+                  // This ``replace`` to work around the problem that ``module``
+                  // is not defined when compiling to "amd". See:
+                  //
+                  // https://github.com/Microsoft/TypeScript/issues/13591
+                  //
+                  // We need to compile to "amd" for now.
+                  //
+                  .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
+                  .pipe(sourcemaps.write("."))
+                  .pipe(gulp.dest(dest)),
+                  result.dts.pipe(gulp.dest(dest)));
+}
+
+const wedProject = gulpTs.createProject("lib/tsconfig.json");
+const wedProgram = tslint.Linter.createProgram("lib/tsconfig.json");
+gulp.task("tsc-wed", () => tsc(wedProject));
 
 gulp.task("build-standalone-optimized-web", (callback) => {
   webpack(webWebpackConfig, (err, stats) => {
@@ -121,40 +164,10 @@ gulp.task("build-standalone-optimized-web", (callback) => {
   });
 });
 
-const webProject = ts.createProject("web/tsconfig.json");
-const moduleFix = /^(define\(\["require", "exports")(.*?\], function \(require, exports)(.*)$/m;
-gulp.task("tsc-web", () => {
-  // The .once nonsense is to work around a gulp-typescript bug
-  //
-  // See: https://github.com/ivogabe/gulp-typescript/issues/295
-  //
-  // For the fix see:
-  // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-197299175
-  //
-  const result = webProject.src()
-          .pipe(sourcemaps.init({ loadMaps: true }))
-          .pipe(webProject())
-          .once("error", function onError() {
-            this.once("finish", () => {
-              process.exit(1);
-            });
-          });
-
-  const dest = "build/standalone/lib";
-  return es.merge(result.js
-                  //
-                  // This ``replace`` to work around the problem that ``module``
-                  // is not defined when compiling to "amd". See:
-                  //
-                  // https://github.com/Microsoft/TypeScript/issues/13591
-                  //
-                  // We need to compile to "amd" for now.
-                  //
-                  .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
-                  .pipe(sourcemaps.write("."))
-                  .pipe(gulp.dest(dest)),
-                  result.dts.pipe(gulp.dest(dest)));
-});
+const webProject = gulpTs.createProject("web/tsconfig.json");
+const webProgram = tslint.Linter.createProgram("web/tsconfig.json");
+const webTestProgram = tslint.Linter.createProgram("web/test/tsconfig.json");
+gulp.task("tsc-web", () => tsc(webProject));
 
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
@@ -729,12 +742,26 @@ gulp.task("build-test-files", ["copy-test-files",
                                "convert-html-test-files",
                                "convert-xml-test-files"]);
 
-gulp.task("tslint", () =>
-          gulp.src(["lib/**/*.ts", "web/**/*.ts"])
-          .pipe(tslint({
-            formatter: "verbose",
-          }))
-          .pipe(tslint.report()));
+function runTslint(program) {
+  const files = tslint.Linter.getFileNames(program);
+  ts.getPreEmitDiagnostics(program);
+  return gulp.src(files)
+    .pipe(gulpTslint({
+      formatter: "verbose",
+      program,
+    }))
+    .pipe(gulpTslint.report({
+      summarizeFailureOutput: true,
+    }));
+}
+
+gulp.task("tslint", ["tslint-wed", "tslint-web", "tslint-web-test"]);
+
+gulp.task("tslint-wed", () => runTslint(wedProgram));
+
+gulp.task("tslint-web", () => runTslint(webProgram));
+
+gulp.task("tslint-web-test", () => runTslint(webTestProgram));
 
 gulp.task("eslint", () =>
           gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",

@@ -128,10 +128,10 @@ describe("guiroot", function guirootBlock() {
 
       it("fails on invalid node", function test() {
         assert.throws(root_obj.nodeToPath.bind(root_obj, null),
-                      window.Error, "invalid node parameter");
+                      window.Error, "node is not a descendant of root");
 
         assert.throws(root_obj.nodeToPath.bind(root_obj, undefined),
-                      window.Error, "invalid node parameter");
+                      window.Error, "node is not a descendant of root");
       });
     });
 
