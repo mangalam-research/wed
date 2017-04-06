@@ -123,7 +123,7 @@
     "sinon": "https://registry.npmjs.org/sinon/-/sinon-1.17.5.tgz",
     "sinon-chai": "^2.9.0",
     "slug": "^0.9.1",
-    "systemjs": "^0.20.9",
+    "systemjs": "^0.20.12",
     "systemjs-plugin-json": "^0.3.0",
     "touch": ">=1.0.0 <2",
     "ts-loader": "^2.0.0",
