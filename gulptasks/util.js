@@ -1,26 +1,28 @@
-import gulp from "gulp";
-import gulpNewer from "gulp-newer";
-import childProcess from "child_process";
-import Promise from "bluebird";
-import gutil from "gulp-util";
-import _fs from "fs-extra";
-import _del from "del";
-import touch from "touch";
-import path from "path";
-import { internals } from "./config";
+const gulp = require("gulp");
+const gulpNewer = require("gulp-newer");
+const childProcess = require("child_process");
+const Promise = require("bluebird");
+const gutil = require("gulp-util");
+const _fs = require("fs-extra");
+const _del = require("del");
+const touch = require("touch");
+const path = require("path");
+const { internals } = require("./config");
 
-export const fs = Promise.promisifyAll(_fs);
+const fs = Promise.promisifyAll(_fs);
+exports.fs = fs;
 
-export const touchAsync = Promise.promisify(touch);
-export const mkdirpAsync = fs.ensureDirAsync;
-export const del = _del;
-export const copy = fs.copyAsync;
+exports.touchAsync = Promise.promisify(touch);
+exports.mkdirpAsync = fs.ensureDirAsync;
+exports.del = _del;
 
-export function cprp(src, dest) {
+const copy = exports.copy = fs.copyAsync;
+
+const cprp = exports.cprp = function cprp(src, dest) {
   return copy(src, dest, { clobber: true, preserveTimestamps: true });
-}
+};
 
-export function cprpdir(src, dest) {
+exports.cprpdir = function cprpdir(src, dest) {
   if (!(src instanceof Array)) {
     src = [src];
   }
@@ -35,9 +37,9 @@ export function cprpdir(src, dest) {
   }
 
   return Promise.each(promises, () => {});
-}
+};
 
-export function exec(command, options) {
+exports.exec = function exec(command, options) {
   return new Promise((resolve, reject) => {
     childProcess.exec(command, options, (err, stdout, stderr) => {
       if (err) {
@@ -48,16 +50,16 @@ export function exec(command, options) {
       resolve(stdout, stderr);
     });
   });
-}
+};
 
-export function checkStatusFile(file, args, options) {
+exports.checkStatusFile = function checkStatusFile(file, args, options) {
   return new Promise((resolve) => {
     childProcess.execFile(file, args, options,
                           err => resolve(err ? err.code : 0));
   });
-}
+};
 
-export function checkOutputFile(file, args, options) {
+exports.checkOutputFile = function checkOutputFile(file, args, options) {
   return new Promise((resolve, reject) => {
     childProcess.execFile(file, args, options,
                           (err, stdout, stderr) => {
@@ -70,9 +72,9 @@ export function checkOutputFile(file, args, options) {
                             resolve([stdout, stderr]);
                           });
   });
-}
+};
 
-export function newer(src, dest, forceDestFile) {
+exports.newer = function newer(src, dest, forceDestFile) {
   // We use gulp-newer to perform the test and convert it to a promise.
   const options = {
     dest,
@@ -100,15 +102,15 @@ export function newer(src, dest, forceDestFile) {
 
     stream.on("end", end);
   });
-}
+};
 
-export function copyIfNewer(src, dest) {
+exports.copyIfNewer = function copyIfNewer(src, dest) {
   return src
     .pipe(gulpNewer(dest))
     .pipe(gulp.dest(dest));
-}
+};
 
-export function sameFiles(a, b) {
+exports.sameFiles = function sameFiles(a, b) {
   return Promise.coroutine(function *gen() {
     const [statsA, statsB] = yield Promise.all([
       fs.statAsync(a).catch(() => null),
@@ -146,17 +148,17 @@ export function sameFiles(a, b) {
 
     return true;
   })();
-}
+};
 
-export function stampPath(name) {
+exports.stampPath = function stampPath(name) {
   return path.join(internals.stampDir, `${name}.stamp`);
-}
+};
 
-export function existsInFile(fpath, re) {
+exports.existsInFile = function existsInFile(fpath, re) {
   return fs.readFileAsync(fpath).then(data => data.toString().search(re) !== -1);
-}
+};
 
-export function spawn(cmd, args, options) {
+exports.spawn = function spawn(cmd, args, options) {
   return new Promise((resolve, reject) => {
     const child = childProcess.spawn(cmd, args || [], options || {});
 
@@ -174,9 +176,9 @@ export function spawn(cmd, args, options) {
       resolve();
     });
   });
-}
+};
 
-export function sequence(name, ...tasks) {
+exports.sequence = function sequence(name, ...tasks) {
   const allDeps = [];
   const funcs = [];
 
@@ -221,4 +223,4 @@ export function sequence(name, ...tasks) {
     deps: flattened,
     func: routine,
   };
-}
+};

@@ -1,11 +1,9 @@
-
-
 /**
  * Definitions for the options passed on the command line. Each key in
  * the structure is an option name and the values are objects to be
  * passed to ``argparse``'s ``addArgument``.
  */
-export const optionDefinitions = {
+exports.optionDefinitions = {
   saxon: {
     help: "Path to saxon.",
     defaultValue: "saxon",
@@ -75,13 +73,13 @@ main branch`,
  * The options that the user has actually set. The value here is meant
  * to be set by the main gulpfile.
  */
-export const options = {};
+exports.options = {};
 
 /**
  * Values internal to the gulp scripts. These are not settable through
  * a local configuration file or through command line options.
  */
-export const internals = {
+exports.internals = {
   log4javascriptUrl:
   "https://downloads.sourceforge.net/project/log4javascript/" +
     "1.4.13/log4javascript-1.4.13.zip",

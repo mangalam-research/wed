@@ -1,10 +1,10 @@
-import gulp from "gulp";
-import glob from "glob";
-import path from "path";
-import gutil from "gulp-util";
-import Promise from "bluebird";
-import { options } from "./config";
-import { newer, checkStatusFile, checkOutputFile, cprp } from "./util";
+const gulp = require("gulp");
+const glob = require("glob");
+const path = require("path");
+const gutil = require("gulp-util");
+const Promise = require("bluebird");
+const { options } = require("./config");
+const { newer, checkStatusFile, checkOutputFile, cprp } = require("./util");
 
 const samples = glob.sync("sample_documents/*.xml");
 const sampleTasks = [];

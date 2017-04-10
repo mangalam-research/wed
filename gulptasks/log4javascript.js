@@ -1,10 +1,10 @@
-import gulp from "gulp";
-import path from "path";
-import Promise from "bluebird";
-import gutil from "gulp-util";
-import { internals, options } from "./config";
-import { wgetIfMissing } from "./wget";
-import { exec, del, touchAsync, newer, mkdirpAsync } from "./util";
+const gulp = require("gulp");
+const path = require("path");
+const Promise = require("bluebird");
+const gutil = require("gulp-util");
+const { internals, options } = require("./config");
+const { wgetIfMissing } = require("./wget");
+const { exec, del, touchAsync, newer, mkdirpAsync } = require("./util");
 
 const log4javascriptBase = path.basename(internals.log4javascriptUrl);
 const fullPath = path.join("downloads", log4javascriptBase);

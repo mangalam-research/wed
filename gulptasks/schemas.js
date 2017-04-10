@@ -1,9 +1,9 @@
-import gulp from "gulp";
-import path from "path";
-import gutil from "gulp-util";
-import Promise from "bluebird";
-import { options } from "./config";
-import { del, newer, checkOutputFile, exec, mkdirpAsync } from "./util";
+const gulp = require("gulp");
+const path = require("path");
+const gutil = require("gulp-util");
+const Promise = require("bluebird");
+const { options } = require("./config");
+const { del, newer, checkOutputFile, exec, mkdirpAsync } = require("./util");
 
 gulp.task("copy-schemas", () =>
           gulp.src("schemas/*.js", { base: "." }).pipe(gulp.dest("build")));

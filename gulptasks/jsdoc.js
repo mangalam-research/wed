@@ -1,8 +1,8 @@
-import gulp from "gulp";
-import gutil from "gulp-util";
-import Promise from "bluebird";
-import { options } from "./config";
-import { newer, checkOutputFile, stampPath, touchAsync } from "./util";
+const gulp = require("gulp");
+const gutil = require("gulp-util");
+const Promise = require("bluebird");
+const { options } = require("./config");
+const { newer, checkOutputFile, stampPath, touchAsync } = require("./util");
 
 gulp.task("jsdoc3-doc", ["stamp-dir"], Promise.coroutine(function *task() {
   const stamp = stampPath("jsdoc3");

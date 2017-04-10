@@ -1,35 +1,35 @@
-import "babel-polyfill";
-import gulp from "gulp";
-import gulpNewer from "gulp-newer";
-import gulpFilter from "gulp-filter";
-import less from "gulp-less";
-import rename from "gulp-rename";
-import changed from "gulp-changed";
-import es from "event-stream";
-import vinylFile from "vinyl-file";
-import Promise from "bluebird";
-import path from "path";
-import gutil from "gulp-util";
-import glob from "glob";
-import shell from "shell-quote";
-import requireDir from "require-dir";
-import rjs from "requirejs";
-import wrapAmd from "gulp-wrap-amd";
-import eslint from "gulp-eslint";
-import replace from "gulp-replace";
-import versync from "versync";
-import webpack from "webpack";
-import { ArgumentParser } from "argparse";
-import gulpTslint from "gulp-tslint";
-import * as tslint from "tslint";
-import gulpTs from "gulp-typescript";
-import * as ts from "typescript";
-import sourcemaps from "gulp-sourcemaps";
-import webWebpackConfig from "../web/webpack.config";
-import * as config from "./config";
-import { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
-         cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath }
-from "./util";
+const gulp = require("gulp");
+const gulpNewer = require("gulp-newer");
+const gulpFilter = require("gulp-filter");
+const less = require("gulp-less");
+const rename = require("gulp-rename");
+const changed = require("gulp-changed");
+const es = require("event-stream");
+const vinylFile = require("vinyl-file");
+const Promise = require("bluebird");
+const path = require("path");
+const gutil = require("gulp-util");
+const glob = require("glob");
+const shell = require("shell-quote");
+const requireDir = require("require-dir");
+const rjs = require("requirejs");
+const wrapAmd = require("gulp-wrap-amd");
+const eslint = require("gulp-eslint");
+const replace = require("gulp-replace");
+const versync = require("versync");
+const webpack = require("webpack");
+const argparse = require("argparse");
+const gulpTslint = require("gulp-tslint");
+const tslint = require("tslint");
+const gulpTs = require("gulp-typescript");
+const ts = require("typescript");
+const sourcemaps = require("gulp-sourcemaps");
+const webWebpackConfig = require("../web/webpack.config");
+const config = require("./config");
+const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
+        cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath } = require("./util");
+
+const ArgumentParser = argparse.ArgumentParser;
 
 // Try to load local configuration options.
 let localConfig = {};
