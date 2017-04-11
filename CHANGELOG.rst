@@ -29,6 +29,14 @@ odd bug fix may not get mentioned here at all.
     into an independent library to be published `here
     <https://github.com/mangalam-research/salve-dom/>`_.
 
+  - Optimization: the validation engine itself was careful to parcel out its
+    work to prevent the UI from blocking for long periods of time. However, the
+    code that managed the *results* of validation (showing errors, refreshing
+    error positions on screen, etc.) did not benefit from the same design. This
+    caused **significant** performance issues when editing documents with lots
+    of errors. A ``TaskRunner`` has been added to allow the same kind of
+    parceling out that the validator does.
+
   - API: You can pass Bluejax configuration options that are used globally by
     setting the ``bluejaxOptions`` option in the option object you pass to your
     editor.

@@ -2622,26 +2622,26 @@ define(function f(require) {
                      editor.decreaseLabelVisiblityLevel();
                    }
 
-                   // Force the processing of errors
                    editor._processValidationErrors();
-                   var errors = editor._validation_errors;
-                   var $items = editor.$error_list.children("li");
-                   var cases = 0;
-                   for (var i = 0; i < errors.length; ++i) {
-                     var error = errors[i];
-                     if (isAttr(error.node)) {
-                       var item = $items[i];
-                       assert.isTrue(item.getElementsByTagName("a").length === 0,
-                                     "there should be no link in the item");
-                       assert.equal(item.title,
-                                    "This error belongs to an attribute " +
-                                    "which is not currently displayed.",
-                                    "the item should have the right title");
-                       cases++;
-                     }
-                   }
-
-                   assert.equal(cases, 2);
+                   return editor._processValidationErrorsRunner.onCompleted()
+                     .then(function complete() {
+                       var errors = editor._validation_errors;
+                       var cases = 0;
+                       for (var i = 0; i < errors.length; ++i) {
+                         var error = errors[i];
+                         if (isAttr(error.ev.node)) {
+                           assert.isTrue(
+                             error.item.getElementsByTagName("a").length === 0,
+                             "there should be no link in the item");
+                           assert.equal(error.item.title,
+                                        "This error belongs to an attribute " +
+                                        "which is not currently displayed.",
+                                        "the item should have the right title");
+                           cases++;
+                         }
+                       }
+                       assert.equal(cases, 2);
+                     });
                  });
                });
 
@@ -3219,11 +3219,9 @@ define(function f(require) {
 
       it("processes validation errors added by the mode", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        // Force the processing of errors
-        editor._processValidationErrors();
         var last =
               editor._validation_errors[editor._validation_errors.length - 1];
-        assert.equal(last.error.toString(), "Test");
+        assert.equal(last.ev.error.toString(), "Test");
       });
 
       it("_refreshValidationErrors does not change the number of errors",
@@ -3232,22 +3230,31 @@ define(function f(require) {
            editor.validator._validateUpTo(editor.data_root, -1);
            // Force the processing of errors
            editor._processValidationErrors();
+           return editor._processValidationErrorsRunner.onCompleted()
+             .then(function completed() {
+               var count = editor._validation_errors.length;
+               var list_count = editor.$error_list.children("li").length;
+               var marker_count =
+                   gui_root.getElementsByClassName("wed-validation-error")
+                   .length;
 
-           var count = editor._validation_errors.length;
-           var list_count = editor.$error_list.children("li").length;
-           var marker_count =
-                 gui_root.getElementsByClassName("wed-validation-error").length;
-
-           editor._refreshValidationErrors();
-           assert.equal(count, editor._validation_errors.length,
-                        "the number of recorded errors should be the same");
-           assert.equal(list_count, editor.$error_list.children("li").length,
-                        "the number of errors in the panel should be the " +
-                        "same");
-           assert.equal(marker_count,
-                        gui_root.getElementsByClassName("wed-validation-error")
-                        .length,
-                        "the number of markers should be the same");
+               editor._refreshValidationErrors();
+               return editor._refreshValidationErrorsRunner.onCompleted()
+                 .then(function refreshed() {
+                   assert.equal(
+                     count, editor._validation_errors.length,
+                     "the number of recorded errors should be the same");
+                   assert.equal(
+                     list_count, editor.$error_list.children("li").length,
+                     "the number of errors in the panel should be the " +
+                       "same");
+                   assert.equal(
+                     marker_count,
+                     gui_root.getElementsByClassName("wed-validation-error")
+                       .length,
+                     "the number of markers should be the same");
+                 });
+             });
          });
 
       // This cannot be run on IE due to the way IE screws up the
@@ -3259,102 +3266,106 @@ define(function f(require) {
                // Force the processing of errors
                editor._processValidationErrors();
 
-               var p = ps[12];
-               var data_p = editor.toDataNode(p);
-               var data_monogr = data_p.childNodes[0];
-               var monogr = $.data(data_monogr, "wed_mirror_node");
-               assert.equal(data_monogr.tagName, "monogr");
+               return editor._processValidationErrorsRunner.onCompleted()
+                 .then(function completed() {
+                   var p = ps[12];
+                   var data_p = editor.toDataNode(p);
+                   var data_monogr = data_p.childNodes[0];
+                   var monogr = $.data(data_monogr, "wed_mirror_node");
+                   assert.equal(data_monogr.tagName, "monogr");
 
-               var errors = editor._validation_errors;
-               var p_error;
-               var p_error_ix;
-               var monogr_error;
-               var monogr_error_ix;
-               for (var i = 0; i < errors.length; ++i) {
-                 var error = errors[i];
-                 if (!p_error && error.node === data_p) {
-                   p_error = error;
-                   p_error_ix = i;
-                 }
+                   var errors = editor._validation_errors;
+                   var p_error;
+                   var p_error_ix;
+                   var monogr_error;
+                   var monogr_error_ix;
+                   for (var i = 0; i < errors.length; ++i) {
+                     var error = errors[i];
+                     if (!p_error && error.ev.node === data_p) {
+                       p_error = error;
+                       p_error_ix = i;
+                     }
 
-                 if (!monogr_error && error.node === data_monogr) {
-                   monogr_error = error;
-                   monogr_error_ix = i;
-                 }
-               }
+                     if (!monogr_error && error.ev.node === data_monogr) {
+                       monogr_error = error;
+                       monogr_error_ix = i;
+                     }
+                   }
 
-               // Make sure we found our errors.
-               assert.isDefined(p_error, "no error for our paragraph");
-               assert.isDefined(monogr_error, "no error for our monogr");
+                   // Make sure we found our errors.
+                   assert.isDefined(p_error, "no error for our paragraph");
+                   assert.isDefined(monogr_error, "no error for our monogr");
 
-               // Find the corresponding markers
-               var $markers = editor._$error_layer
+                   // Find the corresponding markers
+                   var $markers = editor._$error_layer
                      .children(".wed-validation-error");
-               var p_marker = $markers[p_error_ix];
-               var monogr_marker = $markers[monogr_error_ix];
-               assert.isDefined(p_marker,
-                                "should have an error for our paragraph");
-               assert.isDefined(monogr_marker,
-                                "should have an error for our monogr");
+                   var p_marker = $markers[p_error_ix];
+                   var monogr_marker = $markers[monogr_error_ix];
+                   assert.isDefined(p_marker,
+                                    "should have an error for our paragraph");
+                   assert.isDefined(monogr_marker,
+                                    "should have an error for our monogr");
 
-               var p_marker_rect = p_marker.getBoundingClientRect();
+                   var p_marker_rect = p_marker.getBoundingClientRect();
 
-               // The p_marker should appear to the right of the start
-               // label for the paragraph and overlap with the start
-               // label for monogr.
-               var p_start_label = firstGUI(p);
-               assert.isTrue(
-                 p_start_label.classList.contains("__start_label"),
-                 "should should have a start label for the paragraph");
-               var p_start_label_rect =
-                     p_start_label.getBoundingClientRect();
-               assert.isTrue(p_marker_rect.left >= p_start_label_rect.right,
-                             "the paragraph error marker should be to " +
-                             "the right of the start label for the paragraph");
-               assert.isTrue(Math.abs(p_marker_rect.bottom -
-                                      p_start_label_rect.bottom) <= 5,
-                             "the paragraph error marker should have " +
-                             "a bottom which is within 5 pixels of the " +
-                             "bottom of the start label for the paragraph");
-               assert.isTrue(Math.abs(p_marker_rect.top -
-                                      p_start_label_rect.top) <= 5,
-                             "the paragraph error marker should have " +
-                             "a top which is within 5 pixels of the " +
-                             "top of the start label for the paragraph");
+                   // The p_marker should appear to the right of the start
+                   // label for the paragraph and overlap with the start
+                   // label for monogr.
+                   var p_start_label = firstGUI(p);
+                   assert.isTrue(
+                     p_start_label.classList.contains("__start_label"),
+                     "should should have a start label for the paragraph");
+                   var p_start_label_rect =
+                       p_start_label.getBoundingClientRect();
+                   assert.isTrue(p_marker_rect.left >= p_start_label_rect.right,
+                                 "the paragraph error marker should be to " +
+                                 "the right of the start label for the " +
+                                 "paragraph");
+                   assert.isTrue(Math.abs(p_marker_rect.bottom -
+                                          p_start_label_rect.bottom) <= 5,
+                                 "the paragraph error marker should have " +
+                                 "a bottom which is within 5 pixels of the " +
+                                 "bottom of the start label for the paragraph");
+                   assert.isTrue(Math.abs(p_marker_rect.top -
+                                          p_start_label_rect.top) <= 5,
+                                 "the paragraph error marker should have " +
+                                 "a top which is within 5 pixels of the " +
+                                 "top of the start label for the paragraph");
 
-               var monogr_start_label = firstGUI(monogr);
-               assert.isTrue(
-                 monogr_start_label.classList.contains("__start_label"),
-                 "should should have a start label for the paragraph");
-               var monogr_start_label_rect =
+                   var monogr_start_label = firstGUI(monogr);
+                   assert.isTrue(
+                     monogr_start_label.classList.contains("__start_label"),
+                     "should should have a start label for the paragraph");
+                   var monogr_start_label_rect =
                      monogr_start_label.getBoundingClientRect();
-               assert.isTrue(Math.abs(p_marker_rect.left -
-                                      monogr_start_label_rect.left) <= 5,
-                             "the paragraph error marker have a left side " +
-                             "within 5 pixels of the left side of the " +
-                             "start label for the monogr");
+                   assert.isTrue(Math.abs(p_marker_rect.left -
+                                          monogr_start_label_rect.left) <= 5,
+                                 "the paragraph error marker have a left side " +
+                                 "within 5 pixels of the left side of the " +
+                                 "start label for the monogr");
 
 
-               // The monogr_marker should be to the right of the
-               // monogr_start_label.
+                   // The monogr_marker should be to the right of the
+                   // monogr_start_label.
 
-               var monogr_marker_rect = monogr_marker.getBoundingClientRect();
+                   var monogr_marker_rect = monogr_marker.getBoundingClientRect();
 
-               assert.isTrue(monogr_marker_rect.left >=
-                             monogr_start_label_rect.right,
-                             "the monogr error marker should be to " +
-                             "the right of the start label for the monogr");
-               monogr_marker.scrollIntoView();
-               assert.isTrue(Math.abs(monogr_marker_rect.bottom -
-                                      monogr_start_label_rect.bottom) <= 5,
-                             "the monogr error marker should have " +
-                             "a bottom which is within 5 pixels of the " +
-                             "bottom of the start label for the monogr");
-               assert.isTrue(Math.abs(monogr_marker_rect.top -
-                                      monogr_start_label_rect.top) <= 5,
-                             "the monogr error marker should have " +
-                             "a top which is within 5 pixels of the " +
-                             "top of the start label for the monogr");
+                   assert.isTrue(monogr_marker_rect.left >=
+                                 monogr_start_label_rect.right,
+                                 "the monogr error marker should be to " +
+                                 "the right of the start label for the monogr");
+                   monogr_marker.scrollIntoView();
+                   assert.isTrue(Math.abs(monogr_marker_rect.bottom -
+                                          monogr_start_label_rect.bottom) <= 5,
+                                 "the monogr error marker should have " +
+                                 "a bottom which is within 5 pixels of the " +
+                                 "bottom of the start label for the monogr");
+                   assert.isTrue(Math.abs(monogr_marker_rect.top -
+                                          monogr_start_label_rect.top) <= 5,
+                                 "the monogr error marker should have " +
+                                 "a top which is within 5 pixels of the " +
+                                 "top of the start label for the monogr");
+                 });
              });
 
       describe("the location bar", function locationBar() {

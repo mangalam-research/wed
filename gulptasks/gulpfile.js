@@ -400,6 +400,8 @@ npmCopyTask("blueimp-md5/js/md5.js", { rename: "blueimp-md5.js" });
 
 npmCopyTask("slug/slug-browser.js", { rename: "slug.js" });
 
+npmCopyTask("rxjs/bundles/Rx.js");
+
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
   const isNewer = yield newer(["lib/**", "!**/*_flymake.*"], dest);

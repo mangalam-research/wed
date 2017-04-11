@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
-    "rootDirs": [
-      "."
-    ],
+    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "rangy": ["../types/rangy"],
