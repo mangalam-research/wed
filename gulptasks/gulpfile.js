@@ -19,15 +19,13 @@ const replace = require("gulp-replace");
 const versync = require("versync");
 const webpack = require("webpack");
 const argparse = require("argparse");
-const gulpTslint = require("gulp-tslint");
-const tslint = require("tslint");
 const gulpTs = require("gulp-typescript");
-const ts = require("typescript");
 const sourcemaps = require("gulp-sourcemaps");
 const webWebpackConfig = require("../web/webpack.config");
 const config = require("./config");
 const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
-        cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath } = require("./util");
+        cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath }
+      = require("./util");
 
 const ArgumentParser = argparse.ArgumentParser;
 
@@ -143,7 +141,6 @@ function tsc(project) {
 }
 
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
-const wedProgram = tslint.Linter.createProgram("lib/tsconfig.json");
 gulp.task("tsc-wed", () => tsc(wedProject));
 
 gulp.task("build-standalone-optimized-web", (callback) => {
@@ -165,8 +162,6 @@ gulp.task("build-standalone-optimized-web", (callback) => {
 });
 
 const webProject = gulpTs.createProject("web/tsconfig.json");
-const webProgram = tslint.Linter.createProgram("web/tsconfig.json");
-const webTestProgram = tslint.Linter.createProgram("web/test/tsconfig.json");
 gulp.task("tsc-web", () => tsc(webProject));
 
 gulp.task("copy-js-web",
@@ -744,26 +739,33 @@ gulp.task("build-test-files", ["copy-test-files",
                                "convert-html-test-files",
                                "convert-xml-test-files"]);
 
-function runTslint(program) {
-  const files = tslint.Linter.getFileNames(program);
-  ts.getPreEmitDiagnostics(program);
-  return gulp.src(files)
-    .pipe(gulpTslint({
-      formatter: "verbose",
-      program,
-    }))
-    .pipe(gulpTslint.report({
-      summarizeFailureOutput: true,
-    }));
+// function runTslint(program) {
+//   const files = tslint.Linter.getFileNames(program);
+//   ts.getPreEmitDiagnostics(program);
+//   return gulp.src(files)
+//     .pipe(gulpTslint({
+//       formatter: "verbose",
+//       program,
+//     }))
+//     .pipe(gulpTslint.report({
+//       summarizeFailureOutput: true,
+//     }));
+// }
+
+function runTslint(tsconfig, tslintConfig) {
+  return spawn(
+    "./node_modules/.bin/tslint",
+    ["--type-check", "--project", tsconfig, "-c", tslintConfig],
+    { stdio: "inherit" });
 }
 
+gulp.task("tslint-wed", () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
+
+gulp.task("tslint-web", () => runTslint("web/tsconfig.json", "web/tslint.json"));
+
+gulp.task("tslint-web-test", () => runTslint("web/test/tsconfig.json", "web/tslint.json"));
+
 gulp.task("tslint", ["tslint-wed", "tslint-web", "tslint-web-test"]);
-
-gulp.task("tslint-wed", () => runTslint(wedProgram));
-
-gulp.task("tslint-web", () => runTslint(webProgram));
-
-gulp.task("tslint-web-test", () => runTslint(webTestProgram));
 
 gulp.task("eslint", () =>
           gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",
