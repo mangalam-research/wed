@@ -175,7 +175,16 @@
                     "browser_test/convert_test",
                     "browser_test/guiroot_test",
                     "browser_test/transformation_test"], function () {
-              mocha.mocha.allowUncaught();
+              // Allow uncaught was turned on early on in the test suite's existence.
+              // It was used to handle cases that *probably* are no longer an issue.
+              // We turned it back off because it has a severe consequence that non-terminating
+              // or failing promises are not detectable when turned on:
+              //
+              // https://github.com/mochajs/mocha/issues/2281
+              //
+              // If somehow we need this back on, we'll have to fix the problem above.
+              //
+              // mocha.mocha.allowUncaught();
               mocha.mocha.run();
           });
       }
