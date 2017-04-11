@@ -15,7 +15,6 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "skipDefaultLibCheck": true,
-    "noUnusedParameters": true,
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "outDir": "build/standalone/lib",
