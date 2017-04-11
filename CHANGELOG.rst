@@ -7,6 +7,14 @@ odd bug fix may not get mentioned here at all.
 
 * 0.29.0:
 
+  - Major reorganization of the code: starting with this release, we are
+    progressively converting the JavaScript code to TypeScript. We will also
+    progressively replace antiquated APIs with newer ones. For instance,
+    functions taking callbacks will be replaced with functions returning
+    promises or observables.
+
+    The scope of this change is such that it will span multiple releases.
+
   - Wed now uses salve 4.0.5.
 
   - Switched from bootstrap-growl to bootstrap-notify to provide
