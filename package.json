@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "argparse": ">=1.0.3 <2",
-    "salve": ">=4.0.5 <5",
+    "salve": ">=4.0.7 <5",
     "urijs": ">=1.16.1 <2"
   },
   "devDependencies": {
