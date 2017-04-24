@@ -45,6 +45,9 @@ odd bug fix may not get mentioned here at all.
     of errors. A ``TaskRunner`` has been added to allow the same kind of
     parceling out that the validator does.
 
+  - Feature: changed the location where missing attributes are reported. They
+    now appear in the start label of an element.
+
   - API: You can pass Bluejax configuration options that are used globally by
     setting the ``bluejaxOptions`` option in the option object you pass to your
     editor.
