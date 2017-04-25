@@ -45,6 +45,10 @@ odd bug fix may not get mentioned here at all.
     of errors. A ``TaskRunner`` has been added to allow the same kind of
     parceling out that the validator does.
 
+  - Feature: Add the "split" operation to the default set of transforms shown by
+    the contextual menus. In the past, "split" was only available through an
+    InputTrigger but there's no good reason for this restriction.
+
   - Feature: changed the location where missing attributes are reported. They
     now appear in the start label of an element.
 
