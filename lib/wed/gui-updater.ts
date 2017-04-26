@@ -56,6 +56,9 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    */
   private _insertNodeAtHandler(ev: treeUpdater.InsertNodeAtEvent): void {
     const guiCaret = this.fromDataLocation(ev.parent, ev.index);
+    if (guiCaret === null) {
+      throw new Error("cannot find gui tree position");
+    }
     const clone = convert.toHTMLTree(this.tree.ownerDocument, ev.node);
     if (isElement(ev.node)) {
       // If ev.node is an element, then the clone is an element too.
@@ -72,6 +75,9 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
   private _setTextNodeValueHandler(ev: treeUpdater.SetTextNodeValueEvent):
   void {
     const guiCaret = this.fromDataLocation(ev.node, 0);
+    if (guiCaret === null) {
+      throw new Error("cannot find gui tree position");
+    }
     this.setTextNodeValue(guiCaret.node as Text, ev.value);
   }
 
@@ -88,6 +94,9 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
     switch (dataNode.nodeType) {
     case Node.TEXT_NODE:
       const guiCaret = this.fromDataLocation(dataNode, 0);
+      if (guiCaret === null) {
+        throw new Error("cannot find gui tree position");
+      }
       toRemove = guiCaret.node;
       break;
     case Node.ELEMENT_NODE:
@@ -113,6 +122,9 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    */
   private _setAttributeNSHandler(ev: treeUpdater.SetAttributeNSEvent): void {
     const guiCaret = this.fromDataLocation(ev.node, 0);
+    if (guiCaret === null) {
+      throw new Error("cannot find gui tree position");
+    }
     this.setAttributeNS(guiCaret.node as Element, "",
                         util.encodeAttrName(ev.attribute), ev.newValue);
   };
@@ -124,9 +136,9 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    *
    * @returns The GUI location.
    */
-  fromDataLocation(loc: DLoc): DLoc;
-  fromDataLocation(node: Node, offset: number): DLoc;
-  fromDataLocation(loc: DLoc | Node, offset?: number): DLoc {
+  fromDataLocation(loc: DLoc): DLoc | null;
+  fromDataLocation(node: Node, offset: number): DLoc | null;
+  fromDataLocation(loc: DLoc | Node, offset?: number): DLoc |null {
     let node;
     if (loc instanceof DLoc) {
       node = loc.node;
@@ -141,7 +153,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
 
     let guiNode = this.pathToNode(this.treeUpdater.nodeToPath(node));
     if (guiNode === null) {
-      throw new Error("cannot obtain a guiNode");
+      return null;
     }
 
     if (isText(node)) {

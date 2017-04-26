@@ -15,6 +15,26 @@ function defined(x) {
   return x;
 }
 
+function filterSetTextNodeValue(ev) {
+  return ev.name === "SetTextNodeValue";
+}
+
+function filterSetAttributeNS(ev) {
+  return ev.name === "SetAttributeNS";
+}
+
+function filterInsertNodeAtAndBefore(ev) {
+  return ev.name === "InsertNodeAt" || ev.name === "BeforeInsertNodeAt";
+}
+
+function filterBeforeDeleteNode(ev) {
+  return ev.name === "BeforeDeleteNode";
+}
+
+function filterDeleteNode(ev) {
+  return ev.name === "DeleteNode";
+}
+
 describe("TreeUpdater", function TreeUpdaterBlock() {
   var window;
   var document;
@@ -30,7 +50,7 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
     fw.create(function created() {
       window = fw.window;
       document = window.document;
-      window.require(["wed/dloc", "jquery", "wed/tree_updater"],
+      window.require(["wed/dloc", "jquery", "wed/tree-updater"],
                      function loaded(_dloc, _$, tree_updater) {
                        try {
                          assert.isUndefined(window.document.errors);
@@ -70,15 +90,17 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
   function Listener(updater) {
     this.expected = {
-      insertNodeAt: 0,
-      setTextNodeValue: 0,
-      beforeDeleteNode: 0,
-      deleteNode: 0,
-      setAttributeNS: 0,
-      changed: undefined,
+      BeforeInsertNodeAt: 0,
+      InsertNodeAt: 0,
+      SetTextNodeValue: 0,
+      BeforeDeleteNode: 0,
+      DeleteNode: 0,
+      SetAttributeNS: 0,
+      Changed: undefined,
     };
     this._events = {};
-    updater.addEventListener("*", function handler(name) {
+    updater.events.subscribe(function handler(ev) {
+      var name = ev.name;
       if (this._events[name] === undefined) {
         this._events[name] = 0;
       }
@@ -93,16 +115,16 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
     var keys = Object.keys(this.expected);
     var i;
     var k;
-    if (this.expected.change === undefined) {
+    if (this.expected.Changed === undefined) {
       var total = 0;
       for (i = 0; i < keys.length; ++i) {
         k = keys[i];
-        if (k === "changed") {
+        if (k === "Changed") {
           continue;
         }
         total += this.expected[k];
       }
-      this.expected.changed = total;
+      this.expected.Changed = total;
     }
 
     for (i = 0; i < keys.length; ++i) {
@@ -154,34 +176,36 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          var listener = new Listener(tu);
          var calls = [
            // Insertion of a text node into <title>.
-           [parent, 0, null],
+           [parent, 0],
            // Insertion of the completed 2nd half into the DOM tree.
-           [parent, 1, null],
+           [parent, 1],
          ];
          var calls_ix = 0;
-         tu.addEventListener("insertNodeAt", function cb(ev) {
-           var call = calls[calls_ix++];
-           assert.equal(ev.parent, call[0]);
-           assert.equal(ev.index, call[1]);
-           if (call[2] !== null) {
-             assert.equal(ev.node.nodeValue, call[2]);
-           }
-         });
-         listener.expected.insertNodeAt = 2;
+         tu.events.filter(filterInsertNodeAtAndBefore)
+           .subscribe(function cb(ev) {
+             var call = calls[calls_ix];
+             assert.equal(ev.parent, call[0]);
+             assert.equal(ev.index, call[1]);
+             if (ev.name === "InsertNodeAt") {
+               calls_ix++;
+             }
+           });
+         listener.expected.InsertNodeAt = 2;
+         listener.expected.BeforeInsertNodeAt = 2;
 
          var former_parent = node.parentNode;
-         tu.addEventListener("beforeDeleteNode", function cb(ev) {
+         tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNotNull(ev.node.parentNode);
          });
-         listener.expected.beforeDeleteNode = 1;
+         listener.expected.BeforeDeleteNode = 1;
 
-         tu.addEventListener("deleteNode", function cb(ev) {
+         tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNull(ev.node.parentNode);
-           assert.equal(ev.former_parent, former_parent);
+           assert.equal(ev.formerParent, former_parent);
          });
-         listener.expected.deleteNode = 1;
+         listener.expected.DeleteNode = 1;
 
          tu.splitAt(node, node.firstChild, 2);
 
@@ -246,11 +270,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
        function test() {
          var node = $root.find(".title")[0].firstChild;
          var listener = new Listener(tu);
-         tu.addEventListener("setTextNodeValue", function cb(ev) {
+         tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.equal(ev.value, "abQcd");
          });
-         listener.expected.setTextNodeValue = 1;
+         listener.expected.SetTextNodeValue = 1;
          var pair = tu.insertText(node, 2, "Q");
 
          // Check that we're doing what we think we're doing.
@@ -264,11 +288,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
        function test() {
          var node = $root.find(".title")[0];
          var listener = new Listener(tu);
-         tu.addEventListener("setTextNodeValue", function cb(ev) {
+         tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
            assert.equal(ev.node, node.firstChild);
            assert.equal(ev.value, "Qabcd");
          });
-         listener.expected.setTextNodeValue = 1;
+         listener.expected.SetTextNodeValue = 1;
 
          var pair = tu.insertText(node, 0, "Q");
 
@@ -285,11 +309,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          var node = $root.find(".title")[0];
 
          var listener = new Listener(tu);
-         tu.addEventListener("setTextNodeValue", function cb(ev) {
+         tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
            assert.equal(ev.node, node.firstChild);
            assert.equal(ev.value, "abcdQ");
          });
-         listener.expected.setTextNodeValue = 1;
+         listener.expected.SetTextNodeValue = 1;
 
          var pair = tu.insertText(node, 1, "Q");
 
@@ -307,12 +331,14 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          $(node).empty();
 
          var listener = new Listener(tu);
-         tu.addEventListener("insertNodeAt", function cb(ev) {
-           assert.equal(ev.parent, node);
-           assert.equal(ev.index, 0);
-           assert.equal(ev.node.nodeValue, "test");
-         });
-         listener.expected.insertNodeAt = 1;
+         tu.events.filter(filterInsertNodeAtAndBefore)
+           .subscribe(function cb(ev) {
+             assert.equal(ev.parent, node);
+             assert.equal(ev.index, 0);
+             assert.equal(ev.node.nodeValue, "test");
+           });
+         listener.expected.InsertNodeAt = 1;
+         listener.expected.BeforeInsertNodeAt = 1;
 
          var pair = tu.insertText(node, 0, "test");
 
@@ -351,11 +377,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
        function test() {
          var node = $root.find(".title")[0].firstChild;
          var listener = new Listener(tu);
-         tu.addEventListener("setTextNodeValue", function cb(ev) {
+         tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.equal(ev.value, "ab");
          });
-         listener.expected.setTextNodeValue = 1;
+         listener.expected.SetTextNodeValue = 1;
 
          tu.deleteText(node, 2, 2);
 
@@ -369,17 +395,17 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          var node = $root.find(".title")[0].firstChild;
          var listener = new Listener(tu);
 
-         tu.addEventListener("beforeDeleteNode", function cb(ev) {
+         tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNotNull(ev.node.parentNode);
          });
-         listener.expected.beforeDeleteNode = 1;
+         listener.expected.BeforeDeleteNode = 1;
 
-         tu.addEventListener("deleteNode", function cb(ev) {
+         tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNull(ev.node.parentNode);
          });
-         listener.expected.deleteNode = 1;
+         listener.expected.DeleteNode = 1;
 
          tu.deleteText(node, 0, 4);
          // Check that we're doing what we think we're doing.
@@ -403,14 +429,14 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          assert.equal($(node).attr("q"), undefined);
 
          var listener = new Listener(tu);
-         tu.addEventListener("setAttributeNS", function cb(ev) {
+         tu.events.filter(filterSetAttributeNS).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.equal(ev.ns, "");
            assert.equal(ev.attribute, "q");
-           assert.equal(ev.old_value, undefined);
-           assert.equal(ev.new_value, "ab");
+           assert.equal(ev.oldValue, undefined);
+           assert.equal(ev.newValue, "ab");
          });
-         listener.expected.setAttributeNS = 1;
+         listener.expected.SetAttributeNS = 1;
 
          tu.setAttribute(node, "q", "ab");
 
@@ -427,14 +453,14 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          $(node).attr("q", "ab");
 
          var listener = new Listener(tu);
-         tu.addEventListener("setAttributeNS", function cb(ev) {
+         tu.events.filter(filterSetAttributeNS).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.equal(ev.ns, "");
            assert.equal(ev.attribute, "q");
-           assert.equal(ev.old_value, "ab");
-           assert.equal(ev.new_value, null);
+           assert.equal(ev.oldValue, "ab");
+           assert.equal(ev.newValue, null);
          });
-         listener.expected.setAttributeNS = 1;
+         listener.expected.SetAttributeNS = 1;
 
          tu.setAttribute(node, "q", null);
 
@@ -464,17 +490,17 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          var $el = $("<span>");
          var listener = new Listener(tu);
 
-         tu.addEventListener("beforeDeleteNode", function cb(ev) {
+         tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNotNull(ev.node.parentNode);
          });
-         listener.expected.beforeDeleteNode = 1;
+         listener.expected.BeforeDeleteNode = 1;
 
-         tu.addEventListener("deleteNode", function cb(ev) {
+         tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNull(ev.node.parentNode);
          });
-         listener.expected.deleteNode = 1;
+         listener.expected.DeleteNode = 1;
 
          var ina_calls = [
            [parent, 0],
@@ -482,13 +508,18 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
            [parent, 2],
          ];
          var ina_call_ix = 0;
-         tu.addEventListener("insertNodeAt", function cb(ev) {
-           var call = ina_calls[ina_call_ix++];
-           assert.equal(ev.parent, call[0]);
-           assert.equal(ev.index, call[1]);
-           // We don't check ev.node here.
-         });
-         listener.expected.insertNodeAt = 3;
+         tu.events.filter(filterInsertNodeAtAndBefore)
+           .subscribe(function cb(ev) {
+             var call = ina_calls[ina_call_ix];
+             assert.equal(ev.parent, call[0]);
+             assert.equal(ev.index, call[1]);
+             // We don't check ev.node here.
+             if (ev.name === "InsertNodeAt") {
+               ina_call_ix++;
+             }
+           });
+         listener.expected.InsertNodeAt = 3;
+         listener.expected.BeforeInsertNodeAt = 3;
 
 
          var pair = tu.insertIntoText(node, 2, $el[0]);
@@ -513,30 +544,35 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       var listener = new Listener(tu);
 
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = 1;
+      listener.expected.BeforeDeleteNode = 1;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
-      listener.expected.deleteNode = 1;
+      listener.expected.DeleteNode = 1;
 
       var ina_calls = [
         [parent, 0],
         [parent, 1],
       ];
       var ina_call_ix = 0;
-      tu.addEventListener("insertNodeAt", function cb(ev) {
-        var call = ina_calls[ina_call_ix++];
-        assert.equal(ev.parent, call[0]);
-        assert.equal(ev.index, call[1]);
-        // We don't check ev.node here.
-      });
-      listener.expected.insertNodeAt = 2;
+      tu.events.filter(filterInsertNodeAtAndBefore)
+        .subscribe(function cb(ev) {
+          var call = ina_calls[ina_call_ix];
+          assert.equal(ev.parent, call[0]);
+          assert.equal(ev.index, call[1]);
+          // We don't check ev.node here.
+          if (ev.name === "InsertNodeAt") {
+            ina_call_ix++;
+          }
+        });
+      listener.expected.InsertNodeAt = 2;
+      listener.expected.BeforeInsertNodeAt = 2;
 
       var pair = tu.insertIntoText(node, -1, $el[0]);
 
@@ -557,30 +593,35 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       var listener = new Listener(tu);
 
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = 1;
+      listener.expected.BeforeDeleteNode = 1;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
-      listener.expected.deleteNode = 1;
+      listener.expected.DeleteNode = 1;
 
       var ina_calls = [
         [parent, 0],
         [parent, 1],
       ];
       var ina_call_ix = 0;
-      tu.addEventListener("insertNodeAt", function cb(ev) {
-        var call = ina_calls[ina_call_ix++];
-        assert.equal(ev.parent, call[0]);
-        assert.equal(ev.index, call[1]);
-        // We don't check ev.node here.
-      });
-      listener.expected.insertNodeAt = 2;
+      tu.events.filter(filterInsertNodeAtAndBefore)
+        .subscribe(function cb(ev) {
+          var call = ina_calls[ina_call_ix];
+          assert.equal(ev.parent, call[0]);
+          assert.equal(ev.index, call[1]);
+          // We don't check ev.node here.
+          if (ev.name === "InsertNodeAt") {
+            ina_call_ix++;
+          }
+        });
+      listener.expected.InsertNodeAt = 2;
+      listener.expected.BeforeInsertNodeAt = 2;
 
       var pair = tu.insertIntoText(node, node.nodeValue.length, $el[0]);
 
@@ -604,11 +645,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
     it("generates appropriate events when setting text", function test() {
       var node = $root.find(".title")[0].firstChild;
       var listener = new Listener(tu);
-      tu.addEventListener("setTextNodeValue", function cb(ev) {
+      tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.equal(ev.value, node.nodeValue);
       });
-      listener.expected.setTextNodeValue = 1;
+      listener.expected.SetTextNodeValue = 1;
 
       assert.equal(node.nodeValue, "abcd");
       tu.setTextNode(node, "test");
@@ -623,17 +664,17 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          var node = $root.find(".title")[0].firstChild;
          var listener = new Listener(tu);
 
-         tu.addEventListener("beforeDeleteNode", function cb(ev) {
+         tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNotNull(ev.node.parentNode);
          });
-         listener.expected.beforeDeleteNode = 1;
+         listener.expected.BeforeDeleteNode = 1;
 
-         tu.addEventListener("deleteNode", function cb(ev) {
+         tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
            assert.equal(ev.node, node);
            assert.isNull(ev.node.parentNode);
          });
-         listener.expected.deleteNode = 1;
+         listener.expected.DeleteNode = 1;
 
          assert.equal(node.nodeValue, "abcd");
          tu.setTextNode(node, "");
@@ -650,17 +691,17 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       var parent = node.parentNode;
       assert.equal(parent.childNodes.length, 3);
       var listener = new Listener(tu);
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = 1;
+      listener.expected.BeforeDeleteNode = 1;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
-      listener.expected.deleteNode = 1;
+      listener.expected.DeleteNode = 1;
 
       tu.removeNode(node);
 
@@ -682,7 +723,7 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       var listener = new Listener(tu);
       var first_before = true;
       var first = true;
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         // beforeDeleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -695,9 +736,9 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
         assert.isNotNull(ev.node.parentNode);
         first_before = false;
       });
-      listener.expected.beforeDeleteNode = 2;
+      listener.expected.BeforeDeleteNode = 2;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         // deleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -710,14 +751,14 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
         assert.isNull(ev.node.parentNode);
         first = false;
       });
-      listener.expected.deleteNode = 2;
+      listener.expected.DeleteNode = 2;
 
 
-      tu.addEventListener("setTextNodeValue", function cb(ev) {
+      tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
         assert.equal(ev.node, prev);
         assert.equal(ev.value, "before  between ");
       });
-      listener.expected.setTextNodeValue = 1;
+      listener.expected.SetTextNodeValue = 1;
 
       tu.removeNode(node);
 
@@ -746,17 +787,17 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       assert.equal(parent.childNodes.length, 3);
       var listener = new Listener(tu);
 
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = 1;
+      listener.expected.BeforeDeleteNode = 1;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
-      listener.expected.deleteNode = 1;
+      listener.expected.DeleteNode = 1;
 
       tu.removeNodeNF(node);
 
@@ -780,7 +821,7 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       var first_before = true;
       var first = true;
 
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         // beforeDeleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -793,9 +834,9 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
         assert.isNotNull(ev.node.parentNode);
         first_before = false;
       });
-      listener.expected.beforeDeleteNode = 2;
+      listener.expected.BeforeDeleteNode = 2;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         // deleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -808,13 +849,13 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
         assert.isNull(ev.node.parentNode);
         first = false;
       });
-      listener.expected.deleteNode = 2;
+      listener.expected.DeleteNode = 2;
 
-      tu.addEventListener("setTextNodeValue", function cb(ev) {
+      tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
         assert.equal(ev.node, prev);
         assert.equal(ev.value, "before  between ");
       });
-      listener.expected.setTextNodeValue = 1;
+      listener.expected.SetTextNodeValue = 1;
 
       tu.removeNodeNF(node);
 
@@ -886,26 +927,26 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       var listener = new Listener(tu);
       var calls = nodes.concat([next]);
       var calls_ix = 0;
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         var call = calls[calls_ix];
         assert.equal(ev.node, call, "beforeDeleteNode call " + calls_ix);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = 4;
+      listener.expected.BeforeDeleteNode = 4;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         var call = calls[calls_ix];
         assert.equal(ev.node, call, "beforeDeleteNode call " + calls_ix);
         assert.isNull(ev.node.parentNode);
         calls_ix++;
       });
-      listener.expected.deleteNode = 4;
+      listener.expected.DeleteNode = 4;
 
-      tu.addEventListener("setTextNodeValue", function cb(ev) {
+      tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
         assert.equal(ev.node, prev, "setTextNodeValue node");
         assert.equal(ev.value, "before  after", "setTextNodeValue value");
       });
-      listener.expected.setTextNodeValue = 1;
+      listener.expected.SetTextNodeValue = 1;
 
       tu.removeNodes(nodes);
 
@@ -939,23 +980,23 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       assert.equal(parent.childNodes.length, 4);
       var listener = new Listener(tu);
 
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, next);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = 1;
+      listener.expected.BeforeDeleteNode = 1;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, next);
         assert.isNull(ev.node.parentNode);
       });
-      listener.expected.deleteNode = 1;
+      listener.expected.DeleteNode = 1;
 
-      tu.addEventListener("setTextNodeValue", function cb(ev) {
+      tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.equal(ev.value, "before  between ");
       });
-      listener.expected.setTextNodeValue = 1;
+      listener.expected.SetTextNodeValue = 1;
 
       tu.mergeTextNodes(node);
 
@@ -1043,23 +1084,23 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       assert.equal(parent.childNodes.length, 4);
       var listener = new Listener(tu);
 
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, next);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = 1;
+      listener.expected.BeforeDeleteNode = 1;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         assert.equal(ev.node, next);
         assert.isNull(ev.node.parentNode);
       });
-      listener.expected.deleteNode = 1;
+      listener.expected.DeleteNode = 1;
 
-      tu.addEventListener("setTextNodeValue", function cb(ev) {
+      tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
         assert.equal(ev.node, node);
         assert.equal(ev.value, "before  between ");
       });
-      listener.expected.setTextNodeValue = 1;
+      listener.expected.SetTextNodeValue = 1;
 
       tu.mergeTextNodesNF(node);
 
@@ -1195,20 +1236,20 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       var calls = nodes.concat([end.node]);
       var calls_ix = 0;
 
-      tu.addEventListener("beforeDeleteNode", function cb(ev) {
+      tu.events.filter(filterBeforeDeleteNode).subscribe(function cb(ev) {
         var call = calls[calls_ix];
         assert.equal(ev.node, call, "beforeDeleteNode call " + calls_ix);
         assert.isNotNull(ev.node.parentNode);
       });
-      listener.expected.beforeDeleteNode = calls.length;
+      listener.expected.BeforeDeleteNode = calls.length;
 
-      tu.addEventListener("deleteNode", function cb(ev) {
+      tu.events.filter(filterDeleteNode).subscribe(function cb(ev) {
         var call = calls[calls_ix];
         assert.equal(ev.node, call, "beforeDeleteNode call " + calls_ix);
         assert.isNull(ev.node.parentNode);
         calls_ix++;
       });
-      listener.expected.deleteNode = calls.length;
+      listener.expected.DeleteNode = calls.length;
 
       var stnv_calls = [
         [start.node, "befo"],
@@ -1216,7 +1257,7 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
         [start.node, "befoter"],
       ];
       var stnv_calls_ix = 0;
-      tu.addEventListener("setTextNodeValue", function cb(ev) {
+      tu.events.filter(filterSetTextNodeValue).subscribe(function cb(ev) {
         var call = stnv_calls[stnv_calls_ix];
         assert.equal(ev.node, call[0],
                      "setTextNodeValue node, call " + stnv_calls_ix);
@@ -1224,7 +1265,7 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
                      "setTextNodeValue value, call " + stnv_calls_ix);
         stnv_calls_ix++;
       });
-      listener.expected.setTextNodeValue = 3;
+      listener.expected.SetTextNodeValue = 3;
 
       tu.cut(start, end);
 

@@ -21,6 +21,13 @@ export interface ChangedEvent extends TreeUpdaterEvent {
   name: "Changed";
 }
 
+export interface BeforeInsertNodeAtEvent extends TreeUpdaterEvent {
+  name: "BeforeInsertNodeAt";
+  parent: Node;
+  index: number;
+  node: Node;
+}
+
 export interface InsertNodeAtEvent extends TreeUpdaterEvent {
   name: "InsertNodeAt";
   parent: Node;
@@ -55,9 +62,9 @@ export interface SetAttributeNSEvent extends TreeUpdaterEvent {
   newValue: string | null;
 }
 
-export type TreeUpdaterEvents = ChangedEvent | InsertNodeAtEvent |
-  SetTextNodeValueEvent | BeforeDeleteNodeEvent | DeleteNodeEvent |
-  SetAttributeNSEvent;
+export type TreeUpdaterEvents = ChangedEvent | BeforeInsertNodeAtEvent |
+  InsertNodeAtEvent | SetTextNodeValueEvent | BeforeDeleteNodeEvent |
+  DeleteNodeEvent | SetAttributeNSEvent;
 
 export type InsertableAtom = string | Element | Text;
 export type Insertable = InsertableAtom | InsertableAtom[] | NodeList;
@@ -554,6 +561,7 @@ export class TreeUpdater {
       throw new Error("document fragments cannot be passed to insertNodeAt");
     }
 
+    this._emit({ name: "BeforeInsertNodeAt", parent, index, node });
     const child = parent.childNodes[index];
     parent.insertBefore(node,  child != null ? child : null);
     this._emit({ name: "InsertNodeAt", parent, index, node });
