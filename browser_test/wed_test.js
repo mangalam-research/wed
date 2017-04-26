@@ -3217,6 +3217,60 @@ define(function f(require) {
         });
       });
 
+      describe("moveCaretUp", function moveCaretUp() {
+        it("does not move when at the start of a document", function test() {
+          var initial = firstGUI(domutil.childByClass(editor.gui_root, "TEI"));
+          editor.setGUICaret(initial, 0);
+          caretCheck(editor, initial, 0, "initial");
+          editor.moveCaretUp();
+          // Same position
+          caretCheck(editor, initial, 0, "moved once");
+        });
+      });
+
+      describe("moveCaretDown", function moveCaretDown () {
+        it("does not move when at end of document", function test() {
+          var initial = lastGUI(domutil.childByClass(editor.gui_root, "TEI"));
+          editor.setGUICaret(initial, 0);
+          caretCheck(editor, initial, 0, "initial");
+          editor.moveCaretDown();
+          // Same position
+          caretCheck(editor, initial, 0, "moved once");
+        });
+      });
+
+      describe("down arrow", function downArrow() {
+        it("moves the caret to the next line", function test() {
+          // Text node inside paragraph.
+          var initial = editor.data_root.querySelector("body>p");
+          editor.setDataCaret(initial.firstChild, 0);
+
+          editor.type(key_constants.DOWN_ARROW);
+
+          // We end up in the next paragraph.
+          dataCaretCheck(editor,
+                         domutil.firstDescendantOrSelf(
+                           initial.nextElementSibling),
+                         0, "moved down");
+        });
+      });
+
+      describe("up arrow", function upArrow() {
+        it("moves the caret to the previous line", function test() {
+          // Text node inside 2nd paragraph.
+          var initial = editor.data_root.querySelectorAll("body>p")[1];
+          editor.setDataCaret(initial.firstChild, 0);
+
+          editor.type(key_constants.UP_ARROW);
+
+          // We end up in the next paragraph.
+          dataCaretCheck(editor,
+                         domutil.firstDescendantOrSelf(
+                           initial.previousElementSibling),
+                         0, "moved up");
+        });
+      });
+
       it("processes validation errors added by the mode", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
         var last =
