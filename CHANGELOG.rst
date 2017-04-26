@@ -54,6 +54,11 @@ odd bug fix may not get mentioned here at all.
   - Feature: changed the location where missing attributes are reported. They
     now appear in the start label of an element.
 
+  - GUI Fix: When the user would use the down arrow to navigate the options of a
+    completion menu, the focus would be lost from the document and would not be
+    regained when the user closes the completion menu. This made further typing
+    ineffective until the user clicked in the document.
+
   - API: You can pass Bluejax configuration options that are used globally by
     setting the ``bluejaxOptions`` option in the option object you pass to your
     editor.

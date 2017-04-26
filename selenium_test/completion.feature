@@ -42,3 +42,16 @@ Scenario: typing text when the completion menu is visible
   Then a completion menu is visible
   When the user types "i"
   Then the completion menu has only one option named "initial" and the prefix "i" is in bold
+
+Scenario: exiting the completion menu restores focus to the document
+  When the user clicks on an attribute value that takes completions
+  Then a completion menu is visible
+  When the user hits the down arrow
+  Then the first item of the completion menu is focused
+  # We need one escape to delect the item and another to leave the menu.
+  When the user types ESCAPE
+  And the user types ESCAPE
+  Then a completion menu is not visible
+  # This will work only if the document has regained focus.
+  When the user types "i"
+  Then a completion menu is visible
