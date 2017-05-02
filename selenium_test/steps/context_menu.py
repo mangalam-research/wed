@@ -648,7 +648,7 @@ def step_impl(context, what=None, items=None, other=None):
         assert_equal(actual, expected)
 
 
-FILTER_TO_INDEX = ["add", "delete", "wrap", "unwrap",
+FILTER_TO_INDEX = ["transform", "add", "delete", "wrap", "unwrap",
                    "other", "element", "attribute", "other"]
 
 

@@ -8,3 +8,7 @@ interface JQueryStatic {
   data(element: Document | Element, key: string): any;
   data(element: Document | Element): any;
 }
+
+interface JQuery {
+  on(events: string, handler: false): JQuery;
+}

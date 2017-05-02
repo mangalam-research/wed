@@ -45,6 +45,12 @@ odd bug fix may not get mentioned here at all.
     of errors. A ``TaskRunner`` has been added to allow the same kind of
     parceling out that the validator does.
 
+  - Simplification: ``domlistener`` and ``updater_domlistener`` have been
+    combined into ``domlistener``. Once upon a time wed had two types of
+    ``Listener`` classes. The type that relied on DOM mutations was retired a
+    long time ago, but the module split remained, though useless. This useless
+    split has been removed.
+
   - Feature: add the "split" operation to the default set of transforms shown by
     the contextual menus. In the past, "split" was only available through an
     InputTrigger but there's no good reason for this restriction.
@@ -168,6 +174,10 @@ odd bug fix may not get mentioned here at all.
     Concomitant with this change, the ``pubsub`` module has been removed and wed
     no longer uses PubsubJS.
 
+  - Breaking API change: ``Listener.addHandler`` no longer takes an array of
+    events as its first argument. This was a historical artifact that no longer
+    had any value.
+
   - Fix: the ``domutil.makePlaceholder`` function used to treat its argument as
     HTML, it now treats it as text.
 
@@ -181,6 +191,9 @@ odd bug fix may not get mentioned here at all.
 
   - The ``.xsl`` files have been moved out of the JavaScript codebase
     and into the ``misc`` directory.
+
+  + Module name change: underscore to dash in ``key_constants``,
+    ``context_menu``, ``completion_menu``, ``action_context_menu``.
 
   + Variable name changes:
 
@@ -210,6 +223,11 @@ odd bug fix may not get mentioned here at all.
 
         * Loss of leading underscore: ``_editor``, ``_options``,
           ``_wed_options``.
+
+    - ``ContextMenu``:
+
+        * Loss of leading underscore: ``_menu``, ``_$menu``, ``_dismissed``,
+          ``_backdrop``, ``_dropdown``, ``_render``.
 
 * 0.28.0:
 
