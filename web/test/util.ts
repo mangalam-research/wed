@@ -1,3 +1,4 @@
+import { ajax } from "bluejax";
 import "chai";
 
 export function waitFor(fn: () => boolean | Promise<boolean>,
@@ -40,4 +41,36 @@ Promise<void> {
     }
     // tslint:disable-next-line:align
   }, delay, timeout).then(() => undefined);
+}
+
+export class DataProvider {
+  private readonly cache: Record<string, string> = Object.create(null);
+  private readonly parser: DOMParser = new DOMParser();
+
+  constructor(private readonly base: string) {};
+
+  getText(path: string): Promise<string> {
+    return this._getText(this.base + path);
+  }
+
+  _getText(path: string): Promise<string> {
+    return Promise.resolve().then(() => {
+      const cached = this.cache[path];
+      if (cached !== undefined) {
+        return cached;
+      }
+
+      return ajax({ url: path, dataType: "text"})
+        .then((data) => {
+          this.cache[path] = data;
+          return data;
+        });
+    });
+  }
+
+  getDoc(path: string): Promise<Document> {
+    return this._getText(this.base + path).then((data) => {
+      return this.parser.parseFromString(data, "text/xml");
+    });
+  }
 }

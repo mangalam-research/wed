@@ -25,6 +25,9 @@
   config.map["check-error"] = "npm:check-error/check-error.js";
   config.packages[""].map = {
     "../dashboard": "/base/build/standalone/lib/dashboard",
+    "../../dashboard": "/base/build/standalone/lib/dashboard",
+    "../../mmwp": "/base/build/standalone/lib/mmwp",
+    "../../../mmwp": "/base/build/standalone/lib/mmwp",
   };
   SystemJS.config(config);
 

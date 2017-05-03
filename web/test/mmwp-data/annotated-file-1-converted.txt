@@ -1,0 +1,71 @@
+<doc xmlns="http://mangalamresearch.org/ns/mmwp/doc" version="1" title="Abhidharmakośabhāṣya" genre="śāstra" author="Vasubandhu" tradition="abhidharma" school="N/A" period="classical">
+1	yāvan		yāvad	nominative	foo 	moo 	philological	leading.to	2	subject.agent	4
+2	nīla-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam	nīla						3		4
+3	-pīta-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam	pīta								4
+4	-dīrgha-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+5	-hrasva-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+6	-stri-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+7	-puruṣa-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+8	-mitra-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+9	-amitra-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+10	-sukha-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+11	-duḥkha-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+12	-adi-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+13	-nimitta-	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+14	-dgrahaṇam	nīla-pīta-dīrgha-hrasva-stri-puruṣa-mitra-amitra-sukha-duḥkha-adi-nimitta-dgrahaṇam									
+15	asau										
+16	saṃjñā-	saṃjñā-skandhaḥ									
+17	-skandhaḥ	saṃjñā-skandhaḥ									
+18	|										
+1	sa										
+2	punar										
+3	bhidyamānaḥ										
+4	ṣaṭsaṃjñākāyā										
+5	vedanāvat										
+6	||										
+7	caturbhyo										
+8	'nye										
+9	tu										
+10	saṃskāra-	saṃskāra-skandhaḥ									
+11	-skandhaḥ	saṃskāra-skandhaḥ									
+12	rūpavedanāsaṃjñāvijñānebhyaścatubbryo										
+13	'nye										
+14	tu										
+1	sa										
+2	punar										
+3	bhidyamānaḥ										
+4	ṣaṭ-	ṣaṭ-saṃjñākāyā									
+5	-saṃjñākāyā	ṣaṭ-saṃjñākāyā									
+6	vedanāvat										
+7	||										
+1	caturbhyo										
+2	'nye										
+3	tu										
+4	saṃskāra-	saṃskāra-skandhaḥ									
+5	-skandhaḥ	saṃskāra-skandhaḥ									
+6	rūpa-	rūpa-vedanā-saṃjñā-vijñānebhyaś-catubbryo									
+7	-vedanā-	rūpa-vedanā-saṃjñā-vijñānebhyaś-catubbryo									
+8	-saṃjñā-	rūpa-vedanā-saṃjñā-vijñānebhyaś-catubbryo									
+9	-vijñānebhyaś-	rūpa-vedanā-saṃjñā-vijñānebhyaś-catubbryo									
+10	-catubbryo	rūpa-vedanā-saṃjñā-vijñānebhyaś-catubbryo									
+11	'nye										
+12	tu										
+13	saṃskārāḥ										
+14	saṃskāra-	saṃskāra-skandhaḥ									
+15	-skandhaḥ	saṃskāra-skandhaḥ									
+16	|										
+1	bhagavatā										
+2	tu										
+3	sūtre										
+4	ṣaṭ										
+5	cetanā-	cetanā-kāyā									
+6	-kāyā	cetanā-kāyā									
+7	ity										
+8	uktaṃ										
+9	prādhānyāt										
+10	|										
+11	sā										
+</doc>
+# Local Variables:
+# ldd-dont-delete-trailing-whitespace-in-buffer: t
+# End:

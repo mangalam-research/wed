@@ -30,6 +30,7 @@ import { XMLFilesService } from "../dashboard/xml-files.service";
 import { XMLTransformService } from "../dashboard/xml-transform.service";
 
 import { ConcordanceTransformService } from "./concordance-transform.service";
+import { CoNLLTransformService } from "./conll-transform.service";
 
 // tslint:disable-next-line:no-stateless-class
 @NgModule({
@@ -65,6 +66,9 @@ import { ConcordanceTransformService } from "./concordance-transform.service";
     MetadataService,
     { provide: XMLTransformService,
       useClass: ConcordanceTransformService,
+      multi: true },
+    { provide: XMLTransformService,
+      useClass: CoNLLTransformService,
       multi: true },
   ],
   bootstrap: [ AppComponent ],

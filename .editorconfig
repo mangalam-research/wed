@@ -10,3 +10,6 @@ trim_trailing_whitespace = true
 
 [**/*.py]
 indent_size = 4
+
+[web/test/mmwp-data/**/*]
+trim_trailing_whitespace = false
