@@ -5,5 +5,12 @@ import { XMLFile } from "./xml-file";
 @Injectable()
 export abstract class XMLTransformService {
   constructor(readonly name: string) {}
-  abstract perform(input: XMLFile): void;
+  /**
+   * Peforms the transformation on the file.
+   *
+   * @param input The file to transform.
+   *
+   * @returns A promise that resolves when the transformation is done.
+   */
+  abstract perform(input: XMLFile): Promise<{}>;
 }

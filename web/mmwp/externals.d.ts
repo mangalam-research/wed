@@ -10,6 +10,15 @@ declare module "slugify" {
 // For wed
 
 declare module "wed/modes/generic/generic" {
-  const q: any;
-  export = q;
+  import { Action } from "wed/action";
+  import { Mode as ModeInterface } from "wed/mode";
+
+  export type Editor = any;
+
+  export declare class Mode implements ModeInterface {
+    constructor(editor: Editor, options: any);
+    protected editor: Editor;
+    getContextualActions(type: string | string[], tag: string, container: Node,
+                         offset: number): Action<{}>[];
+  }
 }
