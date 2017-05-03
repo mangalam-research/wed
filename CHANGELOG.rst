@@ -62,6 +62,10 @@ odd bug fix may not get mentioned here at all.
 
   - Feature: support for arrow up and arrow down to move the caret.
 
+  - Feature: support for attribute completion provided by mode. Modes can
+    provide a list of completions for attributes that require dynamic generation
+    of the possible completions beyond what is provided by a schema.
+
   - GUI Fix: When the user would use the down arrow to navigate the options of a
     completion menu, the focus would be lost from the document and would not be
     regained when the user closes the completion menu. This made further typing

@@ -2742,6 +2742,18 @@ define(function f(require) {
            });
       });
 
+      describe("has a completion menu", function hasCompletion() {
+        it("when the caret is in an attribute for which the mode provides " +
+           "completion",
+           function test() {
+             var p = ps[13];
+             var attr_vals = getAttributeValuesFor(p);
+             editor.setGUICaret(attr_vals[0].firstChild, 0);
+             // This is an arbitrary menu item we check for.
+             contextMenuHasOption(editor, /^completion1$/);
+           });
+      });
+
       describe("setNavigationList", function setNavigationList() {
         it("makes the navigation list appear", function test() {
           assert.equal(editor._$navigation_panel.css("display"),

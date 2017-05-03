@@ -76,6 +76,16 @@ export interface Mode {
                        offset: number): Action<{}>[];
 
   /**
+   * Provide the possible value completions for an attribute. This allows a mode
+   * to support dynamic computations for completions.
+   *
+   * @param attribute The attribute for which we want completions.
+   *
+   * @returns The possible completions.
+   */
+  getAttributeCompletions(attribute: Attr): string[];
+
+  /**
    * Get additional stylesheets to use to render the HTML.
    *
    * @returns An array of paths to the stylesheets to
@@ -255,6 +265,13 @@ export abstract class BaseMode implements Mode {
    */
   getValidator(): ModeValidator | undefined {
     return undefined;
+  }
+
+  /**
+   * The default implementation returns an empty array.
+   */
+  getAttributeCompletions(attribute: Attr): string[] {
+    return [];
   }
 
   abstract init(): Promise<void>;
