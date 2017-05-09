@@ -1,6 +1,8 @@
 /* eslint-env node */
 "use strict";
 
+const serveStatic = require("serve-static");
+
 //
 // karma-typescript-preprocessor does not support loading a tsconfig.json. There
 // is an old issue saying it can but probably the TS API changed and it no
@@ -14,11 +16,33 @@
 // - The gulp-typescript it uses does not support "extends".
 //
 
+function makeServeMiddleware(config) {
+  const serve = serveStatic("./node_modules", {
+    index: false,
+  });
+
+  const baseURL = "/base/node_modules/";
+  return function (req, resp, next) {
+    if (req.url.lastIndexOf(baseURL, 0) === 0) {
+      req.url = req.url.slice(baseURL.length);
+      serve(req, resp, next);
+    }
+    else {
+      next();
+    }
+  };
+}
+
 module.exports = function configure(config) {
   const coverage = !config.debug ? ["coverage"] : [];
   config.set({
     basePath: "",
     frameworks: ["mocha", "chai"],
+    middleware: ["serve-node-modules"],
+    plugins: [
+      "karma-*", // This is the default, which we need to keep here.
+      { "middleware:serve-node-modules": ["factory", makeServeMiddleware] },
+    ],
     client: {
       mocha: {
         grep: config.grep,
@@ -46,36 +70,32 @@ module.exports = function configure(config) {
       "build/standalone/lib/system.config.js",
       "web/test/karma-main.js",
       { pattern: "web/test/**/*.ts", included: false },
+      { pattern: "web/test/mmwp-data/**/*", included: false },
       { pattern: "build/standalone/lib/**/*.@(js|html|map|css)",
         included: false },
-      { pattern: "node_modules/{*,*/*,*/*/*}/package.json",
-        included: false },
-      { pattern: "node_modules/bluebird/js/browser/bluebird.js",
-        included: false },
-      { pattern: "node_modules/chai-as-promised/lib/chai-as-promised.js",
-        included: false },
-      { pattern: "node_modules/check-error/check-error.js",
-        included: false },
-      { pattern: "node_modules/dexie/dist/dexie.js",
-        included: false },
-      { pattern: "node_modules/jquery/dist/jquery.js",
-        included: false },
-      { pattern: "node_modules/bootstrap/dist/js/bootstrap.js",
-        included: false },
-      { pattern: "node_modules/blueimp-md5/js/md5.js",
-        included: false },
-      { pattern: "node_modules/@angular/**/*.js",
-        included: false },
-      { pattern: "node_modules/rxjs/**/*.js",
-        included: false },
-      { pattern: "node_modules/rxjs/package.json",
-        included: false },
-      { pattern: "node_modules/bootbox/bootbox.js",
-        included: false },
-      { pattern: "node_modules/sinon/lib/**/*.js",
-        included: false },
-      { pattern: "node_modules/sinon-chai/lib/**/*.js",
-        included: false },
+      // { pattern: "node_modules/{*,*/*,*/*/*}/package.json", included: false },
+      // { pattern: "node_modules/bluebird/js/browser/bluebird.js",
+      //   included: false },
+      // { pattern: "node_modules/chai-as-promised/lib/chai-as-promised.js",
+      //   included: false },
+      // { pattern: "node_modules/check-error/check-error.js", included: false },
+      // { pattern: "node_modules/dexie/dist/dexie.js", included: false },
+      // { pattern: "node_modules/jquery/dist/jquery.js", included: false },
+      // { pattern: "node_modules/bootstrap/dist/js/bootstrap.js", included: false },
+      // { pattern: "node_modules/blueimp-md5/js/md5.js", included: false },
+      // { pattern: "node_modules/@angular/**/*.js", included: false },
+      // { pattern: "node_modules/rxjs/**/*.js", included: false },
+      // { pattern: "node_modules/rxjs/package.json", included: false },
+      // { pattern: "node_modules/bootbox/bootbox.js", included: false },
+      // { pattern: "node_modules/sinon/lib/**/*.js", included: false },
+      // { pattern: "node_modules/sinon-chai/lib/**/*.js", included: false },
+      // { pattern: "node_modules/bluejax/index.js", included: false },
+      // { pattern: "node_modules/bluejax.try/index.js", included: false },
+      // { pattern: "node_modules/salve/salve.js", included: false },
+      // { pattern: "node_modules/salve-dom/salve-dom.js", included: false },
+      // { pattern: "node_modules/slug/slug.js", included: false },
+      // { pattern: "node_modules/systemjs-plugin-json/json.js", included: false },
+      // { pattern: "node_modules/rangy/lib/rangy-core.js", included: false },
     ].reduce((acc, x) => acc.concat(x), []),
     exclude: [],
     preprocessors: {
