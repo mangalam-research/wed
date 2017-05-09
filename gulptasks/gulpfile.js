@@ -831,6 +831,22 @@ for (const feature of glob.sync("selenium_test/*.feature")) {
   gulp.task(feature, seleniumTest.deps, () => selenium([feature]));
 }
 
+//
+// Spawning a process due to this:
+//
+// https://github.com/TypeStrong/ts-node/issues/286
+//
+function runKarma(localOptions) {
+  // We cannot let it be set to ``null`` or ``undefined``.
+  if (options.browsers) {
+    localOptions = localOptions.concat("--browsers", options.browsers);
+  }
+  return spawn("./node_modules/.bin/karma", localOptions, { stdio: "inherit" });
+}
+
+gulp.task("karma-web", ["build-standalone"],
+          () => runKarma(["start", "--single-run"]));
+
 const distNoTest = {
   name: "dist-notest",
   deps: ["build"],
@@ -872,3 +888,7 @@ gulp.task("venv", [],
 
 gulp.task("dev-venv", ["venv"],
           () => exec(".venv/bin/pip install -r dev_requirements.txt"));
+
+gulp.task("watch-web", () => {
+  gulp.watch(["lib/**/*", "web/**/*"], ["karma-web"]);
+});
