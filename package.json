@@ -131,7 +131,7 @@
     "versync": "^3.1.0",
     "vinyl-file": ">=1.2.1 <2",
     "webpack": "^2.2.1",
-    "zone.js": "^0.7.8"
+    "zone.js": "^0.8.10"
   },
   "scripts": {
     "test": "make test"
