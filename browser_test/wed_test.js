@@ -10,6 +10,7 @@ define(function f(require) {
   var $ = require("jquery");
   var wed = require("wed/wed");
   var domutil = require("wed/domutil");
+  var util = require("wed/util");
   var rangy = require("rangy");
   var key_constants = require("wed/key-constants");
   var onerror = require("wed/onerror");
@@ -3281,6 +3282,28 @@ define(function f(require) {
                            initial.previousElementSibling),
                          0, "moved up");
         });
+      });
+
+      it("moving the caret scrolls the pane", function moving(done) {
+        var initial = editor.data_root;
+        editor.setDataCaret(initial, 0);
+
+        var initialScroll = editor._scroller.scrollTop;
+
+        $(editor._scroller).one("scroll", function scroll() {
+          // We need to wait until the scroller has fired the scroll event.
+          assert.isTrue(initialScroll < editor._scroller.scrollTop);
+          var caretRect = editor._fake_caret.getBoundingClientRect();
+          var scrollerRect = editor._scroller.getBoundingClientRect();
+          assert.equal(util.distFromRect(caretRect.left, caretRect.top,
+                                         scrollerRect.left, scrollerRect.top,
+                                         scrollerRect.right,
+                                         scrollerRect.bottom),
+                       0, "caret should be in visible space");
+          done();
+        });
+
+        editor.setDataCaret(initial, initial.childNodes.length);
       });
 
       it("processes validation errors added by the mode", function test() {

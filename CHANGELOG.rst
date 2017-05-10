@@ -190,6 +190,11 @@ odd bug fix may not get mentioned here at all.
     experiment, and none of the functionalities of ``SimpleEventEmitter`` were
     ever used on ``Action`` and ``Transformation`` objects.
 
+  - Fix: caret movement off the visible region of a document scrolls the editing
+    pane to keep the caret visible. This used to work fine but a change made a
+    long time ago broke it. There was no test for it so it was missed. It is now
+    fixed.
+
   - The ``ignore_module_config`` option is no longer useful, due to
     the preceding change.
 
