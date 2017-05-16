@@ -3239,9 +3239,21 @@ define(function f(require) {
           // Same position
           caretCheck(editor, initial, 0, "moved once");
         });
+
+        it("does not crash when moving from 2nd line", function test() {
+          var tei = getElementNameFor(
+            domutil.childByClass(editor.gui_root, "TEI"));
+          var initial = firstGUI(
+            editor.gui_root.getElementsByClassName("teiHeader")[0]);
+          editor.setGUICaret(initial, 0);
+          caretCheck(editor, initial, 0, "initial");
+          editor.moveCaretUp();
+          // It will be in the element name of TEI.
+          caretCheck(editor, tei, 0, "moved once");
+        });
       });
 
-      describe("moveCaretDown", function moveCaretDown () {
+      describe("moveCaretDown", function moveCaretDown() {
         it("does not move when at end of document", function test() {
           var initial = lastGUI(domutil.childByClass(editor.gui_root, "TEI"));
           editor.setGUICaret(initial, 0);
@@ -3249,6 +3261,19 @@ define(function f(require) {
           editor.moveCaretDown();
           // Same position
           caretCheck(editor, initial, 0, "moved once");
+        });
+
+        it("does not crash when moving from 2nd to last line", function test() {
+          var initial = lastGUI(
+            editor.gui_root.getElementsByClassName("text")[0]);
+          editor.setGUICaret(initial, 0);
+          caretCheck(editor, initial, 0, "initial");
+          editor.moveCaretDown();
+          // It will be in the element name of TEI.
+          var tei = lastGUI(
+            domutil.childByClass(editor.gui_root, "TEI"))
+              .getElementsByClassName("_element_name")[0];
+          caretCheck(editor, tei, 0, "moved once");
         });
       });
 
