@@ -201,8 +201,13 @@ odd bug fix may not get mentioned here at all.
   - The ``.xsl`` files have been moved out of the JavaScript codebase
     and into the ``misc`` directory.
 
-  + Module name change: underscore to dash in ``key_constants``,
-    ``context_menu``, ``completion_menu``, ``action_context_menu``.
+  + Module name changes: underscore to dash in ``key_constants``,
+    ``context_menu``, ``completion_menu``, ``action_context_menu``,
+    ``generic_decorator``, ``input_trigger_factory``, ``generic_tr``,
+    ``generic_meta``.
+
+  + Module name changes affecting configuration: underscore to dash in
+    ``tei_meta`` and ``docbook_meta``.
 
   + Variable name changes:
 
@@ -237,6 +242,31 @@ odd bug fix may not get mentioned here at all.
 
         * Loss of leading underscore: ``_menu``, ``_$menu``, ``_dismissed``,
           ``_backdrop``, ``_dropdown``, ``_render``.
+
+    - ``Decorator``:
+
+        * To camelCase: ``_gui_updater``.
+
+        * Loss of leading underscore: ``_editor``, ``_domlistener``,
+          ``_gui_updater``.
+
+    - ``GenericDecorator``:
+
+        * Loss of leading underscore: ``_options``, ``_mode``, ``_meta``.
+
+    - ``Meta`` (in ``generic_meta``):
+
+        * To camelCase: ``_desc_map``, ``_namespace_mappings``,
+          ``_reverse_mappings``.
+
+        * Loss of leading underscore: ``_desc_map``, ``_namespace_mappings``,
+          ``_reverse_mappings``, ``_metadata``, ``_options``, ``_runtime``.
+
+     - ``Mode`` in (``generic``):
+
+        * To camelCase: ``_tag_tr``.
+
+        * Loss of leading underscore: ``_meta``, ``_tag_tr``, ``_resolver``.
 
 * 0.28.0:
 

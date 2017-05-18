@@ -118,8 +118,8 @@ describe("UndoList", function UndoListBlock() {
       ul.startGroup(new MyGroup("group2"));
       ul.endGroup();
       ul.endGroup();
-      assert.equal(ul._list[0]._desc, "group1");
-      assert.equal(ul._list.length, 1);
+      assert.equal(ul.list[0].desc, "group1");
+      assert.equal(ul.list.length, 1);
     });
 
     it("triggers the end() method on a group", function test() {
@@ -146,7 +146,7 @@ describe("UndoList", function UndoListBlock() {
     it("ends all groups", function test() {
       ul.startGroup(new MyGroup("group1"));
       ul.startGroup(new MyGroup("group2"));
-      assert.equal(ul.getGroup()._desc, "group2");
+      assert.equal(ul.getGroup().desc, "group2");
       ul.endAllGroups();
       assert.isUndefined(ul.getGroup());
     });
@@ -243,9 +243,9 @@ describe("UndoList", function UndoListBlock() {
       ul.record(undo2);
 
       // Peek in to make sure things are recorded.
-      assert.equal(ul._list.length, 2);
-      assert.strictEqual(ul._list[0], undo1);
-      assert.strictEqual(ul._list[1], undo2);
+      assert.equal(ul.list.length, 2);
+      assert.strictEqual(ul.list[0], undo1);
+      assert.strictEqual(ul.list[1], undo2);
     });
 
     it("overwrites old history", function test() {
@@ -268,11 +268,11 @@ describe("UndoList", function UndoListBlock() {
       ul.record(undo5);
       var undo6 = new MyUndo("undo6", obj);
       ul.record(undo6);
-      assert.equal(ul._list.length, 4);
-      assert.strictEqual(ul._list[0], undo1);
-      assert.strictEqual(ul._list[1], undo2);
-      assert.strictEqual(ul._list[2], undo5);
-      assert.strictEqual(ul._list[3], undo6);
+      assert.equal(ul.list.length, 4);
+      assert.strictEqual(ul.list[0], undo1);
+      assert.strictEqual(ul.list[1], undo2);
+      assert.strictEqual(ul.list[2], undo5);
+      assert.strictEqual(ul.list[3], undo6);
     });
 
     it("records into the group when a group is in effect", function test() {
@@ -289,11 +289,11 @@ describe("UndoList", function UndoListBlock() {
       var undo4 = new MyUndo("undo4", obj);
       ul.record(undo4);
 
-      assert.equal(ul._list.length, 3);
-      assert.strictEqual(ul._list[0], group1);
-      assert.strictEqual(ul._list[1], undo3);
-      assert.strictEqual(ul._list[2], undo4);
-      assert.equal(group1._list.length, 2);
+      assert.equal(ul.list.length, 3);
+      assert.strictEqual(ul.list[0], group1);
+      assert.strictEqual(ul.list[1], undo3);
+      assert.strictEqual(ul.list[2], undo4);
+      assert.equal(group1.list.length, 2);
     });
   });
 
@@ -322,12 +322,12 @@ describe("UndoList", function UndoListBlock() {
 
       ul.undo();
       ul.undo();
-      assert.equal(ul._list.length, 2);
-      assert.equal(ul._index, -1);
+      assert.equal(ul.list.length, 2);
+      assert.equal(ul.index, -1);
       // Extra undo
       ul.undo();
-      assert.equal(ul._list.length, 2);
-      assert.equal(ul._index, -1);
+      assert.equal(ul.list.length, 2);
+      assert.equal(ul.index, -1);
     });
 
     it("undoes groups as a unit", function test() {
@@ -396,13 +396,13 @@ describe("UndoList", function UndoListBlock() {
       ul.undo();
       ul.redo();
       ul.redo();
-      assert.equal(ul._list.length, 2);
-      assert.equal(ul._index, 1);
+      assert.equal(ul.list.length, 2);
+      assert.equal(ul.index, 1);
       // Extra redo
       ul.redo();
       // No change
-      assert.equal(ul._list.length, 2);
-      assert.equal(ul._index, 1);
+      assert.equal(ul.list.length, 2);
+      assert.equal(ul.index, 1);
     });
 
     it("redoes groups as a unit", function test() {

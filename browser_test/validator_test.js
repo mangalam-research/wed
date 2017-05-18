@@ -9,8 +9,6 @@ define(function f(require) {
   var validator = require("wed/validator");
   var salve = require("salve");
   var dloc = require("wed/dloc");
-  var mode_validator = require("wed/mode_validator");
-  var oop = require("wed/oop");
   var schema_text = require("text!../../build/schemas/simplified-rng.js");
   var to_parse = require("text!test-files/validator_test_data/to_parse_converted.xml");
 
@@ -120,12 +118,7 @@ define(function f(require) {
       });
 
       beforeEach(function beforeEach() {
-        // We create a fake mode because a real mode needs a
-        // whole editor, which is very expensive.
-        function Validator() {
-          mode_validator.ModeValidator.apply(this, arguments);
-        }
-        oop.inherit(Validator, mode_validator.ModeValidator);
+        function Validator() {}
 
         Validator.prototype.validateDocument = function validateDocument() {
           return [{

@@ -101,9 +101,10 @@ export interface TransformationData {
 
   /**
    * The node to operate on. Should be set by the code that invokes the
-   * transformation.
+   * transformation. This may be undefined if the transformation should rely on
+   * the caret position.
    */
-  node: Node;
+  node?: Node;
 
   /**
    * The name of the node to add, remove, etc. Should be set by the code that
@@ -116,7 +117,7 @@ export interface TransformationData {
    * **Wed performs the move.** Should be set by the code that invokes the
    * transformation.
    */
-  moveCaretTo: DLoc;
+  moveCaretTo?: DLoc;
 }
 
 /**
@@ -184,7 +185,8 @@ export class Transformation<Data extends TransformationData>
   constructor(editor: Editor, transformationType: string, desc: string,
               handler: TransformationHandler);
   constructor(editor: Editor, transformationType: string, desc: string,
-              abbreviatedDesc: string, handler: TransformationHandler);
+              abbreviatedDesc: string | undefined,
+              handler: TransformationHandler);
   constructor(editor: Editor, transformationType: string, desc: string,
               abbreviatedDesc: string, iconHtml: string,
               handler: TransformationHandler);
@@ -192,7 +194,7 @@ export class Transformation<Data extends TransformationData>
               abbreviatedDesc: string, iconHtml: string,
               needsInput: boolean, handler: TransformationHandler);
   constructor(editor: Editor, transformationType: string, desc: string,
-              abbreviatedDesc: string | TransformationHandler,
+              abbreviatedDesc: string | TransformationHandler | undefined,
               iconHtml?: string | TransformationHandler,
               needsInput?: boolean | TransformationHandler,
               handler?: TransformationHandler) {
@@ -228,7 +230,7 @@ export class Transformation<Data extends TransformationData>
 
   getDescriptionFor(data: Data): string {
     return this.desc.replace(/<name>/, data.name);
-  };
+  }
 
   /**
    * Calls the ``fireTransformation`` method on this transformation's editor.
@@ -239,7 +241,7 @@ export class Transformation<Data extends TransformationData>
     // Removed this during conversion to TypeScript. Did it ever make sense??
     // data = data || {};
     this.editor.fireTransformation(this, data);
-  };
+  }
 }
 
 export type AttributeTable = Record<string, string>;

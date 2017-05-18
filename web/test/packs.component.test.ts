@@ -65,7 +65,7 @@ describe("PacksComponent", () => {
     schema: "aaa",
     metadata,
     mode: "generic",
-    meta: "tei_meta",
+    meta: "tei",
   };
 
   const packBUnserialized = {
@@ -74,7 +74,7 @@ describe("PacksComponent", () => {
     schema: "aaa",
     metadata,
     mode: "generic",
-    meta: "tei_meta",
+    meta: "tei",
   };
 
   // tslint:disable-next-line:mocha-no-side-effect-code

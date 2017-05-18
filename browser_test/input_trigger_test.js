@@ -6,11 +6,11 @@
 define(function f(require) {
   "use strict";
   var chai = require("chai");
-  var input_trigger = require("wed/input_trigger");
+  var input_trigger = require("wed/input-trigger");
   var wed = require("wed/wed");
   var key = require("wed/key");
   var key_constants = require("wed/key-constants");
-  var input_trigger_factory = require("wed/input_trigger_factory");
+  var input_trigger_factory = require("wed/input-trigger-factory");
   var salve = require("salve");
   var global = require("browser_test/global");
   var schema = require("text!../../build/schemas/tei-simplified-rng.js");
@@ -27,7 +27,7 @@ define(function f(require) {
       path: "wed/modes/generic/generic",
       options: {
         meta: {
-          path: "wed/modes/generic/metas/tei_meta",
+          path: "wed/modes/generic/metas/tei-meta",
           options: {
             metadata: "/build/schemas/tei-metadata.json",
           },

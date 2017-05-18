@@ -452,7 +452,7 @@ Here is an example of what the ``mode`` option passed to wed could contain::
     path: 'wed/modes/generic/generic',
     options: {
       meta: {
-        path: 'wed/modes/generic/metas/tei_meta',
+        path: 'wed/modes/generic/metas/tei-meta',
         options: {
           metadata:
             '../../../../../schemas/tei-math-metadata.json'
@@ -461,7 +461,7 @@ Here is an example of what the ``mode`` option passed to wed could contain::
     }
 
 This tells wed to load the generic mode, use the meta object exported
-by ``wed/modes/generic/metas/tei_meta`` and have it load the metadata
+by ``wed/modes/generic/metas/tei-meta`` and have it load the metadata
 file ``../../../../../schemas/tei-math-metadata.json``. (Again, this
 last path is relative to the module that contains the meta object.)
 

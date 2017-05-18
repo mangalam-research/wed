@@ -76,7 +76,7 @@ describe("ControlComponent", () => {
     schema: "aaa",
     metadata,
     mode: "generic",
-    meta: "tei_meta",
+    meta: "tei",
   };
 
   // tslint:disable-next-line:mocha-no-side-effect-code
@@ -175,7 +175,7 @@ describe("ControlComponent", () => {
                                   .then((record) => {
                                     expect(record!.name).to.equal("foo");
                                     expect(record!.mode).to.equal("generic");
-                                    expect(record!.meta).to.equal("tei_meta");
+                                    expect(record!.meta).to.equal("tei");
                                     const schema = record!.schema;
                                     return chunksService.getRecordById(schema)
                                       .then((chunk) =>

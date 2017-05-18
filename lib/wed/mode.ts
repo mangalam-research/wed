@@ -7,9 +7,11 @@
  */
 "use strict";
 
+import * as Promise from "bluebird";
 import { NameResolver } from "salve";
 
 import { Action } from "./action";
+import { Decorator } from "./decorator";
 import { isElement } from "./domtypeguards";
 import * as domutil from "./domutil";
 import { ModeValidator } from "./validator";
@@ -17,14 +19,12 @@ import { ModeValidator } from "./validator";
 // tslint:disable-next-line:no-any
 export type Editor = any;
 
-// tslint:disable-next-line:no-any
-export type Decorator = any;
-
 export type ModeOptions = {};
 
-export type WedOptions = { [key: string]: string | number | WedOptions };
+export type WedOptions = { [key: string]: string | number | WedOptions |
+                           string[] | number[]};
 
-export interface Mode {
+export interface Mode<ModeOptions> {
   /**
    * This is called by the editor when a mode is ready to be initialized. The
    * mode could use this to add a toolbar above the editor or add listeners to
@@ -33,6 +33,11 @@ export interface Mode {
    * @returns A promise that resolves once the mode is done initializing.
    */
   init(): Promise<void>;
+
+  /**
+   * Gets the mode options.
+   */
+  getModeOptions(): ModeOptions;
 
   /**
    * Gets the options that the mode wants wed to use with this mode.
@@ -163,7 +168,7 @@ export interface Mode {
  *
  *
  */
-export abstract class BaseMode implements Mode {
+export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   protected wedOptions: WedOptions = {
       label_levels: {
         max: 1,
@@ -178,7 +183,15 @@ export abstract class BaseMode implements Mode {
    * what fields this object contains.
    */
   constructor(protected readonly editor: Editor,
-              protected readonly options: ModeOptions = {}) {}
+              protected options: ModeOptions) {}
+
+  /**
+   * Gets the mode options. The returned object should be considered frozen. You
+   * may inspect it, not modify it.
+   */
+  getModeOptions(): ModeOptions {
+    return this.options;
+  }
 
   /**
    * Gets the options that the mode wants wed to use with this mode.

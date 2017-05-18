@@ -1,59 +1,50 @@
 /**
- * @module modes/generic/metas/tei_meta
- * @desc The main module for the generic mode.
+ * A meta for the TEI.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(/** @lends module:modes/generic/metas/tei_meta */function f(require,
-                                                                   exports) {
-  "use strict";
+import { Meta as GenericMeta } from "wed/modes/generic/generic-meta";
+import { Runtime } from "wed/runtime";
+import * as util from "wed/util";
 
-  var oop = require("wed/oop");
-  var util = require("wed/util");
-  var GenericMeta = require("wed/modes/generic/generic_meta").Meta;
-
+/**
+ * Meta-information for a generic TEI schema.
+ */
+class TeiMeta extends GenericMeta {
   /**
-   * @classdesc Meta-information for a generic TEI schema.
-   *
-   * @extends module:modes/generic/generic_meta~Meta
-   *
-   * @constructor
-   * @param {module:runtime~Runtime} runtime The runtime in which this
-   * meta is executing.
-   * @param {Object} options The options to pass to the Meta.
+   * @param runtime The runtime in which this meta is executing.
+   * @param options The options to pass to the Meta.
    */
-  // eslint-disable-next-line no-unused-vars
-  function TeiMeta(runtime, options) {
-    GenericMeta.apply(this, arguments);
+  // tslint:disable-next-line:no-any
+  constructor(runtime: Runtime, options: any) {
+    super(runtime, options);
 
     // Provide a default mapping if there is no mapping loaded.
-    if (!this._namespace_mappings) {
-      this._namespace_mappings = Object.create(null);
-      this._namespace_mappings.xml =
-        "http://www.w3.org/XML/1998/namespace";
-      this._namespace_mappings[""] = "http://www.tei-c.org/ns/1.0";
+    if (this.namespaceMappings == null) {
+      // tslint:disable:no-http-string
+      this.namespaceMappings = Object.create(null);
+      this.namespaceMappings.xml = "http://www.w3.org/XML/1998/namespace";
+      this.namespaceMappings[""] = "http://www.tei-c.org/ns/1.0";
+      // tslint:enable:no-http-string
     }
   }
 
-  oop.inherit(TeiMeta, GenericMeta);
-
-  TeiMeta.prototype.isInline = function isInline(node) {
+  // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
+  isInline(node: Element): boolean {
     // We need to normalize the name to fit the names we have below.
-    var original_name = util.getOriginalName(node);
-    var parts = original_name.split(":");
-    // XXX this is taking a shortcut. We should instead find the
-    // namespace of the node and convert it to an appropriate prefix
-    // to use below.
+    const originalName = util.getOriginalName(node);
+    const parts = originalName.split(":");
+    // XXX this is taking a shortcut. We should instead find the namespace of
+    // the node and convert it to an appropriate prefix to use below.
     if (parts.length === 1) {
       parts[1] = parts[0];
       parts[0] = "tei";
     }
-    var name = parts.join(":");
+    const name = parts.join(":");
 
-    // The implementation here is a partial implementation of the
-    // function found in common2/functions.xsl among the TEI
-    // stylesheets.
+    // The implementation here is a partial implementation of the function found
+    // in common2/functions.xsl among the TEI stylesheets.
 
     // Not implemented: <xsl:when test="not(self::*)">true</xsl:when>
     // <xsl:when test="contains(@rend,'inline') and not(tei:p or
@@ -85,7 +76,6 @@ define(/** @lends module:modes/generic/metas/tei_meta */function f(require,
     // <xsl:when
     // test="self::tei:note[parent::tei:bibl]">true</xsl:when> End not
     // implemented.
-
 
     // <xsl:when test="self::tei:note">true</xsl:when>
     // <xsl:when test="self::mml:math">true</xsl:when>
@@ -324,10 +314,11 @@ define(/** @lends module:modes/generic/metas/tei_meta */function f(require,
     // tei:is-inline($element/..)">true</xsl:when> End not
     // implemented.
     return false;
-  };
+  }
 
-  exports.Meta = TeiMeta;
-});
+}
+
+export { TeiMeta as Meta };
 
 //  LocalWords:  oMath dynamicContent textLang soCalled roleName seg
 //  LocalWords:  pubPlace ptr placeName persName pc origPlace orgName

@@ -12,7 +12,7 @@ requirejs.config({
   baseUrl: path.join(__dirname, "../../../build/standalone/lib"),
   nodeRequire: require,
 });
-var object_check = requirejs("wed/object_check");
+var object_check = requirejs("wed/object-check");
 var assert = chai.assert;
 
 describe("object_check", function object_checkBlock() {

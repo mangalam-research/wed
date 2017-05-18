@@ -33,7 +33,7 @@ describe("PacksService", () => {
     schema: "aaa",
     metadata,
     mode: "generic",
-    meta: "tei_meta",
+    meta: "tei",
   };
 
   // tslint:disable-next-line:mocha-no-side-effect-code
@@ -69,7 +69,7 @@ describe("PacksService", () => {
         schema: "aaa",
         metadata,
         mode: "generic",
-        meta: "tei_meta",
+        meta: "tei",
       },
       minimal: {
         name: "minimal",

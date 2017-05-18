@@ -6,7 +6,7 @@
 define(function f(require) {
   "use strict";
   var chai = require("chai");
-  var input_trigger_factory = require("wed/input_trigger_factory");
+  var input_trigger_factory = require("wed/input-trigger-factory");
   var wed = require("wed/wed");
   var key = require("wed/key");
   var key_constants = require("wed/key-constants");
@@ -30,7 +30,7 @@ define(function f(require) {
       path: "wed/modes/generic/generic",
       options: {
         meta: {
-          path: "wed/modes/generic/metas/tei_meta",
+          path: "wed/modes/generic/metas/tei-meta",
           options: {
             metadata: "/build/schemas/tei-metadata.json",
           },

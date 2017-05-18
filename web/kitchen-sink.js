@@ -92,7 +92,7 @@ define(function f(require) {
           path: "wed/modes/generic/generic",
           options: {
             meta: {
-              path: "wed/modes/generic/metas/tei_meta",
+              path: "wed/modes/generic/metas/tei-meta",
               options: {
                 metadata:
                 "/build/schemas/tei-math-metadata.json",
@@ -107,7 +107,7 @@ define(function f(require) {
           path: "wed/modes/generic/generic",
           options: {
             meta: {
-              path: "wed/modes/generic/metas/docbook_meta",
+              path: "wed/modes/generic/metas/docbook-meta",
               options: undefined,
             },
           },
