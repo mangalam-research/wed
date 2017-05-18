@@ -96,7 +96,7 @@ if (options.optimize) {
 }
 gulp.task("build", buildDeps);
 
-gulp.task("build-only-standalone", ["copy-wed-source", "tsc-wed"]);
+gulp.task("build-standalone-wed", ["copy-wed-source", "tsc-wed"]);
 
 gulp.task("copy-wed-source", () => {
   const dest = "build/standalone/";
@@ -143,7 +143,8 @@ function tsc(project) {
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
 gulp.task("tsc-wed", () => tsc(wedProject));
 
-gulp.task("build-standalone-optimized-web", (callback) => {
+// Wed must have been compiled before this runs.
+gulp.task("build-standalone-optimized-web", ["tsc-wed"], (callback) => {
   webpack(webWebpackConfig, (err, stats) => {
     if (err) {
       callback(new gutil.PluginError("webpack", err));
@@ -162,7 +163,8 @@ gulp.task("build-standalone-optimized-web", (callback) => {
 });
 
 const webProject = gulpTs.createProject("web/tsconfig.json");
-gulp.task("tsc-web", () => tsc(webProject));
+// The web part depends on the results of compiling wed.
+gulp.task("tsc-web", ["build-standalone-wed"], () => tsc(webProject));
 
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
@@ -170,7 +172,7 @@ gulp.task("copy-js-web",
 
 gulp.task("build-standalone-web", ["tsc-web", "copy-js-web"]);
 
-gulp.task("build-only-standalone-config", ["config"], () => {
+gulp.task("build-standalone-wed-config", ["config"], () => {
   const dest = "build/standalone";
   return gulp.src("build/config/requirejs-config-dev.js")
     .pipe(rename("requirejs-config.js"))
@@ -182,8 +184,8 @@ const lessInc = "lib/wed/less-inc/";
 
 gulp.task("stamp-dir", () => mkdirpAsync(config.internals.stampDir));
 
-gulp.task("build-only-standalone-less",
-          ["stamp-dir", "build-only-standalone", "copy-bootstrap"],
+gulp.task("build-standalone-wed-less",
+          ["stamp-dir", "build-standalone-wed", "copy-bootstrap"],
           (callback) => {
             const dest = "build/standalone/";
             const stamp = stampPath("less");
@@ -483,10 +485,10 @@ htmlTask("-optimized");
 
 gulp.task("build-standalone",
           [].concat(
-            "build-only-standalone",
+            "build-standalone-wed",
             "build-standalone-web",
-            "build-only-standalone-less",
-            "build-only-standalone-config",
+            "build-standalone-wed-less",
+            "build-standalone-wed-config",
             "copy-log4javascript",
             copyTasks,
             "build-schemas",
@@ -761,7 +763,8 @@ function runTslint(tsconfig, tslintConfig) {
 
 gulp.task("tslint-wed", () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
 
-gulp.task("tslint-web", () => runTslint("web/tsconfig.json", "web/tslint.json"));
+// Linting the web code requires that the wed code be already compiled.
+gulp.task("tslint-web", ["tsc-wed"], () => runTslint("web/tsconfig.json", "web/tslint.json"));
 
 gulp.task("tslint-web-test", () => runTslint("web/test/tsconfig.json", "web/tslint.json"));
 
