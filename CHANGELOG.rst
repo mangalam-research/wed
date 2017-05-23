@@ -182,6 +182,22 @@ odd bug fix may not get mentioned here at all.
     events as its first argument. This was a historical artifact that no longer
     had any value.
 
+  - Breaking API change: ``saver.Saver`` has been revamped. This does not matter
+    unless you produced your own savers or tried to hook unto a saver's
+    events. Salient changes:
+
+     + Saver methods that took callbacks now return promises.
+
+     + ``Saver`` emits events on observables rather than use
+       ``simple_event_emitter``.
+
+     + ``Saver`` now has a promise that resolves when initialized instead of
+       using ``conditioned``.
+
+     + Event names are all capitalized.
+
+     + Internals are now without leading underscore and are in camelCase.
+
   - Fix: the ``domutil.makePlaceholder`` function used to treat its argument as
     HTML, it now treats it as text.
 

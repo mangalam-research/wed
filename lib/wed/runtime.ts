@@ -20,8 +20,9 @@ import * as util from "./util";
 export class Runtime {
   // tslint:disable-next-line:no-any
   private readonly options: any;
-  private readonly ajax: bluejax.AjaxCall;
-  private readonly ajax$: bluejax.AjaxCall$;
+
+  public readonly ajax: bluejax.AjaxCall;
+  public readonly ajax$: bluejax.AjaxCall$;
 
   // tslint:disable-next-line:no-any
   constructor(options: any) {

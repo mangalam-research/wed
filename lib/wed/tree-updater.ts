@@ -113,9 +113,9 @@ export type InsertionBoundaries = [DLoc, DLoc];
  */
 export class TreeUpdater {
   protected readonly dlocRoot: DLocRoot;
-  protected _events: Subject<TreeUpdaterEvents>;
+  protected readonly _events: Subject<TreeUpdaterEvents>;
 
-  public events: Observable<TreeUpdaterEvents>;
+  public readonly events: Observable<TreeUpdaterEvents>;
   /**
    * @param tree The node which contains the tree to update.
    */
