@@ -320,8 +320,6 @@ npmCopyTask("optional-plugin", "requirejs-optional/optional.js", "requirejs");
 
 npmCopyTask("typeahead", "typeahead.js/dist/typeahead.bundle.min.js");
 
-npmCopyTask("pubsub", "pubsub-js/src/pubsub.js");
-
 npmCopyTask("localforage/dist/localforage.js");
 
 npmCopyTask("async/lib/async.js");

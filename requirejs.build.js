@@ -30,7 +30,6 @@
         "bootstrap",
         "log4javascript",
         "bootstrap-notify",
-        "pubsub-js",
         "lodash",
         "localforage",
         "async",

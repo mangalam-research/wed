@@ -12,7 +12,6 @@ require.config({
     bootstrap: "external/bootstrap/js/bootstrap.min",
     log4javascript: "external/log4javascript",
     "font-awesome": "external/font-awesome",
-    "pubsub-js": "external/pubsub",
     xregexp: "external/xregexp",
     text: "requirejs/text",
     optional: "requirejs/optional",
