@@ -1,8 +1,0 @@
-default namespace = "http://mangalamresearch.org/ns/mmwp/doc"
-
-include "doc-common.rnc" {
-    cit.content = (word | text)+
-    word.attrs = attribute lem { text }?
-}
-
-start = doc

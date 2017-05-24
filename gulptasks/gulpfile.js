@@ -17,11 +17,9 @@ const wrapAmd = require("gulp-wrap-amd");
 const eslint = require("gulp-eslint");
 const replace = require("gulp-replace");
 const versync = require("versync");
-const webpack = require("webpack");
 const argparse = require("argparse");
 const gulpTs = require("gulp-typescript");
 const sourcemaps = require("gulp-sourcemaps");
-const webWebpackConfig = require("../web/webpack.config");
 const config = require("./config");
 const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
         cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath }
@@ -143,34 +141,11 @@ function tsc(project) {
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
 gulp.task("tsc-wed", () => tsc(wedProject));
 
-// Wed must have been compiled before this runs.
-gulp.task("build-standalone-optimized-web", ["tsc-wed"], (callback) => {
-  webpack(webWebpackConfig, (err, stats) => {
-    if (err) {
-      callback(new gutil.PluginError("webpack", err));
-      return;
-    }
-
-    const errors = stats.toJson().errors;
-    if (errors.length) {
-      callback(new gutil.PluginError("webpack", errors.join("")));
-      return;
-    }
-
-    gutil.log("[webpack]", stats.toString({ colors: true }));
-    callback();
-  });
-});
-
-const webProject = gulpTs.createProject("web/tsconfig.json");
-// The web part depends on the results of compiling wed.
-gulp.task("tsc-web", ["build-standalone-wed"], () => tsc(webProject));
-
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
           .pipe(gulp.dest("build/standalone/lib/")));
 
-gulp.task("build-standalone-web", ["tsc-web", "copy-js-web"]);
+gulp.task("build-standalone-web", ["copy-js-web"]);
 
 gulp.task("build-standalone-wed-config", ["config"], () => {
   const dest = "build/standalone";
@@ -393,8 +368,6 @@ npmCopyTask("bluejax/index.js", { rename: "bluejax.js" });
 
 npmCopyTask("bluejax.try/index.js", { rename: "bluejax.try.js" });
 
-npmCopyTask("blueimp-md5/js/md5.js", { rename: "blueimp-md5.js" });
-
 npmCopyTask("slug/slug-browser.js", { rename: "slug.js" });
 
 npmCopyTask("rxjs/bundles/Rx.js");
@@ -472,9 +445,7 @@ gulp.task("generate-meta-map", Promise.coroutine(function *task() {
 function htmlTask(suffix) {
   gulp.task(`build-html${suffix}`, () => {
     const dest = `build/standalone${suffix}`;
-    return gulp.src(["web/*.html", "web/dashboard/index.html",
-                     "web/mmwp/index.html"],
-                    { base: "web" })
+    return gulp.src("web/*.html", { base: "web" })
       .pipe(gulpNewer(dest))
       .pipe(gulp.dest(dest));
   });
@@ -574,7 +545,6 @@ gulp.task("build-standalone-optimized", [
   "build-html-optimized",
   "build-optimized-config",
   "build-test-files",
-  "build-standalone-optimized-web",
 ], Promise.coroutine(buildStandaloneOptimized));
 
 gulp.task("rst-doc", () =>
@@ -763,12 +733,7 @@ function runTslint(tsconfig, tslintConfig) {
 
 gulp.task("tslint-wed", () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
 
-// Linting the web code requires that the wed code be already compiled.
-gulp.task("tslint-web", ["tsc-wed"], () => runTslint("web/tsconfig.json", "web/tslint.json"));
-
-gulp.task("tslint-web-test", () => runTslint("web/test/tsconfig.json", "web/tslint.json"));
-
-gulp.task("tslint", ["tslint-wed", "tslint-web", "tslint-web-test"]);
+gulp.task("tslint", ["tslint-wed"]);
 
 gulp.task("eslint", () =>
           gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",
@@ -834,22 +799,6 @@ for (const feature of glob.sync("selenium_test/*.feature")) {
   gulp.task(feature, seleniumTest.deps, () => selenium([feature]));
 }
 
-//
-// Spawning a process due to this:
-//
-// https://github.com/TypeStrong/ts-node/issues/286
-//
-function runKarma(localOptions) {
-  // We cannot let it be set to ``null`` or ``undefined``.
-  if (options.browsers) {
-    localOptions = localOptions.concat("--browsers", options.browsers);
-  }
-  return spawn("./node_modules/.bin/karma", localOptions, { stdio: "inherit" });
-}
-
-gulp.task("karma-web", ["build-standalone"],
-          () => runKarma(["start", "--single-run"]));
-
 const distNoTest = {
   name: "dist-notest",
   deps: ["build"],
@@ -891,7 +840,3 @@ gulp.task("venv", [],
 
 gulp.task("dev-venv", ["venv"],
           () => exec(".venv/bin/pip install -r dev_requirements.txt"));
-
-gulp.task("watch-web", () => {
-  gulp.watch(["lib/**/*", "web/**/*"], ["karma-web"]);
-});
