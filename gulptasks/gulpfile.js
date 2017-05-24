@@ -385,8 +385,10 @@ gulp.task("build-info", Promise.coroutine(function *task() {
 
 function *generateModes(x) {
   const common = `wed/modes/${x}/`;
-  yield `${common}${x}`;
-  yield `${common}${x}_mode`;
+  for (const ext of ["js", "ts"]) {
+    yield `${common}${x}.${ext}`;
+    yield `${common}${x}_mode.${ext}`;
+  }
 }
 
 gulp.task("generate-mode-map", Promise.coroutine(function *task() {
@@ -403,8 +405,8 @@ gulp.task("generate-mode-map", Promise.coroutine(function *task() {
   modeDirs.forEach((x) => {
     for (const mode of generateModes(x)) {
       try {
-        fs.accessSync(path.join("./lib", `${mode}.js`));
-        modes[x] = mode;
+        fs.accessSync(path.join("./lib", mode));
+        modes[x] = mode.replace(/\..*$/, "");
         break;
       }
       catch (e) {} // eslint-disable-line no-empty
@@ -418,7 +420,7 @@ gulp.task("generate-mode-map", Promise.coroutine(function *task() {
 
 gulp.task("generate-meta-map", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/meta-map.js";
-  const isNewer = yield newer(["lib/wed/modes/**/metas/*_meta.js",
+  const isNewer = yield newer(["lib/wed/modes/**/metas/*-meta.ts",
                                "!**/*_flymake.*"], dest);
   if (!isNewer) {
     return;
@@ -426,12 +428,12 @@ gulp.task("generate-meta-map", Promise.coroutine(function *task() {
 
   yield mkdirpAsync(path.dirname(dest));
 
-  const modeDirs = glob.sync("lib/wed/modes/**/metas/*_meta.js");
+  const modeDirs = glob.sync("lib/wed/modes/**/metas/*-meta.ts");
   const metas = {};
   modeDirs.forEach((x) => {
-    // Drop initial "lib/" and final ".js"
+    // Drop initial "lib/" and final ".ts"
     x = x.substring(4, x.length - 3);
-    const name = x.replace(/^.*\/(.*?)_meta$/, "$1");
+    const name = x.replace(/^.*\/(.*?)-meta$/, "$1");
     metas[name] = x;
   });
 
