@@ -2201,7 +2201,7 @@ define(function f(require) {
           editor.setGUICaret(gui_start);
           var range = gui_start.makeRange(
             editor.fromDataLocation(initial.firstChild, 2)).range;
-          rangy.getSelection(editor.my_window).setSingleRange(range);
+          editor.setSelectionRange(range, false);
 
           // Synthetic event
           var event = new $.Event("cut");
