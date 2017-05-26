@@ -284,6 +284,10 @@ odd bug fix may not get mentioned here at all.
 
         * Loss of leading underscore: ``_meta``, ``_tag_tr``, ``_resolver``.
 
+     - ``LabelManager``:
+
+        * Loss of leading underscore: ``_labelIndex``.
+
 * 0.28.0:
 
   - Wed now uses salve 3.0.0.
