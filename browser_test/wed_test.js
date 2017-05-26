@@ -1850,10 +1850,11 @@ define(function f(require) {
          "long to word wrap",
          function test() {
            var p = editor.data_root.getElementsByTagName("p")[0];
-           editor.setDataCaret(p, 0);
-           editor.type("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-                       "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-                       "AAAAAAAAAAAAA");
+           editor.data_updater.insertText(
+             p, 0,
+             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+               "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+               "AAAAAAAAAAAAA");
            editor.setDataCaret(p, 0);
            var range = editor.my_window.document.createRange();
            var gui_caret = editor.fromDataLocation(p.firstChild, 0);
