@@ -198,6 +198,10 @@ odd bug fix may not get mentioned here at all.
 
      + Internals are now without leading underscore and are in camelCase.
 
+  - Potentially Breaking API change: ``DLoc.makeRange`` returns ``undefined`` if
+    either location is invalid. (This is "potentially" breaking because there's
+    not much you could have done with a range created from invalid locations.)
+
   - Fix: the ``domutil.makePlaceholder`` function used to treat its argument as
     HTML, it now treats it as text.
 

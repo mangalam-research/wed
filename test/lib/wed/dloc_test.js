@@ -334,6 +334,10 @@ describe("dloc", function dlocBlock() {
     });
 
     describe("makeRange", function makeRange() {
+      afterEach(function afterEach() {
+        $(".__test").remove();
+      });
+
       it("makes a range", function test() {
         var a = defined($(".body .p")[0]);
         var b = defined($(".body .p")[1]);
@@ -389,6 +393,30 @@ describe("dloc", function dlocBlock() {
         var loc2 = loc.make(b, 1);
         assert.throws(loc2.makeRange.bind(loc2, loc), window.Error,
                      "cannot make range from attribute node");
+      });
+
+      it("returns undefined on invalid location", function test() {
+        $root.append("<div class='__test'></div>");
+        var t = defined($(".__test")[0]);
+        assert.equal(t.nodeType, window.Node.ELEMENT_NODE);
+        var loc = dloc.makeDLoc(root, t, 0);
+        t.parentNode.removeChild(t);
+        assert.isFalse(loc.isValid());
+        var range = loc.makeRange();
+        assert.isUndefined(range);
+      });
+
+      it("returns undefined on invalid other", function test() {
+        $root.append("<div class='__test'></div>");
+        var t = defined($(".__test")[0]);
+        assert.equal(t.nodeType, window.Node.ELEMENT_NODE);
+        var b = defined($(".body .p")[1]);
+        var loc = dloc.makeDLoc(root, b, 1);
+        var loc2 = loc.make(t, 0);
+        t.parentNode.removeChild(t);
+        assert.isFalse(loc2.isValid());
+        var range = loc.makeRange(loc2);
+        assert.isUndefined(range);
       });
     });
 

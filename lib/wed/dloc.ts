@@ -345,7 +345,7 @@ export class DLoc {
     }
 
     return DLoc.mustMakeDLoc(this.root, node, offset);
-  };
+  }
 
   /**
    * Converts the location to an array. This array contains only the node and
@@ -357,7 +357,7 @@ export class DLoc {
    */
   toArray(): Caret {
     return [this.node, this.offset];
-  };
+  }
 
   /**
    * Make a range from this location. If ``other`` is not specified, the range
@@ -371,11 +371,18 @@ export class DLoc {
    * @param other The other location to use.
    *
    * @returns The return value is just a range when the method is called without
-   * ``other``. Otherwise, it is a range info object.
+   * ``other``. Otherwise, it is a range info object. The return value is
+   * ``undefined`` if either ``this`` or ``other`` is invalid.
    */
-  makeRange(other?: DLoc): rangy.RangyRange | RangeInfo {
+  makeRange(): rangy.RangyRange | undefined;
+  makeRange(other: DLoc): RangeInfo | undefined;
+  makeRange(other?: DLoc): rangy.RangyRange | RangeInfo | undefined {
     if (isAttr(this.node)) {
       throw new Error("cannot make range from attribute node");
+    }
+
+    if (!this.isValid()) {
+      return undefined;
     }
 
     if (other === undefined) {
@@ -387,6 +394,11 @@ export class DLoc {
     if (isAttr(other.node)) {
       throw new Error("cannot make range from attribute node");
     }
+
+    if (!other.isValid()) {
+      return undefined;
+    }
+
     return rangeFromPoints(this.node, this.offset, other.node, other.offset);
   }
 
