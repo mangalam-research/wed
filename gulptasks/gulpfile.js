@@ -727,7 +727,8 @@ gulp.task("build-test-files", ["copy-test-files",
 function runTslint(tsconfig, tslintConfig) {
   return spawn(
     "./node_modules/.bin/tslint",
-    ["--type-check", "--project", tsconfig, "-c", tslintConfig],
+    ["--type-check", "--project", tsconfig, "-c", tslintConfig,
+     "-t", "verbose"],
     { stdio: "inherit" });
 }
 
