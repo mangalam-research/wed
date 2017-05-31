@@ -66,7 +66,11 @@ export class Runtime {
    *    interpreted. `v1` is the version number of the interpretation scheme
    *    used.
    */
-  resolve(resource: string): Promise<{}> {
+  // The promise must resolve to any because when we address a field we really
+  // can get anything.
+  //
+  // tslint:disable-next-line:no-any
+  resolve(resource: string): Promise<any> {
     return Promise.resolve().then(() => {
       const schemeSep = resource.indexOf("://");
 
@@ -89,7 +93,7 @@ export class Runtime {
         const property = parts[5];
 
         if (version !== "v1") {
-          throw new Error("unsupported version number: " + version);
+          throw new Error(`unsupported version number: ${version}`);
         }
 
         switch (keyType) {
@@ -99,12 +103,16 @@ export class Runtime {
           key = Number(key);
           break;
         default:
-          throw new Error("unknown type: " + keyType);
+          throw new Error(`unknown type: ${keyType}`);
         }
 
         const store = new Dexie(db);
         return store.open()
-          .then(() => store.table(table).get(key))
+        // We have to use .then<any> otherwise, TS is unable to use the right
+        // signature.
+        //
+        // tslint:disable-next-line:no-any
+          .then<any>(() => store.table(table).get(key))
           .then((record) => {
             if (record == null) {
               throw Error(`cannot resolve key from: ${resource}`);
