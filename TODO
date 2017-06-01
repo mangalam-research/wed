@@ -60,14 +60,6 @@ At the moment input triggers are applied whenever the keys that
 trigger them are used in any of the child of the selector passed to
 the InputTrigger. This may not always be desirable.
 
-Refreshing Errors
------------------
-
-It might be useful to have a way to refresh validation errors without having to
-revalidate. Currently btw-mode has to use restartAt to restart
-validation after refreshing an element because error markers may be in
-the wrong place.
-
 Listeners
 ---------
 
@@ -110,10 +102,3 @@ Other
 
 * Dump XSLT altogether in favor of something faster? Loading saxon to
   process XSLT 2.0 has a non-negligible cost.
-
-Other Bits of the Project
-=========================
-
-* Dump the perl solution to generating the local HTML files.
-
-* Generate the local HTML somewhere else than in the root.
