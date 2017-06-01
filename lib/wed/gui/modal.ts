@@ -320,7 +320,7 @@ export class Modal {
    */
   getClicked(): JQuery | undefined {
     return this._$clicked;
-  };
+  }
 
   /**
    * @returns The text of the button that was clicked. Could be undefined if the

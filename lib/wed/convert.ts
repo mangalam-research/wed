@@ -43,6 +43,7 @@ export function toHTMLTree(doc: Document, node: Node): Node {
         continue;
       }
 
+      // tslint:disable-next-line:prefer-template
       const attrName = "data-wed-" + attr.name.replace(/--(-+)/, "---$1")
         .replace(":", "---");
 

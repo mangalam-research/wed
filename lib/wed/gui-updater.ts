@@ -127,7 +127,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
     }
     this.setAttributeNS(guiCaret.node as Element, "",
                         util.encodeAttrName(ev.attribute), ev.newValue);
-  };
+  }
 
   /**
    * Converts a data location to a GUI location.

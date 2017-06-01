@@ -422,7 +422,7 @@ export class Listener {
       this.clearPending();
       this._processTriggers();
     }
-  };
+  }
 
   /**
    * Clear anything that is pending. Some implementations may have triggers
@@ -622,7 +622,7 @@ export class Listener {
     }
 
     this._scheduleProcessTriggers();
-  };
+  }
 
   /**
    * Produces the calls for ``children-...`` events.
@@ -663,7 +663,7 @@ export class Listener {
     }
 
     return ret;
-  };
+  }
 
   /**
    * Handles text node changes events.
@@ -688,7 +688,7 @@ export class Listener {
     }
 
     this._scheduleProcessTriggers();
-  };
+  }
 
   /**
    * Handles attribute change events.
@@ -711,7 +711,7 @@ export class Listener {
     }
 
     this._scheduleProcessTriggers();
-  };
+  }
 
   /**
    * Sets a timeout to run the triggers that must be run.
@@ -725,7 +725,7 @@ export class Listener {
       this._processTriggers();
     },
                                                       0);
-  };
+  }
 
   /**
    * Produces the calls for the added/removed family of events.
@@ -753,7 +753,7 @@ export class Listener {
     }
 
     return ret;
-  };
+  }
 
   /**
    * Produces the calls for included/excluded family of events.

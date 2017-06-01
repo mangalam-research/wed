@@ -83,7 +83,7 @@ export abstract class TaskRunner {
       }
 
       // tslint:disable-next-line:no-any
-      (this as any)["_" + key] = options[key];
+      (this as any)[`_${key}`] = options[key];
     }
 
     this._state = new BehaviorSubject({

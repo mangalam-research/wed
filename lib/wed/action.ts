@@ -139,7 +139,7 @@ export abstract class Action<Data> {
     const desc = this.getDescriptionFor(data);
     const icon = this.getIcon();
     if (icon !== "" && desc !== "") {
-      return icon + " " + desc;
+      return `${icon} ${desc}`;
     }
 
     if (icon !== "") {
