@@ -57,7 +57,7 @@ export interface State {
  * will happen in cycles that run for a maximum amount of time before
  * relinquishing control.
  */
-export abstract class TaskRunner {
+export class TaskRunner {
   private readonly _timeout: number = 0;
   private readonly _maxTimespan: number = 100;
   private readonly _boundWrapper: Function = this._workWrapper.bind(this);
