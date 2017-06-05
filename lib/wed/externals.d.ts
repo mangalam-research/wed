@@ -7,6 +7,7 @@ interface JQueryStatic {
   data<T>(element: Document | Element, key: string, value: T): T;
   data(element: Document | Element, key: string): any;
   data(element: Document | Element): any;
+  (selector: Element | null | undefined): JQuery;
 }
 
 interface JQuery {
