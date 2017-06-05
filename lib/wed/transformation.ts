@@ -13,10 +13,10 @@ import { isDocument, isText } from "./domtypeguards";
 import { Caret, firstDescendantOrSelf, indexOf,
          isWellFormedRange } from "./domutil";
 import * as icon from "./gui/icon";
+import { TreeUpdater } from "./tree-updater";
 
 // tslint:disable:no-any
 export type Editor = any;
-export type TreeUpdater = any;
 // tslint:enable:no-any
 
 const TYPE_TO_KIND = _.extend(Object.create(null), {
@@ -500,7 +500,9 @@ export function unwrap(dataUpdater: TreeUpdater, node: Element): Node[] {
   // Merge possible adjacent text nodes: the last child of the node that was
   // removed in the unwrapping and the node that was after the node that was
   // removed in the unwrapping.
-  dataUpdater.mergeTextNodes(lastChild);
+  if (lastChild !== null) {
+    dataUpdater.mergeTextNodes(lastChild);
+  }
 
   // Merge the possible adjacent text nodes: the one before the start of the
   // children we unwrapped and the first child that was unwrapped. There may not
