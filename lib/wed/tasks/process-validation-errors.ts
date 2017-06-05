@@ -4,37 +4,33 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { GUIValidationError } from "../gui-validation-error";
 import { Task } from "../task-runner";
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
+export interface Controller {
+  copyErrorList(): GUIValidationError[];
+  processError(error: GUIValidationError): boolean;
+  appendItems(items: HTMLElement[]): void;
+  appendMarkers(markers: HTMLElement[]): void;
+}
 
 /**
  * This task processes the new validation errors that have not been processed
  * yet.
  */
 export class ProcessValidationErrors implements Task {
-  // tslint:disable-next-line:no-any
-  private _errors: any[];
-  private _doc: Document;
+  private errors: GUIValidationError[];
 
-  constructor(private readonly editor: Editor) {
-    this._doc = this.editor.$error_list[0].ownerDocument;
+  constructor(private readonly controller: Controller) {
   }
 
   reset(): void {
-    this._errors = this.editor._validation_errors.slice();
-
-    // If we are not using the navigation panel, then we should
-    // always show the error list.
-    if (this.editor._$navigation_panel.css("display") === "none") {
-      this.editor.$error_list.parents(".panel-collapse").collapse("show");
-    }
+    this.errors = this.controller.copyErrorList();
   }
 
   cycle(): boolean {
-    const editor = this.editor;
-    const errors = this._errors;
+    const controller = this.controller;
+    const errors = this.errors;
     if (errors.length === 0) {
       return false;
     }
@@ -42,20 +38,24 @@ export class ProcessValidationErrors implements Task {
     // The figure in the next line is arbitrary.
     let count = Math.min(errors.length, 30);
 
-    const doc = this._doc;
-    const itemFrag = doc.createDocumentFragment();
-    const markerFrag = doc.createDocumentFragment();
+    const items = [];
+    const markers = [];
     let ix = 0;
     while (count !== 0) {
       count--;
       const error = errors[ix];
-      if (editor._processValidationError(error) as boolean) {
+      if (controller.processError(error) as boolean) {
         errors.splice(ix, 1);
-        itemFrag.appendChild(error.item);
+        const item = error.item;
+        if (item === undefined) {
+          throw new Error("there should be an item");
+        }
+
+        items.push(item);
         const marker = error.marker;
         // There may be no marker set.
         if (marker != null) {
-          markerFrag.appendChild(marker);
+          markers.push(marker);
         }
       }
       else {
@@ -63,8 +63,8 @@ export class ProcessValidationErrors implements Task {
       }
     }
 
-    editor.$error_list[0].appendChild(itemFrag);
-    editor._$error_layer[0].appendChild(markerFrag);
+    controller.appendItems(items);
+    controller.appendMarkers(markers);
     return errors.length !== 0;
   }
 }

@@ -2625,10 +2625,11 @@ define(function f(require) {
                      editor.decreaseLabelVisiblityLevel();
                    }
 
-                   editor._processValidationErrors();
-                   return editor._processValidationErrorsRunner.onCompleted()
+                   var controller = editor.validationController;
+                   controller.processErrors();
+                   return controller.processErrorsRunner.onCompleted()
                      .then(function complete() {
-                       var errors = editor._validation_errors;
+                       var errors = controller._errors;
                        var cases = 0;
                        for (var i = 0; i < errors.length; ++i) {
                          var error = errors[i];
@@ -3335,30 +3336,31 @@ define(function f(require) {
 
       it("processes validation errors added by the mode", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var last =
-              editor._validation_errors[editor._validation_errors.length - 1];
+        var errors = editor.validationController._errors;
+        var last = errors[errors.length - 1];
         assert.equal(last.ev.error.toString(), "Test");
       });
 
-      it("_refreshValidationErrors does not change the number of errors",
+      it("refreshErrors does not change the number of errors",
          function test() {
            var gui_root = editor.gui_root;
            editor.validator._validateUpTo(editor.data_root, -1);
+           var controller = editor.validationController;
            // Force the processing of errors
-           editor._processValidationErrors();
-           return editor._processValidationErrorsRunner.onCompleted()
+           controller.processErrors();
+           return controller.processErrorsRunner.onCompleted()
              .then(function completed() {
-               var count = editor._validation_errors.length;
+               var count = controller._errors.length;
                var list_count = editor.$error_list.children("li").length;
                var marker_count =
                    gui_root.getElementsByClassName("wed-validation-error")
                    .length;
 
-               editor._refreshValidationErrors();
-               return editor._refreshValidationErrorsRunner.onCompleted()
+               controller.refreshErrors();
+               return controller.refreshErrorsRunner.onCompleted()
                  .then(function refreshed() {
                    assert.equal(
-                     count, editor._validation_errors.length,
+                     count, controller._errors.length,
                      "the number of recorded errors should be the same");
                    assert.equal(
                      list_count, editor.$error_list.children("li").length,
@@ -3379,10 +3381,11 @@ define(function f(require) {
              "position",
              function test() {
                editor.validator._validateUpTo(editor.data_root, -1);
+               var controller = editor.validationController;
                // Force the processing of errors
-               editor._processValidationErrors();
+               controller.processErrors();
 
-               return editor._processValidationErrorsRunner.onCompleted()
+               return controller.processErrorsRunner.onCompleted()
                  .then(function completed() {
                    var p = ps[12];
                    var data_p = editor.toDataNode(p);
@@ -3390,7 +3393,7 @@ define(function f(require) {
                    var monogr = $.data(data_monogr, "wed_mirror_node");
                    assert.equal(data_monogr.tagName, "monogr");
 
-                   var errors = editor._validation_errors;
+                   var errors = controller._errors;
                    var p_error;
                    var p_error_ix;
                    var monogr_error;

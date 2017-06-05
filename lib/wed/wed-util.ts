@@ -15,6 +15,7 @@
 import { DLoc, makeDLoc } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import { closestByClass, indexOf, isWellFormedRange } from "./domutil";
+import { AttributeNotFound } from "./guiroot";
 
 export interface BoundaryCoordinates {
   left: number;
@@ -281,4 +282,24 @@ export function paste(editor: Editor, data: any): void {
     caret = newCaret;
   }
   editor.$gui_root.trigger("wed-post-paste", [data.e, caret, dataClone]);
+}
+
+export function getGUINodeIfExists(editor: Editor,
+                                   node: Node | null | undefined):
+Node | undefined {
+  if (node == null) {
+    return undefined;
+  }
+
+  try {
+    const caret = editor.fromDataLocation(node, 0);
+    return caret != null ? caret.node : undefined;
+  }
+  catch (ex) {
+    if (ex instanceof AttributeNotFound) {
+      return undefined;
+    }
+
+    throw ex;
+  }
 }

@@ -4,43 +4,45 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { GUIValidationError } from "../gui-validation-error";
 import { Task } from "../task-runner";
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
+export interface Controller {
+  copyErrorList(): GUIValidationError[];
+  processError(error: GUIValidationError): boolean;
+}
 
 /**
  * This task refreshes the position of the validation error markers on the
  * screen.
  */
 export class RefreshValidationErrors implements Task {
-  // tslint:disable-next-line:no-any
-  private _errors: any[];
-  private _resumeAt: number;
+  private errors: GUIValidationError[];
+  private resumeAt: number;
 
-  constructor(private readonly editor: Editor) {}
+  constructor(private readonly controller: Controller) {}
 
   reset(): void {
-    this._errors = this.editor._validation_errors.slice();
-    this._resumeAt = 0;
+    this.errors = this.controller.copyErrorList();
+    this.resumeAt = 0;
   }
 
   cycle(): boolean {
-    let ix = this._resumeAt;
+    let ix = this.resumeAt;
     // The figure of 20 is arbitrary.
-    const thisMax = Math.min(this._errors.length, this._resumeAt + 20);
-    const errors = this._errors;
+    const thisMax = Math.min(this.errors.length, this.resumeAt + 20);
+    const errors = this.errors;
     while (ix < thisMax) {
       const error = errors[ix];
       // We work only on those that already have a marker.
       if (error.marker != null) {
-        this.editor._processValidationError(error);
+        this.controller.processError(error);
       }
 
       ix++;
     }
 
-    this._resumeAt = ix;
+    this.resumeAt = ix;
     return ix < errors.length;
   }
 }
