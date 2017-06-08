@@ -70,7 +70,7 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
     }
   }
   // Find the deepest location at the start of the last element.
-  editor.setDataCaret(domutil.firstDescendantOrSelf(node), 0);
+  editor.setCaret(domutil.firstDescendantOrSelf(node), 0);
 }
 
 /**

@@ -41,9 +41,9 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
   var fw;
   var $root;
   var dloc;
+  var DLoc;
   var $;
   var TreeUpdater;
-  var makeDLoc;
 
   before(function before(done) {
     fw = new jsdomfw.FW();
@@ -55,12 +55,12 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
                        try {
                          assert.isUndefined(window.document.errors);
                          dloc = _dloc;
+                         DLoc = dloc.DLoc;
                          $ = _$;
                          $root = defined($("#root"));
                          // eslint-disable-next-line no-new
                          new dloc.DLocRoot($root[0]);
                          TreeUpdater = tree_updater.TreeUpdater;
-                         makeDLoc = dloc.makeDLoc;
                          done();
                        }
                        catch (e) {
@@ -1222,8 +1222,8 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
     it("generates appropriate events when merging text", function test() {
       var p = $root.find(".body>.p")[1];
-      var start = makeDLoc($root[0], p.firstChild, 4);
-      var end = makeDLoc($root[0], p.childNodes[4], 3);
+      var start = DLoc.makeDLoc($root[0], p.firstChild, 4);
+      var end = DLoc.makeDLoc($root[0], p.childNodes[4], 3);
       assert.equal(p.childNodes.length, 5);
 
       var nodes = Array.prototype.slice.call(
@@ -1279,8 +1279,8 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
     it("returns proper nodes when merging a single node", function test() {
       var p = $root.find(".body>.p")[1];
-      var start = makeDLoc($root[0], p.firstChild, 4);
-      var end = makeDLoc($root[0], p.firstChild, 6);
+      var start = DLoc.makeDLoc($root[0], p.firstChild, 4);
+      var end = DLoc.makeDLoc($root[0], p.firstChild, 6);
       assert.equal(p.childNodes.length, 5);
 
       var nodes = [p.ownerDocument.createTextNode("re")];
@@ -1298,8 +1298,8 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
     it("returns proper nodes when merging text", function test() {
       var p = $root.find(".body>.p")[1];
-      var start = makeDLoc($root[0], p.firstChild, 4);
-      var end = makeDLoc($root[0], p.childNodes[4], 3);
+      var start = DLoc.makeDLoc($root[0], p.firstChild, 4);
+      var end = DLoc.makeDLoc($root[0], p.childNodes[4], 3);
       assert.equal(p.childNodes.length, 5);
 
       var nodes = Array.prototype.slice.call(
@@ -1325,8 +1325,8 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
     it("empties an element without problem", function test() {
       var p = $root.find(".body>.p")[1];
-      var start = makeDLoc($root[0], p, 0);
-      var end = makeDLoc($root[0], p, p.childNodes.length);
+      var start = DLoc.makeDLoc($root[0], p, 0);
+      var end = DLoc.makeDLoc($root[0], p, p.childNodes.length);
       assert.equal(p.childNodes.length, 5);
 
       var nodes = Array.prototype.slice.call(p.childNodes);

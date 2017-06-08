@@ -65,7 +65,7 @@ function isAttrNoType(it: Attr | Node): it is Attr {
  *
  * @returns ``true`` if an attribute, ``false`` if not.
  */
-const isAttr: (it: Attr | Node) => it is Attr =
+const isAttr: (it: Attr | Node | null | undefined) => it is Attr =
   // We check that ``attrNodeType`` is not undefined because eventually
   // ``ATTRIBUTE_NODE`` will be removed from the ``Node`` interface, and then we
   // could be testing ``undefined === undefined`` for objects which are not

@@ -25,6 +25,7 @@ describe("dloc", function dlocBlock() {
   var root;
   var root_obj;
   var dloc;
+  var DLoc;
   var domutil;
   var isAttr;
   var $;
@@ -40,6 +41,7 @@ describe("dloc", function dlocBlock() {
           try {
             assert.isUndefined(window.document.errors);
             dloc = _dloc;
+            DLoc = dloc.DLoc;
             domutil = _domutil;
             isAttr = domutil.isAttr;
             $ = _$;
@@ -164,12 +166,12 @@ describe("dloc", function dlocBlock() {
 
   describe("makeDLoc", function makeDLoc() {
     it("returns undefined when called with undefined location", function test() {
-      assert.isUndefined(dloc.makeDLoc(root, undefined));
+      assert.isUndefined(DLoc.makeDLoc(root, undefined));
     });
 
     it("returns a valid DLoc", function test() {
       var a = defined($(".p")[0]);
-      var loc = dloc.makeDLoc(root, a, 0);
+      var loc = DLoc.makeDLoc(root, a, 0);
       assert.equal(loc.node, a);
       assert.equal(loc.offset, 0);
       assert.equal(loc.root, root);
@@ -178,7 +180,7 @@ describe("dloc", function dlocBlock() {
 
     it("returns a valid DLoc when the root is a DLocRoot", function test() {
       var a = defined($(".p")[0]);
-      var loc = dloc.makeDLoc(root_obj, a, 0);
+      var loc = DLoc.makeDLoc(root_obj, a, 0);
       assert.equal(loc.node, a);
       assert.equal(loc.offset, 0);
       assert.equal(loc.root, root);
@@ -187,7 +189,7 @@ describe("dloc", function dlocBlock() {
 
     it("returns a valid DLoc on an attribute node", function test() {
       var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
-      var loc = dloc.makeDLoc(root, a, 0);
+      var loc = DLoc.makeDLoc(root, a, 0);
       assert.equal(loc.node, a);
       assert.equal(loc.offset, 0);
       assert.equal(loc.root, root);
@@ -196,47 +198,56 @@ describe("dloc", function dlocBlock() {
 
     it("returns a valid DLoc when called with an array", function test() {
       var a = defined($(".p")[0]);
-      var loc = dloc.makeDLoc(root, new window.Array(a, 0));
+      var loc = DLoc.makeDLoc(root, new window.Array(a, 0));
       assert.equal(loc.node, a);
       assert.equal(loc.offset, 0);
       assert.equal(loc.root, root);
       assert.isTrue(loc.isValid());
     });
 
+    it("returns a valid DLoc when the offset is omitted", function test() {
+      var a = defined($(".body .p")[1]);
+      var loc = DLoc.makeDLoc(root, a);
+      assert.equal(loc.node, a.parentNode);
+      assert.equal(loc.offset, 1);
+      assert.equal(loc.root, root);
+      assert.isTrue(loc.isValid());
+    });
+
     it("returns undefined when called with an array that has an " +
        "undefined first member", function test() {
-      assert.isUndefined(dloc.makeDLoc(root, new window.Array(undefined, 0)));
+      assert.isUndefined(DLoc.makeDLoc(root, new window.Array(undefined, 0)));
     });
 
     it("throws an error when the node is not in the root", function test() {
       var c = defined($root.parent()[0]);
-      assert.throws(dloc.makeDLoc.bind(undefined, root, c, 0),
+      assert.throws(DLoc.makeDLoc.bind(undefined, root, c, 0),
                    window.Error, "node not in root");
     });
 
     it("throws an error when the root is not marked", function test() {
       var c = defined($root.parent()[0]);
-      assert.throws(dloc.makeDLoc.bind(undefined, c, c, 0), window.Error,
+      assert.throws(DLoc.makeDLoc.bind(undefined, c, c, 0), window.Error,
                    /^root has not been marked as a root/);
     });
 
     it("throws an error when the offset is negative", function test() {
       var c = defined($root.parent()[0]);
-      assert.throws(dloc.makeDLoc.bind(undefined, root, c, -1), window.Error,
+      assert.throws(DLoc.makeDLoc.bind(undefined, root, c, -1), window.Error,
                    /^negative offsets are not allowed/);
     });
 
     it("throws an error when the offset is too large (element)", function test() {
       var c = defined($(".p")[0]);
       assert.equal(c.nodeType, window.Node.ELEMENT_NODE);
-      assert.throws(dloc.makeDLoc.bind(undefined, root, c, 100), window.Error,
+      assert.throws(DLoc.makeDLoc.bind(undefined, root, c, 100), window.Error,
                    /^offset greater than allowable value/);
     });
 
     it("throws an error when the offset is too large (text)", function test() {
       var c = defined($(".body .p")[0].firstChild);
       assert.equal(c.nodeType, window.Node.TEXT_NODE);
-      assert.throws(dloc.makeDLoc.bind(undefined, root, c, 100), window.Error,
+      assert.throws(DLoc.makeDLoc.bind(undefined, root, c, 100), window.Error,
                    /^offset greater than allowable value/);
     });
 
@@ -244,48 +255,48 @@ describe("dloc", function dlocBlock() {
        function test() {
          var c = defined($(".quote")[0].getAttributeNode("data-wed-type"));
          assert.isTrue(isAttr(c));
-         assert.throws(dloc.makeDLoc.bind(undefined, root, c, 100), window.Error,
+         assert.throws(DLoc.makeDLoc.bind(undefined, root, c, 100), window.Error,
                       /^offset greater than allowable value/);
        });
 
     it("normalizes a negative offset", function test() {
       var c = defined($(".p")[0]);
-      var loc = dloc.makeDLoc(root, c, -1, true);
+      var loc = DLoc.makeDLoc(root, c, -1, true);
       assert.equal(loc.offset, 0);
     });
 
     it("normalizes an offset that is too large (element)", function test() {
       var c = defined($(".p")[0]);
       assert.equal(c.nodeType, window.Node.ELEMENT_NODE);
-      var loc = dloc.makeDLoc(root, c, 100, true);
+      var loc = DLoc.makeDLoc(root, c, 100, true);
       assert.equal(loc.offset, 0);
     });
 
     it("normalizes an offset that is too large (text)", function test() {
       var c = defined($(".body .p")[0].firstChild);
       assert.equal(c.nodeType, window.Node.TEXT_NODE);
-      var loc = dloc.makeDLoc(root, c, 100, true);
+      var loc = DLoc.makeDLoc(root, c, 100, true);
       assert.equal(loc.offset, c.data.length);
     });
 
     it("normalizes an offset that is too large (attribute)", function test() {
       var c = defined($(".quote")[0].getAttributeNode("data-wed-type"));
       assert.isTrue(isAttr(c));
-      var loc = dloc.makeDLoc(root, c, 100, true);
+      var loc = DLoc.makeDLoc(root, c, 100, true);
       assert.equal(loc.offset, c.value.length);
     });
   });
 
   describe("mustMakeDLoc", function makeDLoc() {
     it("throws when called with undefined location", function test() {
-      assert.throws(dloc.DLoc.mustMakeDLoc.bind(undefined, root, undefined),
+      assert.throws(DLoc.mustMakeDLoc.bind(undefined, root, undefined),
                     window.Error,
                     /^called mustMakeDLoc with an absent node$/);
     });
 
     it("returns a valid DLoc", function test() {
       var a = defined($(".p")[0]);
-      var loc = dloc.DLoc.mustMakeDLoc(root, a, 0);
+      var loc = DLoc.mustMakeDLoc(root, a, 0);
       assert.equal(loc.node, a);
       assert.equal(loc.offset, 0);
       assert.equal(loc.root, root);
@@ -294,7 +305,7 @@ describe("dloc", function dlocBlock() {
 
     it("returns a valid DLoc when called with an array", function test() {
       var a = defined($(".p")[0]);
-      var loc = dloc.DLoc.mustMakeDLoc(root, new window.Array(a, 0));
+      var loc = DLoc.mustMakeDLoc(root, new window.Array(a, 0));
       assert.equal(loc.node, a);
       assert.equal(loc.offset, 0);
       assert.equal(loc.root, root);
@@ -303,7 +314,7 @@ describe("dloc", function dlocBlock() {
 
     it("throws when called with an array that has an undefined first member",
        function test() {
-         assert.throws(dloc.DLoc.mustMakeDLoc.bind(
+         assert.throws(DLoc.mustMakeDLoc.bind(
            undefined,
            root,
            new window.Array(undefined, 0)),
@@ -312,11 +323,11 @@ describe("dloc", function dlocBlock() {
        });
   });
 
-  describe("DLoc", function DLoc() {
+  describe("DLoc", function DLocBlock() {
     describe("clone", function clone() {
       it("clones", function test() {
         var a = defined($(".body .p")[0]);
-        var loc = dloc.makeDLoc(root, a, 1);
+        var loc = DLoc.makeDLoc(root, a, 1);
         assert.deepEqual(loc, loc.clone());
       });
     });
@@ -325,7 +336,7 @@ describe("dloc", function dlocBlock() {
       it("makes a new location with the same root", function test() {
         var a = defined($(".body .p")[0]);
         var b = defined($(".body .p")[1]);
-        var loc = dloc.makeDLoc(root, a, 1);
+        var loc = DLoc.makeDLoc(root, a, 1);
         var loc2 = loc.make(b, 0);
         assert.equal(loc.root, loc2.root);
         assert.equal(loc2.node, b);
@@ -341,7 +352,7 @@ describe("dloc", function dlocBlock() {
       it("makes a range", function test() {
         var a = defined($(".body .p")[0]);
         var b = defined($(".body .p")[1]);
-        var loc = dloc.makeDLoc(root, a, 0);
+        var loc = DLoc.makeDLoc(root, a, 0);
         var loc2 = loc.make(b, 1);
         var range = loc.makeRange(loc2);
         assert.equal(range.range.startContainer, a);
@@ -354,7 +365,7 @@ describe("dloc", function dlocBlock() {
 
       it("makes a collapsed range", function test() {
         var a = defined($(".body .p")[0]);
-        var loc = dloc.makeDLoc(root, a, 0);
+        var loc = DLoc.makeDLoc(root, a, 0);
         var range = loc.makeRange();
         assert.equal(range.startContainer, a);
         assert.equal(range.startOffset, 0);
@@ -366,7 +377,7 @@ describe("dloc", function dlocBlock() {
       it("makes a reversed range", function test() {
         var a = defined($(".body .p")[0]);
         var b = defined($(".body .p")[1]);
-        var loc = dloc.makeDLoc(root, b, 1);
+        var loc = DLoc.makeDLoc(root, b, 1);
         var loc2 = loc.make(a, 0);
         var range = loc.makeRange(loc2);
         assert.equal(range.range.startContainer, a);
@@ -380,7 +391,7 @@ describe("dloc", function dlocBlock() {
       it("fails on an attribute node", function test() {
         var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
         var b = defined($(".body .p")[1]);
-        var loc = dloc.makeDLoc(root, a, 0);
+        var loc = DLoc.makeDLoc(root, a, 0);
         var loc2 = loc.make(b, 1);
         assert.throws(loc.makeRange.bind(loc, loc2), window.Error,
                      "cannot make range from attribute node");
@@ -389,7 +400,7 @@ describe("dloc", function dlocBlock() {
       it("fails on an attribute node passed as other", function test() {
         var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
         var b = defined($(".body .p")[1]);
-        var loc = dloc.makeDLoc(root, a, 0);
+        var loc = DLoc.makeDLoc(root, a, 0);
         var loc2 = loc.make(b, 1);
         assert.throws(loc2.makeRange.bind(loc2, loc), window.Error,
                      "cannot make range from attribute node");
@@ -399,7 +410,7 @@ describe("dloc", function dlocBlock() {
         $root.append("<div class='__test'></div>");
         var t = defined($(".__test")[0]);
         assert.equal(t.nodeType, window.Node.ELEMENT_NODE);
-        var loc = dloc.makeDLoc(root, t, 0);
+        var loc = DLoc.makeDLoc(root, t, 0);
         t.parentNode.removeChild(t);
         assert.isFalse(loc.isValid());
         var range = loc.makeRange();
@@ -411,7 +422,7 @@ describe("dloc", function dlocBlock() {
         var t = defined($(".__test")[0]);
         assert.equal(t.nodeType, window.Node.ELEMENT_NODE);
         var b = defined($(".body .p")[1]);
-        var loc = dloc.makeDLoc(root, b, 1);
+        var loc = DLoc.makeDLoc(root, b, 1);
         var loc2 = loc.make(t, 0);
         t.parentNode.removeChild(t);
         assert.isFalse(loc2.isValid());
@@ -423,7 +434,7 @@ describe("dloc", function dlocBlock() {
     describe("toArray", function toArray() {
       it("returns an array with the right values", function test() {
         var a = defined($(".body .p")[0]);
-        var loc = dloc.makeDLoc(root, a, 1);
+        var loc = DLoc.makeDLoc(root, a, 1);
         assert.deepEqual(loc.toArray(), [a, 1]);
       });
     });
@@ -436,21 +447,21 @@ describe("dloc", function dlocBlock() {
       it("returns true when the location is valid (element)", function test() {
         var p = defined($(".p")[0]);
         assert.equal(p.nodeType, window.Node.ELEMENT_NODE);
-        var loc = dloc.makeDLoc(root, p, 0);
+        var loc = DLoc.makeDLoc(root, p, 0);
         assert.isTrue(loc.isValid());
       });
 
       it("returns true when the location is valid (text)", function test() {
         var t = defined($(".body .p")[0].firstChild);
         assert.equal(t.nodeType, window.Node.TEXT_NODE);
-        var loc = dloc.makeDLoc(root, t, 0);
+        var loc = DLoc.makeDLoc(root, t, 0);
         assert.isTrue(loc.isValid());
       });
 
       it("returns true when the location is valid (attribute)", function test() {
         var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
         assert.isTrue(isAttr(a));
-        var loc = dloc.makeDLoc(root, a, 0);
+        var loc = DLoc.makeDLoc(root, a, 0);
         assert.isTrue(loc.isValid());
       });
 
@@ -459,7 +470,7 @@ describe("dloc", function dlocBlock() {
            $root.append("<div class='__test'></div>");
            var t = defined($(".__test")[0]);
            assert.equal(t.nodeType, window.Node.ELEMENT_NODE);
-           var loc = dloc.makeDLoc(root, t, 0);
+           var loc = DLoc.makeDLoc(root, t, 0);
            t.parentNode.removeChild(t);
            assert.isFalse(loc.isValid());
          });
@@ -469,7 +480,7 @@ describe("dloc", function dlocBlock() {
            $root.append("<div class='__test'>test</div>");
            var t = defined($(".__test")[0].firstChild);
            assert.equal(t.nodeType, window.Node.TEXT_NODE);
-           var loc = dloc.makeDLoc(root, t, 0);
+           var loc = DLoc.makeDLoc(root, t, 0);
            t.parentNode.removeChild(t);
            assert.isFalse(loc.isValid());
          });
@@ -479,7 +490,7 @@ describe("dloc", function dlocBlock() {
            $root.append("<div class='__test' foo='bar'></div>");
            var t = defined($(".__test")[0].attributes.foo);
            assert.isTrue(isAttr(t));
-           var loc = dloc.makeDLoc(root, t, 0);
+           var loc = DLoc.makeDLoc(root, t, 0);
            t.ownerElement.removeAttribute("foo");
            assert.isFalse(loc.isValid());
          });
@@ -489,7 +500,7 @@ describe("dloc", function dlocBlock() {
            $root.append("<div class='__test'>test</div>");
            var t = defined($(".__test")[0]);
            assert.equal(t.nodeType, window.Node.ELEMENT_NODE);
-           var loc = dloc.makeDLoc(root, t, 1);
+           var loc = DLoc.makeDLoc(root, t, 1);
            t.removeChild(t.firstChild);
            assert.isFalse(loc.isValid());
          });
@@ -499,7 +510,7 @@ describe("dloc", function dlocBlock() {
            $root.append("<div class='__test'>test</div>");
            var t = defined($(".__test")[0].firstChild);
            assert.equal(t.nodeType, window.Node.TEXT_NODE);
-           var loc = dloc.makeDLoc(root, t, 4);
+           var loc = DLoc.makeDLoc(root, t, 4);
            t.textContent = "t";
            assert.isFalse(loc.isValid());
          });
@@ -509,7 +520,7 @@ describe("dloc", function dlocBlock() {
            $root.append("<div class='__test' foo='bar'></div>");
            var t = defined($(".__test")[0].attributes.foo);
            assert.isTrue(isAttr(t));
-           var loc = dloc.makeDLoc(root, t, 3);
+           var loc = DLoc.makeDLoc(root, t, 3);
            t.value = "f";
            assert.isFalse(loc.isValid());
          });
@@ -524,7 +535,7 @@ describe("dloc", function dlocBlock() {
         $root.append("<div class='__test'>test</div>");
         var t = defined($(".__test")[0]);
         assert.equal(t.nodeType, window.Node.ELEMENT_NODE);
-        var loc = dloc.makeDLoc(root, t, 1);
+        var loc = DLoc.makeDLoc(root, t, 1);
         t.removeChild(t.firstChild);
         assert.isFalse(loc.isValid());
         var norm = loc.normalizeOffset();
@@ -537,7 +548,7 @@ describe("dloc", function dlocBlock() {
         $root.append("<div class='__test'>test</div>");
         var t = defined($(".__test")[0].firstChild);
         assert.equal(t.nodeType, window.Node.TEXT_NODE);
-        var loc = dloc.makeDLoc(root, t, 4);
+        var loc = DLoc.makeDLoc(root, t, 4);
         t.textContent = "t";
         assert.isFalse(loc.isValid());
         var norm = loc.normalizeOffset();
@@ -550,13 +561,114 @@ describe("dloc", function dlocBlock() {
         $root.append("<div class='__test' foo='bar'></div>");
         var t = defined($(".__test")[0].attributes.foo);
         assert.isTrue(isAttr(t));
-        var loc = dloc.makeDLoc(root, t, 3);
+        var loc = DLoc.makeDLoc(root, t, 3);
         t.value = "f";
         assert.isFalse(loc.isValid());
         var norm = loc.normalizeOffset();
         assert.isTrue(norm.isValid());
         assert.notEqual(loc, norm);
         assert.equal(norm.normalizeOffset(), norm);
+      });
+    });
+
+    describe("equals", function equals() {
+      var p;
+      var loc;
+      before(function before() {
+        p = defined($(".body .p")[0]);
+        assert.equal(p.nodeType, window.Node.ELEMENT_NODE);
+        loc = DLoc.makeDLoc(root, p, 0);
+      });
+
+      it("returns true if it is the same object", function test() {
+        assert.isTrue(loc.equals(loc));
+      });
+
+      it("returns true if the two locations are equal", function test() {
+        var loc2 = DLoc.makeDLoc(root, p, 0);
+        assert.isTrue(loc.equals(loc2));
+      });
+
+      it("returns false if other is null", function test() {
+        assert.isFalse(loc.equals(null));
+      });
+
+      it("returns false if other is undefined", function test() {
+        assert.isFalse(loc.equals());
+      });
+
+      it("returns false if the two nodes are unequal", function test() {
+        assert.isFalse(loc.equals(loc.make(p.parentNode, 0)));
+      });
+
+      it("returns false if the two offsets are unequal", function test() {
+        assert.isFalse(loc.equals(loc.make(p, 1)));
+      });
+    });
+
+    describe("makeWithOffset", function equals() {
+      var p;
+      var loc;
+      before(function before() {
+        p = defined($(".body .p")[0]);
+        assert.equal(p.nodeType, window.Node.ELEMENT_NODE);
+        loc = DLoc.makeDLoc(root, p, 0);
+      });
+
+      it("makes a new object with a new offset", function test() {
+        var loc2 = loc.makeWithOffset(1);
+        assert.equal(loc2.offset, 1);
+        assert.notEqual(loc.offset, loc2.offset);
+        assert.notEqual(loc, loc2);
+      });
+
+      it("returns the same object if the offset is the same", function test() {
+        var loc2 = loc.makeWithOffset(0);
+        assert.equal(loc, loc2);
+      });
+    });
+
+    describe("getLocationInParent", function equals() {
+      var p;
+      var loc;
+      before(function before() {
+        p = defined($(".body .p")[1]);
+        assert.equal(p.nodeType, window.Node.ELEMENT_NODE);
+        loc = DLoc.makeDLoc(root, p, 0);
+      });
+
+      it("gets a valid location", function test() {
+        var loc2 = loc.getLocationInParent();
+        assert.equal(loc2.offset, 1);
+        assert.equal(loc2.node, loc.node.parentNode);
+      });
+
+      it("fails if we are already at the root", function test() {
+        var loc2 = loc.make(root, 0);
+        assert.throws(loc2.getLocationInParent.bind(loc2),
+                      window.Error, "node not in root");
+      });
+    });
+
+    describe("getLocationAfterInParent", function equals() {
+      var p;
+      var loc;
+      before(function before() {
+        p = defined($(".body .p")[1]);
+        assert.equal(p.nodeType, window.Node.ELEMENT_NODE);
+        loc = DLoc.makeDLoc(root, p, 0);
+      });
+
+      it("gets a valid location", function test() {
+        var loc2 = loc.getLocationAfterInParent();
+        assert.equal(loc2.offset, 2);
+        assert.equal(loc2.node, loc.node.parentNode);
+      });
+
+      it("fails if we are already at the root", function test() {
+        var loc2 = loc.make(root, 0);
+        assert.throws(loc2.getLocationAfterInParent.bind(loc2),
+                      window.Error, "node not in root");
       });
     });
   });

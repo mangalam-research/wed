@@ -14,6 +14,7 @@ define(function f(require) {
   var global = require("browser_test/global");
   var onerror = require("wed/onerror");
   var log = require("wed/log");
+  var DLoc = require("wed/dloc").DLoc;
   var schema = require("text!../../build/schemas/tei-simplified-rng.js");
   var generic_src =
         require("text!test-files/input_trigger_test_data/source_converted.xml");
@@ -97,7 +98,7 @@ define(function f(require) {
               key_constants.BACKSPACE, key_constants.DELETE);
 
             var ps = editor.data_root.getElementsByTagName("p");
-            editor.setDataCaret(ps[ps.length - 1].firstChild, 4);
+            editor.setCaret(ps[ps.length - 1].firstChild, 4);
             editor.type(";");
 
             ps = editor.data_root.querySelectorAll("body p");
@@ -118,7 +119,7 @@ define(function f(require) {
               key_constants.BACKSPACE, key_constants.DELETE);
 
             var ps = editor.data_root.getElementsByTagName("p");
-            editor.setDataCaret(ps[ps.length - 1].firstChild, 4);
+            editor.setCaret(ps[ps.length - 1].firstChild, 4);
             editor.type(key_constants.ENTER);
 
             ps = editor.data_root.querySelectorAll("body p");
@@ -149,7 +150,7 @@ define(function f(require) {
                  return "ab;cd;ef";
                },
              });
-             editor.setDataCaret(ps[0], 0);
+             editor.setCaret(ps[0], 0);
              editor.$gui_root.trigger(event);
 
              ps = editor.data_root.querySelectorAll("body p");
@@ -176,7 +177,7 @@ define(function f(require) {
               editor, "p", key_constants.ENTER,
               key_constants.BACKSPACE, key_constants.DELETE);
 
-            editor.setGUICaret(
+            editor.setCaret(
               editor.gui_root.querySelector(".p>.ref").firstChild, 1);
             editor.type(key_constants.BACKSPACE);
 
@@ -190,9 +191,8 @@ define(function f(require) {
               editor, "p", key_constants.ENTER,
               key_constants.BACKSPACE, key_constants.DELETE);
 
-            editor.setGUICaret(
-              editor.gui_root.querySelector(".p>.ref").lastChild.previousSibling,
-              0);
+            editor.setCaret(editor.gui_root.querySelector(".p>.ref")
+                            .lastChild.previousSibling, 0);
             editor.type(key_constants.DELETE);
 
             var ps = editor.data_root.querySelectorAll("body>p");
@@ -217,7 +217,7 @@ define(function f(require) {
         assert.equal(ps.length, 2,
                      "there should be 2 paragraphs before backspacing");
 
-        editor.setDataCaret(ps[1].firstChild, 0);
+        editor.setCaret(ps[1].firstChild, 0);
         editor.type(key_constants.BACKSPACE);
 
         ps = editor.data_root.querySelectorAll("body>p");
@@ -236,7 +236,7 @@ define(function f(require) {
             assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setDataCaret(ps[1].firstChild, 0);
+            editor.setCaret(ps[1].firstChild, 0);
             editor.type(key_constants.BACKSPACE);
 
             ps = editor.data_root.querySelectorAll("body>p");
@@ -262,7 +262,7 @@ define(function f(require) {
         assert.equal(ps.length, 2,
                      "there should be 2 paragraphs before backspacing");
 
-        editor.setDataCaret(ps[0].lastChild, ps[0].lastChild.nodeValue.length);
+        editor.setCaret(ps[0].lastChild, ps[0].lastChild.nodeValue.length);
         editor.type(key_constants.DELETE);
 
         ps = editor.data_root.querySelectorAll("body>p");
@@ -281,8 +281,7 @@ define(function f(require) {
             assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setDataCaret(ps[0].lastChild,
-                                ps[0].lastChild.nodeValue.length);
+            editor.setCaret(ps[0].lastChild, ps[0].lastChild.nodeValue.length);
             editor.type(key_constants.DELETE);
 
             ps = editor.data_root.querySelectorAll("body>p");

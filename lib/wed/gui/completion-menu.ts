@@ -64,7 +64,7 @@ export class CompletionMenu extends ContextMenu {
     editor.pushGlobalKeydownHandler(this.boundCompletionKeydownHandler);
 
     // We want the user to still be able to type into the document.
-    editor._focusInputField();
+    editor.caretManager.focusInputField();
 
     this.display([]);
   }

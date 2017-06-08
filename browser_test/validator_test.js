@@ -17,6 +17,7 @@ define(function f(require) {
   var assert = chai.assert;
   var ValidationError = salve.ValidationError;
   var Name = salve.Name;
+  var DLoc = dloc.DLoc;
 
   function onCompletion(p, cb) {
     p.events.addEventListener("state-update", function update(state) {
@@ -54,7 +55,7 @@ define(function f(require) {
       }
 
       makeTest("with DLoc", function stop(p) {
-        var evs = p.possibleAt(dloc.makeDLoc(empty_data_root, empty_tree, 0));
+        var evs = p.possibleAt(DLoc.makeDLoc(empty_data_root, empty_tree, 0));
         assert.sameMembers(
           evs.toArray(),
           [new salve.Event("enterStartTag", new Name("", "", "html"))]);
@@ -79,7 +80,7 @@ define(function f(require) {
         var container = body.parentNode;
         var index = Array.prototype.indexOf.call(container.childNodes, body);
         var ret = p.speculativelyValidate(
-          dloc.makeDLoc(data_root, container, index), body);
+          DLoc.makeDLoc(data_root, container, index), body);
         assert.isFalse(ret);
       });
     });
@@ -103,7 +104,7 @@ define(function f(require) {
         var container = body.parentNode;
         var index = Array.prototype.indexOf.call(container.childNodes, body);
         assert.throws(p.speculativelyValidateFragment.bind(
-          p, dloc.makeDLoc(data_root, container, index),
+          p, DLoc.makeDLoc(data_root, container, index),
           document.createTextNode("blah")), Error, "toParse is not an element");
       });
     });

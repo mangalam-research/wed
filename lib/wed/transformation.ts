@@ -531,7 +531,7 @@ export function splitNode(editor: Editor, node: Node): void {
 
   const pair = editor.data_updater.splitAt(node, caret);
   // Find the deepest location at the start of the 2nd element.
-  editor.setDataCaret(firstDescendantOrSelf(pair[1]), 0);
+  editor.setCaret(caret.make(firstDescendantOrSelf(pair[1]), 0));
 }
 
 /**
@@ -572,10 +572,10 @@ export function mergeWithPreviousHomogeneousSibling(editor: Editor,
 
   if (wasText) {
     editor.data_updater.mergeTextNodes(lastChild);
-    editor.setDataCaret(prev.childNodes[caretPos - 1], textLen);
+    editor.setCaret(prev.childNodes[caretPos - 1], textLen);
   }
   else {
-    editor.setDataCaret(prev, caretPos);
+    editor.setCaret(prev, caretPos);
   }
   editor.data_updater.removeNode(node);
 }
@@ -627,7 +627,7 @@ export function swapWithPreviousHomogeneousSibling(editor: Editor,
 
   editor.data_updater.removeNode(node);
   editor.data_updater.insertBefore(parent, node, prev);
-  editor.setDataCaret(parent, indexOf(parent.childNodes, node));
+  editor.setCaret(node);
 }
 
 /**

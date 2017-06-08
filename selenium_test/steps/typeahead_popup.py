@@ -32,7 +32,7 @@ def step_impl(context, step, where=None):
                 text = child;
             child = child.nextSibling;
         }
-        wed_editor.setGUICaret(text, text.length);
+        wed_editor.setCaret(text, text.length);
         return title;
         """)
     else:

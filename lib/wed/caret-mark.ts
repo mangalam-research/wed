@@ -8,12 +8,13 @@
 
 import * as $ from "jquery";
 
+import { CaretManager } from "./caret-manager";
 import { DLoc } from "./dloc";
 import * as domutil from "./domutil";
 
 export interface Editor {
   getGUICaret(raw: boolean): DLoc;
-  getSelectionRangeInfo(): domutil.RangeInfo;
+  caretManager: CaretManager;
   _setDOMSelectionRange(range: Range, reversed: boolean): void;
 }
 
@@ -172,13 +173,16 @@ export class CaretMark {
       this.dummy.parentNode!.removeChild(this.dummy);
     }
 
-    const rr = this.editor.getSelectionRangeInfo();
+    // We may need to restore the selection. We cannot use push/popSelection
+    // here because they would call ``refresh`` and we'd end up in an infinite
+    // recursion.
+    const rr = this.editor.caretManager.rangeInfo;
     if (rr !== undefined) {
       // Restore the range but we *must not* restore the range if it is
       // collapsed because this will cause a problem with scrolling. (The pane
       // will jump up and down while scrolling.)
       if (!rr.range.collapsed) {
-        this.editor._setDOMSelectionRange(rr.range, rr.reversed);
+        this.editor.caretManager._setDOMSelectionRange(rr.range, rr.reversed);
       }
     }
 

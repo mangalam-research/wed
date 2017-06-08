@@ -8,9 +8,9 @@
 import * as $ from "jquery";
 
 import * as convert from "./convert";
-import { DLoc, makeDLoc } from "./dloc";
+import { DLoc } from "./dloc";
 import { isElement, isText } from "./domtypeguards";
-import { indexOf, isAttr, linkTrees, unlinkTree} from "./domutil";
+import { isAttr, linkTrees, unlinkTree} from "./domutil";
 import * as treeUpdater from "./tree-updater";
 import * as util from "./util";
 
@@ -157,7 +157,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
     }
 
     if (isText(node)) {
-      return makeDLoc(this.tree, guiNode, offset);
+      return DLoc.mustMakeDLoc(this.tree, guiNode, offset);
     }
 
     if (isAttr(node)) {
@@ -166,15 +166,15 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
       if (isText(guiNode.firstChild)) {
         guiNode = guiNode.firstChild;
       }
-      return makeDLoc(this.tree, guiNode, offset);
+      return DLoc.mustMakeDLoc(this.tree, guiNode, offset);
     }
 
     if (offset === 0) {
-      return makeDLoc(this.tree, guiNode, 0);
+      return DLoc.mustMakeDLoc(this.tree, guiNode, 0);
     }
 
     if (offset >= node.childNodes.length) {
-      return makeDLoc(this.tree, guiNode, guiNode.childNodes.length);
+      return DLoc.mustMakeDLoc(this.tree, guiNode, guiNode.childNodes.length);
     }
 
     const guiChild = this.pathToNode(
@@ -182,11 +182,10 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
     if (guiChild === null) {
       // This happens if for instance node has X children but the
       // corresponding node in tree has X-1 children.
-      return makeDLoc(this.tree, guiNode, guiNode.childNodes.length);
+      return DLoc.mustMakeDLoc(this.tree, guiNode, guiNode.childNodes.length);
     }
 
-    return makeDLoc(this.tree, guiChild.parentNode,
-                    indexOf(guiChild.parentNode!.childNodes, guiChild));
+    return DLoc.mustMakeDLoc(this.tree, guiChild);
   }
 }
 

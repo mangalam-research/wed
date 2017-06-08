@@ -48,14 +48,15 @@ export type Editor = any;
 // create DOM elements for the attributes.)
 //
 function findInsertionPoint(editor: Editor, node: Node,
-                            index: number): DLoc | null{
+                            index: number): DLoc | null {
+  const caretManager = editor.caretManager;
   try {
-    return editor.fromDataLocation(node, index);
+    return caretManager.fromDataLocation(node, index);
   }
   catch (ex) {
     if (ex instanceof AttributeNotFound) {
       // This happens only if node points to an attribute.
-      return editor.fromDataLocation((node as Attr).ownerElement, 0);
+      return caretManager.fromDataLocation((node as Attr).ownerElement, 0);
     }
 
     throw ex;
@@ -422,7 +423,7 @@ export class ValidationController {
           // event. Older versions of wed let the event trickle up and be
           // handled by the general caret movement code but that would sometimes
           // result in a caret being put in a bad position.
-          this.editor.setGUICaret(insertAt);
+          this.editor.setCaret(insertAt);
           return false;
         });
 

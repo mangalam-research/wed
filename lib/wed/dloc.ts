@@ -7,7 +7,7 @@
 import * as $ from "jquery";
 import * as rangy from "rangy";
 import { isAttr, isDocument, isElement } from "./domtypeguards";
-import { Caret, rangeFromPoints, RangeInfo } from "./domutil";
+import { Caret, indexOf, rangeFromPoints, RangeInfo } from "./domutil";
 
 export type ValidRoots = Document | Element;
 
@@ -216,7 +216,9 @@ export class DLoc {
    *
    * @param node The node of the location.
    *
-   * @param offset The offset of the location.
+   * @param offset The offset of the location. If the offset is omitted, then
+   * the location will point to ``node`` rather than be a location that points
+   * to the node inside of ``node`` at offset ``offset``.
    *
    * @param location The location as a node, offset pair.
    *
@@ -233,7 +235,7 @@ export class DLoc {
    */
   static makeDLoc(root: ValidRoots | DLocRoot,
                   node: Node | Attr | undefined | null,
-                  offset: number, normalize?: boolean): DLoc | undefined;
+                  offset?: number, normalize?: boolean): DLoc | undefined;
   static makeDLoc(root: ValidRoots | DLocRoot, location: Caret,
                   normalize?: boolean): DLoc | undefined;
   static makeDLoc(root: ValidRoots | DLocRoot,
@@ -253,16 +255,27 @@ export class DLoc {
       return undefined;
     }
 
-    if (typeof offset !== "number") {
-      throw new Error("offset is not a number, somehow");
-    }
-
-    if (offset < 0) {
-      if (normalize) {
-        offset = 0;
+    if (offset === undefined) {
+      const parent = node.parentNode;
+      if (parent === null) {
+        throw new Error("trying to get parent of a detached node");
       }
-      else {
-        throw new Error("negative offsets are not allowed");
+
+      offset = indexOf(parent.childNodes, node);
+      node = parent;
+    }
+    else {
+      if (typeof offset !== "number") {
+        throw new Error("offset is not a number, somehow");
+      }
+
+      if (offset < 0) {
+        if (normalize) {
+          offset = 0;
+        }
+        else {
+          throw new Error("negative offsets are not allowed");
+        }
       }
     }
 
@@ -301,7 +314,7 @@ export class DLoc {
    */
   static mustMakeDLoc(root: ValidRoots | DLocRoot,
                       node: Node | Attr | undefined | null,
-                      offset: number, normalize?: boolean): DLoc;
+                      offset?: number, normalize?: boolean): DLoc;
   static mustMakeDLoc(root: ValidRoots | DLocRoot, location: Caret,
                       normalize?: boolean): DLoc;
   static mustMakeDLoc(root: ValidRoots | DLocRoot,
@@ -345,6 +358,61 @@ export class DLoc {
     }
 
     return DLoc.mustMakeDLoc(this.root, node, offset);
+  }
+
+  /**
+   * Make a new location with the same node as the current location but with a
+   * new offset.
+   *
+   * @param offset The offset of the new location.
+   *
+   * @returns The new location.
+   */
+  makeWithOffset(offset: number): DLoc {
+    if (offset === this.offset) {
+      return this;
+    }
+
+    return this.make(this.node, offset);
+  }
+
+  /**
+   * Make a new location. Let's define "current node" as the node of the current
+   * location. The new location points to the current node. (The offset of the
+   * current location is effectively ignored.) That is, the new location has for
+   * node the parent node of the current node, and for offset the offset of the
+   * current node in its parent.
+   *
+   * @returns The location in the parent, as described above.
+   *
+   * @throws {Error} If the current node has no parent.
+   */
+  getLocationInParent(): DLoc {
+    const node = this.node;
+    const parent = node.parentNode;
+    if (parent === null) {
+      throw new Error("trying to get parent of a detached node");
+    }
+
+    return this.make(parent, indexOf(parent.childNodes, node));
+  }
+
+  /**
+   * Same as [[getLocationInParent]] except that the location points *after* the
+   * current node.
+   *
+   * @returns The location in the parent, as described above.
+   *
+   * @throws {Error} If the current node has no parent.
+   */
+  getLocationAfterInParent(): DLoc {
+    const node = this.node;
+    const parent = node.parentNode;
+    if (parent === null) {
+      throw new Error("trying to get parent of a detached node");
+    }
+
+    return this.make(parent, indexOf(parent.childNodes, node) + 1);
   }
 
   /**
@@ -435,6 +503,20 @@ export class DLoc {
 
     return this;
   }
+
+  /**
+   * @returns Whether ``this`` and ``other`` are equal. They are equal if they
+   * are the same object or if they point to the same location.
+   */
+  equals(other: DLoc | undefined | null): boolean {
+    if (other == null) {
+      return false;
+    }
+
+    return this === other ||
+      (this.node === other.node) &&
+      (this.offset === other.offset);
+  }
 }
 
 /**
@@ -475,8 +557,6 @@ export function getRoot(node: Node | Attr | undefined | null): DLocRoot {
   }
   return ret;
 }
-
-export const makeDLoc =  DLoc.makeDLoc.bind(DLoc);
 
 //  LocalWords:  dloc MPL jquery domutil oop DLoc makeDLoc jshint
 //  LocalWords:  newcap validthis

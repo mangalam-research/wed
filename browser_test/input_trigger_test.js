@@ -7,6 +7,7 @@ define(function f(require) {
   "use strict";
   var chai = require("chai");
   var input_trigger = require("wed/input-trigger");
+  var DLoc = require("wed/dloc").DLoc;
   var wed = require("wed/wed");
   var key = require("wed/key");
   var key_constants = require("wed/key-constants");
@@ -86,7 +87,7 @@ define(function f(require) {
           return "abc;def";
         },
       });
-      editor.setDataCaret(p, 0);
+      editor.setCaret(p, 0);
       editor.$gui_root.trigger(event);
       assert.equal(seen, 1);
     });
@@ -105,7 +106,7 @@ define(function f(require) {
                             });
 
       // Synthetic event
-      editor.setDataCaret(p, 0);
+      editor.setCaret(p, 0);
       editor.type(key_constants.ENTER);
       assert.equal(seen, 1);
     });
@@ -123,7 +124,7 @@ define(function f(require) {
                               seen++;
                             });
 
-      editor.setDataCaret(p, 0);
+      editor.setCaret(p, 0);
       editor.type(";");
       assert.equal(seen, 1);
     });
@@ -138,7 +139,7 @@ define(function f(require) {
         seen++;
       });
 
-      editor.setDataCaret(p, 0);
+      editor.setCaret(p, 0);
       editor.type(":");
       assert.equal(seen, 0);
     });
@@ -152,7 +153,7 @@ define(function f(require) {
         key_constants.BACKSPACE, key_constants.DELETE);
       var ps = editor.data_root.querySelectorAll("body p");
       assert.equal(ps.length, 1);
-      editor.setDataCaret(ps[0], 0);
+      editor.setCaret(ps[0], 0);
       // Synthetic event
       var event = global.makeFakePasteEvent({
         types: ["text/plain"],

@@ -19,4 +19,4 @@ export interface GUIValidationError {
 
   /** The marker in the error layer that represents the error. */
   marker: HTMLElement | undefined;
-};
+}

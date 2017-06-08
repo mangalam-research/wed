@@ -9,7 +9,7 @@ import * as  $ from "jquery";
 import * as salve from "salve";
 
 import { Action } from "./action";
-import * as  dloc from "./dloc";
+import { DLoc } from "./dloc";
 import { Listener } from "./domlistener";
 import { isAttr, isText } from "./domtypeguards";
 import * as  domutil from "./domutil";
@@ -30,8 +30,8 @@ export interface Editor {
   complex_pattern_action: Action<{}>;
   attributes: string;
   validator: Validator;
-  setDataCaret(dataCaret: dloc.DLoc, textEdit: boolean): void;
-  getDataCaret(): dloc.DLoc;
+  setCaret(caret: DLoc, options: Record<string, boolean>): void;
+  getDataCaret(): DLoc;
   // tslint:disable-next-line:no-any
   mode: any;
   _makeMenuItemForAction(action: Action<{}>, data?: {}): HTMLElement;
@@ -40,18 +40,16 @@ export interface Editor {
   isAttrProtected(node: Node): boolean;
   toDataNode(el: Node): Node | Attr;
   makeDocumentationLink(url: string): HTMLElement;
-  toDataLocation(node: Node, offset: number): dloc.DLoc;
-  getElementTransformationsAt(pos: dloc.DLoc,
-                              transformationType: string):
+  getElementTransformationsAt(pos: DLoc, transformationType: string):
   { name: string,
     tr: Transformation<TransformationData> }[];
   // tslint:disable-next-line:no-any
   [key: string]: any;
 }
 
-function tryToSetDataCaret(editor: Editor, dataCaret: dloc.DLoc): void {
+function tryToSetDataCaret(editor: Editor, dataCaret: DLoc): void {
   try {
-    editor.setDataCaret(dataCaret, true);
+    editor.setCaret(dataCaret, { textEdit: true });
   }
   catch (e) {
     // Do nothing.
@@ -221,7 +219,7 @@ export class Decorator {
     }
 
     // Save the caret because the decoration may mess up the GUI caret.
-    let dataCaret: dloc.DLoc | undefined = this.editor.getDataCaret();
+    let dataCaret: DLoc | undefined = this.editor.getDataCaret();
     if (dataCaret != null &&
         !(isAttr(dataCaret.node) &&
           dataCaret.node.ownerElement === $.data(el, "wed_mirror_node"))) {
@@ -413,10 +411,8 @@ export class Decorator {
     const attrVal = closestByClass(node, "_attribute_value", editor.gui_root);
     if (attrVal !== null) {
       const dataNode = editor.toDataNode(attrVal) as Attr;
-      const el = dataNode.ownerElement;
-      const parent = el.parentNode!;
-      const offset = indexOf(parent.childNodes, el);
-      const treeCaret = dloc.makeDLoc(editor.data_root, parent, offset);
+      const treeCaret =
+        DLoc.mustMakeDLoc(editor.data_root, dataNode.ownerElement);
       editor.validator.possibleAt(treeCaret, true).forEach((event) => {
         if (event.params[0] !== "attributeName") {
           return;
@@ -471,7 +467,7 @@ export class Decorator {
       if (!atStart) {
         index++;
       }
-      const treeCaret = editor.toDataLocation(parent, index);
+      const treeCaret = editor.caretManager.toDataLocation(parent, index);
 
       if (atStart && editor.attributes === "edit") {
         editor.validator.possibleAt(treeCaret, true).forEach((event) => {

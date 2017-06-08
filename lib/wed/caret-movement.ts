@@ -49,7 +49,7 @@ function moveOutOfPlaceholder(pos: DLoc, root: Element | Document,
  *
  * @returns A container that can be used by the caret movement functions.
  */
-function determineContainer(docRoot: Element): Element {
+function determineContainer(docRoot: Document | Element): Element {
   let container = docRoot.firstChild;
 
   if (!isElement(container)) {
@@ -162,7 +162,7 @@ function findNext(haystack: NodeList, ref: Node): Node | undefined {
 // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
 export function positionRight(pos: DLoc | undefined | null,
                               inAttributes: boolean,
-                              docRoot: Element,
+                              docRoot: Document | Element,
                               mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
     return undefined;
@@ -303,7 +303,7 @@ export function positionRight(pos: DLoc | undefined | null,
 // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
 export function positionLeft(pos: DLoc | undefined | null,
                              inAttributes: boolean,
-                             docRoot: Element,
+                             docRoot: Document | Element,
                              mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
     return undefined;
@@ -480,7 +480,7 @@ export function positionLeft(pos: DLoc | undefined | null,
  */
 export function positionDown(pos: DLoc | undefined | null,
                              inAttributes: boolean,
-                             docRoot: Element,
+                             docRoot: Document | Element,
                              mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
     return undefined;
@@ -543,7 +543,7 @@ export function positionDown(pos: DLoc | undefined | null,
  */
 export function positionUp(pos: DLoc | undefined | null,
                            inAttributes: boolean,
-                           docRoot: Element,
+                           docRoot: Document | Element,
                            mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
     return undefined;

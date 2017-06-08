@@ -12,9 +12,9 @@
 // encompass those functions that do not depend on having a browser available.
 //
 
-import { DLoc, makeDLoc } from "./dloc";
+import { DLoc } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
-import { closestByClass, indexOf, isWellFormedRange } from "./domutil";
+import { closestByClass, indexOf } from "./domutil";
 import { AttributeNotFound } from "./guiroot";
 
 export interface BoundaryCoordinates {
@@ -24,7 +24,7 @@ export interface BoundaryCoordinates {
 }
 
 // Utility function for boundaryXY.
-function parentBoundary(node: Node, root: Node): BoundaryCoordinates {
+function parentBoundary(node: Node, root: Document | Element): BoundaryCoordinates {
   const parent = node.parentNode!;
 
   // Cannot find a sensible boundary
@@ -32,7 +32,7 @@ function parentBoundary(node: Node, root: Node): BoundaryCoordinates {
     return { left: 0, top: 0, bottom: 0 };
   }
 
-  return boundaryXY(makeDLoc(root, parent, indexOf(parent.childNodes, node)));
+  return boundaryXY(DLoc.mustMakeDLoc(root, node));
 }
 
 // tslint:disable-next-line:max-func-body-length
@@ -174,14 +174,13 @@ export function getAttrValueNode(attrVal: Element): Node {
 export type Editor = any;
 
 export function cut(editor: Editor): void {
-  let range = editor._getDOMSelectionRange();
-  if (!isWellFormedRange(range)) {
+  const caretManager = editor.caretManager;
+  const sel = caretManager.sel;
+  if (!sel.wellFormed) {
     throw new Error("malformed range");
   }
 
-  const startCaret = editor.toDataLocation(range.startContainer,
-                                           range.startOffset);
-  const endCaret = editor.toDataLocation(range.endContainer, range.endOffset);
+  const [startCaret, endCaret] = sel.asDataCarets();
   while (editor._cut_buffer.firstChild !== null) {
     editor._cut_buffer.removeChild(editor._cut_buffer.firstChild);
   }
@@ -193,8 +192,8 @@ export function cut(editor: Editor): void {
     }
     const removedText = attr.value.slice(startCaret.offset, endCaret.offset);
     editor._spliceAttribute(
-      closestByClass(editor.fromDataLocation(startCaret).node,
-                     "_attribute_value", range.startContainer),
+      closestByClass(caretManager.fromDataLocation(startCaret).node,
+                     "_attribute_value"),
       startCaret.offset,
       endCaret.offset - startCaret.offset, "");
     editor._cut_buffer.textContent = removedText;
@@ -208,22 +207,22 @@ export function cut(editor: Editor): void {
       doc.firstChild.appendChild(doc.adoptNode(node));
     }
     editor._cut_buffer.textContent = doc.firstChild.innerHTML;
-    editor.setDataCaret(cutRet[0]);
+    editor.setCaret(cutRet[0]);
   }
 
-  range = editor.doc.createRange();
+  const range = editor.doc.createRange();
   const container = editor._cut_buffer;
   range.setStart(container, 0);
   range.setEnd(container, container.childNodes.length);
-  const sel = editor.my_window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
+  const domSel = editor.my_window.getSelection();
+  domSel.removeAllRanges();
+  domSel.addRange(range);
 
   // We've set the range to the cut buffer, which is what we want for the cut
   // operation to work. However, the focus is also set to the cut buffer but
   // once the cut is done we want the focus to be back to our caret, so...
   setTimeout(() => {
-    editor._focusInputField();
+    caretManager.focusInputField();
   }, 0);
 }
 
@@ -278,7 +277,7 @@ export function paste(editor: Editor, data: any): void {
     }
   }
   if (newCaret != null) {
-    editor.setDataCaret(newCaret);
+    editor.setCaret(newCaret);
     caret = newCaret;
   }
   editor.$gui_root.trigger("wed-post-paste", [data.e, caret, dataClone]);
@@ -292,7 +291,7 @@ Node | undefined {
   }
 
   try {
-    const caret = editor.fromDataLocation(node, 0);
+    const caret = editor.caretManager.fromDataLocation(node, 0);
     return caret != null ? caret.node : undefined;
   }
   catch (ex) {

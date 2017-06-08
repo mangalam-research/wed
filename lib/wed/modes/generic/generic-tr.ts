@@ -9,7 +9,7 @@
 import * as salve from "salve";
 import { ErrorData } from "salve-dom";
 
-import * as dloc from "wed/dloc";
+import { DLoc } from "wed/dloc";
 import { isAttr, isElement } from "wed/domtypeguards";
 import { childByClass, indexOf } from "wed/domutil";
 import { Mode } from "wed/mode";
@@ -83,7 +83,7 @@ function _autoinsert(el: Element, editor: Editor): void {
     // context, it does not matter because autoinsert is meant to be called by a
     // transformation anyway.
     //
-    editor.setDataCaret(dloc.makeDLoc(dloc.getRoot(el), el, locations[0]));
+    editor.setCaret(el, locations[0]);
     actions[0].execute({ name: unresolved });
   }
 }
@@ -124,7 +124,7 @@ function executeInsert(editor: Editor, data: TransformationData): void {
       caretNode = child;
     }
   }
-  editor.setDataCaret(caretNode, 0);
+  editor.setCaret(caret.make(caretNode, 0));
 }
 
 function executeUnwrap(editor: Editor, data: TransformationData): void {
@@ -135,21 +135,19 @@ function executeUnwrap(editor: Editor, data: TransformationData): void {
   const parent = node.parentNode!;
   const index = indexOf(parent.childNodes, node);
   unwrap(editor.data_updater, node);
-  editor.setDataCaret(parent, index);
+  editor.setCaret(parent, index);
 }
 
 function executeWrap(editor: Editor, data: TransformationData): void {
-  const range = editor.getSelectionRange();
-  if (range == null) {
+  const sel = editor.caretManager.sel;
+  if (sel == null) {
     throw new Error("wrap transformation called with undefined range");
   }
 
-  if (range.collapsed as boolean) {
+  if (sel.collapsed as boolean) {
     throw new Error("wrap transformation called with collapsed range");
   }
-  const startCaret = editor.toDataLocation(range.startContainer,
-                                           range.startOffset);
-  const endCaret = editor.toDataLocation(range.endContainer, range.endOffset);
+  const [startCaret, endCaret] = sel.asDataCarets();
   const ename = editor.mode.getAbsoluteResolver().resolveName(data.name);
   if (ename === undefined) {
     throw new Error(`cannot resolve ${data.name}`);
@@ -158,7 +156,8 @@ function executeWrap(editor: Editor, data: TransformationData): void {
                            startCaret.offset, endCaret.node, endCaret.offset,
                            ename.ns, data.name);
   const parent = el.parentNode!;
-  editor.setDataCaret(parent, indexOf(parent.childNodes, el) + 1);
+  editor.setCaret(startCaret.make(parent,
+                                  indexOf(parent.childNodes, el) + 1));
 }
 
 function executeWrapContent(editor: Editor, data: TransformationData): void {
@@ -185,12 +184,12 @@ function executeDeleteElement(editor: Editor, data: TransformationData): void {
 
   const parent = node.parentNode!;
   const index = indexOf(parent.childNodes, node);
-  const guiLoc = editor.fromDataLocation(node, 0) as dloc.DLoc;
+  const guiLoc = editor.caretManager.fromDataLocation(node, 0) as DLoc;
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
     editor.data_updater.removeNode(node);
-    editor.setDataCaret(parent, index);
+    editor.setCaret(parent, index);
   }
 }
 
@@ -203,12 +202,12 @@ function executeDeleteParent(editor: Editor, data: TransformationData): void {
 
   const parent = node.parentNode!;
   const index = indexOf(parent.childNodes, node);
-  const guiLoc = editor.fromDataLocation(node, 0);
+  const guiLoc = editor.caretManager.fromDataLocation(node, 0);
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
     editor.data_updater.removeNode(node);
-    editor.setDataCaret(parent, index);
+    editor.setCaret(parent, index);
   }
 }
 
@@ -219,13 +218,13 @@ function executeAddAttribute(editor: Editor, data: TransformationData): void {
     throw new Error("node must be an element");
   }
 
-  const guiLoc = editor.fromDataLocation(node, 0);
+  const guiLoc = editor.caretManager.fromDataLocation(node, 0);
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
     editor.data_updater.setAttribute(node, data.name, "");
     const attr = node.getAttributeNode(data.name);
-    editor.setDataCaret(attr, 0);
+    editor.setCaret(attr, 0);
   }
 }
 
@@ -238,7 +237,8 @@ function executeDeleteAttribute(editor: Editor,
   }
 
   const element = node.ownerElement;
-  const guiOwnerLoc = editor.fromDataLocation(element, 0);
+  const caretManager = editor.caretManager;
+  const guiOwnerLoc = caretManager.fromDataLocation(element, 0);
   // If the node we start with is an Element, then the node in guiOwnerLoc
   // is necessarily an Element too.
   const guiOwner = guiOwnerLoc.node as Element;
@@ -255,7 +255,7 @@ function executeDeleteAttribute(editor: Editor,
 
     // We have to get the parent node because fromDataLocation brings us to the
     // text node that contains the value.
-    const guiNode = editor.fromDataLocation(node, 0).node.parentNode;
+    const guiNode = caretManager.fromDataLocation(node, 0).node.parentNode;
     const index = indexOf(values, guiNode);
     const nextGUIValue = values[index + 1];
     const nextAttr = nextGUIValue != null ?
@@ -266,10 +266,10 @@ function executeDeleteAttribute(editor: Editor,
     // We set the caret inside the next attribute, or if it does not exist,
     // inside the label.
     if (nextAttr !== null) {
-      editor.setDataCaret(nextAttr, 0);
+      editor.setCaret(nextAttr, 0);
     }
     else {
-      editor.setGUICaret(
+      editor.setCaret(
         guiOwnerLoc.node.getElementsByClassName("_element_name")[0], 0);
     }
   }

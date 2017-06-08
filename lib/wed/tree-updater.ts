@@ -7,7 +7,7 @@
 
 import { Observable, Subject } from "rxjs";
 
-import { DLoc, DLocRoot, findRoot, makeDLoc } from "./dloc";
+import { DLoc, DLocRoot, findRoot } from "./dloc";
 import { isDocumentFragment, isElement, isNode, isText } from "./domtypeguards";
 import * as domutil from "./domutil";
 
@@ -641,7 +641,7 @@ export class TreeUpdater {
     const ix = indexOf(parent.childNodes, node);
     this.deleteNode(node);
     if (prev === null) {
-      return makeDLoc(this.tree, parent, ix);
+      return DLoc.mustMakeDLoc(this.tree, parent, ix);
     }
     return this.mergeTextNodes(prev);
   }
@@ -699,7 +699,7 @@ export class TreeUpdater {
     }
 
     if (prev === null) {
-      return makeDLoc(this.tree, parent, ix);
+      return DLoc.makeDLoc(this.tree, parent, ix);
     }
     return this.mergeTextNodes(prev);
   }
@@ -721,7 +721,7 @@ export class TreeUpdater {
   cut(start: DLoc, end: DLoc): [DLoc, Node[]] {
     const ret = domutil.genericCutFunction.call(this,
                                                 start.toArray(), end.toArray());
-    ret[0] = makeDLoc(this.tree, ret[0]);
+    ret[0] = start.make(ret[0]);
     return ret;
   }
 
@@ -743,7 +743,7 @@ export class TreeUpdater {
       const offset = node.length;
       this.setTextNodeValue(node, node.data + next.data);
       this.deleteNode(next);
-      return makeDLoc(this.tree, node, offset);
+      return DLoc.mustMakeDLoc(this.tree, node, offset);
     }
 
     const parent = node.parentNode;
@@ -751,7 +751,8 @@ export class TreeUpdater {
       throw new Error("called with detached node");
     }
 
-    return makeDLoc(this.tree, parent, indexOf(parent.childNodes, node) + 1);
+    return DLoc.mustMakeDLoc(this.tree, parent,
+                             indexOf(parent.childNodes, node) + 1);
   }
 
   /**
