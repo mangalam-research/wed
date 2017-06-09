@@ -652,6 +652,48 @@ export class CaretManager implements GUIToDataConverter {
   }
 
   /**
+   * Set the caret into a normalized label position. There are only some
+   * locations in which it is valid to put the caret inside a label:
+   *
+   * - The element name.
+   *
+   * - Inside attribute values.
+   *
+   * This method is used by DOM event handlers (usually mouse events handlers)
+   * to normalize the location of the caret to one of the valid locations listed
+   * above.
+   *
+   * @param target The target of the DOM event that requires moving the caret.
+   *
+   * @param label The label element that contains ``target``.
+   *
+   * @param location The location of the event, which is what is normalized by
+   * this method.
+   */
+  setCaretToLabelPosition(target: Node, label: Element, location: DLoc): void {
+    let node;
+    let offset = 0;
+    // Note that in the code that follows, the choice between testing against
+    // ``target`` or against ``location.node`` is not arbitrary.
+    const attr = closestByClass(target, "_attribute", label);
+    if (attr !== null) {
+      if (closestByClass(location.node, "_attribute_value", label) !== null) {
+        ({ node, offset } = location);
+      }
+      else {
+        node = getAttrValueNode(
+          attr.getElementsByClassName("_attribute_value")[0]);
+      }
+    }
+    else {
+      // Find the element name and put it there.
+      node = label.getElementsByClassName("_element_name")[0];
+    }
+
+    this.setCaret(node, offset);
+  }
+
+  /**
    * Save the current selection (and caret) on an internal selection stack.
    */
   pushSelection(): void {
