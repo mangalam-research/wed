@@ -10,12 +10,12 @@ import * as $ from "jquery";
 
 import { CaretManager } from "./caret-manager";
 import { DLoc } from "./dloc";
-import * as domutil from "./domutil";
+import { isElement } from "./domtypeguards";
+import { boundaryXY } from "./wed-util";
 
 export interface Editor {
   getGUICaret(raw: boolean): DLoc;
   caretManager: CaretManager;
-  _setDOMSelectionRange(range: Range, reversed: boolean): void;
 }
 
 /**
@@ -119,82 +119,25 @@ export class CaretMark {
       return;
     }
 
-    const { node, offset } =  caret;
-
-    let parent;
-    let prev;
-    let next;
-    switch (node.nodeType) {
-    case Node.TEXT_NODE:
-      parent = node.parentNode;
-      prev = node.previousSibling;
-      next = node.nextSibling;
-      domutil.insertIntoText(node as Text, offset, this.dummy);
-      break;
-    case Node.ELEMENT_NODE:
-      const child = node.childNodes[offset];
-      node.insertBefore(this.dummy, child !== undefined ? child : null);
-      break;
-    default:
-      throw new Error(`unexpected node type: ${node.nodeType}`);
-    }
-
-    let position: { top: number, left: number } =
-      this.dummy.getBoundingClientRect();
-
-    //
-    // The position is relative to the *screen*. We need to make it relative to
-    // the start of scroller.
-    //
+    const boundary = boundaryXY(caret);
     const grPosition = this.scroller.getBoundingClientRect();
-    position = {
-      top: position.top - grPosition.top,
-      left: position.left - grPosition.left,
+    const position = {
+      top: boundary.top - grPosition.top,
+      left: boundary.left - grPosition.left,
     };
 
-    const height = this.$dummy.height();
-
-    if (node.nodeType === Node.TEXT_NODE) {
-      // node was deleted from the DOM tree by the insertIntoText operation, we
-      // need to bring it back.
-
-      // We delete everything after what was prev to the original node, and
-      // before what was next to it.
-      let deleteThis = prev != null ? prev.nextSibling : parent!.firstChild;
-      while (deleteThis !== next) {
-        if (deleteThis !== null) {
-          parent!.removeChild(deleteThis);
-        }
-        deleteThis = prev != null ? prev.nextSibling : parent!.firstChild;
-      }
-      parent!.insertBefore(node, next != null ? next : null);
-    }
-    else {
-      this.dummy.parentNode!.removeChild(this.dummy);
-    }
-
-    // We may need to restore the selection. We cannot use push/popSelection
-    // here because they would call ``refresh`` and we'd end up in an infinite
-    // recursion.
-    const rr = this.editor.caretManager.rangeInfo;
-    if (rr !== undefined) {
-      // Restore the range but we *must not* restore the range if it is
-      // collapsed because this will cause a problem with scrolling. (The pane
-      // will jump up and down while scrolling.)
-      if (!rr.range.collapsed) {
-        this.editor.caretManager._setDOMSelectionRange(rr.range, rr.reversed);
-      }
-    }
+    const node = caret.node;
+    const heightNode = isElement(node) ? node : (node.parentNode as Element);
+    const height = getComputedStyle(heightNode).lineHeight;
 
     const el = this.el;
     const topStr = `${position.top}px`;
     const leftStr = `${position.left}px`;
-    const heightStr = `${height}px`;
     el.style.top = topStr;
     el.style.left = leftStr;
-    el.style.height = heightStr;
-    el.style.maxHeight = heightStr;
-    el.style.minHeight = heightStr;
+    el.style.height = height;
+    el.style.maxHeight = height;
+    el.style.minHeight = height;
 
     // The fake caret is removed from the DOM when not in use, reinsert it.
     if (el.parentNode === null) {

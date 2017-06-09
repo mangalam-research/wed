@@ -662,7 +662,7 @@ export class CaretManager implements GUIToDataConverter {
    * selection directly. Generally, you want to use {@link
    * module:wed~Editor#setSelectionRange setSelectionRange} instead.
    */
-  _setDOMSelectionRange(range: Range, reverse: boolean): void {
+  private _setDOMSelectionRange(range: Range, reverse: boolean): void {
     if (range.collapsed) {
       this._clearDOMSelection();
       return;

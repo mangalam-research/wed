@@ -3298,7 +3298,7 @@ define(function f(require) {
 
           editor.type(key_constants.UP_ARROW);
 
-          // We end up in the next paragraph.
+          // We end up in the previous paragraph.
           dataCaretCheck(editor,
                          domutil.firstDescendantOrSelf(
                            initial.previousElementSibling),
@@ -3308,7 +3308,7 @@ define(function f(require) {
 
       it("moving the caret scrolls the pane", function moving(done) {
         var initial = editor.data_root;
-        editor.setCaret(initial, 0);
+        editor.setCaret(initial.firstChild, 0);
 
         var initialScroll = editor._scroller.scrollTop;
 
@@ -3325,7 +3325,8 @@ define(function f(require) {
           done();
         });
 
-        editor.setCaret(initial, initial.childNodes.length);
+        editor.setCaret(initial.firstChild,
+                        initial.firstChild.childNodes.length);
       });
 
       it("processes validation errors added by the mode", function test() {
