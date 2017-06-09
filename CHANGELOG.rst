@@ -202,6 +202,9 @@ odd bug fix may not get mentioned here at all.
     either location is invalid. (This is "potentially" breaking because there's
     not much you could have done with a range created from invalid locations.)
 
+  - Breaking API change: ``makeDLoc`` is now accessible only through the
+    ``DLoc`` class.
+
   - Fix: the ``domutil.makePlaceholder`` function used to treat its argument as
     HTML, it now treats it as text.
 
@@ -221,17 +224,17 @@ odd bug fix may not get mentioned here at all.
   - The ``.xsl`` files have been moved out of the JavaScript codebase
     and into the ``misc`` directory.
 
-  + Module name changes: underscore to dash in ``key_constants``,
+  - Module name changes: underscore to dash in ``key_constants``,
     ``context_menu``, ``completion_menu``, ``action_context_menu``,
     ``generic_decorator``, ``input_trigger_factory``, ``generic_tr``,
     ``generic_meta``.
 
-  + Module name changes affecting configuration: underscore to dash in
+  - Module name changes affecting configuration: underscore to dash in
     ``tei_meta`` and ``docbook_meta``.
 
-  + Variable name changes:
+  - Variable name changes:
 
-    - ``Action`` class:
+    + ``Action`` class:
 
        * To camelCase: ``needs_input``, ``_abbreviated_desc``, ``bound_handler``,
          ``bound_terminal_handler``.
@@ -239,42 +242,42 @@ odd bug fix may not get mentioned here at all.
        * Loss of underscore: ``_editor``, ``_desc``, ``_abbreviated_desc``,
          ``_icon``.
 
-    - ``Transform`` class:
+    + ``Transform`` class:
 
         * To camelCase: ``needs_input``, ``node_type``, ``abbreviated_desc``,
           ``icon_html``.
 
         * ``type`` was renamed to ``transformationType`` to avoid the keyword.
 
-    - ``TreeUpdater`` class (and derived classes like ``GUIUpdater``):
+    + ``TreeUpdater`` class (and derived classes like ``GUIUpdater``):
 
         * To camelCase, event fields ``old_value``, ``former_parent``,
           ``new_value``.
 
-    - ``BaseMode`` (formerly known as ``Mode``):
+    + ``BaseMode`` (formerly known as ``Mode``):
 
         * To camelCase: ``_wed_options``.
 
         * Loss of leading underscore: ``_editor``, ``_options``,
           ``_wed_options``.
 
-    - ``ContextMenu``:
+    + ``ContextMenu``:
 
         * Loss of leading underscore: ``_menu``, ``_$menu``, ``_dismissed``,
           ``_backdrop``, ``_dropdown``, ``_render``.
 
-    - ``Decorator``:
+    + ``Decorator``:
 
         * To camelCase: ``_gui_updater``.
 
         * Loss of leading underscore: ``_editor``, ``_domlistener``,
           ``_gui_updater``.
 
-    - ``GenericDecorator``:
+    + ``GenericDecorator``:
 
         * Loss of leading underscore: ``_options``, ``_mode``, ``_meta``.
 
-    - ``Meta`` (in ``generic_meta``):
+    + ``Meta`` (in ``generic_meta``):
 
         * To camelCase: ``_desc_map``, ``_namespace_mappings``,
           ``_reverse_mappings``.
@@ -282,15 +285,37 @@ odd bug fix may not get mentioned here at all.
         * Loss of leading underscore: ``_desc_map``, ``_namespace_mappings``,
           ``_reverse_mappings``, ``_metadata``, ``_options``, ``_runtime``.
 
-     - ``Mode`` in (``generic``):
+    + ``Mode`` in (``generic``):
 
         * To camelCase: ``_tag_tr``.
 
         * Loss of leading underscore: ``_meta``, ``_tag_tr``, ``_resolver``.
 
-     - ``LabelManager``:
+    + ``LabelManager``:
 
         * Loss of leading underscore: ``_labelIndex``.
+
+  - Breaking API change: Complete revamp of caret management. All caret methods
+    are now available through ``.caretManager`` on the ``Editor`` object. Some
+    highlights of how the public API changed:
+
+    + ``.setCaret()`` is the single method by which to set new caret values whether
+      they be GUI or data carets.
+
+    + ``.getSelectionRange()`` no longer exists. Use ``.range``.
+
+    + ``.getDataSelectionRange()`` no longer exists. Use
+      ``.caretManager.sel.asDataCarets()`` and create a range from the pair if you
+      need to.
+
+    + ``.setSelectionRange()`` no longer exists. Use ``.setRange()``.
+
+    + ``.getGUICaret()`` no longer exists. Use ``.caret`` to get a raw caret or
+      ``.getNormalizedCaret()`` to get a normalized caret.
+
+    + All methods pertaining to movement no longer have a direction in their
+      name but take an argument to specify the direction. (e.g. ``.moveRight``
+      is now ``.move("right")``).
 
 * 0.28.0:
 

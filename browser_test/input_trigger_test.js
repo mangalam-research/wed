@@ -87,7 +87,7 @@ define(function f(require) {
           return "abc;def";
         },
       });
-      editor.setCaret(p, 0);
+      editor.caretManager.setCaret(p, 0);
       editor.$gui_root.trigger(event);
       assert.equal(seen, 1);
     });
@@ -106,7 +106,7 @@ define(function f(require) {
                             });
 
       // Synthetic event
-      editor.setCaret(p, 0);
+      editor.caretManager.setCaret(p, 0);
       editor.type(key_constants.ENTER);
       assert.equal(seen, 1);
     });
@@ -124,7 +124,7 @@ define(function f(require) {
                               seen++;
                             });
 
-      editor.setCaret(p, 0);
+      editor.caretManager.setCaret(p, 0);
       editor.type(";");
       assert.equal(seen, 1);
     });
@@ -139,7 +139,7 @@ define(function f(require) {
         seen++;
       });
 
-      editor.setCaret(p, 0);
+      editor.caretManager.setCaret(p, 0);
       editor.type(":");
       assert.equal(seen, 0);
     });
@@ -153,7 +153,7 @@ define(function f(require) {
         key_constants.BACKSPACE, key_constants.DELETE);
       var ps = editor.data_root.querySelectorAll("body p");
       assert.equal(ps.length, 1);
-      editor.setCaret(ps[0], 0);
+      editor.caretManager.setCaret(ps[0], 0);
       // Synthetic event
       var event = global.makeFakePasteEvent({
         types: ["text/plain"],

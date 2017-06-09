@@ -144,6 +144,28 @@ function findNext(haystack: NodeList, ref: Node): Node | undefined {
   return undefined;
 }
 
+export type Direction = "right" | "left" | "up" | "down";
+
+const directionToFunction = {
+  right: positionRight,
+  left: positionLeft,
+  up: positionUp,
+  down: positionDown,
+};
+
+export function newPosition(pos: DLoc | undefined | null,
+                            direction: Direction,
+                            inAttributes: boolean,
+                            docRoot: Document | Element,
+                            mode: Mode<{}>): DLoc | undefined {
+  const fn = directionToFunction[direction];
+  if (fn === undefined) {
+    throw new Error(`cannot resolve direction: ${direction}`);
+  }
+
+  return fn(pos, inAttributes, docRoot, mode);
+}
+
 /**
  * Compute the position to the right of a starting position. This function takes
  * into account wed-specific needs. For instance, it knows how start and end

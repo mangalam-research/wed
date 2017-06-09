@@ -62,11 +62,22 @@ function previousTextOrReal(node: Node): Text | Element | null {
   return child;
 }
 
+function leftTopFromRect(rect: ClientRect): { left: number, top: number } {
+  return { left: rect.left, top: rect.top };
+}
+
 /**
  * A caret manager maintains and modifies caret and selection positions. It also
  * manages associated GUI elements like the input field. It is also responsible
  * for converting positions in the GUI tree to positions in the data tree and
  * vice-versa.
+ *
+ * Given wed's notion of parallel data and GUI trees. A caret can either point
+ * into the GUI tree or into the data tree. In in the following documentation,
+ * if the caret is not qualified, then it is a GUI caret.
+ *
+ * Similarly, a selection can either span a range in the GUI tree or in the data
+ * tree. Again, "selection" without qualifier is a GUI selection.
  */
 export class CaretManager implements GUIToDataConverter {
   private _sel: WedSelection | undefined;
@@ -123,7 +134,27 @@ export class CaretManager implements GUIToDataConverter {
     $(this.win).on("focus.wed", this.onFocus.bind(this));
   }
 
+  /**
+   * The raw caret. Use [[getCaret]] if you need it normalized.
+   *
+   * This is synonymous with the focus of the current selection. (`foo.caret ===
+   * foo.focus === foo.sel.focus`).
+   */
   get caret(): DLoc | undefined {
+    return this.focus;
+  }
+
+  /**
+   * The current selection.
+   */
+  get sel(): WedSelection | undefined {
+    return this._sel;
+  }
+
+  /**
+   * The focus of the current selection.
+   */
+  get focus(): DLoc | undefined {
     if (this._sel === undefined) {
       return undefined;
     }
@@ -131,35 +162,28 @@ export class CaretManager implements GUIToDataConverter {
     return this._sel.focus;
   }
 
-  set caret(caret: DLoc | undefined) {
-    if (caret === undefined) {
-      this._sel = undefined;
-      return;
+  /**
+   * The anchor of the current selection.
+   */
+  get anchor(): DLoc | undefined {
+    if (this._sel === undefined) {
+      return undefined;
     }
 
-    if (caret.root === this.guiRootEl) {
-      this._sel = new WedSelection(this, caret);
-    }
-    else {
-      const guiCaret = this.fromDataLocation(caret);
-
-      if (guiCaret === undefined) {
-        throw new Error("data caret has no GUI location");
-      }
-
-      this._sel = new WedSelection(this, guiCaret);
-    }
+    return this._sel.anchor;
   }
 
-  get sel(): WedSelection | undefined {
-    return this._sel;
-  }
-
+  /**
+   * The range formed by the current selection.
+   */
   get range(): rangy.RangyRange | undefined {
     const info = this.rangeInfo;
     return info !== undefined ? info.range : undefined;
   }
 
+  /**
+   * A range info object describing the current selection.
+   */
   get rangeInfo(): RangeInfo | undefined {
     const sel = this._sel;
 
@@ -170,25 +194,14 @@ export class CaretManager implements GUIToDataConverter {
     return sel.rangeInfo;
   }
 
-  get focus(): DLoc | undefined {
-    return this.caret;
-  }
-
-  get anchor(): DLoc | undefined {
-    if (this._sel === undefined) {
-      return undefined;
-    }
-
-    return this._sel.anchor;
-  }
-
-  getGUICaret(raw: boolean = false): DLoc | undefined {
+  /**
+   * Get a normalized caret.
+   *
+   * @returns A normalized caret, or ``undefined`` if there is no caret.
+   */
+  getNormalizedCaret(): DLoc | undefined {
     let caret = this.caret;
     if (caret === undefined) {
-      return undefined;
-    }
-
-    if (raw) {
       return caret;
     }
 
@@ -208,8 +221,19 @@ export class CaretManager implements GUIToDataConverter {
     return normalized == null ? undefined : normalized;
   }
 
+  /**
+   * Get the current caret position in the data tree.
+   *
+   * @param approximate Some GUI locations do not correspond to data
+   * locations. Like if the location is in a gui element or phantom text. By
+   * default, this method will return undefined in such case. If this parameter
+   * is true, then this method will return the closest position.
+   *
+   * @returns A caret position in the data tree, or ``undefined`` if no such
+   * position exists.
+   */
   getDataCaret(approximate?: boolean): DLoc | undefined {
-    const caret = this.getGUICaret();
+    const caret = this.getNormalizedCaret();
     if (caret === undefined) {
       return undefined;
     }
@@ -217,6 +241,18 @@ export class CaretManager implements GUIToDataConverter {
     return this.toDataLocation(caret, approximate);
   }
 
+  /**
+   * Convert a caret location in the data tree into one in the GUI tree.
+   *
+   * @param loc A location in the data tree.
+   *
+   * @param node A node in the data tree, if ``loc`` is not used.
+   *
+   * @param offset An offset into ``node`` if ``loc`` is not used.
+   *
+   * @returns A location in the GUI tree, or ``undefined`` if no such location
+   * exists.
+   */
   fromDataLocation(loc: DLoc): DLoc | undefined;
   fromDataLocation(node: Node, offset: number): DLoc | undefined;
   fromDataLocation(node: Node | DLoc, offset?: number): DLoc | undefined {
@@ -275,12 +311,13 @@ export class CaretManager implements GUIToDataConverter {
    * is true, then this method will return the closest position.
    *
    * @returns The data location that corresponds to the location passed. This
-   * could be undefined if the location does not correspond to a location in the
-   * data tree.
+   * could be ``undefined`` if the location does not correspond to a location in
+   * the data tree.
    */
   toDataLocation(loc: DLoc, approximate?: boolean): DLoc | undefined;
   toDataLocation(node: Node, offset: number,
                  approximate?: boolean): DLoc | undefined;
+  // tslint:disable-next-line:cyclomatic-complexity
   toDataLocation(loc: DLoc | Node, offset: number | boolean = false,
                  approximate: boolean = false): DLoc | undefined {
     let node;
@@ -373,22 +410,43 @@ export class CaretManager implements GUIToDataConverter {
     return this.makeCaret(dataNode, isAttr(dataNode) ? offset : undefined);
   }
 
-  _normalizeCaret(loc: DLoc | undefined | null): DLoc | undefined | null {
+  /**
+   * Modify the passed position so that it if appears inside of a placeholder
+   * node, the resulting position is moved out of it.
+   *
+   * @param loc The location to normalize.
+   *
+   * @returns The normalized position. If ``undefined`` or ``null`` was passed,
+   * then the return value is the same as what was passed.
+   */
+  private _normalizeCaret(loc: DLoc | undefined | null):
+  DLoc | undefined | null {
     if (loc == null) {
       return loc;
     }
 
     const pg = closestByClass(loc.node, "_placeholder", loc.root);
-    // We are in a placeholder: make the caret be the parent of the
-    // this node.
-    if (pg !== null) {
-      const parent = pg.parentNode!;
-      return loc.make(parent, indexOf(parent.childNodes, pg));
-    }
-
-    return loc;
+    // If we are in a placeholder: make the caret be the parent of the this
+    // node.
+    return (pg !== null) ? loc.make(pg) : loc;
   }
 
+  /**
+   * Make a caret from a node and offset pair.
+   *
+   * @param node The node from which to make the caret. The node may be in the
+   * GUI tree or the data tree. If ``offset`` is omitted, the resulting location
+   * will point to this node (rather than point to some offset *inside* the
+   * node.)
+   *
+   * @param offset The offset into the node.
+   *
+   * @param normalize Whether to normalize the location. (Note that this is
+   * normalization in the [[DLoc]] sense of the term.)
+   *
+   * @returns A new caret. This will be ``undefined`` if the value passed for
+   * ``node`` was undefined or if the node is not in the GUI or data trees.
+   */
   makeCaret(node: Node | null | undefined, offset?: number,
             normalize: boolean = false): DLoc | undefined {
     if (node == null) {
@@ -416,7 +474,50 @@ export class CaretManager implements GUIToDataConverter {
     return DLoc.mustMakeDLoc(root, node, offset, normalize);
   }
 
-  setRange(anchor: DLoc, focus: DLoc): void {
+  /**
+   * Set the range to a new value.
+   *
+   * @param anchor The range's anchor.
+   *
+   * @param anchorNode The anchor's node.
+   *
+   * @param anchorOffset The anchor's offset.
+   *
+   * @param focus The range's focus.
+   *
+   * @param focusNode The focus' node.
+   *
+   * @param focusOffset The focus's offset.
+   */
+  setRange(anchorNode: Node, anchorOffset: number, focusNode: Node,
+           focusOffset: number): void;
+  setRange(anchor: DLoc, focus: DLoc): void;
+  setRange(anchorNode: DLoc | Node, anchorOffset: DLoc | number,
+           focusNode?: Node, focusOffset?: number): void {
+    let anchor;
+    let focus;
+    if (anchorNode instanceof DLoc && anchorOffset instanceof DLoc) {
+      anchor = anchorNode;
+      focus = anchorOffset;
+    }
+    else {
+      anchor = this.makeCaret(anchorNode as Node, anchorOffset as number);
+      focus = this.makeCaret(focusNode, focusOffset);
+    }
+
+    if (anchor === undefined || focus === undefined) {
+      throw new Error("must provide both anchor and focus");
+    }
+
+    if (anchor.root === this.dataRootEl) {
+      anchor = this.fromDataLocation(anchor);
+      focus = this.fromDataLocation(focus);
+
+      if (anchor === undefined || focus === undefined) {
+        throw new Error("cannot find GUI anchor and focus");
+      }
+    }
+
     const sel = this._sel = new WedSelection(this, anchor, focus);
 
     // This check reduces selection fiddling by an order of magnitude when just
@@ -428,81 +529,86 @@ export class CaretManager implements GUIToDataConverter {
         throw new Error("unable to make a range");
       }
 
-      // We use _setDOMSelectionRange here because using setSelectionRange would
-      // incur some redundant operations.
       this._setDOMSelectionRange(rr.range, rr.reversed);
       this.prevSelFocus = focus;
     }
+
+    this._caretChange();
   }
 
-  caretPositionRight(): DLoc | undefined {
-    return this.positionRight(this.caret);
+  /**
+   * Compute a position derived from an arbitrary position. Note that
+   * this method is meant to be used for positions in the GUI tree. Computing
+   * positions in the data tree requires no special algorithm.
+   *
+   * This method does not allow movement outside of the GUI tree.
+   *
+   * @param pos The starting position in the GUI tree.
+   *
+   * @param direction The direction in which to move.
+   *
+   * @return The position to the right of the starting position. Or
+   * ``undefined`` if the starting position was undefined or if there is no
+   * valid position to compute.
+   */
+  newPosition(pos: DLoc | undefined,
+              direction: caretMovement.Direction): DLoc | undefined {
+    return caretMovement.newPosition(pos, direction,
+                                     this.inAttributes,
+                                     this.guiRootEl,
+                                     this.mode);
   }
 
-  positionRight(pos: DLoc | undefined): DLoc | undefined {
-    return caretMovement.positionRight(pos, this.inAttributes, this.guiRootEl,
-                                       this.mode);
+  /**
+   * Compute the position of the current caret if it were moved according to
+   * some direction.
+   *
+   * @param direction The direction in which the caret would be moved.
+   *
+   * @return The position to the right of the caret position. Or ``undefined``
+   * if there is no valid position to compute.
+   */
+  newCaretPosition(direction: caretMovement.Direction): DLoc | undefined {
+    return this.newPosition(this.caret, direction);
+
   }
 
-  moveRight(): void {
-    const pos = this.caretPositionRight();
-    if (pos !== undefined) {
+  /**
+   * Move the caret in a specific direction. The caret may not move if it is
+   * not possible to move in the specified direction.
+   *
+   * @param direction The direction in which to move.
+   */
+  move(direction: caretMovement.Direction, extend: boolean = false): void {
+    const pos = this.newCaretPosition(direction);
+    if (pos === undefined) {
+      return;
+    }
+
+    if (!extend) {
       this.setCaret(pos);
+    }
+    else {
+      const anchor = this.anchor;
+      if (anchor !== undefined) {
+        this.setRange(anchor, pos);
+      }
     }
   }
 
-  caretPositionLeft(): DLoc | undefined {
-    return this.positionLeft(this.caret);
-  }
-
-  positionLeft(pos: DLoc | undefined): DLoc | undefined {
-    return caretMovement.positionLeft(pos, this.inAttributes, this.guiRootEl,
-                                      this.mode);
-  }
-
-  moveLeft(): void {
-    const pos = this.caretPositionLeft();
-    if (pos !== undefined) {
-      this.setCaret(pos);
-    }
-  }
-
-  caretPositionDown(): DLoc | undefined {
-    return this.positionDown(this.caret);
-  }
-
-  positionDown(pos: DLoc | undefined): DLoc | undefined {
-    return caretMovement.positionDown(pos, this.inAttributes, this.guiRootEl,
-                                      this.mode);
-  }
-
-  moveDown(): void {
-    const pos = this.caretPositionDown();
-    if (pos !== undefined) {
-      this.setCaret(pos);
-    }
-  }
-
-  caretPositionUp(): DLoc | undefined {
-    return this.positionUp(this.caret);
-  }
-
-  positionUp(pos: DLoc | undefined): DLoc | undefined {
-    return caretMovement.positionUp(pos,
-                                    this.inAttributes,
-                                    this.guiRootEl,
-                                    this.mode);
-  }
-
-  moveUp(): void {
-    const pos = this.caretPositionUp();
-    if (pos !== undefined) {
-      this.setCaret(pos);
-    }
-  }
-
+  /**
+   * Set the caret to a new position.
+   *
+   * @param loc The new position for the caret.
+   *
+   * @param node The new position for the caret.
+   *
+   * @param offset The offset in ``node``.
+   *
+   * @param options The options for moving the caret.
+   */
   setCaret(loc: DLoc, options?: SetCaretOptions): void;
-  setCaret(node: Node, offset: number, options?: SetCaretOptions): void;
+  setCaret(node: Node, offset?: number, options?: SetCaretOptions): void;
   setCaret(node: Node | DLoc, offset?: number | SetCaretOptions,
            options?: SetCaretOptions): void {
     let loc: DLoc;
@@ -579,20 +685,19 @@ export class CaretManager implements GUIToDataConverter {
   }
 
   /**
-   * Restores the caret and selection from the ``this.caretManager.anchor`` and
-   * ``this.caretManager.caret`` fields. This is used to deal with situations in
-   * which the caret and range may have been "damaged" due to browser
-   * operations, changes of state, etc.
+   * Restores the caret and selection from the current selection. This is used
+   * to deal with situations in which the caret and range may have been
+   * "damaged" due to browser operations, changes of state, etc.
    *
    * @param focus Whether the restoration of the caret and selection is due to
    * regaining focus or not.
    */
-  _restoreCaretAndSelection(focus: boolean = false): void {
+  private _restoreCaretAndSelection(focus: boolean): void {
     if (this.caret !== undefined && this.anchor !== undefined &&
         // It is possible that the anchor has been removed after focus was lost
         // so check for it.
         this.guiRootEl.contains(this.anchor.node)) {
-      const rr = this.anchor.makeRange(this.caret);
+      const rr = this.rangeInfo;
       if (rr === undefined) {
         throw new Error("could not make a range");
       }
@@ -602,15 +707,18 @@ export class CaretManager implements GUIToDataConverter {
       if (rr.range.collapsed) {
         this.focusInputField();
       }
-      this._caretChange({ focus: focus });
+      this._caretChange({ focus });
     }
     else {
       this.clearSelection();
     }
   }
 
+  /**
+   * Clear the selection and caret.
+   */
   clearSelection(): void {
-    this.caret = undefined;
+    this._sel = undefined;
     this.caretMark.refresh();
     const sel = this._getDOMSelection();
     if (sel.rangeCount > 0 && this.guiRootEl.contains(sel.focusNode)) {
@@ -619,6 +727,9 @@ export class CaretManager implements GUIToDataConverter {
     this._caretChange();
   }
 
+  /**
+   * Get the current selection from the DOM tree.
+   */
   private _getDOMSelectionRange(): Range | undefined {
     const range = getSelectionRange(this.win);
 
@@ -635,32 +746,9 @@ export class CaretManager implements GUIToDataConverter {
     return range;
   }
 
-  setSelectionRange(range: Range, reverse: boolean = false): void {
-    const start = this.makeCaret(range.startContainer, range.startOffset);
-    const end = this.makeCaret(range.endContainer, range.endOffset);
-
-    if (start === undefined) {
-      throw new Error("could not make the start caret");
-    }
-
-    if (end === undefined) {
-      throw new Error("could not make the end caret");
-    }
-
-    if (reverse) {
-      this.setRange(end, start);
-    }
-    else {
-      this.setRange(start, end);
-    }
-
-    this._caretChange();
-  }
-
   /**
    * This function is meant to be used internally to manipulate the DOM
-   * selection directly. Generally, you want to use {@link
-   * module:wed~Editor#setSelectionRange setSelectionRange} instead.
+   * selection directly.
    */
   private _setDOMSelectionRange(range: Range, reverse: boolean): void {
     if (range.collapsed) {
@@ -687,12 +775,11 @@ export class CaretManager implements GUIToDataConverter {
   /**
    * Sets the caret position in the GUI tree.
    *
-   * @param {module:dloc~DLoc} loc The new position.
-   * @param {string} op The operation which is causing the caret to
-   * move. See {@link module:wed~Editor#_caretChange _caretChange} for
-   * the possible values.
+   * @param loc The new position.
+   *
+   * @param options Options governing the caret movement.
    */
-  _setGUICaret(loc: DLoc, options: SetCaretOptions): void {
+  private _setGUICaret(loc: DLoc, options: SetCaretOptions): void {
     const offset = loc.offset;
     let node = loc.node;
 
@@ -717,12 +804,15 @@ export class CaretManager implements GUIToDataConverter {
     }
 
     this._clearDOMSelection();
-    this.caret = loc;
+    this._sel = new WedSelection(this, loc);
     this.caretMark.refresh();
     this.focusInputField();
     this._caretChange(options);
   }
 
+  /**
+   * Emit a caret change event.
+   */
   private _caretChange(options: CaretChangeOptions = {}): void {
     this._events.next({ options });
   }
@@ -737,65 +827,6 @@ export class CaretManager implements GUIToDataConverter {
 
   private _getDOMSelection(): rangy.RangySelection {
     return rangy.getSelection(this.win);
-  }
-
-  getDataSelectionRange(): Range | undefined {
-    const range = this.range;
-
-    if (range === undefined) {
-      return undefined;
-    }
-
-    const start = this.toDataLocation(range.startContainer, range.startOffset);
-    if (start === undefined) {
-      throw new Error("cannot find a start caret");
-    }
-
-    let end;
-    if (!range.collapsed) {
-      end = this.toDataLocation(range.endContainer, range.endOffset);
-      if (end === undefined) {
-        throw new Error("cannot find an end caret");
-      }
-    }
-    else {
-      end = start;
-    }
-
-    const rr = start.makeRange(end);
-    if (rr === undefined) {
-      throw new Error("cannot make a range");
-    }
-
-    return rr.range;
-  }
-
-  setDataSelectionRange(range: Range): void {
-    const start = this.fromDataLocation(range.startContainer,
-                                        range.startOffset);
-
-    if (start === undefined) {
-      throw new Error("cannot find a start caret");
-    }
-
-    let end;
-    if (!range.collapsed) {
-      end = this.fromDataLocation(range.endContainer, range.endOffset);
-
-      if (end === undefined) {
-        throw new Error("cannot find an end caret");
-      }
-    }
-    else {
-      end = start;
-    }
-
-    const rr = start.makeRange(end);
-    if (rr === undefined) {
-      throw new Error("cannot make a range");
-    }
-
-    this.setSelectionRange(rr.range);
   }
 
   /**
@@ -816,31 +847,36 @@ export class CaretManager implements GUIToDataConverter {
   }
 
   /**
-   * @returns {{left: number, top: number}} The coordinates of the
-   * current caret position relative to the screen root.
+   * @returns The coordinates of the current caret position relative to the
+   * screen root.
    */
-  _caretPositionOnScreen(): ClientRect | undefined {
+  caretPositionOnScreen(): { left: number, top: number } | undefined {
     if (this.caret === undefined) {
       return undefined;
     }
 
     if (this.caretMark.inDOM) {
-      return this.caretMark.getBoundingClientRect();
+      return leftTopFromRect(this.caretMark.getBoundingClientRect());
     }
 
     const node = this.caret.node;
     if (isElement(node) && node.classList.contains("_gui")) {
-      return node.getBoundingClientRect();
+      return leftTopFromRect(node.getBoundingClientRect());
     }
 
     const range = this.range;
     if (range !== undefined) {
-      return range.nativeRange.getBoundingClientRect();
+      return leftTopFromRect(range.nativeRange.getBoundingClientRect());
     }
 
     throw new Error("can't find position of caret");
   }
 
+  /**
+   * This is called when the editing area is blurred. This is not something you
+   * should be calling in a mode's implementation. It is public because other
+   * parts of wed need to call it.
+   */
   onBlur(): void {
     if (this.caret === undefined) {
       return;
@@ -848,7 +884,7 @@ export class CaretManager implements GUIToDataConverter {
 
     this.selAtBlur = this._sel;
     this.$inputField.blur();
-    this.caret = undefined;
+    this._sel = undefined;
     this.caretMark.refresh();
   }
 
@@ -860,6 +896,9 @@ export class CaretManager implements GUIToDataConverter {
     }
   }
 
+  /**
+   * Dump to the console caret-specific information.
+   */
   dumpCaretInfo(): void {
     const dataCaret = this.getDataCaret();
 

@@ -9,6 +9,7 @@ import * as  $ from "jquery";
 import * as salve from "salve";
 
 import { Action } from "./action";
+import { CaretManager } from "./caret-manager";
 import { DLoc } from "./dloc";
 import { Listener } from "./domlistener";
 import { isAttr, isText } from "./domtypeguards";
@@ -30,8 +31,7 @@ export interface Editor {
   complex_pattern_action: Action<{}>;
   attributes: string;
   validator: Validator;
-  setCaret(caret: DLoc, options: Record<string, boolean>): void;
-  getDataCaret(): DLoc;
+  caretManager: CaretManager;
   // tslint:disable-next-line:no-any
   mode: any;
   _makeMenuItemForAction(action: Action<{}>, data?: {}): HTMLElement;
@@ -49,7 +49,7 @@ export interface Editor {
 
 function tryToSetDataCaret(editor: Editor, dataCaret: DLoc): void {
   try {
-    editor.setCaret(dataCaret, { textEdit: true });
+    editor.caretManager.setCaret(dataCaret, { textEdit: true });
   }
   catch (e) {
     // Do nothing.
@@ -219,7 +219,7 @@ export class Decorator {
     }
 
     // Save the caret because the decoration may mess up the GUI caret.
-    let dataCaret: DLoc | undefined = this.editor.getDataCaret();
+    let dataCaret: DLoc | undefined = this.editor.caretManager.getDataCaret();
     if (dataCaret != null &&
         !(isAttr(dataCaret.node) &&
           dataCaret.node.ownerElement === $.data(el, "wed_mirror_node"))) {
@@ -468,6 +468,9 @@ export class Decorator {
         index++;
       }
       const treeCaret = editor.caretManager.toDataLocation(parent, index);
+      if (treeCaret === undefined) {
+        throw new Error("cannot get caret");
+      }
 
       if (atStart && editor.attributes === "edit") {
         editor.validator.possibleAt(treeCaret, true).forEach((event) => {

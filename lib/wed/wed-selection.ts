@@ -7,7 +7,7 @@
 import * as rangy from "rangy";
 
 import { DLoc } from "./dloc";
-import { RangeInfo, isWellFormedRange } from "./domutil";
+import { isWellFormedRange, RangeInfo } from "./domutil";
 
 export interface GUIToDataConverter {
   toDataLocation(node: Node, offset: number): DLoc | undefined;

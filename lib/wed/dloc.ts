@@ -339,22 +339,23 @@ export class DLoc {
    *
    * @param caret A node, offset pair.
    *
-   * @param node The node of the new location, if ``caret`` is not used.
+   * @param node The node of the new location, if ``caret`` is not used. When a
+   * node is passed without offset, the location created will point to the node.
    *
    * @param offset The offset of the new location, if ``caret`` is not used.
    *
    * @returns The new location.
    */
   make(caret: Caret): DLoc;
-  make(node: Node | Attr, offset: number): DLoc;
+  make(node: Node | Attr, offset?: number): DLoc;
   make(node: Node | Attr | Caret, offset?: number): DLoc {
     if (node instanceof Array) {
       return DLoc.mustMakeDLoc(this.root, node);
     }
 
-    if (typeof offset !== "number") {
+    if (offset !== undefined && typeof offset !== "number") {
       throw new Error(
-        "if the 1st argument is a node, the 2nd must be a number");
+        "if the 1st argument is a node, the 2nd must be a number or undefined");
     }
 
     return DLoc.mustMakeDLoc(this.root, node, offset);

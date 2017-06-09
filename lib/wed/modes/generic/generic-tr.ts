@@ -83,13 +83,13 @@ function _autoinsert(el: Element, editor: Editor): void {
     // context, it does not matter because autoinsert is meant to be called by a
     // transformation anyway.
     //
-    editor.setCaret(el, locations[0]);
+    editor.caretManager.setCaret(el, locations[0]);
     actions[0].execute({ name: unresolved });
   }
 }
 
 function executeInsert(editor: Editor, data: TransformationData): void {
-  const caret = editor.getDataCaret();
+  const caret = editor.caretManager.getDataCaret();
   const absoluteResolver = editor.mode.getAbsoluteResolver();
   const ename = absoluteResolver.resolveName(data.name);
   if (ename === undefined) {
@@ -124,7 +124,7 @@ function executeInsert(editor: Editor, data: TransformationData): void {
       caretNode = child;
     }
   }
-  editor.setCaret(caret.make(caretNode, 0));
+  editor.caretManager.setCaret(caretNode, 0);
 }
 
 function executeUnwrap(editor: Editor, data: TransformationData): void {
@@ -135,7 +135,7 @@ function executeUnwrap(editor: Editor, data: TransformationData): void {
   const parent = node.parentNode!;
   const index = indexOf(parent.childNodes, node);
   unwrap(editor.data_updater, node);
-  editor.setCaret(parent, index);
+  editor.caretManager.setCaret(parent, index);
 }
 
 function executeWrap(editor: Editor, data: TransformationData): void {
@@ -156,7 +156,7 @@ function executeWrap(editor: Editor, data: TransformationData): void {
                            startCaret.offset, endCaret.node, endCaret.offset,
                            ename.ns, data.name);
   const parent = el.parentNode!;
-  editor.setCaret(startCaret.make(parent,
+  editor.caretManager.setCaret(startCaret.make(parent,
                                   indexOf(parent.childNodes, el) + 1));
 }
 
@@ -189,7 +189,7 @@ function executeDeleteElement(editor: Editor, data: TransformationData): void {
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
     editor.data_updater.removeNode(node);
-    editor.setCaret(parent, index);
+    editor.caretManager.setCaret(parent, index);
   }
 }
 
@@ -207,7 +207,7 @@ function executeDeleteParent(editor: Editor, data: TransformationData): void {
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
     editor.data_updater.removeNode(node);
-    editor.setCaret(parent, index);
+    editor.caretManager.setCaret(parent, index);
   }
 }
 
@@ -224,7 +224,7 @@ function executeAddAttribute(editor: Editor, data: TransformationData): void {
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
     editor.data_updater.setAttribute(node, data.name, "");
     const attr = node.getAttributeNode(data.name);
-    editor.setCaret(attr, 0);
+    editor.caretManager.setCaret(attr, 0);
   }
 }
 
@@ -266,10 +266,10 @@ function executeDeleteAttribute(editor: Editor,
     // We set the caret inside the next attribute, or if it does not exist,
     // inside the label.
     if (nextAttr !== null) {
-      editor.setCaret(nextAttr, 0);
+      editor.caretManager.setCaret(nextAttr, 0);
     }
     else {
-      editor.setCaret(
+      editor.caretManager.setCaret(
         guiOwnerLoc.node.getElementsByClassName("_element_name")[0], 0);
     }
   }

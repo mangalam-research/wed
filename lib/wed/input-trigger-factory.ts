@@ -70,7 +70,7 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
     }
   }
   // Find the deepest location at the start of the last element.
-  editor.setCaret(domutil.firstDescendantOrSelf(node), 0);
+  editor.caretManager.setCaret(domutil.firstDescendantOrSelf(node), 0);
 }
 
 /**
@@ -117,7 +117,7 @@ InputTrigger {
   });
 
   ret.addKeyHandler(mergeWithPreviousKey, (eventType, el, ev) => {
-    const caret = editor.getDataCaret();
+    const caret = editor.caretManager.getDataCaret();
 
     if (caret == null) {
       return;
@@ -139,7 +139,7 @@ InputTrigger {
   });
 
   ret.addKeyHandler(mergeWithNextKey, (eventType, el, ev) => {
-    const caret = editor.getDataCaret();
+    const caret = editor.caretManager.getDataCaret();
 
     if (caret == null) {
       return;

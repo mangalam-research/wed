@@ -24,7 +24,8 @@ export interface BoundaryCoordinates {
 }
 
 // Utility function for boundaryXY.
-function parentBoundary(node: Node, root: Document | Element): BoundaryCoordinates {
+function parentBoundary(node: Node,
+                        root: Document | Element): BoundaryCoordinates {
   const parent = node.parentNode!;
 
   // Cannot find a sensible boundary
@@ -176,7 +177,7 @@ export type Editor = any;
 export function cut(editor: Editor): void {
   const caretManager = editor.caretManager;
   const sel = caretManager.sel;
-  if (!sel.wellFormed) {
+  if (!(sel.wellFormed as boolean)) {
     throw new Error("malformed range");
   }
 
@@ -207,7 +208,7 @@ export function cut(editor: Editor): void {
       doc.firstChild.appendChild(doc.adoptNode(node));
     }
     editor._cut_buffer.textContent = doc.firstChild.innerHTML;
-    editor.setCaret(cutRet[0]);
+    editor.caretManager.setCaret(cutRet[0]);
   }
 
   const range = editor.doc.createRange();
@@ -230,14 +231,14 @@ export function cut(editor: Editor): void {
 export function paste(editor: Editor, data: any): void {
   const toPaste = data.to_paste;
   const dataClone = toPaste.cloneNode(true);
-  let caret = editor.getDataCaret();
+  let caret = editor.caretManager.getDataCaret();
   let newCaret;
   let ret;
 
   // Handle the case where we are pasting only text.
   if (toPaste.childNodes.length === 1 && isText(toPaste.firstChild)) {
     if (isAttr(caret.node)) {
-      const guiCaret = editor.getGUICaret();
+      const guiCaret = editor.caretManager.getNormalizedCaret();
       editor._spliceAttribute(closestByClass(guiCaret.node, "_attribute_value",
                                              guiCaret.node),
                               guiCaret.offset, 0, toPaste.firstChild.data);
@@ -267,17 +268,16 @@ export function paste(editor: Editor, data: any): void {
       const child = caret.node.childNodes[caret.offset];
       const after = child != null ? child.nextSibling : null;
       editor.data_updater.insertBefore(caret.node, frag, child);
-      newCaret = caret.make(caret.node,
-                            after !== null ?
-                            indexOf(caret.node.childNodes, after) :
-                            caret.node.childNodes.length);
+      newCaret = caret.makeWithOffset(after !== null ?
+                                      indexOf(caret.node.childNodes, after) :
+                                      caret.node.childNodes.length);
       break;
     default:
       throw new Error(`unexpected node type: ${caret.node.nodeType}`);
     }
   }
   if (newCaret != null) {
-    editor.setCaret(newCaret);
+    editor.caretManager.setCaret(newCaret);
     caret = newCaret;
   }
   editor.$gui_root.trigger("wed-post-paste", [data.e, caret, dataClone]);

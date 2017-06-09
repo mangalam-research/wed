@@ -523,7 +523,7 @@ export function unwrap(dataUpdater: TreeUpdater, node: Element): Node[] {
  * @throws {Error} If the caret is not inside the node or its descendants.
  */
 export function splitNode(editor: Editor, node: Node): void {
-  const caret = editor.getDataCaret();
+  const caret = editor.caretManager.getDataCaret();
 
   if (!node.contains(caret.node)) {
     throw new Error("caret outside node");
@@ -531,7 +531,7 @@ export function splitNode(editor: Editor, node: Node): void {
 
   const pair = editor.data_updater.splitAt(node, caret);
   // Find the deepest location at the start of the 2nd element.
-  editor.setCaret(caret.make(firstDescendantOrSelf(pair[1]), 0));
+  editor.caretManager.setCaret(firstDescendantOrSelf(pair[1]), 0);
 }
 
 /**
@@ -572,10 +572,10 @@ export function mergeWithPreviousHomogeneousSibling(editor: Editor,
 
   if (wasText) {
     editor.data_updater.mergeTextNodes(lastChild);
-    editor.setCaret(prev.childNodes[caretPos - 1], textLen);
+    editor.caretManager.setCaret(prev.childNodes[caretPos - 1], textLen);
   }
   else {
-    editor.setCaret(prev, caretPos);
+    editor.caretManager.setCaret(prev, caretPos);
   }
   editor.data_updater.removeNode(node);
 }
@@ -627,7 +627,7 @@ export function swapWithPreviousHomogeneousSibling(editor: Editor,
 
   editor.data_updater.removeNode(node);
   editor.data_updater.insertBefore(parent, node, prev);
-  editor.setCaret(node);
+  editor.caretManager.setCaret(node);
 }
 
 /**

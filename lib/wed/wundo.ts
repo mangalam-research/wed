@@ -54,7 +54,7 @@ corrupted state and thus an internal error`);
    * @returns A caret.
    */
   getDataCaretAsPath(): Caret {
-    const caret = this.editor.getDataCaret(true);
+    const caret = this.editor.caretManager.getDataCaret(true);
     if (caret === undefined) {
       // Returning undefined for "the caret was undefined" would not
       // trap stupid mistakes in managing the data.
@@ -73,8 +73,8 @@ corrupted state and thus an internal error`);
     if (caret[0] === undefined && caret[1] === undefined) {
       return;
     }
-    this.editor.setCaret(this.editor.data_updater.pathToNode(caret[0]),
-                         caret[1]);
+    this.editor.caretManager.setCaret(
+      this.editor.data_updater.pathToNode(caret[0]), caret[1]);
   }
 
   /**

@@ -98,7 +98,7 @@ define(function f(require) {
               key_constants.BACKSPACE, key_constants.DELETE);
 
             var ps = editor.data_root.getElementsByTagName("p");
-            editor.setCaret(ps[ps.length - 1].firstChild, 4);
+            editor.caretManager.setCaret(ps[ps.length - 1].firstChild, 4);
             editor.type(";");
 
             ps = editor.data_root.querySelectorAll("body p");
@@ -119,7 +119,7 @@ define(function f(require) {
               key_constants.BACKSPACE, key_constants.DELETE);
 
             var ps = editor.data_root.getElementsByTagName("p");
-            editor.setCaret(ps[ps.length - 1].firstChild, 4);
+            editor.caretManager.setCaret(ps[ps.length - 1].firstChild, 4);
             editor.type(key_constants.ENTER);
 
             ps = editor.data_root.querySelectorAll("body p");
@@ -150,7 +150,7 @@ define(function f(require) {
                  return "ab;cd;ef";
                },
              });
-             editor.setCaret(ps[0], 0);
+             editor.caretManager.setCaret(ps[0], 0);
              editor.$gui_root.trigger(event);
 
              ps = editor.data_root.querySelectorAll("body p");
@@ -177,7 +177,7 @@ define(function f(require) {
               editor, "p", key_constants.ENTER,
               key_constants.BACKSPACE, key_constants.DELETE);
 
-            editor.setCaret(
+            editor.caretManager.setCaret(
               editor.gui_root.querySelector(".p>.ref").firstChild, 1);
             editor.type(key_constants.BACKSPACE);
 
@@ -191,8 +191,9 @@ define(function f(require) {
               editor, "p", key_constants.ENTER,
               key_constants.BACKSPACE, key_constants.DELETE);
 
-            editor.setCaret(editor.gui_root.querySelector(".p>.ref")
-                            .lastChild.previousSibling, 0);
+            editor.caretManager.setCaret(
+              editor.gui_root.querySelector(".p>.ref")
+                .lastChild.previousSibling, 0);
             editor.type(key_constants.DELETE);
 
             var ps = editor.data_root.querySelectorAll("body>p");
@@ -217,7 +218,7 @@ define(function f(require) {
         assert.equal(ps.length, 2,
                      "there should be 2 paragraphs before backspacing");
 
-        editor.setCaret(ps[1].firstChild, 0);
+        editor.caretManager.setCaret(ps[1].firstChild, 0);
         editor.type(key_constants.BACKSPACE);
 
         ps = editor.data_root.querySelectorAll("body>p");
@@ -236,7 +237,7 @@ define(function f(require) {
             assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setCaret(ps[1].firstChild, 0);
+            editor.caretManager.setCaret(ps[1].firstChild, 0);
             editor.type(key_constants.BACKSPACE);
 
             ps = editor.data_root.querySelectorAll("body>p");
@@ -262,7 +263,8 @@ define(function f(require) {
         assert.equal(ps.length, 2,
                      "there should be 2 paragraphs before backspacing");
 
-        editor.setCaret(ps[0].lastChild, ps[0].lastChild.nodeValue.length);
+        editor.caretManager.setCaret(ps[0].lastChild,
+                                     ps[0].lastChild.nodeValue.length);
         editor.type(key_constants.DELETE);
 
         ps = editor.data_root.querySelectorAll("body>p");
@@ -281,7 +283,8 @@ define(function f(require) {
             assert.equal(ps.length, 2,
                          "there should be 2 paragraphs before backspacing");
 
-            editor.setCaret(ps[0].lastChild, ps[0].lastChild.nodeValue.length);
+            editor.caretManager.setCaret(ps[0].lastChild,
+                                         ps[0].lastChild.nodeValue.length);
             editor.type(key_constants.DELETE);
 
             ps = editor.data_root.querySelectorAll("body>p");

@@ -149,7 +149,7 @@ export class InputTrigger {
    * @param e The original DOM event that wed received.
    */
   private keydownHandler(wedEvent: Event, e: JQueryKeyEventObject): void {
-    const caret = this.editor.getDataCaret(true);
+    const caret = this.editor.caretManager.getDataCaret(true);
     if (caret == null) {
       return;
     }
@@ -183,7 +183,7 @@ export class InputTrigger {
    * @param e The original DOM event that wed received.
    */
   private keypressHandler(wedEvent: Event, e: JQueryKeyEventObject): void {
-    const caret = this.editor.getDataCaret(true);
+    const caret = this.editor.caretManager.getDataCaret(true);
 
     if (caret == null) {
       return;

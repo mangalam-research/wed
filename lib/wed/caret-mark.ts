@@ -9,12 +9,10 @@
 import * as $ from "jquery";
 
 import { CaretManager } from "./caret-manager";
-import { DLoc } from "./dloc";
 import { isElement } from "./domtypeguards";
 import { boundaryXY } from "./wed-util";
 
 export interface Editor {
-  getGUICaret(raw: boolean): DLoc;
   caretManager: CaretManager;
 }
 
@@ -114,7 +112,7 @@ export class CaretMark {
       return;
     }
 
-    const caret = this.editor.getGUICaret(true);
+    const caret = this.editor.caretManager.caret;
     if (caret == null) {
       return;
     }

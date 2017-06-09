@@ -423,7 +423,7 @@ export class ValidationController {
           // event. Older versions of wed let the event trickle up and be
           // handled by the general caret movement code but that would sometimes
           // result in a caret being put in a bad position.
-          this.editor.setCaret(insertAt);
+          this.editor.caretManager.setCaret(insertAt);
           return false;
         });
 

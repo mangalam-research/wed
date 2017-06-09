@@ -69,14 +69,6 @@ tree can listen only to that and not have to filter out the gui
 stuff. This would require a change to what is given to modes because
 right now they only get a gui listener.
 
-Caret Management
-----------------
-
-* We should not ever have to read the DOM selection to check its
-   status. (That is, we should be able to check the selection by
-   looking at _sel_anchor and _sel_focus and not have to query the
-   DOM.)
-
 TreeUpdater
 -----------
 
