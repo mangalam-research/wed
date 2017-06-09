@@ -62,10 +62,6 @@ function previousTextOrReal(node: Node): Text | Element | null {
   return child;
 }
 
-function leftTopFromRect(rect: ClientRect): { left: number, top: number } {
-  return { left: rect.left, top: rect.top };
-}
-
 /**
  * A caret manager maintains and modifies caret and selection positions. It also
  * manages associated GUI elements like the input field. It is also responsible
@@ -844,32 +840,6 @@ export class CaretManager implements GUIToDataConverter {
     // The call to blur here is here ***only*** to satisfy Chrome 29!
     this.$inputField.blur();
     this.$inputField.focus();
-  }
-
-  /**
-   * @returns The coordinates of the current caret position relative to the
-   * screen root.
-   */
-  caretPositionOnScreen(): { left: number, top: number } | undefined {
-    if (this.caret === undefined) {
-      return undefined;
-    }
-
-    if (this.caretMark.inDOM) {
-      return leftTopFromRect(this.caretMark.getBoundingClientRect());
-    }
-
-    const node = this.caret.node;
-    if (isElement(node) && node.classList.contains("_gui")) {
-      return leftTopFromRect(node.getBoundingClientRect());
-    }
-
-    const range = this.range;
-    if (range !== undefined) {
-      return leftTopFromRect(range.nativeRange.getBoundingClientRect());
-    }
-
-    throw new Error("can't find position of caret");
   }
 
   /**
