@@ -29,12 +29,6 @@ bug in gitflow.
 Deployment Considerations
 =========================
 
-.. warning:: As of version 0.10.0 there is a nasty bug in the
-             optimized bundle. You may still experiment with the
-             optimized version of wed if you want to do so, provided
-             that you don't deploy it in production. The bug in
-             question is documented `here
-             <https://github.com/mangalam-research/wed/issues/8>`_.
 
 It is possible to deploy wed using the ``build/standalone/`` file tree
 but you will pay in execution time and bandwidth because the files in
