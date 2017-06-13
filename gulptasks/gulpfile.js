@@ -559,7 +559,7 @@ gulp.task("rst-doc", () =>
 
 gulp.task("default", ["build"]);
 
-gulp.task("doc", ["rst-doc", "jsdoc3-doc"]);
+gulp.task("doc", ["rst-doc", "typedoc"]);
 
 // We make this a different task so that the check can be performed as
 // early as possible.
