@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "argparse": ">=1.0.3 <2",
-    "salve": ">=4.1.1 <5",
+    "salve": "^4.1.2",
     "urijs": ">=1.16.1 <2"
   },
   "devDependencies": {
@@ -94,7 +94,7 @@
     "requirejs": ">=2.1.15 <3",
     "requirejs-text": ">=2.0.12 <3",
     "rxjs": "^5.1.0",
-    "salve-dom": "^1.2.0",
+    "salve-dom": "^1.2.1",
     "selenium-webdriver": "^2.53.3",
     "semver": ">=5 <6",
     "serve-static": ">=1.7.1 <2",
