@@ -95,7 +95,6 @@ export interface Options {
  *   mymodal.setBody(...);
  *   mymodal.addYesNo();
  *   // This is a generic example of how to add the modal to a page.
- *   // See {@link module:wed wed} for how to do it for wed.
  *   $("body").append(mymodal.getTopLevel());
  *
  *   ...

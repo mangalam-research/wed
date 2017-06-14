@@ -101,14 +101,13 @@ export type InsertionBoundaries = [DLoc, DLoc];
  * The [[TreeUpdater.deleteNode]] operation is the one major exception to the
  * basic rules given above:
  *
- * - The [[TreeUpdater.beforeDeleteNode]] event is emitted **before** the
- * deletion is performed. This allows performing operations based on the node's
- * location before it is removed. For instance, calling the DOM method
- * ``matches`` on a node that has been removed from its DOM tree is generally
- * going to fail to perform the intended check.
+ * - [[BeforeDeleteNodeEvent]] is emitted **before** the deletion is
+ * performed. This allows performing operations based on the node's location
+ * before it is removed. For instance, calling the DOM method ``matches`` on a
+ * node that has been removed from its DOM tree is generally going to fail to
+ * perform the intended check.
  *
- * - The [[TreeUpdater.deleteNode]] event has the additional ``formerParent``
- * property.
+ * - [[DeleteNodeEvent]] has the additional ``formerParent`` property.
  *
  */
 export class TreeUpdater {

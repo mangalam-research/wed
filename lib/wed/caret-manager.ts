@@ -131,7 +131,7 @@ export class CaretManager implements GUIToDataConverter {
   }
 
   /**
-   * The raw caret. Use [[getCaret]] if you need it normalized.
+   * The raw caret. Use [[getNormalizedCaret]] if you need it normalized.
    *
    * This is synonymous with the focus of the current selection. (`foo.caret ===
    * foo.focus === foo.sel.focus`).

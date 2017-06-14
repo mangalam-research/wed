@@ -80,11 +80,10 @@ corrupted state and thus an internal error`);
   /**
    * This method can be used to record the caret position after the acts
    * recorded by this undo are performed. If the caret is recorded by means of
-   * this method, then {@link module:wundo~UndoGroup#end end} will not record
-   * the caret position again. This can be useful in cases for which it is not
-   * clear when an UndoGroup might end. {@link module:wundo~TextUndoGroup
-   * TextUndoGroup} is a case in point. This method can be called any number of
-   * times to update the caret position at the end of the group.
+   * this method, then [[end]] will not record the caret position again. This
+   * can be useful in cases for which it is not clear when an UndoGroup might
+   * end. [[TextUndoGroup]] is a case in point. This method can be called any
+   * number of times to update the caret position at the end of the group.
    */
   recordCaretAfter(): void {
     this.caretAsPathAfter = this.getDataCaretAsPath();

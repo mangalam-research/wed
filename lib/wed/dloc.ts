@@ -183,8 +183,8 @@ function getTestLength(node: Node | Attr): number {
  * ``offset`` is a location in that node. ``DLoc`` objects are said to have a
  * ``root`` relative to which they are positioned.
  *
- * A DLoc object can point to an offset inside an [[Element]], inside a [[Text]]
- * node or inside an [[Attr]].
+ * A DLoc object can point to an offset inside an ``Element``, inside a ``Text``
+ * node or inside an ``Attr``.
  *
  * Use [[makeDLoc]] to make ``DLoc`` objects. Calling this constructor directly
  * is not legal.
