@@ -35,6 +35,7 @@ require.config({
     "bluejax.try": "external/bluejax.try",
     slug: "external/slug",
     rxjs: "external/Rx",
+    ajv: "external/ajv.min",
   },
   packages: [
     {
@@ -46,6 +47,7 @@ require.config({
     "*": {
       bootstrap: "wed/patches/bootstrap",
       "last-resort": "wed/glue/last-resort",
+      "wed/modes/generic/metadata-schema.json": "text!wed/modes/generic/metadata-schema.json",
     },
     "wed/glue/last-resort": {
       "last-resort": "last-resort",

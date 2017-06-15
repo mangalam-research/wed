@@ -6,7 +6,6 @@
  */
 
 import * as Promise from "bluebird";
-import * as $ from "jquery";
 import { NameResolver } from "salve";
 
 import { Action } from "wed/action";
@@ -14,8 +13,14 @@ import { BaseMode, Editor } from "wed/mode";
 import * as objectCheck from "wed/object-check";
 import { Transformation, TransformationData } from "wed/transformation";
 import { GenericDecorator } from "./generic-decorator";
-import { Meta } from "./generic-meta";
 import { makeTagTr } from "./generic-tr";
+import { Metadata } from "./metadata";
+import { MetadataMultiversionReader } from "./metadata-multiversion-reader";
+
+export interface GenericModeOptions {
+  metadata: string;
+  autoinsert?: boolean;
+}
 
 /**
  * This is the class that implements the generic mode. This mode decorates all
@@ -25,15 +30,12 @@ import { makeTagTr } from "./generic-tr";
  *
  * Recognized options:
  *
- * - ``meta``: this option can be a path (a string) pointing to a module that
- *   implements the meta object needed by the mode. Or it can be an object of
- *   the form:
+ * - ``metadata``: this option can be a path (a string) pointing to a module
+ *   that implements the metadata needed by the mode. Or it can be an object
+ *   of the form:
  *
  *         {
- *             path: "path/to/the/meta",
- *             options: {
- *                 // Meta-specific options.
- *             }
+ *             path: "path/to/the/metadata",
  *         }
  *
  * - ``autoinsert``: whether or not to fill newly inserted elements as much as
@@ -47,10 +49,9 @@ import { makeTagTr } from "./generic-tr";
  *   could contain ``a`` or ``b``, then the mode won't add any children. This
  *   option is ``true`` by default.
  */
-// tslint:disable-next-line:no-any
-class GenericMode extends BaseMode<any> {
+class GenericMode extends BaseMode<GenericModeOptions> {
   protected resolver: NameResolver;
-  protected meta: Meta;
+  protected metadata: Metadata;
   protected tagTr: Record<string, Transformation<TransformationData>>;
   /**
    * @param editor The editor with which the mode is being associated.
@@ -58,7 +59,7 @@ class GenericMode extends BaseMode<any> {
    * @param options The options for the mode.
    */
   // tslint:disable-next-line:no-any
-  constructor(editor: Editor, options: any) {
+  constructor(editor: Editor, options: GenericModeOptions) {
     super(editor, options);
 
     if (this.constructor === GenericMode) {
@@ -77,11 +78,12 @@ class GenericMode extends BaseMode<any> {
     // else it is up to the derived class to set it.
 
     const template = {
-      meta: true,
+      metadata: true,
       autoinsert: false,
     };
 
-    const ret = objectCheck.check(template, this.options);
+    // tslint:disable-next-line:no-any
+    const ret = objectCheck.check(template, this.options as any);
 
     if (this.options.autoinsert === undefined) {
       this.options.autoinsert = true;
@@ -110,37 +112,15 @@ class GenericMode extends BaseMode<any> {
     return Promise.resolve()
       .then(() => {
         this.tagTr = makeTagTr(this.editor);
-        const options = this.options;
-        const resolved = $.extend(true, {}, options);
-        if (options != null && options.meta != null) {
-          let meta = resolved.meta;
-          if (typeof meta === "string") {
-            meta = resolved.meta = {
-              path: meta,
-            };
-          }
-          else if (typeof meta.path !== "object") {
-            return this.editor.runtime.resolveModules(meta.path)
-              .then((mods: {}[]) => {
-                const mod = mods[0];
-                resolved.meta.path = mod;
-                this.options = resolved;
-              });
-          }
-        }
-
-        return undefined;
-      })
-      .then(() => {
-        // tslint:disable-next-line:variable-name
-        const MetaClass = this.options.meta.path.Meta;
-        this.meta = new MetaClass(this.editor.runtime,
-                                  this.options.meta.options);
-        return this.meta.init();
+        return this.editor.runtime.resolveToString(this.options.metadata)
+          .then((data: string) => {
+            const obj = JSON.parse(data);
+            this.metadata = new MetadataMultiversionReader().read(obj);
+          });
       })
       .then(() => {
         this.resolver = new NameResolver();
-        const mappings = this.meta.getNamespaceMappings();
+        const mappings = this.metadata.getNamespaceMappings();
         for (const key of Object.keys(mappings)) {
           this.resolver.definePrefix(key, mappings[key]);
         }
@@ -154,7 +134,7 @@ class GenericMode extends BaseMode<any> {
   makeDecorator(): GenericDecorator {
     const obj = Object.create(GenericDecorator.prototype);
     let args = Array.prototype.slice.call(arguments);
-    args = [this, this.meta, this.options].concat(args);
+    args = [this, this.metadata, this.options].concat(args);
     GenericDecorator.apply(obj, args);
     return obj;
   }
@@ -163,7 +143,7 @@ class GenericMode extends BaseMode<any> {
    * Returns a short description for an element. The element should be named
    * according to the mappings reported by the resolve returned by
    * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-   * the meta object it was asked to use.
+   * the metadata.
    *
    * @param name The name of the element.
    *
@@ -172,14 +152,18 @@ class GenericMode extends BaseMode<any> {
    * description has not been loaded yet.
    */
   shortDescriptionFor(name: string): string | null | undefined {
-    return this.meta.shortDescriptionFor(name);
+    const ename = this.resolver.resolveName(name);
+    if (ename === undefined) {
+      return undefined;
+    }
+    return this.metadata.shortDescriptionFor(ename);
   }
 
   /**
    * Returns a URL to the documentation for an element. The element should be
    * named according to the mappings reported by the resolve returned by
    * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-   * the meta object it was asked to use.
+   * the metadata.
    *
    * @param name The name of the element.
    *
@@ -188,7 +172,12 @@ class GenericMode extends BaseMode<any> {
    * yet.
    */
   documentationLinkFor(name: string): string | null | undefined {
-    return this.meta.documentationLinkFor(name);
+    const ename = this.resolver.resolveName(name);
+    if (ename === undefined) {
+      return undefined;
+    }
+
+    return this.metadata.documentationLinkFor(ename);
   }
 
   /**

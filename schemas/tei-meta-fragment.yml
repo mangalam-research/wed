@@ -1,0 +1,258 @@
+version: "2"
+namespaces:
+  "": http://www.tei-c.org/ns/1.0
+  tei: http://www.tei-c.org/ns/1.0
+  # xlink and math are not always used but we included them anyway so that we
+  # can use one file for both plain TEI and TEI+MathML.
+  xlink: http://www.w3.org/1999/xlink
+  math: http://www.w3.org/1998/Math/MathML
+inline:
+  method: name
+  rules:
+    # The implementation here is a partial implementation of the function
+    # found in common2/functions.xsl among the TEI stylesheets.
+
+    # Not implemented: <xsl:when test="not(self::*)">true</xsl:when>
+    # <xsl:when test="contains(@rend,'inline') and not(tei:p or
+    # tei:l)">true</xsl:when> <xsl:when
+    # test="self::tei:note[@place='display']">false</xsl:when>
+    # <xsl:when
+    # test="self::tei:note[tei:isEndNote(.)]">true</xsl:when>
+    # <xsl:when
+    # test="self::tei:note[tei:isFootNote(.)]">true</xsl:when>
+    # <xsl:when test="@rend='display'
+    # or @rend='block'">false</xsl:when> <xsl:when test="tei:table or
+    # tei:figure or tei:list or tei:lg or tei:q/tei:l or tei:l or
+    # tei:p or tei:biblStruct or tei:sp or
+    # tei:floatingText">false</xsl:when> <xsl:when
+    # test="parent::tei:div">false</xsl:when> <xsl:when
+    # test="parent::tei:titlePage">false</xsl:when> <xsl:when
+    # test="self::tei:cit[not(@rend)]">true</xsl:when> <xsl:when
+    # test="parent::tei:cit[@rend='display']">false</xsl:when>
+    # <xsl:when test="parent::tei:cit and (tei:p or
+    # tei:l)">false</xsl:when> <xsl:when test="parent::tei:cit and
+    # parent::cit/tei:bibl">false</xsl:when> <xsl:when
+    # test="parent::tei:body">false</xsl:when> <xsl:when
+    # test="parent::tei:titlePage">false</xsl:when> <xsl:when
+    # test="self::tei:docAuthor and
+    # parent::tei:byline">true</xsl:when> <xsl:when
+    # test="self::tei:note[tei:cit/tei:bibl]">false</xsl:when>
+    # <xsl:when
+    # test="self::tei:note[parent::tei:biblStruct]">true</xsl:when>
+    # <xsl:when
+    # test="self::tei:note[parent::tei:bibl]">true</xsl:when> End not
+    # implemented.
+
+    # <xsl:when test="self::tei:note">true</xsl:when>
+    # <xsl:when test="self::mml:math">true</xsl:when>
+    # <xsl:when test="self::tei:abbr">true</xsl:when>
+    # <xsl:when test="self::tei:affiliation">true</xsl:when>
+    # <xsl:when test="self::tei:altIdentifier">true</xsl:when>
+    # <xsl:when test="self::tei:analytic">true</xsl:when>
+    # <xsl:when test="self::tei:add">true</xsl:when>
+    # <xsl:when test="self::tei:am">true</xsl:when>
+    # <xsl:when test="self::tei:att">true</xsl:when>
+    # <xsl:when test="self::tei:author">true</xsl:when>
+    "tei:note": true
+    "mml:math": true
+    "tei:abbr": true
+    "tei:affiliation": true
+    "tei:altIdentifier": true
+    "tei:analytic": true
+    "tei:add": true
+    "tei:am": true
+    "tei:att": true
+    "tei:author": true
+
+    # Not implemented: <xsl:when test="self::tei:bibl and not
+    # (tei:is-inline(preceding-sibling::*[1]))">false</xsl:when>
+    # <xsl:when test="self::tei:bibl and not
+    # (parent::tei:listBibl)">true</xsl:when> End not implemented.
+
+    # <xsl:when test="self::tei:biblScope">true</xsl:when>
+    # <xsl:when test="self::tei:br">true</xsl:when>
+    # <xsl:when test="self::tei:byline">true</xsl:when>
+    # <xsl:when test="self::tei:c">true</xsl:when>
+    # <xsl:when test="self::tei:caesura">true</xsl:when>
+    # <xsl:when test="self::tei:choice">true</xsl:when>
+    # <xsl:when test="self::tei:code">true</xsl:when>
+    # <xsl:when test="self::tei:collection">true</xsl:when>
+    # <xsl:when test="self::tei:country">true</xsl:when>
+    # <xsl:when test="self::tei:damage">true</xsl:when>
+    # <xsl:when test="self::tei:date">true</xsl:when>
+    # <xsl:when test="self::tei:del">true</xsl:when>
+    # <xsl:when test="self::tei:depth">true</xsl:when>
+    # <xsl:when test="self::tei:dim">true</xsl:when>
+    # <xsl:when test="self::tei:dimensions">true</xsl:when>
+    # <xsl:when test="self::tei:editor">true</xsl:when>
+    # <xsl:when test="self::tei:editionStmt">true</xsl:when>
+    # <xsl:when test="self::tei:emph">true</xsl:when>
+    # <xsl:when test="self::tei:ex">true</xsl:when>
+    # <xsl:when test="self::tei:expan">true</xsl:when>
+    "tei:biblScope": true
+    "tei:br": true
+    "tei:byline": true
+    "tei:c": true
+    "tei:caesura": true
+    "tei:choice": true
+    "tei:code": true
+    "tei:collection": true
+    "tei:country": true
+    "tei:damage": true
+    "tei:date": true
+    "tei:del": true
+    "tei:depth": true
+    "tei:dim": true
+    "tei:dimensions": true
+    "tei:editor": true
+    "tei:editionStmt": true
+    "tei:emph": true
+    "tei:ex": true
+    "tei:expan": true
+
+    # Not implemented:
+    # <xsl:when test="self::tei:figure[@place='inline']">true</xsl:when>
+    # End Not implemented.
+
+    # <xsl:when test="self::tei:figure">false</xsl:when>
+    # <xsl:when test="self::tei:floatingText">false</xsl:when>
+    # <xsl:when test="self::tei:foreign">true</xsl:when>
+    # <xsl:when test="self::tei:forename">true</xsl:when>
+    # <xsl:when test="self::tei:gap">true</xsl:when>
+    # <xsl:when test="self::tei:genName">true</xsl:when>
+    # <xsl:when test="self::tei:geogName">true</xsl:when>
+    # <xsl:when test="self::tei:gi">true</xsl:when>
+    # <xsl:when test="self::tei:gloss">true</xsl:when>
+    # <xsl:when test="self::tei:graphic">true</xsl:when>
+    # <xsl:when test="self::tei:height">true</xsl:when>
+    # <xsl:when test="self::tei:hi[not(w:*)]">true</xsl:when>
+    # <xsl:when test="self::tei:ident">true</xsl:when>
+    # <xsl:when test="self::tei:idno">true</xsl:when>
+    # <xsl:when test="self::tei:imprint">true</xsl:when>
+    # <xsl:when test="self::tei:institution">true</xsl:when>
+    "tei:figure": false
+    "tei:floatingText": false
+    "tei:foreign": true
+    "tei:forename": true
+    "tei:gap": true
+    "tei:genName": true
+    "tei:geogName": true
+    "tei:gi": true
+    "tei:gloss": true
+    "tei:graphic": true
+    "tei:height": true
+    "tei:hi": true
+    # The original test was:
+    # <xsl:when test="self::tei:hi[not(w:*)]">true</xsl:when>
+    # eslint-disable-next-line no-fallthrough
+    "tei:ident": true
+    "tei:idno": true
+    "tei:imprint": true
+    "tei:institution": true
+
+    # <xsl:when test="self::tei:list">false</xsl:when>
+    # <xsl:when test="self::tei:locus">true</xsl:when>
+    # <xsl:when test="self::tei:mentioned">true</xsl:when>
+    # <xsl:when test="self::tei:monogr">true</xsl:when>
+    # <xsl:when test="self::tei:series">true</xsl:when>
+    # <xsl:when test="self::tei:msName">true</xsl:when>
+    # <xsl:when test="self::tei:name">true</xsl:when>
+    # <xsl:when test="self::tei:num">true</xsl:when>
+    # <xsl:when test="self::tei:orgName">true</xsl:when>
+    # <xsl:when test="self::tei:orig">true</xsl:when>
+    # <xsl:when test="self::tei:origDate">true</xsl:when>
+    # <xsl:when test="self::tei:origPlace">true</xsl:when>
+    # <xsl:when test="self::tei:pc">true</xsl:when>
+    # <xsl:when test="self::tei:persName">true</xsl:when>
+    # <xsl:when test="self::tei:placeName">true</xsl:when>
+    # <xsl:when test="self::tei:ptr">true</xsl:when>
+    # <xsl:when test="self::tei:publisher">true</xsl:when>
+    # <xsl:when test="self::tei:pubPlace">true</xsl:when>
+
+    "tei:list": false
+    "tei:locus": true
+    "tei:mentioned": true
+    "tei:monogr": true
+    "tei:series": true
+    "tei:msName": true
+    "tei:name": true
+    "tei:num": true
+    "tei:orgName": true
+    "tei:orig": true
+    "tei:origDate": true
+    "tei:origPlace": true
+    "tei:pc": true
+    "tei:persName": true
+    "tei:placeName": true
+    "tei:ptr": true
+    "tei:publisher": true
+    "tei:pubPlace": true
+
+    # Not implemented: <xsl:when test="self::tei:lb or
+    # self::pb">true</xsl:when> <xsl:when test="self::tei:quote and
+    # tei:lb">false</xsl:when> <xsl:when test="self::tei:quote and
+    # $autoBlockQuote='true' and
+    # string-length(.)&gt;$autoBlockQuoteLength">false</xsl:when> End
+    # not implemented.
+
+    # <xsl:when test="self::tei:q">true</xsl:when>
+    # <xsl:when test="self::tei:quote">true</xsl:when>
+    # <xsl:when test="self::tei:ref">true</xsl:when>
+    # <xsl:when test="self::tei:region">true</xsl:when>
+    # <xsl:when test="self::tei:repository">true</xsl:when>
+    # <xsl:when test="self::tei:roleName">true</xsl:when>
+    # <xsl:when test="self::tei:rubric">true</xsl:when>
+    # <xsl:when test="self::tei:said">true</xsl:when>
+    # <xsl:when test="self::tei:seg">true</xsl:when>
+    # <xsl:when test="self::tei:sic">true</xsl:when>
+    # <xsl:when test="self::tei:settlement">true</xsl:when>
+    # <xsl:when test="self::tei:soCalled">true</xsl:when>
+    # <xsl:when test="self::tei:summary">true</xsl:when>
+    # <xsl:when test="self::tei:supplied">true</xsl:when>
+    # <xsl:when test="self::tei:surname">true</xsl:when>
+    # <xsl:when test="self::tei:tag">true</xsl:when>
+    # <xsl:when test="self::tei:term">true</xsl:when>
+    # <xsl:when test="self::tei:textLang">true</xsl:when>
+    # <xsl:when test="self::tei:title">true</xsl:when>
+    # <xsl:when test="self::tei:unclear">true</xsl:when>
+    # <xsl:when test="self::tei:val">true</xsl:when>
+    # <xsl:when test="self::tei:width">true</xsl:when>
+    # <xsl:when test="self::tei:dynamicContent">true</xsl:when>
+    # <xsl:when test="self::w:drawing">true</xsl:when>
+    # <xsl:when test="self::m:oMath">true</xsl:when>
+    "tei:q": true
+    "tei:quote": true
+    "tei:ref": true
+    "tei:region": true
+    "tei:repository": true
+    "tei:roleName": true
+    "tei:rubric": true
+    "tei:said": true
+    "tei:seg": true
+    "tei:sic": true
+    "tei:settlement": true
+    "tei:soCalled": true
+    "tei:summary": true
+    "tei:supplied": true
+    "tei:surname": true
+    "tei:tag": true
+    "tei:term": true
+    "tei:textLang": true
+    "tei:title": true
+    "tei:unclear": true
+    "tei:val": true
+    "tei:width": true
+    "tei:dynamicContent": true
+    "w:drawing": true
+    "m:oMath": true
+
+    # Not implemented: <xsl:when
+    # test="parent::tei:note[tei:isEndNote(.)]">false</xsl:when>
+    # <xsl:when test="empty($element/..)">false</xsl:when> <xsl:when
+    # test="not(self::tei:p) and
+    # tei:is-inline($element/..)">true</xsl:when> End not
+    # implemented.
+    "**default**": false
+dochtml:
+  method: simple-pattern
+  pattern: /build/schemas/tei-doc/ref-${name:s(":","_")}.html

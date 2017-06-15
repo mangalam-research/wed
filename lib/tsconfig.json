@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": ".",
+    "rootDirs": [".", "../build/generated/lib/"],
     "baseUrl": ".",
     "paths": {
       "rangy": ["../types/rangy"],

@@ -20,6 +20,8 @@ const versync = require("versync");
 const argparse = require("argparse");
 const gulpTs = require("gulp-typescript");
 const sourcemaps = require("gulp-sourcemaps");
+const { compileFromFile } = require("json-schema-to-typescript");
+
 const config = require("./config");
 const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
         cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath }
@@ -138,8 +140,18 @@ function tsc(project) {
                   result.dts.pipe(gulp.dest(dest)));
 }
 
+gulp.task("generate-ts", () => {
+  const basePath = "lib/wed/modes/generic/metadata-schema.json";
+  const baseDirname = path.dirname(basePath);
+  const dest = path.join("build/generated", baseDirname, "metadata-as-json.d.ts");
+  return newer(basePath, dest)
+    .then(result => (!result ? undefined :
+                     compileFromFile(basePath)
+                     .then(ts => fs.outputFileAsync(dest, ts))));
+});
+
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
-gulp.task("tsc-wed", () => tsc(wedProject));
+gulp.task("tsc-wed", ["generate-ts"], () => tsc(wedProject));
 
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
@@ -184,6 +196,8 @@ gulp.task("build-standalone-wed-less",
                 touchAsync(stamp).asCallback(callback);
               });
           });
+
+gulp.task("copy-bin", () => cprpdir("bin", "build/standalone"));
 
 gulp.task("npm", ["stamp-dir"], Promise.coroutine(function *task() {
   const stamp = stampPath("npm");
@@ -370,6 +384,8 @@ npmCopyTask("slug/slug-browser.js", { rename: "slug.js" });
 
 npmCopyTask("rxjs/bundles/Rx.js");
 
+npmCopyTask("ajv/dist/ajv.min.js");
+
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
   const isNewer = yield newer(["lib/**", "!**/*_flymake.*"], dest);
@@ -418,30 +434,6 @@ gulp.task("generate-mode-map", Promise.coroutine(function *task() {
   yield fs.writeFileAsync(dest, `define(${JSON.stringify(exporting)});`);
 }));
 
-gulp.task("generate-meta-map", Promise.coroutine(function *task() {
-  const dest = "build/standalone/lib/wed/meta-map.js";
-  const isNewer = yield newer(["lib/wed/modes/**/metas/*-meta.ts",
-                               "!**/*_flymake.*"], dest);
-  if (!isNewer) {
-    return;
-  }
-
-  yield mkdirpAsync(path.dirname(dest));
-
-  const modeDirs = glob.sync("lib/wed/modes/**/metas/*-meta.ts");
-  const metas = {};
-  modeDirs.forEach((x) => {
-    // Drop initial "lib/" and final ".ts"
-    x = x.substring(4, x.length - 3);
-    const name = x.replace(/^.*\/(.*?)-meta$/, "$1");
-    metas[name] = x;
-  });
-
-  const exporting = { metas };
-
-  yield fs.writeFileAsync(dest, `define(${JSON.stringify(exporting)});`);
-}));
-
 function htmlTask(suffix) {
   gulp.task(`build-html${suffix}`, () => {
     const dest = `build/standalone${suffix}`;
@@ -461,13 +453,13 @@ gulp.task("build-standalone",
             "build-standalone-wed-less",
             "build-standalone-wed-config",
             "copy-log4javascript",
+            "copy-bin",
             copyTasks,
             "build-schemas",
             "build-samples",
             "build-html",
             "build-info",
-            "generate-mode-map",
-            "generate-meta-map"),
+            "generate-mode-map"),
           () => mkdirpAsync("build/ajax"));
 
 gulp.task("build-bundled-doc", ["build-standalone"],
@@ -732,7 +724,8 @@ function runTslint(tsconfig, tslintConfig) {
     { stdio: "inherit" });
 }
 
-gulp.task("tslint-wed", () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
+gulp.task("tslint-wed", ["generate-ts"],
+          () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
 
 gulp.task("tslint", ["tslint-wed"]);
 

@@ -11,8 +11,7 @@ import { GUIUpdater } from "wed/gui-updater";
 import { Mode } from "wed/mode";
 import * as util from "wed/util";
 
-// tslint:disable-next-line:no-any
-export type Meta = any;
+import { Metadata } from "./metadata";
 
 /**
  * A decorator for the generic mode.
@@ -21,7 +20,7 @@ export class GenericDecorator extends Decorator {
   /**
    * @param mode The mode object.
    *
-   * @param meta Meta-information about the schema.
+   * @param metadata Meta-information about the schema.
    *
    * @param options The options object passed to the mode which uses this
    * decorator.
@@ -36,7 +35,7 @@ export class GenericDecorator extends Decorator {
    */
   // tslint:disable-next-line:no-any
   constructor(protected readonly mode: Mode<any>,
-              protected readonly meta: Meta,
+              protected readonly metadata: Metadata,
               // tslint:disable-next-line:no-any
               protected readonly options: any,
               domlistener: Listener,
@@ -58,7 +57,7 @@ export class GenericDecorator extends Decorator {
 
          this.elementDecorator(root, el);
 
-         const klass = this.meta.getAdditionalClasses(el);
+         const klass = this.getAdditionalClasses(el);
          if (klass.length > 0) {
            el.className += ` ${klass}`;
          }
@@ -99,6 +98,23 @@ export class GenericDecorator extends Decorator {
     super.elementDecorator(root, el, 1,
                            this.contextMenuHandler.bind(this, true),
                            this.contextMenuHandler.bind(this, false));
+  }
+
+  /**
+   * Returns additional classes that should apply to a node.
+   *
+   * @param node The node to check.
+   *
+   * @returns A string that contains all the class names separated by spaces. In
+   * other words, a string that could be put as the value of the ``class``
+   * attribute in an HTML tree.
+   */
+  getAdditionalClasses(node: Element): string {
+    const ret = [];
+    if (this.metadata.isInline(node)) {
+      ret.push("_inline");
+    }
+    return ret.join(" ");
   }
 }
 

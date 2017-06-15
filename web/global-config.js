@@ -4,12 +4,7 @@ define({
     mode: {
       path: "wed/modes/generic/generic",
       options: {
-        meta: {
-          path: "wed/modes/generic/metas/tei-meta",
-          options: {
-            metadata: "/build/schemas/tei-metadata.json",
-          },
-        },
+        metadata: "/build/schemas/tei-metadata.json",
       },
     },
     // You certainly do not want this in actual deployment.

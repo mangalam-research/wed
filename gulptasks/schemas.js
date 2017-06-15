@@ -5,11 +5,13 @@ const Promise = require("bluebird");
 const { options } = require("./config");
 const { del, newer, checkOutputFile, exec, mkdirpAsync } = require("./util");
 
+gulp.task("wed-metadata-prereq", ["copy-bin", "tsc-wed"]);
+
 gulp.task("copy-schemas", () =>
           gulp.src("schemas/*.js", { base: "." }).pipe(gulp.dest("build")));
 
 const jsonTasks = [];
-function xmlToJsonChain(name, dest, ns) {
+function xmlToJsonChain(name, dest) {
   const xml = `schemas/${name}.xml`;
   const compiled = `schemas/out/${name}.compiled`;
   const json = `schemas/out/${name}.json`;
@@ -45,13 +47,8 @@ function xmlToJsonChain(name, dest, ns) {
             Promise.coroutine(compiledToJson));
 
   function *meta() {
-    const nsArgs = [];
-
-    for (const x of ns) {
-      nsArgs.push("--ns", x);
-    }
-
-    const isNewer = yield newer(json, metaJson);
+    const fragment = "schemas/tei-meta-fragment.yml";
+    const isNewer = yield newer([json, fragment], metaJson);
 
     if (!isNewer) {
       gutil.log(`Skipping generation of ${metaJson}`);
@@ -59,25 +56,22 @@ function xmlToJsonChain(name, dest, ns) {
     }
 
     yield mkdirpAsync(path.dirname(metaJson));
-    yield checkOutputFile("bin/tei-to-generic-meta-json",
-                          ["--dochtml", "/build/schemas/tei-doc/"]
-                          .concat(nsArgs, json, metaJson));
+    yield checkOutputFile("build/standalone/bin/wed-metadata",
+                          ["--tei", "--merge", fragment].concat(json,
+                                                                metaJson));
   }
 
-  gulp.task(metaJsonTaskName, [`compiled-to-json-${name}`],
+  // tsc-wed is a necessary dependency because tei-to-generic-meta-json
+  // needs to load compiled code.
+  gulp.task(metaJsonTaskName, ["wed-metadata-prereq",
+                               `compiled-to-json-${name}`],
             Promise.coroutine(meta));
 
   jsonTasks.push(metaJsonTaskName);
 }
 
-const teiNs = ["tei=http://www.tei-c.org/ns/1.0"];
-
-xmlToJsonChain("myTEI", "tei-metadata.json", teiNs);
-xmlToJsonChain("tei-math", "tei-math-metadata.json",
-               teiNs.concat([
-                 "xlink=http://www.w3.org/1999/xlink",
-                 "math=http://www.w3.org/1998/Math/MathML",
-               ]));
+xmlToJsonChain("myTEI", "tei-metadata.json");
+xmlToJsonChain("tei-math", "tei-math-metadata.json");
 
 gulp.task("tei-doc", ["compile-rng-myTEI"], Promise.coroutine(function *task() {
   const src = "schemas/out/myTEI.compiled";
@@ -97,5 +91,21 @@ gulp.task("tei-doc", ["compile-rng-myTEI"], Promise.coroutine(function *task() {
      "STDOUT=false", "splitLevel=0", `outputDir=${dest}`]);
 }));
 
+gulp.task("docbook-metadata", ["wed-metadata-prereq"],
+          Promise.coroutine(function *task() {
+            const fragment = "schemas/docbook-meta-fragment.yml";
+            const metadata = "build/schemas/docbook-metadata.json";
+            const isNewer = yield newer(fragment, metadata);
 
-gulp.task("build-schemas", ["copy-schemas"].concat(jsonTasks, "tei-doc"));
+            if (!isNewer) {
+              gutil.log(`Skipping generation of ${metadata}`);
+              return;
+            }
+
+            yield mkdirpAsync(path.dirname(metadata));
+            yield checkOutputFile("build/standalone/bin/wed-metadata",
+                                  [fragment, metadata]);
+          }));
+
+gulp.task("build-schemas", ["copy-schemas",
+                            "docbook-metadata"].concat(jsonTasks, "tei-doc"));

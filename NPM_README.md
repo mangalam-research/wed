@@ -11,13 +11,13 @@ this package?
 
 * It provides a convenient way to distribute the built wed tree.
 
-* The tool ``tei-to-generic-meta-json`` *does* run in Node. Some
+* The tool ``wed-metadata`` *does* run in Node. Some
   projects using wed might need to use it. This package provides a way
   to install the tool.
 
 This package contains the following:
 
-* ``bin/tei-to-generic-meta-json``: the tool mentioned above.
+* ``bin/wed-metadata``: the tool mentioned above.
 
 * ``standalone``: a standalone build of wed. This build contains
   **everything** needed to load wed, including third-party libraries.

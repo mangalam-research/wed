@@ -90,15 +90,45 @@ odd bug fix may not get mentioned here at all.
   - New saver: wed now has an IndexedDB saver. This is mainly used for
     demonstration purposes.
 
+  - Breaking API change: the tool previously named ``tei-to-generic-meta-json``
+    has been renamed ``wed-metadata``. Check its help to adapt any use you
+    previously made of ``tei-to-generic-meta-json`` to the new tool.
+
+  - ``wed-metadata`` is bundled with the build package.
+
+  - Breaking API change: mode paths must now be specified in full. Previously,
+    wed would support having ``mode.path`` set to ``generic`` and would
+    automatically try to load ``generic``, ``wed/modes/generic/generic`` and
+    ``wed/modes/generic/generic_mode``, in order, before declaring a
+    failure. This facility was rather idiosyncratic and complicated logic too
+    much. It has been removed.
+
+  - Breaking API change: there is no longer any ``Meta`` object for the generic
+    mode and modes derived from it. Consequences:
+
+    + Mode now directly load the metadata file. So a mode configuration would
+      now look like::
+
+         mode: {
+             path: 'wed/modes/generic/generic',
+             options: {
+                 metadata: '.../path/to/metadata'
+             }
+         }
+
+    + If you are a mode designer, you need to rewrite your mode to work
+      without a ``Meta`` object.
+
+  - Breaking API change: the metadata format is now at version 2. Version 1 is
+    still read by wed. However, except for very trivial cases, a version 1
+    metadata file won't do what you want. If you are a mode designer or write
+    your own metadata files, you should move to version 2 ASAP.
+
   - Breaking API change: ``module:mode~Mode`` objects now take the editor as
     their first argument. (This matters only if you created your own modes.)
 
   - Breaking API change: ``module:mode~Mode#init`` no longer takes any
     arguments. (This matters only if you created your own modes.)
-
-  - Breaking API change: The ``Meta`` objects created for modes derived from the
-    generic mode now take a ``module:runtime~Runtime`` object as their first
-    argument. (This matters only if you created your own modes.)
 
   - Breaking API change: When a path is passed in the ``schema`` option,
     this path is interpreted as-is.
@@ -108,11 +138,6 @@ odd bug fix may not get mentioned here at all.
     bizarre. More importantly, it made wed's code dependent on a
     loader/bundler that replicates what ``require.toUrl`` does, which
     was problematic.
-
-  - Breaking API change: The ``meta.options.meta.options.metadata`` option
-    is interpreted as-is. Its previous interpretation was the same as
-    a path ``schema`` and the rationale for the change is the
-    same. (See above.)
 
   - Breaking API change: The ``dochtml`` field embedded in the generated
     metadata JSON file is now interpreted as-is. If you used such
@@ -170,10 +195,7 @@ odd bug fix may not get mentioned here at all.
   - Breaking API change: ``mode.Mode`` is now ``mode.BaseMode``.
 
   - Breaking API change: ``BaseMode``'s (formerly ``Mode``) ``init`` method must
-    return a promise that resolves when the mode is ready. Same with the
-    ``Meta`` objects used by the generic mode: they now have an ``init`` method
-    that must return a promise that resolves when the object is ready to be
-    used.
+    return a promise that resolves when the mode is ready.
 
     Concomitant with this change, the ``pubsub`` module has been removed and wed
     no longer uses PubsubJS.
@@ -226,11 +248,7 @@ odd bug fix may not get mentioned here at all.
 
   - Module name changes: underscore to dash in ``key_constants``,
     ``context_menu``, ``completion_menu``, ``action_context_menu``,
-    ``generic_decorator``, ``input_trigger_factory``, ``generic_tr``,
-    ``generic_meta``.
-
-  - Module name changes affecting configuration: underscore to dash in
-    ``tei_meta`` and ``docbook_meta``.
+    ``generic_decorator``, ``input_trigger_factory``, ``generic_tr``.
 
   - Variable name changes:
 
@@ -275,21 +293,13 @@ odd bug fix may not get mentioned here at all.
 
     + ``GenericDecorator``:
 
-        * Loss of leading underscore: ``_options``, ``_mode``, ``_meta``.
-
-    + ``Meta`` (in ``generic_meta``):
-
-        * To camelCase: ``_desc_map``, ``_namespace_mappings``,
-          ``_reverse_mappings``.
-
-        * Loss of leading underscore: ``_desc_map``, ``_namespace_mappings``,
-          ``_reverse_mappings``, ``_metadata``, ``_options``, ``_runtime``.
+        * Loss of leading underscore: ``_options``, ``_mode``.
 
     + ``Mode`` in (``generic``):
 
         * To camelCase: ``_tag_tr``.
 
-        * Loss of leading underscore: ``_meta``, ``_tag_tr``, ``_resolver``.
+        * Loss of leading underscore: ``_tag_tr``, ``_resolver``.
 
     + ``LabelManager``:
 

@@ -22,11 +22,16 @@
     }
   ],
   "dependencies": {
+    "ajv": "^5.1.5",
+    "amd-loader": "0.0.8",
     "argparse": ">=1.0.3 <2",
+    "js-yaml": "^3.8.4",
     "salve": "^4.1.2",
     "urijs": ">=1.16.1 <2"
   },
   "devDependencies": {
+    "@types/ajv": "^1.0.0",
+    "@types/argparse": "^1.0.30",
     "@types/bluebird": "^3.5.2",
     "@types/bootbox": "^4.4.30",
     "@types/bootstrap": "^3.3.32",
@@ -35,6 +40,7 @@
     "@types/chai-as-promised": "0.0.29",
     "@types/interact.js": "^1.0.22",
     "@types/jquery": "^2.0.46",
+    "@types/js-yaml": "^3.5.31",
     "@types/localforage": "0.0.33",
     "@types/lodash": "^4.14.62",
     "@types/mocha": "^2.2.39",
@@ -81,6 +87,7 @@
     "interact.js": ">=1.2.6 <2",
     "jquery": ">=2.0.0 <3",
     "jsdom": ">=8 <9",
+    "json-schema-to-typescript": "^4.4.0",
     "last-resort": "^0.1.0",
     "less": ">=2 <3",
     "localforage": ">=1.2.4 <2",
@@ -114,6 +121,9 @@
     "vinyl-file": ">=1.2.1 <2",
     "webpack": "^2.2.1",
     "zone.js": "^0.8.10"
+  },
+  "bin": {
+    "wed-metadata": "./standalone/bin/wed-metadata"
   },
   "scripts": {
     "test": "make test"

@@ -42,13 +42,7 @@ define(function f(require) {
       options.mode = {
         path: "wed/modes/generic/generic",
         options: {
-          meta: {
-            path: "wed/modes/generic/metas/tei-meta",
-            options: {
-              metadata:
-              "/build/schemas/tei-math-metadata.json",
-            },
-          },
+          metadata: "/build/schemas/tei-math-metadata.json",
         },
       };
       break;
@@ -57,10 +51,7 @@ define(function f(require) {
       options.mode = {
         path: "wed/modes/generic/generic",
         options: {
-          meta: {
-            path: "wed/modes/generic/metas/docbook-meta",
-            options: undefined,
-          },
+          metadata: "/build/schemas/docbook-metadata.json",
         },
       };
       break;
