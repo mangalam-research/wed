@@ -3,7 +3,7 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "rangy": ["../../DefinitelyTyped/types/rangy/index"],
+      "rangy": ["../types/rangy"],
       "merge-options": ["../types/merge-options"],
       "interact": ["interact.js"]
     },

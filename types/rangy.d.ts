@@ -1,72 +1,83 @@
+// Type definitions for Rangy
+// Project: https://github.com/timdown/rangy
+// Definitions by: Rudolph Gottesheim <http://www.midnight-design.at/>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 declare namespace rangy {
-  interface RangyRange extends Range {
-    setStartAndEnd(startNode:Node, startOffset:number, endNode?:Node, endOffset?:number):any;
-    setStartAndEnd(startNode:Node, startOffset:number, endOffset:number):any;
-    canSurroundContents():boolean;
-    isValid():boolean;
-    toHtml():string;
-    compareNode(node:Node):any;
-    intersectsOrTouchesRange(range:RangyRange):boolean;
-    intersectsRange(range:RangyRange):boolean;
-    intersection(range:RangyRange):RangyRange;
-    union(range:RangyRange):RangyRange;
-    containsNode(node:Node, partial:boolean):boolean;
-    containsNodeContents(node:Node):boolean;
-    containsNodeText(node:Node):boolean;
-    containsRange(range:RangyRange):boolean;
-    splitBoundaries():any;
-    normalizeBoundaries():any;
-    collapseToPoint(node:Node, offset:number):any;
-    collapseBefore(node:Node):any;
-    collapseAfter(node:Node):any;
-    getNodes(nodeTypes?:any[], filter?:(node:Node) => boolean):Node[];
-    getBookmark(containerNode?:Node):{start:number, end:number};
-    moveToBookmark(bookmark:Object):any;
-    getDocument():Document;
-    inspect():string;
-    equals(range:RangyRange):boolean;
-    refresh():any;
-    select():any;
-  }
+    interface RangyRange extends Range {
+        nativeRange:Range;
+        setStartAndEnd(startNode:Node, startOffset:number, endNode?:Node, endOffset?:number):any;
+        setStartAndEnd(startNode:Node, startOffset:number, endOffset:number):any;
+        canSurroundContents():boolean;
+        isValid():boolean;
+        toHtml():string;
+        compareNode(node:Node):any;
+        intersectsOrTouchesRange(range:RangyRange):boolean;
+        intersectsRange(range:RangyRange):boolean;
+        intersection(range:RangyRange):RangyRange;
+        union(range:RangyRange):RangyRange;
+        containsNode(node:Node, partial:boolean):boolean;
+        containsNodeContents(node:Node):boolean;
+        containsNodeText(node:Node):boolean;
+        containsRange(range:RangyRange):boolean;
+        splitBoundaries():any;
+        normalizeBoundaries():any;
+        collapseToPoint(node:Node, offset:number):any;
+        collapseBefore(node:Node):any;
+        collapseAfter(node:Node):any;
+        getNodes(nodeTypes?:any[], filter?:(node:Node) => boolean):Node[];
+        getBookmark(containerNode?:Node):{start:number, end:number};
+        moveToBookmark(bookmark:Object):any;
+        getDocument():Document;
+        inspect():string;
+        equals(range:RangyRange):boolean;
+        refresh():any;
+        select():any;
+    }
 
-  interface RangySelection extends Selection {
-    getRangeAt(index: number): RangyRange;
-    nativeSelection:Selection;
-    isBackwards():boolean;
-    refresh(checkForChanges?:boolean):any;
-    toHtml():string;
-    getAllRanges():RangyRange[];
-    getNativeTextRange():any;
-    setSingleRange(range:RangyRange):any;
-    setRanges(ranges:RangyRange[]):any;
-    getBookmark(containerNode:Node):any;
-    moveToBookmark(bookmark:Object):any;
-    saveRanges():Object;
-    restoreRanges(saved:Object):any;
-    detach():any;
-    inspect():string;
-  }
+    type Direction = "forward" | "forwards" | "backward" |
+        "backwards" | boolean;
 
-  interface RangyStatic {
-    createNativeRange(doc?:Document|Window|HTMLIFrameElement):Range;
-    createRange(doc?:Document|Window|HTMLIFrameElement):RangyRange;
-    createRangyRange(doc?:Document|Window|HTMLIFrameElement):RangyRange;
-    getNativeSelection(win?:Window):Selection;
-    getSelection(win?: Window):RangySelection;
-    addInitListener(listener:(rangy:RangyStatic) => void):any;
-    shim():any;
-    createMissingNativeApi():any;
-    initialized:boolean;
-    supported:boolean;
-    dom: DomUtils;
-  }
+    interface RangySelection extends Selection {
+        nativeSelection:Selection;
+        isBackwards():boolean;
+        refresh(checkForChanges?:boolean):any;
+        toHtml():string;
+        addRange(range:Range, direction?:Direction):void;
+        getAllRanges():RangyRange[];
+        getRangeAt(idx:number):RangyRange;
+        getNativeTextRange():any;
+        setSingleRange(range:Range, direction?:Direction):any;
+        setRanges(ranges:RangyRange[]):any;
+        getBookmark(containerNode:Node):any;
+        moveToBookmark(bookmark:Object):any;
+        saveRanges():Object;
+        restoreRanges(saved:Object):any;
+        saveCharacterRanges(containerNode:Node):Object;
+        restoreCharacterRanges(containerNode:Node, characterRanges:Object):any;
+        detach():any;
+        inspect():string;
+    }
 
-  interface DomUtils {
-    comparePoints(nodeA: Node, offsetA: number, nodeB: Node, offsetB: number): number;
-  }
+    interface RangyStatic {
+        createNativeRange(doc?:Document|Window|HTMLIFrameElement):Range;
+        createRange(doc?:Document|Window|HTMLIFrameElement):RangyRange;
+        createRangyRange(doc?:Document|Window|HTMLIFrameElement):RangyRange;
+        getNativeSelection(win?:Window):Selection;
+        getSelection(win?:Window):RangySelection;
+        addInitListener(listener:(rangy:RangyStatic) => void):any;
+        shim():any;
+        createMissingNativeApi():any;
+        initialized:boolean;
+        supported:boolean;
+        dom:DomUtils;
+    }
+
+    interface DomUtils {
+        comparePoints(nodeA:Node, offsetA:number, nodeB:Node, offsetB:number):number;
+    }
 }
 
-declare var rangy: rangy.RangyStatic;
-export = rangy;
+declare var rangy:rangy.RangyStatic;
 export as namespace rangy;
+export = rangy;
