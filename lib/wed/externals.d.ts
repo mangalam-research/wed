@@ -31,6 +31,8 @@ declare module "bluejax" {
   export const ConnectivityError: Error;
 }
 
-declare var requirejs: (deps: string[],
-                        callback?: (...args: any[]) => void,
-                        errback?: (...args: any[]) => void) => void;
+type RequireJSCall = (deps: string[],
+                      callback?: (...args: any[]) => void,
+                      errback?: (...args: any[]) => void) => void;
+declare var requirejs: RequireJSCall;
+declare var require: RequireJSCall;

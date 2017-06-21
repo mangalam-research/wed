@@ -163,7 +163,8 @@ export class Runtime {
       }
 
       return new Promise((resolve, reject) => {
-        requirejs(resources as string[], function success(): void {
+        // tslint:disable-next-line:no-require-imports non-literal-require
+        require(resources as string[], function success(): void {
           resolve(Array.prototype.slice.call(arguments));
         }, reject);
       }) as Promise<{}[]>;

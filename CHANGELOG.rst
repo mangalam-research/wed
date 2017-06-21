@@ -96,13 +96,6 @@ odd bug fix may not get mentioned here at all.
 
   - ``wed-metadata`` is bundled with the build package.
 
-  - Breaking API change: mode paths must now be specified in full. Previously,
-    wed would support having ``mode.path`` set to ``generic`` and would
-    automatically try to load ``generic``, ``wed/modes/generic/generic`` and
-    ``wed/modes/generic/generic_mode``, in order, before declaring a
-    failure. This facility was rather idiosyncratic and complicated logic too
-    much. It has been removed.
-
   - Breaking API change: there is no longer any ``Meta`` object for the generic
     mode and modes derived from it. Consequences:
 
