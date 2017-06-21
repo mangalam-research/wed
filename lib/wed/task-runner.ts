@@ -114,7 +114,7 @@ export class TaskRunner {
   private _stateFieldChange<T extends keyof State>(field: T,
                                                    value: State[T]): void {
     const latest = this._state.value;
-    const newState = Object.assign({}, this._state.value);
+    const newState = {...this._state.value};
     newState[field] = value;
 
     if (newState[field] !== latest[field]) {
