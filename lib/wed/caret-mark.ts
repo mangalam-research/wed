@@ -10,6 +10,7 @@ import * as $ from "jquery";
 
 import { CaretManager } from "./caret-manager";
 import { isElement } from "./domtypeguards";
+import { Layer } from "./gui/layer";
 import { boundaryXY } from "./wed-util";
 
 export interface Editor {
@@ -55,7 +56,7 @@ export class CaretMark {
    */
   constructor(private readonly editor: Editor,
               doc: Document,
-              private readonly caretLayer: HTMLElement,
+              private readonly caretLayer: Layer,
               private readonly inputField: HTMLElement,
               private readonly scroller: HTMLElement) {
     const el = this.el = doc.createElement("span");
@@ -139,7 +140,7 @@ export class CaretMark {
 
     // The fake caret is removed from the DOM when not in use, reinsert it.
     if (el.parentNode === null) {
-      this.caretLayer.appendChild(this.el);
+      this.caretLayer.append(this.el);
     }
 
     const inputField = this.inputField;

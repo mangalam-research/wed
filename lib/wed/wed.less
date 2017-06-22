@@ -184,6 +184,7 @@ div.wed-document-constrainer {
         z-index: 1;
         // The following attribute is required for IE.
         background-color: white;
+        pointer-events: none;
 
         ._wed_caret {
             position: absolute;
@@ -211,9 +212,11 @@ div.wed-document-constrainer {
             z-index: 2;
             // The following attribute is required for IE.
             background-color: white;
+            pointer-events: none;
 
             * {
-                position: absolute;
+              pointer-events: auto;
+              position: absolute;
             }
         }
     }

@@ -13,6 +13,7 @@ import { DLoc } from "./dloc";
 import { isAttr, isElement } from "./domtypeguards";
 import { isNotDisplayed } from "./domutil";
 import { GUIValidationError } from "./gui-validation-error";
+import { Layer } from "./gui/layer";
 import { AttributeNotFound } from "./guiroot";
 import { TaskRunner } from "./task-runner";
 import { ProcessValidationErrors } from "./tasks/process-validation-errors";
@@ -169,8 +170,7 @@ export class ValidationController {
    * @param validationMessage: The DOM element which serves to report the
    * validation status.
    *
-   * @param errorLayer: The DOM element which serves to contain the errors
-   * markers.
+   * @param errorLayer: The layer that holds error markers.
    *
    * @param errorList: The DOM element which serves to contain the error list.
    *
@@ -183,7 +183,7 @@ export class ValidationController {
               private readonly guiRoot: Element,
               private readonly progressBar: HTMLElement,
               private readonly validationMessage: HTMLElement,
-              private readonly errorLayer: HTMLElement,
+              private readonly errorLayer: Layer,
               private readonly errorList: HTMLElement,
               private readonly errorItemHandler: ErrorItemHandler) {
     this.document = guiRoot.ownerDocument;
@@ -470,12 +470,9 @@ export class ValidationController {
     this.refreshErrorsRunner.stop();
     this.processErrorsRunner.stop();
 
-    let list = this.errorLayer;
-    while (list.lastChild != null) {
-      list.removeChild(list.lastChild);
-    }
+    this.errorLayer.clear();
 
-    list = this.errorList;
+    const list = this.errorList;
     while (list.lastChild != null) {
       list.removeChild(list.lastChild);
     }
@@ -508,12 +505,9 @@ export class ValidationController {
    * with the errors that the editor already knows.
    */
   recreateErrors(): void {
-    let list = this.errorLayer;
-    while (list.lastChild !== null) {
-      list.removeChild(list.lastChild);
-    }
+    this.errorLayer.clear();
 
-    list = this.errorList;
+    const list = this.errorList;
     while (list.lastChild !== null) {
       list.removeChild(list.lastChild);
     }
@@ -542,6 +536,6 @@ export class ValidationController {
    * @param markers The markers to add.
    */
   appendMarkers(markers: HTMLElement[]): void {
-    this.errorLayer.appendChild(elementsToFrag(this.document, markers));
+    this.errorLayer.append(elementsToFrag(this.document, markers));
   }
 }

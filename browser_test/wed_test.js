@@ -1539,7 +1539,7 @@ define(function f(require) {
          function test(done) {
            editor.validator._validateUpTo(editor.data_root, -1);
            var initial = editor.gui_root.getElementsByClassName("title")[0]
-                 .childNodes[1];
+               .childNodes[1];
            assert.isUndefined(caretManager.getNormalizedCaret());
            activateContextMenu(editor, initial.parentNode);
            window.setTimeout(function timeout() {
@@ -1899,12 +1899,12 @@ define(function f(require) {
          function test() {
            editor.validator._validateUpTo(editor.data_root, -1);
            var orig = Array.prototype.slice.call(
-             editor._$error_layer[0].children);
+             editor._errorLayer.el.children);
 
            // Reduce the visibility level.
            editor.type(key_constants.CTRLEQ_OPEN_BRACKET);
            var then = Array.prototype.slice.call(
-             editor._$error_layer[0].children);
+             editor._errorLayer.el.children);
 
            assert.equal(orig.count, then.count,
                         "the number of recorded errors should be " +
@@ -1925,7 +1925,7 @@ define(function f(require) {
 
            // Increase visibility level
            editor.type(key_constants.CTRLEQ_CLOSE_BRACKET);
-           then = Array.prototype.slice.call(editor._$error_layer[0].children);
+           then = Array.prototype.slice.call(editor._errorLayer.el.children);
 
            assert.equal(orig.count, then.count,
                         "the number of recorded errors should be " +
@@ -1943,7 +1943,7 @@ define(function f(require) {
       it("refreshes error positions when pasting", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
         var orig = Array.prototype.slice.call(
-          editor._$error_layer[0].children);
+          editor._errorLayer.el.children);
 
         // Paste.
         var initial = editor.data_root.querySelector("body>p").firstChild;
@@ -1961,7 +1961,7 @@ define(function f(require) {
         assert.equal(initial.nodeValue, "abcdef" + initial_value);
         dataCaretCheck(editor, initial, 6, "final position");
 
-        var then = Array.prototype.slice.call(editor._$error_layer[0].children);
+        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
 
         assert.equal(orig.count, then.count,
                      "the number of recorded errors should be the same");
@@ -1974,7 +1974,7 @@ define(function f(require) {
 
       it("refreshes error positions when typing text", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var orig = Array.prototype.slice.call(editor._$error_layer[0].children);
+        var orig = Array.prototype.slice.call(editor._errorLayer.el.children);
 
         // Text node inside title.
         var initial = editor.gui_root.getElementsByClassName("title")[0]
@@ -1987,7 +1987,7 @@ define(function f(require) {
         assert.equal(parent.childNodes.length, 3);
         caretCheck(editor, initial, 4, "caret after text insertion");
 
-        var then = Array.prototype.slice.call(editor._$error_layer[0].children);
+        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
 
         assert.equal(orig.count, then.count,
                      "the number of recorded errors should be the same");
@@ -2001,7 +2001,7 @@ define(function f(require) {
 
       it("refreshes error positions when typing DELETE", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var orig = Array.prototype.slice.call(editor._$error_layer[0].children);
+        var orig = Array.prototype.slice.call(editor._errorLayer.el.children);
 
         // Text node inside title.
         var initial = editor.gui_root.getElementsByClassName("title")[0]
@@ -2014,7 +2014,7 @@ define(function f(require) {
         assert.equal(parent.childNodes.length, 3);
         caretCheck(editor, initial, 0, "caret after text deletion");
 
-        var then = Array.prototype.slice.call(editor._$error_layer[0].children);
+        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
 
         assert.equal(orig.count, then.count,
                      "the number of recorded errors should be the same");
@@ -2027,7 +2027,7 @@ define(function f(require) {
 
       it("refreshes error positions when typing BACKSPACE", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var orig = Array.prototype.slice.call(editor._$error_layer[0].children);
+        var orig = Array.prototype.slice.call(editor._errorLayer.el.children);
 
         // Text node inside title.
         var initial = editor.gui_root.getElementsByClassName("title")[0]
@@ -2040,7 +2040,7 @@ define(function f(require) {
         assert.equal(parent.childNodes.length, 3);
         caretCheck(editor, initial, 3, "caret after text deletion");
 
-        var then = Array.prototype.slice.call(editor._$error_layer[0].children);
+        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
 
         assert.equal(orig.count, then.count,
                      "the number of recorded errors should be the same");
@@ -3390,10 +3390,9 @@ define(function f(require) {
                    assert.isDefined(monogr_error, "no error for our monogr");
 
                    // Find the corresponding markers
-                   var $markers = editor._$error_layer
-                     .children(".wed-validation-error");
-                   var p_marker = $markers[p_error_ix];
-                   var monogr_marker = $markers[monogr_error_ix];
+                   var markers = editor._errorLayer.el.children;
+                   var p_marker = markers[p_error_ix];
+                   var monogr_marker = markers[monogr_error_ix];
                    assert.isDefined(p_marker,
                                     "should have an error for our paragraph");
                    assert.isDefined(monogr_marker,
