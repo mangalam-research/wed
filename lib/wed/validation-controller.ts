@@ -13,7 +13,7 @@ import { DLoc } from "./dloc";
 import { isAttr, isElement } from "./domtypeguards";
 import { isNotDisplayed } from "./domutil";
 import { GUIValidationError } from "./gui-validation-error";
-import { Layer } from "./gui/layer";
+import { ErrorLayer } from "./gui/error-layer";
 import { AttributeNotFound } from "./guiroot";
 import { TaskRunner } from "./task-runner";
 import { ProcessValidationErrors } from "./tasks/process-validation-errors";
@@ -149,7 +149,6 @@ export class ValidationController {
    */
   private processedErrorsUpTo: number = -1;
 
-  private readonly $scroller: JQuery;
   private readonly $errorList: JQuery;
 
   /**
@@ -183,11 +182,10 @@ export class ValidationController {
               private readonly guiRoot: Element,
               private readonly progressBar: HTMLElement,
               private readonly validationMessage: HTMLElement,
-              private readonly errorLayer: Layer,
+              private readonly errorLayer: ErrorLayer,
               private readonly errorList: HTMLElement,
               private readonly errorItemHandler: ErrorItemHandler) {
     this.document = guiRoot.ownerDocument;
-    this.$scroller = $(scroller);
     this.$errorList = $(errorList);
     this.refreshErrorsRunner =
       new TaskRunner(new RefreshValidationErrors(this));
@@ -414,8 +412,7 @@ export class ValidationController {
             scrollTop: $link.offset().top - $scrollable.offset().top +
               $scrollable[0].scrollTop,
           });
-          this.$scroller.find(".wed-validation-error.selected")
-            .removeClass("selected");
+          this.errorLayer.select(marker!);
           $link.siblings().removeClass("selected");
           $link.addClass("selected");
 
