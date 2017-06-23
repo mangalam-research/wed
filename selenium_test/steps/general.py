@@ -244,7 +244,7 @@ def step_impl(context, choice):
 
     if choice == "completely ":
         scroll_by = driver.execute_script("""
-        return wed_editor._scroller.scrollHeight;
+        return document.querySelector(".wed-scroller").scrollHeight;
         """)
     else:
         scroll_by = 10
@@ -254,9 +254,9 @@ def step_impl(context, choice):
     var by = arguments[0];
     delete window.__selenic_scrolled;
     jQuery(function () {
-      var _scroller = window.wed_editor._scroller;
-      _scroller.scrollTop += by;
-      window.__selenic_scrolled = _scroller.scrollTop;
+      var scroller = document.querySelector(".wed-scroller");
+      scroller.scrollTop += by;
+      window.__selenic_scrolled = scroller.scrollTop;
     });
     """, scroll_by)
 

@@ -3291,7 +3291,7 @@ define(function f(require) {
 
         var initialScroll = editor._scroller.scrollTop;
 
-        $(editor._scroller).one("scroll", function scroll() {
+        editor._scroller.events.first().subscribe(function scroll() {
           // We need to wait until the scroller has fired the scroll event.
           assert.isTrue(initialScroll < editor._scroller.scrollTop);
           var caretRect = editor.caretManager.mark.getBoundingClientRect();

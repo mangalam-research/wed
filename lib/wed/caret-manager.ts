@@ -17,6 +17,7 @@ import { childByClass, closestByClass, dumpRange, focusNode, getSelectionRange,
          indexOf, RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
+import { Scroller } from "./gui/scroller";
 import { Mode } from "./mode";
 import * as objectCheck from "./object-check";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
@@ -131,10 +132,15 @@ export class CaretManager implements GUIToDataConverter {
               private readonly inputField: HTMLElement,
               private readonly guiUpdater: GUIUpdater,
               layer: Layer,
-              scroller: HTMLElement,
+              scroller: Scroller,
               private readonly inAttributes: boolean,
               private readonly mode: Mode<{}>) {
-    this.mark = new CaretMark(this, layer, inputField, scroller);
+    this.mark = new CaretMark(this, guiRoot.node.ownerDocument, layer,
+                              inputField, scroller);
+    scroller.events.subscribe(() => {
+      this.mark.refresh();
+    });
+
     this.guiRootEl = guiRoot.node;
     this.dataRootEl = dataRoot.node;
     this.doc = this.guiRootEl.ownerDocument;

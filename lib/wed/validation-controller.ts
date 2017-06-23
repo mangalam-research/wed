@@ -14,6 +14,7 @@ import { isAttr, isElement } from "./domtypeguards";
 import { isNotDisplayed } from "./domutil";
 import { GUIValidationError } from "./gui-validation-error";
 import { ErrorLayer } from "./gui/error-layer";
+import { Scroller } from "./gui/scroller";
 import { AttributeNotFound } from "./guiroot";
 import { TaskRunner } from "./task-runner";
 import { ProcessValidationErrors } from "./tasks/process-validation-errors";
@@ -158,7 +159,7 @@ export class ValidationController {
    *
    * @param resolver A name resolver to resolve names in errors.
    *
-   * @param scroller The DOM element that scrolls the edited contents.
+   * @param scroller The scroller for the edited contents.
    *
    * @param guiRoot The DOM element representing the root of the edited
    * document.
@@ -178,7 +179,7 @@ export class ValidationController {
   constructor(private readonly editor: Editor,
               private readonly validator: Validator,
               private readonly resolver: NameResolver,
-              private readonly scroller: HTMLElement,
+              private readonly scroller: Scroller,
               private readonly guiRoot: Element,
               private readonly progressBar: HTMLElement,
               private readonly validationMessage: HTMLElement,

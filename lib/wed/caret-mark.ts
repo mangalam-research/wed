@@ -11,6 +11,7 @@ import * as $ from "jquery";
 import { CaretManager } from "./caret-manager";
 import { isElement } from "./domtypeguards";
 import { Layer } from "./gui/layer";
+import { Scroller } from "./gui/scroller";
 import { boundaryXY } from "./wed-util";
 
 /**
@@ -42,6 +43,8 @@ export class CaretMark {
   /**
    * @param manager The caret manager that holds this marker.
    *
+   * @param doc The document in which the caret is located.
+   *
    * @param layer The layer that holds the caret.
    *
    * @param inputField The input field element that ought to be moved with the
@@ -51,10 +54,10 @@ export class CaretMark {
    * which we are managing a caret.
    */
   constructor(private readonly manager: CaretManager,
+              doc: Document,
               private readonly layer: Layer,
               private readonly inputField: HTMLElement,
-              private readonly scroller: HTMLElement) {
-    const doc = scroller.ownerDocument;
+              private readonly scroller: Scroller) {
     const el = this.el = doc.createElement("span");
     el.className = "_wed_caret";
     el.setAttribute("contenteditable", "false");
@@ -151,9 +154,9 @@ export class CaretMark {
   }
 
   /**
-   * @returns The coordinates of the caret marker relative to the GUI root.
+   * @returns The coordinates of the caret marker relative to the scroller.
    */
-  getPositionFromGUIRoot(): { left: number, top: number } {
+  private getPositionFromScroller(): { left: number, top: number } {
     // This function may be called when the caret layer is invisible. So we
     // can't rely on offset. Fortunately, the CSS values are what we want, so...
     const el = this.el;
@@ -168,8 +171,6 @@ export class CaretMark {
       throw new Error("NAN for left or top");
     }
 
-    // We don't need to subtract the offset of gui_root from these coordinates
-    // since they are relative to the gui_root object to start with.
     pos.left += this.scroller.scrollLeft;
     pos.top += this.scroller.scrollTop;
 
@@ -181,6 +182,16 @@ export class CaretMark {
    */
   get inDOM(): boolean {
     return this.el.parentNode !== null;
+  }
+
+  /**
+   * Scroll the mark into view.
+   */
+  scrollIntoView(): void {
+    const pos = this.getPositionFromScroller();
+    const rect = this.getBoundingClientRect();
+    this.scroller.scrollIntoView(pos.left, pos.top, pos.left + rect.width,
+                                 pos.top + rect.height);
   }
 
   /**
