@@ -13,8 +13,8 @@ import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
 import { DLoc, DLocRoot } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
-import { closestByClass, dumpRange, focusNode, getSelectionRange, indexOf,
-         RangeInfo } from "./domutil";
+import { childByClass, closestByClass, dumpRange, focusNode, getSelectionRange,
+         indexOf, RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { Mode } from "./mode";
 import * as objectCheck from "./object-check";
@@ -818,17 +818,27 @@ export class CaretManager implements GUIToDataConverter {
    * @param options Options governing the caret movement.
    */
   private _setGUICaret(loc: DLoc, options: SetCaretOptions): void {
-    const offset = loc.offset;
+    let offset = loc.offset;
     let node = loc.node;
 
     // We accept a location which has for ``node`` a node which is an
     // _attribute_value with an offset. However, this is not an actually valid
     // caret location. So we normalize the location to point inside the text
     // node that contains the data.
-    if (isElement(node) && node.classList.contains("_attribute_value")) {
-      const attr = getAttrValueNode(node);
-      if (node !== attr) {
-        node = attr;
+    if (isElement(node)) {
+      if (node.classList.contains("_attribute_value")) {
+        const attr = getAttrValueNode(node);
+        if (node !== attr) {
+          node = attr;
+          loc = loc.make(node, offset);
+        }
+      }
+
+      // Placeholders attract adjacent carets into them.
+      const ph = childByClass(node, "_placeholder");
+      if (ph !== null && !ph.classList.contains("_dying")) {
+        node = ph;
+        offset = 0;
         loc = loc.make(node, offset);
       }
     }
