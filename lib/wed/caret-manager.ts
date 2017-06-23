@@ -879,7 +879,7 @@ export class CaretManager implements GUIToDataConverter {
       return;
     }
 
-    this._clearDOMSelection();
+    this._clearDOMSelection(true);
     this._sel = new WedSelection(this, loc);
     this.mark.refresh();
     this.focusInputField();

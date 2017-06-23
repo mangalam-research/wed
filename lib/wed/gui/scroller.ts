@@ -80,7 +80,7 @@ export class Scroller {
     // Adjust gui_root.
     const el = this.el;
     let vtop = el.scrollTop;
-    const vheight = el.offsetHeight;
+    const vheight = el.clientHeight;
     const vbottom = vtop + vheight;
 
     if (top < vtop || bottom > vbottom) {
@@ -90,7 +90,7 @@ export class Scroller {
     }
 
     let vleft = el.scrollLeft;
-    const vwidth = el.offsetWidth;
+    const vwidth = el.clientWidth;
     const vright = vleft + vwidth;
 
     if (left < vleft || right > vright) {
