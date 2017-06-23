@@ -13,10 +13,6 @@ import { isElement } from "./domtypeguards";
 import { Layer } from "./gui/layer";
 import { boundaryXY } from "./wed-util";
 
-export interface Editor {
-  caretManager: CaretManager;
-}
-
 /**
  * The "caret mark" is the graphical indicator
  * showing the position of the caret.
@@ -44,9 +40,9 @@ export class CaretMark {
   readonly boundRefresh: () => void;
 
   /**
-   * @param editor The editor for which this mark is created.
+   * @param manager The caret manager that holds this marker.
    *
-   * @param doc The document that contains the caret.
+   * @param layer The layer that holds the caret.
    *
    * @param inputField The input field element that ought to be moved with the
    * caret.
@@ -54,11 +50,11 @@ export class CaretMark {
    * @param scroller The scroller element that contains the editor document for
    * which we are managing a caret.
    */
-  constructor(private readonly editor: Editor,
-              doc: Document,
-              private readonly caretLayer: Layer,
+  constructor(private readonly manager: CaretManager,
+              private readonly layer: Layer,
               private readonly inputField: HTMLElement,
               private readonly scroller: HTMLElement) {
+    const doc = scroller.ownerDocument;
     const el = this.el = doc.createElement("span");
     el.className = "_wed_caret";
     el.setAttribute("contenteditable", "false");
@@ -113,7 +109,7 @@ export class CaretMark {
       return;
     }
 
-    const caret = this.editor.caretManager.caret;
+    const caret = this.manager.caret;
     if (caret == null) {
       return;
     }
@@ -140,7 +136,7 @@ export class CaretMark {
 
     // The fake caret is removed from the DOM when not in use, reinsert it.
     if (el.parentNode === null) {
-      this.caretLayer.append(this.el);
+      this.layer.append(this.el);
     }
 
     const inputField = this.inputField;

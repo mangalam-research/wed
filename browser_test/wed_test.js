@@ -1838,8 +1838,8 @@ define(function f(require) {
            // The caret should not be above the rectangle around the unbreakable
            // text.
            assert.isTrue(Math.round(rect.top) <=
-                         Math.round(editor._caretMark.getBoundingClientRect()
-                                    .top));
+                         Math.round(editor.caretManager.mark
+                                    .getBoundingClientRect().top));
          });
 
       // We cannot right now run this on IE.
@@ -3294,7 +3294,7 @@ define(function f(require) {
         $(editor._scroller).one("scroll", function scroll() {
           // We need to wait until the scroller has fired the scroll event.
           assert.isTrue(initialScroll < editor._scroller.scrollTop);
-          var caretRect = editor._caretMark.getBoundingClientRect();
+          var caretRect = editor.caretManager.mark.getBoundingClientRect();
           var scrollerRect = editor._scroller.getBoundingClientRect();
           assert.equal(util.distFromRect(caretRect.left, caretRect.top,
                                          scrollerRect.left, scrollerRect.top,

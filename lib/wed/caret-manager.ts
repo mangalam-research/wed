@@ -16,6 +16,7 @@ import { isAttr, isElement, isText } from "./domtypeguards";
 import { childByClass, closestByClass, dumpRange, focusNode, getSelectionRange,
          indexOf, RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
+import { Layer } from "./gui/layer";
 import { Mode } from "./mode";
 import * as objectCheck from "./object-check";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
@@ -33,7 +34,20 @@ export interface CaretChangeOptions extends SetCaretOptions {
   focus?: boolean;
 }
 
+/**
+ * An event generated when the caret changes.
+ */
 export interface CaretChange {
+  /** The manager from which the event originates. */
+  manager: CaretManager;
+
+  /** The new caret. */
+  caret: DLoc | undefined;
+
+  /** The previous caret value before the change. */
+  prevCaret: DLoc | undefined;
+
+  /** The change options. */
   options: CaretChangeOptions;
 }
 
@@ -84,10 +98,15 @@ export class CaretManager implements GUIToDataConverter {
   private readonly doc: Document;
   private readonly win: Window;
   private readonly selectionStack: (WedSelection | undefined)[] = [];
-  private prevSelFocus: DLoc | undefined;
+  private prevCaret: DLoc | undefined;
 
   private readonly _events: Subject<CaretChange>;
-  public readonly events: Observable<CaretChange>;
+
+  /** This is where you can listen to caret change events. */
+  readonly events: Observable<CaretChange>;
+
+  /** The caret mark that represents the caret managed by this manager. */
+  readonly mark: CaretMark;
 
   /**
    * @param guiRoot: The object representing the root of the gui tree.
@@ -99,7 +118,9 @@ export class CaretManager implements GUIToDataConverter {
    * @param guiUpdater: The GUI updater that is responsible for updating the
    * tree whose root is ``guiRoot``.
    *
-   * @param caretMark: The mark to use to represent the caret on screen.
+   * @param layer: The layer that holds the caret.
+   *
+   * @param scroller: The element that scrolls ``guiRoot``.
    *
    * @param inAttributes: Whether or not to move into attributes.
    *
@@ -109,9 +130,11 @@ export class CaretManager implements GUIToDataConverter {
               private readonly dataRoot: DLocRoot,
               private readonly inputField: HTMLElement,
               private readonly guiUpdater: GUIUpdater,
-              private readonly caretMark: CaretMark,
+              layer: Layer,
+              scroller: HTMLElement,
               private readonly inAttributes: boolean,
               private readonly mode: Mode<{}>) {
+    this.mark = new CaretMark(this, layer, inputField, scroller);
     this.guiRootEl = guiRoot.node;
     this.dataRootEl = dataRoot.node;
     this.doc = this.guiRootEl.ownerDocument;
@@ -518,15 +541,14 @@ export class CaretManager implements GUIToDataConverter {
 
     // This check reduces selection fiddling by an order of magnitude when just
     // straightforwardly selecting one character.
-    if (this.prevSelFocus === undefined || !this.prevSelFocus.equals(focus)) {
-      this.caretMark.refresh();
+    if (this.prevCaret === undefined || !this.prevCaret.equals(focus)) {
+      this.mark.refresh();
       const rr = sel.rangeInfo;
       if (rr === undefined) {
         throw new Error("unable to make a range");
       }
 
       this._setDOMSelectionRange(rr.range, rr.reversed);
-      this.prevSelFocus = focus;
     }
 
     this._caretChange();
@@ -740,7 +762,7 @@ export class CaretManager implements GUIToDataConverter {
         throw new Error("could not make a range");
       }
       this._setDOMSelectionRange(rr.range, rr.reversed);
-      this.caretMark.refresh();
+      this.mark.refresh();
       // We're not selecting anything...
       if (rr.range.collapsed) {
         this.focusInputField();
@@ -757,7 +779,7 @@ export class CaretManager implements GUIToDataConverter {
    */
   clearSelection(): void {
     this._sel = undefined;
-    this.caretMark.refresh();
+    this.mark.refresh();
     const sel = this._getDOMSelection();
     if (sel.rangeCount > 0 && this.guiRootEl.contains(sel.focusNode)) {
       sel.removeAllRanges();
@@ -853,7 +875,7 @@ export class CaretManager implements GUIToDataConverter {
 
     this._clearDOMSelection();
     this._sel = new WedSelection(this, loc);
-    this.caretMark.refresh();
+    this.mark.refresh();
     this.focusInputField();
     this._caretChange(options);
   }
@@ -862,7 +884,17 @@ export class CaretManager implements GUIToDataConverter {
    * Emit a caret change event.
    */
   private _caretChange(options: CaretChangeOptions = {}): void {
-    this._events.next({ options });
+    const prevCaret = this.prevCaret;
+    const caret = this.caret;
+    if (prevCaret === undefined || !prevCaret.equals(caret)) {
+      this._events.next({
+        manager: this,
+        caret,
+        prevCaret,
+        options,
+      });
+      this.prevCaret = caret;
+    }
   }
 
   private _clearDOMSelection(dontFocus: boolean = false): void {
@@ -907,7 +939,7 @@ export class CaretManager implements GUIToDataConverter {
     this.selAtBlur = this._sel;
     this.$inputField.blur();
     this._sel = undefined;
-    this.caretMark.refresh();
+    this.mark.refresh();
   }
 
   private onFocus(): void {
