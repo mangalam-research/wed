@@ -31,12 +31,7 @@ export interface GenericModeOptions {
  * Recognized options:
  *
  * - ``metadata``: this option can be a path (a string) pointing to a module
- *   that implements the metadata needed by the mode. Or it can be an object
- *   of the form:
- *
- *         {
- *             path: "path/to/the/metadata",
- *         }
+ *   that implements the metadata needed by the mode.
  *
  * - ``autoinsert``: whether or not to fill newly inserted elements as much as
  *   possible. If this option is true, then when inserting a new element, the
@@ -53,6 +48,16 @@ class GenericMode extends BaseMode<GenericModeOptions> {
   protected resolver: NameResolver;
   protected metadata: Metadata;
   protected tagTr: Record<string, Transformation<TransformationData>>;
+
+  /**
+   * The template that [[checkOptions]] uses to check the options passed
+   * to this mode. Consider this object to be immutable.
+   */
+  readonly optionTemplate: objectCheck.Template = {
+    metadata: true,
+    autoinsert: false,
+  };
+
   /**
    * @param editor The editor with which the mode is being associated.
    *
@@ -71,23 +76,46 @@ class GenericMode extends BaseMode<GenericModeOptions> {
         "This is a basic mode bundled with wed and which can, " +
           "and probably should be used as the base for other modes.",
         license: "MPL 2.0",
-        copyright:
-        "2013, 2014 Mangalam Research Center for Buddhist Languages",
+        copyright: "Mangalam Research Center for Buddhist Languages",
       };
     }
     // else it is up to the derived class to set it.
 
-    const template = {
-      metadata: true,
-      autoinsert: false,
-    };
+    this.wedOptions.attributes = "edit";
+  }
 
-    // tslint:disable-next-line:no-any
-    const ret = objectCheck.check(template, this.options as any);
+  init(): Promise<void> {
+    this.checkOptions(this.options);
 
     if (this.options.autoinsert === undefined) {
       this.options.autoinsert = true;
     }
+
+    return Promise.resolve()
+      .then(() => {
+        this.tagTr = makeTagTr(this.editor);
+        return this.makeMetadata().then((metadata) => {
+          this.metadata = metadata;
+        });
+      })
+      .then(() => {
+        this.resolver = new NameResolver();
+        const mappings = this.metadata.getNamespaceMappings();
+        for (const key of Object.keys(mappings)) {
+          this.resolver.definePrefix(key, mappings[key]);
+        }
+      });
+  }
+
+  /**
+   * Check that the options are okay. This method will throw if there are any
+   * unexpected options or mandatory options are missing.
+   *
+   * @param options The options to check.
+   */
+  checkOptions(options: GenericModeOptions): void {
+    // tslint:disable-next-line:no-any
+    const ret = objectCheck.check(this.optionTemplate, options as any);
 
     const errors: string[] = [];
     if (ret.missing !== undefined) {
@@ -105,25 +133,19 @@ class GenericMode extends BaseMode<GenericModeOptions> {
     if (errors.length !== 0) {
       throw new Error(`incorrect options: ${errors.join(", ")}`);
     }
-    this.wedOptions.attributes = "edit";
   }
 
-  init(): Promise<void> {
-    return Promise.resolve()
-      .then(() => {
-        this.tagTr = makeTagTr(this.editor);
-        return this.editor.runtime.resolveToString(this.options.metadata)
-          .then((data: string) => {
-            const obj = JSON.parse(data);
-            this.metadata = new MetadataMultiversionReader().read(obj);
-          });
-      })
-      .then(() => {
-        this.resolver = new NameResolver();
-        const mappings = this.metadata.getNamespaceMappings();
-        for (const key of Object.keys(mappings)) {
-          this.resolver.definePrefix(key, mappings[key]);
-        }
+  /**
+   * Make a [[Metadata]] object for use with this mode. The default
+   * implementation requires that there be a ``metadata`` option set and
+   * uses that to load a metadata file. Derived classes can override
+   * this as needed.
+   */
+  makeMetadata(): Promise<Metadata> {
+    return this.editor.runtime.resolveToString(this.options.metadata)
+      .then((data: string) => {
+        const obj = JSON.parse(data);
+        return new MetadataMultiversionReader().read(obj);
       });
   }
 
