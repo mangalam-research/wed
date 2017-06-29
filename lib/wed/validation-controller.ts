@@ -322,7 +322,7 @@ export class ValidationController {
     let insertAt: DLoc | null;
 
     if (isAttributeNameError) {
-      const guiNode = getGUINodeIfExists(this, dataNode);
+      const guiNode = getGUINodeIfExists(this.editor, dataNode);
       if (guiNode === undefined) {
         return undefined;
       }
