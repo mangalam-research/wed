@@ -48,6 +48,7 @@ require.config({
       bootstrap: "wed/patches/bootstrap",
       "last-resort": "wed/glue/last-resort",
       "wed/modes/generic/metadata-schema.json": "text!wed/modes/generic/metadata-schema.json",
+      "wed/wed-options-schema.json": "text!wed/wed-options-schema.json",
     },
     "wed/glue/last-resort": {
       "last-resort": "last-resort",

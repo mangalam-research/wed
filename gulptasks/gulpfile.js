@@ -20,6 +20,7 @@ const versync = require("versync");
 const argparse = require("argparse");
 const gulpTs = require("gulp-typescript");
 const sourcemaps = require("gulp-sourcemaps");
+const yaml = require("js-yaml");
 const { compileFromFile } = require("json-schema-to-typescript");
 
 const config = require("./config");
@@ -96,13 +97,32 @@ if (options.optimize) {
 }
 gulp.task("build", buildDeps);
 
-gulp.task("build-standalone-wed", ["copy-wed-source", "tsc-wed"]);
+gulp.task("build-standalone-wed", ["copy-wed-source",
+                                   "convert-wed-yaml",
+                                   "tsc-wed"]);
 
 gulp.task("copy-wed-source", () => {
   const dest = "build/standalone/";
   return gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/flycheck*",
-                   "!**/*.{less,ts}"], { base: "." })
+                   "!**/*.{less,ts,yml}"], { base: "." })
     .pipe(gulpNewer(dest))
+    .pipe(gulp.dest(dest));
+});
+
+gulp.task("convert-wed-yaml", () => {
+  const dest = "build/standalone/";
+  return gulp.src(["lib/**/*.yml"], { base: "." })
+    .pipe(rename({
+      extname: ".json",
+    }))
+    .pipe(gulpNewer(dest))
+    .pipe(es.mapSync((file) => {
+      file.contents = new Buffer(JSON.stringify(yaml.safeLoad(file.contents, {
+        schema: yaml.JSON_SCHEMA,
+      })));
+
+      return file;
+    }))
     .pipe(gulp.dest(dest));
 });
 

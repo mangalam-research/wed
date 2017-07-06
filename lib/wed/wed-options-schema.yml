@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/schema#
+id: http://btw.mangalam-research.org/schemas/wed/wed-options.json
+title: Wed Options
+description: A schema describing the wed options that modes may set.
+type: object
+properties:
+  metadata:
+    description: Information describing the mode.
+    type: object
+    properties:
+      name:
+        description: "The mode's name."
+        type: string
+      authors:
+        description: The authors of the mode.
+        type: array
+        items:
+          type: string
+      description:
+        description: The description of the mode.
+        type: string
+      license:
+        description: The licence under which the mode is distributed.
+        type: string
+      copyright:
+        description: Copyright information (holders, dates, etc.)
+        type: string
+    additionalProperties: false
+    required: ["name", "authors", "description", "license", "copyright"]
+  label_levels:
+    description: Options regarding the levels labels may take.
+    type: object
+    properties:
+      max:
+        description: The maximum label level.
+        type: integer
+        minimum: 1
+      initial:
+        description: The initial level. It must be less or equal to "max".
+        type: integer
+        minimum: 1
+    additionalProperties: false
+    required: ["max", "initial"]
+  attributes:
+    description: Options regarding how attributes are handled.
+    type: string
+    enum: ["hide", "show", "edit"]
+additionalProperties: false
+required: ["metadata", "label_levels"]
