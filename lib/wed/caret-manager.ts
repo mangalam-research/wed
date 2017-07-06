@@ -246,6 +246,36 @@ export class CaretManager implements GUIToDataConverter {
     return normalized == null ? undefined : normalized;
   }
 
+  normalizeToEditableRange(loc: DLoc): DLoc {
+    if (loc.root !== this.guiRootEl) {
+      throw new Error("DLoc object must be for the GUI tree");
+    }
+
+    let offset = loc.offset;
+    const node = loc.node;
+
+    if (isElement(node)) {
+      // Normalize to a range within the editable nodes. We could be outside of
+      // them in an element which is empty, for instance.
+      const [first, second] = this.mode.nodesAroundEditableContents(node);
+      const firstIndex = first !== null ? indexOf(node.childNodes, first) : -1;
+      if (offset <= firstIndex) {
+        offset = firstIndex + 1;
+      }
+      else {
+        const secondIndex = second !== null ?
+          indexOf(node.childNodes, second) : node.childNodes.length;
+        if (offset >= secondIndex) {
+          offset = secondIndex;
+        }
+      }
+
+      return loc.makeWithOffset(offset);
+    }
+
+    return loc;
+  }
+
   /**
    * Get the current caret position in the data tree.
    *

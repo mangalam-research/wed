@@ -343,7 +343,8 @@ export class ValidationController {
         return undefined;
       }
 
-      insertAt = this.editor._normalizeCaretToEditableRange(insertAt) as DLoc;
+      insertAt = this.editor.caretManager
+        .normalizeToEditableRange(insertAt) as DLoc;
     }
 
     return insertAt;
