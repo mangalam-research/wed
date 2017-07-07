@@ -51,6 +51,10 @@ odd bug fix may not get mentioned here at all.
     long time ago, but the module split remained, though useless. This useless
     split has been removed.
 
+  - Feature: when configured with a mode named ``x``, wed now also looks for a
+    module named ``x-mode``. (In order it tries to load ``x``,
+    ``wed/modes/x/x``, ``wed/modes/x/x-mode``, ``wed/modes/x/x_mode``).
+
   - Feature: add the "split" operation to the default set of transforms shown by
     the contextual menus. In the past, "split" was only available through an
     InputTrigger but there's no good reason for this restriction.
