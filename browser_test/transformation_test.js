@@ -21,7 +21,7 @@ define(function f(require) {
   var options = {
     schema: undefined,
     mode: {
-      path: "wed/modes/test/test_mode",
+      path: "wed/modes/test/test-mode",
       options: {
         metadata: "/build/schemas/tei-metadata.json",
       },

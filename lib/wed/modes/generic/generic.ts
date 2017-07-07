@@ -44,7 +44,8 @@ export interface GenericModeOptions {
  *   could contain ``a`` or ``b``, then the mode won't add any children. This
  *   option is ``true`` by default.
  */
-class GenericMode extends BaseMode<GenericModeOptions> {
+class GenericMode<Options extends GenericModeOptions>
+  extends BaseMode<Options> {
   protected resolver: NameResolver;
   protected metadata: Metadata;
   protected tagTr: Record<string, Transformation<TransformationData>>;
@@ -64,7 +65,7 @@ class GenericMode extends BaseMode<GenericModeOptions> {
    * @param options The options for the mode.
    */
   // tslint:disable-next-line:no-any
-  constructor(editor: Editor, options: GenericModeOptions) {
+  constructor(editor: Editor, options: Options) {
     super(editor, options);
 
     if (this.constructor === GenericMode) {

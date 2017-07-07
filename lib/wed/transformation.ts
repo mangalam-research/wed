@@ -188,14 +188,15 @@ export class Transformation<Data extends TransformationData>
               abbreviatedDesc: string | undefined,
               handler: TransformationHandler);
   constructor(editor: Editor, transformationType: string, desc: string,
-              abbreviatedDesc: string, iconHtml: string,
+              abbreviatedDesc: string | undefined,
+              iconHtml: string | undefined,
               handler: TransformationHandler);
   constructor(editor: Editor, transformationType: string, desc: string,
-              abbreviatedDesc: string, iconHtml: string,
+              abbreviatedDesc: string | undefined, iconHtml: string | undefined,
               needsInput: boolean, handler: TransformationHandler);
   constructor(editor: Editor, transformationType: string, desc: string,
               abbreviatedDesc: string | TransformationHandler | undefined,
-              iconHtml?: string | TransformationHandler,
+              iconHtml?: string | TransformationHandler | undefined,
               needsInput?: boolean | TransformationHandler,
               handler?: TransformationHandler) {
     if (typeof abbreviatedDesc === "function") {
