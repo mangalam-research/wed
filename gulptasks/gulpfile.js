@@ -21,7 +21,7 @@ const argparse = require("argparse");
 const gulpTs = require("gulp-typescript");
 const sourcemaps = require("gulp-sourcemaps");
 const yaml = require("js-yaml");
-const { compileFromFile } = require("json-schema-to-typescript");
+const { compile: compileToTS } = require("json-schema-to-typescript");
 
 const config = require("./config");
 const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
@@ -160,15 +160,60 @@ function tsc(project) {
                   result.dts.pipe(gulp.dest(dest)));
 }
 
-gulp.task("generate-ts", () => {
-  const basePath = "lib/wed/modes/generic/metadata-schema.json";
-  const baseDirname = path.dirname(basePath);
-  const dest = path.join("build/generated", baseDirname, "metadata-as-json.d.ts");
-  return newer(basePath, dest)
-    .then(result => (!result ? undefined :
-                     compileFromFile(basePath)
-                     .then(ts => fs.outputFileAsync(dest, ts))));
-});
+function parseFile(name, data) {
+  let ret;
+
+  try {
+    ret = JSON.parse(data);
+  }
+  // eslint-disable-next-line no-empty
+  catch (ex) {}
+
+  if (ret !== undefined) {
+    return ret;
+  }
+
+  try {
+    ret = yaml.safeLoad(data, {
+      schema: yaml.JSON_SCHEMA,
+    });
+  }
+  // eslint-disable-next-line no-empty
+  catch (ex) {}
+
+  if (ret !== undefined) {
+    return ret;
+  }
+
+  throw new Error(`cannot parse ${name}`);
+}
+
+function convertJSONSchemaToTS(srcPath, destBaseName) {
+  if (!destBaseName) {
+    destBaseName = path.basename(srcPath).replace(/(\..*?)?$/, ".d.ts");
+  }
+
+  const baseDirname = path.dirname(srcPath);
+  const dest = path.join("build/generated", baseDirname, destBaseName);
+  return newer(srcPath, dest)
+    .then((result) => {
+      if (!result) {
+        return undefined;
+      }
+
+      return fs.readFileAsync(srcPath)
+        .then(data => compileToTS(parseFile(srcPath, data)))
+        .then(ts => fs.outputFileAsync(dest, ts));
+    });
+}
+
+gulp.task("generate-ts", () =>
+          Promise.all([
+            convertJSONSchemaToTS("lib/wed/modes/generic/metadata-schema.json",
+                                  "metadata-as-json.d.ts"),
+            convertJSONSchemaToTS(
+              "lib/wed/wed-options-schema.yml", "wed-options.d.ts"),
+          ]));
 
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
 gulp.task("tsc-wed", ["generate-ts"], () => tsc(wedProject));

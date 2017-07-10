@@ -168,6 +168,10 @@ define(function f(require) {
                  "transform the document");
   }
 
+  function isVisible(el) {
+    return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  }
+
   var itNoIE = browsers.MSIE ? it.skip : it;
 
   // Utility to check whether we have stray timeouts. This is usually not used
@@ -2728,6 +2732,47 @@ define(function f(require) {
              caretManager.setCaret(attr_vals[0].firstChild, 0);
              // This is an arbitrary menu item we check for.
              contextMenuHasOption(editor, /^completion1$/);
+           });
+      });
+
+      describe("autohides attributes", function autohides() {
+        it("autohidden attributes are hidden when the caret is not " +
+           "in the element", function test() {
+             var div = editor.gui_root.querySelectorAll(".body .div")[1];
+             var attr_names = getAttributeNamesFor(div);
+             for (var ix = 0; ix < attr_names.length; ++ix) {
+               var name = attr_names[ix];
+               var text = name.textContent;
+               var autohidden = !!name.closest("._shown_when_caret_in_label");
+               if (text === "type" || text === "subtype") {
+                 assert.isFalse(autohidden);
+                 assert.isTrue(isVisible(name), "should be visible");
+               }
+               else {
+                 assert.isTrue(autohidden);
+                 assert.isFalse(isVisible(name), "should be hidden");
+               }
+             }
+           });
+
+        it("autohidden attributes are shown when the caret is " +
+           "in the element", function test() {
+             var div = editor.gui_root.querySelectorAll(".body .div")[1];
+             var label = firstGUI(div);
+             caretManager.setCaret(label, 0);
+             var attr_names = getAttributeNamesFor(div);
+             for (var ix = 0; ix < attr_names.length; ++ix) {
+               var name = attr_names[ix];
+               var text = name.textContent;
+               var autohidden = !!name.closest("._shown_when_caret_in_label");
+               assert.isTrue(isVisible(name), text + " should be visible");
+               if (text === "type" || text === "subtype") {
+                 assert.isFalse(autohidden);
+               }
+               else {
+                 assert.isTrue(autohidden);
+               }
+             }
            });
       });
 

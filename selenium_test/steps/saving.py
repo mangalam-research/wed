@@ -22,6 +22,8 @@ last_obj_re = re.compile('.*}{')
 
 flip_rend_style_re = re.compile(ur'(style=".*?") (rend=".*?")')
 flip_xmlns_re = re.compile(ur'(xmlns:math=".*?") (xmlns=".*?")')
+flip_div_attrs_re = re.compile(
+    ur'(type=".*?") (rend=".*?") (rendition=".*?") (subtype=".*?")')
 
 _SCENARIO_TO_EXPECTED_DATA = {
     "serializes namespaces properly":
@@ -50,7 +52,9 @@ This paragraph and its content are designed to test how error markers \
 are shown for inline elements that end up spanning multiple lines. \
 This paragraph and its content are designed to test how error markers \
 are shown for inline elements that end up spanning multiple lines.\
-</monogr></p><p n="">P</p></body></text></TEI>""",
+</monogr></p><p n="">P</p>\
+<div type="a" subtype="b" rend="foo" rendition="bar"/>\
+</body></text></TEI>""",
     "serializes multiple top namespaces properly": """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0" \
 xmlns:math="http://www.w3.org/1998/Math/MathML"><teiHeader><fileDesc>\
@@ -79,11 +83,11 @@ def step_impl(context):
         del actual["version"]
         if util.ie and u"data" in actual:
             actual[u"data"] =  \
-                flip_rend_style_re.sub(ur'\2 \1',
-                                       actual[u"data"])
+                flip_rend_style_re.sub(ur'\2 \1', actual[u"data"])
             actual[u"data"] = \
-                flip_xmlns_re.sub(ur'\2 \1',
-                                  actual[u"data"])
+                flip_xmlns_re.sub(ur'\2 \1', actual[u"data"])
+            actual[u"data"] = \
+                flip_div_attrs_re.sub(ur'\1 \4 \2 \3', actual[u"data"])
         return Result(actual == expected, [actual, expected])
 
     result = Condition(util, cond).wait()

@@ -15,14 +15,12 @@ import { Decorator } from "./decorator";
 import { isElement } from "./domtypeguards";
 import * as domutil from "./domutil";
 import { ModeValidator } from "./validator";
+import { WedOptions } from "./wed-options";
 
 // tslint:disable-next-line:no-any
 export type Editor = any;
 
 export type ModeOptions = {};
-
-export type WedOptions = { [key: string]: string | number | WedOptions |
-                           string[] | number[]};
 
 export interface Mode<ModeOptions> {
   /**
@@ -170,10 +168,17 @@ export interface Mode<ModeOptions> {
  */
 export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   protected wedOptions: WedOptions = {
-      label_levels: {
-        max: 1,
-        initial: 1,
-      },
+    metadata: {
+      name: "Base Mode (you should not be using this)",
+      description: "The base mode. You should not be using it directly.",
+      authors: ["Louis-Dominique Dubeau"],
+      license: "MPL 2.0",
+      copyright: "Mangalam Research Center for Buddhist Languages",
+    },
+    label_levels: {
+      max: 1,
+      initial: 1,
+    },
   };
 
   /**

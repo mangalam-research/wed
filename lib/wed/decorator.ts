@@ -6,6 +6,7 @@
  */
 
 import * as  $ from "jquery";
+import * as mergeOptions from "merge-options";
 import * as salve from "salve";
 
 import { Action } from "./action";
@@ -56,11 +57,24 @@ function tryToSetDataCaret(editor: Editor, dataCaret: DLoc): void {
   }
 }
 
+function attributeSelectorMatch(selector: string, name: string): boolean {
+  return selector === "*" || selector === name;
+}
+
+interface AttributeHidingSpecs {
+  elements: {
+    selector: string,
+    attributes: (string | { except: string[]})[];
+  }[];
+}
+
 /**
  * A decorator is responsible for adding decorations to a tree of DOM
  * elements. Decorations are GUI elements.
  */
 export class Decorator {
+  private _attributeHidingSpecs: AttributeHidingSpecs | null;
+
   /**
    * @param domlistener The listener that the decorator must use to know when
    * the DOM tree has changed and must be redecorated.
@@ -209,10 +223,11 @@ export class Decorator {
    * context menu on the end label.
    */
   elementDecorator(root: Element, el: Element, level: number,
-                   preContextHandler: (wedEv: JQueryMouseEventObject,
-                                       ev: Event) => boolean,
-                   postContextHandler: (wedEv: JQueryMouseEventObject,
-                                        ev: Event) => boolean): void {
+                   preContextHandler: ((wedEv: JQueryMouseEventObject,
+                                        ev: Event) => boolean) | undefined,
+                   postContextHandler: ((wedEv: JQueryMouseEventObject,
+                                         ev: Event) => boolean) | undefined):
+  void {
     if (level > this.editor.max_label_level) {
       throw new Error(
         `level higher than the maximum set by the mode: ${level}`);
@@ -243,14 +258,23 @@ export class Decorator {
     }
 
     const attributesHTML = [];
+    let hiddenAttributes = false;
     if (this.editor.attributes === "show" ||
         this.editor.attributes === "edit") {
       // include the attributes
       const attributes = util.getOriginalAttributes(el);
       const names = Object.keys(attributes).sort();
+
       for (const name of names) {
+        const hideAttribute = this.mustHideAttribute(el, name);
+        if (hideAttribute) {
+          hiddenAttributes = true;
+        }
+
+        const extra = hideAttribute ? " _shown_when_caret_in_label" : "";
+
         attributesHTML.push([
-          "<span class=\"_phantom _attribute\">",
+          `<span class=\"_phantom _attribute${extra}\">`,
           "<span class=\"_phantom _attribute_name\">", name,
           "</span>=\"<span class=\"_phantom _attribute_value\">",
           domutil.textToHTML(attributes[name]),
@@ -263,6 +287,13 @@ export class Decorator {
 
     const doc = el.ownerDocument;
     cls += ` _label_level_${level}`;
+
+    // Save the cls of the end label here so that we don't further modify it.
+    const endCls = cls;
+
+    if (hiddenAttributes) {
+      cls += " _autohidden_attributes";
+    }
     const pre = doc.createElement("span");
     pre.className = `_gui _phantom __start_label _start_wrapper ${cls} _label`;
     const prePh = doc.createElement("span");
@@ -274,7 +305,7 @@ export class Decorator {
     this.guiUpdater.insertNodeAt(el, 0, pre);
 
     const post = doc.createElement("span");
-    post.className = `_gui _phantom __end_label _end_wrapper ${cls} _label`;
+    post.className = `_gui _phantom __end_label _end_wrapper ${endCls} _label`;
     const postPh = doc.createElement("span");
     postPh.className = "_phantom";
     // tslint:disable-next-line:no-inner-html
@@ -285,25 +316,99 @@ export class Decorator {
 
     // Setup a handler so that clicking one label highlights it and
     // the other label.
-    const $pre = $(pre);
-    const $post = $(post);
-    if (preContextHandler !== undefined) {
-      $pre.on("wed-context-menu", preContextHandler);
-    }
-    else {
-      $pre.on("wed-context-menu", false);
-    }
+    $(pre).on("wed-context-menu",
+              preContextHandler !== undefined ? preContextHandler : false);
 
-    if (postContextHandler !== undefined) {
-      $post.on("wed-context-menu", postContextHandler);
-    }
-    else {
-      $post.on("wed-context-menu", false);
-    }
+    $(post).on("wed-context-menu",
+               postContextHandler !== undefined ? postContextHandler : false);
 
     if (dataCaret != null) {
       tryToSetDataCaret(this.editor, dataCaret);
     }
+  }
+
+  /**
+   * Determine whether an attribute must be hidden. The default implementation
+   * calls upon the ``attributes.autohide`` section of the "wed options" that
+   * were used by the mode in effect to determine whether an attribute should be
+   * hidden or not.
+   *
+   * @param el The element in the GUI tree that we want to test.
+   *
+   * @param name The attribute name in "prefix:localName" format where "prefix"
+   * is to be understood according to the absolute mapping defined by the mode.
+   *
+   * @returns ``true`` if the attribute must be hidden. ``false`` otherwise.
+   */
+  mustHideAttribute(el: Element, name: string): boolean {
+    const specs = this.attributeHidingSpecs;
+    if (specs === null) {
+      return false;
+    }
+
+    for (const element of specs.elements) {
+      if (el.matches(element.selector)) {
+        let matches = false;
+        for (const attribute of element.attributes) {
+          if (typeof attribute === "string") {
+            // If we already matched, there's no need to try to match with
+            // another selector.
+            if (!matches) {
+              matches = attributeSelectorMatch(attribute, name);
+            }
+          }
+          else {
+            // If we do not match yet, there's no need to try to exclude the
+            // attribute.
+            if (matches) {
+              for (const exception of attribute.except) {
+                matches = !attributeSelectorMatch(exception, name);
+                // As soon as we stop matching, there's no need to continue
+                // checking other exceptions.
+                if (!matches) {
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        // An element selector that matches is terminal.
+        return matches;
+      }
+    }
+
+    return false;
+  }
+
+  private get attributeHidingSpecs(): AttributeHidingSpecs | null {
+    if (this._attributeHidingSpecs === undefined) {
+      const attributeHiding = this.editor.attributeHiding;
+      if (attributeHiding === undefined) {
+        // No attribute hiding...
+        this._attributeHidingSpecs = null;
+      }
+      else {
+        const method = attributeHiding.method;
+        if (method !== "selector") {
+          throw new Error(`unknown attribute hiding method: ${method}`);
+        }
+
+        const specs: AttributeHidingSpecs = {
+          elements: [],
+        };
+
+        for (const element of attributeHiding.elements) {
+          const copy = mergeOptions({}, element);
+          copy.selector = domutil.toGUISelector(copy.selector);
+          specs.elements.push(copy);
+        }
+
+        this._attributeHidingSpecs = specs;
+      }
+    }
+
+    return this._attributeHidingSpecs;
   }
 
   /**

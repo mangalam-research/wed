@@ -58,6 +58,10 @@ function parseFile(name: string, data: string): any {
   // tslint:disable-next-line:no-empty
   catch (ex) {}
 
+  if (ret !== undefined) {
+    return ret;
+  }
+
   try {
     ret = yaml.safeLoad(data, {
       schema: yaml.JSON_SCHEMA,
@@ -66,11 +70,11 @@ function parseFile(name: string, data: string): any {
   // tslint:disable-next-line:no-empty
   catch (ex) {}
 
-  if (ret === undefined) {
-    throw new Fatal(`cannot parse ${name}`);
+  if (ret !== undefined) {
+    return ret;
   }
 
-  return ret;
+  throw new Fatal(`cannot parse ${name}`);
 }
 
 const parser = new ArgumentParser({

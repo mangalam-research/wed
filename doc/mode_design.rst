@@ -2,10 +2,10 @@ Creating a Mode
 ===============
 
 We recommend creating new modes by inheriting from the generic mode. The first
-thing you must do is set the metadata on the ``_wed_options`` object because wed
+thing you must do is set the metadata on the ``wedOptions`` object because wed
 will refuse to load your mode if these are not set::
 
-    this._wed_options.metadata = {
+    this.wedOptions.metadata = {
         name: "Foo",
         authors: ["Ty Coon"],
         description:
@@ -15,56 +15,14 @@ will refuse to load your mode if these are not set::
     };
 
 
-Modes may set other options on the ``_wed_options`` property. This is
+Modes may set other options on the ``wedOptions`` property. This is
 essentially a mean for the mode to control how wed operates when the mode is
 active. These are not meant to be directly settable by the user or by the
 application in which wed is being used. (Although it would be possible for the
 mode to expose options to make them settable.)
 
-+ ``label_levels``: an object with two fields:
-
-  - ``max``: determines the maximum level of
-    :ref:`label visibility <label_visibility>`,
-
-  - ``initial`` determines the initial level of label visibility; must
-    be ``1 <= initial <= max``. (Level 0 exists. It is just not valid
-    to start at that level.)
-
-+ ``attributes``: determines the level of *direct* attribute editing
-  support provided by wed. By "direct editing" we mean allowing the
-  user to change the value of attributes directly, as attributes. No
-  matter what level is selected, wed itself or its modes are *always*
-  free to modify attributes behind the scenes.
-
-  The levels are:
-
-  - ``"hide"``: wed won't show attributes and won't allow editing
-    them directly.
-
-  - ``"show"``: wed will show attributes but won't allow editing
-    them directly.
-
-  - ``"edit"``: wed will show and allow editing attributes.
-
-  Here are examples to illustrate some of the differences and what they mean
-  concretely. Suppose a project based on TEI that uses ``ptr`` to link to other
-  elements in the document. This ``ptr`` element uses the ``@target`` attribute
-  to point to the desired element. A mode using ``"hide"`` would not allow the
-  user to see ``@target`` or to manually enter a target in ``@target``. However,
-  it could present a menu item saying "Create hyperlink to other element" and
-  provide a list of elements the user may link to to choose from. When the user
-  selects an element, the mode would create a ``ptr`` element with an
-  appropriate ``@target`` value. If needed, it would also create a proper
-  ``@id`` on the element to which the ``@target`` refers. The ``@id`` attribute,
-  just like ``@target`` would not be editable by the user directly or visible to
-  the user.
-
-  Suppose a similar project but a less sophisticated mode that does not assist
-  with hyperlinking. Here, the mode set the option to ``"edit"`` for the
-  attributes. In this setup, the user would have to create their ``ptr`` element
-  and add themselves a proper value for ``@target`` through the attribute
-  editing functions. They would also be responsible for putting a proper ``@id``
-  on the element to which ``@target`` refers.
+See the file ``lib/wed/wed-options-schema.yml`` to learn what options are
+available.
 
 Submodes
 ========

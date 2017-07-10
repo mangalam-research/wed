@@ -11,7 +11,9 @@ interface JQueryStatic {
 }
 
 interface JQuery {
-  on(events: string, handler: false): JQuery;
+  on(events: string,
+     handler: ((eventObject: JQueryEventObject, ...args: any[]) => any) | false):
+  JQuery;
 }
 
 declare module "bluejax" {

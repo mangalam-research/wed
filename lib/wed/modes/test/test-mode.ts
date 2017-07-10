@@ -305,8 +305,7 @@ class TestMode extends GenericMode<TestModeOptions> {
       authors: ["Louis-Dominique Dubeau"],
       description: "TEST MODE. DO NOT USE IN PRODUCTION!",
       license: "MPL 2.0",
-      copyright:
-      "2013, 2014 Mangalam Research Center for Buddhist Languages",
+      copyright: "Mangalam Research Center for Buddhist Languages",
     };
     this.wedOptions.label_levels = {
       max: 2,
@@ -315,6 +314,20 @@ class TestMode extends GenericMode<TestModeOptions> {
 
     if (options.hide_attributes) {
       this.wedOptions.attributes = "hide";
+    }
+    else {
+      this.wedOptions.attributes = {
+        handling: "edit",
+        autohide: {
+          method: "selector",
+          elements: [{
+            selector: "div",
+            attributes: ["*", {
+              except: ["sample", "type", "subtype"],
+            }],
+          }],
+        },
+      };
     }
   }
 

@@ -347,6 +347,27 @@ on a white background.
    This figure shows a ``p`` element with the attributes ``rend`` and
    ``style``.
 
+Modes may configure wed so that some elements are hidden if the caret is out of
+a start label, but shown then the caret is moved inside the start label. Labels
+that have hidden attributes will show an ellipsis (``...``) before the right
+angle bracket (``>``).
+
+.. figure:: help_images/attributes_ellipsis.png
+   :align: center
+   :alt: An example of start label with hidden attributes.
+
+   This figure shows a ``div`` element with the ellipsis that indicates some
+   attributes have been hidden.
+
+When the caret is moved inside the start label, the hidden attributes are shown,
+and they are hidden again as soon as the caret is moved out of the start label.
+
+.. figure:: help_images/attributes_shown.gif
+   :align: center
+   :alt: An example of start label with hidden attributes that are shown.
+
+   This figure shows a ``div`` element with its hidden attributes shown.
+
 .. note:: Attribute visibility is determined by the mode being used to
           edit the file, and how this mode is configured. The generic
           mode by default shows attributes. It is possible for an
