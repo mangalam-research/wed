@@ -33,13 +33,14 @@ export interface Options {
  * objects are not really files but similar to files. Henceforth, the name
  * "file" will be used without quotes to refer to the objects stored.
  *
- * @param {string} version The version of wed for which this object is
+ * @param version The version of wed for which this object is
  * created.
- * @param {module:tree_updater~TreeUpdater} data_updater The updater
- * that the editor created for its data tree.
- * @param {Node} data_tree The editor's data tree.
- * @param {module:savers/localforage~Options} options
- * The options specific to this class.
+ *
+ * @param dataUpdater The updater that the editor created for its data tree.
+ *
+ * @param dataTree The editor's data tree.
+ *
+ * @param options The options specific to this class.
  */
 export class Saver extends saver.Saver {
   private readonly name: string;
