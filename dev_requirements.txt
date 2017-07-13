@@ -1,7 +1,7 @@
 # This is a list of the Python requirements needed for developing wed.
 glerbl>=0.1.0,<1
 selenic>=0.9.0,<1
-wedutil>=0.20.0,<1
+wedutil>=0.20.1,<1
 behave>=1.2.5,<2
 selenium==2.49.0
 requests>=2.7.0,<3
