@@ -22,7 +22,9 @@ define(function f(require) {
   var source = require("text!test-files/wed_test_data/source_converted.xml");
 
   var _indexOf = Array.prototype.indexOf;
+  var _slice = Array.prototype.slice;
   var isAttr = domutil.isAttr;
+  var waitForSuccess = global.waitForSuccess;
 
   var base_options = {
     schema: "/build/schemas/tei-simplified-rng.js",
@@ -186,7 +188,7 @@ define(function f(require) {
       var ret;
       if (typeof arguments[0] === "function") {
         var fn = arguments[0];
-        var fn_args = Array.prototype.slice.call(arguments, 2);
+        var fn_args = _slice.call(arguments, 2);
         ret = old_st(function timeout() {
           /* eslint-disable no-console */
           console.log("timeout executed", ret);
@@ -1898,161 +1900,143 @@ define(function f(require) {
         tr.execute(data);
       });
 
-      it("refreshes error positions when changing label " +
-         "visibility level",
+      function assertNewMarkers(orig, after, event) {
+        // Make sure all markers are new.
+        var note = event ? " after " + event : "";
+        for (var i = 0; i < orig.length; ++i) {
+          var item = orig[i];
+          assert.notInclude(after, item,
+                            "the list of markers should be new" + note);
+        }
+
+        assert.equal(orig.count, after.count,
+                     "the number of recorded errors should be the same" + note);
+      }
+
+      it("recreates errors when changing label visibility level",
          function test() {
+           // Changing label visibility does not merely refresh the errors
+           // but recreates them because errors that were visible may become
+           // invisible or errors that were invisible may become visible.
            editor.validator._validateUpTo(editor.data_root, -1);
-           var orig = Array.prototype.slice.call(
-             editor._errorLayer.el.children);
+           var runner = editor.validationController.processErrorsRunner;
+           return runner.onCompleted().then(function complete() {
+             var orig = _slice.call(editor._errorLayer.el.children);
 
-           // Reduce the visibility level.
-           editor.type(key_constants.CTRLEQ_OPEN_BRACKET);
-           var then = Array.prototype.slice.call(
-             editor._errorLayer.el.children);
+             // Reduce the visibility level.
+             editor.type(key_constants.CTRLEQ_OPEN_BRACKET);
+             var after;
 
-           assert.equal(orig.count, then.count,
-                        "the number of recorded errors should be " +
-                        "the same after decreasing the level");
+             return waitForSuccess(function check() {
+               after = _slice.call(editor._errorLayer.el.children);
+               assertNewMarkers(orig, after, "decreasing the level");
+             })
+               .then(function then() {
+                 orig = after;
 
-           // Make sure all markers are new.
-           var i;
-           var item;
-           for (i = 0; i < orig.length; ++i) {
-             item = orig[i];
-             assert.notInclude(then, item,
-                               "the list of markers should be new " +
-                               "after decreasing the level");
-           }
-
-
-           orig = then;
-
-           // Increase visibility level
-           editor.type(key_constants.CTRLEQ_CLOSE_BRACKET);
-           then = Array.prototype.slice.call(editor._errorLayer.el.children);
-
-           assert.equal(orig.count, then.count,
-                        "the number of recorded errors should be " +
-                        "the same after increasing the level");
-
-           // Make sure all markers are new.
-           for (i = 0; i < orig.length; ++i) {
-             item = orig[i];
-             assert.notInclude(then, item,
-                               "the list of markers should be new " +
-                               "after increasing the level");
-           }
+                 // Increase visibility level
+                 editor.type(key_constants.CTRLEQ_CLOSE_BRACKET);
+                 return waitForSuccess(function check() {
+                   assertNewMarkers(orig,
+                                    _slice.call(editor._errorLayer.el.children),
+                                    "increasing the level");
+                 });
+               });
+           });
          });
 
       it("refreshes error positions when pasting", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var orig = Array.prototype.slice.call(
-          editor._errorLayer.el.children);
+        var runner = editor.validationController.processErrorsRunner;
+        var refreshRunner = editor.validationController.refreshErrorsRunner;
+        return runner.onCompleted().then(function complete() {
+          assert.isFalse(refreshRunner.running);
 
-        // Paste.
-        var initial = editor.data_root.querySelector("body>p").firstChild;
-        caretManager.setCaret(initial, 0);
-        var initial_value = initial.nodeValue;
+          // Paste.
+          var initial = editor.data_root.querySelector("body>p").firstChild;
+          caretManager.setCaret(initial, 0);
+          var initial_value = initial.nodeValue;
 
-        // Synthetic event
-        var event = global.makeFakePasteEvent({
-          types: ["text/plain"],
-          getData: function getData() {
-            return "abcdef";
-          },
+          // Synthetic event
+          var event = global.makeFakePasteEvent({
+            types: ["text/plain"],
+            getData: function getData() {
+              return "abcdef";
+            },
+          });
+          editor.$gui_root.trigger(event);
+          assert.equal(initial.nodeValue, "abcdef" + initial_value);
+          dataCaretCheck(editor, initial, 6, "final position");
+
+          return refreshRunner.onCompleted();
         });
-        editor.$gui_root.trigger(event);
-        assert.equal(initial.nodeValue, "abcdef" + initial_value);
-        dataCaretCheck(editor, initial, 6, "final position");
-
-        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
-
-        assert.equal(orig.count, then.count,
-                     "the number of recorded errors should be the same");
-
-        // Make sure all markers are new.
-        for (var i = 0; i < orig.length; ++i) {
-          assert.notInclude(then, orig[i], "the list of markers should be new");
-        }
       });
 
       it("refreshes error positions when typing text", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var orig = Array.prototype.slice.call(editor._errorLayer.el.children);
+        var runner = editor.validationController.processErrorsRunner;
+        var refreshRunner = editor.validationController.refreshErrorsRunner;
+        return runner.onCompleted().then(function complete() {
+          assert.isFalse(refreshRunner.running);
 
-        // Text node inside title.
-        var initial = editor.gui_root.getElementsByClassName("title")[0]
-              .childNodes[1];
-        var parent = initial.parentNode;
-        caretManager.setCaret(initial, 0);
+          // Text node inside title.
+          var initial = editor.gui_root.getElementsByClassName("title")[0]
+            .childNodes[1];
+          var parent = initial.parentNode;
+          caretManager.setCaret(initial, 0);
 
-        editor.type("blah");
-        assert.equal(initial.nodeValue, "blahabcd");
-        assert.equal(parent.childNodes.length, 3);
-        caretCheck(editor, initial, 4, "caret after text insertion");
+          editor.type("blah");
+          assert.equal(initial.nodeValue, "blahabcd");
+          assert.equal(parent.childNodes.length, 3);
+          caretCheck(editor, initial, 4, "caret after text insertion");
 
-        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
-
-        assert.equal(orig.count, then.count,
-                     "the number of recorded errors should be the same");
-
-        // Make sure all markers are new.
-        for (var i = 0; i < orig.length; ++i) {
-          assert.notInclude(then, orig[i], "the list of markers should be new");
-        }
+          return refreshRunner.onCompleted();
+        });
       });
 
 
       it("refreshes error positions when typing DELETE", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var orig = Array.prototype.slice.call(editor._errorLayer.el.children);
+        var runner = editor.validationController.processErrorsRunner;
+        var refreshRunner = editor.validationController.refreshErrorsRunner;
+        return runner.onCompleted().then(function complete() {
+          assert.isFalse(refreshRunner.running);
 
-        // Text node inside title.
-        var initial = editor.gui_root.getElementsByClassName("title")[0]
-              .childNodes[1];
-        var parent = initial.parentNode;
-        caretManager.setCaret(initial, 0);
+          // Text node inside title.
+          var initial = editor.gui_root.getElementsByClassName("title")[0]
+            .childNodes[1];
+          var parent = initial.parentNode;
+          caretManager.setCaret(initial, 0);
 
-        editor.type(key_constants.DELETE);
-        assert.equal(initial.nodeValue, "bcd");
-        assert.equal(parent.childNodes.length, 3);
-        caretCheck(editor, initial, 0, "caret after text deletion");
+          editor.type(key_constants.DELETE);
+          assert.equal(initial.nodeValue, "bcd");
+          assert.equal(parent.childNodes.length, 3);
+          caretCheck(editor, initial, 0, "caret after text deletion");
 
-        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
-
-        assert.equal(orig.count, then.count,
-                     "the number of recorded errors should be the same");
-
-        // Make sure all markers are new.
-        for (var i = 0; i < orig.length; ++i) {
-          assert.notInclude(then, orig[i], "the list of markers should be new");
-        }
+          return refreshRunner.onCompleted();
+        });
       });
 
       it("refreshes error positions when typing BACKSPACE", function test() {
         editor.validator._validateUpTo(editor.data_root, -1);
-        var orig = Array.prototype.slice.call(editor._errorLayer.el.children);
+        var runner = editor.validationController.processErrorsRunner;
+        var refreshRunner = editor.validationController.refreshErrorsRunner;
+        return runner.onCompleted().then(function complete() {
+          assert.isFalse(refreshRunner.running);
 
-        // Text node inside title.
-        var initial = editor.gui_root.getElementsByClassName("title")[0]
-              .childNodes[1];
-        var parent = initial.parentNode;
-        caretManager.setCaret(initial, 4);
+          // Text node inside title.
+          var initial = editor.gui_root.getElementsByClassName("title")[0]
+            .childNodes[1];
+          var parent = initial.parentNode;
+          caretManager.setCaret(initial, 4);
 
-        editor.type(key_constants.BACKSPACE);
-        assert.equal(initial.nodeValue, "abc");
-        assert.equal(parent.childNodes.length, 3);
-        caretCheck(editor, initial, 3, "caret after text deletion");
+          editor.type(key_constants.BACKSPACE);
+          assert.equal(initial.nodeValue, "abc");
+          assert.equal(parent.childNodes.length, 3);
+          caretCheck(editor, initial, 3, "caret after text deletion");
 
-        var then = Array.prototype.slice.call(editor._errorLayer.el.children);
-
-        assert.equal(orig.count, then.count,
-                     "the number of recorded errors should be the same");
-
-        // Make sure all markers are new.
-        for (var i = 0; i < orig.length; ++i) {
-          assert.notInclude(then, orig[i], "the list of markers should be new");
-        }
+          return refreshRunner.onCompleted();
+        });
       });
 
       describe("", function simplifiedSchema() {

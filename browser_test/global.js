@@ -7,6 +7,7 @@ define(function f(require, exports) {
   "use strict";
   var chai = require("chai");
   var $ = require("jquery");
+  var Promise = require("bluebird");
 
   var assert = chai.assert;
 
@@ -66,6 +67,49 @@ define(function f(require, exports) {
   }
 
   exports.makeFakePasteEvent = makeFakePasteEvent;
+
+  function waitFor(fn /* : () => boolean | Promise<boolean>*/,
+                   delay /* : number = 100 */,
+                   timeout /* ?: number */) { /* : Promise<boolean> */
+    var start = Date.now();
+
+    function check() /* : boolean | Promise<boolean> */ {
+      var ret = fn();
+      if (ret) {
+        return ret;
+      }
+
+      if ((timeout !== undefined) && (Date.now() - start > timeout)) {
+        return false;
+      }
+
+      return new Promise(function time(resolve) {
+        setTimeout(resolve, delay);
+      }).then(check);
+    }
+
+    return Promise.resolve().then(check);
+  }
+
+  function waitForSuccess(fn /* : () => void */,
+                          delay /* ?: number */,
+                          timeout /* ?: number */) { /* : Promise<void> */
+    return waitFor(function wait() {
+      try {
+        fn();
+        return true;
+      }
+      catch (e) {
+        if (e instanceof chai.AssertionError) {
+          return false;
+        }
+
+        throw e;
+      }
+    }, delay, timeout);
+  }
+
+  exports.waitForSuccess = waitForSuccess;
 });
 
 //  LocalWords:  Mangalam MPL Dubeau jQuery jquery ajax chai
