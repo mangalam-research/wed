@@ -6801,9 +6801,9 @@
       "dev": true
     },
     "typescript": {
-      "version": "2.3.4",
-      "from": "typescript@>=2.3.0 <3.0.0",
-      "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.3.4.tgz",
+      "version": "2.4.1",
+      "from": "typescript@>=2.4.0 <2.5.0",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.4.1.tgz",
       "dev": true
     },
     "uglify-js": {
