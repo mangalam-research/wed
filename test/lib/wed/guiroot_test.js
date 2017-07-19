@@ -17,7 +17,6 @@ function defined(x) {
 
 describe("guiroot", function guirootBlock() {
   var source = "build/test-files/guiroot_test_data/source_converted.xml";
-  var source_txt = fs.readFileSync(source).toString();
   var fw;
   var window;
   var $root;
@@ -25,30 +24,40 @@ describe("guiroot", function guirootBlock() {
   var guiroot;
   var dloc;
   var $;
+  var htmlTree;
 
   this.timeout(0);
   before(function before(done) {
     fw = new jsdomfw.FW();
     fw.create(function created() {
       window = fw.window;
-      window.require(["wed/dloc", "wed/guiroot", "jquery"],
-                     function loaded(_dloc, _guiroot, _$) {
-                       try {
-                         assert.isUndefined(window.document.errors);
-                         guiroot = _guiroot;
-                         dloc = _dloc;
-                         $ = _$;
-                         $root = $("#root");
-                         defined($root[0]);
-                         $root.html(source_txt);
-                         root_obj = new guiroot.GUIRoot($root[0]);
-                         done();
-                       }
-                       catch (e) {
-                         done(e);
-                         throw e;
-                       }
-                     }, done);
+      window.require(
+        ["wed/dloc", "wed/guiroot", "jquery", "wed/convert"],
+        function loaded(_dloc, _guiroot, _$, convert) {
+          try {
+            assert.isUndefined(window.document.errors);
+            guiroot = _guiroot;
+            dloc = _dloc;
+            $ = _$;
+            $root = $("#root");
+            var root = defined($root[0]);
+            var source_xml = fs.readFileSync(source).toString();
+            var parser = new window.DOMParser();
+            var xmlDoc = parser.parseFromString(source_xml, "text/xml");
+            htmlTree = convert.toHTMLTree(window.document,
+                                          xmlDoc.firstElementChild);
+            while (root.firstChild) {
+              root.removeChild(root.firstChild);
+            }
+            root.appendChild(htmlTree);
+            root_obj = new guiroot.GUIRoot($root[0]);
+            done();
+          }
+          catch (e) {
+            done(e);
+            throw e;
+          }
+        }, done);
     });
   });
 
@@ -68,7 +77,8 @@ describe("guiroot", function guirootBlock() {
     describe("nodeToPath", function nodeToPath() {
       beforeEach(function beforeEach() {
         // Reset the tree.
-        $root.html(source_txt);
+        $root.empty();
+        $root[0].appendChild(htmlTree.cloneNode(true));
       });
 
       it("returns an empty string on root", function test() {

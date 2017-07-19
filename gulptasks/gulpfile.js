@@ -685,11 +685,8 @@ gulp.task("copy-test-files", () => {
     .pipe(gulp.dest(dest));
 });
 
-const convertHTMLDirs = ["dloc", "guiroot", "tree_updater"]
-        .map(x => `browser_test/${x}_test_data`);
 const convertXMLDirs = glob.sync("browser_test/*_test_data")
-        .filter(x => x !== "browser_test/convert_test_data" &&
-                convertHTMLDirs.indexOf(x) === -1);
+        .filter(x => x !== "browser_test/convert_test_data");
 
 gulp.task("convert-xml-test-files", (callback) => {
   const promises = [];
@@ -735,38 +732,7 @@ gulp.task("convert-xml-test-files", (callback) => {
     });
 });
 
-gulp.task("convert-html-test-files", (callback) => {
-  const promises = [];
-  gulp.src(convertHTMLDirs.map(x => `${x}/**`),
-           { base: "browser_test", read: false, nodir: true })
-    .on("data", (file) => {
-      const p = Promise.coroutine(function *dataPromise() {
-        const tei = yield existsInFile(file.path,
-                                       /http:\/\/www.tei-c.org\/ns\/1.0/);
-        const xsl = tei ? "test/xml-to-html-tei.xsl" : "lib/wed/xml-to-html.xsl";
-        const ext = path.extname(file.relative);
-        const destName = path.join(
-          "build/test-files",
-          file.relative.substring(0, file.relative.length - ext.length));
-        const dest = `${destName}_converted.xml`;
-
-        const isNewer = yield newer([file.path, xsl], dest);
-        if (!isNewer) {
-          return;
-        }
-
-        yield exec(`${options.saxon} -s:${file.path} -o:${dest} -xsl:${xsl}`);
-      })();
-      promises.push(p);
-    })
-    .on("end", () => {
-      Promise.all(promises).asCallback(callback);
-    });
-});
-
-gulp.task("build-test-files", ["copy-test-files",
-                               "convert-html-test-files",
-                               "convert-xml-test-files"]);
+gulp.task("build-test-files", ["copy-test-files", "convert-xml-test-files"]);
 
 // function runTslint(program) {
 //   const files = tslint.Linter.getFileNames(program);
@@ -815,7 +781,7 @@ const testNode = {
     }
 
     yield spawn("./node_modules/.bin/mocha",
-                options.mocha_params ? options.mocha_params.split() : [],
+                options.mocha_params ? shell.parse(options.mocha_params) : [],
                 { stdio: "inherit" });
   },
 };

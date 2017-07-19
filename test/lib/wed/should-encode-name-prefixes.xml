@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><a:html xmlns:a="uri:a" a:style="toto">
-  <head><title>ab&amp;
-cd&amp;
-ef</title></head>
-<body>
-abc<em>def&amp;
-gh<em/></em>
-</body>
-</a:html>

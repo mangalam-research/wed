@@ -18,7 +18,6 @@ function defined(x) {
 
 describe("dloc", function dlocBlock() {
   var source = "build/test-files/dloc_test_data/source_converted.xml";
-  var source_txt = fs.readFileSync(source).toString();
   var fw;
   var window;
   var $root;
@@ -36,8 +35,8 @@ describe("dloc", function dlocBlock() {
     fw.create(function created() {
       window = fw.window;
       window.require(
-        ["wed/dloc", "wed/domutil", "jquery"],
-        function loaded(_dloc, _domutil, _$) {
+        ["wed/dloc", "wed/domutil", "wed/convert", "jquery"],
+        function loaded(_dloc, _domutil, convert, _$) {
           try {
             assert.isUndefined(window.document.errors);
             dloc = _dloc;
@@ -47,7 +46,15 @@ describe("dloc", function dlocBlock() {
             $ = _$;
             $root = $("#root");
             root = defined($root[0]);
-            $root.html(source_txt);
+            var source_xml = fs.readFileSync(source).toString();
+            var parser = new window.DOMParser();
+            var xmlDoc = parser.parseFromString(source_xml, "text/xml");
+            var htmlTree = convert.toHTMLTree(window.document,
+                                              xmlDoc.firstElementChild);
+            while (root.firstChild) {
+              root.removeChild(root.firstChild);
+            }
+            root.appendChild(htmlTree);
             root_obj = new dloc.DLocRoot(root);
             done();
           }

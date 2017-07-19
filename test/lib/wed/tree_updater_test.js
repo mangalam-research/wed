@@ -10,6 +10,9 @@ var fs = require("fs");
 
 var assert = chai.assert;
 
+// This path must be relative to the top dir of wed.
+var source = "build/test-files/tree_updater_test_data/source_converted.xml";
+
 function defined(x) {
   assert.isDefined(x[0]);
   return x;
@@ -44,43 +47,46 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
   var DLoc;
   var $;
   var TreeUpdater;
+  var htmlTree;
 
   before(function before(done) {
     fw = new jsdomfw.FW();
     fw.create(function created() {
       window = fw.window;
       document = window.document;
-      window.require(["wed/dloc", "jquery", "wed/tree-updater"],
-                     function loaded(_dloc, _$, tree_updater) {
-                       try {
-                         assert.isUndefined(window.document.errors);
-                         dloc = _dloc;
-                         DLoc = dloc.DLoc;
-                         $ = _$;
-                         $root = defined($("#root"));
-                         // eslint-disable-next-line no-new
-                         new dloc.DLocRoot($root[0]);
-                         TreeUpdater = tree_updater.TreeUpdater;
-                         done();
-                       }
-                       catch (e) {
-                         done(e);
-                         throw e;
-                       }
-                     }, done);
+      window.require(
+        ["wed/dloc", "jquery", "wed/tree-updater", "wed/convert"],
+        function loaded(_dloc, _$, tree_updater, convert) {
+          try {
+            assert.isUndefined(window.document.errors);
+            dloc = _dloc;
+            DLoc = dloc.DLoc;
+            $ = _$;
+            $root = defined($("#root"));
+            // eslint-disable-next-line no-new
+            new dloc.DLocRoot($root[0]);
+
+            var parser = new window.DOMParser();
+            var source_xml = fs.readFileSync(source).toString();
+            var xmlDoc = parser.parseFromString(source_xml, "text/xml");
+            htmlTree = convert.toHTMLTree(window.document,
+                                          xmlDoc.firstElementChild);
+            TreeUpdater = tree_updater.TreeUpdater;
+            done();
+          }
+          catch (e) {
+            done(e);
+            throw e;
+          }
+        }, done);
     });
   });
 
-
-  // This path must be relative to the top dir of wed.
-  var source =
-        "build/test-files/tree_updater_test_data/source_converted.xml";
   var tu;
-  var data = fs.readFileSync(source).toString();
 
   beforeEach(function beforeEach() {
     $root.empty();
-    $root.html(data);
+    $root.append(htmlTree.cloneNode(true));
     tu = new TreeUpdater($root[0]);
   });
 
@@ -211,9 +217,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
          // Check that we're doing what we think we're doing.
          assert.equal(parent.firstChild.outerHTML,
-                      "<div class=\"title _real\">ab</div>", "first half");
+                      "<div class=\"title _local_title \
+_xmlns_http://www.tei-c.org/ns/1.0 _real\">ab</div>", "first half");
          assert.equal(parent.childNodes[1].outerHTML,
-                      "<div class=\"title _real\">cd</div>", "second half");
+                      "<div class=\"title _local_title \
+_xmlns_http://www.tei-c.org/ns/1.0 _real\">cd</div>", "second half");
          listener.check();
        });
 
@@ -236,22 +244,34 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
          // Check that we're doing what we think we're doing.
          assert.equal(
            first_text.outerHTML,
-           ("<div class=\"text _real\"><div class=\"body _real\">" +
-            "<div class=\"p _real\">blah</div><div class=\"p _real\">" +
-            "before <div class=\"quote _real\">quo</div></div></div>" +
-            "</div>"), "before");
+           "\
+<div class=\"text _local_text _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"body _local_body _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">blah</div>\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+before \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quo</div></div></div></div>", "before");
          assert.equal(pair[0], first_text);
          assert.equal(pair[1], next_text);
          assert.equal(
            next_text.outerHTML,
-           ("<div class=\"text _real\"><div class=\"body _real\">" +
-            "<div class=\"p _real\"><div class=\"quote _real\">ted</div>" +
-            " between <div class=\"quote _real\">quoted2</div>" +
-            " after</div>" +
-            "<div class=\"p _real\"><div class=\"quote _real\">quoted</div>" +
-            "<div class=\"quote _real\">quoted2</div>" +
-            "<div class=\"quote _real\">quoted3</div></div>" +
-            "</div></div>"), "after");
+           "\
+<div class=\"text _local_text _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"body _local_body _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+ted</div> between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted</div>\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div>\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted3</div></div>\
+</div></div>", "after");
        });
 
     it("does the right thing if spliting at end an element", function test() {
@@ -260,8 +280,10 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       // Make sure we're looking at the right stuff.
       assert.equal(node.nodeValue.length, 4);
       var pair = tu.splitAt(top, node, 4);
-      assert.equal(pair[0].outerHTML, "<div class=\"p _real\">blah</div>");
-      assert.equal(pair[1].outerHTML, "<div class=\"p _real\"></div>");
+      assert.equal(pair[0].outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">blah</div>");
+      assert.equal(pair[1].outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\"></div>");
     });
   });
 
@@ -707,8 +729,12 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\"><div class=\"quote _real\">quoted" +
-                    "</div><div class=\"quote _real\">quoted3</div></div>"));
+                   ("\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted</div>\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted3</div></div>"));
 
       assert.equal(parent.childNodes.length, 2);
       listener.check();
@@ -764,9 +790,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 3);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before  between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before  \
+between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
     });
 
@@ -802,9 +830,12 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       tu.removeNodeNF(node);
 
       // Check that we're doing what we think we're doing.
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\"><div class=\"quote _real\">quoted" +
-                    "</div><div class=\"quote _real\">quoted3</div></div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted</div>\
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted3</div></div>");
 
       assert.equal(parent.childNodes.length, 2);
       listener.check();
@@ -861,9 +892,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 3);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before  between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before  \
+between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
     });
 
@@ -952,8 +985,9 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 1);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before  after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+before  after</div>");
       listener.check();
     });
 
@@ -1002,9 +1036,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 3);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before  between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before  \
+between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
     });
 
@@ -1019,10 +1055,12 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 5);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before " +
-                    "<div class=\"quote _real\">quoted</div> between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted</div> between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
     });
 
@@ -1039,9 +1077,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 3);
       assert.equal(
-        parent.outerHTML,
-        ("<div class=\"p _real\">before  between " +
-         "<div class=\"quote _real\">quoted2</div> after</div>"));
+        parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+before  between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
 
       // Check return value.
       assert.equal(ret.node, node);
@@ -1059,10 +1099,12 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 5);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before " +
-                    "<div class=\"quote _real\">quoted</div> between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted</div> between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
 
       // Check the return value.
@@ -1106,9 +1148,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 3);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before  between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before  \
+between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
     });
 
@@ -1123,10 +1167,12 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 5);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before " +
-                    "<div class=\"quote _real\">quoted</div> between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted</div> between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
     });
 
@@ -1142,9 +1188,11 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 3);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before  between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before  \
+between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
 
       // Check return value.
       assert.equal(ret.node, node);
@@ -1162,10 +1210,12 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(parent.childNodes.length, 5);
-      assert.equal(parent.outerHTML,
-                   ("<div class=\"p _real\">before " +
-                    "<div class=\"quote _real\">quoted</div> between " +
-                    "<div class=\"quote _real\">quoted2</div> after</div>"));
+      assert.equal(parent.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">before \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted</div> between \
+<div class=\"quote _local_quote _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+quoted2</div> after</div>");
       listener.check();
 
       // Check the return value.
@@ -1271,9 +1321,9 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(p.childNodes.length, 1);
-      assert.equal(
-        p.outerHTML,
-        ("<div class=\"p _real\">befoter</div>"));
+      assert.equal(p.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+befoter</div>");
       listener.check();
     });
 
@@ -1315,7 +1365,9 @@ describe("TreeUpdater", function TreeUpdaterBlock() {
 
       // Check that we're doing what we think we're doing.
       assert.equal(p.childNodes.length, 1);
-      assert.equal(p.outerHTML, ("<div class=\"p _real\">befoter</div>"));
+      assert.equal(p.outerHTML, "\
+<div class=\"p _local_p _xmlns_http://www.tei-c.org/ns/1.0 _real\">\
+befoter</div>");
 
       assert.isTrue(ret.length > 0);
       checkNodes(ret[1], nodes);
