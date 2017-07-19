@@ -86,7 +86,7 @@
     "html-loader": "^0.4.4",
     "interact.js": ">=1.2.6 <2",
     "jquery": ">=2.0.0 <3",
-    "jsdom": ">=8 <9",
+    "jsdom": "^11.1.0",
     "json-schema-to-typescript": "^4.4.0",
     "last-resort": "^0.1.0",
     "less": ">=2 <3",

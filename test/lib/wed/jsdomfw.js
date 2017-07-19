@@ -8,6 +8,7 @@ var jsdom = require("jsdom");
 var chai = require("chai");
 var path = require("path");
 
+var JSDOM = jsdom.JSDOM;
 var assert = chai.assert;
 var base_path = "file://" + path.join(__dirname, "/../../../build/standalone/");
 
@@ -121,52 +122,44 @@ function FW() {
 FW.prototype.create = function create(done) {
   var me = this;
   me.log_buffer = [];
-  var vc = jsdom.createVirtualConsole();
+  var vc = new jsdom.VirtualConsole();
   vc.on("log", function log() {
     me.log_buffer.push(Array.prototype.slice.call(arguments));
   });
   vc.on("jsdomError", function jsdomError(er) {
     throw er;
   });
-  jsdom.env({
-    html: html,
+  var dom = new JSDOM(html, {
     url: base_path,
-    features: {
-      FetchExternalResources: ["script"],
-      ProcessExternalResources: ["script"],
-    },
+    runScripts: "dangerously",
+    resources: "usable",
     virtualConsole: vc,
-    created: function created(error) {
-      assert.isNull(error);
-    },
-    onload: function onload(w) {
-      me.window = w;
-      // Mock createRange for rangy.
-      w.document.createRange = function createRange() {
-        var range = new Range();
-        range.setStart(w.document.body, 0);
-        range.setEnd(w.document.body, 0);
-        return range;
-      };
+  });
+  var w = me.window = dom.window;
 
-            // Mock window.getSelection for rangy.
-      w.getSelection = function getSelection() {
-        return new Selection();
-      };
+  w.addEventListener("load", function loaded() {
+    // Mock createRange for rangy.
+    w.document.createRange = function createRange() {
+      var range = new Range();
+      range.setStart(w.document.body, 0);
+      range.setEnd(w.document.body, 0);
+      return range;
+    };
 
-            // Check that rangy loaded properly...
-      w.require(["rangy"], function loaded(rangy) {
-        assert.isTrue(rangy.initialized, "rangy initialized.");
-        assert.isTrue(rangy.supported, "rangy supports our environment");
+    // Mock window.getSelection for rangy.
+    w.getSelection = function getSelection() {
+      return new Selection();
+    };
 
-                // There should not be any errors.
-        assert.equal(me.log_buffer.length, 0);
-      });
-    },
-    done: function jsdomDone(error) {
-      assert.isNull(error, "window creation failed with error: " + error);
+    // Check that rangy loaded properly...
+    w.require(["rangy"], function loadedRangy(rangy) {
+      assert.isTrue(rangy.initialized, "rangy initialized.");
+      assert.isTrue(rangy.supported, "rangy supports our environment");
+
+      // There should not be any errors.
+      assert.equal(me.log_buffer.length, 0);
       done();
-    },
+    });
   });
 };
 
