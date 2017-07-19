@@ -36,8 +36,11 @@ consult:
 * :doc:`tech_notes` to learn about wed's internals, design decisions,
   or about more complex usage scenarios,
 
-* the `API documentation <api/index.html>`_ to write modes or extensions
-  for wed.
+* the `API documentation <api/index.html>`_ to write modes or extensions for
+  wed. **IMPORTANT NOTE: the API documentation is currently in shambles. This
+  will be the case for as long as the transition to TypeScript is not
+  complete.** In the meantime, we recommend reading the documentation comments
+  in the source code.
 
 Table of Contents
 =================
