@@ -1498,7 +1498,13 @@ export function htmlToElements(html: string, document?: Document): Node[] {
   //
   // tslint:disable-next-line:no-inner-html
   div.innerHTML = html;
-  return Array.prototype.slice.call(div.childNodes);
+  const ret = Array.prototype.slice.call(div.childNodes);
+  // Clear the div so that the children cannot access the DOM objects we created
+  // only to convert the HTML to DOM elements.
+  while (div.firstChild !== null) {
+    div.removeChild(div.firstChild);
+  }
+  return ret;
 }
 
 /**
