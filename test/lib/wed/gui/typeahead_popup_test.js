@@ -79,7 +79,9 @@ describe("TypeaheadPopup", function TypeaheadPopup() {
   });
 
   afterEach(function afterEach() {
-    ta.dismiss();
+    if (ta) {
+      ta.dismiss();
+    }
   });
 
   describe("setValue", function setValue() {
