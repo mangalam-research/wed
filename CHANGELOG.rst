@@ -5,6 +5,25 @@ work correctly when viewed there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 0.30.0:
+
+  - Potentially breaking change: The special attribute named
+    ``data-wed-custom-context-menu`` is now named
+    ``data-wed--custom-context-menu``. This matters if you design modes.
+
+    This is required because the original name could have clashed with the
+    ``data-wed-`` attributes created for XML attributes. An XML attribute called
+    ``custom-context-menu`` would have clashed. The double dash ensures that a
+    clash cannot occur because an attribute name cannot begin with a dash.
+
+  - Potentially breaking change: The HTML tree created by wed to represent the
+    XML now has classes of the form ``_local_...`` and ``_xmlns_...``. If a mode
+    sets classes of this form, then that's a clash.
+
+  - Potentially breaking change: The HTML tree created by wed now has attributes
+    of the form ``data-wed--ns-...``. If a mode sets attributes of this form,
+    then that's a clash.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

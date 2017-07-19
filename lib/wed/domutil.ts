@@ -1398,6 +1398,10 @@ export function toGUISelector(selector: string): string {
     throw new Error("selector is too complex");
   }
 
+  if (/\\:/.test(selector)) {
+    throw new Error("we do not accept escaped colons for now");
+  }
+
   const parts = selector.split(separatorRe);
   let ret: string[] = [];
   for (let part of parts) {

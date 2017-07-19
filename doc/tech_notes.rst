@@ -500,7 +500,7 @@ handler chain, etc.
 
 Modes that define elements in the GUI tree that want to have their own custom
 context menu handler must listen for ``wed-context-menu`` **and** define a data
-field named ``data-wed-custom-context-menu`` set to a truthy value. This field
+field named ``data-wed-custom--context-menu`` set to a truthy value. This field
 must be set **in the DOM** as an attribute (and not merely using jQuery's
 ``data()`` method.
 

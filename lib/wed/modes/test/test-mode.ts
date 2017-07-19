@@ -89,7 +89,7 @@ export class TestDecorator extends GenericDecorator {
       $before.on("wed-context-menu",
                  { node: el },
                  this._navigationContextMenuHandler.bind(this));
-      $before[0].setAttribute("data-wed-custom-context-menu", "true");
+      $before[0].setAttribute("data-wed--custom-context-menu", "true");
     }
 
     if (origName === "p") {

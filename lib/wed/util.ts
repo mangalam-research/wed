@@ -147,7 +147,8 @@ export function classFromOriginalName(name: string): string {
 
 /**
  * Transforms an attribute name from wed's data tree to the original attribute
- * name before the data was transformed for use with wed.
+ * name before the data was transformed for use with wed. This reverses the
+ * transformation done with [[encodeAttrName]].
  *
  * @param name The encoded name.
  *
@@ -163,12 +164,37 @@ export function decodeAttrName(name: string): string {
  * original XML data (before transformation for use with wed) to its
  * encoded name.
  *
+ * A sequence of three dashes or more is converted by adding another dash. (So
+ * sequences of single dash, or a pair of dashes remain unchanged. But all
+ * sequences of 3 dashes or more gets an additional dash.)
+ *
+ * A colon (``:``) is converted to three dashes ``---``.
+ *
+ * After transformation above the name is prepended with ``data-wed-``.
+ *
+ * So ``foo:bar`` would become ``data-wed-foo---bar``.
+ *
+ * When ``qualifier`` is used, the qualifier is added just after ``data-wed-``
+ * and is prepended and appended with a dash. So ``foo:bar`` with the qualifier
+ * ``ns`` would become ``data-wed--ns-foo---bar``.
+ *
  * @param name The unencoded name.
+ *
+ * @param qualifier An optional qualifier.
  *
  * @returns The encoded name.
  */
-export function encodeAttrName(name: string): string {
-  return `data-wed-${name.replace(/--(-+)/g, "---$1").replace(/:/, "---")}`;
+export function encodeAttrName(name: string, qualifier?: string): string {
+  const sanitized = name.replace(/--(-+)/g, "---$1").replace(/:/, "---");
+  qualifier = qualifier === undefined ? "" : `-${qualifier}-`;
+  return `data-wed-${qualifier}${sanitized}`;
+}
+
+/**
+ * Determines whether a ``data-wed-`` attribute corresponds to an XML attribute.
+ */
+export function isXMLAttrName(name: string): boolean {
+  return /^data-wed-(?!-)/.test(name);
 }
 
 /**
@@ -187,9 +213,9 @@ export function getOriginalAttributes(node: Element): Record<string, string> {
   const attributes = node.attributes;
   for (let i = 0; i < attributes.length; ++i) {
     const attr = attributes[i];
-    // It is a node we want.
-    if (attr.localName!.lastIndexOf("data-wed-", 0) === 0) {
-      original[decodeAttrName(attr.localName!)] = attr.value;
+    const localName = attr.localName!;
+    if (isXMLAttrName(localName)) {
+      original[decodeAttrName(localName)] = attr.value;
     }
   }
   return original;

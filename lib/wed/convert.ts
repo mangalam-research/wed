@@ -6,23 +6,61 @@
  */
 
 import { isElement, isText } from "./domtypeguards";
+import { encodeAttrName } from "./util";
 
-function ancestorNamespaceValue(node: Element,
-                                name: string): string | undefined {
-  const parent = node.parentNode;
-  if (!isElement(parent)) {
-    return undefined;
+// tslint:disable-next-line: no-http-string
+const XML1_NAMESPACE: string = "http://www.w3.org/XML/1998/namespace";
+
+// tslint:disable-next-line: no-http-string
+const XMLNS_NAMESPACE: string = "http://www.w3.org/2000/xmlns/";
+
+function normalizeNS(ns: string | null): string {
+  if (ns === null) {
+    ns = "";
   }
 
-  const val = parent.getAttribute(name);
-  return (val !== null) ? val : ancestorNamespaceValue(parent, name);
+  return ns;
 }
 
+/**
+ * Convert an XML tree or subtree into an HTML tree suitable to be inserted into
+ * the GUI tree.
+ *
+ * XML Elements are converted to ``div`` elements with a ``class`` that has:
+ *
+ * - for first class the tag name (qualified name in XML parlance) of the
+ *    element,
+ *
+ * - for second class the ``_local_<local name>`` where ``<local name>`` is the
+ *   local name of the element,
+ *
+ * - for third class ``_xmlns_<namespace uri>`` where ``namespace uri`` is
+ *   the URI of the namespace of the XML element,
+ *
+ * - for fourth class ``_real``.
+ *
+ * The attributes of the XML element appear on the HTML element with the name
+ * ``data-wed-<attribute name>``, where ``attribute name`` is converted by
+ * [["util".encodeAttrName]]. This attribute has for value the original value in
+ * the XML. A second attribute ``data-wed--ns-<attribute name>`` contains the
+ * namespace URI of the attribute. If the attribute was not in a namespace, then
+ * ``data-wed--ns-<attribute name>`` is omitted.
+ *
+ * @param doc The HTML document in which we are going to use the generated
+ * tree.
+ *
+ * @param node The root of the XML tree to convert.
+ *
+ * @returns The root of the newly created HTML tree.
+ */
 export function toHTMLTree(doc: Document, node: Node): Node {
   let ret;
   if (isElement(node)) {
     ret = doc.createElement("div");
-    ret.className = `${node.tagName} _real`;
+
+    ret.className = `${node.tagName} _local_${node.localName} \
+_xmlns_${normalizeNS(node.namespaceURI)} \
+_real`;
     //
     // We encode attributes here in the following way:
     //
@@ -34,20 +72,15 @@ export function toHTMLTree(doc: Document, node: Node): Node {
     //
     for (let i = 0; i < node.attributes.length; ++i) {
       const attr = node.attributes[i];
-      const ns = (attr.name === "xmlns" ||
-                  attr.name.lastIndexOf("xmlns:", 0) === 0);
 
-      // Don't do anything for namespace attributes that don't actually change
-      // the namespace.
-      if (ns && (attr.value === ancestorNamespaceValue(node, attr.name))) {
-        continue;
+      ret.setAttribute(encodeAttrName(attr.name), attr.value);
+      const ns = attr.namespaceURI;
+
+      // We do not output this attribute if the namespace is for XML v1 or
+      // the xmlns namespace.
+      if (ns !== null && ns !== XML1_NAMESPACE && ns !== XMLNS_NAMESPACE) {
+        ret.setAttribute(encodeAttrName(attr.name, "ns"), ns);
       }
-
-      // tslint:disable-next-line:prefer-template
-      const attrName = "data-wed-" + attr.name.replace(/--(-+)/, "---$1")
-        .replace(":", "---");
-
-      ret.setAttribute(attrName, attr.value);
     }
 
     let child = node.firstChild;
