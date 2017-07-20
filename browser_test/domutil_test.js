@@ -22,6 +22,11 @@ define(function f(require) {
     }
   }
 
+  var commonMap = {
+    btw: "http://mangalamresearch.org/ns/btw-storage",
+    tei: "http://www.tei-c.org/ns/1.0",
+  }
+
   describe("domutil", function domutilBlock() {
     describe("nextCaretPosition", function nextCaretPosition() {
       var caret;
@@ -1135,25 +1140,29 @@ define(function f(require) {
       });
     });
 
-    describe("toDataSelector", function toDataSelector() {
+    describe("toGUISelector", function toGUISelector() {
       it("raises an error on brackets", function test() {
-        assert.throws(domutil.toGUISelector.bind(undefined, "abcde[f]"),
+        assert.throws(domutil.toGUISelector.bind(undefined, "abcde[f]", {}),
                       Error, "selector is too complex");
       });
 
       it("raises an error on parens", function test() {
-        assert.throws(domutil.toGUISelector.bind(undefined, "abcde:not(f)"),
+        assert.throws(domutil.toGUISelector.bind(undefined, "abcde:not(f)", {}),
                       Error, "selector is too complex");
       });
 
       it("converts a > sequence", function test() {
-        assert.equal(domutil.toGUISelector("p > term > foreign"),
-                     ".p._real > .term._real > .foreign._real");
+        assert.equal(domutil.toGUISelector("p > term > foreign",
+                                           { "": "" }),
+                     "._local_p._xmlns_._real > ._local_term._xmlns_._real \
+> ._local_foreign._xmlns_._real");
       });
 
       it("converts a space sequence with namespaces", function test() {
-        assert.equal(domutil.toGUISelector("btw:cit tei:q"),
-                     ".btw\\:cit._real .tei\\:q._real");
+        assert.equal(domutil.toGUISelector("btw:cit tei:q", commonMap),
+                     "._local_cit.\
+_xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real \
+._local_q._xmlns_http\\:\\/\\/www\\.tei-c\\.org\\/ns\\/1\\.0._real");
       });
     });
 
@@ -1173,19 +1182,22 @@ define(function f(require) {
       });
 
       it("find a node", function test() {
-        var result = domutil.dataFind(data_root, "btw:sense-emphasis");
+        var result = domutil.dataFind(data_root, "btw:sense-emphasis",
+                                      commonMap);
         assert.equal(result.tagName, "btw:sense-emphasis");
         assert.isTrue(data_root.contains(result));
       });
 
       it("find a child node", function test() {
-        var result = domutil.dataFind(data_root, "btw:overview>btw:definition");
+        var result = domutil.dataFind(data_root, "btw:overview>btw:definition",
+                                      commonMap);
         assert.equal(result.tagName, "btw:definition");
         assert.isTrue(data_root.contains(result));
       });
 
       it("find nodes", function test() {
-        var results = domutil.dataFindAll(data_root, "btw:sense-emphasis");
+        var results = domutil.dataFindAll(data_root, "btw:sense-emphasis",
+                                          commonMap);
         assert.equal(results.length, 4);
         results.forEach(function each(x) {
           assert.equal(x.tagName, "btw:sense-emphasis");

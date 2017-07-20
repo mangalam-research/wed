@@ -83,10 +83,13 @@ export class Decorator {
    *
    * @param guiUpdater The updater to use to modify the GUI tree. All
    * modifications to the GUI must go through this updater.
+   *
+   * @param namespaces A copy of the absolute namespace mappings in effect.
    */
   constructor(protected readonly domlistener: Listener,
               protected readonly editor: Editor,
-              protected readonly guiUpdater: GUIUpdater) {}
+              protected readonly guiUpdater: GUIUpdater,
+              protected readonly namespaces: Record<string, string>) {}
 
   /**
    * Request that the decorator add its event handlers to its listener.
@@ -400,7 +403,7 @@ export class Decorator {
 
         for (const element of attributeHiding.elements) {
           const copy = mergeOptions({}, element);
-          copy.selector = domutil.toGUISelector(copy.selector);
+          copy.selector = domutil.toGUISelector(copy.selector, this.namespaces);
           specs.elements.push(copy);
         }
 

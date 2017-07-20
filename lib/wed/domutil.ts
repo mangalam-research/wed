@@ -1391,9 +1391,13 @@ const separatorRe = new RegExp(`([${separators}]+)`);
  *
  * @param selector The selector to convert.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The converted selector.
  */
-export function toGUISelector(selector: string): string {
+export function toGUISelector(selector: string,
+                              namespaces: Record<string, string>): string {
   if (/[\]['"()]/.test(selector)) {
     throw new Error("selector is too complex");
   }
@@ -1412,7 +1416,7 @@ export function toGUISelector(selector: string): string {
       else if (/[a-zA-Z]/.test(part[0])) {
         part = part.trim();
         const nameSplit = part.split(/(.#)/);
-        ret.push(util.classFromOriginalName(nameSplit[0]));
+        ret.push(util.classFromOriginalName(nameSplit[0], namespaces));
         ret = ret.concat(nameSplit.slice(1));
       }
       else {
@@ -1444,10 +1448,14 @@ export function toGUISelector(selector: string): string {
  *
  * @param selector The selector to use.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The resulting data node.
  */
-export function dataFind(node: Element, selector: string): Element | null {
-  const guiSelector = toGUISelector(selector);
+export function dataFind(node: Element, selector: string,
+                         namespaces: Record<string, string>): Element | null {
+  const guiSelector = toGUISelector(selector, namespaces);
   const guiNode = $.data(node, "wed_mirror_node") as Element;
   const foundNodes = guiNode.querySelector(guiSelector);
   if (foundNodes == null) {
@@ -1465,10 +1473,14 @@ export function dataFind(node: Element, selector: string): Element | null {
  *
  * @param selector The selector to use.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The resulting data nodes.
  */
-export function dataFindAll(node: Element, selector: string): Element[] {
-  const guiSelector = toGUISelector(selector);
+export function dataFindAll(node: Element, selector: string,
+                            namespaces: Record<string, string>): Element[] {
+  const guiSelector = toGUISelector(selector, namespaces);
   const guiNode = $.data(node, "wed_mirror_node") as Element;
   const foundNodes = guiNode.querySelectorAll(guiSelector);
   const ret: Element[] = [];

@@ -40,13 +40,13 @@ export class GenericDecorator extends Decorator {
               protected readonly options: any,
               domlistener: Listener,
               editor: Editor, guiUpdater: GUIUpdater) {
-    super(domlistener, editor, guiUpdater);
+    super(domlistener, editor, guiUpdater, mode.getAbsoluteNamespaceMappings());
   }
 
   addHandlers(): void {
     this.domlistener.addHandler(
       "included-element",
-      util.classFromOriginalName("*"),
+      util.classFromOriginalName("*", {}),
       (root: Element, tree: Element, parent: Element, prev: Node | null,
        next: Node | null, el: Element) => {
          // Skip elements which would already have been removed from the
@@ -65,7 +65,7 @@ export class GenericDecorator extends Decorator {
 
     this.domlistener.addHandler(
       "children-changed",
-      util.classFromOriginalName("*"),
+      util.classFromOriginalName("*", {}),
       (root: Element, added: Node[], removed: Node[],
        previousSibling: Node | null, nextSibling: Node | null, el: Element) => {
          for (const child of added.concat(removed)) {
@@ -79,14 +79,14 @@ export class GenericDecorator extends Decorator {
        });
 
     this.domlistener.addHandler("text-changed",
-                                util.classFromOriginalName("*"),
+                                util.classFromOriginalName("*", {}),
                                 (root: Element, node: Text) => {
                                   this.elementDecorator(
                                     root, node.parentNode! as Element);
                                 });
 
     this.domlistener.addHandler("attribute-changed",
-                                util.classFromOriginalName("*"),
+                                util.classFromOriginalName("*", {}),
                                 (root: Element, el: Element) => {
                                   this.elementDecorator(root, el);
                                 });

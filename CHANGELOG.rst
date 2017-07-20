@@ -7,6 +7,35 @@ odd bug fix may not get mentioned here at all.
 
 * 0.30.0:
 
+  + This version contains a slew of changes that improve the handling of
+    namespaces. Wed has had namespace support since the very beginning but it
+    would have been fair to call the support "very temperamental". For instance,
+    if a mode expected the TEI namespace to be the default namespace
+    (unprefixed) and you tried to edit a file with the TEI namespace assigned to
+    the prefix "tei", you would have been in trouble. The changes in this
+    version aim to smooth out the possible differences between what a file
+    actually contains and what a mode expects. This is a prerequiste to
+    supporting the new "submode" feature.
+
+  - Breaking changes:
+
+    + ``decorator.Decorator`` needs the mode's absolute namespace mappings in
+      its constructor.
+
+    + ``domutil.toGUISelector`` needs the mode's absolute namespace mappings.
+
+    + ``domutil.dataFind`` needs the mode's absolute namespace mappings.
+
+    + ``domutil.dataFindAll`` needs the mode's absolute namespace mappings.
+
+    + ``util.classFromOriginalName`` needs the mode's absolute namespace
+      mappings.
+
+  - Potentially breaking change: Modes must implement
+    ``getAbsoluteNamespaceMappings`` and ``unresolveName``. This matters if you
+    design modes. Modes derived from ``generic`` may rely on the default
+    implementation.
+
   - Potentially breaking change: The special attribute named
     ``data-wed-custom-context-menu`` is now named
     ``data-wed--custom-context-menu``. This matters if you design modes.

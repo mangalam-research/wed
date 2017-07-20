@@ -6,7 +6,7 @@
  */
 
 import * as Promise from "bluebird";
-import { NameResolver } from "salve";
+import { EName, NameResolver } from "salve";
 
 import { Action } from "wed/action";
 import { BaseMode, Editor } from "wed/mode";
@@ -148,6 +148,16 @@ class GenericMode<Options extends GenericModeOptions>
         const obj = JSON.parse(data);
         return new MetadataMultiversionReader().read(obj);
       });
+  }
+
+  getAbsoluteNamespaceMappings(): Record<string, string> {
+    // We return a copy of the metadata's namespace mapping. A shallow copy
+    // is good enough.
+    return {... this.metadata.getNamespaceMappings()};
+  }
+
+  unresolveName(name: EName): string | undefined {
+    return this.metadata.unresolveName(name);
   }
 
   getAbsoluteResolver(): NameResolver {

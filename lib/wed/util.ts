@@ -106,15 +106,17 @@ export function distsFromRect(x: number, y: number, left: number, top: number,
 
 /**
  * Escape character in CSS class that could cause trouble in CSS
- * selectors. **This is not a general solution.** This function supports only
- * what wed uses.
+ * selectors. *This is not a general solution.* It supports enough for the needs
+ * of wed.
  *
  * @param cls The class
  *
  * @returns The escaped class.
  */
 export function escapeCSSClass(cls: string): string {
-  return cls.replace(/:/g, "\\:");
+  // We should investigate replacing this with CSS.escape whenever the spec for
+  // that function becomes stable.
+  return cls.replace(/([\][\\/!"#$%&'()*+,.:;<=>?@^`{|}~])/g, "\\$1");
 }
 
 /**
@@ -130,19 +132,40 @@ export function getOriginalName(el: Element): string {
 }
 
 /**
- * Makes a class string appropriate for a node in wed's data tree.
+ * Makes a class string for a node in wed's data tree. The string is meant to be
+ * used for the corresponding node in wed's GUI tree.
  *
  * @param name The original element name.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The class string.
  */
-export function classFromOriginalName(name: string): string {
+export function classFromOriginalName(name: string,
+                                      namespaces: Record<string, string>):
+string {
   // Special case if we want to match all
   if (name === "*") {
     return "._real";
   }
 
-  return `.${escapeCSSClass(name)}._real`;
+  let [prefix, localName] = name.split(":");
+
+  if (localName === undefined) {
+    localName = prefix;
+    prefix = "";
+  }
+
+  const ns = namespaces[prefix];
+  if (ns === undefined) {
+    throw new Error(`prefix ${prefix} is not defined in namespaces`);
+  }
+
+  // We do not output `.${escapeCSSClass(name)}` because that's redundant for a
+  // search.
+  return `._local_${escapeCSSClass(localName)}\
+._xmlns_${escapeCSSClass(ns)}._real`;
 }
 
 /**

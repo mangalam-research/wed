@@ -76,15 +76,19 @@ describe("util", function utilBlock() {
 
   describe("classFromOriginalName", function classFromOriginalName() {
     it("no namespace", function test() {
-      assert.equal(util.classFromOriginalName("li"), ".li._real");
+      assert.equal(util.classFromOriginalName("li", { "": "" }),
+                   "._local_li._xmlns_._real");
     });
 
     it("match all", function test() {
-      assert.equal(util.classFromOriginalName("*"), "._real");
+      assert.equal(util.classFromOriginalName("*", {}), "._real");
     });
 
     it("with namespace", function test() {
-      assert.equal(util.classFromOriginalName("btw:foo"), ".btw\\:foo._real");
+      assert.equal(util.classFromOriginalName("btw:foo", {
+        btw: "http://mangalamresearch.org/ns/btw-storage",
+      }), "._local_foo.\
+_xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real");
     });
   });
 

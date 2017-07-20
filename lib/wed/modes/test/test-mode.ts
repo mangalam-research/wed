@@ -6,7 +6,7 @@
  */
 import * as Promise from "bluebird";
 import * as $ from "jquery";
-import { ValidationError } from "salve";
+import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
 import { Action } from "wed/action";
@@ -22,7 +22,6 @@ import { GenericModeOptions,
 import { GenericDecorator } from "wed/modes/generic/generic-decorator";
 import { Template } from "wed/object-check";
 import * as transformation from "wed/transformation";
-import * as util from "wed/util";
 import { ModeValidator } from "wed/validator";
 
 // tslint:disable-next-line:completed-docs
@@ -46,6 +45,8 @@ export class TestDecorator extends GenericDecorator {
     text: 1,
   };
 
+  protected readonly mode: TestMode;
+
   addHandlers(): void {
     super.addHandlers();
     input_trigger_factory.makeSplitMergeInputTrigger(
@@ -61,13 +62,19 @@ export class TestDecorator extends GenericDecorator {
     const dataNode = this.editor.toDataNode(el) as Element;
     const rend = dataNode.getAttribute("rend");
 
-    const origName = util.getOriginalName(el);
-    let level = this.elementLevel[origName];
+    const localName = dataNode.localName!;
+    const inTEI = dataNode.namespaceURI === this.namespaces.tei;
+
+    let level = inTEI ? this.elementLevel[localName] : undefined;
     if (level === undefined) {
       level = 1;
     }
+
+    const isP = inTEI && localName === "p";
+    const isRef = inTEI && localName === "ref";
+
     // We don't run the default when we wrap p.
-    if (!(origName === "p" && rend === "wrap")) {
+    if (!(isP && rend === "wrap")) {
       // There's no super.super syntax we can use here.
       Decorator.prototype.elementDecorator.call(
         this, root, el, level,
@@ -75,7 +82,7 @@ export class TestDecorator extends GenericDecorator {
         this.contextMenuHandler.bind(this, false));
     }
 
-    if (origName === "ref") {
+    if (isRef) {
       $(el).children("._text._phantom").remove();
       this.guiUpdater.insertBefore(
         el,
@@ -92,7 +99,7 @@ export class TestDecorator extends GenericDecorator {
       $before[0].setAttribute("data-wed--custom-context-menu", "true");
     }
 
-    if (origName === "p") {
+    if (isP) {
       switch (rend) {
       case "foo":
         $(el).children("._gui_test").remove();
@@ -147,7 +154,15 @@ export class TestDecorator extends GenericDecorator {
     // node is the node in the GUI tree which corresponds to the navigation item
     // for which a context menu handler was required by the user.
     const node = wedEv.data.node;
-    const origName = util.getOriginalName(node);
+    const dataNode = this.editor.toDataNode(node) as Element;
+    const prefixedName = this.mode.unresolveName(
+      new EName(dataNode.namespaceURI === null ? "" : dataNode.namespaceURI,
+                dataNode.localName!));
+
+    // We don't know this element.
+    if (prefixedName === undefined) {
+      return true;
+    }
 
     // container, offset: location of the node in its parent.
     const container = node.parentNode;
@@ -155,11 +170,11 @@ export class TestDecorator extends GenericDecorator {
 
     // Create "insert" transformations for siblings that could be inserted
     // before this node.
-    const actions = this.mode.getContextualActions("insert", origName,
+    const actions = this.mode.getContextualActions("insert", prefixedName,
                                                    container, offset);
     // data to pass to transformations
     const data = {
-      name: origName,
+      name: prefixedName,
       moveCaretTo: this.editor.caretManager.makeCaret(container, offset),
     };
 
@@ -276,7 +291,7 @@ class DraggableResizableModalAction extends Action<{}> {
  * This mode is purely designed to help test wed, and nothing
  * else. Don't derive anything from it and don't use it for editing.
  */
-class TestMode extends GenericMode<TestModeOptions> {
+export class TestMode extends GenericMode<TestModeOptions> {
   private typeaheadAction: TypeaheadAction;
   private draggable: Modal;
   private resizable: Modal;
