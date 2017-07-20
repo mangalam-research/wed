@@ -101,7 +101,7 @@ def start_server(context):
 
     def start():
         # Start a server just for our tests...
-        context.server = subprocess.Popen(["node", "./server.js",
+        context.server = subprocess.Popen(["node", "./misc/server.js",
                                            "server", "localhost:" + port])
         # This is the address at which we can control the server
         # locally.
@@ -262,7 +262,7 @@ def before_all(context):
     # the issue. This problem occurs only if we are using an SSH
     # tunnel rather than sauce connect.
     if ssh_tunnel and context.util.ie \
-       and context.builder.config.version == "10":
+       and builder.config.version == "10":
         driver.get(builder.WED_SERVER + "/blank")
         # Tried using, execute_script. Did not seem to work.
         driver.get(
@@ -300,12 +300,21 @@ def dump_javascript_log(context):
         print("")
 
 
+def before_feature(context, feature):
+    if "skip" in feature.tags:
+        feature.skip("The feature was marked with @skip")
+
+
 def before_scenario(context, scenario):
-    driver = context.driver
+    if "skip" in scenario.effective_tags:
+        scenario.skip("The scenario was marked with @skip")
+        return
 
     if context.active_tag_matcher.should_exclude_with(scenario.effective_tags):
-        scenario.skip(reason="Disabled by an active tag")
+        scenario.skip("Disabled by an active tag")
         return
+
+    driver = context.driver
 
     if context.behave_captions:
         # We send a comment as a "script" so that we get something
@@ -320,10 +329,19 @@ def before_scenario(context, scenario):
 def after_scenario(context, _scenario):
     driver = context.driver
 
+    # Close all extra tabs.
+    handles = driver.window_handles
+    if handles:
+        for handle in handles:
+            if handle != context.initial_window_handle:
+                driver.switch_to_window(handle)
+                driver.close()
+        driver.switch_to_window(context.initial_window_handle)
+
     #
     # Make sure we did not trip a fatal error.
     #
-    terminating = context.driver.execute_async_script("""
+    status = driver.execute_async_script("""
     var done = arguments[0];
 
     window.onbeforeunload = function () {};
@@ -340,53 +358,42 @@ def after_scenario(context, _scenario):
     var deps = [];
     deps.push(onerror_defined ? "wed/onerror" : "undefined");
 
-    deps = deps.concat(require.defined("wed/savers/localforage") ?
-      ["wed/savers/localforage", "localforage"] : ["undefined", "undefined"]);
-
-    require(deps, function (onerror, saver, lf) {
+    require(deps, function (onerror) {
       var terminating = onerror && onerror.is_terminating();
-      // This clears localforage on pages where it has been loaded
-      // and configured by Wed code. We detect this by checking whether the
-      // saver has been loaded.
-      if (saver) {
-        saver.config();
-        lf.clear().then(function () {
-            // This rigmarole is required to work around a bug in IndexedDB.
-            //
-            // See https://github.com/mozilla/localForage/issues/154
-            //
-            // We're basically polling until the length of the database is 0.
-            //
-            function check() {
-                lf.length(function (length) {
-                    if (length)
-                        setTimeout(check, 100);
-                    else {
-                        done(terminating);
-                        return;
-                    }
-                });
-            }
-            check();
-        });
-      }
-      else {
-          done(terminating);
-          return;
-      }
+      done({ terminating: terminating });
+    }, function (err) {
+      done({ loadError: err.toString() });
     });
     """)
     dump_javascript_log(context)
-    assert_false(terminating, "should not have experienced a fatal error")
+    if "loadError" in status:
+        assert_false(status["loadError"])
+    assert_false(status["terminating"],
+                 "should not have experienced a fatal error")
 
-    # Close all extra tabs.
-    handles = driver.window_handles
-    if handles:
-        for handle in handles:
-            if handle != context.initial_window_handle:
-                driver.switch_to_window(handle)
-                driver.close()
-        driver.switch_to_window(context.initial_window_handle)
+    # We move to a blank page so as to stop any interaction with the database
+    # and then we delete it manually. This is a safer approach than trying to
+    # stop actions on an actual test page.
+    driver.get(context.builder.WED_SERVER + "/blank.html")
+    status = driver.execute_async_script("""
+    var done = arguments[0];
+
+    var req = indexedDB.deleteDatabase("wed");
+    req.onsuccess = function () {
+      done([true, ""]);
+    };
+
+    req.onerror = function () {
+      done([false, "Error!"]);
+    };
+
+    req.onblocked = function () {
+      done([false, "Blocked!"]);
+    };
+    """)
+
+    if not status[0]:
+        assert_true(status[0], status[1])
 
 
 def before_step(context, step):

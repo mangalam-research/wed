@@ -174,8 +174,8 @@ div.wed-document-constrainer {
     .wed-comp-field {
         position: absolute;
         z-index: -10;
-        top: -1000px;
-        left: -1000px;
+        top: 0px;
+        left: 0px;
         width: 1em;
     }
 
@@ -184,6 +184,7 @@ div.wed-document-constrainer {
         z-index: 1;
         // The following attribute is required for IE.
         background-color: white;
+        pointer-events: none;
 
         ._wed_caret {
             position: absolute;
@@ -211,9 +212,11 @@ div.wed-document-constrainer {
             z-index: 2;
             // The following attribute is required for IE.
             background-color: white;
+            pointer-events: none;
 
             * {
-                position: absolute;
+              pointer-events: auto;
+              position: absolute;
             }
         }
     }
@@ -245,8 +248,11 @@ div.wed-frame {
         border-radius: .25em;
         border-style: none;
 
-        &._label_clicked {
-            background-color: @background-color-clicked;
+        // We use this to show an ellipsis when a start label has hidden
+        // attribute that are not currently shown.
+        &._autohidden_attributes ._greater_than::before {
+          content: "\00a0...\00a0";
+          font-weight: bold;
         }
 
         ._attribute_value {
@@ -256,6 +262,25 @@ div.wed-frame {
 
         ._attribute._readonly ._attribute_value {
             background-color: @readonly-color;
+        }
+
+        ._attribute._shown_when_caret_in_label {
+          display: none;
+        }
+
+        &._label_clicked {
+          background-color: @background-color-clicked;
+        }
+
+        &._with_caret {
+          ._attribute._shown_when_caret_in_label {
+            display: initial;
+          }
+
+          // We use this to hide the elipsis described above.
+          &._autohidden_attributes ._greater_than::before {
+            display: none;
+          }
         }
     }
 

@@ -32,7 +32,7 @@ def step_impl(context, step, where=None):
                 text = child;
             child = child.nextSibling;
         }
-        wed_editor.setGUICaret(text, text.length);
+        wed_editor.caretManager.setCaret(text, text.length);
         return title;
         """)
     else:
@@ -159,7 +159,7 @@ def step_impl(context):
 def step_impl(context):
     driver = context.driver
     print(driver.execute_script("""
-    var caret = wed_editor.getGUICaret(true);
+    var caret = wed_editor.caretManager.caret;
     if (!caret)
       return "no caret!"
     return [caret.node.innerHTML, caret.offset];

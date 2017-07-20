@@ -1,84 +1,85 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013, 2014 Mangalam Research Center for Buddhist Languages
+ * @copyright Mangalam Research Center for Buddhist Languages
  */
-'use strict';
+"use strict";
+
+var path = require("path");
+var chai = require("chai");
 var requirejs = require("requirejs");
+
 requirejs.config({
-    baseUrl: __dirname + '/../../../../build/standalone/lib',
-    nodeRequire: require
+  baseUrl: path.join(__dirname, "../../../../build/standalone/lib"),
+  nodeRequire: require,
 });
 var simple_event_emitter = requirejs("wed/lib/simple_event_emitter");
 var SimpleEventEmitter = simple_event_emitter.SimpleEventEmitter;
 var conditioned = requirejs("wed/lib/conditioned");
 var Conditioned = conditioned.Conditioned;
 var oop = requirejs("wed/oop");
-var chai = require("chai");
 var assert = chai.assert;
 
 function Example() {
-    SimpleEventEmitter.call(this);
-    Conditioned.call(this);
+  SimpleEventEmitter.call(this);
+  Conditioned.call(this);
 }
 
 oop.implement(Example, SimpleEventEmitter);
 oop.implement(Example, Conditioned);
 
-describe("Conditioned", function () {
-    var emitter;
+describe("Conditioned", function ConditionedBlock() {
+  var emitter;
 
-    beforeEach(function () {
-        emitter = new Example();
+  beforeEach(function beforeEach() {
+    emitter = new Example();
+  });
+
+  describe("whenCondition", function whenCondition() {
+    it("adds an event listener if the condition is not attained",
+       function test() {
+         var called = false;
+         emitter.whenCondition("event", function when() {
+           called = true;
+         });
+         emitter._setCondition("event", null);
+         assert.isTrue(called);
+       });
+
+    it("calls the listener right away if the condition is attained",
+       function test() {
+         var called = false;
+         emitter._setCondition("event", null);
+         emitter.whenCondition("event", function when() {
+           called = true;
+         });
+         assert.isTrue(called);
+       });
+
+    it("adds an event listener if the condition is not attained",
+       function test() {
+         var calls = [];
+         emitter.whenCondition("event", function when() {
+           calls.push("event a");
+         });
+         emitter.whenCondition("event", function when() {
+           calls.push("event b");
+         });
+         emitter._setCondition("event", null);
+         assert.deepEqual(calls, ["event a", "event b"]);
+       });
+  });
+
+  describe("getCondition", function getCondition() {
+    it("returns false when the condition has not been met", function test() {
+      assert.isFalse(!!emitter.getCondition("event"));
     });
 
-    describe("whenCondition", function () {
-        it("adds an event listener if the condition is not attained",
-           function () {
-            var called = false;
-            emitter.whenCondition("event", function (ev) {
-                called = true;
-            });
-            emitter._setCondition("event", null);
-            assert.isTrue(called);
-        });
-
-        it("calls the listener right away if the condition is attained",
-           function () {
-            var called = false;
-            emitter._setCondition("event", null);
-            emitter.whenCondition("event", function (ev) {
-                called = true;
-            });
-            assert.isTrue(called);
-        });
-
-        it("adds an event listener if the condition is not attained",
-           function () {
-            var calls = [];
-            emitter.whenCondition("event", function (ev) {
-                calls.push("event a");
-            });
-            emitter.whenCondition("event", function (ev) {
-                calls.push("event b");
-            });
-            emitter._setCondition("event", null);
-            assert.deepEqual(calls, ["event a", "event b"]);
-        });
+    it("returns true when the condition has not been met", function test() {
+      emitter._setCondition("event", null);
+      assert.isTrue(emitter.getCondition("event"));
     });
-
-    describe("getCondition", function () {
-        it("returns false when the condition has not been met",
-           function () {
-            assert.isFalse(!!emitter.getCondition("event"));
-        });
-
-        it("returns true when the condition has not been met",
-           function () {
-            emitter._setCondition("event", null);
-            assert.isTrue(emitter.getCondition("event"));
-        });
-    });
+  });
 });
 
 //  LocalWords:  RequireJS Mangalam MPL Dubeau getCondition chai oop

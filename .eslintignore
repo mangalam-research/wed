@@ -1,0 +1,8 @@
+# This is an ES6 file in the midst of an ES5+typescript directory. Eslint does
+# not handle it well.
+web/webpack.config.js
+# Same for this file... sigh...
+karma.conf.js
+# These are auto generated.
+web/mmwp/internal-schemas/condordance.js
+web/mmwp/internal-schemas/doc-unannotated.js

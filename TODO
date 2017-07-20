@@ -1,11 +1,6 @@
 Misc
 ====
 
-- Investigate what version of Mocha we can upgrade to. See:
-
-  https://github.com/mochajs/mocha/issues/2067
-  https://github.com/mochajs/mocha/pull/2068/files#r53067135
-
 - util.stackTrace should be updated to take advantage of
    console.trace.
 
@@ -65,14 +60,6 @@ At the moment input triggers are applied whenever the keys that
 trigger them are used in any of the child of the selector passed to
 the InputTrigger. This may not always be desirable.
 
-Refreshing Errors
------------------
-
-It might be useful to have a way to refresh validation errors without having to
-revalidate. Currently btw-mode has to use restartAt to restart
-validation after refreshing an element because error markers may be in
-the wrong place.
-
 Listeners
 ---------
 
@@ -81,14 +68,6 @@ tree. This way event handlers that care only about changes to the data
 tree can listen only to that and not have to filter out the gui
 stuff. This would require a change to what is given to modes because
 right now they only get a gui listener.
-
-Caret Management
-----------------
-
-* We should not ever have to read the DOM selection to check its
-   status. (That is, we should be able to check the selection by
-   looking at _sel_anchor and _sel_focus and not have to query the
-   DOM.)
 
 TreeUpdater
 -----------
@@ -115,10 +94,3 @@ Other
 
 * Dump XSLT altogether in favor of something faster? Loading saxon to
   process XSLT 2.0 has a non-negligible cost.
-
-Other Bits of the Project
-=========================
-
-* Dump the perl solution to generating the local HTML files.
-
-* Generate the local HTML somewhere else than in the root.

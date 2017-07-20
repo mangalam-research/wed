@@ -613,6 +613,10 @@ def step_impl(context, what=None, items=None, other=None):
                     actual.add("others")
                 elif link == "Test typeahead":
                     actual.add("others")
+                elif link.startswith("Split "):
+                    # This is of kind transform in the code but for testing
+                    # purposes it is "others"
+                    actual.add("others")
                 elif link.startswith("Unwrap "):
                     actual.add("unwrap")
                 elif link.startswith("Wrap "):
@@ -629,7 +633,8 @@ def step_impl(context, what=None, items=None, other=None):
                 elif link.startswith("Create new") or\
                         link.startswith("Delete ") or \
                         link.startswith("Unwrap ") or \
-                        link.startswith("Wrap "):
+                        link.startswith("Wrap ") or \
+                        link.startswith("Split "):
                     actual.add("element")
                 else:
                     raise Element("can't analyse link: " + link)
@@ -643,7 +648,7 @@ def step_impl(context, what=None, items=None, other=None):
         assert_equal(actual, expected)
 
 
-FILTER_TO_INDEX = ["add", "delete", "wrap", "unwrap",
+FILTER_TO_INDEX = ["transform", "add", "delete", "wrap", "unwrap",
                    "other", "element", "attribute", "other"]
 
 

@@ -2,7 +2,329 @@ Please note that Github currently does not implement all
 reStructuredText directives, so some links in this document may not
 work correctly when viewed there.
 
-Only salient changes are recorded here.
+Only salient changes are recorded here. Releases that contain only the
+odd bug fix may not get mentioned here at all.
+
+* 0.29.0:
+
+  - Major reorganization of the code: starting with this release, we are
+    progressively converting the JavaScript code to TypeScript. We will also
+    progressively replace antiquated APIs with newer ones. For instance,
+    functions taking callbacks will be replaced with functions returning
+    promises or observables.
+
+    The scope of this change is such that it will span multiple releases.
+
+  - Wed now uses salve 4.0.5.
+
+  - Switched from bootstrap-growl to bootstrap-notify to provide
+    notifications. The latter supports modules out of the box, and is
+    actively maintained and released. (Bootstrap-growl required module
+    system glue and special dependency handling because the latest npm
+    for it was obsolete (newer version on github).)
+
+  - Upgraded typeaheadjs.css. We now install it with npm.
+
+  - Upgraded to log4javascript 1.4.13, which is AMD-compatible.
+
+  - Integrated a linting check. This revealed a smattering of problems
+    in the code. Nothing that would cause crashes or incorrect results
+    but there were unused variables here and there, for instance.
+
+  - Wed now uses `Bluejax <https://github.com/lddubeau/bluejax>`_.
+
+  - The validation engine has been mostly extracted from the code base and spun
+    into an independent library to be published `here
+    <https://github.com/mangalam-research/salve-dom/>`_.
+
+  - Optimization: the validation engine itself was careful to parcel out its
+    work to prevent the UI from blocking for long periods of time. However, the
+    code that managed the *results* of validation (showing errors, refreshing
+    error positions on screen, etc.) did not benefit from the same design. This
+    caused **significant** performance issues when editing documents with lots
+    of errors. A ``TaskRunner`` has been added to allow the same kind of
+    parceling out that the validator does.
+
+  - Simplification: ``domlistener`` and ``updater_domlistener`` have been
+    combined into ``domlistener``. Once upon a time wed had two types of
+    ``Listener`` classes. The type that relied on DOM mutations was retired a
+    long time ago, but the module split remained, though useless. This useless
+    split has been removed.
+
+  - Feature: when configured with a mode named ``x``, wed now also looks for a
+    module named ``x-mode``. (In order it tries to load ``x``,
+    ``wed/modes/x/x``, ``wed/modes/x/x-mode``, ``wed/modes/x/x_mode``).
+
+  - Feature: add the "split" operation to the default set of transforms shown by
+    the contextual menus. In the past, "split" was only available through an
+    InputTrigger but there's no good reason for this restriction.
+
+  - Feature: add the "Wrap content in" operation.
+
+  - Feature: changed the location where missing attributes are reported. They
+    now appear in the start label of an element.
+
+  - Feature: support for arrow up and arrow down to move the caret.
+
+  - Feature: support for attribute completion provided by mode. Modes can
+    provide a list of completions for attributes that require dynamic generation
+    of the possible completions beyond what is provided by a schema.
+
+  - Feature: support for automatic attribute hiding.
+
+  - GUI Fix: When the user would use the down arrow to navigate the options of a
+    completion menu, the focus would be lost from the document and would not be
+    regained when the user closes the completion menu. This made further typing
+    ineffective until the user clicked in the document.
+
+  - API: You can pass Bluejax configuration options that are used globally by
+    setting the ``bluejaxOptions`` option in the option object you pass to your
+    editor.
+
+  - API: The ``Editor`` object now allows passing a ``module:runtime~Runtime``
+    object in the place where you'd pass options. If you pass an anonymous
+    options object, wed will create a runtime with it. If you pass an actual
+    ``Runtime`` object, it will extract its options from it.
+
+  - API: ``Decorator.startListening`` no longer takes an
+    argument. That it took an argument was a bug. It was never used.
+
+  - API: wed is now able to load data from an IndexedDB database. This is mainly
+    used for demonstration purposes but could eventually be expanded to
+    something more flexible.
+
+  - New saver: wed now has an IndexedDB saver. This is mainly used for
+    demonstration purposes.
+
+  - Breaking API change: the tool previously named ``tei-to-generic-meta-json``
+    has been renamed ``wed-metadata``. Check its help to adapt any use you
+    previously made of ``tei-to-generic-meta-json`` to the new tool.
+
+  - ``wed-metadata`` is bundled with the build package.
+
+  - Breaking API change: there is no longer any ``Meta`` object for the generic
+    mode and modes derived from it. Consequences:
+
+    + Mode now directly load the metadata file. So a mode configuration would
+      now look like::
+
+         mode: {
+             path: 'wed/modes/generic/generic',
+             options: {
+                 metadata: '.../path/to/metadata'
+             }
+         }
+
+    + If you are a mode designer, you need to rewrite your mode to work
+      without a ``Meta`` object.
+
+  - Breaking API change: the metadata format is now at version 2. Version 1 is
+    still read by wed. However, except for very trivial cases, a version 1
+    metadata file won't do what you want. If you are a mode designer or write
+    your own metadata files, you should move to version 2 ASAP.
+
+  - Breaking API change: ``module:mode~Mode`` objects now take the editor as
+    their first argument. (This matters only if you created your own modes.)
+
+  - Breaking API change: ``module:mode~Mode#init`` no longer takes any
+    arguments. (This matters only if you created your own modes.)
+
+  - Breaking API change: When a path is passed in the ``schema`` option,
+    this path is interpreted as-is.
+
+    It used to be interpreted relative to the location of wed among
+    the modules loaded by RequireJS. This worked but was frankly a bit
+    bizarre. More importantly, it made wed's code dependent on a
+    loader/bundler that replicates what ``require.toUrl`` does, which
+    was problematic.
+
+  - Breaking API change: The ``dochtml`` field embedded in the generated
+    metadata JSON file is now interpreted as-is. If you used such
+    metadata, you need to regenerate your files with an updated
+    path. The problem here was the same as above: dependence on
+    ``require.toUrl``.
+
+  - Breaking API change: wed no longer supports a "global default
+    configuration" against which configuration options passed to
+    ``Editor.init`` instances are merged. This means:
+
+    + Passing configuration through ``module.config`` is no longer
+      possible. This was deprecated in 0.27.0
+
+    + Using the special ``wed/config`` to pass configuration is no
+      longer possible. This was introduced in 0.27.0. I would have
+      liked to formally deprecate it first but it proved a substantial
+      obstacle to moving forward, and engineering a solution that
+      would still support this method *and* provided for the new needs
+      would have cost substantial time. The whole notion of a global
+      configuration managed by wed was ill-advised from the get-go.
+
+    From now on if you want defaults that are common to all your wed
+    instances, you need to come up with your own method of combining
+    global default and special cases, and pass the result to
+    ``Editor.init``. Wed used the `merge-options
+    <https://github.com/schnittstabil/merge-options>`_ module to merge
+    options. It should be trivial to do a ``mergeOptions({}, globals,
+    specifics)`` and pass the result to ``Editor.init``. It would
+    replicate what wed did internally.
+
+  - Potentially Breaking API change: ``domutil.linkTrees`` and
+    ``domutil.unlinkTree`` no longer accept arguments that are not Elements. The
+    operations don't make sense for non-Elements. (This is "potentially
+    breaking" because in most cases this should be used only by wed internally.)
+
+  - Breaking API change: the ``domutil.nextCaretPosition`` and
+    ``domutil.prevCaretPosition`` functions now have their arguments all
+    mandatory. Wed itself never called them without all arguments, and
+    maintaining the versions with optional arguments was not straightforward,
+    actually. It makes good sense to always require a container. And the default
+    of ``noText`` being ``true`` was rather arbitrary.
+
+  - Breaking API change: ``TreeUpdater`` and derived classes (like
+    ``GUIUpdater``) now use the Rxjs observer system to emit events rather than
+    using the local homegrown mixin. So you have to subscribe to ``events``
+    rather than use ``addEventListener``, etc.
+
+  - Breaking API change: the class ``ModeValidator`` is gone and replaced with
+    an interface in ``wed/validator``.
+
+  - Breaking API change: the ``getValidator`` method of ``Mode`` now returns
+    ``undefined`` when there is no validator to be gotten.
+
+  - Breaking API change: ``mode.Mode`` is now ``mode.BaseMode``.
+
+  - Breaking API change: ``BaseMode``'s (formerly ``Mode``) ``init`` method must
+    return a promise that resolves when the mode is ready.
+
+    Concomitant with this change, the ``pubsub`` module has been removed and wed
+    no longer uses PubsubJS.
+
+  - Breaking API change: ``Listener.addHandler`` no longer takes an array of
+    events as its first argument. This was a historical artifact that no longer
+    had any value.
+
+  - Breaking API change: ``saver.Saver`` has been revamped. This does not matter
+    unless you produced your own savers or tried to hook unto a saver's
+    events. Salient changes:
+
+     + Saver methods that took callbacks now return promises.
+
+     + ``Saver`` emits events on observables rather than use
+       ``simple_event_emitter``.
+
+     + ``Saver`` now has a promise that resolves when initialized instead of
+       using ``conditioned``.
+
+     + Event names are all capitalized.
+
+     + Internals are now without leading underscore and are in camelCase.
+
+  - Potentially Breaking API change: ``DLoc.makeRange`` returns ``undefined`` if
+    either location is invalid. (This is "potentially" breaking because there's
+    not much you could have done with a range created from invalid locations.)
+
+  - Breaking API change: ``makeDLoc`` is now accessible only through the
+    ``DLoc`` class.
+
+  - Fix: the ``domutil.makePlaceholder`` function used to treat its argument as
+    HTML, it now treats it as text.
+
+  - Fix: ``Action`` and ``Transformation`` are no longer implementing
+    ``SimpleEventEmitter``. This was actually a leftover from a very early
+    experiment, and none of the functionalities of ``SimpleEventEmitter`` were
+    ever used on ``Action`` and ``Transformation`` objects.
+
+  - Fix: caret movement off the visible region of a document scrolls the editing
+    pane to keep the caret visible. This used to work fine but a change made a
+    long time ago broke it. There was no test for it so it was missed. It is now
+    fixed.
+
+  - The ``ignore_module_config`` option is no longer useful, due to
+    the preceding change.
+
+  - The ``.xsl`` files have been moved out of the JavaScript codebase
+    and into the ``misc`` directory.
+
+  - Module name changes: underscore to dash in ``key_constants``,
+    ``context_menu``, ``completion_menu``, ``action_context_menu``,
+    ``generic_decorator``, ``input_trigger_factory``, ``generic_tr``.
+
+  - Variable name changes:
+
+    + ``Action`` class:
+
+       * To camelCase: ``needs_input``, ``_abbreviated_desc``, ``bound_handler``,
+         ``bound_terminal_handler``.
+
+       * Loss of underscore: ``_editor``, ``_desc``, ``_abbreviated_desc``,
+         ``_icon``.
+
+    + ``Transform`` class:
+
+        * To camelCase: ``needs_input``, ``node_type``, ``abbreviated_desc``,
+          ``icon_html``.
+
+        * ``type`` was renamed to ``transformationType`` to avoid the keyword.
+
+    + ``TreeUpdater`` class (and derived classes like ``GUIUpdater``):
+
+        * To camelCase, event fields ``old_value``, ``former_parent``,
+          ``new_value``.
+
+    + ``BaseMode`` (formerly known as ``Mode``):
+
+        * To camelCase: ``_wed_options``.
+
+        * Loss of leading underscore: ``_editor``, ``_options``,
+          ``_wed_options``.
+
+    + ``ContextMenu``:
+
+        * Loss of leading underscore: ``_menu``, ``_$menu``, ``_dismissed``,
+          ``_backdrop``, ``_dropdown``, ``_render``.
+
+    + ``Decorator``:
+
+        * To camelCase: ``_gui_updater``.
+
+        * Loss of leading underscore: ``_editor``, ``_domlistener``,
+          ``_gui_updater``.
+
+    + ``GenericDecorator``:
+
+        * Loss of leading underscore: ``_options``, ``_mode``.
+
+    + ``Mode`` in (``generic``):
+
+        * To camelCase: ``_tag_tr``.
+
+        * Loss of leading underscore: ``_tag_tr``, ``_resolver``.
+
+    + ``LabelManager``:
+
+        * Loss of leading underscore: ``_labelIndex``.
+
+  - Breaking API change: Complete revamp of caret management. All caret methods
+    are now available through ``.caretManager`` on the ``Editor`` object. Some
+    highlights of how the public API changed:
+
+    + ``.setCaret()`` is the single method by which to set new caret values whether
+      they be GUI or data carets.
+
+    + ``.getSelectionRange()`` no longer exists. Use ``.range``.
+
+    + ``.getDataSelectionRange()`` no longer exists. Use
+      ``.caretManager.sel.asDataCarets()`` and create a range from the pair if you
+      need to.
+
+    + ``.setSelectionRange()`` no longer exists. Use ``.setRange()``.
+
+    + ``.getGUICaret()`` no longer exists. Use ``.caret`` to get a raw caret or
+      ``.getNormalizedCaret()`` to get a normalized caret.
+
+    + All methods pertaining to movement no longer have a direction in their
+      name but take an argument to specify the direction. (e.g. ``.moveRight``
+      is now ``.move("right")``).
 
 * 0.28.0:
 

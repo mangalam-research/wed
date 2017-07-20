@@ -29,6 +29,8 @@
       <p rend="foo"></p>
       <p rend="wrap">Something</p>
       <p><monogr>This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines. This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines. This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines.</monogr></p>
+      <p n="">P</p>
+      <div type="a" subtype="b" rend="foo" rendition="bar"></div>
     </body>
   </text>
 </TEI>

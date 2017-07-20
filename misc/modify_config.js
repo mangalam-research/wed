@@ -1,117 +1,113 @@
-'use strict';
+"use strict";
 
-var util = require("./util");
-var captureConfigObject = util.captureConfigObject;
-var fileAsString = util.fileAsString;
+/* eslint-disable no-console */
 
-var ArgumentParser = require("argparse").ArgumentParser;
+const ArgumentParser = require("argparse").ArgumentParser;
+const util = require("./util");
 
-var parser = new ArgumentParser({
-    version: "0.1.0",
-    addHelp: true,
-    description: 'Modifies a requirejs config file.'});
+const captureConfigObject = util.captureConfigObject;
+const fileAsString = util.fileAsString;
+
+const parser = new ArgumentParser({
+  version: "0.2.0",
+  addHelp: true,
+  description: "Modifies a requirejs config file.",
+});
 
 //
 // This is a very ad-hoc tool designed to modify our stock requirejs
-// configuration to produce one suitable for the generated
-// documentation. It expects a file that contains only calls to:
+// configuration to produce one suitable for the generated documentation. It
+// expects a file that contains only calls to:
 //
 // - require.config
 //
-// - define: this define call must appear only once and can only
-//   define "wed/config" and the value of the module must be an
-//   object.
-//
+// - define: this define call must appear only once and the value of the module
+//   must be an object. The form of the define must be define({...}).
 //
 // Key names that begin with ``config`` perform manipulations of the
-// "wed/config" module. Otherwise, they perform manipulations of the
-// RequireJS configuration. (Note that because of this, this tool
-// cannot operate on the "config" part of a RequireJS
-// configuration. However, that way of configuring wed has been
-// deprecated, and wed's own codebase no longer uses it.)
+// module. Otherwise, they perform manipulations of the RequireJS
+// configuration. (Note that because of this, this tool cannot operate on the
+// "config" part of a RequireJS configuration. However, that way of configuring
+// wed has been deprecated, and wed's own codebase no longer uses it.)
 //
-// Functions may appear in the RequireJS configuration but not in
-// "wed/config".
+// Functions may appear in the RequireJS configuration but not in the module.
 //
 
-parser.addArgument(["-d", "--delete"],
-                   { help: "Delete a configuration key. Hierarchichal keys " +
-                     "are possible. For instance: config.wed/wed.x would " +
-                     "delete the 'x' key in the object associated with the " +
-                     "'wed/wed' key in the object associated with the " +
-                     "'config' key in the configuration passed to requirejs.",
-                     action: "append",
-                     dest: "del"});
+parser.addArgument(["-d", "--delete"], {
+  help: "Delete a configuration key. Hierarchichal keys " +
+    "are possible.",
+  action: "append",
+  dest: "del",
+});
 parser.addArgument(["config"]);
 
-var args = parser.parseArgs();
+const args = parser.parseArgs();
 
-var config_as_string = fileAsString(args.config);
+const configAsString = fileAsString(args.config);
 
-if (/>>>F<<</.test(config_as_string)) {
-    process.stderr.write(
-        "the input contains data that might make conversion fail");
-    process.exit(1);
+if (/>>>F<<</.test(configAsString)) {
+  process.stderr.write(
+    "the input contains data that might make conversion fail");
+  process.exit(1);
 }
 
 function deleteFrom(obj, parts) {
-    var step = obj;
+  let step = obj;
 
-    parts.slice(0, -1).forEach(function (x) {
-        if (step) {
-            step = step[x];
-        }
-    });
-
+  parts.slice(0, -1).forEach((x) => {
     if (step) {
-        delete step[parts[parts.length - 1]];
+      step = step[x];
     }
+  });
+
+  if (step) {
+    delete step[parts[parts.length - 1]];
+  }
 }
 
-var config = captureConfigObject(config_as_string);
+const config = captureConfigObject(configAsString);
 if (args.del) {
-    args.del.forEach(function (x) {
-        var parts = x.split('.');
-        deleteFrom(
-            config[parts[0] === "config" ? "wedConfig" : "requireConfig"],
-            parts);
-    });
+  args.del.forEach((x) => {
+    const parts = x.split(".");
+    deleteFrom(config[parts[0] === "config" ? "wedConfig" : "requireConfig"],
+               parts);
+  });
 }
 
-// It is not possible to have the handler output a function as
-// something which would create a function object when read back with
-// eval. At best, it can be output as a string representation of a
-// function. However, any other code which reads the result won't know
-// that it is meant to be interpreted as a function, not a string. So
-// we replace the value with a placeholder that we then replace with
-// the function's text.
+// It is not possible to have the handler output a function as something which
+// would create a function object when read back with eval. At best, it can be
+// output as a string representation of a function. However, any other code
+// which reads the result won't know that it is meant to be interpreted as a
+// function, not a string. So we replace the value with a placeholder that we
+// then replace with the function's text.
 //
-// Note: this code relies on JSON.stringify calling the replacer
-// function in the same order as the order in which its results appear
-// in the final JSON.
+// Note: this code relies on JSON.stringify calling the replacer function in the
+// same order as the order in which its results appear in the final JSON.
 //
-// As of ECMAScript 5th edition, this is the case. (ECMAScript defines
-// the algorithm of JSON.stringify.)
+// As of ECMAScript 5th edition, this is the case. (ECMAScript defines the
+// algorithm of JSON.stringify.)
 //
-var functions = [];
-var placeholder = ">>>F<<<";
+const functions = [];
+const placeholder = ">>>F<<<";
 function handler(key, value) {
-    if (value instanceof Function) {
-        functions.push(value);
-        return placeholder;
-    }
+  if (value instanceof Function) {
+    functions.push(value);
+    return placeholder;
+  }
 
-    return value;
+  return value;
 }
 
-var pre = JSON.stringify(config.requireConfig, handler, 4);
+if (config.requireConfig) {
+  const pre = JSON.stringify(config.requireConfig, handler, 4);
 
-var post = pre.replace(new RegExp('"' + placeholder + '"', 'g'),
-                       functions.shift.bind(functions));
+  const post = pre.replace(new RegExp(`"${placeholder}"`, "g"),
+                           functions.shift.bind(functions));
 
-console.log("require.config(" + post + ");");
+  console.log(`require.config(${post});`);
+}
 
 if (config.wedConfig && Object.keys(config.wedConfig).length > 0) {
-    console.log("define(\"wed/config\", " +
-                JSON.stringify(config.wedConfig, undefined, 4) + ");");
+  console.log(
+    `define(${JSON.stringify(config.wedConfig, undefined, 4)});`);
 }

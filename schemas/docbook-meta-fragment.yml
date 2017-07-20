@@ -1,0 +1,6 @@
+version: "2"
+namespaces:
+  "": http://docbook.org/ns/docbook
+  svg: http://www.w3.org/2000/svg
+  mml: http://www.w3.org/1998/Math/MathML
+  xlink: http://www.w3.org/1999/xlink

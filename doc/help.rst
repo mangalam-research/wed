@@ -347,6 +347,27 @@ on a white background.
    This figure shows a ``p`` element with the attributes ``rend`` and
    ``style``.
 
+Modes may configure wed so that some elements are hidden if the caret is out of
+a start label, but shown then the caret is moved inside the start label. Labels
+that have hidden attributes will show an ellipsis (``...``) before the right
+angle bracket (``>``).
+
+.. figure:: help_images/attributes_ellipsis.png
+   :align: center
+   :alt: An example of start label with hidden attributes.
+
+   This figure shows a ``div`` element with the ellipsis that indicates some
+   attributes have been hidden.
+
+When the caret is moved inside the start label, the hidden attributes are shown,
+and they are hidden again as soon as the caret is moved out of the start label.
+
+.. figure:: help_images/attributes_shown.gif
+   :align: center
+   :alt: An example of start label with hidden attributes that are shown.
+
+   This figure shows a ``div`` element with its hidden attributes shown.
+
 .. note:: Attribute visibility is determined by the mode being used to
           edit the file, and how this mode is configured. The generic
           mode by default shows attributes. It is possible for an
@@ -848,7 +869,7 @@ Browser Requirements
 ====================
 
 Wed is primarily developed using a recent version of Chrome (version
-51 now, earlier versions have also been used earlier). (But see a note
+59 now, earlier versions have also been used earlier). (But see a note
 about Chrome 34 below.)
 
 Here is the list of officially supported browsers, in order of
@@ -877,14 +898,9 @@ unlikely to ever be supported:
 
 * Firefox. It deserves its own `discussion <Firefox_>`_.
 
-* IE 10. Wed used to be routinely tested on IE 10, but Microsoft no
-  longer supports it. It is very unlikely that we'd resume support for
-  IE 10. We'd need a) a substantial demand for it and b) people
-  willing to participate in providing support.
-
-* IE 9. Same caveats as IE 10 above. Moreover, as time goes by, wed is
-  accumulating features that are not supported natively in IE 9, so
-  the possibility of supporting IE 9 is becoming more and more remote.
+* IE 10 and 9. Wed used to be routinely tested on IE 10, but Microsoft no longer
+  supports it. Resuming support for IE 10 or 9 is extremely unlikely, because
+  wed has accumulated features and methods that do not work on these browsers.
 
 * Chrome 34: the luminaries at Google decided to remove
   ``Attr.ownerElement`` from Chrome 34. It was reintroduced in

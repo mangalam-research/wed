@@ -206,20 +206,11 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    # We must not call it before the body is fully loaded.
     driver.execute_script("""
-    delete window.__selenic_scrolled;
-    jQuery(function () {
-      window.scrollTo(0, wed_editor._$scroller.offset().top);
-      window.__selenic_scrolled = true;
-    });
+    window.scrollTo(0,
+      document.querySelector(".wed-scroller").getBoundingClientRect().top +
+      document.body.scrollTop);
     """)
-
-    def cond(*_):
-        return driver.execute_script("""
-        return window.__selenic_scrolled
-        """)
-    util.wait(cond)
 
     context.window_scroll_top = util.window_scroll_top()
     context.window_scroll_left = util.window_scroll_left()
@@ -242,34 +233,19 @@ def step_impl(context, choice):
     pos_before = getattr(context, "caret_screen_position",
                          None)
 
-    if choice == "completely ":
-        scroll_by = driver.execute_script("""
-        return wed_editor._scroller.scrollHeight;
-        """)
-    else:
-        scroll_by = 10
-
-    # We must not call it before the body is fully loaded.
-    driver.execute_script("""
+    scroll_by = None if choice == "completely " else 10
+    scroll_top = driver.execute_script("""
     var by = arguments[0];
-    delete window.__selenic_scrolled;
-    jQuery(function () {
-      var _scroller = window.wed_editor._scroller;
-      _scroller.scrollTop += by;
-      window.__selenic_scrolled = _scroller.scrollTop;
-    });
+    var scroller = document.querySelector(".wed-scroller");
+    if (!by) {
+      by = scroller.scrollHeight;
+    }
+    scroller.scrollTop += by;
+    return scroller.scrollTop;
     """, scroll_by)
 
-    def cond(*_):
-        ret = driver.execute_script("""
-        return window.__selenic_scrolled;
-        """)
-        # Trick to be able to return 0 if ever needed...
-        return False if ret is None else [ret]
-
-    scroll_top = util.wait(cond)
     context.scrolled_editor_pane_by = scroll_by
-    context.editor_pane_new_scroll_top = scroll_top[0]
+    context.editor_pane_new_scroll_top = scroll_top
 
     if pos_before is not None:
         # Wait until the caret actually change position.
@@ -356,30 +332,13 @@ def step_impl(context, choice, by):
     driver = context.driver
     util = context.util
 
-    if choice == "completely down":
-        # We must not call it before the body is fully loaded.
-        driver.execute_script("""
-        delete window.__selenic_scrolled;
-        jQuery(function () {
-        window.scrollTo(0, document.body.scrollHeight);
-        window.__selenic_scrolled = true;
-        });
-        """)
-    else:
-        # We must not call it before the body is fully loaded.
-        driver.execute_script("""
-        delete window.__selenic_scrolled;
-        jQuery(function () {
-        window.scrollTo(0, window.scrollY + arguments[0]);
-        window.__selenic_scrolled = true;
-        });
-        """, by)
+    by = None if by is None else int(by)
 
-    def cond(*_):
-        return driver.execute_script("""
-        return window.__selenic_scrolled;
-        """)
-    util.wait(cond)
+    driver.execute_script("""
+    var by = arguments[0];
+    window.scrollTo(0, by ? (window.scrollY + by) :
+                         document.body.scrollHeight);
+    """, by)
 
     context.window_scroll_top = util.window_scroll_top()
     context.window_scroll_left = util.window_scroll_left()

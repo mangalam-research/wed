@@ -20,9 +20,8 @@ def step_impl(context, already=None, empty=None):
     util = context.util
     builder = context.builder
 
-    driver.get(builder.WED_SERVER + "/files.html")
-
     if already:
+        driver.get(builder.WED_SERVER + "/blank.html")
         contents = "" if empty else "preloaded!"
         # This may be the first page loaded in a test. When on
         # SauceLabs, the time it takes to load can be considerable,
@@ -31,26 +30,14 @@ def step_impl(context, already=None, empty=None):
             error = driver.execute_async_script("""
             var contents = arguments[0];
             var done = arguments[1];
-            require(["angular", "localforage", "wed/savers/localforage"],
-            function (ng, lf, saver) {
-                saver.config();
-                lf.setItem("test.xml",
-                           saver.makeFileRecord("test.xml", contents),
-                           function () {
-                    var scope = ng.element(
-                                    '[ng-controller="files-controller"]')
-                        .scope();
-                    // If scope is not set, we have not initialized
-                    // angular yet.
-                    if (scope)
-                        scope.$apply('refresh()');
-                    done();
-                });
-            }, function (err) {
-               done(err);
-            });
+            require(["wed-store"], function (store) {
+              store.put(store.makeFileRecord("test.xml", contents)).then(
+                function () { done(); });
+            }, done);
             """, contents)
             assert_is_none(error)
+
+    driver.get(builder.WED_SERVER + "/dashboard/")
 
     # This will hold the state for the tests
     context.previous_file_state = {}
@@ -63,30 +50,25 @@ def step_impl(context, count):
     if count == "are no files":
         def check(driver):
             ret = driver.execute_script("""
-            var table = document.getElementById("files-table");
+            var table = document.querySelector("xml-files-component table");
             if (!table)
                 return [false, "the table is being manipulated"];
-            if (table.parentNode.style.display === "none")
-                return [false, "the table is hidden"];
-            var td = document.querySelector("tr.files-table-empty");
-            return [!td.classList.contains("ng-hide"),
-                    "the empty table element is hidden"];
+            var empty = document.querySelector("tr.files-table-empty");
+            return [!!empty, "the empty table element is absent"];
             """)
             return Result(ret[0], ret[1])
     elif count == "is one file":
         def check(driver):
             ret = driver.execute_script("""
             var count = arguments[0];
-            var table = document.getElementById("files-table");
+            var table = document.querySelector("xml-files-component table");
             if (!table)
                 return [false, "the table is being manipulated"];
-            if (table.parentNode.style.display === "none")
-                return [false, "the table is hidden"];
-            var td = document.querySelector("tr.files-table-empty");
-            if (!td.classList.contains("ng-hide"))
-                return [false, "the element for the empty list is not hidden"];
+            var empty = document.querySelector("tr.files-table-empty");
+            if (empty)
+                return [false, "the element for the empty list is present"];
             var trs = document.querySelectorAll(
-                "#files-table>tbody>tr:not(.ng-hide)");
+                "xml-files-component table>tbody>tr:not(.files-table-empty)");
             // We have one header row
             var data_count = trs.length - 1;
             if (data_count !== count)
@@ -187,12 +169,12 @@ def get_file_state(context, name):
             {literal: text, seq: Date.parse(text.replace(/\u200E/g, ''))};
     }
 
-    var trs = document.querySelectorAll("#files-table>tbody>tr");
+    var trs = document.querySelectorAll("xml-files-component table>tbody>tr");
     var tr = Array.prototype.filter.call(trs, function (tr) {
         var tds = tr.getElementsByTagName("td");
-        if (!tds.length)
+        if (!tds.length || tds.length < 2)
             return false;
-        return tds[0].textContent === name;
+        return tds[1].textContent === name;
     })[0];
 
     var saved, uploaded, downloaded, exists;
@@ -206,9 +188,9 @@ def get_file_state(context, name):
         exists = true;
         var tds = tr.getElementsByTagName("td");
 
-        saved = handleDate(tds[1]);
-        uploaded = handleDate(tds[2]);
-        downloaded = handleDate(tds[3]);
+        saved = handleDate(tds[2]);
+        uploaded = handleDate(tds[3]);
+        downloaded = handleDate(tds[4]);
     }
     return { saved: saved, uploaded: uploaded, downloaded: downloaded,
              exists: exists };
@@ -218,7 +200,8 @@ def get_file_state(context, name):
 @when(ur'(?:the user )?sets the uploading field to upload "(?P<name>.*?)"')
 def step_impl(context, name):
     driver = context.driver
-    file_el = driver.find_element_by_id("load-file")
+    file_el = driver.find_element_by_css_selector(
+        "xml-files-component input[name='load-file']")
     context.previous_file_state[name] = get_file_state(context, name)
     file_el.send_keys(os.path.abspath("sample_documents/" + name))
 
@@ -239,8 +222,9 @@ def step_impl(context, number):
     driver = context.driver
     button = driver.execute_script("""
     var number = arguments[0];
-    return document.querySelector("#files-table>tbody>tr:nth-of-type(" +
-                                   (number + 1) + ") a.btn[title='Download']");
+    return document.querySelector(
+      "xml-files-component table>tbody>tr:nth-of-type(" +
+      (number + 1) + ") a.btn[title='Download']");
     """, int(number))
     button.click()
     # This acutally is needed only in IE and works only in IE.
@@ -254,8 +238,8 @@ def step_impl(context, number):
 def step_impl(context, number):
     driver = context.driver
     driver.find_element_by_css_selector(
-        "#files-table>tbody>tr:nth-of-type({0}) a.btn[title='Delete']"
-        .format((int(number) + 1))).click()
+        "xml-files-component table>tbody>tr:nth-of-type({0}) "
+        "a.btn[title='Delete']".format((int(number) + 1))).click()
 
 
 @when(ur'(?:the user )?(?P<choice>accepts|cancels) the '
@@ -283,9 +267,8 @@ def step_impl(context, name, contents=None):
     ret = driver.execute_async_script("""
     var name = arguments[0];
     var done = arguments[1];
-    require(["localforage", "wed/savers/localforage"], function (lf, saver) {
-        saver.config();
-        lf.getItem(name).then(function (item) {
+    require(["wed-store"], function (store) {
+        store.get(name).then(function (item) {
             done([null, item.data]);
         });
     }, function (err) {
@@ -306,3 +289,21 @@ def step_impl(context, name, contents=None):
 @then(ur'the file is loaded in the editor')
 def step_impl(context):
     wait_for_editor(context)
+
+
+@when(ur'the user clicks the edit button for the "(?P<name>.*?)" file')
+def step_impl(context, name):
+    util = context.util
+
+    def check(driver):
+        buttons = driver.find_elements_by_css_selector(
+            ("xml-files-component table>tbody>tr[data-record-name='{0}'] "
+             "a.btn[title='Edit']").format(name))
+        if buttons:
+            return Result(True, buttons[0])
+        return Result(False, None)
+
+    result = Condition(util, check).wait()
+
+    assert_true(result, "there should be a button")
+    result.payload.click()

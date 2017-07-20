@@ -475,16 +475,17 @@ def step_impl(context):
 @when(ur"the user selects text on (?P<what>an element's label|phantom text)")
 def step_impl(context, what):
     driver = context.driver
-    selector = ".__end_label._title_label>*" if what == "an element's label" \
-               else "._text._phantom"
+    label = what == "an element's label"
+    selector = ".__end_label._title_label>*" if label else "._text._phantom"
 
     # Faster than using 4 Selenium operations.
     label, start, end = driver.execute_script("""
     var selector = arguments[0];
+    var label = arguments[1];
 
     var el = jQuery(selector)[0];
     el.scrollIntoView();
-    var text = el.firstChild;
+    var text = label ? el.firstChild.firstChild : el.firstChild;
     var range = document.createRange();
     range.setStart(text, 0);
     range.setEnd(text, text.nodeValue.length);
@@ -492,7 +493,7 @@ def step_impl(context, what):
     return [el.parentNode,
             {left: rect.left + 5, top: rect.top + rect.height / 2},
             {left: rect.right - 5, top: rect.top + rect.height / 2}];
-    """, selector)
+    """, selector, label)
 
     context.clicked_element = label
 
@@ -726,7 +727,7 @@ def step_impl(context):
         .perform()
 
     context.caret_path = driver.execute_script("""
-    var caret = wed_editor.getDataCaret();
+    var caret = wed_editor.caretManager.getDataCaret();
     return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
     """)
 
@@ -747,7 +748,7 @@ def step_impl(context):
 def step_impl(context):
     driver = context.driver
     caret_path = driver.execute_script("""
-    var caret = wed_editor.getDataCaret();
+    var caret = wed_editor.caretManager.getDataCaret();
     return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
     """)
     assert_equal(context.caret_path, caret_path)

@@ -1,155 +1,122 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2015 Mangalam Research Center for Buddhist Languages
+ * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["mocha/mocha", "chai", "jquery", "wed/wed",
-        "wed/domutil", "wed/onerror", "wed/log",
-        "wed/dloc", "wed/util", "salve", "wed/transformation",
-        "text!../../build/schemas/tei-simplified-rng.js",
-        "text!../../build/test-files/wed_test_data/" +
-        "source_converted.xml"],
-       function (mocha, chai, $, wed, domutil,
-                 onerror, log, dloc, util, salve, transformation,
-                 schema, source) {
-'use strict';
+define(function f(require) {
+  "use strict";
+  var chai = require("chai");
+  var wed = require("wed/wed");
+  var onerror = require("wed/onerror");
+  var log = require("wed/log");
+  var salve = require("salve");
+  var transformation = require("wed/transformation");
+  var schema = require("text!../../build/schemas/tei-simplified-rng.js");
+  var source =
+        require(
+          "text!../../build/test-files/wed_test_data/source_converted.xml");
+  var mergeOptions = require("merge-options");
+  var globalConfig = require("global-config");
 
-var _indexOf = Array.prototype.indexOf;
-
-var options = {
+  var options = {
     schema: undefined,
     mode: {
-        path: 'wed/modes/test/test_mode',
-        options: {
-            meta: {
-                path: 'wed/modes/generic/metas/tei_meta',
-                options: {
-                    metadata: '../../../../../schemas/tei-metadata.json'
-                }
-            }
-        }
-    }
-};
-var assert = chai.assert;
+      path: "wed/modes/test/test-mode",
+      options: {
+        metadata: "/build/schemas/tei-metadata.json",
+      },
+    },
+  };
+  var assert = chai.assert;
 
-var option_stack = [options];
+  var option_stack = [options];
 
-function caretCheck(editor, container, offset, msg) {
-    var caret = editor.getGUICaret(true);
-    assert.isTrue(!!caret, "there should be a caret");
-    if (offset !== null) {
-        assert.equal(caret.node, container, msg + " (container)");
-        assert.equal(caret.offset, offset, msg + " (offset)");
-    }
-    else {
-        // A null offset means we are not interested in the specific
-        // offset.  We just want to know that the caret is *inside*
-        // container either directly or indirectly.
-        assert.isTrue($(caret.node).closest(container).length !== 0,
-                      msg + " (container)");
-    }
-}
-
-function dataCaretCheck(editor, container, offset, msg) {
-    var data_caret = editor.getDataCaret();
-    assert.equal(data_caret.node, container, msg + " (container)");
-    assert.equal(data_caret.offset, offset, msg + " (offset)");
-}
-
-describe("transformation", function () {
-    before(function () {
-        // Resolve the schema to a grammar.
-        options.schema = salve.constructTree(schema);
+  describe("transformation", function transformationBlock() {
+    before(function before() {
+      // Resolve the schema to a grammar.
+      options.schema = salve.constructTree(schema);
     });
 
     var editor;
-    beforeEach(function (done) {
-        editor = new wed.Editor();
-        editor.addEventListener("initialized", function () {
-            done();
-        });
-        var wedroot = window.parent.document.getElementById("wedframe")
+    beforeEach(function beforeEach(done) {
+      editor = new wed.Editor();
+      editor.addEventListener("initialized", function cb() {
+        done();
+      });
+      var wedroot = window.parent.document.getElementById("wedframe")
             .contentWindow.document.getElementById("wedroot");
-        editor.init(wedroot, option_stack[0], source);
+      editor.init(wedroot,
+                  mergeOptions({}, globalConfig.config, option_stack[0]),
+                  source);
     });
 
-    afterEach(function () {
-        if (editor)
-            editor.destroy();
-        editor = undefined;
-        assert.isFalse(onerror.is_terminating(),
-                       "test caused an unhandled exception to occur");
-        // We don't reload our page so we need to do this.
-        onerror.__test.reset();
+    afterEach(function afterEach() {
+      if (editor) {
+        editor.destroy();
+      }
+      editor = undefined;
+      assert.isFalse(onerror.is_terminating(),
+                     "test caused an unhandled exception to occur");
+      // We don't reload our page so we need to do this.
+      onerror.__test.reset();
+      log.clearAppenders();
     });
 
-    describe("swapWithPreviousHomogeneousSibling", function () {
-        it("swaps", function () {
-            var ps = editor.data_root.querySelectorAll("body>p");
-            transformation
-                .swapWithPreviousHomogeneousSibling(editor, ps[1]);
+    describe("swapWithPreviousHomogeneousSibling", function swapWithPrevious() {
+      it("swaps", function test() {
+        var ps = editor.data_root.querySelectorAll("body>p");
+        transformation.swapWithPreviousHomogeneousSibling(editor, ps[1]);
 
-            var ps2 = editor.data_root.querySelectorAll("body>p");
-            assert.equal(ps[0], ps2[1]);
-            assert.equal(ps2[1], ps[0]);
-        });
+        var ps2 = editor.data_root.querySelectorAll("body>p");
+        assert.equal(ps[0], ps2[1]);
+        assert.equal(ps2[1], ps[0]);
+      });
 
-        it("does nothing if the element is the first child", function () {
-            var ps = editor.data_root.querySelectorAll("publicationStmt>p");
-            transformation
-                .swapWithPreviousHomogeneousSibling(editor, ps[0]);
+      it("does nothing if the element is the first child", function test() {
+        var ps = editor.data_root.querySelectorAll("publicationStmt>p");
+        transformation.swapWithPreviousHomogeneousSibling(editor, ps[0]);
 
-            var ps2 = editor.data_root
-                .querySelectorAll("publicationStmt>p");
-            assert.equal(ps[0], ps2[0]);
-        });
+        var ps2 = editor.data_root.querySelectorAll("publicationStmt>p");
+        assert.equal(ps[0], ps2[0]);
+      });
 
-        it("does nothing if the previous element is not homogeneous",
-           function () {
-            var divs = editor.data_root.querySelectorAll("body>div");
-            transformation
-                .swapWithPreviousHomogeneousSibling(editor, divs[0]);
+      it("does nothing if the previous element is not homogeneous",
+         function test() {
+           var divs = editor.data_root.querySelectorAll("body>div");
+           transformation.swapWithPreviousHomogeneousSibling(editor, divs[0]);
 
-            var divs2 = editor.data_root
-                .querySelectorAll("body>div");
-            assert.equal(divs[0].previousSibling, divs[0].previousSibling);
-        });
+           var divs2 = editor.data_root.querySelectorAll("body>div");
+           assert.equal(divs[0].previousSibling, divs2[0].previousSibling);
+         });
     });
 
-    describe("swapWithNextHomogeneousSibling", function () {
-        it("swaps", function () {
-            var ps = editor.data_root.querySelectorAll("body>p");
-            transformation.swapWithNextHomogeneousSibling(editor, ps[0]);
+    describe("swapWithNextHomogeneousSibling", function swaptWithNext() {
+      it("swaps", function test() {
+        var ps = editor.data_root.querySelectorAll("body>p");
+        transformation.swapWithNextHomogeneousSibling(editor, ps[0]);
 
-            var ps2 = editor.data_root.querySelectorAll("body>p");
-            assert.equal(ps[0], ps2[1]);
-            assert.equal(ps2[1], ps[0]);
-        });
+        var ps2 = editor.data_root.querySelectorAll("body>p");
+        assert.equal(ps[0], ps2[1]);
+        assert.equal(ps2[1], ps[0]);
+      });
 
-        it("does nothing if the element is the last child", function () {
-            var ps = editor.data_root.querySelectorAll("publicationStmt>p");
-            transformation
-                .swapWithNextHomogeneousSibling(editor, ps[ps.length - 1]);
+      it("does nothing if the element is the last child", function test() {
+        var ps = editor.data_root.querySelectorAll("publicationStmt>p");
+        transformation.swapWithNextHomogeneousSibling(editor, ps[ps.length - 1]);
 
-            var ps2 = editor.
-                data_root.querySelectorAll("publicationStmt>p");
-            assert.equal(ps[ps.length - 1], ps2[ps.length - 1]);
-        });
+        var ps2 = editor.data_root.querySelectorAll("publicationStmt>p");
+        assert.equal(ps[ps.length - 1], ps2[ps.length - 1]);
+      });
 
-        it("does nothing if the next element is not homogeneous",
-           function () {
-            var divs = editor.data_root.querySelectorAll("body>div");
-            transformation
-                .swapWithNextHomogeneousSibling(editor, divs[0]);
+      it("does nothing if the next element is not homogeneous", function test() {
+        var divs = editor.data_root.querySelectorAll("body>div");
+        transformation.swapWithNextHomogeneousSibling(editor, divs[0]);
 
-            var divs2 = editor.data_root
-                .querySelectorAll("body>div");
-            assert.equal(divs[0].previousSibling, divs[0].previousSibling);
-        });
-});
-
-});
-
+        var divs2 = editor.data_root.querySelectorAll("body>div");
+        assert.equal(divs[0].previousSibling, divs2[0].previousSibling);
+      });
+    });
+  });
 });
 
 //  LocalWords:  rng wedframe RequireJS dropdown Ctrl Mangalam MPL

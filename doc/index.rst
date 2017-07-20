@@ -36,8 +36,11 @@ consult:
 * :doc:`tech_notes` to learn about wed's internals, design decisions,
   or about more complex usage scenarios,
 
-* the `API documentation <api/index.html>`_ to write modes or extensions
-  for wed.
+* the `API documentation <api/index.html>`_ to write modes or extensions for
+  wed. **IMPORTANT NOTE: the API documentation is currently in shambles. This
+  will be the case for as long as the transition to TypeScript is not
+  complete.** In the meantime, we recommend reading the documentation comments
+  in the source code.
 
 Table of Contents
 =================
@@ -48,6 +51,7 @@ Table of Contents
    demos
    help
    usage
+   mode_design
    tech_notes
 
 Downloads
@@ -62,7 +66,7 @@ License
 =======
 
 Wed is released under the `Mozilla Public License version 2.0
-<http://www.mozilla.org/MPL/2.0/>`_. Copyright 2013-2016 Mangalam Research
+<http://www.mozilla.org/MPL/2.0/>`_. Copyright Mangalam Research
 Center for Buddhist Languages, Berkeley, CA.
 
 Credits
