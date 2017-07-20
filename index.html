@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; Wed v0.28.1 documentation</title>
+  <title>Introduction &mdash; Wed v0.28.2-152-g4525c15d documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.28.1 documentation" href="#"/>
+    <link rel="top" title="Wed v0.28.2-152-g4525c15d documentation" href="#"/>
         <link rel="next" title="Demos" href="demos.html"/> 
 
   
@@ -87,6 +87,8 @@
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html">Creating a Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html#submodes">Submodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tech_notes.html">Advanced Usage Notes</a></li>
 </ul>
 
@@ -163,8 +165,11 @@ consult:</p>
 build and test it,</li>
 <li><a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a> to learn about wed&#8217;s internals, design decisions,
 or about more complex usage scenarios,</li>
-<li>the <a class="reference external" href="api/index.html">API documentation</a> to write modes or extensions
-for wed.</li>
+<li>the <a class="reference external" href="api/index.html">API documentation</a> to write modes or extensions for
+wed. <strong>IMPORTANT NOTE: the API documentation is currently in shambles. This
+will be the case for as long as the transition to TypeScript is not
+complete.</strong> In the meantime, we recommend reading the documentation comments
+in the source code.</li>
 </ul>
 <div class="section" id="table-of-contents">
 <h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
@@ -215,7 +220,7 @@ for wed.</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#using">Using</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="usage.html#sources-of-configuration">Sources of Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#options">Options</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#errors">Errors</a></li>
@@ -224,6 +229,8 @@ for wed.</li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#contributing">Contributing</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html">Creating a Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html#submodes">Submodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tech_notes.html">Advanced Usage Notes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tech_notes.html#build-information">Build Information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tech_notes.html#deployment-considerations">Deployment Considerations</a></li>
@@ -234,7 +241,6 @@ for wed.</li>
 <li class="toctree-l3"><a class="reference internal" href="tech_notes.html#localforage-saver">Localforage Saver</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tech_notes.html#creating-a-mode">Creating a Mode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tech_notes.html#testing">Testing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tech_notes.html#browser-independent-tests">Browser-Independent Tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tech_notes.html#in-browser-tests">In-Browser Tests</a></li>
@@ -276,7 +282,7 @@ or <a class="reference external" href="https://github.com/mangalam-research/wed/
 </div>
 <div class="section" id="license">
 <h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
-<p>Wed is released under the <a class="reference external" href="http://www.mozilla.org/MPL/2.0/">Mozilla Public License version 2.0</a>. Copyright 2013-2016 Mangalam Research
+<p>Wed is released under the <a class="reference external" href="http://www.mozilla.org/MPL/2.0/">Mozilla Public License version 2.0</a>. Copyright Mangalam Research
 Center for Buddhist Languages, Berkeley, CA.</p>
 </div>
 <div class="section" id="credits">
@@ -334,7 +340,7 @@ represent those of the National Endowment for the Humanities.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.28.1',
+            VERSION:'v0.28.2-152-g4525c15d',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

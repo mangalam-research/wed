@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/xhtml; charset=utf-8"/>
+    <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
+    <script type="text/javascript" src="lib/wed/polyfills/contains.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/closest.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/innerHTML_for_XML.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/firstElementChild_etc.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/normalize.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/stringRepeat.js"></script>
+    <script type="text/javascript" src="lib/requirejs/require.js"></script>
+    <script type="text/javascript" src="requirejs-config.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <script>
+      require.config({
+          paths: {
+              'mocha': '/node_modules/mocha',
+              'chai': '/node_modules/chai/chai'
+          },
+          shim: {
+              'mocha/mocha': {
+                  exports: "mocha",
+                  init: function () { this.mocha.setup('bdd'); return {"mocha": this.mocha, "Mocha": this.Mocha}; }
+              }
+          },
+      });
+
+      var config = require.s.contexts._.config;
+      if (config.bundles && config.bundles["wed/wed"]) {
+          var wed_bundle = config.bundles["wed/wed"].slice();
+          wed_bundle.push(
+              "wed/validator",
+              "salve",
+              "wed/oop",
+              "wed/key",
+              "wed/key_constants",
+              "wed/transformation",
+              "wed/gui/modal",
+              "wed/domutil",
+              "wed/convert",
+              "rangy",
+              "wed/dloc",
+              "wed/util",
+              "wed/domlistener",
+              "wed/tree_updater"
+          );
+          require.config({
+              bundles: {
+                  "wed/wed": wed_bundle
+              }
+          });
+      }
+
+      window.__WED_TESTING = {
+        testing: true,
+      };
+
+      require(["jquery", "mocha/mocha", "chai", "browser_test/global",
+      "wed/onerror", "urijs/URI", "last-resort"], start);
+
+      function start($, mocha, chai, global, onerror, URI, lr) {
+          var assert = chai.assert;
+
+          // Reset the server before doing anything.
+          before(function (done) {
+              // This eliminates the global 'uncaughtException' handler so
+              // that our own handler can detect errors and handle them.
+              mocha.Mocha.process.removeListener('uncaughtException');
+              global.reset(done);
+          });
+
+          beforeEach(function () {
+              // We want to reinstall with each test so that
+              // the state of the onError object is fresh.
+              var onError = lr.install(window, { force: true });
+              onError.register(onerror.handler);
+          });
+
+          afterEach(function () {
+              if (onerror.is_terminating())
+                  this.test.error(new Error("test generated an uncaught exception"));
+          });
+          describe("test-suite", function () {
+              // What we are doing here is testing that we are indeed able
+              // to detect that an uncaught exception happened while running
+              // the test suite because onerror overrides mocha's usual
+              // unhandled exception handling.
+
+              // after() might seem more appropriate but to ensure
+              // that the order in which this code is run relative to
+              // the global afterEach above, we made it an afterEach.
+              afterEach(function (done) {
+                  assert.isTrue(onerror.is_terminating());
+                  onerror.__test.reset();
+                  global.reset(done);
+              });
+              it("failing", function (done) {
+                  window.setTimeout(function () {
+                      throw new Error("failing on purpose");
+                  }, 0);
+                  // Make sure we execute **after** the failure.
+                  window.setTimeout(function () {
+                      done();
+                  }, 1);
+              });
+          });
+
+          var query = new URI().query(true);
+          var nohtml = query.nohtml;
+          var timeout = query.timeout;
+
+          var ReporterBase = !nohtml ? mocha.Mocha.reporters.HTML :
+              mocha.Mocha.reporters.Base;
+
+          function MyReporter(runner) {
+              ReporterBase.call(this, runner);
+
+              function emit(message) {
+                  $.ajax({
+                      url: '/test-results',
+                      type: "POST",
+                      data: JSON.stringify(message),
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                      traditional: false,
+                  });
+              }
+
+              function clean(test, err) {
+                  return {
+                      title: test.title,
+                      fullTitle: test.fullTitle(),
+                      duration: test.duration,
+                      err: err && {
+                        message: err.message,
+                        stack: err.stack,
+                      }
+                  };
+              }
+
+              runner.on('start', function () {
+                  emit(['start', { total: runner.total }]);
+              });
+
+              runner.on('pass', function(test){
+                  emit(['pass', clean(test)]);
+              });
+
+              runner.on('fail', function(test, err){
+                  emit(['fail', clean(test, err)]);
+              });
+
+              runner.on('end', function() {
+                  emit(['end', this.stats]);
+              }.bind(this));
+          }
+          MyReporter.prototype = Object.create(ReporterBase.prototype);
+
+          mocha.mocha.reporter(MyReporter);
+
+          if (timeout !== undefined)
+            mocha.mocha.timeout(parseInt(timeout));
+
+          require(["browser_test/validator_test",
+                    "browser_test/jquery.findandself_test",
+                    "browser_test/domutil_test",
+                    "browser_test/wed_test", "browser_test/input_trigger_test",
+                    "browser_test/input_trigger_factory_test",
+                    "browser_test/modal_test",
+                    "browser_test/domlistener_test",
+                    "browser_test/convert_test",
+                    "browser_test/guiroot_test",
+                    "browser_test/transformation_test"], function () {
+              // Allow uncaught was turned on early on in the test suite's existence.
+              // It was used to handle cases that *probably* are no longer an issue.
+              // We turned it back off because it has a severe consequence that non-terminating
+              // or failing promises are not detectable when turned on:
+              //
+              // https://github.com/mochajs/mocha/issues/2281
+              //
+              // If somehow we need this back on, we'll have to fix the problem above.
+              //
+              // mocha.mocha.allowUncaught();
+              mocha.mocha.run();
+          });
+      }
+    </script>
+  </body>
+</html>

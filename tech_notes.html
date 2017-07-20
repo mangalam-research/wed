@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage Notes &mdash; Wed v0.28.1 documentation</title>
+  <title>Advanced Usage Notes &mdash; Wed v0.28.2-152-g4525c15d documentation</title>
   
 
   
@@ -33,8 +33,8 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.28.1 documentation" href="index.html"/>
-        <link rel="prev" title="Using Wed in an Application" href="usage.html"/> 
+    <link rel="top" title="Wed v0.28.2-152-g4525c15d documentation" href="index.html"/>
+        <link rel="prev" title="Creating a Mode" href="mode_design.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -87,6 +87,8 @@
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html">Creating a Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html#submodes">Submodes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage Notes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#build-information">Build Information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#deployment-considerations">Deployment Considerations</a></li>
@@ -97,7 +99,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#localforage-saver">Localforage Saver</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#creating-a-mode">Creating a Mode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#browser-independent-tests">Browser-Independent Tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#in-browser-tests">In-Browser Tests</a></li>
@@ -184,142 +185,123 @@
 <h1>Advanced Usage Notes<a class="headerlink" href="#advanced-usage-notes" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="build-information">
 <h2>Build Information<a class="headerlink" href="#build-information" title="Permalink to this headline">¶</a></h2>
-<p>Every time a build is performed, the building process stores
-information about the build into a file which at run time is available
-as a module at the <code class="docutils literal"><span class="pre">lib/wed/build-info</span></code> location relative to the
-root of the build directory. This module contains two fields:</p>
+<p>Every time a build is performed, the building process stores information about
+the build into a file which at run time is available as a module at the
+<code class="docutils literal"><span class="pre">lib/wed/build-info</span></code> location relative to the root of the build
+directory. This module contains two fields:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">desc</span></code> is a description of the build. This string is created by
-running <code class="docutils literal"><span class="pre">git</span> <span class="pre">describe</span></code> and adding to the result the string
-<code class="docutils literal"><span class="pre">-unclean</span></code> if the build was done with an unclean working tree.</li>
-<li><code class="docutils literal"><span class="pre">date</span></code> is the date of the build. (To be precise, it is the date at
-which the build <code class="docutils literal"><span class="pre">build-info</span></code> module was generated.)</li>
+<li><code class="docutils literal"><span class="pre">desc</span></code> is a description of the build. This string is created by running
+<code class="docutils literal"><span class="pre">git</span> <span class="pre">describe</span></code> and adding to the result the string <code class="docutils literal"><span class="pre">-unclean</span></code> if the build
+was done with an unclean working tree.</li>
+<li><code class="docutils literal"><span class="pre">date</span></code> is the date of the build. (To be precise, it is the date at which the
+build <code class="docutils literal"><span class="pre">build-info</span></code> module was generated.)</li>
 </ul>
-<p>This information was added to wed as of version 0.11.0. If you happen
-to use wed&#8217;s development code that was produced after version 0.10.0
-was released but before version 0.11.0 was released, then the version
-number you&#8217;ll get in the <code class="docutils literal"><span class="pre">desc</span></code> field will start with
-&#8220;v0.10.0-x&#8221;. The additional &#8220;-x&#8221; is a special case to work around a
-bug in gitflow.</p>
+<p>This information was added to wed as of version 0.11.0. If you happen to use
+wed&#8217;s development code that was produced after version 0.10.0 was released but
+before version 0.11.0 was released, then the version number you&#8217;ll get in the
+<code class="docutils literal"><span class="pre">desc</span></code> field will start with &#8220;v0.10.0-x&#8221;. The additional &#8220;-x&#8221; is a special
+case to work around a bug in gitflow.</p>
 </div>
 <div class="section" id="deployment-considerations">
 <span id="tech-notes-deployment-considerations"></span><h2>Deployment Considerations<a class="headerlink" href="#deployment-considerations" title="Permalink to this headline">¶</a></h2>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">As of version 0.10.0 there is a nasty bug in the
-optimized bundle. You may still experiment with the
-optimized version of wed if you want to do so, provided
-that you don&#8217;t deploy it in production. The bug in
-question is documented <a class="reference external" href="https://github.com/mangalam-research/wed/issues/8">here</a>.</p>
-</div>
-<p>It is possible to deploy wed using the <code class="docutils literal"><span class="pre">build/standalone/</span></code> file tree
-but you will pay in execution time and bandwidth because the files in
-this tree are not optimized.</p>
-<p>The <code class="docutils literal"><span class="pre">build/standalone-optimized/</span></code> file tree is optimized. This
-optimization exists primarily for illustration purposes and for
-testing wed, but it could be used for deployment too, as long as you
-understand how it is constructed. The build file driving how <code class="docutils literal"><span class="pre">r.js</span></code>
-created the optimized tree is <code class="docutils literal"><span class="pre">requirejs.build.js</span></code>. Here are the
-major characteristics of this optimization:</p>
+<p>It is possible to deploy wed using the <code class="docutils literal"><span class="pre">build/standalone/</span></code> file tree but you
+will pay in execution time and bandwidth because the files in this tree are not
+optimized.</p>
+<p>The <code class="docutils literal"><span class="pre">build/standalone-optimized/</span></code> file tree is optimized. This optimization
+exists primarily for illustration purposes and for testing wed, but it could be
+used for deployment too, as long as you understand how it is constructed. The
+build file driving how <code class="docutils literal"><span class="pre">r.js</span></code> created the optimized tree is
+<code class="docutils literal"><span class="pre">requirejs.build.js</span></code>. Here are the major characteristics of this optimization:</p>
 <ul class="simple">
-<li>All of wed&#8217;s JavaScript is combined into one file. The only part of
-wed excluded is the test mode used in testing, which is not meant to
-be deployed anywhere.</li>
-<li>All external libraries (jQuery, Bootstrap, etc.) are excluded from
-the optimization.</li>
+<li>All of wed&#8217;s JavaScript is combined into one file. The only part of wed
+excluded is the test mode used in testing, which is not meant to be deployed
+anywhere.</li>
+<li>All external libraries (jQuery, Bootstrap, etc.) are excluded from the
+optimization.</li>
 <li>The CSS files are not optimized with regards to space but not combined.</li>
 </ul>
-<p>This optimization is designed to provide a balance between performance
-and flexibility. Greater performance could have been achieved by
-incorporating into one file all of the external libraries. However,
-such bundle would be unlikely to be trivially deployable on a
-full-fledged web site in which wed would be embedded. Such site might
-already be using jQuery and Bootstrap, perhaps different versions from
-those used to build wed, etc. The optimization described above could
-conceivably be used on this hypothetical server, provided that the
-configuration is updated to look for the external libraries at the
-right places.</p>
-<p>Wed&#8217;s build process creates a configuration for the optimized bundle
-at <code class="docutils literal"><span class="pre">build/standalone-optimized/requirejs-config.js</span></code>. This
-configuration allows an external custom mode to load individual
-modules of wed, because it has mappings like these:</p>
+<p>This optimization is designed to provide a balance between performance and
+flexibility. Greater performance could have been achieved by incorporating into
+one file all of the external libraries. However, such bundle would be unlikely
+to be trivially deployable on a full-fledged web site in which wed would be
+embedded. Such site might already be using jQuery and Bootstrap, perhaps
+different versions from those used to build wed, etc. The optimization described
+above could conceivably be used on this hypothetical server, provided that the
+configuration is updated to look for the external libraries at the right places.</p>
+<p>Wed&#8217;s build process creates a configuration for the optimized bundle at
+<code class="docutils literal"><span class="pre">build/standalone-optimized/requirejs-config.js</span></code>. This configuration allows an
+external custom mode to load individual modules of wed, because it has mappings
+like these:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;wed/log&quot;</span><span class="p">:</span> <span class="s2">&quot;wed/wed&quot;</span><span class="p">,</span>
 <span class="s2">&quot;wed/oop&quot;</span><span class="p">:</span> <span class="s2">&quot;wed/wed&quot;</span><span class="p">,</span>
 <span class="s2">&quot;wed/lib/simple_event_emitter&quot;</span><span class="p">:</span> <span class="s2">&quot;wed/wed&quot;</span><span class="p">,</span>
 <span class="p">[</span><span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>which map each individual module forming wed to the single bundle file
-created during the optimization process. If you base your own run time
-RequireJS configuration on this file, it is possible for code external
-to the bundle, for instance a custom mode, to load parts of wed in an
-arbitrary order.</p>
+<p>which map each individual module forming wed to the single bundle file created
+during the optimization process. If you base your own run time RequireJS
+configuration on this file, it is possible for code external to the bundle, for
+instance a custom mode, to load parts of wed in an arbitrary order.</p>
 <p>It is also possible to use a configuration file that does not have the
-individual module mappings. In this scenario, it is <strong>not</strong> possible
-for code external to wed to load parts of wed in an arbitrary
-order. The <code class="docutils literal"><span class="pre">wed.js</span></code> file has to be loaded first, and then wed&#8217;s
-modules become accessible. Note that this way of operating should work
-for the vast majority of cases because the typical usage scenario for
-wed is to first create a <code class="docutils literal"><span class="pre">wed.Editor</span></code> instance which dynamically
-loads a mode. Since the mode is loaded after <code class="docutils literal"><span class="pre">wed.Editor</span></code> is
-created, it is guaranteed that by the time the mode runs, all of wed&#8217;s
-modules are available.</p>
+individual module mappings. In this scenario, it is <strong>not</strong> possible for code
+external to wed to load parts of wed in an arbitrary order. The <code class="docutils literal"><span class="pre">wed.js</span></code> file
+has to be loaded first, and then wed&#8217;s modules become accessible. Note that this
+way of operating should work for the vast majority of cases because the typical
+usage scenario for wed is to first create a <code class="docutils literal"><span class="pre">wed.Editor</span></code> instance which
+dynamically loads a mode. Since the mode is loaded after <code class="docutils literal"><span class="pre">wed.Editor</span></code> is
+created, it is guaranteed that by the time the mode runs, all of wed&#8217;s modules
+are available.</p>
 </div>
 <div class="section" id="schema-and-structure-considerations">
 <h2>Schema and Structure Considerations<a class="headerlink" href="#schema-and-structure-considerations" title="Permalink to this headline">¶</a></h2>
-<p>The following discussion covers schema design considerations if you
-wish to use wed to enforce editing constraints. It is possible to rely
-instead on user discipline to enforce constraints, just like one would
-do if using a plain text editor to edit XML. If this is your case,
-then you do not need to concern yourself with the following.</p>
-<p>If you want constraints to be enforced <strong>by wed</strong>, then prioritize
-using a data structure that accurately reflects your <strong>editing</strong>
-concerns rather than your interchange concerns or your standard
-conformance concerns. Here&#8217;s an example. Suppose that you use a schema
-based on the TEI markup, and that for interchange purposes with
-another system it makes sense to encode something like:</p>
+<p>The following discussion covers schema design considerations if you wish to use
+wed to enforce editing constraints. It is possible to rely instead on user
+discipline to enforce constraints, just like one would do if using a plain text
+editor to edit XML. If this is your case, then you do not need to concern
+yourself with the following.</p>
+<p>If you want constraints to be enforced <strong>by wed</strong>, then prioritize using a data
+structure that accurately reflects your <strong>editing</strong> concerns rather than your
+interchange concerns or your standard conformance concerns. Here&#8217;s an
+example. Suppose that you use a schema based on the TEI markup, and that for
+interchange purposes with another system it makes sense to encode something
+like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;&lt;</span><span class="n">term</span><span class="o">&gt;&lt;</span><span class="n">foreign</span> <span class="n">xml</span><span class="p">:</span><span class="n">lang</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="o">&gt;</span><span class="n">Étranger</span><span class="o">&lt;/</span><span class="n">foreign</span><span class="o">&gt;&lt;/</span><span class="n">term</span><span class="o">&gt;</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">foreign</span>
 <span class="n">term</span><span class="o">.&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>However, you do not want to allow your users to insert text inside the
 <code class="docutils literal"><span class="pre">&lt;term&gt;</span></code> element but outside <code class="docutils literal"><span class="pre">&lt;foreign&gt;</span></code> because that encoding is
-meaningless in your project. Wed is not designed to easily enforce
-this restriction. Wed will allow your users to create something
-like:</p>
+meaningless in your project. Wed is not designed to easily enforce this
+restriction. Wed will allow your users to create something like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;&lt;</span><span class="n">term</span><span class="o">&gt;</span><span class="n">The</span> <span class="n">term</span> <span class="o">&lt;</span><span class="n">foreign</span> <span class="n">xml</span><span class="p">:</span><span class="n">lang</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="o">&gt;</span><span class="n">étranger</span><span class="o">&lt;/</span><span class="n">foreign</span><span class="o">&gt;</span>
 <span class="o">&lt;/</span><span class="n">term</span><span class="o">&gt;</span><span class="ow">is</span> <span class="n">a</span> <span class="n">foreign</span> <span class="n">term</span><span class="o">.&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>The solution here is to represent the
-<code class="docutils literal"><span class="pre">&lt;term&gt;&lt;foreign&gt;&lt;/foreign&gt;&lt;/term&gt;</span></code> structure as one element, for
-editing purposes. If it so happens that all instances of <code class="docutils literal"><span class="pre">&lt;foreign&gt;</span></code>
-are always to be interpreted as <code class="docutils literal"><span class="pre">&lt;term&gt;&lt;foreign&gt;&lt;/foreign&gt;&lt;/term&gt;</span></code>
-for interchange purposes, then you might as well make your editing
-structure <code class="docutils literal"><span class="pre">&lt;foreign&gt;</span></code> and convert it to the interchange structure
-when you actually need to interchange. In other cases, you might want
-to create your own element for editing, like <code class="docutils literal"><span class="pre">&lt;my:custom-element&gt;</span></code>,
-which is then created in the right context by the mode you create for
-your project.</p>
+<p>The solution here is to represent the <code class="docutils literal"><span class="pre">&lt;term&gt;&lt;foreign&gt;&lt;/foreign&gt;&lt;/term&gt;</span></code>
+structure as one element, for editing purposes. If it so happens that all
+instances of <code class="docutils literal"><span class="pre">&lt;foreign&gt;</span></code> are always to be interpreted as
+<code class="docutils literal"><span class="pre">&lt;term&gt;&lt;foreign&gt;&lt;/foreign&gt;&lt;/term&gt;</span></code> for interchange purposes, then you might as
+well make your editing structure <code class="docutils literal"><span class="pre">&lt;foreign&gt;</span></code> and convert it to the interchange
+structure when you actually need to interchange. In other cases, you might want
+to create your own element for editing, like <code class="docutils literal"><span class="pre">&lt;my:custom-element&gt;</span></code>, which is
+then created in the right context by the mode you create for your project.</p>
 </div>
 <div class="section" id="remote-logging">
 <span id="id1"></span><h2>Remote Logging<a class="headerlink" href="#remote-logging" title="Permalink to this headline">¶</a></h2>
-<p>Wed uses log4javascript to log anything worth logging. By default, wed
-does not log anything to a remote server; however, if the <code class="docutils literal"><span class="pre">ajaxlog</span></code>
-option is passed to wed, it will add an <code class="docutils literal"><span class="pre">AjaxAppender</span></code> to the logger
-and log messages using <code class="docutils literal"><span class="pre">XmlLayout</span></code>. The <code class="docutils literal"><span class="pre">ajaxlog</span></code> option is of the
-form:</p>
+<p>Wed uses log4javascript to log anything worth logging. By default, wed does not
+log anything to a remote server; however, if the <code class="docutils literal"><span class="pre">ajaxlog</span></code> option is passed to
+wed, it will add an <code class="docutils literal"><span class="pre">AjaxAppender</span></code> to the logger and log messages using
+<code class="docutils literal"><span class="pre">XmlLayout</span></code>. The <code class="docutils literal"><span class="pre">ajaxlog</span></code> option is of the form:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ajaxlog</span><span class="p">:</span> <span class="p">{</span>
     <span class="n">url</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
     <span class="n">headers</span><span class="p">:</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">url</span></code> parameter is the URL where log4javascript will send the
-log messages. The <code class="docutils literal"><span class="pre">headers</span></code> parameter specifies additional headers
-to send. In particular this is useful when the receiver is an
-installation requiring that some anti-CSRF token be set on HTTP
-headers.</p>
+<p>The <code class="docutils literal"><span class="pre">url</span></code> parameter is the URL where log4javascript will send the log
+messages. The <code class="docutils literal"><span class="pre">headers</span></code> parameter specifies additional headers to send. In
+particular this is useful when the receiver is an installation requiring that
+some anti-CSRF token be set on HTTP headers.</p>
 </div>
 <div class="section" id="saving">
 <span id="id2"></span><h2>Saving<a class="headerlink" href="#saving" title="Permalink to this headline">¶</a></h2>
@@ -332,13 +314,13 @@ determined by the <code class="docutils literal"><span class="pre">save</span></
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">path</span></code> parameter is the path to the module that implements the
-<code class="docutils literal"><span class="pre">Saver</span></code> abstract class. The two choices for now are
-<code class="docutils literal"><span class="pre">wed/savers/ajax</span></code> and <code class="docutils literal"><span class="pre">wed/savers/localforage</span></code>.</p>
+<p>The <code class="docutils literal"><span class="pre">path</span></code> parameter is the path to the module that implements the <code class="docutils literal"><span class="pre">Saver</span></code>
+abstract class. The two choices for now are <code class="docutils literal"><span class="pre">wed/savers/ajax</span></code> and
+<code class="docutils literal"><span class="pre">wed/savers/localforage</span></code>.</p>
 <div class="section" id="ajax-saver">
 <h3>Ajax Saver<a class="headerlink" href="#ajax-saver" title="Permalink to this headline">¶</a></h3>
-<p>The Ajax saver requires a server that understands the wire protocol
-used by this saver. The configuration for it is as follows:</p>
+<p>The Ajax saver requires a server that understands the wire protocol used by this
+saver. The configuration for it is as follows:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">save</span><span class="p">:</span> <span class="p">{</span>
     <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;wed/savers/ajax&quot;</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
@@ -350,13 +332,13 @@ used by this saver. The configuration for it is as follows:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">url</span></code> option is required. It is the URL where wed will send the
-Ajax queries for saving. The <code class="docutils literal"><span class="pre">headers</span></code> option is as described above
-for logging. It is optional. The <code class="docutils literal"><span class="pre">autosave</span></code> option is a number of
-seconds between autosaves. It is optional. Setting it to 0 will turn
-off autosaving. Wed will autosave only if it detects that the document
-has been changed since the last save. The <code class="docutils literal"><span class="pre">initial_etag</span></code> option is
-the <code class="docutils literal"><span class="pre">ETag</span></code> of the document being loaded. It is required.</p>
+<p>The <code class="docutils literal"><span class="pre">url</span></code> option is required. It is the URL where wed will send the Ajax
+queries for saving. The <code class="docutils literal"><span class="pre">headers</span></code> option is as described above for logging. It
+is optional. The <code class="docutils literal"><span class="pre">autosave</span></code> option is a number of seconds between
+autosaves. It is optional. Setting it to 0 will turn off autosaving. Wed will
+autosave only if it detects that the document has been changed since the last
+save. The <code class="docutils literal"><span class="pre">initial_etag</span></code> option is the <code class="docutils literal"><span class="pre">ETag</span></code> of the document being
+loaded. It is required.</p>
 <p>Queries are sent as POST requests with the following parameters:</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">command</span></code>: the command wed is issuing.</li>
@@ -369,43 +351,40 @@ serialization of the data tree.</li>
 <li><code class="docutils literal"><span class="pre">check</span></code>: This is a mere version check.</li>
 <li><code class="docutils literal"><span class="pre">save</span></code>: Sent when the user manually requests a save.</li>
 <li><code class="docutils literal"><span class="pre">autosave</span></code>: Sent when an autosave occurs.</li>
-<li><code class="docutils literal"><span class="pre">recover</span></code>: Sent when wed detects a fatal condition requiring
-reloading the editor from scratch. The server must save the data
-received and note that it was a recovery.</li>
+<li><code class="docutils literal"><span class="pre">recover</span></code>: Sent when wed detects a fatal condition requiring reloading the
+editor from scratch. The server must save the data received and note that it
+was a recovery.</li>
 </ul>
-<p>The replies are sent as JSON-encoded data. Each reply is a single
-object with a single field named <code class="docutils literal"><span class="pre">messages</span></code> which is a list of
-messages. Each message has a <code class="docutils literal"><span class="pre">type</span></code> field which determines its
-meaning and what other fields may be present in the message. The
-possible message types are:</p>
+<p>The replies are sent as JSON-encoded data. Each reply is a single object with a
+single field named <code class="docutils literal"><span class="pre">messages</span></code> which is a list of messages. Each message has a
+<code class="docutils literal"><span class="pre">type</span></code> field which determines its meaning and what other fields may be present
+in the message. The possible message types are:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">version_too_old_error</span></code> indicates that the version of wed trying to
-access the server is too old.</li>
-<li><code class="docutils literal"><span class="pre">save_transient_error</span></code> indicates that the save operation cannot
-happen for some transient reason. The <code class="docutils literal"><span class="pre">msg</span></code> parameter on the
-message should give a user-friendly message indicating what
-the problem is and, to the extent possible, how to resolve it.</li>
-<li><code class="docutils literal"><span class="pre">save_fatal_error</span></code> indicates that the save operation failed
-fatally. This is used for cases where the user cannot reasonably do
-anything to resolve the problem.</li>
-<li><code class="docutils literal"><span class="pre">locked_error</span></code> indicates that the document the user wants to save
-is locked.</li>
+<li><code class="docutils literal"><span class="pre">version_too_old_error</span></code> indicates that the version of wed trying to access
+the server is too old.</li>
+<li><code class="docutils literal"><span class="pre">save_transient_error</span></code> indicates that the save operation cannot happen for
+some transient reason. The <code class="docutils literal"><span class="pre">msg</span></code> parameter on the message should give a
+user-friendly message indicating what the problem is and, to the extent
+possible, how to resolve it.</li>
+<li><code class="docutils literal"><span class="pre">save_fatal_error</span></code> indicates that the save operation failed fatally. This is
+used for cases where the user cannot reasonably do anything to resolve the
+problem.</li>
+<li><code class="docutils literal"><span class="pre">locked_error</span></code> indicates that the document the user wants to save is locked.</li>
 <li><code class="docutils literal"><span class="pre">save_successful</span></code> indicates that the save was successful.</li>
 </ul>
-<p>The protocol uses <code class="docutils literal"><span class="pre">If-Match</span></code> to check that the document being saved
-has not been edited by some other user. Therefore, it needs an
-<code class="docutils literal"><span class="pre">ETag</span></code> to be generated. It acquires its initial <code class="docutils literal"><span class="pre">ETag</span></code> from the
-<code class="docutils literal"><span class="pre">save</span></code> option described above. Subsequent successful save operations
-must provide an <code class="docutils literal"><span class="pre">ETag</span></code> value representing the saved document.</p>
-<p>The meaning of the <code class="docutils literal"><span class="pre">ETag</span></code> value is generally ambiguous. See the
-following documents for some discussions of the issue:</p>
+<p>The protocol uses <code class="docutils literal"><span class="pre">If-Match</span></code> to check that the document being saved has not
+been edited by some other user. Therefore, it needs an <code class="docutils literal"><span class="pre">ETag</span></code> to be
+generated. It acquires its initial <code class="docutils literal"><span class="pre">ETag</span></code> from the <code class="docutils literal"><span class="pre">save</span></code> option described
+above. Subsequent successful save operations must provide an <code class="docutils literal"><span class="pre">ETag</span></code> value
+representing the saved document.</p>
+<p>The meaning of the <code class="docutils literal"><span class="pre">ETag</span></code> value is generally ambiguous. See the following
+documents for some discussions of the issue:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://datatracker.ietf.org/doc/draft-whitehead-http-etag/">https://datatracker.ietf.org/doc/draft-whitehead-http-etag/</a></li>
 <li><a class="reference external" href="https://datatracker.ietf.org/doc/draft-reschke-http-etag-on-write/">https://datatracker.ietf.org/doc/draft-reschke-http-etag-on-write/</a></li>
 </ul>
-<p>The current code handles the lack of precision such that <code class="docutils literal"><span class="pre">ETag</span></code>
-values returned on error conditions are ignored. Otherwise, the
-following could happen:</p>
+<p>The current code handles the lack of precision such that <code class="docutils literal"><span class="pre">ETag</span></code> values
+returned on error conditions are ignored. Otherwise, the following could happen:</p>
 <ol class="arabic simple">
 <li>Alice loads document, grabs initial <code class="docutils literal"><span class="pre">ETag</span></code>.</li>
 <li>Bob loads same document, grabs initial <code class="docutils literal"><span class="pre">ETag</span></code>.</li>
@@ -413,16 +392,21 @@ following could happen:</p>
 <li>Alice tries to save with an <code class="docutils literal"><span class="pre">If-Match</span></code> that has the old
 <code class="docutils literal"><span class="pre">ETag</span></code>. This fails and returns an <code class="docutils literal"><span class="pre">ETag</span></code> with the response.</li>
 </ol>
-<p>This last <code class="docutils literal"><span class="pre">ETag</span></code> would have to be the one that matches what is
-<em>currently</em> stored in the server. Alice&#8217;s wed instance <strong>must not</strong>
-use this <code class="docutils literal"><span class="pre">ETag</span></code> to update the <code class="docutils literal"><span class="pre">ETag</span></code> it associates with its
-document, otherwise a subsequent save will (erroneously) go through.</p>
+<p>This last <code class="docutils literal"><span class="pre">ETag</span></code> would have to be the one that matches what is <em>currently</em>
+stored in the server. Alice&#8217;s wed instance <strong>must not</strong> use this <code class="docutils literal"><span class="pre">ETag</span></code> to
+update the <code class="docutils literal"><span class="pre">ETag</span></code> it associates with its document, otherwise a subsequent save
+will (erroneously) go through.</p>
 <p>This may not correspond to how other systems use <code class="docutils literal"><span class="pre">ETag</span></code>.</p>
 </div>
 <div class="section" id="localforage-saver">
 <h3>Localforage Saver<a class="headerlink" href="#localforage-saver" title="Permalink to this headline">¶</a></h3>
-<p>This saver uses <a class="reference external" href="https://github.com/mozilla/localForage">localForage</a> to store the data in the
-browser. It is configured as follows:</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The localForage saver is deprecated. It is no longer used by wed&#8217;s
+development team, and comes with serious caveats.</p>
+</div>
+<p>This saver uses <a class="reference external" href="https://github.com/mozilla/localForage">localForage</a> to store
+the data in the browser. It is configured as follows:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">save</span><span class="p">:</span> <span class="p">{</span>
     <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;wed/savers/localforage&quot;</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
@@ -435,101 +419,30 @@ browser. It is configured as follows:</p>
 localForage. It is the &#8220;file name&#8221; of sorts of the document.</p>
 </div>
 </div>
-<div class="section" id="creating-a-mode">
-<h2>Creating a Mode<a class="headerlink" href="#creating-a-mode" title="Permalink to this headline">¶</a></h2>
-<p>We recommend creating new modes by inheriting from the generic
-mode. The first thing you must do is set the metadata on the
-<code class="docutils literal"><span class="pre">_wed_options</span></code> object because wed will refuse to load your mode if
-these are not set:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">this</span><span class="o">.</span><span class="n">_wed_options</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">name</span><span class="p">:</span> <span class="s2">&quot;Foo&quot;</span><span class="p">,</span>
-    <span class="n">authors</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ty Coon&quot;</span><span class="p">],</span>
-    <span class="n">description</span><span class="p">:</span>
-       <span class="s2">&quot;This mode does foo!&quot;</span><span class="p">,</span>
-    <span class="n">license</span><span class="p">:</span> <span class="s2">&quot;MPL 2.0&quot;</span><span class="p">,</span>
-    <span class="n">copyright</span><span class="p">:</span> <span class="s2">&quot;2013 Ty Coon Industries&quot;</span>
-<span class="p">};</span>
-</pre></div>
-</div>
-<p>Modes may set other options on the <code class="docutils literal"><span class="pre">_wed_options</span></code> property. This is
-essentially a mean for the mode to control how wed operates when the
-mode is active. These are not meant to be directly settable by the
-user or by the application in which wed is being used. (Although it
-would be possible for the mode to expose options to make them
-settable.)</p>
-<ul>
-<li><p class="first"><code class="docutils literal"><span class="pre">label_levels</span></code>: an object with two fields:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">max</span></code>: determines the maximum level of
-<a class="reference internal" href="usage.html#label-visibility"><span class="std std-ref">label visibility</span></a>,</li>
-<li><code class="docutils literal"><span class="pre">initial</span></code> determines the initial level of label visibility; must
-be <code class="docutils literal"><span class="pre">1</span> <span class="pre">&lt;=</span> <span class="pre">initial</span> <span class="pre">&lt;=</span> <span class="pre">max</span></code>. (Level 0 exists. It is just not valid
-to start at that level.)</li>
-</ul>
-</li>
-<li><p class="first"><code class="docutils literal"><span class="pre">attributes</span></code>: determines the level of <em>direct</em> attribute editing
-support provided by wed. By &#8220;direct editing&#8221; we mean allowing the
-user to change the value of attributes directly, as attributes. No
-matter what level is selected, wed itself or its modes are <em>always</em>
-free to modify attributes behind the scenes.</p>
-<p>The levels are:</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">&quot;hide&quot;</span></code>: wed won&#8217;t show attributes and won&#8217;t allow editing
-them directly.</li>
-<li><code class="docutils literal"><span class="pre">&quot;show&quot;</span></code>: wed will show attributes but won&#8217;t allow editing
-them directly.</li>
-<li><code class="docutils literal"><span class="pre">&quot;edit&quot;</span></code>: wed will show and allow editing attributes.</li>
-</ul>
-<p>Here are examples to illustrate some of the differences and what
-they mean concretely. Suppose a project based on TEI that uses
-<code class="docutils literal"><span class="pre">ptr</span></code> to link to other elements in the document. This <code class="docutils literal"><span class="pre">ptr</span></code>
-element uses the <code class="docutils literal"><span class="pre">&#64;target</span></code> attribute to point to the desired
-element. A mode using <code class="docutils literal"><span class="pre">&quot;hide&quot;</span></code> would not allow the user to see
-<code class="docutils literal"><span class="pre">&#64;target</span></code> or to manually enter a target in <code class="docutils literal"><span class="pre">&#64;target</span></code>. However,
-it could present a menu item saying &#8220;Create hyperlink to other
-element&#8221; and provide a list of elements the user may link to to
-choose from. When the user selects an element, the mode would create
-a <code class="docutils literal"><span class="pre">ptr</span></code> element with an appropriate <code class="docutils literal"><span class="pre">&#64;target</span></code> value. If needed,
-it would also create a proper <code class="docutils literal"><span class="pre">&#64;id</span></code> on the element to which the
-<code class="docutils literal"><span class="pre">&#64;target</span></code> refers. The <code class="docutils literal"><span class="pre">&#64;id</span></code> attribute, just like <code class="docutils literal"><span class="pre">&#64;target</span></code>
-would not be editable by the user directly or visible to the user.</p>
-<p>Suppose a similar project but a less sophisticated mode that does
-not assist with hyperlinking. Here, the mode set the option to
-<code class="docutils literal"><span class="pre">&quot;edit&quot;</span></code> for the attributes. In this setup, the user would have to
-create their <code class="docutils literal"><span class="pre">ptr</span></code> element and add themselves a proper value for
-<code class="docutils literal"><span class="pre">&#64;target</span></code> through the attribute editing functions. They would also
-be responsible for putting a proper <code class="docutils literal"><span class="pre">&#64;id</span></code> on the element to which
-<code class="docutils literal"><span class="pre">&#64;target</span></code> refers.</p>
-</li>
-</ul>
-</div>
 <div class="section" id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
-<p>Note that due to the asynchronous nature of the JavaScript environments
-used to run the tests, if the test suites are run on a system
-experiencing heavy load or if the OS has to swap a lot of memory from
-the hard disk, they may fail some or all tests. We&#8217;ve witnessed this
-happen, for instance, due to RequireJS timing out on a <code class="docutils literal"><span class="pre">require()</span></code>
-call because the OS was busy loading things into memory from
-swap. The solution is to run the test suites again.</p>
-<p>Another issue with running the tests is that wed uses <code class="docutils literal"><span class="pre">setTimeout</span></code>
-to do the validation work in a parallel fashion. (This actually
-simulates parallelism.) Now, browsers clamp timeouts to at most once a
-second for tests that are in background tabs (i.e. tabs whose content
-is not currently visible). Some tests want the first validation to be
-finished before starting. The upshot is that if the test tab is pushed
-to the background some tests will fail due to timeouts. The solution
-for now is don&#8217;t push the tab in which tests are run to the
-background. Web workers would solve this problem but would create
-other complications so it is unclear whether they are a viable
-solution.</p>
+<p>Note that due to the asynchronous nature of the JavaScript environments used to
+run the tests, if the test suites are run on a system experiencing heavy load or
+if the OS has to swap a lot of memory from the hard disk, they may fail some or
+all tests. We&#8217;ve witnessed this happen, for instance, due to RequireJS timing
+out on a <code class="docutils literal"><span class="pre">require()</span></code> call because the OS was busy loading things into memory
+from swap. The solution is to run the test suites again.</p>
+<p>Another issue with running the tests is that wed uses <code class="docutils literal"><span class="pre">setTimeout</span></code> to do the
+validation work in a parallel fashion. (This actually simulates parallelism.)
+Now, browsers clamp timeouts to at most once a second for tests that are in
+background tabs (i.e. tabs whose content is not currently visible). Some tests
+want the first validation to be finished before starting. The upshot is that if
+the test tab is pushed to the background some tests will fail due to
+timeouts. The solution for now is don&#8217;t push the tab in which tests are run to
+the background. Web workers would solve this problem but would create other
+complications so it is unclear whether they are a viable solution.</p>
 <p>Tests are of three types:</p>
 <ul class="simple">
-<li>Not browser-dependent and therefore may be run outside a browser. We
-run these in Node.js.</li>
+<li>Not browser-dependent and therefore may be run outside a browser. We run these
+in Node.js.</li>
 <li>In-browser tests run <em>in</em> the browser.</li>
-<li>Selenium-based tests which run <em>outside</em> the browser but use selenium
-to control a browser.</li>
+<li>Selenium-based tests which run <em>outside</em> the browser but use selenium to
+control a browser.</li>
 </ul>
 <div class="section" id="browser-independent-tests">
 <h3>Browser-Independent Tests<a class="headerlink" href="#browser-independent-tests" title="Permalink to this headline">¶</a></h3>
@@ -537,17 +450,16 @@ to control a browser.</li>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp test-node
 </pre></div>
 </div>
-<p>These tests are located in the <code class="docutils literal"><span class="pre">test/</span></code> directory off the wed
-root. You can also run <code class="docutils literal"><span class="pre">mocha</span></code>
-directly from the command line but having <code class="docutils literal"><span class="pre">gulp</span></code> build the <code class="docutils literal"><span class="pre">test</span></code>
-target will trigger a build to ensure that the tests are run against
+<p>These tests are located in the <code class="docutils literal"><span class="pre">test/</span></code> directory off the wed root. You can
+also run <code class="docutils literal"><span class="pre">mocha</span></code> directly from the command line but having <code class="docutils literal"><span class="pre">gulp</span></code> build the
+<code class="docutils literal"><span class="pre">test</span></code> target will trigger a build to ensure that the tests are run against
 the latest code.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Keep in mind that tests are <strong>always</strong> run against the
-code present in <code class="docutils literal"><span class="pre">build/standalone/</span></code>. If you modify your
-source and fail to rebuild before running the test suite,
-the suite will run against <strong>old code!</strong></p>
+<p class="last">Keep in mind that tests are <strong>always</strong> run against the code present
+in <code class="docutils literal"><span class="pre">build/standalone/</span></code>. If you modify your source and fail to
+rebuild before running the test suite, the suite will run against
+<strong>old code!</strong></p>
 </div>
 </div>
 <div class="section" id="in-browser-tests">
@@ -556,42 +468,39 @@ the suite will run against <strong>old code!</strong></p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp test-browser
 </pre></div>
 </div>
-<p>The browser-dependent tests are located in the <code class="docutils literal"><span class="pre">browser_test/</span></code>
-directory off the wed root. These tests are run by launching
-<code class="docutils literal"><span class="pre">./server.js</span></code> with the option <code class="docutils literal"><span class="pre">runner</span></code>. This starts a server that
-can:</p>
+<p>The browser-dependent tests are located in the <code class="docutils literal"><span class="pre">browser_test/</span></code> directory off
+the wed root. These tests are run by launching <code class="docutils literal"><span class="pre">./server.js</span></code> with the option
+<code class="docutils literal"><span class="pre">runner</span></code>. This starts a server that can:</p>
 <ul class="simple">
 <li>Serve wed&#8217;s files.</li>
 <li>Respond to wed&#8217;s AJAX request.</li>
 <li>Receive the results of the tests.</li>
 </ul>
-<p>It also starts a Chrome browser which loads the page that contains the
-tests to be run in the browser. The browser is run in <code class="docutils literal"><span class="pre">Xvfb</span></code> so that
-it does not appear on the desktop.</p>
-<p>If you need to run the server to perform diagnosis on failing tests,
-you can <code class="docutils literal"><span class="pre">./server.js</span> <span class="pre">browser</span></code>. This will launch the browser on your
-desktop and start the tests. The browser and server will remain
-running until you kill them.</p>
+<p>It also starts a Chrome browser which loads the page that contains the tests to
+be run in the browser. The browser is run in <code class="docutils literal"><span class="pre">Xvfb</span></code> so that it does not appear
+on the desktop.</p>
+<p>If you need to run the server to perform diagnosis on failing tests, you can
+<code class="docutils literal"><span class="pre">./server.js</span> <span class="pre">browser</span></code>. This will launch the browser on your desktop and start
+the tests. The browser and server will remain running until you kill them.</p>
 <ol class="upperalpha simple" start="17">
 <li>Why not use Karma?</li>
 </ol>
 <ol class="upperalpha simple">
-<li>Historical reasons mostly. If Karma has been in the state it is now
-when the project started, it would probably be used by the project
-now. <code class="docutils literal"><span class="pre">server.js</span></code> grew organically with the project and there is
-not at this moment a solid reason to get rid of it in favor of Karma.</li>
+<li>Historical reasons mostly. If Karma has been in the state it is now when the
+project started, it would probably be used by the project now. <code class="docutils literal"><span class="pre">server.js</span></code>
+grew organically with the project and there is not at this moment a solid
+reason to get rid of it in favor of Karma.</li>
 </ol>
 </div>
 <div class="section" id="selenium-based-tests">
 <h3>Selenium-Based Tests<a class="headerlink" href="#selenium-based-tests" title="Permalink to this headline">¶</a></h3>
-<p>Everything that follows is specific to wed. You need to have <a class="reference external" href="http://github.com/mangalam-research/selenic">selenic</a> installed and
-available on your <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>. Read its documentation.  You also
-need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a>
-installed and available on your <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>.</p>
+<p>Everything that follows is specific to wed. You need to have <a class="reference external" href="http://github.com/mangalam-research/selenic">selenic</a> installed and available on your
+<code class="docutils literal"><span class="pre">PYTHONPATH</span></code>. Read its documentation.  You also need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a> installed and available on your
+<code class="docutils literal"><span class="pre">PYTHONPATH</span></code>.</p>
 <p>It is very likely that you&#8217;ll want to override some of the values in
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a> by creating
-<code class="docutils literal"><span class="pre">local_config/selenium_config.py</span></code> that loads the default file but
-override or adds some values. For instance:</p>
+<code class="docutils literal"><span class="pre">local_config/selenium_config.py</span></code> that loads the default file but override or
+adds some values. For instance:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># If used, must appear before the default file is loaded. The</span>
 <span class="c1"># default is to not log anything.</span>
 <span class="n">LOGS</span> <span class="o">=</span> <span class="kc">True</span>
@@ -608,36 +517,33 @@ override or adds some values. For instance:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp selenium-test --behave-params=&quot;-D browser=&lt;platform&gt;,&lt;browser&gt;,&lt;version&gt;&quot;
 </pre></div>
 </div>
-<p>Behind the scenes, this will launch Behave. An instance of <code class="docutils literal"><span class="pre">./server.js</span></code>
-will be launched automatically to respond to the requests of the
-browser that the test suite launches. See the gulpfile
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/gulpfile.babel.js">gulpfile.babel.js</a> for information about how behave is run.</p>
-<p>The <code class="docutils literal"><span class="pre">browser</span></code> variable determines which browser will run the
-test. You may omit any of <code class="docutils literal"><span class="pre">platform</span></code>, <code class="docutils literal"><span class="pre">browser</span></code> or <code class="docutils literal"><span class="pre">versions</span></code> so
-long as the parts that are specified are enough to match a <strong>single</strong>
-configuration defined in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a>. See the
-list of configurations there to see what has been configured. If you
-want something different from the list there, you&#8217;ll have to configure
-it in the copy you made into <code class="docutils literal"><span class="pre">local_config</span></code>.</p>
-<p>The environment variable <code class="docutils literal"><span class="pre">BEHAVE_WAIT_BETWEEN_STEPS</span></code> can be set to a
-numerical value in seconds to get behave to stop between steps. It
-makes the Selenium test unfold more slowly. The environment variable
-<code class="docutils literal"><span class="pre">SELENIUM_QUIT</span></code> can be set to <code class="docutils literal"><span class="pre">never</span></code> to prevent Selenium from
-quitting the browser after the suite is run. It can be set to
-<code class="docutils literal"><span class="pre">on-success</span></code> so that the Selenium quits only if the suite is
-successful.</p>
+<p>Behind the scenes, this will launch Behave. An instance of <code class="docutils literal"><span class="pre">./server.js</span></code> will
+be launched automatically to respond to the requests of the browser that the
+test suite launches. See the gulpfile <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/gulpfile.babel.js">gulpfile.babel.js</a> for
+information about how behave is run.</p>
+<p>The <code class="docutils literal"><span class="pre">browser</span></code> variable determines which browser will run the test. You may
+omit any of <code class="docutils literal"><span class="pre">platform</span></code>, <code class="docutils literal"><span class="pre">browser</span></code> or <code class="docutils literal"><span class="pre">versions</span></code> so long as the parts that
+are specified are enough to match a <strong>single</strong> configuration defined in
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a>. See the list of configurations there to see
+what has been configured. If you want something different from the list there,
+you&#8217;ll have to configure it in the copy you made into <code class="docutils literal"><span class="pre">local_config</span></code>.</p>
+<p>The environment variable <code class="docutils literal"><span class="pre">BEHAVE_WAIT_BETWEEN_STEPS</span></code> can be set to a numerical
+value in seconds to get behave to stop between steps. It makes the Selenium test
+unfold more slowly. The environment variable <code class="docutils literal"><span class="pre">SELENIUM_QUIT</span></code> can be set to
+<code class="docutils literal"><span class="pre">never</span></code> to prevent Selenium from quitting the browser after the suite is
+run. It can be set to <code class="docutils literal"><span class="pre">on-success</span></code> so that the Selenium quits only if the
+suite is successful.</p>
 <ol class="upperalpha simple" start="17">
-<li>Why is Python required to run the Selenium-based tests? You&#8217;ve
-introduced a dependency on an additional language!</li>
+<li>Why is Python required to run the Selenium-based tests? You&#8217;ve introduced a
+dependency on an additional language!</li>
 </ol>
 <ol class="upperalpha simple">
-<li>We&#8217;ve found that JavaScript is poorly supported by the various
-agents on which we depend for running Selenium the way we want. We&#8217;ve
-tried to avoid adding a dependency on Python to software which is
-JavaScript through and through, but that fight proved fruitless. Do
-we want to spend our time chasing bugs, badly documented code, and
-obscure or unsupported packages, or do we want to focus on wed? We
-chose the latter.</li>
+<li>We&#8217;ve found that JavaScript is poorly supported by the various agents on
+which we depend for running Selenium the way we want. We&#8217;ve tried to avoid
+adding a dependency on Python to software which is JavaScript through and
+through, but that fight proved fruitless. Do we want to spend our time
+chasing bugs, badly documented code, and obscure or unsupported packages, or
+do we want to focus on wed? We chose the latter.</li>
 </ol>
 <div class="section" id="troubleshooting-the-selenium-tests">
 <h4>Troubleshooting the Selenium Tests<a class="headerlink" href="#troubleshooting-the-selenium-tests" title="Permalink to this headline">¶</a></h4>
@@ -647,11 +553,11 @@ chose the latter.</li>
 </div>
 <div class="section" id="symptom-some-firefox-tests-fail-and-i-am-at-a-loss-to-know-why">
 <h5>Symptom: Some Firefox tests fail and I am at a loss to know why.<a class="headerlink" href="#symptom-some-firefox-tests-fail-and-i-am-at-a-loss-to-know-why" title="Permalink to this headline">¶</a></h5>
-<p>Firefox is picky. Make sure you have a windows manager that manages
-FF&#8217;s window. (This would come into play if you use Xephyr or Xnest for
-instance. You&#8217;d have to start a window manager running on the server
-they create.) Some tests that failed in Xephyr have also stopped
-failing once leftover windows from previous tests were closed.</p>
+<p>Firefox is picky. Make sure you have a windows manager that manages FF&#8217;s
+window. (This would come into play if you use Xephyr or Xnest for
+instance. You&#8217;d have to start a window manager running on the server they
+create.) Some tests that failed in Xephyr have also stopped failing once
+leftover windows from previous tests were closed.</p>
 </div>
 </div>
 </div>
@@ -660,23 +566,21 @@ failing once leftover windows from previous tests were closed.</p>
 <h2>Internals<a class="headerlink" href="#internals" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="the-tag-v0-10-0-x">
 <h3>The Tag v0.10.0-x<a class="headerlink" href="#the-tag-v0-10-0-x" title="Permalink to this headline">¶</a></h3>
-<p>The git repository contains tags v0.10.0 and v0.10.0-x. What&#8217;s the
-deal? Both tags represent the same state of development. The first
-points into the master branch, the second into the develop branch. The
-second tag was created to work around a bug that prevents using <code class="docutils literal"><span class="pre">git</span>
-<span class="pre">describe</span></code> when using the <a class="reference external" href="https://github.com/nvie/gitflow">nvie edition</a> of gitflow. If you use gitflow
-with wed, use the <a class="reference external" href="https://github.com/petervanderdoes/gitflow">AVH edition</a>.</p>
+<p>The git repository contains tags v0.10.0 and v0.10.0-x. What&#8217;s the deal? Both
+tags represent the same state of development. The first points into the master
+branch, the second into the develop branch. The second tag was created to work
+around a bug that prevents using <code class="docutils literal"><span class="pre">git</span> <span class="pre">describe</span></code> when using the <a class="reference external" href="https://github.com/nvie/gitflow">nvie edition</a> of gitflow. If you use gitflow with wed,
+use the <a class="reference external" href="https://github.com/petervanderdoes/gitflow">AVH edition</a>.</p>
 </div>
 <div class="section" id="javascript-event-handling">
 <h3>JavaScript Event Handling<a class="headerlink" href="#javascript-event-handling" title="Permalink to this headline">¶</a></h3>
-<p>Modes are free to bind whatever handlers they want to those GUI
-elements they themselves are responsible for creating, managing and
-destroying. However, modes <strong>must not</strong> bind their own event handlers
-for the standard JavaScript type of events onto any GUI element that
-wed is responsible for managing. They must use the appropriate custom
-wed events. This ensures proper ordering of processing. Here is the
-list of JavaScript events for which custom events have been defined;
-the order the events are listed corresponds to the order they are
+<p>Modes are free to bind whatever handlers they want to those GUI elements they
+themselves are responsible for creating, managing and destroying. However, modes
+<strong>must not</strong> bind their own event handlers for the standard JavaScript type of
+events onto any GUI element that wed is responsible for managing. They must use
+the appropriate custom wed events. This ensures proper ordering of
+processing. Here is the list of JavaScript events for which custom events have
+been defined; the order the events are listed corresponds to the order they are
 processed</p>
 <ul class="simple">
 <li>keydown:</li>
@@ -712,192 +616,179 @@ processed</p>
 <li>wed-context-menu</li>
 </ul>
 </div></blockquote>
-<p>Those handlers that are bound to these custom events should have the
-following signature:</p>
+<p>Those handlers that are bound to these custom events should have the following
+signature:</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">handler(wed_event,</span> <span class="pre">javascript_event)</span></code></div></blockquote>
-<p>Where <code class="docutils literal"><span class="pre">wed_event</span></code> is the jQuery <code class="docutils literal"><span class="pre">Event</span></code> object created for
-dispatching custom events and <code class="docutils literal"><span class="pre">javascript_event</span></code> is the original
-JavaScript event that caused the custom event to be triggered.</p>
+<p>Where <code class="docutils literal"><span class="pre">wed_event</span></code> is the jQuery <code class="docutils literal"><span class="pre">Event</span></code> object created for dispatching
+custom events and <code class="docutils literal"><span class="pre">javascript_event</span></code> is the original JavaScript event that
+caused the custom event to be triggered.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Returning <code class="docutils literal"><span class="pre">false</span></code> from handlers bound to custom events
-won&#8217;t stop the propagation of the original JavaScript
-event. Handlers for custom events that wish to stop
-propagation of the JavaScript event <strong>must</strong> call the
-appropriate method on the <code class="docutils literal"><span class="pre">javascript_event</span></code>
-object. They must additionally return <code class="docutils literal"><span class="pre">false</span></code> or call
-the appropriate methods on the <code class="docutils literal"><span class="pre">wed_event</span></code> object.</p>
+<p class="last">Returning <code class="docutils literal"><span class="pre">false</span></code> from handlers bound to custom events won&#8217;t stop
+the propagation of the original JavaScript event. Handlers for
+custom events that wish to stop propagation of the JavaScript event
+<strong>must</strong> call the appropriate method on the <code class="docutils literal"><span class="pre">javascript_event</span></code>
+object. They must additionally return <code class="docutils literal"><span class="pre">false</span></code> or call the
+appropriate methods on the <code class="docutils literal"><span class="pre">wed_event</span></code> object.</p>
 </div>
 <ul class="simple">
-<li>wed-input-trigger-* events are meant to be handled by
-<code class="docutils literal"><span class="pre">InputTrigger</span></code> objects.</li>
-<li>wed-global-* events are meant to be handled by the default event
-handlers for wed, or those event handlers meaning to alter default
-processing.</li>
+<li>wed-input-trigger-* events are meant to be handled by <code class="docutils literal"><span class="pre">InputTrigger</span></code>
+objects.</li>
+<li>wed-global-* events are meant to be handled by the default event handlers for
+wed, or those event handlers meaning to alter default processing.</li>
 <li>The paste event has no wed-global-* event associated with it.</li>
 </ul>
-<p>Wed also uses the custom events <code class="docutils literal"><span class="pre">wed-click</span></code> and <code class="docutils literal"><span class="pre">wed-unclick</span></code> to
-inform element labels that they should change their status to clicked
-or unclicked. These events are used (<code class="docutils literal"><span class="pre">wed-click</span></code> specifically) so
-that if the status must change due to an event not caused by a mouse
-operation, then wed won&#8217;t cause a mouse event to happen. A <code class="docutils literal"><span class="pre">click</span></code>
-event would trickle up the handler chain, etc.</p>
-<p>Modes that define elements in the GUI tree that want to have their own
-custom context menu handler must listen for <code class="docutils literal"><span class="pre">wed-context-menu</span></code>
-<strong>and</strong> define a data field named <code class="docutils literal"><span class="pre">data-wed-custom-context-menu</span></code> set
-to a truthy value. This field must be set <strong>in the DOM</strong> as an
-attribute (and not merely using jQuery&#8217;s <code class="docutils literal"><span class="pre">data()</span></code> method.</p>
+<p>Wed also uses the custom events <code class="docutils literal"><span class="pre">wed-click</span></code> and <code class="docutils literal"><span class="pre">wed-unclick</span></code> to inform
+element labels that they should change their status to clicked or
+unclicked. These events are used (<code class="docutils literal"><span class="pre">wed-click</span></code> specifically) so that if the
+status must change due to an event not caused by a mouse operation, then wed
+won&#8217;t cause a mouse event to happen. A <code class="docutils literal"><span class="pre">click</span></code> event would trickle up the
+handler chain, etc.</p>
+<p>Modes that define elements in the GUI tree that want to have their own custom
+context menu handler must listen for <code class="docutils literal"><span class="pre">wed-context-menu</span></code> <strong>and</strong> define a data
+field named <code class="docutils literal"><span class="pre">data-wed-custom-context-menu</span></code> set to a truthy value. This field
+must be set <strong>in the DOM</strong> as an attribute (and not merely using jQuery&#8217;s
+<code class="docutils literal"><span class="pre">data()</span></code> method.</p>
 </div>
 <div class="section" id="selections">
 <h3>Selections<a class="headerlink" href="#selections" title="Permalink to this headline">¶</a></h3>
 <p>Wed works with multiple types of selections:</p>
 <dl class="docutils">
 <dt>DOM selection</dt>
-<dd>The selection as understood by DOM. Methods working with this
-selection have <code class="docutils literal"><span class="pre">DOM</span></code> in their name.</dd>
+<dd>The selection as understood by DOM. Methods working with this selection have
+<code class="docutils literal"><span class="pre">DOM</span></code> in their name.</dd>
 <dt>GUI selection</dt>
-<dd>The selection in the GUI tree. The GUI selection is just called
-&#8220;selection&#8221;, without any further qualifier. This is the range selected
-by the user in the document being edited. The methods operating on
-this selection do not use a special qualifier. E.g. <code class="docutils literal"><span class="pre">getSelection</span></code>
-does not have <code class="docutils literal"><span class="pre">DOM</span></code> or <code class="docutils literal"><span class="pre">data</span></code> in its name and thus works on a
-GUI selection.</dd>
+<dd>The selection in the GUI tree. The GUI selection is just called &#8220;selection&#8221;,
+without any further qualifier. This is the range selected by the user in the
+document being edited. The methods operating on this selection do not use a
+special qualifier.</dd>
 <dt>Data selection</dt>
-<dd>The selection that corresponds to the GUI selection in the data tree.
-Methods working with this selection have <code class="docutils literal"><span class="pre">data</span></code> in their name. Mode will
-typically want to work with this selection.</dd>
+<dd>The selection that corresponds to the GUI selection in the data tree.  Methods
+working with this selection have <code class="docutils literal"><span class="pre">data</span></code> in their name. Mode will typically
+want to work with this selection.</dd>
 </dl>
-<p>Wed uses Rangy to help with selection manipulations. As of Rangy
-1.3alpha.804, there is a bug in IE with handling control ranges. The
-workaround for now is to <strong>clear</strong> the range before setting a new
-range.</p>
+<p>Wed uses Rangy to help with selection manipulations. As of Rangy 1.3alpha.804,
+there is a bug in IE with handling control ranges. The workaround for now is to
+<strong>clear</strong> the range before setting a new range.</p>
 </div>
 <div class="section" id="carets">
 <h3>Carets<a class="headerlink" href="#carets" title="Permalink to this headline">¶</a></h3>
 <p>Wed works with multiple types of carets:</p>
 <dl class="docutils">
-<dt>Fake caret</dt>
-<dd>A caret that exists only for wed. It has no existence as far as DOM is
-concerned.</dd>
+<dt>Caret mark</dt>
+<dd>A caret that exists only for wed. It has no existence as a caret as far as
+DOM is concerned.</dd>
 <dt>GUI caret</dt>
 <dd>The caret in the GUI tree. It may or may not correspond to a DOM caret.</dd>
 <dt>Data caret</dt>
 <dd>The caret in the data tree that corresponds to the GUI caret. It may or may
-not correspond to a DOM caret. Modes usually want to work with this caret.</dd>
+not correspond to a DOM caret.</dd>
 </dl>
 </div>
 <div class="section" id="support-for-gui-controls-outside-wed">
 <h3>Support for GUI Controls Outside Wed<a class="headerlink" href="#support-for-gui-controls-outside-wed" title="Permalink to this headline">¶</a></h3>
-<p>By default, wed does not provide any kind of drop down menus or
-toolbar to perform actions like undo/redo, etc. The application that
-embeds wed into it, however, might need such tools. Now, the problem
-is that as far as wed is concerned, these items are not part of the
-editing pane and thus, manipulating them should cause a blurring of
-the editor. This is undesirable because:</p>
+<p>By default, wed does not provide any kind of drop down menus or toolbar to
+perform actions like undo/redo, etc. The application that embeds wed into it,
+however, might need such tools. Now, the problem is that as far as wed is
+concerned, these items are not part of the editing pane and thus, manipulating
+them should cause a blurring of the editor. This is undesirable because:</p>
 <ul class="simple">
-<li>It means that a GUI control that fires a transformation would fire
-it when the caret is not defined (because of the blur). This causes
-wed to raise an exception.</li>
-<li>Even if the previous point could somehow be worked around because
-wed keeps enough state to know where the caret was before the blur
-happened, the user would still <strong>see</strong> the focus leave the editor
-pane.</li>
+<li>It means that a GUI control that fires a transformation would fire it when the
+caret is not defined (because of the blur). This causes wed to raise an
+exception.</li>
+<li>Even if the previous point could somehow be worked around because wed keeps
+enough state to know where the caret was before the blur happened, the user
+would still <strong>see</strong> the focus leave the editor pane.</li>
 </ul>
-<p>Consequently, such elements must be made known to wed so that it does
-not consider clicks in them to cause a loss of
-focus. <code class="docutils literal"><span class="pre">Editor.excludeFromBlur</span></code> is the method to use to register
-these elements with wed.</p>
+<p>Consequently, such elements must be made known to wed so that it does not
+consider clicks in them to cause a loss of focus. <code class="docutils literal"><span class="pre">Editor.excludeFromBlur</span></code> is
+the method to use to register these elements with wed.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">These elements must also have <code class="docutils literal"><span class="pre">mousedown</span></code> and <code class="docutils literal"><span class="pre">click</span></code>
-handlers that do not cause the <strong>browser</strong> to change the
-focus. This typically means that handlers for these two
-events should prevent the default browser behavior.</p>
+<p class="last">These elements must also have <code class="docutils literal"><span class="pre">mousedown</span></code> and <code class="docutils literal"><span class="pre">click</span></code> handlers
+that do not cause the <strong>browser</strong> to change the focus. This
+typically means that handlers for these two events should prevent
+the default browser behavior.</p>
 </div>
 </div>
 <div class="section" id="im-support">
 <h3>IM Support<a class="headerlink" href="#im-support" title="Permalink to this headline">¶</a></h3>
-<p>As usual, the browsers and various web standards make a mess of what
-ought to be simple. On both Firefox 23 and Chrome 29, entering text
-using IBus does not generate <code class="docutils literal"><span class="pre">keypress</span></code> events. The only events
-available are <code class="docutils literal"><span class="pre">keydown</span></code> and <code class="docutils literal"><span class="pre">keyup</span></code>. Firefox 23 generates a single
-<code class="docutils literal"><span class="pre">keyup</span></code> event at the end of composition, Chrome 29 generates a bunch
-of <code class="docutils literal"><span class="pre">keyup</span></code> and <code class="docutils literal"><span class="pre">keydown</span></code> events while the character is being
-composed. These events are mostly useless because their parameters are
-set to values that do not indicate what the user is actually
-typing. The browsers also fire <code class="docutils literal"><span class="pre">input</span></code> and
-<code class="docutils literal"><span class="pre">composition{start,update,end}</span></code> events, which are also nearly
-useless. The <code class="docutils literal"><span class="pre">input</span></code> event does not state what was done to the
-data. The <code class="docutils literal"><span class="pre">composition{start,update,end}</span></code> events indicate that
-composition happened. In theory the <code class="docutils literal"><span class="pre">data</span></code> parameter should hold the
-data being changed, but on Chrome 29 the <code class="docutils literal"><span class="pre">compositionend</span></code> event has
-a blank <code class="docutils literal"><span class="pre">data</span></code> field when entering the Chinese character for wo3
-(&#8220;I&#8221;).</p>
-<p>There&#8217;s an additional complication in that these events can happen
-when the user wants to <strong>edit</strong> a composed character rather than
-delete or add text. Suppose that we are editing the string &#8220;livré&#8221; to
-read &#8220;livre&#8221;. The way to do it without composition is in two
-operations: delete the &#8220;é&#8221; and insert &#8220;e&#8221; (or in the reverse order).
-However, with composition a character can be transformed into another
-character by one atomic change on the data. A composition method could
-make the change by replacing &#8220;é&#8221; with &#8220;e&#8221; as one operation, without
-there being a deletion followed by an insertion. The character itself
-is transformed.</p>
-<p>What wed currently does is capture all keydown and keypress events
-that are capturable to edit the data tree and <strong>cancel</strong> the default
-behavior. (Then the GUI tree is updated from the data tree and it
-looks like text input happened.) So these won&#8217;t generate input
-events. When an input event <strong>is</strong> detected, compare all text nodes of
-the element on which the event triggered (a GUI node) with those of
-its corresponding data element. Update data nodes as needed.</p>
+<p>As usual, the browsers and various web standards make a mess of what ought to be
+simple. On both Firefox 23 and Chrome 29, entering text using IBus does not
+generate <code class="docutils literal"><span class="pre">keypress</span></code> events. The only events available are <code class="docutils literal"><span class="pre">keydown</span></code> and
+<code class="docutils literal"><span class="pre">keyup</span></code>. Firefox 23 generates a single <code class="docutils literal"><span class="pre">keyup</span></code> event at the end of
+composition, Chrome 29 generates a bunch of <code class="docutils literal"><span class="pre">keyup</span></code> and <code class="docutils literal"><span class="pre">keydown</span></code> events
+while the character is being composed. These events are mostly useless because
+their parameters are set to values that do not indicate what the user is
+actually typing. The browsers also fire <code class="docutils literal"><span class="pre">input</span></code> and
+<code class="docutils literal"><span class="pre">composition{start,update,end}</span></code> events, which are also nearly useless. The
+<code class="docutils literal"><span class="pre">input</span></code> event does not state what was done to the data. The
+<code class="docutils literal"><span class="pre">composition{start,update,end}</span></code> events indicate that composition happened. In
+theory the <code class="docutils literal"><span class="pre">data</span></code> parameter should hold the data being changed, but on Chrome
+29 the <code class="docutils literal"><span class="pre">compositionend</span></code> event has a blank <code class="docutils literal"><span class="pre">data</span></code> field when entering the
+Chinese character for wo3 (&#8220;I&#8221;).</p>
+<p>There&#8217;s an additional complication in that these events can happen when the user
+wants to <strong>edit</strong> a composed character rather than delete or add text. Suppose
+that we are editing the string &#8220;livré&#8221; to read &#8220;livre&#8221;. The way to do it without
+composition is in two operations: delete the &#8220;é&#8221; and insert &#8220;e&#8221; (or in the
+reverse order).  However, with composition a character can be transformed into
+another character by one atomic change on the data. A composition method could
+make the change by replacing &#8220;é&#8221; with &#8220;e&#8221; as one operation, without there being
+a deletion followed by an insertion. The character itself is transformed.</p>
+<p>What wed currently does is capture all keydown and keypress events that are
+capturable to edit the data tree and <strong>cancel</strong> the default behavior. (Then the
+GUI tree is updated from the data tree and it looks like text input happened.)
+So these won&#8217;t generate input events. When an input event <strong>is</strong> detected,
+compare all text nodes of the element on which the event triggered (a GUI node)
+with those of its corresponding data element. Update data nodes as needed.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">With this system, composed characters cannot serve as hot
-keys for the input triggers.</p>
+<p class="last">With this system, composed characters cannot serve as hot keys for
+the input triggers.</p>
 </div>
 </div>
 <div class="section" id="gui-tree-and-data-tree">
 <h3>GUI Tree and Data Tree<a class="headerlink" href="#gui-tree-and-data-tree" title="Permalink to this headline">¶</a></h3>
 <p>Wed maintains two trees of DOM nodes:</p>
 <ul class="simple">
-<li>A data tree which is not attached to the browser&#8217;s document. (It is
-not visible. It does not receive events.) It is a mere
-representation in DOM format of the document being edited. You can
-think of this tree as being a part of the model aspect of the MVC
-pattern. (A <code class="docutils literal"><span class="pre">TreeUpdater</span></code> together with a data tree correspond to
-a model.) Note that this is an XML document. <strong>It is currently not
-possible to perform searches in the data tree using
+<li>A data tree which is not attached to the browser&#8217;s document. (It is not
+visible. It does not receive events.) It is a mere representation in DOM
+format of the document being edited. You can think of this tree as being a
+part of the model aspect of the MVC pattern. (A <code class="docutils literal"><span class="pre">TreeUpdater</span></code> together with
+a data tree correspond to a model.) Note that this is an XML document. <strong>It is
+currently not possible to perform searches in the data tree using
 ``querySelector`` and its friends if tags are prefixed</strong>. So
-<code class="docutils literal"><span class="pre">querySelector(&quot;foo:bar&quot;)</span></code> won&#8217;t find an element whose local name
-is <code class="docutils literal"><span class="pre">foo:bar</span></code>. You can perform the search in the GUI tree to find
-the GUI node and convert to the data node. Or you can use
-<code class="docutils literal"><span class="pre">getElementsByTagNameNS</span></code> if you want to search in the data tree
-for specific tags. Or you can use <code class="docutils literal"><span class="pre">domutil.dataFind/dataFindAll</span></code>.</li>
-<li>A GUI tree which is derived from the data tree. This GUI tree is
-attached to the browser&#8217;s document. It receives events and is what
-the user sees. You can think of this tree as being a part of the
-view and controler aspects of the MVC pattern.</li>
+<code class="docutils literal"><span class="pre">querySelector(&quot;foo:bar&quot;)</span></code> won&#8217;t find an element whose local name is
+<code class="docutils literal"><span class="pre">foo:bar</span></code>. You can perform the search in the GUI tree to find the GUI node
+and convert to the data node. Or you can use <code class="docutils literal"><span class="pre">getElementsByTagNameNS</span></code> if you
+want to search in the data tree for specific tags. Or you can use
+<code class="docutils literal"><span class="pre">domutil.dataFind/dataFindAll</span></code>.</li>
+<li>A GUI tree which is derived from the data tree. This GUI tree is attached to
+the browser&#8217;s document. It receives events and is what the user sees. You can
+think of this tree as being a part of the view and controler aspects of the
+MVC pattern.</li>
 </ul>
-<p>The <code class="docutils literal"><span class="pre">GUIUpdater</span></code> object stored in <code class="docutils literal"><span class="pre">Editor._gui_updater</span></code> is
-responsible for inserting and deleting the nodes of the GUI tree that
-corresponds to those of the data tree whenever the latter is modified.</p>
+<p>The <code class="docutils literal"><span class="pre">GUIUpdater</span></code> object stored in <code class="docutils literal"><span class="pre">Editor._gui_updater</span></code> is responsible for
+inserting and deleting the nodes of the GUI tree that corresponds to those of
+the data tree whenever the latter is modified.</p>
 </div>
 <div class="section" id="elements-of-the-gui-tree">
 <h3>Elements of the GUI Tree<a class="headerlink" href="#elements-of-the-gui-tree" title="Permalink to this headline">¶</a></h3>
 <p>Wed operates on an HTML structure constructed as follows:</p>
 <ul class="simple">
 <li>All elements from the XML document become HTML <code class="docutils literal"><span class="pre">div</span></code> elements.</li>
-<li>The original element&#8217;s qualified name is stored as the first class in &#64;class.</li>
-<li>All other classes that wed reserved to wed&#8217;s own purposes have an
-underscore prepended to them.</li>
-<li>All elements that correspond to an actual element in the XML
-document are of the _real class.</li>
-<li>All elements that are added for decorative purposes are either in
-the _phantom or _phantom_wrap class.</li>
-<li>A _phantom element is not editable, period.</li>
-<li>A _phantom_wrap element is not itself editable but contains editable
-(_real) children.</li>
+<li>The  original  element&#8217;s qualified  name  is  stored  as  the first  class  in
+<code class="docutils literal"><span class="pre">&#64;class</span></code>.</li>
+<li>All other classes that wed reserved to wed&#8217;s own purposes have an underscore
+prepended to them.</li>
+<li>All elements that correspond to an actual element in the XML document are of
+the <code class="docutils literal"><span class="pre">_real</span></code> class.</li>
+<li>All elements that are added for decorative purposes are either in the <code class="docutils literal"><span class="pre">_phantom</span></code>
+or <code class="docutils literal"><span class="pre">_phantom_wrap</span></code> class.</li>
+<li>A <code class="docutils literal"><span class="pre">_phantom</span></code> element is not editable, period.</li>
+<li>A <code class="docutils literal"><span class="pre">_phantom_wrap</span></code> element is not itself editable but contains editable
+(<code class="docutils literal"><span class="pre">_real</span></code>) children.</li>
 <li>The XML element&#8217;s attributes are stored in attributes of the form:</li>
 </ul>
 <blockquote>
@@ -908,61 +799,58 @@ namespace prefix</li>
 </ul>
 </div></blockquote>
 <p>The <code class="docutils literal"><span class="pre">[name]</span></code> part is converted so that three dashes become four, four become
-five, etc. Here are examples of XML attributes and what they become in
-HTML:</p>
+five, etc. Here are examples of XML attributes and what they become in HTML:</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">foo</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-foo</span></code></li>
 <li><code class="docutils literal"><span class="pre">xml:lang</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---lang</span></code></li>
 <li><code class="docutils literal"><span class="pre">xml:a-b</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---a-b</span></code></li>
 <li><code class="docutils literal"><span class="pre">xml:a---b</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---a----b</span></code></li>
-<li>Wed may add attributes for its internal purposes. These do not
-correspond to any XML attributes. They are encoded as
-<code class="docutils literal"><span class="pre">data-wed--[name]</span></code>. An XML attribute name or prefix may not begin
-with a dash, so there cannot be a clash.</li>
+<li>Wed may add attributes for its internal purposes. These do not correspond to
+any XML attributes. They are encoded as <code class="docutils literal"><span class="pre">data-wed--[name]</span></code>. An XML attribute
+name or prefix may not begin with a dash, so there cannot be a clash.</li>
 </ul>
 </div>
 <div class="section" id="classes-used-by-wed">
 <h3>Classes Used by Wed<a class="headerlink" href="#classes-used-by-wed" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
 <dt><code class="docutils literal"><span class="pre">_phantom</span></code>:</dt>
-<dd>All elements added by wed for representing the data to the user are of
-this class.</dd>
+<dd>All elements added by wed for representing the data to the user are of this
+class.</dd>
 <dt><code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_gui</span></code>:</dt>
 <dd>All elements that are more that just uneditable text.</dd>
 <dt><code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_text</span></code>:</dt>
-<dd>All elements that are text added to represent some XML data. That
-is, there is some node in the data tree that corresponds
-specifically to this element.</dd>
-<dt><code class="docutils literal"><span class="pre">_phantom_wrap</span></code>: An element which is not itself editable but</dt>
-<dd>contains editable (<code class="docutils literal"><span class="pre">_real</span></code>) children. This cannot be used to
-wrap nodes that are text nodes in the data tree.</dd>
+<dd>All elements that are text added to represent some XML data. That is, there is
+some node in the data tree that corresponds specifically to this element.</dd>
+<dt><code class="docutils literal"><span class="pre">_phantom_wrap</span></code>:</dt>
+<dd>An element which is not itself editable but contains editable (<code class="docutils literal"><span class="pre">_real</span></code>)
+children. This cannot be used to wrap nodes that are text nodes in the data
+tree.</dd>
 <dt><code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_decoration_text</span></code>:</dt>
 <dd>All elements that are text added for purely decorative purposes. The
-difference between these elements and those which are <code class="docutils literal"><span class="pre">_phantom</span>
-<span class="pre">_text</span></code> is that the latter represents some contents whereas the
-former is purely decorating the data. For instance if an <code class="docutils literal"><span class="pre">&lt;img&gt;</span></code>
-element which points to the image of a cow is represented on screen
-by the word &#8220;cow&#8221; then this text should be <code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_text</span></code>. On
-the other hand if a period is added after numbers in a list so that
-they look nice on screen, these periods should be <code class="docutils literal"><span class="pre">_phantom</span>
-<span class="pre">_decoration_text</span></code> elements.</dd>
+difference between these elements and those which are <code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_text</span></code> is
+that the latter represents some contents whereas the former is purely
+decorating the data. For instance if an <code class="docutils literal"><span class="pre">&lt;img&gt;</span></code> element which points to the
+image of a cow is represented on screen by the word &#8220;cow&#8221; then this text
+should be <code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_text</span></code>. On the other hand if a period is added after
+numbers in a list so that they look nice on screen, these periods should be
+<code class="docutils literal"><span class="pre">_phantom</span> <span class="pre">_decoration_text</span></code> elements.</dd>
 <dt><code class="docutils literal"><span class="pre">__start_label</span></code>:</dt>
-<dd>In combination with <code class="docutils literal"><span class="pre">_gui</span></code>, indicates a label that marks the start
-of an element.</dd>
+<dd>In combination with <code class="docutils literal"><span class="pre">_gui</span></code>, indicates a label that marks the start of an
+element.</dd>
 <dt><code class="docutils literal"><span class="pre">__end_label</span></code>:</dt>
-<dd>In combination with <code class="docutils literal"><span class="pre">_gui</span></code>, indicates a label that marks the end
-of an element.</dd>
+<dd>In combination with <code class="docutils literal"><span class="pre">_gui</span></code>, indicates a label that marks the end of an
+element.</dd>
 <dt><code class="docutils literal"><span class="pre">_&lt;id&gt;_label</span></code>:</dt>
-<dd>The <code class="docutils literal"><span class="pre">&lt;id&gt;</span></code> part is the name of an element. This class marks a
-label as belonging to an <code class="docutils literal"><span class="pre">&lt;id&gt;</span></code> element. For instance, a label for
-a <code class="docutils literal"><span class="pre">p</span></code> element will have the class <code class="docutils literal"><span class="pre">_p_label</span></code>. The full set of
-classes for such a label which happens to mark the start of <code class="docutils literal"><span class="pre">p</span></code>
-will be <code class="docutils literal"><span class="pre">_gui</span> <span class="pre">_phantom</span> <span class="pre">__start_label</span> <span class="pre">_p_label</span></code>.</dd>
+<dd>The <code class="docutils literal"><span class="pre">&lt;id&gt;</span></code> part is the name of an element. This class marks a label as
+belonging to an <code class="docutils literal"><span class="pre">&lt;id&gt;</span></code> element. For instance, a label for a <code class="docutils literal"><span class="pre">p</span></code> element
+will have the class <code class="docutils literal"><span class="pre">_p_label</span></code>. The full set of classes for such a label
+which happens to mark the start of <code class="docutils literal"><span class="pre">p</span></code> will be <code class="docutils literal"><span class="pre">_gui</span> <span class="pre">_phantom</span> <span class="pre">__start_label</span>
+<span class="pre">_p_label</span></code>.</dd>
 <dt><code class="docutils literal"><span class="pre">_start_wrapper</span></code>:</dt>
-<dd>Marks an element which wraps the editable content of an
-element. There may be many such elements at the start of an
-element. For instance a <code class="docutils literal"><span class="pre">ref</span></code> could contain an element label and
-then the phantom text <code class="docutils literal"><span class="pre">(</span></code>. Both would be marked with this class.</dd>
+<dd>Marks an element which wraps the editable content of an element. There may be
+many such elements at the start of an element. For instance a <code class="docutils literal"><span class="pre">ref</span></code> could
+contain an element label and then the phantom text <code class="docutils literal"><span class="pre">(</span></code>. Both would be marked
+with this class.</dd>
 <dt><code class="docutils literal"><span class="pre">_end_wrapper</span></code>:</dt>
 <dd>Like <code class="docutils literal"><span class="pre">_start_wrapper</span></code> but marks the end.</dd>
 <dt><code class="docutils literal"><span class="pre">_readonly</span></code>:</dt>
@@ -971,45 +859,42 @@ then the phantom text <code class="docutils literal"><span class="pre">(</span><
 </div>
 <div class="section" id="possible-due-to-wildcard">
 <h3>Possible Due to Wildcard<a class="headerlink" href="#possible-due-to-wildcard" title="Permalink to this headline">¶</a></h3>
-<p>As explained in <a class="reference internal" href="help.html#complex-name-patterns"><span class="std std-ref">Complex Name Patterns</span></a>, wed <em>can</em> handle the
-name patterns <code class="docutils literal"><span class="pre">NsName</span></code> and <code class="docutils literal"><span class="pre">AnyName</span></code> for the purpose of validating
-a document but will not allow editing such elements. In order to limit
-this editing, during validation wed must set a flag on every element
-and attribute to indicate whether the element&#8217;s or attribute&#8217;s
-existence is only possible due to a wildcard. Then, the GUI rendering
-part of wed listens to changes to this flag and adds or remove the CSS
-class <code class="docutils literal"><span class="pre">_readonly</span></code> to the GUI elements that render the original XML
-element. This is specifically designed to avoid having the decorator
-refresh elements because this can get pretty expensive.</p>
-<p>Note that it is not possible to set the flag once and for all on an
-element and never change it.  Suppose the following Relax NG:</p>
+<p>As explained in <a class="reference internal" href="help.html#complex-name-patterns"><span class="std std-ref">Complex Name Patterns</span></a>, wed <em>can</em> handle the name patterns
+<code class="docutils literal"><span class="pre">NsName</span></code> and <code class="docutils literal"><span class="pre">AnyName</span></code> for the purpose of validating a document but will not
+allow editing such elements. In order to limit this editing, during validation
+wed must set a flag on every element and attribute to indicate whether the
+element&#8217;s or attribute&#8217;s existence is only possible due to a wildcard. Then, the
+GUI rendering part of wed listens to changes to this flag and adds or remove the
+CSS class <code class="docutils literal"><span class="pre">_readonly</span></code> to the GUI elements that render the original XML
+element. This is specifically designed to avoid having the decorator refresh
+elements because this can get pretty expensive.</p>
+<p>Note that it is not possible to set the flag once and for all on an element and
+never change it.  Suppose the following Relax NG:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">element</span> <span class="n">a</span> <span class="p">{</span> <span class="n">element</span> <span class="n">q</span> <span class="p">{</span> <span class="n">empty</span> <span class="p">},</span> <span class="nb">any</span><span class="o">+</span> <span class="p">}</span>
 <span class="nb">any</span> <span class="o">=</span> <span class="n">element</span> <span class="o">*</span> <span class="p">{</span> <span class="nb">any</span><span class="o">*</span> <span class="p">}</span>
 </pre></div>
 </div>
-<p>The file <code class="docutils literal"><span class="pre">&lt;a&gt;&lt;q/&gt;&lt;q/&gt;&lt;/a&gt;</span></code>. The first <code class="docutils literal"><span class="pre">q</span></code> validates because of
-<code class="docutils literal"><span class="pre">element</span> <span class="pre">q</span></code> in the schema. The second one because of <code class="docutils literal"><span class="pre">any+</span></code>. If
-the first <code class="docutils literal"><span class="pre">q</span></code> is removed, then the 2nd <code class="docutils literal"><span class="pre">q</span></code> will become first and
-will validate because of <code class="docutils literal"><span class="pre">element</span> <span class="pre">q</span></code>. In other words, the deletion
-of the first <code class="docutils literal"><span class="pre">q</span></code> <em>changes the reason</em> the second <code class="docutils literal"><span class="pre">q</span></code> is deemed
-valid. So the second <code class="docutils literal"><span class="pre">q</span></code> would be first flagged to be valid due to a
-wildcard, and then after the edit, the flag could be made
-false. Starting with a document that has ony one <code class="docutils literal"><span class="pre">q</span></code> and adding
-another <code class="docutils literal"><span class="pre">q</span></code> in front of it would also cause the flag to change, but
-the other way around.</p>
+<p>The file <code class="docutils literal"><span class="pre">&lt;a&gt;&lt;q/&gt;&lt;q/&gt;&lt;/a&gt;</span></code>. The first <code class="docutils literal"><span class="pre">q</span></code> validates because of <code class="docutils literal"><span class="pre">element</span> <span class="pre">q</span></code>
+in the schema. The second one because of <code class="docutils literal"><span class="pre">any+</span></code>. If the first <code class="docutils literal"><span class="pre">q</span></code> is
+removed, then the 2nd <code class="docutils literal"><span class="pre">q</span></code> will become first and will validate because of
+<code class="docutils literal"><span class="pre">element</span> <span class="pre">q</span></code>. In other words, the deletion of the first <code class="docutils literal"><span class="pre">q</span></code> <em>changes the
+reason</em> the second <code class="docutils literal"><span class="pre">q</span></code> is deemed valid. So the second <code class="docutils literal"><span class="pre">q</span></code> would be first
+flagged to be valid due to a wildcard, and then after the edit, the flag could
+be made false. Starting with a document that has ony one <code class="docutils literal"><span class="pre">q</span></code> and adding
+another <code class="docutils literal"><span class="pre">q</span></code> in front of it would also cause the flag to change, but the other
+way around.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">There may be ways to optimize the whole process so as to
-allow more substantial functionality than a CSS change
-but any such change should be considered very
-carefully. For instance, one may think that we could just
-have rendering code call the validator to perform a check
-on each element. Calling the validator from rendering
-code <em>is possible</em> but has a significant impact on
-performance. And it is tricky. If one is not careful, it
-is possible to create an infinite loop: rendering causes
-validation, which emits validation events, which cause
-rendering, which casues validation, which emits events...</p>
+<p class="last">There may be ways to optimize the whole process so as to allow more
+substantial functionality than a CSS change but any such change
+should be considered very carefully. For instance, one may think
+that we could just have rendering code call the validator to
+perform a check on each element. Calling the validator from
+rendering code <em>is possible</em> but has a significant impact on
+performance. And it is tricky. If one is not careful, it is
+possible to create an infinite loop: rendering causes validation,
+which emits validation events, which cause rendering, which casues
+validation, which emits events...</p>
 </div>
 </div>
 </div>
@@ -1019,32 +904,31 @@ rendering, which casues validation, which emits events...</p>
 incompatible with each other. This section documents such issues.</p>
 <div class="section" id="cut-paste-copy">
 <h3>Cut, Paste, Copy<a class="headerlink" href="#cut-paste-copy" title="Permalink to this headline">¶</a></h3>
-<p>Copying and pasting don&#8217;t present any special difficulties. However,
-cutting is problematic, because:</p>
+<p>Copying and pasting don&#8217;t present any special difficulties. However, cutting is
+problematic, because:</p>
 <ol class="arabic simple">
-<li>Browsers don&#8217;t allow JavaScript to initiate cuts. So it is not
-possible to intercept a <code class="docutils literal"><span class="pre">cut</span></code> event and then cause the browser to
-cut by using a <em>different</em> event.</li>
-<li>A cut modifies the DOM directly. This is a problem because wed
-wants modifications to go through <code class="docutils literal"><span class="pre">TreeUpdater</span></code> objects. An
-earlier version of wed was letting <code class="docutils literal"><span class="pre">cut</span></code> events go through and
-updated the data tree but this caused the GUI tree to become
-stale. (An additional complication is that there is no undoing.)</li>
+<li>Browsers don&#8217;t allow JavaScript to initiate cuts. So it is not possible to
+intercept a <code class="docutils literal"><span class="pre">cut</span></code> event and then cause the browser to cut by using a
+<em>different</em> event.</li>
+<li>A cut modifies the DOM directly. This is a problem because wed wants
+modifications to go through <code class="docutils literal"><span class="pre">TreeUpdater</span></code> objects. An earlier version of
+wed was letting <code class="docutils literal"><span class="pre">cut</span></code> events go through and updated the data tree but this
+caused the GUI tree to become stale. (An additional complication is that
+there is no undoing.)</li>
 </ol>
-<p>It is possible to listen to <code class="docutils literal"><span class="pre">cut</span></code> events and let them go through or
-veto them, but this is about the maximum level of control that can be
-achieved cross-browser.</p>
+<p>It is possible to listen to <code class="docutils literal"><span class="pre">cut</span></code> events and let them go through or veto them,
+but this is about the maximum level of control that can be achieved
+cross-browser.</p>
 </div>
 <div class="section" id="contenteditable">
 <h3>Contenteditable<a class="headerlink" href="#contenteditable" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="incompatibilities">
 <h4>Incompatibilities<a class="headerlink" href="#incompatibilities" title="Permalink to this headline">¶</a></h4>
-<p>One area of incompatibility is the implementation of contenteditable
-across browsers. Even a single browser can behave inconsistently
-depending on how the DOM tree is structured. (In Firefox 20, the
-presence or absence of white-space text nodes sometimes changes the
-way BACKSPACE is handled when the caret is at the start of a
-contenteditable element.)</p>
+<p>One area of incompatibility is the implementation of contenteditable across
+browsers. Even a single browser can behave inconsistently depending on how the
+DOM tree is structured. (In Firefox 20, the presence or absence of white-space
+text nodes sometimes changes the way BACKSPACE is handled when the caret is at
+the start of a contenteditable element.)</p>
 </div>
 <div class="section" id="successive-elements-and-the-caret">
 <h4>Successive Elements and the Caret<a class="headerlink" href="#successive-elements-and-the-caret" title="Permalink to this headline">¶</a></h4>
@@ -1053,140 +937,128 @@ contenteditable element.)</p>
 <span class="o">&lt;</span><span class="n">button</span> <span class="n">contenteditable</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="o">&gt;</span><span class="n">B</span><span class="o">&lt;/</span><span class="n">button</span><span class="o">&gt;</span> <span class="n">bar</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>If you place the caret just before the space before &#8220;bar&#8221; and hit the
-left arrow to move it back between buttons A and B, various browsers
-will handle it differently. At any rate, in both Chrome 26 and Firefox
-20, there will <strong>not</strong> be a caret <strong>between</strong> A and B. The caret may
-disappear or be moved somewhere else. The same result occurs if you place the
-caret after the space after <code class="docutils literal"><span class="pre">foo</span></code> and hit the right arrow.</p>
-<p>Setting the caret programmatically does not work either but in general
-results in the caret disappearing.  Browsers differ a little bit. In
-Chrome 26, it seems that even though the caret becomes invisible, it
-still exists between the two elements. (It is possible to delete
-either button.) In Firefox 20, the caret becomes
-non-existent (editing is not possible).</p>
-<p>So to allow editing between successive elements, wed has to create a
-placeholder to allow the user to put their caret between elements.</p>
+<p>If you place the caret just before the space before &#8220;bar&#8221; and hit the left arrow
+to move it back between buttons A and B, various browsers will handle it
+differently. At any rate, in both Chrome 26 and Firefox 20, there will <strong>not</strong>
+be a caret <strong>between</strong> A and B. The caret may disappear or be moved somewhere
+else. The same result occurs if you place the caret after the space after
+<code class="docutils literal"><span class="pre">foo</span></code> and hit the right arrow.</p>
+<p>Setting the caret programmatically does not work either but in general results
+in the caret disappearing.  Browsers differ a little bit. In Chrome 26, it seems
+that even though the caret becomes invisible, it still exists between the two
+elements. (It is possible to delete either button.) In Firefox 20, the caret
+becomes non-existent (editing is not possible).</p>
+<p>So to allow editing between successive elements, wed has to create a placeholder
+to allow the user to put their caret between elements.</p>
 </div>
 <div class="section" id="ie11-and-line-breaks">
 <h4>IE11 and line breaks<a class="headerlink" href="#ie11-and-line-breaks" title="Permalink to this headline">¶</a></h4>
-<p>We&#8217;ve discovered late that IE11 has a rendering issue with elements
-that are <code class="docutils literal"><span class="pre">contenteditable</span></code>. Take the following:</p>
+<p>We&#8217;ve discovered late that IE11 has a rendering issue with elements that are
+<code class="docutils literal"><span class="pre">contenteditable</span></code>. Take the following:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">paragraph</span> <span class="o">&lt;</span><span class="n">hi</span><span class="o">&gt;</span><span class="k">with</span>
 <span class="n">highlighting</span><span class="o">&lt;/</span><span class="n">hi</span><span class="o">&gt;</span> <span class="ow">and</span> <span class="n">more</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>Read it as an abstract representation of the GUI tree. The start and
-end tags have corresponding labels in the GUI tree. More importantly,
-there is a line break between <code class="docutils literal"><span class="pre">with</span></code> and <code class="docutils literal"><span class="pre">highlighting</span></code>. This is
-as we want it. This it how it works in Chrome and FF. In IE11,
-however, the <code class="docutils literal"><span class="pre">hi</span></code> element will be kept on one line, no matter
-what. The only way to have IE break it is to remove the
-<code class="docutils literal"><span class="pre">contenteditable</span></code> attribute from the element created for the GUI
-tree!</p>
+<p>Read it as an abstract representation of the GUI tree. The start and end tags
+have corresponding labels in the GUI tree. More importantly, there is a line
+break between <code class="docutils literal"><span class="pre">with</span></code> and <code class="docutils literal"><span class="pre">highlighting</span></code>. This is as we want it. This it how
+it works in Chrome and FF. In IE11, however, the <code class="docutils literal"><span class="pre">hi</span></code> element will be kept on
+one line, no matter what. The only way to have IE break it is to remove the
+<code class="docutils literal"><span class="pre">contenteditable</span></code> attribute from the element created for the GUI tree!</p>
 </div>
 </div>
 <div class="section" id="synthetic-keyboard-events">
 <h3>Synthetic Keyboard Events<a class="headerlink" href="#synthetic-keyboard-events" title="Permalink to this headline">¶</a></h3>
-<p>In Firefox 20, it seems impossible to get the browser to handle a
-synthetic keyboard event exactly as if the user had typed it. The
-event can be created and dispatched, and it will trigger event
-handlers. However, sending a series of &#8220;keydown&#8221;, &#8220;keypress&#8221;, &#8220;keyup&#8221;
-events for the letter &#8220;a&#8221; while the caret is in a contenteditable
-region won&#8217;t result in the letter &#8220;a&#8221; being added to the element being
-edited.</p>
-<p>It is possible to use plugins like <a class="reference external" href="http://bililite.com/blog/2011/01/23/improved-sendkeys/">sendkeys</a> to simulate key presses
-that actually modify the contents of editable elements. However, when
-it comes to simulating key presses in contenteditable elements, the
-simulation is very imperfect. Cursory testing sending BACKSPACE using
-sendkeys and BACKSPACE using the keyboard shows inconsistent behavior.</p>
+<p>In Firefox 20, it seems impossible to get the browser to handle a synthetic
+keyboard event exactly as if the user had typed it. The event can be created and
+dispatched, and it will trigger event handlers. However, sending a series of
+&#8220;keydown&#8221;, &#8220;keypress&#8221;, &#8220;keyup&#8221; events for the letter &#8220;a&#8221; while the caret is in a
+contenteditable region won&#8217;t result in the letter &#8220;a&#8221; being added to the element
+being edited.</p>
+<p>It is possible to use plugins like <a class="reference external" href="http://bililite.com/blog/2011/01/23/improved-sendkeys/">sendkeys</a> to simulate key presses that
+actually modify the contents of editable elements. However, when it comes to
+simulating key presses in contenteditable elements, the simulation is very
+imperfect. Cursory testing sending BACKSPACE using sendkeys and BACKSPACE using
+the keyboard shows inconsistent behavior.</p>
 </div>
 <div class="section" id="vetoing-mutations">
 <h3>Vetoing Mutations<a class="headerlink" href="#vetoing-mutations" title="Permalink to this headline">¶</a></h3>
-<p>It might seem that using MutationObserver to check on a DOM tree, one
-would be able to veto a user-initiated change inside contenteditable
-elements. In practice, a single keyboard key (like BACKSPACE) hit
-might result in 5-6 mutations of the DOM tree, and there is no simple
-way to know that these 5-6 mutations were all initiated by a single
-key.</p>
+<p>It might seem that using MutationObserver to check on a DOM tree, one would be
+able to veto a user-initiated change inside contenteditable elements. In
+practice, a single keyboard key (like BACKSPACE) hit might result in 5-6
+mutations of the DOM tree, and there is no simple way to know that these 5-6
+mutations were all initiated by a single key.</p>
 </div>
 <div class="section" id="the-xpath-problem">
 <span id="tech-notes-xpath"></span><h3>The XPath Problem<a class="headerlink" href="#the-xpath-problem" title="Permalink to this headline">¶</a></h3>
-<p>Wed does not use XPath internally. A mode that you develop for wed
-<strong>could</strong> require the use of XPath but please read on before making
-that choice.</p>
+<p>Wed does not use XPath internally. A mode that you develop for wed <strong>could</strong>
+require the use of XPath but please read on before making that choice.</p>
 <p>The issues:</p>
 <ol class="arabic">
 <li><p class="first">Browsers only natively support XPath 1.</p>
 </li>
-<li><p class="first">On some browsers (any version of Internet Explorer, for instance),
-the way to perform XPath queries is radically different from other
-browsers. Most browsers will allow performing queries on a document
-produced with <code class="docutils literal"><span class="pre">DOMParser</span></code>. Moreover the document produced by
-<code class="docutils literal"><span class="pre">DOMParser</span></code> is a DOM document with support for all the DOM
-methods normally found on a document.</p>
-<p>The machinery for XPath queries on IE browsers on the other hand
-produce an &#8220;document&#8221; which is not an actual DOM document. It is an
-entirely different beast. (Just to name one simple difference: you
-can use <code class="docutils literal"><span class="pre">querySelector</span></code> on documents created using
-<code class="docutils literal"><span class="pre">DOMParser</span></code>. You cannot do the same on the document created
-through IE&#8217;s ActiveXObject nonsense.)</p>
-<p>So using the browser machinery would require (at least) two
-significantly different methods of working with XML documents.</p>
+<li><p class="first">On some browsers (any version of Internet Explorer, for instance), the way to
+perform XPath queries is radically different from other browsers. Most
+browsers will allow performing queries on a document produced with
+<code class="docutils literal"><span class="pre">DOMParser</span></code>. Moreover the document produced by <code class="docutils literal"><span class="pre">DOMParser</span></code> is a DOM
+document with support for all the DOM methods normally found on a document.</p>
+<p>The machinery for XPath queries on IE browsers on the other hand produce an
+&#8220;document&#8221; which is not an actual DOM document. It is an entirely different
+beast. (Just to name one simple difference: you can use <code class="docutils literal"><span class="pre">querySelector</span></code> on
+documents created using <code class="docutils literal"><span class="pre">DOMParser</span></code>. You cannot do the same on the document
+created through IE&#8217;s ActiveXObject nonsense.)</p>
+<p>So using the browser machinery would require (at least) two significantly
+different methods of working with XML documents.</p>
 </li>
 <li><p class="first">There are non-native solutions that <em>should</em> work on various
 browsers. However,</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/google/wicked-good-xpath/">Wicked Good XPath</a> has a <a class="reference external" href="https://github.com/google/wicked-good-xpath/issues/46">basic
-flaw</a> in
-how it handles case-sensitivity. It works inconsistently across
-platforms.</li>
-<li><a class="reference external" href="https://github.com/ilinsky/xpath.js">This library</a> seems a
-better choice but it is currently in flux and has no clear
-releases.</li>
-<li>The version of Saxon that loads in browsers has support for XPath
-but this means loading a huge library.</li>
+<li><a class="reference external" href="https://github.com/google/wicked-good-xpath/">Wicked Good XPath</a> has a
+<a class="reference external" href="https://github.com/google/wicked-good-xpath/issues/46">basic flaw</a> in
+how it handles case-sensitivity. It works inconsistently across platforms.</li>
+<li><a class="reference external" href="https://github.com/ilinsky/xpath.js">This library</a> seems a better
+choice but it is currently in flux and has no clear releases.</li>
+<li>The version of Saxon that loads in browsers has support for XPath but this
+means loading a huge library.</li>
 </ul>
 </li>
 </ol>
-<p>There&#8217;s no trivial way to support XPath right now. We&#8217;re keeping an
-eye on development of XPath libraries to determine a moment when
-adding such support is reasonable.</p>
+<p>There&#8217;s no trivial way to support XPath right now. We&#8217;re keeping an eye on
+development of XPath libraries to determine a moment when adding such support is
+reasonable.</p>
 </div>
 </div>
 <div class="section" id="historical-notes">
 <h2>Historical Notes<a class="headerlink" href="#historical-notes" title="Permalink to this headline">¶</a></h2>
-<p>Initially wed was designed with the idea that <code class="docutils literal"><span class="pre">contenteditable</span></code>
-would take care of caret management, selection management, text entry,
-etc. Consequently, wed would let the browser drive the management of
-these things and query the browser to know where the caret was,
-whether there was a selection, etc. However, experience soon proved
-that the browsers did not handle these functions in a way that was
-appropriate for wed. So wed had to take over the management of some of
-these functions. Since there was always some hope that at least <em>some</em>
-of these functions could <em>still</em> be delegated to the browser, these
-changes happened incrementally, changing only as much as needed to get
-the desired result. Some of these changes made earlier code obsolete
-but this was not discovered immediately. So wed evolved form this approach:</p>
+<p>Initially wed was designed with the idea that <code class="docutils literal"><span class="pre">contenteditable</span></code> would take
+care of caret management, selection management, text entry, etc. Consequently,
+wed would let the browser drive the management of these things and query the
+browser to know where the caret was, whether there was a selection,
+etc. However, experience soon proved that the browsers did not handle these
+functions in a way that was appropriate for wed. So wed had to take over the
+management of some of these functions. Since there was always some hope that at
+least <em>some</em> of these functions could <em>still</em> be delegated to the browser, these
+changes happened incrementally, changing only as much as needed to get the
+desired result. Some of these changes made earlier code obsolete but this was
+not discovered immediately. So wed evolved form this approach:</p>
 <blockquote>
 <div><ul class="simple">
-<li>The browser is the authority on the caret position, the selection,
-and related things. Wed queries the browser as needed.</li>
+<li>The browser is the authority on the caret position, the selection, and
+related things. Wed queries the browser as needed.</li>
 </ul>
 </div></blockquote>
 <p>To this approach:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Wed is the authority on the caret position, the selection, and
-related things. Wed updates the browser&#8217;s idea of such things as
-needed.</li>
+<li>Wed is the authority on the caret position, the selection, and related
+things. Wed updates the browser&#8217;s idea of such things as needed.</li>
 </ul>
 </div></blockquote>
-<p>The incremental nature of the changes made it so that overtime code
-that operated under the first approach was found right next to code
-that operated under the second approach. Version 0.17.0 cleaned up a
-good deal of the old code (first approach) that was made obsolete by
-the incremental changes, but some obsolete code may still remain.</p>
+<p>The incremental nature of the changes made it so that overtime code that
+operated under the first approach was found right next to code that operated
+under the second approach. Version 0.17.0 cleaned up a good deal of the old code
+(first approach) that was made obsolete by the incremental changes, but some
+obsolete code may still remain.</p>
 </div>
 </div>
 
@@ -1198,7 +1070,7 @@ the incremental changes, but some obsolete code may still remain.</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="usage.html" class="btn btn-neutral" title="Using Wed in an Application" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="mode_design.html" class="btn btn-neutral" title="Creating a Mode" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -1229,7 +1101,7 @@ the incremental changes, but some obsolete code may still remain.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.28.1',
+            VERSION:'v0.28.2-152-g4525c15d',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

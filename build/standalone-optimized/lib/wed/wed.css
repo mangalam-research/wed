@@ -141,14 +141,15 @@ div.wed-document-constrainer {
 div.wed-document-constrainer .wed-comp-field {
   position: absolute;
   z-index: -10;
-  top: -1000px;
-  left: -1000px;
+  top: 0px;
+  left: 0px;
   width: 1em;
 }
 div.wed-document-constrainer .wed-caret-layer {
   position: relative;
   z-index: 1;
   background-color: white;
+  pointer-events: none;
 }
 div.wed-document-constrainer .wed-caret-layer ._wed_caret {
   position: absolute;
@@ -172,8 +173,10 @@ div.wed-document-constrainer .wed-scroller .wed-error-layer {
   position: relative;
   z-index: 2;
   background-color: white;
+  pointer-events: none;
 }
 div.wed-document-constrainer .wed-scroller .wed-error-layer * {
+  pointer-events: auto;
   position: absolute;
 }
 div.wed-frame ._gui._label > span {
@@ -195,8 +198,9 @@ div.wed-frame ._gui._label {
   border-radius: .25em;
   border-style: none;
 }
-div.wed-frame ._gui._label._label_clicked {
-  background-color: #f0ad4e;
+div.wed-frame ._gui._label._autohidden_attributes ._greater_than::before {
+  content: "\00a0...\00a0";
+  font-weight: bold;
 }
 div.wed-frame ._gui._label ._attribute_value {
   color: black;
@@ -204,6 +208,18 @@ div.wed-frame ._gui._label ._attribute_value {
 }
 div.wed-frame ._gui._label ._attribute._readonly ._attribute_value {
   background-color: #ff8566;
+}
+div.wed-frame ._gui._label ._attribute._shown_when_caret_in_label {
+  display: none;
+}
+div.wed-frame ._gui._label._label_clicked {
+  background-color: #f0ad4e;
+}
+div.wed-frame ._gui._label._with_caret ._attribute._shown_when_caret_in_label {
+  display: initial;
+}
+div.wed-frame ._gui._label._with_caret._autohidden_attributes ._greater_than::before {
+  display: none;
 }
 div.wed-frame ._gui._invisible {
   display: none;

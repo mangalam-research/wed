@@ -1,0 +1,1 @@
+define({"metas":{"docbook":"wed/modes/generic/metas/docbook-meta","tei":"wed/modes/generic/metas/tei-meta"}});

@@ -1,0 +1,19 @@
+{
+  "extends": "tslint-config-lddubeau",
+  "rules": {
+    "prefer-for-of": [false, "We have to use traditional loops in many cases ",
+                      "because wed itself should not depend on Array.from"],
+    "promise-function-async": [false,
+                               "Need to investigate the impact of the ",
+                               "async/await conversion done by tsc."],
+    "radix": [false,
+              "This project simply does not support platforms where not ",
+              "setting a radix is a problem"],
+    "no-non-null-assertion": [false,
+                              "We're not going to pepper the code with ",
+                              "spurious null checks."],
+    "newline-before-return": [false, "Not for this project."],
+    "no-import-side-effect": [true,
+                              { "ignore-pattern": "^(jquery|bootstrap)$" }]
+  }
+}

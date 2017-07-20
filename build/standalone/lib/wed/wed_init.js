@@ -1,59 +1,78 @@
 /**
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
- * @copyright 2013-2015 Mangalam Research Center for Buddhist Languages
+ * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(/** @lends module:wed */function (require, exports, module) {
-'use strict';
+define(/** @lends module:wed */function f(require) {
+  "use strict";
 
-var core = require("./wed_core");
-var Editor = core.Editor;
-var version = core.version;
-var wed_util = require("./wed_util");
-var paste = wed_util.paste;
-var cut = wed_util.cut;
-var build_info = require("./build-info");
-var $ = require("jquery");
-var merge_options = require("merge-options");
-var log = require("./log");
-var preferences = require("./preferences");
-var domutil = require("./domutil");
-var guiroot = require("./guiroot");
-var dloc = require("./dloc");
-var makeDLoc = dloc.makeDLoc;
-var AjaxSaver = require("./savers/ajax").Saver;
-var LocalSaver = require("./savers/localforage").Saver;
-var TreeUpdater = require("./tree_updater").TreeUpdater;
-var GUIUpdater = require("./gui_updater").GUIUpdater;
-var UndoRecorder = require("./undo_recorder").UndoRecorder;
-var updater_domlistener = require("./updater_domlistener");
-var validator = require("./validator");
-var Validator = validator.Validator;
-var object_check = require("./object_check");
-var modal = require("./gui/modal");
-var icon = require("./gui/icon");
-var undo = require("./undo");
-var transformation = require("./transformation");
-var pubsub = require("./lib/pubsub");
-var onbeforeunload = require("./onbeforeunload");
-var Action = require("./action").Action;
-var oop = require("./oop");
-var closestByClass = domutil.closestByClass;
-var closest = domutil.closest;
-var indexOf = domutil.indexOf;
+  var core = require("./wed_core");
+  var wed_util = require("./wed-util");
+  var build_info = require("./build-info");
+  var $ = require("jquery");
+  var log = require("./log");
+  var preferences = require("./preferences");
+  var domutil = require("./domutil");
+  var guiroot = require("./guiroot");
+  var dloc = require("./dloc");
+  var AjaxSaver = require("./savers/ajax").Saver;
+  var LocalSaver = require("./savers/localforage").Saver;
+  var IndexedDBSaver = require("./savers/indexeddb").Saver;
+  var TreeUpdater = require("./tree-updater").TreeUpdater;
+  var GUIUpdater = require("./gui-updater").GUIUpdater;
+  var UndoRecorder = require("./undo-recorder").UndoRecorder;
+  var domlistener = require("./domlistener");
+  var validator = require("./validator");
+  var ValidationController =
+      require("./validation-controller").ValidationController;
+  var modal = require("./gui/modal");
+  var icon = require("./gui/icon");
+  var undo = require("./undo");
+  var transformation = require("./transformation");
+  var onbeforeunload = require("./onbeforeunload");
+  var Action = require("./action").Action;
+  var oop = require("./oop");
+  var Runtime = require("./runtime").Runtime;
+  var TaskRunner = require("./task-runner").TaskRunner;
+  var CaretManager = require("./caret-manager").CaretManager;
+  var Layer = require("./gui/layer").Layer;
+  var ErrorLayer = require("./gui/error-layer").ErrorLayer;
+  var Scroller = require("./gui/scroller").Scroller;
+  var salve = require("salve");
+  var Promise = require("bluebird");
+  var Ajv = require("ajv");
+  var wedOptionsSchema = require("./wed-options-schema.json");
 
-function ComplexPatternAction() {
+  var Editor = core.Editor;
+  var version = core.version;
+  var paste = wed_util.paste;
+  var cut = wed_util.cut;
+  var Validator = validator.Validator;
+  var closest = domutil.closest;
+  var indexOf = domutil.indexOf;
+
+  function filterSaveEvents(name, ev) {
+    return ev.name === name;
+  }
+
+  function ComplexPatternAction() {
     Action.apply(this, arguments);
-}
+  }
 
-oop.inherit(ComplexPatternAction, Action);
+  oop.inherit(ComplexPatternAction, Action);
 
-ComplexPatternAction.prototype.execute = function (data) {
+  ComplexPatternAction.prototype.execute = function execute() {
     var editor = this._editor;
     editor._complex_pattern_modal.modal();
-};
+  };
 
-Editor.prototype.init = log.wrap(function (widget, options, data) {
+  var EditorP = Editor.prototype;
+
+  function unloadHandler(e) {
+    e.data.editor.destroy();
+  }
+
+  EditorP.init = log.wrap(function init(widget, options, xmlData) {
     this.max_label_level = undefined;
     this._current_label_level = undefined;
     this._stripped_spaces = /\u200B/g;
@@ -63,7 +82,7 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this._normalize_entered_spaces = true;
 
     this.preferences = new preferences.Preferences({
-        "tooltips": true
+      tooltips: true,
     });
 
     this.widget = widget;
@@ -77,29 +96,39 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this.doc = doc;
 
     var parser = new this.my_window.DOMParser();
-    if (data) {
-        this.data_root = parser.parseFromString(data, "text/xml");
-        this._dataChild = this.data_root.firstChild;
+    if (xmlData) {
+      this.data_root = parser.parseFromString(xmlData, "text/xml");
+      this._dataChild = this.data_root.firstChild;
     }
     else {
-        this.data_root = parser.parseFromString("<div></div>", "text/xml");
-        this._dataChild = undefined;
+      this.data_root = parser.parseFromString("<div></div>", "text/xml");
+      this._dataChild = undefined;
     }
     this.data_root.removeChild(this.data_root.firstChild);
 
-    // ignore_module_config allows us to completely ignore the module
-    // config. In some case, it may be difficult to just override
-    // individual values.
-    if (options.ignore_module_config)
-        options = merge_options({}, options);
-    else
-        // This enables us to override options.
-        options = merge_options({}, core.module_config, options);
+    // ignore_module_config allows us to completely ignore the module config. In
+    // some case, it may be difficult to just override individual values.
+    if (options.ignore_module_config) {
+      // eslint-disable-next-line no-console
+      console.warn("the option ignore_module_config is no longer useful");
+    }
+
+    // It is possible to pass a runtime as "options".
+    if (options instanceof Runtime) {
+      this.runtime = options;
+      options = this.runtime.options;
+    }
+    else {
+      // If the user passed options straight, then make a runtime from them.
+      this.runtime = new Runtime(options);
+      options = this.runtime.options;
+    }
 
     this.name = options.name;
 
-    if (options.ajaxlog)
-        log.addURL(options.ajaxlog.url, options.ajaxlog.headers);
+    if (options.ajaxlog) {
+      log.addURL(options.ajaxlog.url, options.ajaxlog.headers);
+    }
 
     this._save = options.save;
     // Records whether the first parse has happened.
@@ -111,31 +140,31 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this.options = options;
 
     // This structure will wrap around the document to be edited.
-    var $framework = $('\
-<div class="row">\
- <div class="wed-frame col-sm-push-2 col-lg-10 col-md-10 col-sm-10">\
-  <div class="row">\
-   <div class="progress">\
+    var $framework = $("\
+<div class=\"row\">\
+ <div class=\"wed-frame col-sm-push-2 col-lg-10 col-md-10 col-sm-10\">\
+  <div class=\"row\">\
+   <div class=\"progress\">\
     <span></span>\
-    <div id="validation-progress" class="progress-bar" style="width: 0%"/>\
+    <div id=\"validation-progress\" class=\"progress-bar\" style=\"width: 0%\"/>\
    </div>\
   </div>\
-  <div class="row">\
-   <div class="wed-cut-buffer" contenteditable="true"></div>\
-   <div class="wed-document-constrainer">\
-    <input class="wed-comp-field" type="text"></input>\
-    <div class="wed-caret-layer">\
+  <div class=\"row\">\
+   <div class=\"wed-cut-buffer\" contenteditable=\"true\"></div>\
+   <div class=\"wed-document-constrainer\">\
+    <input class=\"wed-comp-field\" type=\"text\"></input>\
+    <div class=\"wed-caret-layer\">\
     </div>\
-    <div class="wed-scroller">\
-     <div class="wed-error-layer"></div>\
-     <div class="wed-document"><span class="root-here"/></div>\
+    <div class=\"wed-scroller\">\
+     <div class=\"wed-error-layer\"></div>\
+     <div class=\"wed-document\"><span class=\"root-here\"/></div>\
     </div>\
    </div>\
-   <div class="wed-location-bar"><span>&nbsp;</span></div>\
+   <div class=\"wed-location-bar\"><span>&nbsp;</span></div>\
   </div>\
  </div>\
- <div id="sidebar" class="col-sm-pull-10 col-lg-2 col-md-2 col-sm-2"/>\
-</div>', doc);
+ <div id=\"sidebar\" class=\"col-sm-pull-10 col-lg-2 col-md-2 col-sm-2\"/>\
+</div>", doc);
     var framework = $framework[0];
 
     //
@@ -146,35 +175,34 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     // $gui_root represents the document root in the HTML elements
     // displayed. The top level element of the XML document being
     // edited will be the single child of $gui_root.
-    this.gui_root = framework.getElementsByClassName('wed-document')[0];
+    this.gui_root = framework.getElementsByClassName("wed-document")[0];
     this.$gui_root = $(this.gui_root);
-    this._scroller = framework.getElementsByClassName('wed-scroller')[0];
-    this._$scroller = $(this._scroller);
+    this._scroller =
+      new Scroller(framework.getElementsByClassName("wed-scroller")[0]);
 
-    this._$input_field = $(
-        framework.getElementsByClassName("wed-comp-field")[0]);
+    this._input_field = framework.getElementsByClassName("wed-comp-field")[0];
+    this._$input_field = $(this._input_field);
     this._cut_buffer = framework.getElementsByClassName("wed-cut-buffer")[0];
 
-    this._caret_layer = framework.getElementsByClassName('wed-caret-layer')[0];
-    this._$caret_layer = $(this._caret_layer);
-    this._error_layer = framework.getElementsByClassName('wed-error-layer')[0];
-    this._$error_layer = $(this._error_layer);
+    this._caretLayer = new Layer(
+      framework.getElementsByClassName("wed-caret-layer")[0]);
+    this._errorLayer = new ErrorLayer(
+      framework.getElementsByClassName("wed-error-layer")[0]);
 
-    this._layer_names = ["_caret_layer", "_error_layer"];
-    this._layer_state_stack = [];
     this._wed_location_bar =
-        framework.getElementsByClassName('wed-location-bar')[0];
+      framework.getElementsByClassName("wed-location-bar")[0];
 
     // Insert the framework and put the document in its proper place.
     var root_placeholder = framework.getElementsByClassName("root-here")[0];
 
     if (widget.firstChild) {
-        if (!(widget.firstChild instanceof this.my_window.Element))
-            throw new Error("the data is populated with DOM elements constructed " +
-                            "from another window");
+      if (!(widget.firstChild instanceof this.my_window.Element)) {
+        throw new Error("the data is populated with DOM elements constructed " +
+                        "from another window");
+      }
 
-        root_placeholder.parentNode.insertBefore(widget.firstChild,
-                                                 root_placeholder);
+      root_placeholder.parentNode.insertBefore(widget.firstChild,
+                                               root_placeholder);
     }
     root_placeholder.parentNode.removeChild(root_placeholder);
     this.widget.appendChild(framework);
@@ -190,13 +218,14 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
 
     this._caret_owners = this.gui_root.getElementsByClassName("_owns_caret");
     this._clicked_labels =
-        this.gui_root.getElementsByClassName("_label_clicked");
+      this.gui_root.getElementsByClassName("_label_clicked");
+    this._withCaret = this.gui_root.getElementsByClassName("_with_caret");
 
     // $data_root is the document we are editing, $gui_root will become
     // decorated with all kinds of HTML elements so we keep the two
     // separate.
     this.$data_root = $(this.data_root);
-    //this.gui_root.appendChild(convert.toHTMLTree(doc,
+    // this.gui_root.appendChild(convert.toHTMLTree(doc,
     //                                             this.data_root.firstChild));
     // domutil.linkTrees(this.data_root, this.gui_root);
 
@@ -219,109 +248,96 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     // orphan tooltips around.
     //
     var has_tooltips = document.getElementsByClassName("wed-has-tooltip");
-    this._gui_updater.addEventListener("beforeDeleteNode", function (ev) {
-        var node = ev.node;
-        if (node.nodeType !== Node.TEXT_NODE) {
-            for(var i = 0, limit = has_tooltips.length; i < limit; ++i) {
-                var has_tooltip = has_tooltips[i];
-                if (!node.contains(has_tooltip))
-                    continue;
+    this._gui_updater.events.subscribe(function handle(ev) {
+      if (ev.name !== "BeforeDeleteNode") {
+        return;
+      }
 
-                var data = $.data(has_tooltip, "bs.tooltip");
-                if (data)
-                    data.destroy();
+      var node = ev.node;
+      if (node.nodeType !== Node.TEXT_NODE) {
+        for (var i = 0, limit = has_tooltips.length; i < limit; ++i) {
+          var has_tooltip = has_tooltips[i];
+          if (!node.contains(has_tooltip)) {
+            continue;
+          }
 
-                // We don't remove the wed-has-tooltip
-                // class. Generally, the elements that have tooltips
-                // and are removed from the GUI tree won't be added to
-                // the tree again. If they are added again, they'll
-                // most likely get a new tooltip so removing the class
-                // does not gain us much because it will be added
-                // again.
-                //
-                // If we *were* to remove the class, then the
-                // collection would change as we go through it.
-            }
+          var tt = $.data(has_tooltip, "bs.tooltip");
+          if (tt) {
+            tt.destroy();
+          }
+
+          // We don't remove the wed-has-tooltip class. Generally, the elements
+          // that have tooltips and are removed from the GUI tree won't be added
+          // to the tree again. If they are added again, they'll most likely get
+          // a new tooltip so removing the class does not gain us much because
+          // it will be added again.
+          //
+          // If we *were* to remove the class, then the collection would change
+          // as we go through it.
         }
+      }
     });
 
     // We duplicate data-parent on the toggles and on the collapsible
     // elements due to a bug in Bootstrap 3.0.0. See
     // https://github.com/twbs/bootstrap/issues/9933.
     sidebar.innerHTML =
-'<div class="wed-save-and-modification-status">\
-  <span class="wed-modification-status label label-success" \
-        title="Modification status">\
-   <i class="fa fa-asterisk"></i>\
+      "<div class=\"wed-save-and-modification-status\">\
+  <span class=\"wed-modification-status label label-success\" \
+        title=\"Modification status\">\
+   <i class=\"fa fa-asterisk\"></i>\
   </span>\
-  <span class="wed-save-status label label-default">\
-   <i class="fa fa-cloud-upload"></i> <span></span>\
+  <span class=\"wed-save-status label label-default\">\
+   <i class=\"fa fa-cloud-upload\"></i> <span></span>\
   </span>\
 </div>\
-<div id="sidebar-panel" class="panel-group wed-sidebar-panel">\
- <div class="panel panel-info wed-navigation-panel">\
-  <div class="panel-heading">\
-   <div class="panel-title">\
-    <a class="accordion-toggle" data-toggle="collapse" \
-       data-parent="#sidebar-panel" \
-       href="#sb-nav-collapse">Navigation</a>\
+<div id=\"sidebar-panel\" class=\"panel-group wed-sidebar-panel\">\
+ <div class=\"panel panel-info wed-navigation-panel\">\
+  <div class=\"panel-heading\">\
+   <div class=\"panel-title\">\
+    <a class=\"accordion-toggle\" data-toggle=\"collapse\" \
+       data-parent=\"#sidebar-panel\" \
+       href=\"#sb-nav-collapse\">Navigation</a>\
    </div>\
   </div>\
- <div id="sb-nav-collapse" data-parent="#sidebar-panel" \
-      class="panel-collapse collapse in">\
-   <div id="sb-nav" class="panel-body">\
-    <ul id="navlist" class="nav nav-list">\
-     <li class="inactive">A list of navigation links will appear here</li>\
+ <div id=\"sb-nav-collapse\" data-parent=\"#sidebar-panel\" \
+      class=\"panel-collapse collapse in\">\
+   <div id=\"sb-nav\" class=\"panel-body\">\
+    <ul id=\"navlist\" class=\"nav nav-list\">\
+     <li class=\"inactive\">A list of navigation links will appear here</li>\
     </ul>\
    </div>\
   </div>\
  </div>\
- <div class="panel panel-danger">\
-  <div class="panel-heading">\
-   <div class="panel-title">\
-    <a class="accordion-toggle" data-toggle="collapse"\
-       data-parent="#sidebar-panel"\
-       href="#sb-errors-collapse">Errors</a>\
+ <div class=\"panel panel-danger\">\
+  <div class=\"panel-heading\">\
+   <div class=\"panel-title\">\
+    <a class=\"accordion-toggle\" data-toggle=\"collapse\"\
+       data-parent=\"#sidebar-panel\"\
+       href=\"#sb-errors-collapse\">Errors</a>\
    </div>\
   </div>\
-  <div id="sb-errors-collapse" data-parent="#sidebar-panel"\
-       class="panel-collapse collapse">\
-   <div id="sb-errors" class="panel-body">\
-    <ul id="sb-errorlist" class="nav nav-list wed-errorlist">\
-     <li class="inactive"></li>\
+  <div id=\"sb-errors-collapse\" data-parent=\"#sidebar-panel\"\
+       class=\"panel-collapse collapse\">\
+   <div id=\"sb-errors\" class=\"panel-body\">\
+    <ul id=\"sb-errorlist\" class=\"nav nav-list wed-errorlist\">\
+     <li class=\"inactive\"></li>\
     </ul>\
    </div>\
   </div>\
  </div>\
-</div>';
+</div>";
 
     this._$modification_status =
-        $(sidebar.getElementsByClassName('wed-modification-status')[0]);
+      $(sidebar.getElementsByClassName("wed-modification-status")[0]);
     this._$save_status =
-        $(sidebar.getElementsByClassName('wed-save-status')[0]);
+      $(sidebar.getElementsByClassName("wed-save-status")[0]);
 
     this._$navigation_panel =
-        $(sidebar.getElementsByClassName("wed-navigation-panel")[0]);
+      $(sidebar.getElementsByClassName("wed-navigation-panel")[0]);
     this._$navigation_panel.css("display", "none");
 
     this._current_dropdown = undefined;
-
-    var fake_caret = doc.createElement("span");
-    fake_caret.className = "_wed_caret";
-    fake_caret.setAttribute("contenteditable", false);
-    fake_caret.textContent = " ";
-    this._fake_caret = fake_caret;
-    this._$fake_caret = $(fake_caret);
-    this._inhibited_fake_caret = 0;
-    this._pending_fake_caret_refresh = false;
-
-    var fc_mark = doc.createElement("span");
-    fc_mark.innerHTML = "&nbsp;";
-    fc_mark.style.height = "100%";
-    fc_mark.style.width = "1px";
-    fc_mark.style.maxWidth = "1px";
-    this._fc_mark = fc_mark;
-    this._$fc_mark = $(fc_mark);
 
     // The limitation modal is a modal that comes up when wed cannot
     // proceed.  It is not created with this.makeModal() because we
@@ -332,7 +348,7 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this._complex_pattern_modal = this.makeModal();
     this._complex_pattern_modal.setTitle("Complex Name Pattern Encountered");
     this._complex_pattern_modal.setBody(
-        "<p>The schema contains here a complex name pattern modal. \
+      "<p>The schema contains here a complex name pattern modal. \
          While wed has no problem validating such cases. It does not \
          currently have facilities to add elements or attributes that \
          match such patterns. You can continue editing your document but \
@@ -343,7 +359,7 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this._paste_modal = this.makeModal();
     this._paste_modal.setTitle("Invalid structure");
     this._paste_modal.setBody(
-        "<p>The data you are trying to paste appears to be XML. \
+      "<p>The data you are trying to paste appears to be XML. \
         However, pasting it here will result in a structurally invalid \
         document. Do you want to paste it as text instead? (If you answer \
         negatively, the data won't be pasted at all.)<p>");
@@ -352,7 +368,7 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this.straddling_modal = this.makeModal();
     this.straddling_modal.setTitle("Invalid modification");
     this.straddling_modal.setBody(
-        "<p>The text selected straddles disparate elements of the document. \
+      "<p>The text selected straddles disparate elements of the document. \
         You may be able to achieve what you want to do by selecting \
         smaller sections.<p>");
     this.straddling_modal.addButton("Ok", true);
@@ -361,7 +377,7 @@ Editor.prototype.init = log.wrap(function (widget, options, data) {
     this.help_modal = this.makeModal();
     this.help_modal.setTitle("Help");
     this.help_modal.setBody(
-        "\
+      "\
 <p>Click <a href='" + doc_link + "' target='_blank'>this link</a> to see \
 wed's generic help. The link by default will open in a new tab.</p>\
 <p>The key combinations with Ctrl below are done with Command in OS X.</p>\
@@ -387,7 +403,7 @@ Build date: " + build_info.date + "</p>\
     this._disconnect_modal = this.makeModal();
     this._disconnect_modal.setTitle("Disconnected from server!");
     this._disconnect_modal.setBody(
-        "It appears your browser is disconnected from the server. \
+      "It appears your browser is disconnected from the server. \
         Editing is frozen until the connection is reestablished. \
         Dismissing this dialog will retry saving. If the operation is \
         successful, you'll be able to continue editing. If not, this \
@@ -397,305 +413,309 @@ Build date: " + build_info.date + "</p>\
     this._edited_by_other_modal = this.makeModal();
     this._edited_by_other_modal.setTitle("Edited by another!");
     this._edited_by_other_modal.setBody(
-        "Your document was edited by someone else since you last loaded or \
+      "Your document was edited by someone else since you last loaded or \
         saved it. You must reload it before trying to edit further.");
     this._edited_by_other_modal.addButton("Reload", true);
 
     this._too_old_modal = this.makeModal();
     this._too_old_modal.setTitle("Newer version!");
     this._too_old_modal.setBody(
-        "There is a newer version of the editor. \
+      "There is a newer version of the editor. \
         You must reload it before trying to edit further.");
     this._too_old_modal.addButton("Reload", true);
 
     this._$navigation_list = $(doc.getElementById("navlist"));
 
-    this._old_sel_focus = undefined;
-    this._sel_anchor = undefined;
-    this._sel_focus = undefined;
-
-    this._selection_stack = [];
-
-    this.domlistener = new updater_domlistener.Listener(this.gui_root,
-                                                        this._gui_updater);
+    this.domlistener = new domlistener.Listener(this.gui_root,
+                                                this._gui_updater);
 
     // Setup the cleanup code.
-    $(this.my_window).on('unload.wed', { editor: this }, unloadHandler);
-    $(this.my_window).on('popstate.wed', function (ev) {
-        if (document.location.hash === "") {
-            this.gui_root.scrollTop = 0;
-        }
+
+    $(this.my_window).on("unload.wed", { editor: this }, unloadHandler);
+    $(this.my_window).on("popstate.wed", function popstate() {
+      if (document.location.hash === "") {
+        this.gui_root.scrollTop = 0;
+      }
     }.bind(this));
 
-    this._last_done_shown = 0;
+    this._taskRunners = [];
+    this._taskSuspension = 0;
     this.$error_list = $(doc.getElementById("sb-errorlist"));
     this._$excluded_from_blur = $();
-    this._validation_errors = [];
-    // Gives the index in _validation_errors of the last validation error that
-    // has already been processed.
-    this._processed_validation_errors_up_to = -1;
-    // This holds the timeout set to process validation errors in batch.
-    this._process_validation_errors_timeout = undefined;
-    // The delay in ms before we consider a batch ready to process.
-    this._process_validation_errors_delay = 500;
     this._errorItemHandler_bound = this._errorItemHandler.bind(this);
-
     this._undo = new undo.UndoList();
 
 
     this.mode_path = options.mode.path;
 
     this.complex_pattern_action = new ComplexPatternAction(
-        this, "Complex name pattern", undefined, icon.makeHTML("exclamation"),
-        true);
+      this, "Complex name pattern", undefined, icon.makeHTML("exclamation"),
+      true);
 
     this.paste_tr = new transformation.Transformation(this, "add",
                                                       "Paste", paste);
     this.cut_tr = new transformation.Transformation(this, "delete", "Cut", cut);
     this.split_node_tr =
-        new transformation.Transformation(
-            this, "split", "Split <name>",
-            function(editor, data) {
-            return transformation.splitNode(editor, data.node);
+      new transformation.Transformation(
+        this, "split", "Split <name>",
+        function split(editor, data) {
+          return transformation.splitNode(editor, data.node);
         });
     this.merge_with_previous_homogeneous_sibling_tr =
-        new transformation.Transformation(
-            this, "merge-with-previous", "Merge <name> with previous",
-            function (editor, data) {
-            return transformation.mergeWithPreviousHomogeneousSibling(
-                editor, data.node);
+      new transformation.Transformation(
+        this, "merge-with-previous", "Merge <name> with previous",
+        function merge(editor, data) {
+          return transformation.mergeWithPreviousHomogeneousSibling(
+            editor, data.node);
         });
 
     this.merge_with_next_homogeneous_sibling_tr =
-        new transformation.Transformation(
-            this, "merge-with-next", "Merge <name> with next",
-            function (editor, data) {
-            return transformation.mergeWithNextHomogeneousSibling(
-                editor, data.node);
+      new transformation.Transformation(
+        this, "merge-with-next", "Merge <name> with next",
+        function merge(editor, data) {
+          return transformation.mergeWithNextHomogeneousSibling(
+            editor, data.node);
         });
-
-    pubsub.subscribe(pubsub.WED_MODE_READY, function (msg, mode) {
-        // Change the mode only if it is *our* mode
-        if (mode === this._new_mode)
-            this.onModeChange(mode);
-    }.bind(this));
 
     this._global_keydown_handlers = [];
 
+    var ajv = new Ajv();
+    this._wedOptionsValidator = ajv.compile(JSON.parse(wedOptionsSchema));
+
     this.setMode(this.mode_path, options.mode.options);
-});
+  });
 
-Editor.prototype.setMode = log.wrap(function (mode_path, options) {
-    var mode;
-    var onload = log.wrap(function (mode_module) {
-        this._new_mode = new mode_module.Mode(options);
-    }).bind(this);
-
-    require([mode_path], onload, function (err) {
-
-        if (mode_path.indexOf("/") !== -1)
-            // It is an actual path so don't try any further loading
-            throw new Error("can't load mode " + mode_path);
+  EditorP.setMode = log.wrap(function setMode(mode_path, options) {
+    var runtime = this.runtime;
+    return runtime.resolveModules(mode_path)
+      .catch(function onError() {
+        if (mode_path.indexOf("/") !== -1) {
+          // It is an actual path so don't try any further loading
+          throw new Error("can't load mode " + mode_path);
+        }
 
         var path = "./modes/" + mode_path + "/" + mode_path;
-        require([path], onload,
-                function (err) {
-            require([path + "_mode"], onload);
-        });
-    });
-});
+        return runtime.resolveModules(path)
+          .catch(function onFinalError() {
+            return runtime.resolveModules(path + "-mode")
+              .catch(function onFinalError2() {
+                return runtime.resolveModules(path + "_mode");
+              });
+          });
+      })
+      .then(function onload(modules) {
+        var mode_module = modules[0];
+        var new_mode = new mode_module.Mode(this, options);
+        return new_mode.init().then(function modeReady() {
+          this.onModeChange(new_mode);
+        }.bind(this));
+      }.bind(this));
+  });
 
-Editor.prototype.onModeChange = log.wrap(function (mode) {
-    if (this._destroyed)
-        return;
+  EditorP.onModeChange = log.wrap(function onModeChange(mode) {
+    if (this._destroyed) {
+      return;
+    }
     this.mode = mode;
-    mode.init(this);
 
     var wed_options = mode.getWedOptions();
 
-    if (!this._processWedOptions(wed_options))
-        return;
+    if (!this._processWedOptions(wed_options)) {
+      return;
+    }
 
     var styles = this.mode.getStylesheets();
-    for(var style_ix = 0, style; (style = styles[style_ix]) !== undefined;
-        ++style_ix)
-        this.$frame.children("head").append(
-            '<link rel="stylesheet" href="' + require.toUrl(style) +
-                '" type="text/css" />');
-
-    this._resizeHandler();
+    for (var style_ix = 0; style_ix < styles.length; ++style_ix) {
+      this.$frame.children("head").append(
+        "<link rel=\"stylesheet\" href=\"" + require.toUrl(styles[style_ix]) +
+          "\" type=\"text/css\" />");
+    }
 
     this.gui_root.setAttribute("tabindex", "-1");
     this.$gui_root.focus();
+    this.caretManager = new CaretManager(this.gui_dloc_root,
+                                         this.data_dloc_root,
+                                         this._input_field,
+                                         this._gui_updater,
+                                         this._caretLayer,
+                                         this._scroller,
+                                         this.attributes === "edit",
+                                         this.mode);
+    this.caretManager.events.subscribe(this._caretChange.bind(this));
+    this._resizeHandler();
 
     this.resolver = mode.getAbsoluteResolver();
     var mode_validator = mode.getValidator();
-    this.validator = new Validator(this.options.schema, this.data_root,
-                                   mode_validator);
-    this.validator.addEventListener(
-        "state-update", this._onValidatorStateChange.bind(this));
-    this.validator.addEventListener(
-        "error", this._onValidatorError.bind(this));
-    this.validator.addEventListener(
-        "possible-due-to-wildcard-change",
-        this._onPossibleDueToWildcardChange.bind(this));
-    this.validator.addEventListener(
-        "reset-errors", this._onResetErrors.bind(this));
+    Promise.resolve(1)
+      .then(function load() {
+        var schema = this.options.schema;
+        if (schema instanceof salve.Grammar) {
+          return schema;
+        }
 
-    this.validator.initialize(this._postInitialize.bind(this));
-});
+        return this.runtime.resolveToString(this.options.schema)
+          .then(salve.constructTree.bind(salve));
+      }.bind(this))
+      .then(function loaded(schema) {
+        this.validator = new Validator(schema, this.data_root, mode_validator);
+        this.validator.events.addEventListener(
+          "state-update", this._onValidatorStateChange.bind(this));
+        this.validator.events.addEventListener(
+          "possible-due-to-wildcard-change",
+          this._onPossibleDueToWildcardChange.bind(this));
+        this.validationController =
+          new ValidationController(this,
+                                   this.validator,
+                                   this.resolver,
+                                   this._scroller,
+                                   this.gui_root,
+                                   this.validation_progress,
+                                   this.validation_message,
+                                   this._errorLayer,
+                                   this.$error_list[0],
+                                   this._errorItemHandler_bound);
+      }.bind(this))
+      .then(this._postInitialize.bind(this))
+      .catch(this._postInitialize.bind(this));
+  });
 
-Editor.prototype._processWedOptions = function(options) {
-    var terminate = function () {
-        this._limitation_modal.setBody(
-            "<p>The mode you are trying to use is passing incorrect " +
-                "options to wed. Contact the mode author with the " +
-                "following information: </p>" +
-                "<ul><li>" + errors.join("</li><li>") + "</li></ul>");
-        this._limitation_modal.modal();
-        this.destroy();
-        return false;
-    }.bind(this);
-
-    var template = {
-        metadata: {
-            name: true,
-            authors: true,
-            description: true,
-            license: true,
-            copyright: true
-        },
-        label_levels: {
-            max: true,
-            initial: true
-        },
-        attributes: false
-    };
-
-    var ret = object_check.check(template, options);
-
+  EditorP._processWedOptions = function _processWedOptions(options) {
     var errors = [];
 
-    var name;
-    if (ret.missing) {
-        ret.missing.forEach(function (name) {
-            errors.push("missing option: " + name);
-        });
-    }
+    var terminate = function terminate() {
+      this._limitation_modal.setBody(
+        "<p>The mode you are trying to use is passing incorrect " +
+          "options to wed. Contact the mode author with the " +
+          "following information: </p>" +
+          "<ul><li>" + errors.join("</li><li>") + "</li></ul>");
+      this._limitation_modal.modal();
+      this.destroy();
+      return false;
+    }.bind(this);
 
-    if (ret.extra) {
-        ret.extra.forEach(function (name) {
-            errors.push("extra option: " + name);
-        });
-    }
+    var ovalidator = this._wedOptionsValidator;
+    var valid = ovalidator(options);
+    if (!valid) {
+      if (ovalidator.errors !== undefined) {
+        for (var ix = 0; ix < ovalidator.errors.length; ++ix) {
+          var error = ovalidator.errors[ix];
+          errors.push(error.dataPath + " " + error.message);
+        }
+      }
 
-    if (errors.length)
-        return terminate();
+      return terminate();
+    }
 
     this.max_label_level = options.label_levels.max;
-    if (this.max_label_level < 1)
-        errors.push("label_levels.max must be >= 1");
-
-    this._current_label_level = this.max_label_level;
 
     var initial = options.label_levels.initial;
-    if (initial > this.max_label_level)
-        errors.push("label_levels.initial must be < label_levels.max");
-    if (initial < 1)
-        errors.push("label_levels.initial must be >= 1");
 
-    if (!options.attributes)
-        options.attributes = "hide";
+    // We cannot validate this with a schema.
+    if (initial > this.max_label_level) {
+      errors.push("label_levels.initial must be <= label_levels.max");
+    }
 
-    var attributes = this.attributes = options.attributes;
+    this._current_label_level = initial;
 
-    var valid_attributes = ["hide", "show", "edit"];
-    if (valid_attributes.indexOf(attributes) === -1)
-        errors.push("attributes option not a valid value: " +
-                    attributes + "; must be one of " +
-                    valid_attributes.join(", "));
+    if (!options.attributes) {
+      options.attributes = "hide";
+    }
 
-    while(this._current_label_level > initial)
-        this.decreaseLabelVisiblityLevel();
+    if (typeof options.attributes === "string") {
+      this.attributes = options.attributes;
+    }
+    else {
+      this.attributes = options.attributes.handling;
+      this.attributeHiding = options.attributes.autohide;
+    }
 
-    if (errors.length)
-        return terminate();
+    if (errors.length) {
+      return terminate();
+    }
 
     return true;
-};
+  };
 
-Editor.prototype._postInitialize = log.wrap(function  () {
-    if (this._destroyed)
-        return;
+  EditorP._postInitialize = log.wrap(function _postInitialize(error) {
+    if (error) {
+      this.destroy();
+      throw error;
+    }
+    if (this._destroyed) {
+      return;
+    }
 
     // Make the validator revalidate the structure from the point
     // where a change occurred.
     this.domlistener.addHandler(
-        "children-changed",
-        "._real, ._phantom_wrap, .wed-document",
-        function (root, added, removed, prev, next, target) {
+      "children-changed",
+      "._real, ._phantom_wrap, .wed-document",
+      function childrenChanged(root, added, removed, prev, next, target) {
         var all = added.concat(removed);
         var found = false;
-        for(var ix = 0, limit = all.length; !found && ix < limit; ++ix) {
-            var child = all[ix];
-            found = (child.nodeType === Node.TEXT_NODE) ||
-                child.classList.contains("_real") ||
-                child.classList.contains("_phantom_wrap");
+        for (var ix = 0, limit = all.length; !found && ix < limit; ++ix) {
+          var child = all[ix];
+          found = (child.nodeType === Node.TEXT_NODE) ||
+            child.classList.contains("_real") ||
+            child.classList.contains("_phantom_wrap");
         }
         if (found) {
-            this._last_done_shown = 0;
-            this.validator.restartAt(target);
+          this.validator.resetTo(target);
         }
-    }.bind(this));
+      }.bind(this));
 
     this.decorator = this.mode.makeDecorator(this.domlistener,
                                              this, this._gui_updater);
     // Revalidate on attribute change.
     this.domlistener.addHandler(
-        "attribute-changed",
-        "._real",
-        function (root, el, namespace, name) {
+      "attribute-changed",
+      "._real",
+      function attributeChanged(root, el, namespace, name) {
         if (!namespace && name.indexOf("data-wed", 0) === 0) {
-            // Doing the restart immediately messes up the editing. So
-            // schedule it for ASAP.
-            var me = this;
-            setTimeout(function () {
-                if (me._destroyed)
-                    return;
-                me.validator.restartAt(el);
-            }, 0);
+          // Doing the restart immediately messes up the editing. So
+          // schedule it for ASAP.
+          var me = this;
+          setTimeout(function timeout() {
+            if (me._destroyed) {
+              return;
+            }
+            me.validator.resetTo(el);
+          }, 0);
         }
-    }.bind(this));
+      }.bind(this));
 
 
     this.decorator.addHandlers();
 
     this.domlistener.addHandler(
-        "included-element",
-        "._label",
-        function (root, tree, parent, prev, next, target) {
+      "included-element",
+      "._label",
+      function includedElement(root, tree, parent, prev, next, target) {
         var cl = target.classList;
         var found = false;
-        for(var i = 0; i < cl.length && !found; ++i) {
-            if (cl[i].lastIndexOf("_label_level_", 0) === 0) {
-                found = Number(cl[i].slice(13));
-            }
+        for (var i = 0; i < cl.length && !found; ++i) {
+          if (cl[i].lastIndexOf("_label_level_", 0) === 0) {
+            found = Number(cl[i].slice(13));
+          }
         }
-        if (!found)
-            throw new Error("unable to get level");
-        if (found > this._current_label_level)
-            cl.add("_invisible");
-    }.bind(this));
+        if (!found) {
+          throw new Error("unable to get level");
+        }
+        if (found > this._current_label_level) {
+          cl.add("_invisible");
+        }
+      }.bind(this));
 
     // If an element is edited and contains a placeholder, delete
     // the placeholder
     this._updating_placeholder = 0;
     this.domlistener.addHandler(
-        "children-changed",
-        "._real, ._phantom_wrap, .wed-document",
-        function (root, added, removed, prev, next, target) {
-        if (this._updating_placeholder)
-            return;
+      "children-changed",
+      "._real, ._phantom_wrap, .wed-document",
+      function childrenChanged(root, added, removed, prev, next, target) {
+        if (this._updating_placeholder) {
+          return;
+        }
 
         this._updating_placeholder++;
 
@@ -705,130 +725,144 @@ Editor.prototype._postInitialize = log.wrap(function  () {
         var to_consider = [];
         var ph;
         var child = target.firstChild;
-        while(child) {
-            if (child.nodeType === Node.TEXT_NODE ||
-                child.classList.contains("_real") ||
-                child.classList.contains("_phantom_wrap") ||
-                // For ._phantom._text but ._text is used only with
-                // ._real and ._phantom so we don't check for
-                // ._phantom.
-                child.classList.contains("_text"))
-                to_consider.push(child);
-            if (child.classList &&
-                child.classList.contains("_placeholder"))
-                ph = child;
-            child = child.nextSibling;
+        while (child) {
+          if (child.nodeType === Node.TEXT_NODE ||
+              child.classList.contains("_real") ||
+              child.classList.contains("_phantom_wrap") ||
+              // For ._phantom._text but ._text is used only with
+              // ._real and ._phantom so we don't check for
+              // ._phantom.
+              child.classList.contains("_text")) {
+            to_consider.push(child);
+          }
+          if (child.classList &&
+              child.classList.contains("_placeholder")) {
+            ph = child;
+          }
+          child = child.nextSibling;
         }
 
         if (to_consider.length === 0 ||
             (to_consider.length === 1 &&
              removed.indexOf(to_consider[0]) !== -1)) {
-            if (!ph) {
-                var nodes = this.mode.nodesAroundEditableContents(target);
-                if (target === this.gui_root) {
-                    ph = this.insertTransientPlaceholderAt(
-                        makeDLoc(this.gui_root, this.gui_root, 0));
-                    this._setGUICaret(this.gui_root, 0, "text_edit");
-                }
-                else {
-                    ph = this.mode.makePlaceholderFor(target);
-                    this._gui_updater.insertBefore(target, ph, nodes[1]);
-                }
+          if (!ph) {
+            var nodes = this.mode.nodesAroundEditableContents(target);
+            if (target === this.gui_root) {
+              var loc = this.caretManager.makeCaret(this.gui_root, 0);
+              ph = this.insertTransientPlaceholderAt(loc);
+              this.caretManager.setCaret(loc, { textEdit: true });
             }
+            else {
+              ph = this.mode.makePlaceholderFor(target);
+              this._gui_updater.insertBefore(target, ph, nodes[1]);
+            }
+          }
         }
         else if (ph && !ph.classList.contains("_transient")) {
-            var caret = this._sel_focus && this._sel_focus.node;
-            // Move the caret out of the placeholder if needed...
-            var move = ph.contains(caret);
-            var parent, offset;
-            if (move) {
-                parent = ph.parentNode;
-                offset = indexOf(parent.childNodes, ph);
-            }
-            this._gui_updater.removeNode(ph);
-            if (move)
-                this._setGUICaret(parent, offset, "text_edit");
+          var caret = this.caretManager.caret && this.caretManager.caret.node;
+          // Move the caret out of the placeholder if needed...
+          var move = ph.contains(caret);
+          var parent;
+          var offset;
+          if (move) {
+            parent = ph.parentNode;
+            offset = indexOf(parent.childNodes, ph);
+          }
+          this._gui_updater.removeNode(ph);
+          if (move) {
+            this.caretManager.setCaret(parent, offset, { textEdit: true });
+          }
         }
 
         this._updating_placeholder--;
-    }.bind(this));
+      }.bind(this));
 
-    var attributePlaceholderHandler =
-        function (target) {
-            if (this._updating_placeholder)
-                return;
+    var attributePlaceholderHandler = function attributePlaceholderHandler(
+      target) {
+      if (this._updating_placeholder) {
+        return;
+      }
 
-            this._updating_placeholder++;
-            var data_node = this.toDataNode(target);
-            var ph = domutil.childByClass(target, "_placeholder");
-            if (data_node.value) {
-                if (ph)
-                    target.removeChild(ph);
-            }
-            else if (!ph)
-                this._gui_updater.insertBefore(target,
-                                               domutil.makePlaceholder(),
-                                               null);
-            this._updating_placeholder--;
-        }.bind(this);
-
-    this.domlistener.addHandler(
-        "children-changed",
-        "._attribute_value",
-        function (root, added, removed, prev, next, target) {
-        attributePlaceholderHandler(target);
-    });
-
-    this.domlistener.addHandler(
-        "included-element",
-        "._attribute_value",
-        function (root, tree, parent, prev, next, target) {
-        attributePlaceholderHandler(target);
-    });
-
-    this.decorator.startListening(this.$gui_root);
-    if (this._dataChild)
-        this.data_updater.insertAt(this.data_root, 0, this._dataChild);
-    if (this._save) {
-        switch(this._save.path) {
-        case "wed/savers/ajax":
-            this._saver = new AjaxSaver(version, this.data_updater,
-                                        this.data_root, this._save.options);
-            break;
-        case "wed/savers/localforage":
-            this._saver = new LocalSaver(version, this.data_updater,
-                                         this.data_root, this._save.options);
-            break;
-        default:
-            throw new Error("unknown saver: " + this._save.path);
+      this._updating_placeholder++;
+      var data_node = this.toDataNode(target);
+      var ph = domutil.childByClass(target, "_placeholder");
+      if (data_node.value) {
+        if (ph) {
+          target.removeChild(ph);
         }
+      }
+      else if (!ph) {
+        this._gui_updater.insertBefore(target,
+                                       domutil.makePlaceholder(),
+                                       null);
+      }
+      this._updating_placeholder--;
+    }.bind(this);
 
-        this._saver.addEventListener("saved", this._onSaverSaved.bind(this));
-        this._saver.addEventListener("autosaved",
-                                     this._onSaverAutosaved.bind(this));
-        this._saver.addEventListener("failed", this._onSaverFailed.bind(this));
-        this._saver.addEventListener("changed",
-                                     this._onSaverChanged.bind(this));
-        this._saver.addEventListener("too_old",
-                                     this._onSaverTooOld.bind(this));
-        if (this._save.autosave !== undefined)
-            this._saver.setAutosaveInterval(this._save.autosave * 1000);
-        this._refreshSaveStatus();
-        this._save_status_interval =
-            setInterval(this._refreshSaveStatus.bind(this), 30 * 1000);
-        onbeforeunload.install(
-            this.my_window,
-            function () {
-            if (this._destroyed)
-                return false;
+    this.domlistener.addHandler(
+      "children-changed",
+      "._attribute_value",
+      function childrenChanged(root, added, removed, prev, next, target) {
+        attributePlaceholderHandler(target);
+      });
 
-            return !!this._saver.getModifiedWhen();
-        }.bind(this),
-            true);
+    this.domlistener.addHandler(
+      "included-element",
+      "._attribute_value",
+      function includedElement(root, tree, parent, prev, next, target) {
+        attributePlaceholderHandler(target);
+      });
+
+    this.decorator.startListening();
+    if (this._dataChild) {
+      this.data_updater.insertAt(this.data_root, 0, this._dataChild);
     }
-    else
-        log.error("wed cannot save data due " +
-                  "to the absence of a save_url option");
+    if (this._save) {
+      var SaverClass = {
+        "wed/savers/ajax": AjaxSaver,
+        "wed/savers/localforage": LocalSaver,
+        "wed/savers/indexeddb": IndexedDBSaver,
+      }[this._save.path];
+
+      if (!SaverClass) {
+        throw new Error("unknown saver: " + this._save.path);
+      }
+
+      this._saver = new SaverClass(this.runtime, version, this.data_updater,
+                                   this.data_root, this._save.options);
+
+      this._saver.events.filter(filterSaveEvents.bind(undefined, "Saved"))
+        .subscribe(this._onSaverSaved.bind(this));
+
+      this._saver.events.filter(filterSaveEvents.bind(undefined, "Autosaved"))
+        .subscribe(this._onSaverAutosaved.bind(this));
+
+      this._saver.events.filter(filterSaveEvents.bind(undefined, "Failed"))
+        .subscribe(this._onSaverFailed.bind(this));
+
+      this._saver.events.filter(filterSaveEvents.bind(undefined, "Changed"))
+        .subscribe(this._onSaverChanged.bind(this));
+
+      if (this._save.autosave !== undefined) {
+        this._saver.setAutosaveInterval(this._save.autosave * 1000);
+      }
+      this._refreshSaveStatus();
+      this._save_status_interval =
+        setInterval(this._refreshSaveStatus.bind(this), 30 * 1000);
+      onbeforeunload.install(this.my_window,
+                             function beforeunload() {
+                               if (this._destroyed) {
+                                 return false;
+                               }
+
+                               return !!this._saver.getModifiedWhen();
+                             }.bind(this),
+                             true);
+    }
+    else {
+      log.error("wed cannot save data due " +
+                "to the absence of a save_url option");
+    }
 
     // Drag and drop not supported.
     this.$gui_root.on("dragenter", "*", false);
@@ -836,106 +870,93 @@ Editor.prototype._postInitialize = log.wrap(function  () {
     this.$gui_root.on("dragover", "*", false);
     this.$gui_root.on("drop", "*", false);
 
-    this.$gui_root.on('wed-global-keydown',
+    this.$gui_root.on("wed-global-keydown",
                       this._globalKeydownHandler.bind(this));
 
-    this.$gui_root.on('wed-global-keypress',
+    this.$gui_root.on("wed-global-keypress",
                       this._globalKeypressHandler.bind(this));
 
-    this.$gui_root.on('keydown', this._keydownHandler.bind(this));
-    this.$gui_root.on('keypress', this._keypressHandler.bind(this));
+    this.$gui_root.on("keydown", this._keydownHandler.bind(this));
+    this.$gui_root.on("keypress", this._keypressHandler.bind(this));
 
-    this._$scroller.on('scroll', this._refreshFakeCaret.bind(this));
+    this._$input_field.on("keydown", this._keydownHandler.bind(this));
+    this._$input_field.on("keypress", this._keypressHandler.bind(this));
 
-    this._$input_field.on('keydown', this._keydownHandler.bind(this));
-    this._$input_field.on('keypress', this._keypressHandler.bind(this));
-
-    this._$input_field.on('compositionstart compositionupdate compositionend',
-                      this._compositionHandler.bind(this));
-    this._$input_field.on('input', this._inputHandler.bind(this));
+    this._$input_field.on("compositionstart compositionupdate compositionend",
+                          this._compositionHandler.bind(this));
+    this._$input_field.on("input", this._inputHandler.bind(this));
 
     // No click in the next binding because click does not
     // distinguish left, middle, right mouse buttons.
-    this.$gui_root.on('mousedown', this._mousedownHandler.bind(this));
-    this.$gui_root.on('mouseover', this._mouseoverHandler.bind(this));
-    this.$gui_root.on('mouseout', this._mouseoutHandler.bind(this));
-    this.$gui_root.on('contextmenu', this._mouseupHandler.bind(this));
+    this.$gui_root.on("mousedown", this._mousedownHandler.bind(this));
+    this.$gui_root.on("mouseover", this._mouseoverHandler.bind(this));
+    this.$gui_root.on("mouseout", this._mouseoutHandler.bind(this));
+    this.$gui_root.on("contextmenu", this._mouseupHandler.bind(this));
 
-    this.$gui_root.on('paste', log.wrap(this._pasteHandler.bind(this)));
-    this._$input_field.on('paste', log.wrap(this._pasteHandler.bind(this)));
+    this.$gui_root.on("paste", log.wrap(this._pasteHandler.bind(this)));
+    this._$input_field.on("paste", log.wrap(this._pasteHandler.bind(this)));
 
-    this.$gui_root.on('cut', log.wrap(this._cutHandler.bind(this)));
-    $(this.my_window).on('resize.wed', this._resizeHandler.bind(this));
+    this.$gui_root.on("cut", log.wrap(this._cutHandler.bind(this)));
+    $(this.my_window).on("resize.wed", this._resizeHandler.bind(this));
 
-    this.$gui_root.on('focus', log.wrap(function (ev) {
-        this._focusInputField();
-        ev.preventDefault();
-        ev.stopPropagation();
-    }.bind(this)));
-
-    this.$gui_root.on('click', 'a', function (ev) {
-        if (ev.ctrlKey)
-            window.location = ev.currentTarget.href;
-        return false;
-    }.bind(this));
+    this.$gui_root.on("click", "a", function click(ev) {
+      if (ev.ctrlKey) {
+        window.location = ev.currentTarget.href;
+      }
+      return false;
+    });
 
     // This is a guard to make sure that mousemove handlers are
     // removed once the button is up again.
     var $body = $(this.doc.body);
-    $body.on('mouseup.wed', function (ev) {
-        this.$gui_root.off('mousemove.wed mouseup');
-        this._$caret_layer.off('mousemove mouseup');
+    $body.on("mouseup.wed", function mouseup() {
+      this.$gui_root.off("mousemove.wed mouseup");
     }.bind(this));
 
-    $body.on('contextmenu.wed', function (ev) {
-        // It may happen that contextmenu can escape to the body even
-        // if the target is an element in gui_root. This notably
-        // happens on IE for some reason. So trap such cases here and
-        // dispose of them.
-        if (this.gui_root.contains(ev.target))
-            return false;
-        return true;
-    }.bind(this));
-
-    $body.on('click.wed', function (ev) {
-        // If the click is triggered programmatically ``pageX`` and
-        // ``pageY`` won't be defined. If the click is triggered due
-        // to an ENTER key converted by the browser, one or both will
-        // be negative. Or screenX, screenY will both be zero.
-        if (ev.pageX === undefined || ev.pageX < 0 ||
-            ev.pageY === undefined || ev.pageY < 0 ||
-            ((ev.screenX === ev.screenY) && (ev.screenX === 0)))
-            return;
-
-        // We don't want to blur for clicks that are on elements part
-        // of our GUI.
-        if (this.widget.contains(ev.target))
-            return;
-
-        var el = this.doc.elementFromPoint(ev.clientX, ev.clientY);
-
-        if ($(el).closest(this._$excluded_from_blur).length)
-            return;
-
-        var offset = this.$gui_root.offset();
-        var x = ev.pageX - offset.left;
-        var y = ev.pageY - offset.top;
-
-        if (!((x >= 0) && (y >= 0) &&
-              (x < this.$gui_root.outerWidth()) &&
-              (y < this.$gui_root.outerHeight())))
-            this._blur();
-        // We don't need to do anything special to focus the editor.
-    }.bind(this));
-
-    $(this.my_window).on('blur.wed', this._blur.bind(this));
-    $(this.my_window).on('focus.wed', this._focus.bind(this));
-
-    this._$caret_layer.on("mousedown click contextmenu",
-                          this._caretLayerMouseHandler.bind(this));
-    this._$error_layer.on("mousedown click contextmenu", function (ev) {
-        this._$caret_layer.trigger(ev);
+    $body.on("contextmenu.wed", function contextmenu(ev) {
+      // It may happen that contextmenu can escape to the body even
+      // if the target is an element in gui_root. This notably
+      // happens on IE for some reason. So trap such cases here and
+      // dispose of them.
+      if (this.gui_root.contains(ev.target)) {
         return false;
+      }
+      return true;
+    }.bind(this));
+
+    $body.on("click.wed", function click(ev) {
+      // If the click is triggered programmatically ``pageX`` and
+      // ``pageY`` won't be defined. If the click is triggered due
+      // to an ENTER key converted by the browser, one or both will
+      // be negative. Or screenX, screenY will both be zero.
+      if (ev.pageX === undefined || ev.pageX < 0 ||
+          ev.pageY === undefined || ev.pageY < 0 ||
+          ((ev.screenX === ev.screenY) && (ev.screenX === 0))) {
+        return;
+      }
+
+      // We don't want to blur for clicks that are on elements part
+      // of our GUI.
+      if (this.widget.contains(ev.target)) {
+        return;
+      }
+
+      var el = this.doc.elementFromPoint(ev.clientX, ev.clientY);
+
+      if ($(el).closest(this._$excluded_from_blur).length) {
+        return;
+      }
+
+      var offset = this.$gui_root.offset();
+      var x = ev.pageX - offset.left;
+      var y = ev.pageY - offset.top;
+
+      if (!((x >= 0) && (y >= 0) &&
+            (x < this.$gui_root.outerWidth()) &&
+            (y < this.$gui_root.outerHeight()))) {
+        this.caretManager.onBlur();
+      }
+      // We don't need to do anything special to focus the editor.
     }.bind(this));
 
     // Make ourselves visible.
@@ -944,11 +965,11 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
     var namespace_error = this._initializeNamespaces();
     if (namespace_error) {
-        this._limitation_modal.setBody(
-            namespace_error);
-        this._limitation_modal.modal();
-        this.destroy();
-        return;
+      this._limitation_modal.setBody(
+        namespace_error);
+      this._limitation_modal.modal();
+      this.destroy();
+      return;
     }
     this.domlistener.processImmediately();
     // Flush whatever has happened earlier.
@@ -960,111 +981,118 @@ Editor.prototype._postInitialize = log.wrap(function  () {
 
     var demo = this.options.demo;
     if (demo) {
-        // Provide a generic message.
-        if (typeof demo !== "string") {
-            demo = "Some functions may not be available.";
-        }
-        var demo_modal = this.makeModal();
-        demo_modal.setTitle("Demo");
-        demo_modal.setBody(
-            "<p>This is a demo of wed. " + demo + "</p>" +
-                "<p>Click <a href='" + this.doc_link +
-                "' target='_blank'>this link</a> to see \
+      // Provide a generic message.
+      if (typeof demo !== "string") {
+        demo = "Some functions may not be available.";
+      }
+      var demo_modal = this.makeModal();
+      demo_modal.setTitle("Demo");
+      demo_modal.setBody(
+        "<p>This is a demo of wed. " + demo + "</p>" +
+          "<p>Click <a href='" + this.doc_link +
+          "' target='_blank'>this link</a> to see \
 wed's generic help. The link by default will open in a new tab.</p>");
-        demo_modal.addButton("Ok", true);
-        demo_modal.modal();
+      demo_modal.addButton("Ok", true);
+      demo_modal.modal();
     }
 
     if (this._saver) {
-        // The editor is not initialized until the saver is also
-        // initialized, which may take a bit.
-        var me = this;
-        this._saver.whenCondition("initialized", function () {
-            // We could be destroyed while waiting...
-            if (me._destroyed)
-                return;
-
-            me._setCondition("initialized", {editor: me});
-        });
-    }
-    else
-        this._setCondition("initialized", { editor: this});
-});
-
-Editor.prototype._initializeNamespaces = function () {
-    var failure = false;
-    if (!this.data_root.firstChild) {
-        // The document is empty: create a child node with the absolute
-        // namespace mappings.
-        var attrs = Object.create(null);
-        this.validator.getSchemaNamespaces().forEach(function (ns) {
-            if (ns === "*" || ns === "::except")
-                return;
-
-            var k = this.resolver.prefixFromURI(ns);
-            // Don't create a mapping for the `xml`, seeing as it is
-            // defined by default.
-            if (k === "xml")
-                return;
-
-            if (k === "")
-                attrs.xmlns = ns;
-            else {
-                if (k === undefined)
-                    failure = "The mode does not allow determining " +
-                    "the namespace prefix for " + ns + "." +
-                    "The most likely issue is that the mode is buggy " +
-                    "or wed was started with incorrect options.";
-                attrs["xmlns:" + k] = ns;
-            }
-        }.bind(this));
-
-        if (failure)
-            return failure;
-
-        var evs = this.validator.possibleAt(this.data_root, 0).toArray();
-        if (evs.length === 1 && evs[0].params[0] === "enterStartTag") {
-            var name = evs[0].params[1];
-            // If the name pattern is not simple or it allows for a
-            // number of choices, then we skip this creation.
-            if (name.simple() && name.toArray().length === 1) {
-                transformation.insertElement(
-                    this.data_updater, this.data_root, 0,
-                    name.ns, this.resolver.unresolveName(name.ns, name.name),
-                    attrs);
-                this.setDataCaret(this.data_root.firstElementChild, 0);
-            }
+      // The editor is not initialized until the saver is also
+      // initialized, which may take a bit.
+      var me = this;
+      this._saver.init().then(function initialized() {
+        // We could be destroyed while waiting...
+        if (me._destroyed) {
+          return;
         }
 
-        // Ok, we did not insert anything, let's put a placeholder there.
-        if (!this.data_root.firstChild) {
-            var ph = this.insertTransientPlaceholderAt(
-                makeDLoc(this.gui_root, this.gui_root, 0));
-            this.setGUICaret(ph, 0);
-            this._focus();
-        }
-
+        me._setCondition("initialized", { editor: me });
+      });
     }
     else {
-        var namespaces = this.validator.getDocumentNamespaces();
-        // Yeah, we won't stop as early as possible if there's a failure.
-        // So what?
-        var resolver = this.resolver;
-        Object.keys(namespaces).forEach(function (prefix) {
-            var uri = namespaces[prefix];
-            if (uri.length > 1)
-                failure =
-                "The document you are trying to edit uses namespaces "+
-                "in a way not supported by this version of wed.";
+      this._setCondition("initialized", { editor: this });
+    }
+  });
 
-            resolver.definePrefix(prefix, uri[0]);
-        });
+  EditorP._initializeNamespaces = function _initializeNamespaces() {
+    var failure = false;
+    if (!this.data_root.firstChild) {
+      // The document is empty: create a child node with the absolute
+      // namespace mappings.
+      var attrs = Object.create(null);
+      this.validator.getSchemaNamespaces().forEach(function each(ns) {
+        if (ns === "*" || ns === "::except") {
+          return;
+        }
+
+        var k = this.resolver.prefixFromURI(ns);
+        // Don't create a mapping for the `xml`, seeing as it is
+        // defined by default.
+        if (k === "xml") {
+          return;
+        }
+
+        if (k === "") {
+          attrs.xmlns = ns;
+        }
+        else {
+          if (k === undefined) {
+            failure = "The mode does not allow determining " +
+            "the namespace prefix for " + ns + "." +
+            "The most likely issue is that the mode is buggy " +
+            "or wed was started with incorrect options.";
+          }
+          attrs["xmlns:" + k] = ns;
+        }
+      }.bind(this));
+
+      if (failure) {
+        return failure;
+      }
+
+      var evs = this.validator.possibleAt(this.data_root, 0).toArray();
+      if (evs.length === 1 && evs[0].params[0] === "enterStartTag") {
+        var name = evs[0].params[1];
+        // If the name pattern is not simple or it allows for a
+        // number of choices, then we skip this creation.
+        if (name.simple() && name.toArray().length === 1) {
+          transformation.insertElement(
+            this.data_updater, this.data_root, 0,
+            name.ns, this.resolver.unresolveName(name.ns, name.name),
+            attrs);
+          this.caretManager.setCaret(this.data_root.firstElementChild, 0);
+        }
+      }
+
+      // Ok, we did not insert anything, let's put a placeholder there.
+      if (!this.data_root.firstChild) {
+        var ph = this.insertTransientPlaceholderAt(
+          this.caretManager.makeCaret(this.gui_root, 0));
+        this.caretManager.setCaret(ph, 0);
+      }
+    }
+    else {
+      var namespaces = this.validator.getDocumentNamespaces();
+      // Yeah, we won't stop as early as possible if there's a failure.
+      // So what?
+      var resolver = this.resolver;
+      Object.keys(namespaces).forEach(function each(prefix) {
+        var uri = namespaces[prefix];
+        if (uri.length > 1) {
+          failure =
+          "The document you are trying to edit uses namespaces " +
+          "in a way not supported by this version of wed.";
+        }
+
+        resolver.definePrefix(prefix, uri[0]);
+      });
     }
     return failure;
-};
+  };
 
-function unloadHandler(e) {
-    e.data.editor.destroy();
-}
-
+  EditorP._newTaskRunner = function _newTaskRunner(task) {
+    var runner = new TaskRunner(task);
+    this._taskRunners.push(runner);
+    return runner;
+  };
 });

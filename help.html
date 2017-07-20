@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Wed’s Help &mdash; Wed v0.28.1 documentation</title>
+  <title>Wed’s Help &mdash; Wed v0.28.2-152-g4525c15d documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.28.1 documentation" href="index.html"/>
+    <link rel="top" title="Wed v0.28.2-152-g4525c15d documentation" href="index.html"/>
         <link rel="next" title="Using Wed in an Application" href="usage.html"/>
         <link rel="prev" title="Demos" href="demos.html"/> 
 
@@ -124,6 +124,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html">Creating a Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mode_design.html#submodes">Submodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tech_notes.html">Advanced Usage Notes</a></li>
 </ul>
 
@@ -446,6 +448,21 @@ on a white background.</p>
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">p</span></code> element with the attributes <code class="docutils literal"><span class="pre">rend</span></code> and
 <code class="docutils literal"><span class="pre">style</span></code>.</span></p>
 </div>
+<p>Modes may configure wed so that some elements are hidden if the caret is out of
+a start label, but shown then the caret is moved inside the start label. Labels
+that have hidden attributes will show an ellipsis (<code class="docutils literal"><span class="pre">...</span></code>) before the right
+angle bracket (<code class="docutils literal"><span class="pre">&gt;</span></code>).</p>
+<div class="figure align-center" id="id24">
+<img alt="An example of start label with hidden attributes." src="_images/attributes_ellipsis.png" />
+<p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">div</span></code> element with the ellipsis that indicates some
+attributes have been hidden.</span></p>
+</div>
+<p>When the caret is moved inside the start label, the hidden attributes are shown,
+and they are hidden again as soon as the caret is moved out of the start label.</p>
+<div class="figure align-center" id="id25">
+<img alt="An example of start label with hidden attributes that are shown." src="_images/attributes_shown.gif" />
+<p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">div</span></code> element with its hidden attributes shown.</span></p>
+</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Attribute visibility is determined by the mode being used to
@@ -466,7 +483,7 @@ properly.</strong></p>
 <p>Whenever the mode being used has provided element documentation,
 hovering over a label will bring up a tooltip with the documentation
 of the element.</p>
-<div class="figure align-center" id="id24">
+<div class="figure align-center" id="id26">
 <img alt="An example of a start label with its tooltip open." src="_images/label_tooltip.png" />
 <p class="caption"><span class="caption-text">This figure shows a label for a <code class="docutils literal"><span class="pre">p</span></code> element whose tooltip is
 open. The tooltip contains documentation on the element.</span></p>
@@ -492,14 +509,14 @@ text by showing it in italics, and so on. For each element that is
 represented on screen using styling, it is usually not necessary to
 show the end and start labels of the element: the presence of the
 element and its extent is already visible through styling.</p>
-<div class="figure align-center" id="id25">
+<div class="figure align-center" id="id27">
 <img alt="A document shown at default label visibility. There is no element label visible in the picture." src="_images/default_label_visibility.png" />
 <p class="caption"><span class="caption-text">This is an example of the situation described above in the text.</span></p>
 </div>
 <p>It still may be useful sometimes for users to see the labels. Perhaps
 there is an operation they want to perform that is easier to do with
 labels. In such case, wed allows changing the label visibility level.</p>
-<div class="figure align-center" id="id26">
+<div class="figure align-center" id="id28">
 <img alt="A document shown at increased label visibility. Every single element gets labels." src="_images/increased_label_visibility.png" />
 <p class="caption"><span class="caption-text">This is an example of the same document shown earlier but with
 increased label visibility. You&#8217;ll notice that the word &#8220;prasāda&#8221;
@@ -513,7 +530,7 @@ the <code class="docutils literal"><span class="pre">p</span></code> element.</s
 <p>Error markers indicate where in the document there is a validation
 error. They appear as red rectangles at the location of the errors
 they mark.</p>
-<div class="figure align-center" id="id27">
+<div class="figure align-center" id="id29">
 <img alt="An error marker." src="_images/error_marker.png" />
 <p class="caption"><span class="caption-text">An error marker appearing in an attribute value.</span></p>
 </div>
@@ -522,7 +539,7 @@ and will scroll the pane to show the error message corresponding to
 the error marker. Both the marker and the error message will become
 selected. Selected markers and their message blink slowly to indicate
 that they are selected.</p>
-<div class="figure align-center" id="id28">
+<div class="figure align-center" id="id30">
 <img alt="Clicking an error marker." src="_images/error_marker_click.gif" />
 <p class="caption"><span class="caption-text">When an error marker is clicked, the marker and the error&#8217;s
 description become selected.</span></p>
@@ -542,7 +559,7 @@ present on the element, then the contextual menu that you get when
 right-clicking on the start label of the element will show only an
 option to add the <code class="docutils literal"><span class="pre">a</span></code> attribute, because adding a <code class="docutils literal"><span class="pre">b</span></code> attribute
 again would not be valid.</p>
-<div class="figure align-center" id="id29">
+<div class="figure align-center" id="id31">
 <img alt="A contextual menu." src="_images/contextual_menu.png" />
 <p class="caption"><span class="caption-text">This is a contextual menu brought up on the start label of the
 <code class="docutils literal"><span class="pre">title</span></code> element.</span></p>
@@ -558,7 +575,7 @@ other options on the basis of the name of the option shown in the
 menu. When you bring up the contextual menu, the input field is
 focused automatically, so you can type in it right away, without
 having to focus it with the mouse.</p>
-<div class="figure align-center" id="id30">
+<div class="figure align-center" id="id32">
 <img alt="Using the input field to filter entries in the contextual menu." src="_images/contextual_menu_text_filter.gif" />
 <p class="caption"><span class="caption-text">The user brings up a contextual menu and filters options to those
 that contain the text <code class="docutils literal"><span class="pre">xml</span></code>.</span></p>
@@ -656,7 +673,7 @@ of possible values, wed will present the user with a completion
 menu. A common case is for attributes that may take only a limited set
 of values. Upon first placing the caret in a location that can be
 auto-completed, wed will present the whole list of possible values.</p>
-<div class="figure align-center" id="id31">
+<div class="figure align-center" id="id33">
 <img alt="A completion menu in its initial state." src="_images/completion_initial.png" />
 <p class="caption"><span class="caption-text">The user just clicked into the <code class="docutils literal"><span class="pre">sample</span></code> attribute. Wed presents
 the list of possible values.</span></p>
@@ -673,7 +690,7 @@ arrows and <code class="kbd docutils literal"><span class="pre">ENTER</span></co
 possible also to just type the whole value at the keyboard (which may
 be faster, in some cases, than fiddling with a menu), in which case
 the menu will close once the value is complete.</p>
-<div class="figure align-center" id="id32">
+<div class="figure align-center" id="id34">
 <img alt="A completion menu as the user types in." src="_images/completion_typing.gif" />
 <p class="caption"><span class="caption-text">The user types <code class="docutils literal"><span class="pre">med</span></code> into the completion menu and then hits
 <code class="kbd docutils literal"><span class="pre">ENTER</span></code> to complete the value.</span></p>
@@ -690,7 +707,7 @@ symbol. These are operations that add entirely new elements or
 attributes to the document. They normally do not operate on
 selections.</li>
 </ul>
-<div class="figure align-center" id="id33">
+<div class="figure align-center" id="id35">
 <img alt="A user adds an element." src="_images/adding.gif" />
 <p class="caption"><span class="caption-text">The user adds an <code class="docutils literal"><span class="pre">abbr</span></code> element to the document.</span></p>
 </div>
@@ -700,7 +717,7 @@ symbol. These are operations that remove whole elements or
 attributes from the document. They normally do not operate on
 selections.</li>
 </ul>
-<div class="figure align-center" id="id34">
+<div class="figure align-center" id="id36">
 <img alt="A user deletes an element." src="_images/deleting.gif" />
 <p class="caption"><span class="caption-text">The user deletes an <code class="docutils literal"><span class="pre">abbr</span></code> element from the document.</span></p>
 </div>
@@ -712,7 +729,7 @@ dragging with the mouse to select a part of the document. Therefore,
 wrapping operations appear in the contextual menu only if a
 selection is in effect. They &#8220;wrap&#8221; the selection in a new element.</li>
 </ul>
-<div class="figure align-center" id="id35">
+<div class="figure align-center" id="id37">
 <img alt="A user wraps an element." src="_images/wrapping.gif" />
 <p class="caption"><span class="caption-text">The user wraps text in an <code class="docutils literal"><span class="pre">abbr</span></code> element.</span></p>
 </div>
@@ -723,7 +740,7 @@ an element so as to remove the element but put the element&#8217;s
 original content in place of the element being removed. They
 normally do not operate on selections.</li>
 </ul>
-<div class="figure align-center" id="id36">
+<div class="figure align-center" id="id38">
 <img alt="A user unwraps the content of an element." src="_images/unwrapping.gif" />
 <p class="caption"><span class="caption-text">The user unwraps the content of an element.</span></p>
 </div>
@@ -736,7 +753,7 @@ application that uses wed. Possible outcomes:</p>
 <li><p class="first">The data is saved. You will see a message telling you that the data
 was saved, and the <a class="reference external" href="ModificationandSaveStatus">save status</a>
 will indicate the data was saved.</p>
-<div class="figure align-center" id="id37">
+<div class="figure align-center" id="id39">
 <img alt="A green message saying &quot;Saved&quot;." src="_images/saved_message.png" />
 <p class="caption"><span class="caption-text">This is the message that a user gets when a document was saved.</span></p>
 </div>
@@ -806,12 +823,12 @@ because it edits XML, there are some limitations to what you can do:</p>
 <li><p class="first">Cutting will work only if the selection being cut starts and ends
 inside the same XML element. The selection can span over XML
 elements, provided that it completely contains these elements.</p>
-<div class="figure align-center" id="id38">
+<div class="figure align-center" id="id40">
 <img alt="A selection which cannot be cut." src="_images/invalid_selection_cut.png" />
 <p class="caption"><span class="caption-text">This selection cannot be cut from the document because it begins
 in one <code class="docutils literal"><span class="pre">p</span></code> element but ends in the subsequent <code class="docutils literal"><span class="pre">p</span></code> element.</span></p>
 </div>
-<div class="figure align-center" id="id39">
+<div class="figure align-center" id="id41">
 <img alt="A selection which can be cut." src="_images/valid_selection_cut.png" />
 <p class="caption"><span class="caption-text">This selection can be cut from the document because it begins and
 ends in the same <code class="docutils literal"><span class="pre">p</span></code> element. There is a <code class="docutils literal"><span class="pre">lb</span></code> element inside
@@ -915,7 +932,7 @@ expects <code class="kbd docutils literal"><span class="pre">Command-</span></co
 <div class="section" id="browser-requirements">
 <span id="help-browser-requirements"></span><h2>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h2>
 <p>Wed is primarily developed using a recent version of Chrome (version
-51 now, earlier versions have also been used earlier). (But see a note
+59 now, earlier versions have also been used earlier). (But see a note
 about Chrome 34 below.)</p>
 <p>Here is the list of officially supported browsers, in order of
 decreasing priority. The higher a browser is in the list, the less
@@ -937,13 +954,9 @@ unlikely to ever be supported:</p>
 <ul class="simple">
 <li>Versions of Chrome older than those mentioned above.</li>
 <li>Firefox. It deserves its own <a class="reference internal" href="#firefox">discussion</a>.</li>
-<li>IE 10. Wed used to be routinely tested on IE 10, but Microsoft no
-longer supports it. It is very unlikely that we&#8217;d resume support for
-IE 10. We&#8217;d need a) a substantial demand for it and b) people
-willing to participate in providing support.</li>
-<li>IE 9. Same caveats as IE 10 above. Moreover, as time goes by, wed is
-accumulating features that are not supported natively in IE 9, so
-the possibility of supporting IE 9 is becoming more and more remote.</li>
+<li>IE 10 and 9. Wed used to be routinely tested on IE 10, but Microsoft no longer
+supports it. Resuming support for IE 10 or 9 is extremely unlikely, because
+wed has accumulated features and methods that do not work on these browsers.</li>
 <li>Chrome 34: the luminaries at Google decided to remove
 <code class="docutils literal"><span class="pre">Attr.ownerElement</span></code> from Chrome 34. It was reintroduced in
 Chrome 35. We&#8217;ll probably never have support for Chrome 34.</li>
@@ -1166,7 +1179,7 @@ problems mentioned above.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.28.1',
+            VERSION:'v0.28.2-152-g4525c15d',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

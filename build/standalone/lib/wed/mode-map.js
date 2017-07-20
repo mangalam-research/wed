@@ -1,0 +1,1 @@
+define({"modes":{"generic":"wed/modes/generic/generic"}});
