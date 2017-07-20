@@ -38,20 +38,20 @@ define(function f(require) {
   if (schema) {
     switch (schema) {
     case "@math":
-      options.schema = "/build/schemas/tei-math-rng.js";
+      options.schema = "../schemas/tei-math-rng.js";
       options.mode = {
         path: "wed/modes/generic/generic",
         options: {
-          metadata: "/build/schemas/tei-math-metadata.json",
+          metadata: "../schemas/tei-math-metadata.json",
         },
       };
       break;
     case "@docbook":
-      options.schema = "/build/schemas/docbook.js";
+      options.schema = "../schemas/docbook.js";
       options.mode = {
         path: "wed/modes/generic/generic",
         options: {
-          metadata: "/build/schemas/docbook-metadata.json",
+          metadata: "../schemas/docbook-metadata.json",
         },
       };
       break;
