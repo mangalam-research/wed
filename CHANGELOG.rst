@@ -73,6 +73,9 @@ odd bug fix may not get mentioned here at all.
   - Breaking change: ``makeDocumentationLink`` no longer exists. It is replaced
     by ``makeDocumentationMenuItem`` on ``EditingMenuManager``.
 
+  - Breaking change: ``action-context-menu`` exports ``ActionContextMenu``
+    instead of the old ``ContextMenu``.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

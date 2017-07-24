@@ -16,7 +16,7 @@ import { Listener } from "./domlistener";
 import { isAttr, isText } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
-import { ContextMenu, Item } from "./gui/action-context-menu";
+import { ActionContextMenu, Item } from "./gui/action-context-menu";
 import { EditingMenuManager } from "./gui/editing-menu-manager";
 import { Transformation, TransformationData } from "./transformation";
 import { BeforeInsertNodeAtEvent } from "./tree-updater";
@@ -614,7 +614,8 @@ export class Decorator {
 
     const pos = editor.editingMenuManager.computeMenuPosition(ev);
     editor.editingMenuManager
-      .displayContextMenu(ContextMenu, pos.left, pos.top, menuItems, readonly);
+      .displayContextMenu(ActionContextMenu, pos.left, pos.top, menuItems,
+                          readonly);
     return false;
   }
 }

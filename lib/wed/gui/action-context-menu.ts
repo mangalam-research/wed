@@ -137,7 +137,7 @@ interface Filters {
  * When no option is focused, typing ENTER will select the first option of the
  * menu.
  */
-export class ContextMenu extends Base {
+export class ActionContextMenu extends Base {
   private readonly actionItems: Item[];
   private readonly actionFilterItem: Element;
   private readonly actionFilterInput: HTMLInputElement;

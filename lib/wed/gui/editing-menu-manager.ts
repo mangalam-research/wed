@@ -13,7 +13,7 @@ import { closestByClass, htmlToElements, indexOf,
 import { Mode } from "../mode";
 import { Transformation, TransformationData } from "../transformation";
 import { Validator } from "../validator";
-import { ContextMenu as ActionContextMenu, Item } from "./action-context-menu";
+import { ActionContextMenu, Item } from "./action-context-menu";
 import { CompletionMenu } from "./completion-menu";
 import { ContextMenu } from "./context-menu";
 import * as icon from "./icon";
