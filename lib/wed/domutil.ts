@@ -1595,7 +1595,8 @@ export function getCharacterImmediatelyAt(caret: Caret): string | undefined {
  * displayed. ``false`` otherwise. If the search up the DOM tree hits ``root``,
  * then the value returned is ``false``.
  */
-export function isNotDisplayed(el: HTMLElement, root: Element): boolean {
+export function isNotDisplayed(el: HTMLElement,
+                               root: HTMLElement | HTMLDocument): boolean {
   const win = el.ownerDocument.defaultView;
 
   // We don't put put a menu for attributes that are somehow not

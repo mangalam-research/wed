@@ -391,8 +391,9 @@ export class ValidationController {
           throw new Error("we should be landing on an element");
         }
 
-        invisibleAttribute = isNotDisplayed(nodeToTest as HTMLElement,
-                                            insertAt.root as Element);
+        invisibleAttribute = isNotDisplayed(
+          nodeToTest as HTMLElement,
+          insertAt.root as (HTMLElement | HTMLDocument));
       }
 
       // Turn the names into qualified names.

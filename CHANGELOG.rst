@@ -53,6 +53,26 @@ odd bug fix may not get mentioned here at all.
     of the form ``data-wed--ns-...``. If a mode sets attributes of this form,
     then that's a clash.
 
+  - Breaking changes: context menu methods are no longer directly on the
+    ``Editor`` class. The following methods are accessible on
+    ``editor.editingMenuManager`` (where ``editor`` is an ``Editor`` instance):
+
+    + ``dismissDropdownMenu``, under the new name ``dismiss``.
+
+    + ``displayContextMenu``,
+
+    + ``getMenuItemsForAttribute``,
+
+    + ``getMenuItemsForElement``,
+
+    + ``makeMenuItemForAction``,
+
+    + ``computeContextMenuPosition``, under the new name
+      ``computeMenuPosition``.
+
+  - Breaking change: ``makeDocumentationLink`` no longer exists. It is replaced
+    by ``makeDocumentationMenuItem`` on ``EditingMenuManager``.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

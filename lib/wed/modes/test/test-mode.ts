@@ -240,7 +240,7 @@ class TypeaheadAction extends Action<{}> {
       }],
     };
 
-    const pos = editor.computeContextMenuPosition(undefined, true);
+    const pos = editor.editingMenuManager.computeMenuPosition(undefined, true);
     const typeahead =
       editor.displayTypeaheadPopup(pos.left, pos.top, 300,
                                    "Test", options,

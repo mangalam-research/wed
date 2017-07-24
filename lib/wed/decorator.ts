@@ -16,7 +16,8 @@ import { Listener } from "./domlistener";
 import { isAttr, isText } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
-import { ContextMenu } from "./gui/action-context-menu";
+import { ContextMenu, Item } from "./gui/action-context-menu";
+import { EditingMenuManager } from "./gui/editing-menu-manager";
 import { Transformation, TransformationData } from "./transformation";
 import { BeforeInsertNodeAtEvent } from "./tree-updater";
 import * as  util from "./util";
@@ -33,9 +34,9 @@ export interface Editor {
   attributes: string;
   validator: Validator;
   caretManager: CaretManager;
+  editingMenuManager: EditingMenuManager;
   // tslint:disable-next-line:no-any
   mode: any;
-  _makeMenuItemForAction(action: Action<{}>, data?: {}): HTMLElement;
   resolver: salve.NameResolver;
   isAttrProtected(name: string, parent: Element): boolean;
   isAttrProtected(node: Node): boolean;
@@ -440,34 +441,22 @@ export class Decorator {
    */
   // tslint:disable-next-line:max-func-body-length
   protected contextMenuHandler(atStart: boolean, wedEv: JQueryMouseEventObject,
-                               ev: Event): boolean {
+                               ev: JQueryEventObject): boolean {
     const editor = this.editor;
     let node = wedEv.target as Element;
-    const menuItems: {
-      action: Action<{}> | null,
-      item: Element,
-      data?: TransformationData | null,
-    }[] = [];
+    const menuItems: Item[] = [];
     const mode = editor.mode;
-    const doc = node.ownerDocument;
-    const atStartToTxt: Record<string, string> = {
-      undefined: "",
-      true: " before this element",
-      false: " after this element",
-    };
 
-    function pushItem(data: TransformationData | undefined,
-                      tr: Action<{}>, start?: boolean | undefined): void {
-      const li = editor._makeMenuItemForAction(tr, data) as Element;
-      const a = li.getElementsByTagName("a")[0];
-      const text = doc.createTextNode(atStartToTxt[String(start)]);
-      a.appendChild(text);
-      a.normalize();
+    function pushItem(data: TransformationData | null,
+                      tr: Action<TransformationData>,
+                      start?: boolean): void {
+      const li = editor.editingMenuManager.makeMenuItemForAction(tr, data,
+                                                                 start);
       menuItems.push({ action: tr, item: li, data: data });
     }
 
-    function pushItems(data: TransformationData | undefined,
-                       trs?: Action<{}>[], start?: boolean | undefined): void {
+    function pushItems(data: TransformationData | null,
+                       trs?: Action<{}>[], start?: boolean): void {
       if (trs === undefined) {
         return;
       }
@@ -509,7 +498,7 @@ export class Decorator {
         }
       }
       else {
-        pushItem(undefined, editor.complex_pattern_action);
+        pushItem(null, editor.complex_pattern_action);
       }
     }
 
@@ -553,8 +542,8 @@ export class Decorator {
 
       const docURL = mode.documentationLinkFor(orig);
       if (docURL != null) {
-        const li = doc.createElement("li");
-        li.appendChild(this.editor.makeDocumentationLink(docURL));
+        const li =
+          this.editor.editingMenuManager.makeDocumentationMenuItem(docURL);
         menuItems.push({ action: null, item: li, data: null });
       }
 
@@ -599,7 +588,7 @@ export class Decorator {
           }
           else {
             // It is an action rather than a transformation.
-            pushItem(undefined, tr.tr);
+            pushItem(null, tr.tr);
           }
         }
 
@@ -611,7 +600,7 @@ export class Decorator {
           for (const tr of editor.getElementTransformationsAt(caretInside,
                                                               "wrap-content")) {
             pushItem(tr.name !== undefined ? { name: tr.name, node: node }
-                     : undefined,
+                     : null,
                      tr.tr);
           }
         }
@@ -623,9 +612,9 @@ export class Decorator {
       return true;
     }
 
-    const pos = editor.computeContextMenuPosition(ev);
-    editor.displayContextMenu(ContextMenu, pos.left, pos.top, menuItems,
-                              readonly);
+    const pos = editor.editingMenuManager.computeMenuPosition(ev);
+    editor.editingMenuManager
+      .displayContextMenu(ContextMenu, pos.left, pos.top, menuItems, readonly);
     return false;
   }
 }

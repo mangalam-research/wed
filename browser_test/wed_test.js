@@ -1549,7 +1549,8 @@ define(function f(require) {
            assert.isUndefined(caretManager.getNormalizedCaret());
            activateContextMenu(editor, initial.parentNode);
            window.setTimeout(function timeout() {
-             assert.isDefined(editor._current_dropdown, "dropdown defined");
+             assert.isDefined(editor.editingMenuManager.currentDropdown,
+                              "dropdown defined");
              assert.isDefined(caretManager.getNormalizedCaret(), "caret defined");
              done();
            }, 100);
@@ -1565,7 +1566,7 @@ define(function f(require) {
                                editor.gui_root
                                .getElementsByClassName("title")[0]);
            window.setTimeout(function timeout() {
-             assert.isDefined(editor._current_dropdown);
+             assert.isDefined(editor.editingMenuManager.currentDropdown);
              done();
            }, 1);
          });
@@ -1580,7 +1581,7 @@ define(function f(require) {
 
            activateContextMenu(editor, initial.parentNode);
            window.setTimeout(function timeout() {
-             assert.isDefined(editor._current_dropdown);
+             assert.isDefined(editor.editingMenuManager.currentDropdown);
              done();
            }, 1);
          });
@@ -2660,7 +2661,7 @@ define(function f(require) {
                        "test caused an unhandled exception to occur");
         // We don't reload our page so we need to do this.
         onerror.__test.reset();
-        editor._dismissDropdownMenu();
+        editor.editingMenuManager.dismiss();
       });
 
       describe("has context menus", function hasContextMenus() {

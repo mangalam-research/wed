@@ -20,7 +20,7 @@ export class CompletionMenu extends ContextMenu {
   private readonly completionItems: string[];
   private readonly editor: Editor;
   private readonly boundCompletionKeydownHandler: Function;
-  private focused: boolean = false;
+  private _focused: boolean = false;
 
   /**
    * @param editor The editor for which to create this menu.
@@ -69,13 +69,18 @@ export class CompletionMenu extends ContextMenu {
     this.display([]);
   }
 
+  /** Whether the completion menu has been focused. */
+  get focused(): boolean {
+    return this._focused;
+  }
+
   private globalKeydownHandler(wedEv: Event, ev: JQueryEventObject): boolean {
     if (keyConstants.ENTER.matchesEvent(ev)) {
       this.$menu.find("li:not(.divider):visible a").first().click();
       return false;
     }
     else if (keyConstants.DOWN_ARROW.matchesEvent(ev)) {
-      this.focused = true;
+      this._focused = true;
       this.$menu.find("li:not(.divider):visible a").first().focus();
       this.$menu.trigger(ev);
       return false;
