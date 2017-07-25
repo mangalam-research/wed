@@ -237,16 +237,16 @@ export class EditingMenuManager {
 
     const $sep = $(actualNode).parents().addBack()
       .siblings("[data-wed--separator-for]").first();
-    const transformationNode = $sep.siblings()
-      .filter(function filter(this: Element): boolean {
-        // Node.contains() will return true if this === node, whereas
-        // jQuery.has() only looks at descendants, so this can't be
-        // replaced with .has().
-        return this.contains(actualNode!);
-      })[0];
     const sepFor = $sep[0] !== undefined ?
       $sep[0].getAttribute("data-wed--separator-for") : null;
     if (sepFor !== null) {
+      const transformationNode = $sep.siblings()
+        .filter(function filter(this: Element): boolean {
+          // Node.contains() will return true if this === node, whereas
+          // jQuery.has() only looks at descendants, so this can't be replaced
+          // with .has().
+          return this.contains(actualNode!);
+        })[0];
       const actions = this.mode.getContextualActions(
         ["merge-with-next", "merge-with-previous", "append", "prepend"], sepFor,
         $.data(transformationNode, "wed_mirror_node"), 0);

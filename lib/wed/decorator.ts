@@ -510,11 +510,11 @@ export class Decorator {
       const dataNode = editor.toDataNode(attrVal) as Attr;
       const treeCaret =
         DLoc.mustMakeDLoc(editor.data_root, dataNode.ownerElement);
+      const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
       editor.validator.possibleAt(treeCaret, true).forEach((event) => {
         if (event.params[0] !== "attributeName") {
           return;
         }
-        const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
         processAttributeNameEvent(event, toAddTo as Element);
       });
 
@@ -570,11 +570,11 @@ export class Decorator {
       }
 
       if (atStart && editor.attributes === "edit") {
+        const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
         editor.validator.possibleAt(treeCaret, true).forEach((event) => {
             if (event.params[0] !== "attributeName") {
               return;
             }
-            const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
             processAttributeNameEvent(event, toAddTo as Element);
           });
       }
