@@ -121,8 +121,8 @@ export interface Mode<ModeOptions> {
   /**
    * Get additional stylesheets to use to render the HTML.
    *
-   * @returns An array of paths to the stylesheets to
-   * load for this mode.
+   * @returns An array of paths to the stylesheets to load for this mode. The
+   * paths must not require any additional interpretation from wed.
    */
   getStylesheets(): string[];
 
