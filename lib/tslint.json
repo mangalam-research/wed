@@ -14,6 +14,7 @@
                               "spurious null checks."],
     "newline-before-return": [false, "Not for this project."],
     "no-import-side-effect": [true,
-                              { "ignore-pattern": "^(jquery|bootstrap)$" }]
+                              { "ignore-pattern": "^(jquery|bootstrap)$" }],
+    "await-promise": [true, "Bluebird"]
   }
 }
