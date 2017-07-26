@@ -129,7 +129,7 @@ define(function f(require) {
           }];
         };
 
-        p = new validator.Validator(grammar, tree, new Validator());
+        p = new validator.Validator(grammar, tree, [new Validator()]);
         p._maxTimespan = 0; // Work forever.
       });
 

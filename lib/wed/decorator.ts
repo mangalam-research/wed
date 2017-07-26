@@ -6,20 +6,20 @@
  */
 
 import * as  $ from "jquery";
-import * as mergeOptions from "merge-options";
 import * as salve from "salve";
 
 import { Action } from "./action";
 import { CaretManager } from "./caret-manager";
 import { DLoc } from "./dloc";
 import { Listener } from "./domlistener";
-import { isAttr, isText } from "./domtypeguards";
+import { isAttr, isElement } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { ActionContextMenu, Item } from "./gui/action-context-menu";
 import { EditingMenuManager } from "./gui/editing-menu-manager";
+import { ModeTree } from "./mode-tree";
 import { Transformation, TransformationData } from "./transformation";
-import { BeforeInsertNodeAtEvent } from "./tree-updater";
+import { BeforeInsertNodeAtEvent, InsertNodeAtEvent } from "./tree-updater";
 import * as  util from "./util";
 import { Validator } from "./validator";
 
@@ -37,6 +37,7 @@ export interface Editor {
   editingMenuManager: EditingMenuManager;
   // tslint:disable-next-line:no-any
   mode: any;
+  modeTree: ModeTree;
   resolver: salve.NameResolver;
   isAttrProtected(name: string, parent: Element): boolean;
   isAttrProtected(node: Node): boolean;
@@ -62,20 +63,11 @@ function attributeSelectorMatch(selector: string, name: string): boolean {
   return selector === "*" || selector === name;
 }
 
-interface AttributeHidingSpecs {
-  elements: {
-    selector: string,
-    attributes: (string | { except: string[]})[];
-  }[];
-}
-
 /**
  * A decorator is responsible for adding decorations to a tree of DOM
  * elements. Decorations are GUI elements.
  */
 export class Decorator {
-  private _attributeHidingSpecs: AttributeHidingSpecs | null;
-
   /**
    * @param domlistener The listener that the decorator must use to know when
    * the DOM tree has changed and must be redecorated.
@@ -97,11 +89,19 @@ export class Decorator {
    */
   addHandlers(): void {
     this.guiUpdater.events.subscribe((ev) => {
-      if (ev.name !== "BeforeInsertNodeAt" || isText(ev.node)) {
-        return;
+      switch (ev.name) {
+      case "BeforeInsertNodeAt":
+        if (isElement(ev.node)) {
+          this.initialContentEditableHandler(ev);
+        }
+        break;
+      case "InsertNodeAt":
+        if (isElement(ev.node)) {
+          this.finalContentEditableHandler(ev);
+        }
+        break;
+      default:
       }
-
-      this.contentEditableHandler(ev);
     });
   }
 
@@ -185,30 +185,48 @@ export class Decorator {
   }
 
   /**
-   * Generic handler for setting ``contenteditable`` on nodes included into the
-   * tree.
+   * Handler for setting ``contenteditable`` on nodes included into the
+   * tree. This handler preforms an initial generic setup that does not need
+   * mode-specific information. It sets ``contenteditable`` to true on any real
+   * element or any attribute value.
    */
-  contentEditableHandler(ev: BeforeInsertNodeAtEvent): void {
-    const editAttributes = this.editor.attributes === "edit";
-    function mod(el: Element): void {
+  initialContentEditableHandler(ev: BeforeInsertNodeAtEvent): void {
+    const mod = (el: Element) => {
       // All elements that may get a selection must be focusable to
       // work around issue:
       // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
       el.setAttribute("tabindex", "-1");
       el.setAttribute("contenteditable",
                       String(el.classList.contains("_real") ||
-                             (editAttributes &&
-                              el.classList.contains("_attribute_value"))));
+                              el.classList.contains("_attribute_value")));
       let child = el.firstElementChild;
       while (child !== null) {
         mod(child);
         child = child.nextElementSibling;
       }
-    }
+    };
 
     // We never call this function with something else than an Element for
     // ev.node.
     mod(ev.node as Element);
+  }
+
+  /**
+   * Handler for setting ``contenteditable`` on nodes included into the
+   * tree. This handler adjusts whether attribute values are editable by using
+   * mode-specific data.
+   */
+  finalContentEditableHandler(ev: InsertNodeAtEvent): void {
+    // We never call this function with something else than an Element for
+    // ev.node.
+    const el = ev.node as Element;
+
+    const attrs = el.getElementsByClassName("_attribute_value");
+    for (const attr of Array.from(attrs)) {
+      if (this.editor.modeTree.getAttributeHandling(attr) !== "edit") {
+        attr.setAttribute("contenteditable", "false");
+      }
+    }
   }
 
   /**
@@ -263,8 +281,8 @@ export class Decorator {
 
     const attributesHTML = [];
     let hiddenAttributes = false;
-    if (this.editor.attributes === "show" ||
-        this.editor.attributes === "edit") {
+    const attributeHandling = this.editor.modeTree.getAttributeHandling(el);
+    if (attributeHandling === "show" || attributeHandling === "edit") {
       // include the attributes
       const attributes = util.getOriginalAttributes(el);
       const names = Object.keys(attributes).sort();
@@ -345,7 +363,7 @@ export class Decorator {
    * @returns ``true`` if the attribute must be hidden. ``false`` otherwise.
    */
   mustHideAttribute(el: Element, name: string): boolean {
-    const specs = this.attributeHidingSpecs;
+    const specs = this.editor.modeTree.getAttributeHidingSpecs(el);
     if (specs === null) {
       return false;
     }
@@ -383,36 +401,6 @@ export class Decorator {
     }
 
     return false;
-  }
-
-  private get attributeHidingSpecs(): AttributeHidingSpecs | null {
-    if (this._attributeHidingSpecs === undefined) {
-      const attributeHiding = this.editor.attributeHiding;
-      if (attributeHiding === undefined) {
-        // No attribute hiding...
-        this._attributeHidingSpecs = null;
-      }
-      else {
-        const method = attributeHiding.method;
-        if (method !== "selector") {
-          throw new Error(`unknown attribute hiding method: ${method}`);
-        }
-
-        const specs: AttributeHidingSpecs = {
-          elements: [],
-        };
-
-        for (const element of attributeHiding.elements) {
-          const copy = mergeOptions({}, element);
-          copy.selector = domutil.toGUISelector(copy.selector, this.namespaces);
-          specs.elements.push(copy);
-        }
-
-        this._attributeHidingSpecs = specs;
-      }
-    }
-
-    return this._attributeHidingSpecs;
   }
 
   /**
@@ -569,14 +557,18 @@ export class Decorator {
         throw new Error("cannot get caret");
       }
 
-      if (atStart && editor.attributes === "edit") {
+      if (atStart) {
         const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
-        editor.validator.possibleAt(treeCaret, true).forEach((event) => {
+        const attributeHandling =
+          this.editor.modeTree.getAttributeHandling(toAddTo);
+        if (attributeHandling === "edit") {
+          editor.validator.possibleAt(treeCaret, true).forEach((event) => {
             if (event.params[0] !== "attributeName") {
               return;
             }
             processAttributeNameEvent(event, toAddTo as Element);
           });
+        }
       }
 
       if (!topNode) {

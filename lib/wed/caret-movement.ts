@@ -13,6 +13,15 @@ import { Mode } from "./mode";
 import { boundaryXY, getAttrValueNode } from "./wed-util";
 
 /**
+ * A function determining whether we should move into the attributes of a node.
+ *
+ * @param node The node to test.
+ *
+ * @returns Whether we should move into the attributes of this node.
+ */
+export type MoveInAttributes = (node: Node) => boolean;
+
+/**
  * @param pos The position form which we start.
  *
  * @param root The root of the DOM tree within which we move.
@@ -155,7 +164,7 @@ const directionToFunction = {
 
 export function newPosition(pos: DLoc | undefined | null,
                             direction: Direction,
-                            inAttributes: boolean,
+                            moveInAttributes: MoveInAttributes,
                             docRoot: Document | Element,
                             mode: Mode<{}>): DLoc | undefined {
   const fn = directionToFunction[direction];
@@ -163,7 +172,7 @@ export function newPosition(pos: DLoc | undefined | null,
     throw new Error(`cannot resolve direction: ${direction}`);
   }
 
-  return fn(pos, inAttributes, docRoot, mode);
+  return fn(pos, moveInAttributes, docRoot, mode);
 }
 
 /**
@@ -173,7 +182,7 @@ export function newPosition(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
+ * @param moveInAttributes Whether we are to move into attributes.
  *
  * @param docRoot The element within which caret movement is to be constrained.
  *
@@ -183,7 +192,7 @@ export function newPosition(pos: DLoc | undefined | null,
  */
 // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
 export function positionRight(pos: DLoc | undefined | null,
-                              inAttributes: boolean,
+                              moveInAttributes: MoveInAttributes,
                               docRoot: Document | Element,
                               mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
@@ -212,7 +221,8 @@ export function positionRight(pos: DLoc | undefined | null,
     const closestGUI = closest(node, "._gui:not(._invisible)", root);
     if (closestGUI !== null) {
       const startLabel = closestGUI.classList.contains("__start_label");
-      if (inAttributes && startLabel) {
+      if (startLabel &&
+          moveInAttributes(closestByClass(closestGUI, "_real", root)!)) {
         if (closestByClass(node, "_attribute_value", root) !== null) {
           // We're in an attribute value, stop here.
           break;
@@ -314,7 +324,7 @@ export function positionRight(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
+ * @param moveInAttributes Whether we are to move into attributes.
  *
  * @param docRoot The element within which caret movement is to be constrained.
  *
@@ -324,7 +334,7 @@ export function positionRight(pos: DLoc | undefined | null,
  */
 // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
 export function positionLeft(pos: DLoc | undefined | null,
-                             inAttributes: boolean,
+                             moveInAttributes: MoveInAttributes,
                              docRoot: Document | Element,
                              mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
@@ -355,7 +365,8 @@ export function positionLeft(pos: DLoc | undefined | null,
                                                root);
     if (closestGUI !== null) {
       const startLabel = closestGUI.classList.contains("__start_label");
-      if (inAttributes && startLabel && !wasInName) {
+      if (startLabel && !wasInName &&
+          moveInAttributes(closestByClass(closestGUI, "_real", root)!)) {
         if (closestByClass(node, "_attribute_value", closestGUI) !== null) {
           // We're in an atribute value, stop here.
           break;
@@ -492,7 +503,7 @@ export function positionLeft(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
+ * @param moveInAttributes Whether we are to move into attributes.
  *
  * @param docRoot The element within which caret movement is to be constrained.
  *
@@ -501,7 +512,7 @@ export function positionLeft(pos: DLoc | undefined | null,
  * @returns The new position, or ``undefined`` if there is no such position.
  */
 export function positionDown(pos: DLoc | undefined | null,
-                             inAttributes: boolean,
+                             moveInAttributes: MoveInAttributes,
                              docRoot: Document | Element,
                              mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
@@ -512,7 +523,7 @@ export function positionDown(pos: DLoc | undefined | null,
   const initialCaret = boundaryXY(pos);
   let next = initialCaret;
   while (initialCaret.bottom > next.top) {
-    pos = positionRight(pos, inAttributes, docRoot, mode);
+    pos = positionRight(pos, moveInAttributes, docRoot, mode);
     if (pos === undefined) {
       return undefined;
     }
@@ -539,7 +550,7 @@ export function positionDown(pos: DLoc | undefined | null,
 
     minDist = dist;
     minPosition = pos;
-    pos = positionRight(pos, inAttributes, docRoot, mode);
+    pos = positionRight(pos, moveInAttributes, docRoot, mode);
     if (pos !== undefined) {
       next = boundaryXY(pos);
     }
@@ -555,7 +566,7 @@ export function positionDown(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
+ * @param moveInAttributes Whether we are to move into attributes.
  *
  * @param docRoot The element within which caret movement is to be constrained.
  *
@@ -564,7 +575,7 @@ export function positionDown(pos: DLoc | undefined | null,
  * @returns The new position, or ``undefined`` if there is no such position.
  */
 export function positionUp(pos: DLoc | undefined | null,
-                           inAttributes: boolean,
+                           moveInAttributes: MoveInAttributes,
                            docRoot: Document | Element,
                            mode: Mode<{}>): DLoc | undefined {
   if (pos == null) {
@@ -575,7 +586,7 @@ export function positionUp(pos: DLoc | undefined | null,
   const initialBoundary = boundaryXY(pos);
   let prev = initialBoundary;
   while (initialBoundary.top < prev.bottom) {
-    pos = positionLeft(pos, inAttributes, docRoot, mode);
+    pos = positionLeft(pos, moveInAttributes, docRoot, mode);
     if (pos === undefined) {
       return undefined;
     }
@@ -602,7 +613,7 @@ export function positionUp(pos: DLoc | undefined | null,
 
     minDist = dist;
     minPosition = pos;
-    pos = positionLeft(pos, inAttributes, docRoot, mode);
+    pos = positionLeft(pos, moveInAttributes, docRoot, mode);
     if (pos !== undefined) {
       prev = boundaryXY(pos);
     }

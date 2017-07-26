@@ -1,7 +1,46 @@
 $schema: http://json-schema.org/schema#
 id: http://btw.mangalam-research.org/schemas/wed/options.json
-title: Options that may be passed to a new Wed instance.
+title: Options
 description: Options that may be passed to a new Wed instance.
+definitions:
+  mode:
+    description: Configures a mode.
+    type: object
+    properties:
+      path:
+        description: The path to the mode. Historically, wed has accepted the
+          use of a shortened path here. So putting ``x`` would try to load the
+          modules ``x``, ``wed/modes/x/x``, ``wed/modes/x/x-mode``,
+          ``wed/modes/x/x_mode``. It is not recommended to do this anymore but
+          to instead put a module name that the module loader can use
+          immediately and irrespective of context.
+        type: string
+      submode:
+        description: Configures a submode to use with the mode.
+        type: object
+        properties:
+          method:
+            description: The method by which we identify where the submode is
+              operating.
+            type: string
+            enum: ["selector"]
+          selector:
+            description: The CSS selector in the data tree that identifies
+              regions where the submode is operating. This selector is subject
+              to limitations explained in ``domutil.toGUISelector``. Note that
+              the namespace prefixes in this selector are interpreted according
+              to the mappings established by the parent mode.
+            type: string
+          mode:
+            $ref: "#/definitions/mode"
+        additionalProperties: false
+        required: ["method", "selector", "mode"]
+      options:
+        description: The mode\'s options. Which options are available is
+          determined by the mode.
+        type: object
+    additionalProperties: false
+    required: ["path"]
 type: object
 properties:
   schema:
@@ -14,23 +53,7 @@ properties:
       - description: A schema pre-compiled with Salve.
         type: object
   mode:
-    description: Determines the mode to use.
-    type: object
-    properties:
-      path:
-        description: The path to the mode. Historically, wed has accepted the
-          use of a shortened path here. So putting ``x`` would try to load the
-          modules ``x``, ``wed/modes/x/x``, ``wed/modes/x/x-mode``,
-          ``wed/modes/x/x_mode``. It is not recommended to do this anymore but
-          to instead put a module name that the module loader can use
-          immediately and irrespective of context.
-        type: string
-      options:
-        description: The mode\'s options. Which options are available is
-          determined by the mode.
-        type: object
-    additionalProperties: false
-    required: ["path"]
+    $ref: "#/definitions/mode"
   ajaxlog:
     description: Settings for remote logging.
     type: object

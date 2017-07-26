@@ -213,6 +213,8 @@ gulp.task("generate-ts", () =>
                                   "metadata-as-json.d.ts"),
             convertJSONSchemaToTS(
               "lib/wed/wed-options-schema.yml", "wed-options.d.ts"),
+            convertJSONSchemaToTS(
+              "lib/wed/options-schema.yml", "options.d.ts"),
           ]));
 
 const wedProject = gulpTs.createProject("lib/tsconfig.json");

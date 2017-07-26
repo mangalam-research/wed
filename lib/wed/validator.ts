@@ -35,10 +35,10 @@ export class Validator extends BaseValidator {
    * @param root The root of the DOM tree to validate. This root contains the
    * document to validate but is not **part** of it.
    *
-   * @param modeValidator The mode-specific validator to use.
+   * @param modeValidators The mode-specific validators to use.
    */
   constructor(schema: Grammar, root: Element | Document,
-              private readonly modeValidator?: ModeValidator) {
+              private readonly modeValidators: ModeValidator[]) {
     super(schema, root, {
       timeout: 0,
       maxTimespan: 100,
@@ -50,13 +50,11 @@ export class Validator extends BaseValidator {
    * the validator.
    */
   _runDocumentValidation(): void {
-    if (this.modeValidator === undefined) {
-      return;
-    }
-
-    const errors = this.modeValidator.validateDocument();
-    for (const error of errors) {
-      this._processError(error);
+    for (const validator of this.modeValidators) {
+      const errors = validator.validateDocument();
+      for (const error of errors) {
+        this._processError(error);
+      }
     }
   }
 

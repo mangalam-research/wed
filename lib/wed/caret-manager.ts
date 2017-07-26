@@ -123,7 +123,7 @@ export class CaretManager implements GUIToDataConverter {
    *
    * @param scroller: The element that scrolls ``guiRoot``.
    *
-   * @param inAttributes: Whether or not to move into attributes.
+   * @param moveInAttributes: Whether or not to move into attributes.
    *
    * @param mode: The current mode in effect.
    */
@@ -133,7 +133,7 @@ export class CaretManager implements GUIToDataConverter {
               private readonly guiUpdater: GUIUpdater,
               layer: Layer,
               scroller: Scroller,
-              private readonly inAttributes: boolean,
+              private readonly moveInAttributes: caretMovement.MoveInAttributes,
               private readonly mode: Mode<{}>) {
     this.mark = new CaretMark(this, guiRoot.node.ownerDocument, layer,
                               inputField, scroller);
@@ -608,7 +608,7 @@ export class CaretManager implements GUIToDataConverter {
   newPosition(pos: DLoc | undefined,
               direction: caretMovement.Direction): DLoc | undefined {
     return caretMovement.newPosition(pos, direction,
-                                     this.inAttributes,
+                                     this.moveInAttributes,
                                      this.guiRootEl,
                                      this.mode);
   }

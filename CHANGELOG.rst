@@ -7,7 +7,7 @@ odd bug fix may not get mentioned here at all.
 
 * 0.30.0:
 
-  + This version contains a slew of changes that improve the handling of
+  - This version contains a slew of changes that improve the handling of
     namespaces. Wed has had namespace support since the very beginning but it
     would have been fair to call the support "very temperamental". For instance,
     if a mode expected the TEI namespace to be the default namespace
@@ -16,6 +16,13 @@ odd bug fix may not get mentioned here at all.
     version aim to smooth out the possible differences between what a file
     actually contains and what a mode expects. This is a prerequiste to
     supporting the new "submode" feature.
+
+  - Addition of the submode feature, which causes breaking changes. This matters
+    if you designed your own mode:
+
+    + ``Editor`` no longer has ``this.attributes`` and
+      ``this.attributeHiding``. The information they provided must be sought
+      from methods on ``Editor``'s ``modeTree`` property.
 
   - Breaking changes:
 
