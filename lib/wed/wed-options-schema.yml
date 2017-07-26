@@ -2,6 +2,76 @@ $schema: http://json-schema.org/schema#
 id: http://btw.mangalam-research.org/schemas/wed/wed-options.json
 title: Wed Options
 description: A schema describing the wed options that modes may set.
+definitions:
+  simpleAttributesSpec:
+    type: object
+    properties:
+      handling:
+        description: Determines how attributes are handled.
+        type: string
+        enum: ["hide"]
+    required: ["handling"]
+    additionalProperties: false
+  complexAttributesSpec:
+    type: object
+    properties:
+      handling:
+        description: Determines how attributes are handled. The values
+          are the same as described above with the exception that "hide" is
+          not valid here.
+        type: string
+        enum: ["show", "edit"]
+      autohide:
+        description: Describes attributes that may be autohidden. If absent
+          then no attributes are autohidden.
+        type: object
+        properties:
+          method:
+            description: The method by which attributes are described.
+            type: string
+            enum: ["selector"]
+          elements:
+            description: Elements which have autohide enabled.
+            type: array
+            items:
+              type: object
+              properties:
+                selector:
+                  description: CSS selector matching one or more elements.
+                    This selector must use the prefixes defined by the
+                    mode\'s metadata. This selector is subject to
+                    limitations explained in ``domutil.toGUISelector``. The
+                    hiding algorithm ceases searching for matches as soon
+                    as one selector matches.
+                  type: string
+                attributes:
+                  description: Specifies the attributes to hide. The array
+                    is executed in order when matching attributes. Later
+                    elements in the array override earlier elements.
+                  type: array
+                  items:
+                    oneOf:
+                      - description: Local name (optionally prefixed) of
+                          the attributes to hide. The specisl special name
+                          "*" means "match all attributes".
+                        type: string
+                      - description: An exclusion from the attributes to
+                          hide.
+                        type: object
+                        properties:
+                          except:
+                            description: The list of attributes to exclude.
+                            type: array
+                            items:
+                              type: string
+                        additionalProperties: false
+                        required: ["except"]
+              additionalProperties: false
+              required: ["selector", "attributes"]
+        additionalProperties: false
+        required: ["method", "elements"]
+    additionalProperties: false
+    required: ["handling"]
 type: object
 properties:
   metadata:
@@ -61,64 +131,7 @@ properties:
     oneOf:
       - type: string
         enum: ["hide", "show", "edit"]
-      - type: object
-        properties:
-          handling:
-            description: Determines how attributes are handled. The values
-              are the same as described above with the exception that "hide" is
-              not valid here.
-            type: string
-            enum: ["show", "edit"]
-          autohide:
-            description: Describes attributes that may be autohidden. If absent
-              then no attributes are autohidden.
-            type: object
-            properties:
-              method:
-                description: The method by which attributes are described.
-                type: string
-                enum: ["selector"]
-              elements:
-                description: Elements which have autohide enabled.
-                type: array
-                items:
-                  type: object
-                  properties:
-                    selector:
-                      description: CSS selector matching one or more elements.
-                        This selector must use the prefixes defined by the
-                        mode\'s metadata. This selector is subject to
-                        limitations explained in ``domutil.toGUISelector``. The
-                        hiding algorithm ceases searching for matches as soon
-                        as one selector matches.
-                      type: string
-                    attributes:
-                      description: Specifies the attributes to hide. The array
-                        is executed in order when matching attributes. Later
-                        elements in the array override earlier elements.
-                      type: array
-                      items:
-                        oneOf:
-                          - description: Local name (optionally prefixed) of
-                              the attributes to hide. The specisl special name
-                              "*" means "match all attributes".
-                            type: string
-                          - description: An exclusion from the attributes to
-                              hide.
-                            type: object
-                            properties:
-                              except:
-                                description: The list of attributes to exclude.
-                                type: array
-                                items:
-                                  type: string
-                            additionalProperties: false
-                            required: ["except"]
-                  additionalProperties: false
-                  required: ["selector", "attributes"]
-            additionalProperties: false
-            required: ["method", "elements"]
-        additionalProperties: false
-        required: ["handling"]
+      - $ref: "#/definitions/simpleAttributesSpec"
+      - $ref: "#/definitions/complexAttributesSpec"
 additionalProperties: false
 required: ["metadata", "label_levels"]
