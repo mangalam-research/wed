@@ -25,7 +25,7 @@ define(function f(require) {
   var commonMap = {
     btw: "http://mangalamresearch.org/ns/btw-storage",
     tei: "http://www.tei-c.org/ns/1.0",
-  }
+  };
 
   describe("domutil", function domutilBlock() {
     describe("nextCaretPosition", function nextCaretPosition() {

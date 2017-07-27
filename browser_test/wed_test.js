@@ -2722,7 +2722,8 @@ define(function f(require) {
 
       describe("autohides attributes", function autohides() {
         it("autohidden attributes are hidden when the caret is not " +
-           "in the element", function test() {
+           "in the element",
+           function test() {
              var div = editor.gui_root.querySelectorAll(".body .div")[1];
              var attr_names = getAttributeNamesFor(div);
              for (var ix = 0; ix < attr_names.length; ++ix) {
@@ -2741,7 +2742,8 @@ define(function f(require) {
            });
 
         it("autohidden attributes are shown when the caret is " +
-           "in the element", function test() {
+           "in the element",
+           function test() {
              var div = editor.gui_root.querySelectorAll(".body .div")[1];
              var label = firstGUI(div);
              caretManager.setCaret(label, 0);
