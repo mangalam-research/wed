@@ -1,0 +1,19 @@
+{
+  "extends": "../lib/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "wed/*": ["../build/standalone/lib/wed/*", "../build/generated/lib/wed/*"],
+      "rangy": ["../types/rangy"],
+      "merge-options": ["../types/merge-options"],
+      "interact": ["interact.js"]
+    },
+    "outDir": "build/browser_test"
+  },
+  "include": [
+    "../lib/wed/externals.d.ts",
+    "**/*.ts",
+    "**/*.d.ts"
+  ]
+}

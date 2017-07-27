@@ -103,8 +103,10 @@ gulp.task("build-standalone-wed", ["copy-wed-source",
 
 gulp.task("copy-wed-source", () => {
   const dest = "build/standalone/";
-  return gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/flycheck*",
-                   "!**/*.{less,ts,yml}"], { base: "." })
+  return es.merge(gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/flycheck*",
+                            "!**/*.{less,ts,yml}", "lib/**/*.d.ts"],
+                           { base: "." }),
+                  gulp.src(["lib/**/*.d.ts"], { base: "." }))
     .pipe(gulpNewer(dest))
     .pipe(gulp.dest(dest));
 });
@@ -127,7 +129,7 @@ gulp.task("convert-wed-yaml", () => {
 });
 
 const moduleFix = /^(define\(\["require", "exports")(.*?\], function \(require, exports)(.*)$/m;
-function tsc(project) {
+function tsc(project, dest) {
   // The .once nonsense is to work around a gulp-typescript bug
   //
   // See: https://github.com/ivogabe/gulp-typescript/issues/295
@@ -144,7 +146,6 @@ function tsc(project) {
           });
         });
 
-  const dest = "build/standalone/lib";
   return es.merge(result.js
                   //
                   // This ``replace`` to work around the problem that ``module``
@@ -218,11 +219,19 @@ gulp.task("generate-ts", () =>
           ]));
 
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
-gulp.task("tsc-wed", ["generate-ts"], () => tsc(wedProject));
+gulp.task("tsc-wed", ["generate-ts"],
+          () => tsc(wedProject, "build/standalone/lib"));
+
+const testProject = gulpTs.createProject("browser_test/tsconfig.json");
+gulp.task("tsc-test", ["tsc-wed"], () => tsc(testProject, "build/browser_test"));
 
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
           .pipe(gulp.dest("build/standalone/lib/")));
+
+gulp.task("copy-js-test",
+          () => gulp.src("browser_test/**/*.{js,xml}")
+          .pipe(gulp.dest("build/browser_test")));
 
 gulp.task("build-standalone-web", ["copy-js-web"]);
 
@@ -760,7 +769,11 @@ function runTslint(tsconfig, tslintConfig) {
 gulp.task("tslint-wed", ["generate-ts"],
           () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
 
-gulp.task("tslint", ["tslint-wed"]);
+gulp.task("tslint-test", ["tsc-wed"],
+          () => runTslint("browser_test/tsconfig.json",
+                          "browser_test/tslint.json"));
+
+gulp.task("tslint", ["tslint-wed", "tslint-test"]);
 
 gulp.task("eslint", () =>
           gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",
@@ -791,7 +804,7 @@ const testNode = {
 
 const testBrowser = {
   name: "test-browser",
-  deps: ["lint", "build", "build-test-files"],
+  deps: ["lint", "build", "copy-js-test", "tsc-test", "build-test-files"],
   func: function testBrowser() {
     return spawn("./misc/server.js", ["runner"], { stdio: "inherit" });
   },

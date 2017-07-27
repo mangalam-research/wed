@@ -36,6 +36,7 @@
         "wed/patches/bootstrap",
         "dexie",
         "bluebird",
+        "bluejax",
       ],
     },
   ],
