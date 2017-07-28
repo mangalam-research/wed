@@ -787,7 +787,7 @@ gulp.task("lint", ["eslint", "tslint"]);
 
 const testNode = {
   name: "test-node",
-  deps: ["lint", "build-standalone", "build-test-files"],
+  deps: ["build-standalone", "build-test-files"],
   func: function *testNode() {
     if (!options.skip_semver) {
       yield versync.run({
@@ -804,13 +804,19 @@ const testNode = {
 
 const testBrowser = {
   name: "test-browser",
-  deps: ["lint", "build", "copy-js-test", "tsc-test", "build-test-files"],
+  deps: ["build", "copy-js-test", "tsc-test", "build-test-files"],
   func: function testBrowser() {
     return spawn("./misc/server.js", ["runner"], { stdio: "inherit" });
   },
 };
 
-const test = sequence("test", testNode, testBrowser);
+sequence("test-sequence", testNode, testBrowser);
+
+const test = {
+  name: "test",
+  deps: ["lint", "test-sequence"],
+  func: () => {},
+};
 
 // Features is an optional array of features to run instead of running all
 // features.
