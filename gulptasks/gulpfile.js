@@ -222,16 +222,9 @@ const wedProject = gulpTs.createProject("lib/tsconfig.json");
 gulp.task("tsc-wed", ["generate-ts"],
           () => tsc(wedProject, "build/standalone/lib"));
 
-const testProject = gulpTs.createProject("browser_test/tsconfig.json");
-gulp.task("tsc-test", ["tsc-wed"], () => tsc(testProject, "build/browser_test"));
-
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
           .pipe(gulp.dest("build/standalone/lib/")));
-
-gulp.task("copy-js-test",
-          () => gulp.src("browser_test/**/*.{js,xml}")
-          .pipe(gulp.dest("build/browser_test")));
 
 gulp.task("build-standalone-web", ["copy-js-web"]);
 
@@ -668,18 +661,12 @@ function *ghPages() {
                  "build/standalone-optimized"], destBuild);
 
   for (const tree of ["standalone", "standalone-optimized"]) {
-    const rjsConfig = `${dest}/build/${tree}/requirejs-config.js`;
     const globalConfig = `${dest}/build/${tree}/lib/global-config.js`;
-    yield fs.moveAsync(rjsConfig, `${rjsConfig}.t`);
-    yield exec("node misc/modify_config.js -d paths.browser_test " +
-               `${rjsConfig}.t > ${rjsConfig}`);
-
     yield fs.moveAsync(globalConfig, `${globalConfig}.t`);
     yield exec("node misc/modify_config.js -d config.ajaxlog -d config.save " +
                `${globalConfig}.t > ${globalConfig}`);
 
-    yield del([`${rjsConfig}.t`,
-               `${globalConfig}.t`,
+    yield del([`${globalConfig}.t`,
                `${dest}/build/${tree}/test.html`,
                `${dest}/build/${tree}/mocha_frame.html`,
                `${dest}/build/${tree}/wed_test.html`]);
@@ -689,25 +676,18 @@ function *ghPages() {
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
           Promise.coroutine(ghPages));
 
-gulp.task("copy-test-files", () => {
-  const dest = "build/test-files";
-  gulp.src("browser_test/convert_test_data/**", { base: "browser_test" })
-    .pipe(gulpNewer(dest))
-    .pipe(gulp.dest(dest));
-});
-
-const convertXMLDirs = glob.sync("browser_test/*_test_data")
-        .filter(x => x !== "browser_test/convert_test_data");
+const convertXMLDirs = glob.sync("lib/tests/*_test_data")
+        .filter(x => x !== "lib/tests/convert_test_data");
 
 gulp.task("convert-xml-test-files", (callback) => {
   const promises = [];
   gulp.src(convertXMLDirs.map(x => `${x}/**`),
-           { base: "browser_test", read: false, nodir: true })
+           { base: "lib/tests", read: false, nodir: true })
     .on("data", (file) => {
       const p = Promise.coroutine(function *dataPromise() {
         const ext = path.extname(file.relative);
         const destName = path.join(
-          "build/test-files",
+          "build/standalone/lib/tests",
           file.relative.substring(0, file.relative.length - ext.length));
         const dest = `${destName}_converted.xml`;
 
@@ -743,7 +723,7 @@ gulp.task("convert-xml-test-files", (callback) => {
     });
 });
 
-gulp.task("build-test-files", ["copy-test-files", "convert-xml-test-files"]);
+gulp.task("build-test-files", ["convert-xml-test-files"]);
 
 // function runTslint(program) {
 //   const files = tslint.Linter.getFileNames(program);
@@ -769,16 +749,11 @@ function runTslint(tsconfig, tslintConfig) {
 gulp.task("tslint-wed", ["generate-ts"],
           () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
 
-gulp.task("tslint-test", ["tsc-wed"],
-          () => runTslint("browser_test/tsconfig.json",
-                          "browser_test/tslint.json"));
-
-gulp.task("tslint", ["tslint-wed", "tslint-test"]);
+gulp.task("tslint", ["tslint-wed"]);
 
 gulp.task("eslint", () =>
           gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",
-                    "gulptasks/**/*.js", "misc/**/*.js", "test/**/*.js",
-                    "browser_test/**/*.js"])
+                    "gulptasks/**/*.js", "misc/**/*.js", "test/**/*.js"])
           .pipe(eslint())
           .pipe(eslint.format())
           .pipe(eslint.failAfterError()));
@@ -804,7 +779,7 @@ const testNode = {
 
 const testBrowser = {
   name: "test-browser",
-  deps: ["build", "copy-js-test", "tsc-test", "build-test-files"],
+  deps: ["build", "build-test-files"],
   func: function testBrowser() {
     return spawn("./misc/server.js", ["runner"], { stdio: "inherit" });
   },
@@ -856,6 +831,14 @@ const distNoTest = {
     yield cprpdir(["build/standalone", "build/standalone-optimized",
                    "bin", "package.json", "npm-shrinkwrap.json"],
                   dist);
+    yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
+*
+!standalone/**
+!standalone-optimized/**
+!bin/**
+standalone/lib/tests/**
+standalone-optimized/lib/tests/**
+`);
     yield cprp("NPM_README.md", "build/dist/README.md");
     yield exec("ln -sf `(cd build; npm pack dist)` build/LATEST-DIST.tgz");
     yield del("build/t");

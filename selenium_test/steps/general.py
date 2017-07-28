@@ -278,15 +278,14 @@ def step_impl(context):
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/source_converted.xml")
+        text="lib/tests/wed_test_data/source_converted.xml")
 
 
 @given(ur"a document that has multiple top namespaces\.?")
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/" +
-        "multiple_top_namespaces_converted.xml",
+        text="lib/tests/wed_test_data/multiple_top_namespaces_converted.xml",
         schema="@math")
 
 
@@ -294,7 +293,7 @@ def open_simple_doc(context):
 def step_impl(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/source_converted.xml",
+        text="lib/tests/wed_test_data/source_converted.xml",
         tooltips=True)
     if context.util.ie:
         # For most browsers, this is not needed. However, in IE10, IE11,
@@ -309,21 +308,21 @@ def step_impl(context):
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/complex_converted.xml")
+        text="lib/tests/wed_test_data/complex_converted.xml")
 
 
 @given(ur'a document without "hi"')
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/nohi_converted.xml")
+        text="lib/tests/wed_test_data/nohi_converted.xml")
 
 
 @given(ur'a document without "text"')
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/notext_converted.xml")
+        text="lib/tests/wed_test_data/notext_converted.xml")
 
 
 @when(ur"the user scrolls the window (?P<choice>completely down|down "

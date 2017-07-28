@@ -66,7 +66,6 @@ main branch`,
     action: "storeTrue",
     defaultValue: false,
   },
-
 };
 
 /**

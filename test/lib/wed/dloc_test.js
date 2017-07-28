@@ -17,7 +17,7 @@ function defined(x) {
 }
 
 describe("dloc", function dlocBlock() {
-  var source = "build/test-files/dloc_test_data/source_converted.xml";
+  var source = "build/standalone/lib/tests/dloc_test_data/source_converted.xml";
   var fw;
   var window;
   var $root;

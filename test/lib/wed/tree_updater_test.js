@@ -11,7 +11,8 @@ var fs = require("fs");
 var assert = chai.assert;
 
 // This path must be relative to the top dir of wed.
-var source = "build/test-files/tree_updater_test_data/source_converted.xml";
+var source =
+    "build/standalone/lib/tests/tree_updater_test_data/source_converted.xml";
 
 function defined(x) {
   assert.isDefined(x[0]);

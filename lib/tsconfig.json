@@ -4,6 +4,7 @@
     "rootDirs": [".", "../build/generated/lib/"],
     "baseUrl": ".",
     "paths": {
+      "wed/*": ["wed/*", "../build/generated/lib/wed/*"],
       "rangy": ["../types/rangy"],
       "merge-options": ["../types/merge-options"],
       "interact": ["interact.js"]

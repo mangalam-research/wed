@@ -59,7 +59,7 @@
         testing: true,
       };
 
-      require(["jquery", "mocha/mocha", "chai", "browser_test/global",
+      require(["jquery", "mocha/mocha", "chai", "tests/global",
       "wed/onerror", "urijs/URI", "last-resort"], start);
 
       function start($, mocha, chai, global, onerror, URI, lr) {
@@ -165,16 +165,16 @@
           if (timeout !== undefined)
             mocha.mocha.timeout(parseInt(timeout));
 
-          require(["browser_test/validator_test",
-                    "browser_test/jquery.findandself_test",
-                    "browser_test/domutil_test",
-                    "browser_test/wed_test", "browser_test/input_trigger_test",
-                    "browser_test/input_trigger_factory_test",
-                    "browser_test/modal_test",
-                    "browser_test/domlistener_test",
-                    "browser_test/convert_test",
-                    "browser_test/guiroot_test",
-                    "browser_test/transformation_test"], function () {
+          require(["tests/validator_test",
+                    "tests/jquery.findandself_test",
+                    "tests/domutil_test",
+                    "tests/wed_test", "tests/input_trigger_test",
+                    "tests/input_trigger_factory_test",
+                    "tests/modal_test",
+                    "tests/domlistener_test",
+                    "tests/convert_test",
+                    "tests/guiroot_test",
+                    "tests/transformation_test"], function () {
               // Allow uncaught was turned on early on in the test suite's existence.
               // It was used to handle cases that *probably* are no longer an issue.
               // We turned it back off because it has a severe consequence that non-terminating
