@@ -44,12 +44,6 @@
       "resolved": "https://registry.npmjs.org/@types/chai/-/chai-3.4.35.tgz",
       "dev": true
     },
-    "@types/chai-as-promised": {
-      "version": "0.0.29",
-      "from": "@types/chai-as-promised@latest",
-      "resolved": "https://registry.npmjs.org/@types/chai-as-promised/-/chai-as-promised-0.0.29.tgz",
-      "dev": true
-    },
     "@types/fs-extra": {
       "version": "3.0.3",
       "from": "@types/fs-extra@>=3.0.0 <4.0.0",
@@ -120,12 +114,6 @@
       "version": "7.0.5",
       "from": "@types/node@>=7.0.5 <8.0.0",
       "resolved": "https://registry.npmjs.org/@types/node/-/node-7.0.5.tgz",
-      "dev": true
-    },
-    "@types/promises-a-plus": {
-      "version": "0.0.27",
-      "from": "@types/promises-a-plus@*",
-      "resolved": "https://registry.npmjs.org/@types/promises-a-plus/-/promises-a-plus-0.0.27.tgz",
       "dev": true
     },
     "@types/shelljs": {
@@ -804,22 +792,10 @@
       "resolved": "https://registry.npmjs.org/chai/-/chai-3.5.0.tgz",
       "dev": true
     },
-    "chai-as-promised": {
-      "version": "6.0.0",
-      "from": "chai-as-promised@latest",
-      "resolved": "https://registry.npmjs.org/chai-as-promised/-/chai-as-promised-6.0.0.tgz",
-      "dev": true
-    },
     "chalk": {
       "version": "1.1.1",
       "from": "chalk@>=1.1.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/chalk/-/chalk-1.1.1.tgz",
-      "dev": true
-    },
-    "check-error": {
-      "version": "1.0.2",
-      "from": "check-error@>=1.0.2 <2.0.0",
-      "resolved": "https://registry.npmjs.org/check-error/-/check-error-1.0.2.tgz",
       "dev": true
     },
     "chokidar": {
