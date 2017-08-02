@@ -553,9 +553,9 @@
       }
     },
     "bluebird": {
-      "version": "3.4.3",
-      "from": "bluebird@>=3.2.2 <4.0.0",
-      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.4.3.tgz",
+      "version": "3.5.0",
+      "from": "bluebird@latest",
+      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.5.0.tgz",
       "dev": true
     },
     "bluejax": {
@@ -6029,9 +6029,9 @@
       }
     },
     "require-dir": {
-      "version": "0.3.0",
-      "from": "require-dir@>=0.3.0 <1.0.0",
-      "resolved": "https://registry.npmjs.org/require-dir/-/require-dir-0.3.0.tgz",
+      "version": "0.3.2",
+      "from": "require-dir@latest",
+      "resolved": "https://registry.npmjs.org/require-dir/-/require-dir-0.3.2.tgz",
       "dev": true
     },
     "require-directory": {
