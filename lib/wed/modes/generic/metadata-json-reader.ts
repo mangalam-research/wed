@@ -19,7 +19,7 @@ export abstract class MetadataJSONReader implements MetadataReader {
   /**
    * @param schema The JSON schema with which to validate the metadata.
    */
-  constructor(private readonly schema: string) {}
+  constructor(private readonly schema: {}) {}
 
   /**
    * A validator that uses [[schema]].
@@ -27,7 +27,7 @@ export abstract class MetadataJSONReader implements MetadataReader {
   protected get validator(): Ajv.ValidateFunction {
     if (this._validator === undefined) {
       const ajv = new Ajv();
-      this._validator = ajv.compile(JSON.parse(this.schema));
+      this._validator = ajv.compile(this.schema);
     }
 
     return this._validator;
