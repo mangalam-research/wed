@@ -6,12 +6,14 @@
  */
 import * as Promise from "bluebird";
 import * as $ from "jquery";
+import * as mergeOptions from "merge-options";
 import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
 import { Action } from "wed/action";
 import { Decorator, Editor } from "wed/decorator";
 import { closestByClass, indexOf } from "wed/domutil";
+import { GUISelector } from "wed/gui-selector";
 import * as context_menu from "wed/gui/context-menu";
 import { Modal } from "wed/gui/modal";
 import * as input_trigger_factory from "wed/input-trigger-factory";
@@ -51,7 +53,9 @@ export class TestDecorator extends GenericDecorator {
     super.addHandlers();
     input_trigger_factory.makeSplitMergeInputTrigger(
       this.editor,
-      "hi",
+      this.mode,
+      GUISelector.fromDataSelector("hi",
+                                   this.mode.getAbsoluteNamespaceMappings()),
       key.makeKey(";"),
       key_constants.BACKSPACE,
       key_constants.DELETE);
@@ -198,6 +202,8 @@ export interface TestModeOptions extends GenericModeOptions {
   ambiguous_fileDesc_insert: boolean;
   fileDesc_insert_needs_input: boolean;
   hide_attributes: boolean;
+  nameSuffix?: string;
+  stylesheets?: string[];
 }
 
 type MatchCallback = (matches: { value: string }[]) => void;
@@ -306,17 +312,17 @@ export class TestMode extends GenericMode<TestModeOptions> {
     ambiguous_fileDesc_insert: false,
     fileDesc_insert_needs_input: false,
     hide_attributes: false,
+    // We use nameSuffix to vary the name given to multiple instances.
+    nameSuffix: false,
+    stylesheets: false,
   };
 
   constructor(editor: Editor, options: TestModeOptions) {
     super(editor, options);
-
-    if (this.constructor !== TestMode) {
-      throw new Error("this is a test mode; don't derive from it!");
-    }
-
+    this.wedOptions = mergeOptions({}, this.wedOptions);
+    const suffix = options.nameSuffix != null ? options.nameSuffix : "";
     this.wedOptions.metadata = {
-      name: "Test",
+      name: `Test${suffix}`,
       authors: ["Louis-Dominique Dubeau"],
       description: "TEST MODE. DO NOT USE IN PRODUCTION!",
       license: "MPL 2.0",
@@ -368,6 +374,11 @@ export class TestMode extends GenericMode<TestModeOptions> {
         this.draggableResizableAction = new DraggableResizableModalAction(
           editor, "Test draggable resizable", undefined, undefined, true);
       });
+  }
+
+  getStylesheets(): string[] {
+    const stylesheets = this.options.stylesheets;
+    return stylesheets !== undefined ? stylesheets : [];
   }
 
   getContextualActions(transformationType: string | string[],

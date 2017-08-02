@@ -4,16 +4,15 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Ajv from "ajv";
 import * as mergeOptions from "merge-options";
 
 import { toGUISelector } from "./domutil";
 import { Mode } from "./mode";
+import { ModeLoader } from "./mode-loader";
 import { Mode as ModeOption } from "./options";
 import { Runtime } from "./runtime";
 import { ModeValidator } from "./validator";
-import { ComplexAttributesSpec, WedOptions } from "./wed-options";
-import * as wedOptionsSchema from "./wed-options-schema.json";
+import { CleanedWedOptions, processWedOptions } from "./wed-options-validation";
 
 /**
  * A callback for reporting wed option errors.
@@ -23,10 +22,6 @@ import * as wedOptionsSchema from "./wed-options-schema.json";
  * @param errors The errors encountered.
  */
 type WedOptionsErrorCallback = (path: string, errors: string[]) => void;
-
-export interface CleanedWedOptions extends WedOptions {
-  attributes: ComplexAttributesSpec;
-}
 
 export interface AttributeHidingSpecs {
   elements: {
@@ -92,7 +87,7 @@ class ModeNode {
     let value = fn(initialValue, this);
 
     for (const submode of this.submodes) {
-      value = fn(value, submode);
+      value = submode.reduceTopFirst(fn, value);
     }
 
     return value;
@@ -131,14 +126,6 @@ class ModeNode {
   }
 }
 
-interface ModeConstructor {
-  new (editor: Editor, modeOptions: {}): Mode<{}>;
-}
-
-interface ModeModule {
-  Mode: ModeConstructor;
-}
-
 export interface Editor {
   runtime: Runtime;
   gui_root: Element;
@@ -151,9 +138,7 @@ export interface Editor {
  */
 export class ModeTree {
   private root: ModeNode;
-  private readonly runtime: Runtime;
-  private readonly wedOptionsValidator: Ajv.ValidateFunction =
-    new Ajv().compile(JSON.parse(wedOptionsSchema));
+  private loader: ModeLoader;
   private cachedMaxLabelNode: ModeNode;
 
   /**
@@ -164,7 +149,7 @@ export class ModeTree {
    */
   constructor(private readonly editor: Editor,
               private readonly option: ModeOption) {
-    this.runtime = editor.runtime;
+    this.loader = new ModeLoader(editor, editor.runtime);
   }
 
   /**
@@ -214,7 +199,7 @@ export class ModeTree {
                           errorHandler: WedOptionsErrorCallback):
   Promise<ModeNode> {
     const submode = option.submode;
-    const mode = await this.initMode(option.path, option.options);
+    const mode = await this.loader.initMode(option.path, option.options);
     const submodes = (submode !== undefined) ?
       [await this.makeNodes(toGUISelector(submode.selector,
                                           mode.getAbsoluteNamespaceMappings()),
@@ -222,7 +207,7 @@ export class ModeTree {
                             errorHandler)] :
       [];
     const rawOptions = mode.getWedOptions();
-    const result = this.processWedOptions(rawOptions);
+    const result = processWedOptions(rawOptions);
     let cleanedOptions: CleanedWedOptions;
     if (Array.isArray(result)) {
       errorHandler(option.path, result);
@@ -233,98 +218,6 @@ export class ModeTree {
       cleanedOptions = result;
     }
     return new ModeNode(mode, selector, submodes, cleanedOptions);
-  }
-
-  private async initMode(path: string,
-                         options: {} | undefined = {}): Promise<Mode<{}>> {
-    const mmodule: ModeModule = await this.loadMode(path);
-    const mode = new mmodule.Mode(this.editor, options);
-
-    await mode.init();
-    return mode;
-  }
-
-  private async loadMode(path: string): Promise<ModeModule> {
-    const runtime = this.runtime;
-    try {
-      return (await runtime.resolveModules(path))[0] as ModeModule;
-    }
-    // tslint:disable-next-line:no-empty
-    catch (ex) {}
-
-    if (path.indexOf("/") !== -1) {
-      // It is an actual path so don't try any further loading.
-      throw new Error(`can't load mode ${path}`);
-    }
-
-    path = `./modes/${path}/${path}`;
-
-    try {
-      return (await runtime.resolveModules(path))[0] as ModeModule;
-    }
-    // tslint:disable-next-line:no-empty
-    catch (ex) {}
-
-    try {
-      return (await runtime.resolveModules(`${path}-mode`))[0] as ModeModule;
-    }
-    // tslint:disable-next-line:no-empty
-    catch (ex) {}
-
-    return (await runtime.resolveModules(`${path}_mode`))[0] as ModeModule;
-  }
-
-  /**
-   * Validates and normalizes the options to a specific format.
-   *
-   * @param options The raw options obtained from the mode.
-   *
-   * @returns The cleaned options if successful. If there were error the return
-   * value is an array of error messages.
-   */
-  private processWedOptions(options: WedOptions): CleanedWedOptions | string[] {
-    const errors: string[] = [];
-
-    const ovalidator = this.wedOptionsValidator;
-    const valid = ovalidator(options);
-    if (!(valid as boolean)) {
-      if (ovalidator.errors !== undefined) {
-        for (const error of ovalidator.errors) {
-          errors.push(`${error.dataPath} ${error.message}`);
-        }
-      }
-
-      return errors;
-    }
-
-    const max = options.label_levels.max;
-
-    const initial = options.label_levels.initial;
-
-    // We cannot validate this with a schema.
-    if (initial > max) {
-      errors.push("label_levels.initial must be <= label_levels.max");
-    }
-
-    if (options.attributes === undefined) {
-      options.attributes = "hide";
-    }
-
-    // Normalize the format of options.attributes.
-    if (typeof options.attributes === "string") {
-      const tmp = options.attributes;
-      // We need the type cast at the end because otherwise TS infers a type of
-      // { handling: "hide" | "show" | "edit" }.
-      options.attributes = {
-        handling: tmp,
-      } as { handling: "hide" } | { handling: "show" | "edit" };
-    }
-
-    if (errors.length !== 0) {
-      return errors;
-    }
-
-    return options as CleanedWedOptions;
   }
 
   /**
@@ -361,6 +254,11 @@ export class ModeTree {
 
   /**
    * Get the attribute hiding specs that apply to a specific node.
+   *
+   * @returns The specifications that apply to the node. These specifications
+   * have been pre-processed to convert the selectors from being appropriate for
+   * the data tree to selectors appropriate for the GUI tree. ``null`` is
+   * returned if there are no specs.
    */
   getAttributeHidingSpecs(node: Node):  AttributeHidingSpecs | null {
     return this.getModeNode(node).attributeHidingSpecs;

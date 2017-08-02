@@ -166,15 +166,16 @@
             mocha.mocha.timeout(parseInt(timeout));
 
           require(["tests/validator_test",
-                    "tests/jquery.findandself_test",
-                    "tests/domutil_test",
-                    "tests/wed_test", "tests/input_trigger_test",
-                    "tests/input_trigger_factory_test",
-                    "tests/modal_test",
-                    "tests/domlistener_test",
-                    "tests/convert_test",
-                    "tests/guiroot_test",
-                    "tests/transformation_test"], function () {
+                   "tests/jquery.findandself_test",
+                   "tests/domutil_test",
+                   "tests/wed_test", "tests/input-trigger-test",
+                   "tests/mode-tree-test",
+                   "tests/input_trigger_factory_test",
+                   "tests/modal_test",
+                   "tests/domlistener_test",
+                   "tests/convert_test",
+                   "tests/guiroot_test",
+                   "tests/transformation_test"], function () {
               // Allow uncaught was turned on early on in the test suite's existence.
               // It was used to handle cases that *probably* are no longer an issue.
               // We turned it back off because it has a severe consequence that non-terminating
