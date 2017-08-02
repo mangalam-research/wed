@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "wed/*": ["../build/standalone/lib/wed/*", "../build/generated/lib/wed/*"],
+      "rangy": ["../types/rangy"],
+      "merge-options": ["../types/merge-options"],
+      "log4javascript": ["../types/log4javascript"],
+      "interact": ["interact.js"],
+      "tests/*": ["../build/standalone/lib/tests/*"]
+    },
+    "noEmitOnError": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "skipDefaultLibCheck": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "target": "es5",
+    "lib": ["dom", "es2015"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.d.ts"
+  ]
+}
