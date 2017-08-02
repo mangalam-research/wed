@@ -7,6 +7,7 @@
       "wed/*": ["wed/*", "../build/generated/lib/wed/*"],
       "rangy": ["../types/rangy"],
       "merge-options": ["../types/merge-options"],
+      "log4javascript": ["../types/log4javascript"],
       "interact": ["interact.js"]
     },
     "declaration": true,
