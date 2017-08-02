@@ -9,8 +9,10 @@ import { HashMap } from "salve";
 
 import { DLoc } from "./dloc";
 import { isText } from "./domtypeguards";
-import { closest, toGUISelector } from "./domutil";
+import { closest } from "./domutil";
+import { GUISelector } from "./gui-selector";
 import { Key } from "./key";
+import { Mode } from "./mode";
 
 // tslint:disable-next-line:no-any
 function hashHelper(o: any): any {
@@ -50,24 +52,22 @@ export type KeyHandler = (eventType: "keypress" | "keydown" | "paste",
  * [[addKeyHandler]] for more information.
  */
 export class InputTrigger {
-  private readonly guiSelector: string;
   // This is a map of all keys to their handlers.
   private readonly keyToHandler: HashMap = new HashMap(hashHelper);
   private readonly textInputKeyToHandler: HashMap = new HashMap(hashHelper);
 
   /**
-   * @param editor The editor to which this InputTrigger belongs.
+   * @param editor The editor to which this ``InputTrigger`` belongs.
    *
-   * @param selector This is a CSS selector. The object created by this
-   * constructor will listen to events that pertain only to DOM nodes matching
-   * this selector. The form this selector can take is constrained by the limits
-   * imposed by [["domutil".toGUISelector]]
+   * @param mode The mode for which this ``InputTrigger`` is being created.
+   *
+   * @param selector This is a CSS selector which must be fit to be used in the
+   * GUI tree. (For instance by being the output of
+   * [["domutil".toGUISelector]].)
    */
   constructor(private readonly editor: Editor,
-              private readonly selector: string) {
-    this.guiSelector =
-      toGUISelector(this.selector, editor.mode.getAbsoluteNamespaceMappings());
-
+              private readonly mode: Mode<{}>,
+              private readonly selector: GUISelector) {
     // This is a map of keys that are actually text keys to their handlers. This
     // map is in effect a submap of _key_to_handler. We want this for speed,
     // because otherwise each text change event would require that the
@@ -142,6 +142,27 @@ export class InputTrigger {
     }
   }
 
+  private getNodeOfInterest(): Element | null{
+    const caret = this.editor.caretManager.getDataCaret(true);
+
+    if (caret == null) {
+      return null;
+    }
+
+    if (this.editor.modeTree.getMode(caret.node) !== this.mode) {
+      // Outside our jurisdiction.
+      return null;
+    }
+
+    // We transit through the GUI tree to perform our match because CSS
+    // selectors cannot operate on XML namespace prefixes (or, at the time of
+    // writing, on XML namespaces, period).
+    const dataNode = isText(caret.node) ? caret.node.parentNode : caret.node;
+    const guiNode = $.data(dataNode as Element, "wed_mirror_node");
+
+    return closest(guiNode, this.selector.value, this.editor.gui_root);
+  }
+
   /**
    * Handles ``keydown`` events.
    *
@@ -150,30 +171,19 @@ export class InputTrigger {
    * @param e The original DOM event that wed received.
    */
   private keydownHandler(wedEvent: Event, e: JQueryKeyEventObject): void {
-    const caret = this.editor.caretManager.getDataCaret(true);
-    if (caret == null) {
+    const nodeOfInterest = this.getNodeOfInterest();
+    if (nodeOfInterest === null) {
       return;
     }
 
-    // We transit through the GUI tree to perform our match because CSS
-    // selectors cannot operate on XML namespace prefixes (or, at the time of
-    // writing, on XML namespaces, period).
-    let dataNode = isText(caret.node) ? caret.node.parentNode : caret.node;
-    const guiNode = $.data(dataNode, "wed_mirror_node");
-
-    const nodeOfInterest = closest(guiNode, this.guiSelector,
-                                   this.editor.gui_root);
-
-    if (nodeOfInterest !== null) {
-      dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-      this.keyToHandler.forEach((key: Key, handlers: KeyHandler[]) => {
-        if (key.matchesEvent(e)) {
-          for (const handler of handlers) {
-            handler("keydown", dataNode, e);
-          }
+    const dataNode = $.data(nodeOfInterest, "wed_mirror_node");
+    this.keyToHandler.forEach((key: Key, handlers: KeyHandler[]) => {
+      if (key.matchesEvent(e)) {
+        for (const handler of handlers) {
+          handler("keydown", dataNode, e);
         }
-      });
-    }
+      }
+    });
   }
 
   /**
@@ -184,31 +194,19 @@ export class InputTrigger {
    * @param e The original DOM event that wed received.
    */
   private keypressHandler(wedEvent: Event, e: JQueryKeyEventObject): void {
-    const caret = this.editor.caretManager.getDataCaret(true);
-
-    if (caret == null) {
+    const nodeOfInterest = this.getNodeOfInterest();
+    if (nodeOfInterest === null) {
       return;
     }
 
-    // We transit through the GUI tree to perform our match because CSS
-    // selectors cannot operate on XML namespace prefixes (or, at the time of
-    // writing, on XML namespaces, period).
-    let dataNode = isText(caret.node) ? caret.node.parentNode : caret.node;
-    const guiNode = $.data(dataNode, "wed_mirror_node");
-
-    const nodeOfInterest = closest(guiNode, this.guiSelector,
-                                   this.editor.gui_root);
-
-    if (nodeOfInterest !== null) {
-      dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-      this.keyToHandler.forEach((key: Key, handlers: KeyHandler[]) => {
-        if (key.matchesEvent(e)) {
-          for (const handler of handlers) {
-            handler("keypress", dataNode, e);
-          }
+    const dataNode = $.data(nodeOfInterest, "wed_mirror_node");
+    this.keyToHandler.forEach((key: Key, handlers: KeyHandler[]) => {
+      if (key.matchesEvent(e)) {
+        for (const handler of handlers) {
+          handler("keypress", dataNode, e);
         }
-      });
-    }
+      }
+    });
   }
 
   /**
@@ -236,7 +234,13 @@ export class InputTrigger {
       }
       child = child.nextSibling;
     }
+
     if (text.length === 0) {
+      return;
+    }
+
+    if (this.editor.modeTree.getMode(caret.node) !== this.mode) {
+      // Outside our jurisdiction.
       return;
     }
 
@@ -247,7 +251,7 @@ export class InputTrigger {
                             caret.node.parentNode! : caret.node) as Element;
     const guiNode = $.data(nodeOfInterest as Element, "wed_mirror_node");
 
-    if (closest(guiNode, this.guiSelector, this.editor.gui_root) === null) {
+    if (closest(guiNode, this.selector.value, this.editor.gui_root) === null) {
       return;
     }
 

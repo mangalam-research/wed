@@ -7,8 +7,10 @@
 
 import { isText } from "./domtypeguards";
 import * as domutil from "./domutil";
+import { GUISelector } from "./gui-selector";
 import { InputTrigger } from "./input-trigger";
 import { Key } from "./key";
+import { Mode } from "./mode";
 import * as transformation from "./transformation";
 
 // tslint:disable-next-line:no-any
@@ -78,9 +80,9 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
  *
  * @param editor The editor for which to create the input trigger.
  *
- * @param elementName A CSS selector that determines which element we want to
+ * @param selector A CSS selector that determines which element we want to
  * split or merge. For instance, to operate on all paragraphs, this parameter
- * could be ``"p"``.
+ * could be ``"p"``. This selector must be fit to be used in the GUI tree.
  *
  * @param splitKey The key which splits the element.
  *
@@ -93,7 +95,8 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
  * @returns The input trigger.
  */
 export function makeSplitMergeInputTrigger(editor: Editor,
-                                           elementName: string,
+                                           mode: Mode<{}>,
+                                           selector: GUISelector,
                                            splitKey: Key,
                                            mergeWithPreviousKey: Key,
                                            mergeWithNextKey: Key):
@@ -101,7 +104,7 @@ InputTrigger {
   const splitNodeOnTr = new transformation.Transformation(
     editor, "split", "Split node on character", splitNodeOn);
 
-  const ret = new InputTrigger(editor, elementName);
+  const ret = new InputTrigger(editor, mode, selector);
   ret.addKeyHandler(splitKey, (eventType, el, ev) => {
     if (ev !== undefined) {
       ev.stopImmediatePropagation();
