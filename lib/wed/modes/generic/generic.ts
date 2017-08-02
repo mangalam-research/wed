@@ -6,6 +6,7 @@
  */
 
 import * as Promise from "bluebird";
+import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
 import { Action } from "wed/action";
@@ -70,6 +71,7 @@ class GenericMode<Options extends GenericModeOptions>
 
     if (this.constructor === GenericMode) {
       // Set our metadata.
+      this.wedOptions = mergeOptions({}, this.wedOptions);
       this.wedOptions.metadata = {
         name: "Generic",
         authors: ["Louis-Dominique Dubeau"],
