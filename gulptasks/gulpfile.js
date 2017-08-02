@@ -781,7 +781,11 @@ const testBrowser = {
   name: "test-browser",
   deps: ["build", "build-test-files"],
   func: function testBrowser() {
-    return spawn("./misc/server.js", ["runner"], { stdio: "inherit" });
+    const args = ["runner"];
+    if (options.optimize) {
+      args.push("--optimized");
+    }
+    return spawn("./misc/server.js", args, { stdio: "inherit" });
   },
 };
 

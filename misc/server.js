@@ -50,6 +50,12 @@ parser.addArgument(["--grep"], {
   help: "Grep through the tests. (This is passed to Mocha.)",
 });
 
+parser.addArgument(["--optimized"], {
+  help: "Run the optimized tree. This makes sense only for the 'runner' \
+or 'browser' modes.",
+  action: "storeTrue",
+});
+
 
 parser.addArgument(["mode"], {
   choices: ["browser", "runner", "server"],
@@ -381,11 +387,14 @@ function runserver() {
       query.grep = args.grep;
     }
 
+    const optimized = args.optimized ? "-optimized" : "";
+    const pathname = `/forever/build/standalone${optimized}/test.html`;
+
     const location = url.format({
       protocol: "http",
       hostname: ip,
       port,
-      pathname: "/forever/build/standalone-optimized/test.html",
+      pathname,
       query,
     });
 
