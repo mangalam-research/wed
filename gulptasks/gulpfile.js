@@ -738,16 +738,17 @@ gulp.task("build-test-files", ["convert-xml-test-files"]);
 //     }));
 // }
 
-function runTslint(tsconfig, tslintConfig) {
+function runTslint(tsconfig) {
+  // We do not need to pass the path to the tslint.json because when tslint
+  // lints a file it automatically looks up for the tslint.json file that
+  // governs it. (Looks up the directory chain.)
   return spawn(
     "./node_modules/.bin/tslint",
-    ["--type-check", "--project", tsconfig, "-c", tslintConfig,
-     "-t", "verbose"],
+    ["--type-check", "--project", tsconfig, "-t", "verbose"],
     { stdio: "inherit" });
 }
 
-gulp.task("tslint-wed", ["generate-ts"],
-          () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
+gulp.task("tslint-wed", ["generate-ts"], () => runTslint("lib/tsconfig.json"));
 
 gulp.task("tslint", ["tslint-wed"]);
 
