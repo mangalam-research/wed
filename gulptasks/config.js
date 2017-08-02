@@ -1,3 +1,17 @@
+function toBoolean(str) {
+  const lower = str.toLowerCase();
+  if (["true", "1", "y", "yes"].indexOf(lower) !== -1) {
+    return true;
+  }
+
+  if (["false", "0", "n", "no"].indexOf(lower) !== -1) {
+    return false;
+  }
+
+  throw new Error(`cannot reliably convert ${str} to a boolean`);
+}
+
+
 /**
  * Definitions for the options passed on the command line. Each key in
  * the structure is an option name and the values are objects to be
@@ -26,7 +40,7 @@ exports.optionDefinitions = {
   },
   dev: {
     help: "Are we in development mode?",
-    type: Boolean,
+    type: toBoolean,
     defaultValue: false,
   },
   mocha_params: {
@@ -50,19 +64,19 @@ exports.optionDefinitions = {
   optimize: {
     help: "Whether the build should create an optimized version of " +
       "wed by default.",
-    type: Boolean,
+    type: toBoolean,
     defaultValue: true,
   },
   force_gh_pages_build: {
     help: `Force the gh-pages target to run even if not on the
 main branch`,
-    type: Boolean,
+    type: toBoolean,
     action: "storeTrue",
     defaultValue: false,
   },
   unsafe_deployment: {
     help: "Allows deploying from an unclean branch",
-    type: Boolean,
+    type: toBoolean,
     action: "storeTrue",
     defaultValue: false,
   },
