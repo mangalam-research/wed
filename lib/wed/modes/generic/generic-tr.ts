@@ -29,6 +29,7 @@ function errFilter(err: ErrorData): boolean {
  * @param editor The editor which owns the element.
  */
 function _autoinsert(el: Element, editor: Editor): void {
+  const mode = editor.mode;
   // tslint:disable-next-line:no-constant-condition strict-boolean-expressions
   while (true) {
     let errors = editor.validator.getErrorsFor(el);
@@ -54,12 +55,13 @@ function _autoinsert(el: Element, editor: Editor): void {
       break;
     }
 
-    const unresolved = editor.resolver.unresolveName(name.ns, name.name);
+    const unresolved =
+      mode.getAbsoluteResolver().unresolveName(name.ns, name.name);
     if (unresolved === undefined) {
       throw new Error(`cannot unresolve {${name.ns}}${name.name}`);
     }
-    const actions = editor.mode.getContextualActions("insert", unresolved,
-                                                     el, locations[0]);
+    const actions = mode.getContextualActions("insert", unresolved,
+                                              el, locations[0]);
 
     // Don't auto insert if it happens that the operation would be ambiguous
     // (ie. if there is more than one way to insert the element).

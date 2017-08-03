@@ -36,13 +36,7 @@ export class Editor {
   readonly _cut_buffer: HTMLElement;
   // XXX drop this.
   readonly mode: Mode<any>;
-  // XXX drop this.
-  readonly resolver: NameResolver;
-  // XXX drop this.
   readonly max_label_level: number;
-  // XXX drop this.
-  readonly attributes: string;
-
 
   expandErrorPanelWhenNoNavigation(): void;
   _resumeTaskWhenPossible(runner: TaskRunner): void;

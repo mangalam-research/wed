@@ -24,6 +24,9 @@ odd bug fix may not get mentioned here at all.
       ``this.attributeHiding``. The information they provided must be sought
       from methods on ``Editor``'s ``modeTree`` property.
 
+    + ``Editor`` no longer has ``this.resolver``. The absolute resolver must be
+      obtained through ``modeTree``.
+
   - Breaking changes:
 
     + ``decorator.Decorator`` needs the mode's absolute namespace mappings in

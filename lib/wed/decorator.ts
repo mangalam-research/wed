@@ -444,7 +444,8 @@ export class Decorator {
       // tslint:disable-next-line:strict-boolean-expressions
       if (namePattern.simple()) {
         for (const name of namePattern.toArray()) {
-          const unresolved = editor.resolver.unresolveName(name.ns, name.name);
+          const unresolved =
+            editor.mode.getAbsoluteResolver().unresolveName(name.ns, name.name);
           if (unresolved === undefined) {
             throw new Error("cannot unresolve attribute");
           }
