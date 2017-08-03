@@ -31,10 +31,16 @@ odd bug fix may not get mentioned here at all.
     consequences are:
 
     + In order to know when the first validation is complete, previously you'd
-      do ``editor.whenCondition("first-validation-complete")``. You must now
-      instead grab ``editor.firstValidationComplete``, which is a promise that
-      resolves when the first validation is complete. It is also no longer
+      do ``editor.whenCondition("first-validation-complete", ...)``. You must
+      now instead grab ``editor.firstValidationComplete``, which is a promise
+      that resolves when the first validation is complete. It is also no longer
       possible to listen on the corresponding event.
+
+    + Similarly, you could do ``editor.whenCondition("initialized", ...)`` to
+      execute code when the initialization procedure was completed. You must now
+      instead either act on the promise a) returned by ``editor.init()`` or, b)
+      held in ``editor.initialized`` which resolve when the initialization is
+      complete. As above, the corresponding event is no longer emitted.
 
   - Breaking changes:
 

@@ -85,16 +85,13 @@ describe("ModeTree", () => {
     ]);
   });
 
-  before((done) => {
+  before(() => {
     editor = new wed.Editor();
-    editor.addEventListener("initialized", () => {
-      done();
-    });
     const wedroot =
       (window.parent.document.getElementById("wedframe") as HTMLIFrameElement)
       .contentWindow.document.getElementById("wedroot");
-    editor.init(wedroot, mergeOptions({}, globalConfig.config, options),
-                source);
+    return editor.init(wedroot, mergeOptions({}, globalConfig.config, options),
+                       source);
   });
 
   after(() => {

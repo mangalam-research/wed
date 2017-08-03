@@ -74,18 +74,17 @@ describe("InputTrigger", () => {
     ]);
   });
 
-  beforeEach((done) => {
+  beforeEach(() => {
     editor = new wed.Editor();
-    editor.addEventListener("initialized", () => {
-      mode = editor.modeTree.getMode(editor.gui_root);
-      pInBody = editor.data_root.querySelector("body p");
-      done();
-    });
     const wedroot =
       (window.parent.document.getElementById("wedframe") as HTMLIFrameElement)
       .contentWindow.document.getElementById("wedroot");
-    editor.init(wedroot, mergeOptions({}, globalConfig.config, options),
-                source);
+    return editor.init(wedroot, mergeOptions({}, globalConfig.config, options),
+                       source)
+      .then(() => {
+        mode = editor.modeTree.getMode(editor.gui_root);
+        pInBody = editor.data_root.querySelector("body p");
+      });
   });
 
   afterEach(() => {
