@@ -406,7 +406,7 @@ export class Decorator {
     const editor = this.editor;
     let node = wedEv.target as Element;
     const menuItems: Item[] = [];
-    const mode = editor.mode;
+    const mode = editor.modeTree.getMode(node);
 
     function pushItem(data: TransformationData | null,
                       tr: Action<TransformationData>,
@@ -445,7 +445,7 @@ export class Decorator {
       if (namePattern.simple()) {
         for (const name of namePattern.toArray()) {
           const unresolved =
-            editor.mode.getAbsoluteResolver().unresolveName(name.ns, name.name);
+            mode.getAbsoluteResolver().unresolveName(name.ns, name.name);
           if (unresolved === undefined) {
             throw new Error("cannot unresolve attribute");
           }
@@ -533,8 +533,7 @@ export class Decorator {
 
       if (atStart) {
         const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
-        const attributeHandling =
-          this.editor.modeTree.getAttributeHandling(toAddTo);
+        const attributeHandling = editor.modeTree.getAttributeHandling(toAddTo);
         if (attributeHandling === "edit") {
           editor.validator.possibleAt(treeCaret, true).forEach((event) => {
             if (event.params[0] !== "attributeName") {
