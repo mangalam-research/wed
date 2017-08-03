@@ -27,6 +27,15 @@ odd bug fix may not get mentioned here at all.
     + ``Editor`` no longer has ``this.resolver``. The absolute resolver must be
       obtained through ``modeTree``.
 
+  - ``Editor`` no longer acts as an ad hoc event emitter/conditioned object. The
+    consequences are:
+
+    + In order to know when the first validation is complete, previously you'd
+      do ``editor.whenCondition("first-validation-complete")``. You must now
+      instead grab ``editor.firstValidationComplete``, which is a promise that
+      resolves when the first validation is complete. It is also no longer
+      possible to listen on the corresponding event.
+
   - Breaking changes:
 
     + ``decorator.Decorator`` needs the mode's absolute namespace mappings in

@@ -37,6 +37,7 @@ export class Editor {
   // XXX drop this.
   readonly mode: Mode<any>;
   readonly max_label_level: number;
+  readonly firstValidationComplete: Promise<Editor>;
 
   expandErrorPanelWhenNoNavigation(): void;
   _resumeTaskWhenPossible(runner: TaskRunner): void;
