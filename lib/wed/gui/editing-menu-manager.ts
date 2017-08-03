@@ -12,22 +12,11 @@ import { closestByClass, htmlToElements, indexOf,
          isNotDisplayed } from "../domutil";
 import { Mode } from "../mode";
 import { Transformation, TransformationData } from "../transformation";
-import { Validator } from "../validator";
+import { Editor } from "../wed";
 import { ActionContextMenu, Item } from "./action-context-menu";
 import { CompletionMenu } from "./completion-menu";
 import { ContextMenu } from "./context-menu";
 import * as icon from "./icon";
-
-export interface Editor {
-  caretManager: CaretManager;
-  gui_root: HTMLDocument |HTMLElement;
-  data_root: Document | Element;
-  mode: Mode<{}>;
-  openDocumentationLink(docURL: string): void;
-  getElementTransformationsAt(loc: DLoc, types: string | string[]):
-  { tr: Action<{}>, name: string }[];
-  validator: Validator;
-}
 
 const atStartToTxt: Record<string, string> = {
   undefined: "",

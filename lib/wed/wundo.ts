@@ -6,9 +6,7 @@
  */
 
 import * as undo from "./undo";
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
+import { Editor } from "./wed";
 
 export type Caret = [string | undefined, number | undefined];
 
@@ -74,7 +72,7 @@ corrupted state and thus an internal error`);
       return;
     }
     this.editor.caretManager.setCaret(
-      this.editor.data_updater.pathToNode(caret[0]), caret[1]);
+      this.editor.data_updater.pathToNode(caret[0]!), caret[1]);
   }
 
   /**

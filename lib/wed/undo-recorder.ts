@@ -11,6 +11,7 @@ import { indexOf } from "./domutil";
 import { BeforeDeleteNodeEvent, InsertNodeAtEvent, SetAttributeNSEvent,
          SetTextNodeValueEvent, TreeUpdater } from "./tree-updater";
 import * as undo from "./undo";
+import { Editor } from "./wed";
 
 function getOuterHTML(node: Node | undefined | null): string {
   return (node == null) ? "undefined" : (node as Element).outerHTML;
@@ -202,9 +203,6 @@ class SetAttributeNSUndo extends undo.Undo {
             " Old value: ", this.oldValue, "\n"].join("");
   }
 }
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
 
 /**
  * Records undo operations.

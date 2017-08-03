@@ -38,3 +38,10 @@ type RequireJSCall = (deps: string[],
                       errback?: (...args: any[]) => void) => void;
 declare var requirejs: RequireJSCall;
 declare var require: RequireJSCall;
+
+interface Window {
+  DOMParser: {
+    prototype: DOMParser;
+    new(): DOMParser;
+  }
+}

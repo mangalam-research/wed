@@ -14,10 +14,7 @@ import { Caret, firstDescendantOrSelf, indexOf,
          isWellFormedRange } from "./domutil";
 import * as icon from "./gui/icon";
 import { TreeUpdater } from "./tree-updater";
-
-// tslint:disable:no-any
-export type Editor = any;
-// tslint:enable:no-any
+import { Editor } from "./wed";
 
 const TYPE_TO_KIND = _.extend(Object.create(null), {
   // These are not actually type names. It is possible to use a kind name as a
@@ -526,6 +523,10 @@ export function unwrap(dataUpdater: TreeUpdater, node: Element): Node[] {
 export function splitNode(editor: Editor, node: Node): void {
   const caret = editor.caretManager.getDataCaret();
 
+  if (caret === undefined) {
+    throw new Error("no caret");
+  }
+
   if (!node.contains(caret.node)) {
     throw new Error("caret outside node");
   }
@@ -567,12 +568,14 @@ export function mergeWithPreviousHomogeneousSibling(editor: Editor,
   const insertionPoint = prev.childNodes.length;
   // Reverse order
   for (let i = node.childNodes.length - 1; i >= 0; --i) {
-    editor.data_updater.insertAt(prev, insertionPoint,
-                                 node.childNodes[i].cloneNode(true));
+    editor.data_updater.insertAt(
+      prev, insertionPoint,
+      node.childNodes[i].cloneNode(true) as (Element | Text));
   }
 
   if (wasText) {
-    editor.data_updater.mergeTextNodes(lastChild);
+    // If wasText is true, lastChild cannot be null.
+    editor.data_updater.mergeTextNodes(lastChild!);
     editor.caretManager.setCaret(prev.childNodes[caretPos - 1], textLen);
   }
   else {
@@ -627,7 +630,7 @@ export function swapWithPreviousHomogeneousSibling(editor: Editor,
   }
 
   editor.data_updater.removeNode(node);
-  editor.data_updater.insertBefore(parent, node, prev);
+  editor.data_updater.insertBefore(parent as Element, node, prev);
   editor.caretManager.setCaret(node);
 }
 

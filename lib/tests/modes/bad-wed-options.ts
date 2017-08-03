@@ -5,8 +5,8 @@
  */
 import * as mergeOptions from "merge-options";
 
-import { Editor } from "wed/decorator";
 import { Mode as TestMode, TestModeOptions } from "wed/modes/test/test-mode";
+import { Editor } from "wed/wed";
 
 // tslint:disable-next-line:completed-docs
 class FakeMode extends TestMode {

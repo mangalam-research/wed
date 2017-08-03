@@ -246,6 +246,20 @@ export class CaretManager implements GUIToDataConverter {
     return normalized == null ? undefined : normalized;
   }
 
+  /**
+   * Same as [[getNormalizedCaret]] but must return a location.
+   *
+   * @throws {Error} If it cannot return a location.
+   */
+  mustGetNormalizedCaret(): DLoc {
+    const ret = this.getNormalizedCaret();
+    if (ret === undefined) {
+      throw new Error("cannot get a normalized caret");
+    }
+
+    return ret;
+  }
+
   normalizeToEditableRange(loc: DLoc): DLoc {
     if (loc.root !== this.guiRootEl) {
       throw new Error("DLoc object must be for the GUI tree");
@@ -346,6 +360,23 @@ export class CaretManager implements GUIToDataConverter {
       }
 
       return ret.makeWithOffset(newOffset);
+    }
+
+    return ret;
+  }
+
+  /**
+   * Does the same thing as [[fromDataLocation]] but must return a defined
+   * location.
+   *
+   * @throws {Error} If it cannot return a location.
+   */
+  mustFromDataLocation(loc: DLoc): DLoc;
+  mustFromDataLocation(node: Node, offset: number): DLoc;
+  mustFromDataLocation(node: Node | DLoc, offset?: number): DLoc {
+    const ret = this.fromDataLocation.apply(this, arguments);
+    if (ret === undefined) {
+      throw new Error("cannot convert to a data location");
     }
 
     return ret;
@@ -655,15 +686,18 @@ export class CaretManager implements GUIToDataConverter {
    *
    * @param loc The new position for the caret.
    *
-   * @param node The new position for the caret.
+   * @param node The new position for the caret. This may be ``undefined`` or
+   * ``null``, in which case the method does not do anything.
    *
    * @param offset The offset in ``node``.
    *
    * @param options The options for moving the caret.
    */
   setCaret(loc: DLoc, options?: SetCaretOptions): void;
-  setCaret(node: Node, offset?: number, options?: SetCaretOptions): void;
-  setCaret(node: Node | DLoc, offset?: number | SetCaretOptions,
+  setCaret(node: Node | null | undefined,
+           offset?: number, options?: SetCaretOptions): void;
+  setCaret(node: Node | DLoc | null | undefined,
+           offset?: number | SetCaretOptions,
            options?: SetCaretOptions): void {
     let loc: DLoc;
     if (node instanceof DLoc) {

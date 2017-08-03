@@ -15,10 +15,8 @@ import { Decorator } from "./decorator";
 import { isElement } from "./domtypeguards";
 import * as domutil from "./domutil";
 import { ModeValidator } from "./validator";
+import { Editor } from "./wed";
 import { WedOptions } from "./wed-options";
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
 
 export type ModeOptions = {};
 
@@ -106,7 +104,7 @@ export interface Mode<ModeOptions> {
   getContextualActions(transformationType: string | string[],
                        tag: string,
                        container: Node,
-                       offset: number): Action<{}>[];
+                       offset?: number): Action<{}>[];
 
   /**
    * Provide the possible value completions for an attribute. This allows a mode

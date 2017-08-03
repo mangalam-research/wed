@@ -4,12 +4,13 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { Decorator, Editor } from "wed/decorator";
+import { Decorator } from "wed/decorator";
 import { Listener } from "wed/domlistener";
 import { isElement, isText } from "wed/domtypeguards";
 import { GUIUpdater } from "wed/gui-updater";
 import { Mode } from "wed/mode";
 import * as util from "wed/util";
+import { Editor } from "wed/wed";
 
 import { Metadata } from "./metadata";
 

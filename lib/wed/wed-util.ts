@@ -16,6 +16,7 @@ import { DLoc } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import { closestByClass, indexOf } from "./domutil";
 import { AttributeNotFound } from "./guiroot";
+import { Editor } from "./wed";
 
 export interface BoundaryCoordinates {
   left: number;
@@ -171,17 +172,18 @@ export function getAttrValueNode(attrVal: Element): Node {
   return ret;
 }
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
-
 export function cut(editor: Editor): void {
   const caretManager = editor.caretManager;
   const sel = caretManager.sel;
-  if (!(sel.wellFormed as boolean)) {
+  if (sel === undefined) {
+    throw new Error("no selection");
+  }
+
+  if (!sel.wellFormed) {
     throw new Error("malformed range");
   }
 
-  const [startCaret, endCaret] = sel.asDataCarets();
+  const [startCaret, endCaret] = sel.mustAsDataCarets();
   while (editor._cut_buffer.firstChild !== null) {
     editor._cut_buffer.removeChild(editor._cut_buffer.firstChild);
   }
@@ -193,8 +195,8 @@ export function cut(editor: Editor): void {
     }
     const removedText = attr.value.slice(startCaret.offset, endCaret.offset);
     editor._spliceAttribute(
-      closestByClass(caretManager.fromDataLocation(startCaret).node,
-                     "_attribute_value"),
+      closestByClass(caretManager.mustFromDataLocation(startCaret).node,
+                     "_attribute_value") as HTMLElement,
       startCaret.offset,
       endCaret.offset - startCaret.offset, "");
     editor._cut_buffer.textContent = removedText;
@@ -205,9 +207,9 @@ export function cut(editor: Editor): void {
     const parser = new editor.my_window.DOMParser();
     const doc = parser.parseFromString("<div></div>", "text/xml");
     for (const node of nodes) {
-      doc.firstChild.appendChild(doc.adoptNode(node));
+      doc.firstChild!.appendChild(doc.adoptNode(node));
     }
-    editor._cut_buffer.textContent = doc.firstChild.innerHTML;
+    editor._cut_buffer.textContent = (doc.firstChild as Element).innerHTML;
     editor.caretManager.setCaret(cutRet[0]);
   }
 
@@ -232,26 +234,31 @@ export function paste(editor: Editor, data: any): void {
   const toPaste = data.to_paste;
   const dataClone = toPaste.cloneNode(true);
   let caret = editor.caretManager.getDataCaret();
+  if (caret === undefined) {
+    throw new Error("trying to paste without a caret");
+  }
+
   let newCaret;
-  let ret;
 
   // Handle the case where we are pasting only text.
   if (toPaste.childNodes.length === 1 && isText(toPaste.firstChild)) {
     if (isAttr(caret.node)) {
-      const guiCaret = editor.caretManager.getNormalizedCaret();
-      editor._spliceAttribute(closestByClass(guiCaret.node, "_attribute_value",
-                                             guiCaret.node),
+      const guiCaret = editor.caretManager.mustGetNormalizedCaret();
+      editor._spliceAttribute(closestByClass(
+        guiCaret.node, "_attribute_value",
+        guiCaret.node as HTMLElement) as HTMLElement,
                               guiCaret.offset, 0, toPaste.firstChild.data);
     }
     else {
-      ret = editor.data_updater.insertText(caret, toPaste.firstChild.data);
+      const [modified, newText] =
+        editor.data_updater.insertText(caret, toPaste.firstChild.data);
       // In the first case, the node that contained the caret was modified to
       // contain the text. In the 2nd case, a new node was created **or** the
       // text that contains the text is a child of the original node.
-      newCaret = ((ret[0] === ret[1]) && (ret[1] === caret.node)) ?
+      newCaret = ((modified === newText) && (newText === caret.node)) ?
         // tslint:disable-next-line:restrict-plus-operands
         caret.make(caret.node, caret.offset + toPaste.firstChild.length) :
-        caret.make(ret[1], ret[1].length);
+        caret.make(newText!, newText!.length);
     }
   }
   else {
@@ -261,13 +268,14 @@ export function paste(editor: Editor, data: any): void {
     }
     switch (caret.node.nodeType) {
     case Node.TEXT_NODE:
-      ret = editor.data_updater.insertIntoText(caret, frag);
-      newCaret = ret[1];
+      newCaret = editor.data_updater.insertIntoText(caret, frag)[1];
       break;
     case Node.ELEMENT_NODE:
       const child = caret.node.childNodes[caret.offset];
       const after = child != null ? child.nextSibling : null;
-      editor.data_updater.insertBefore(caret.node, frag, child);
+      // tslint:disable-next-line:no-any
+      editor.data_updater.insertBefore(caret.node as Element, frag as any,
+                                       child);
       newCaret = caret.makeWithOffset(after !== null ?
                                       indexOf(caret.node.childNodes, after) :
                                       caret.node.childNodes.length);

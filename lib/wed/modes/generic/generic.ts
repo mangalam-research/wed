@@ -10,9 +10,10 @@ import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
 import { Action } from "wed/action";
-import { BaseMode, Editor } from "wed/mode";
+import { BaseMode } from "wed/mode";
 import * as objectCheck from "wed/object-check";
 import { Transformation, TransformationData } from "wed/transformation";
+import { Editor } from "wed/wed";
 import { GenericDecorator } from "./generic-decorator";
 import { makeTagTr } from "./generic-tr";
 import { Metadata } from "./metadata";

@@ -7,10 +7,8 @@
 import * as $ from "jquery";
 
 import * as keyConstants from "../key-constants";
+import { Editor } from "../wed";
 import { ContextMenu, DismissCallback } from "./context-menu";
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
 
 /**
  * A menu for displaying completions.
@@ -106,7 +104,7 @@ export class CompletionMenu extends ContextMenu {
         const li = doc.createElement("li");
         // tslint:disable-next-line:no-inner-html
         li.innerHTML = "<a href='#'></a>";
-        li.lastChild.textContent = item;
+        li.lastChild!.textContent = item;
         items.push(li);
         $(li).click(item, typeData);
       }
@@ -114,8 +112,8 @@ export class CompletionMenu extends ContextMenu {
         const li = doc.createElement("li");
         // tslint:disable-next-line:no-inner-html
         li.innerHTML = "<a href='#'><b></b></a>";
-        const a = li.lastChild;
-        a.firstChild.textContent = item.slice(0, prefix.length);
+        const a = li.lastChild!;
+        a.firstChild!.textContent = item.slice(0, prefix.length);
         const tail = item.slice(prefix.length);
         a.appendChild(doc.createTextNode(tail));
         items.push(li);

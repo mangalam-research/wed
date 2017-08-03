@@ -5,8 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
+import { Editor } from "./wed";
 
 export type EventWithData<Data> = Event & { data: Data };
 

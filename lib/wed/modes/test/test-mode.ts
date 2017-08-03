@@ -11,7 +11,7 @@ import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
 import { Action } from "wed/action";
-import { Decorator, Editor } from "wed/decorator";
+import { Decorator } from "wed/decorator";
 import { closestByClass, indexOf } from "wed/domutil";
 import { GUISelector } from "wed/gui-selector";
 import * as context_menu from "wed/gui/context-menu";
@@ -25,6 +25,7 @@ import { GenericDecorator } from "wed/modes/generic/generic-decorator";
 import { Template } from "wed/object-check";
 import * as transformation from "wed/transformation";
 import { ModeValidator } from "wed/validator";
+import { Editor } from "wed/wed";
 
 // tslint:disable-next-line:completed-docs
 class Validator implements ModeValidator {
@@ -270,7 +271,7 @@ class TypeaheadAction extends Action<{}> {
 class DraggableModalAction extends Action<{}> {
   execute(): void {
     const editor = this.editor;
-    const modal = editor.mode.draggable;
+    const modal = (editor.mode as TestMode).draggable;
     modal.modal();
   }
 }
@@ -279,7 +280,7 @@ class DraggableModalAction extends Action<{}> {
 class ResizableModalAction extends Action<{}> {
   execute(): void {
     const editor = this.editor;
-    const modal = editor.mode.resizable;
+    const modal = (editor.mode as TestMode).resizable;
     modal.modal();
   }
 }
@@ -288,7 +289,7 @@ class ResizableModalAction extends Action<{}> {
 class DraggableResizableModalAction extends Action<{}> {
   execute(): void {
     const editor = this.editor;
-    const modal = editor.mode.draggableResizable;
+    const modal = (editor.mode as TestMode).draggableResizable;
     modal.modal();
   }
 }
@@ -299,9 +300,9 @@ class DraggableResizableModalAction extends Action<{}> {
  */
 export class TestMode extends GenericMode<TestModeOptions> {
   private typeaheadAction: TypeaheadAction;
-  private draggable: Modal;
-  private resizable: Modal;
-  private draggableResizable: Modal;
+  public draggable: Modal;
+  public resizable: Modal;
+  public draggableResizable: Modal;
   private draggableAction: DraggableModalAction;
   private resizableAction: ResizableModalAction;
   private draggableResizableAction: DraggableResizableModalAction;

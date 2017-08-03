@@ -10,8 +10,8 @@ import { toGUISelector } from "./domutil";
 import { Mode } from "./mode";
 import { ModeLoader } from "./mode-loader";
 import { Mode as ModeOption } from "./options";
-import { Runtime } from "./runtime";
 import { ModeValidator } from "./validator";
+import { Editor } from "./wed";
 import { CleanedWedOptions, processWedOptions } from "./wed-options-validation";
 
 /**
@@ -124,13 +124,6 @@ class ModeNode {
 
     return this._attributeHidingSpecs;
   }
-}
-
-export interface Editor {
-  runtime: Runtime;
-  gui_root: Element;
-  data_root: Element;
-  fromDataNode(node: Node): Node;
 }
 
 /**
@@ -279,7 +272,10 @@ export class ModeTree {
     }
 
     if (this.editor.data_root.contains(node)) {
-      node = this.editor.fromDataNode(node);
+      const data = this.editor.fromDataNode(node);
+      if (data !== null) {
+        node = data;
+      }
     }
 
     if (!this.editor.gui_root.contains(node)) {

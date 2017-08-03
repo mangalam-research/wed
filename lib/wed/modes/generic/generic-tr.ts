@@ -12,18 +12,9 @@ import { ErrorData } from "salve-dom";
 import { DLoc } from "wed/dloc";
 import { isAttr, isElement } from "wed/domtypeguards";
 import { childByClass, indexOf } from "wed/domutil";
-import { Mode } from "wed/mode";
 import { insertElement, Transformation, TransformationData, unwrap,
          wrapInElement } from "wed/transformation";
-import { Validator } from "wed/validator";
-
-export interface Editor {
-  validator: Validator;
-  // tslint:disable-next-line:no-any
-  mode: Mode<any>;
-  // tslint:disable-next-line:no-any
-  [key: string]: any;
-}
+import { Editor } from "wed/wed";
 
 function errFilter(err: ErrorData): boolean {
   const errMsg = err.error.toString();
@@ -64,6 +55,9 @@ function _autoinsert(el: Element, editor: Editor): void {
     }
 
     const unresolved = editor.resolver.unresolveName(name.ns, name.name);
+    if (unresolved === undefined) {
+      throw new Error(`cannot unresolve {${name.ns}}${name.name}`);
+    }
     const actions = editor.mode.getContextualActions("insert", unresolved,
                                                      el, locations[0]);
 
@@ -90,6 +84,10 @@ function _autoinsert(el: Element, editor: Editor): void {
 
 function executeInsert(editor: Editor, data: TransformationData): void {
   const caret = editor.caretManager.getDataCaret();
+  if (caret === undefined) {
+    throw new Error("inserting without a defined caret!");
+  }
+
   const absoluteResolver = editor.mode.getAbsoluteResolver();
   const ename = absoluteResolver.resolveName(data.name);
   if (ename === undefined) {
@@ -147,7 +145,7 @@ function executeWrap(editor: Editor, data: TransformationData): void {
   if (sel.collapsed as boolean) {
     throw new Error("wrap transformation called with collapsed range");
   }
-  const [startCaret, endCaret] = sel.asDataCarets();
+  const [startCaret, endCaret] = sel.mustAsDataCarets();
   const ename = editor.mode.getAbsoluteResolver().resolveName(data.name);
   if (ename === undefined) {
     throw new Error(`cannot resolve ${data.name}`);
@@ -202,7 +200,7 @@ function executeDeleteParent(editor: Editor, data: TransformationData): void {
 
   const parent = node.parentNode!;
   const index = indexOf(parent.childNodes, node);
-  const guiLoc = editor.caretManager.fromDataLocation(node, 0);
+  const guiLoc = editor.caretManager.mustFromDataLocation(node, 0);
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
@@ -218,7 +216,7 @@ function executeAddAttribute(editor: Editor, data: TransformationData): void {
     throw new Error("node must be an element");
   }
 
-  const guiLoc = editor.caretManager.fromDataLocation(node, 0);
+  const guiLoc = editor.caretManager.mustFromDataLocation(node, 0);
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
@@ -238,7 +236,7 @@ function executeDeleteAttribute(editor: Editor,
 
   const element = node.ownerElement;
   const caretManager = editor.caretManager;
-  const guiOwnerLoc = caretManager.fromDataLocation(element, 0);
+  const guiOwnerLoc = caretManager.mustFromDataLocation(element, 0);
   // If the node we start with is an Element, then the node in guiOwnerLoc
   // is necessarily an Element too.
   const guiOwner = guiOwnerLoc.node as Element;
@@ -255,8 +253,8 @@ function executeDeleteAttribute(editor: Editor,
 
     // We have to get the parent node because fromDataLocation brings us to the
     // text node that contains the value.
-    const guiNode = caretManager.fromDataLocation(node, 0).node.parentNode;
-    const index = indexOf(values, guiNode);
+    const guiNode = caretManager.mustFromDataLocation(node, 0).node.parentNode;
+    const index = indexOf(values, guiNode!);
     const nextGUIValue = values[index + 1];
     const nextAttr = nextGUIValue != null ?
       editor.toDataNode(nextGUIValue) : null;
@@ -270,7 +268,7 @@ function executeDeleteAttribute(editor: Editor,
     }
     else {
       editor.caretManager.setCaret(
-        guiOwnerLoc.node.getElementsByClassName("_element_name")[0], 0);
+        guiOwner.getElementsByClassName("_element_name")[0], 0);
     }
   }
 }

@@ -13,14 +13,12 @@ import { closest } from "./domutil";
 import { GUISelector } from "./gui-selector";
 import { Key } from "./key";
 import { Mode } from "./mode";
+import { Editor } from "./wed";
 
 // tslint:disable-next-line:no-any
 function hashHelper(o: any): any {
   return o.hash();
 }
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
 
 /**
  * @param eventType The type of event being processed.
@@ -222,7 +220,7 @@ export class InputTrigger {
    */
   private pasteHandler(wedEvent: Event, e: JQueryKeyEventObject, caret: DLoc,
                        data: Element): void {
-    if (this.editor.undoingOrRedoing() as boolean) {
+    if (this.editor.undoingOrRedoing()) {
       return;
     }
 

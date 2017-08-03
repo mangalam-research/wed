@@ -9,46 +9,19 @@ import * as  $ from "jquery";
 import * as salve from "salve";
 
 import { Action } from "./action";
-import { CaretManager } from "./caret-manager";
 import { DLoc } from "./dloc";
 import { Listener } from "./domlistener";
 import { isAttr, isElement } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { ActionContextMenu, Item } from "./gui/action-context-menu";
-import { EditingMenuManager } from "./gui/editing-menu-manager";
-import { ModeTree } from "./mode-tree";
-import { Transformation, TransformationData } from "./transformation";
+import { TransformationData } from "./transformation";
 import { BeforeInsertNodeAtEvent, InsertNodeAtEvent } from "./tree-updater";
 import * as  util from "./util";
-import { Validator } from "./validator";
+import { Editor } from "./wed";
 
 const indexOf = domutil.indexOf;
 const closestByClass = domutil.closestByClass;
-
-export interface Editor {
-  gui_root: Element;
-  data_root: Element;
-  max_label_level: number;
-  complex_pattern_action: Action<{}>;
-  attributes: string;
-  validator: Validator;
-  caretManager: CaretManager;
-  editingMenuManager: EditingMenuManager;
-  // tslint:disable-next-line:no-any
-  mode: any;
-  modeTree: ModeTree;
-  resolver: salve.NameResolver;
-  isAttrProtected(name: string, parent: Element): boolean;
-  isAttrProtected(node: Node): boolean;
-  toDataNode(el: Node): Node | Attr;
-  makeDocumentationLink(url: string): HTMLElement;
-  getElementTransformationsAt(pos: DLoc, transformationType: string):
-  { name: string,
-    tr: Transformation<TransformationData> }[];
-  // tslint:disable-next-line:no-any
-  [key: string]: any;
-}
 
 function tryToSetDataCaret(editor: Editor, dataCaret: DLoc): void {
   try {

@@ -12,9 +12,7 @@ import { InputTrigger } from "./input-trigger";
 import { Key } from "./key";
 import { Mode } from "./mode";
 import * as transformation from "./transformation";
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
+import { Editor } from "./wed";
 
 interface SplitData extends transformation.TransformationData {
   // node is no longer optional.
@@ -64,9 +62,12 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
         modified = true;
       }
       else if (offset !== -1) {
-        const pair = editor.data_updater.splitAt(node, text, offset);
+        const [, end] = editor.data_updater.splitAt(node, text, offset);
         // Continue with the 2nd half of the split
-        node = pair[1];
+        if (end === null) {
+          throw new Error("null end; we should not be getting that");
+        }
+        node = end;
         modified = true;
       }
     }
@@ -101,7 +102,7 @@ export function makeSplitMergeInputTrigger(editor: Editor,
                                            mergeWithPreviousKey: Key,
                                            mergeWithNextKey: Key):
 InputTrigger {
-  const splitNodeOnTr = new transformation.Transformation(
+  const splitNodeOnTr = new transformation.Transformation<SplitData>(
     editor, "split", "Split node on character", splitNodeOn);
 
   const ret = new InputTrigger(editor, mode, selector);
@@ -115,7 +116,11 @@ InputTrigger {
     }
     else {
       editor.fireTransformation(
-        splitNodeOnTr, { node: el, sep: String.fromCharCode(splitKey.which) });
+        splitNodeOnTr, {
+          name: el.tagName,
+          node: el,
+          sep: String.fromCharCode(splitKey.which),
+        });
     }
   });
 
