@@ -30,6 +30,11 @@ odd bug fix may not get mentioned here at all.
   - ``Editor`` no longer acts as an ad hoc event emitter/conditioned object. The
     consequences are:
 
+    + The "saved"/"autosaved" events are no longer emitted by ``Editor``. The
+      ``saver`` is now public. Subcribe to the events that it emits. The
+      corresponding event names are capitalized: ``"Saved"`` and
+      ``"Autosaved"``.
+
     + In order to know when the first validation is complete, previously you'd
       do ``editor.whenCondition("first-validation-complete", ...)``. You must
       now instead grab ``editor.firstValidationComplete``, which is a promise

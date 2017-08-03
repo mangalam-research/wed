@@ -6,6 +6,7 @@ import * as modal from "./gui/modal";
 import { Mode } from "./mode";
 import { ModeTree } from "./mode-tree";
 import { Runtime } from "./runtime";
+import { Saver } from "./saver";
 import { TaskRunner } from "./task-runner";
 import { Transformation } from "./transformation";
 import { TreeUpdater } from "./tree-updater";
@@ -38,6 +39,7 @@ export class Editor {
   readonly mode: Mode<any>;
   readonly max_label_level: number;
   readonly firstValidationComplete: Promise<Editor>;
+  readonly saver: Saver;
 
   expandErrorPanelWhenNoNavigation(): void;
   _resumeTaskWhenPossible(runner: TaskRunner): void;

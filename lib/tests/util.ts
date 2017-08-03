@@ -4,7 +4,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import * as Promise from "bluebird";
-import { expect } from "chai";
+import { AssertionError, expect } from "chai";
 
 export function waitFor(fn: () => boolean | Promise<boolean>,
                         delay: number = 100,
@@ -38,7 +38,7 @@ export function waitForSuccess(fn: () => void,
       return true;
     }
     catch (e) {
-      if (e instanceof chai.AssertionError) {
+      if (e instanceof AssertionError) {
         return false;
       }
 
