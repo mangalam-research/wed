@@ -8,9 +8,8 @@ import "bootstrap-notify";
 import * as $ from "jquery";
 import * as mergeOptions from "merge-options";
 
-export function notify(message: string,
-                       options: mergeOptions.MergeOptionsConfig): void {
-  const opts = mergeOptions({
+export function notify(message: string, settings: NotifySettings): void {
+  const s = mergeOptions({
                               element: "body",
                               type: "info",
                               placement: {
@@ -19,9 +18,6 @@ export function notify(message: string,
                               },
                               delay: 1000,
                             },
-                            options);
-  $.notify({
-             message: message,
-           },
-           opts);
+                            settings);
+  $.notify({ message }, s);
 }
