@@ -18,7 +18,7 @@ export interface _CheckResults {
 export type CheckResults = Partial<_CheckResults>;
 
 export interface CheckedObject {
-  [key: string]: CheckedObject;
+  [key: string]: CheckedObject | boolean | number | string;
 }
 
 /**
