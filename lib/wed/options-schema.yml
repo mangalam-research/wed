@@ -43,6 +43,11 @@ definitions:
     required: ["path"]
 type: object
 properties:
+  name:
+    description: An optional name for distinguishing one wed instance from
+      another. Wed makes use of it only when dealing with some types of
+      crashes.
+    type: string
   schema:
     description: The schema to use for editing.
     oneOf:
