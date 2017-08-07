@@ -9,6 +9,7 @@ import * as Promise from "bluebird";
 import * as bluejax from "bluejax";
 import { Dexie } from "dexie";
 import * as mergeOptions from "merge-options";
+import { Options } from "./options";
 
 import { make as ajax } from "./ajax";
 import * as util from "./util";
@@ -18,15 +19,13 @@ import * as util from "./util";
  * running. In particular it allows loading external resources.
  */
 export class Runtime {
-  // tslint:disable-next-line:no-any
-  private readonly options: any;
+  readonly options: Options;
 
   public readonly ajax: bluejax.AjaxCall;
   public readonly ajax$: bluejax.AjaxCall$;
 
-  // tslint:disable-next-line:no-any
-  constructor(options: any) {
-    // Make a private deep copy.
+  constructor(options: Options) {
+    // Make a deep copy.
     options = mergeOptions({}, options);
     this.options = options;
     const bluejaxOptions = options.bluejaxOptions != null ?
