@@ -118,7 +118,7 @@ export class TreeUpdater {
   /**
    * @param tree The node which contains the tree to update.
    */
-  constructor(protected readonly tree: Element) {
+  constructor(protected readonly tree: Element | Document) {
     const root = findRoot(tree);
     if (root === undefined) {
       throw new Error("the tree must have a DLocRoot");
