@@ -13,8 +13,8 @@ import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
 import { DLoc, DLocRoot } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
-import { childByClass, closestByClass, dumpRange, focusNode, getSelectionRange,
-         indexOf, RangeInfo } from "./domutil";
+import { childByClass, closestByClass, dumpRange, focusNode as focusTheNode,
+         getSelectionRange, indexOf, RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
@@ -890,7 +890,7 @@ export class CaretManager implements GUIToDataConverter {
     // The domutil.focusNode call is required to work around bug:
     // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
     if (browsers.FIREFOX) {
-      focusNode(range.endContainer);
+      focusTheNode(range.endContainer);
     }
 
     // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See

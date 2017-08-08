@@ -16,7 +16,7 @@ import { Editor } from "../wed";
 import { ActionContextMenu, Item } from "./action-context-menu";
 import { CompletionMenu } from "./completion-menu";
 import { ContextMenu } from "./context-menu";
-import * as icon from "./icon";
+import { makeHTML } from "./icon";
 
 const atStartToTxt: Record<string, string> = {
   undefined: "",
@@ -294,7 +294,7 @@ export class EditingMenuManager {
    * @returns A ``&lt;a>`` element that links to the documentation.
    */
   makeDocumentationMenuItem(docURL: string): HTMLElement {
-    const iconHtml = icon.makeHTML("documentation");
+    const iconHtml = makeHTML("documentation");
     const li = htmlToElements(
       `<li><a tabindex='0' href='#'>${iconHtml} \
 Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;

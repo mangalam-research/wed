@@ -117,11 +117,11 @@ export class TextUndoGroup extends UndoGroup {
     super(desc, editor);
   }
 
-  record(undo: undo.Undo): void {
+  record(undoToRecord: undo.Undo): void {
     if (this.list.length >= this.limit) {
       throw new Error("TextUndoGroup.record called beyond the limit");
     }
-    super.record(undo);
+    super.record(undoToRecord);
     if (this.list.length === this.limit) {
       this.undoList.endGroup();
     }
