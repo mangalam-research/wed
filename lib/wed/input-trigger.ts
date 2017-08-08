@@ -74,7 +74,7 @@ export class InputTrigger {
     // things like cursor movement keys or ENTER, BACKSPACE, or control keys do
     // not appear *in* text and so are excluded from this map.
 
-    editor.$gui_root.on("wed-post-paste", this.pasteHandler.bind(this));
+    editor.$guiRoot.on("wed-post-paste", this.pasteHandler.bind(this));
 
     // Implementation note: getting keydown events to get fired on random HTML
     // elements is finicky. For one thing, the element needs to be focusable,
@@ -85,10 +85,10 @@ export class InputTrigger {
     // reliable. So we listen to all keydown events on $root and in the handler
     // we filter out what we don't care about. More expensive but works
     // reliably.
-    editor.$gui_root.on("wed-input-trigger-keydown",
-                        this.keydownHandler.bind(this));
-    editor.$gui_root.on("wed-input-trigger-keypress",
-                        this.keypressHandler.bind(this));
+    editor.$guiRoot.on("wed-input-trigger-keydown",
+                       this.keydownHandler.bind(this));
+    editor.$guiRoot.on("wed-input-trigger-keypress",
+                       this.keypressHandler.bind(this));
   }
 
   /**
@@ -158,7 +158,7 @@ export class InputTrigger {
     const dataNode = isText(caret.node) ? caret.node.parentNode : caret.node;
     const guiNode = $.data(dataNode as Element, "wed_mirror_node");
 
-    return closest(guiNode, this.selector.value, this.editor.gui_root);
+    return closest(guiNode, this.selector.value, this.editor.guiRoot);
   }
 
   /**
@@ -249,7 +249,7 @@ export class InputTrigger {
                             caret.node.parentNode! : caret.node) as Element;
     const guiNode = $.data(nodeOfInterest as Element, "wed_mirror_node");
 
-    if (closest(guiNode, this.selector.value, this.editor.gui_root) === null) {
+    if (closest(guiNode, this.selector.value, this.editor.guiRoot) === null) {
       return;
     }
 

@@ -82,8 +82,8 @@ describe("InputTrigger", () => {
     return editor.init(wedroot, mergeOptions({}, globalConfig.config, options),
                        source)
       .then(() => {
-        mode = editor.modeTree.getMode(editor.gui_root);
-        pInBody = editor.data_root.querySelector("body p");
+        mode = editor.modeTree.getMode(editor.guiRoot);
+        pInBody = editor.dataRoot.querySelector("body p");
       });
   });
 
@@ -110,7 +110,7 @@ describe("InputTrigger", () => {
       },
     });
     editor.caretManager.setCaret(p, 0);
-    editor.$gui_root.trigger(event);
+    editor.$guiRoot.trigger(event);
     return seen;
   }
 
@@ -178,7 +178,7 @@ describe("InputTrigger", () => {
   it("does not try to act on undo/redo changes", () => {
     makeSplitMergeInputTrigger(
       editor, mode, pSelector, key.makeKey(";"), BACKSPACE, DELETE);
-    let ps = editor.data_root.querySelectorAll("body p");
+    let ps = editor.dataRoot.querySelectorAll("body p");
     assert.equal(ps.length, 1);
     editor.caretManager.setCaret(ps[0], 0);
     // Synthetic event
@@ -188,9 +188,9 @@ describe("InputTrigger", () => {
         return "ab;cd;ef";
       },
     });
-    editor.$gui_root.trigger(event);
+    editor.$guiRoot.trigger(event);
 
-    ps = editor.data_root.querySelectorAll("body p");
+    ps = editor.dataRoot.querySelectorAll("body p");
     assert.equal(ps.length, 3);
     assert.equal(cleanNamespace(ps[0].outerHTML), "<p>ab</p>");
     assert.equal(cleanNamespace(ps[1].outerHTML), "<p>cd</p>");
@@ -200,7 +200,7 @@ describe("InputTrigger", () => {
                  "first split: 3rd part");
 
     editor.undo();
-    ps = editor.data_root.querySelectorAll("body p");
+    ps = editor.dataRoot.querySelectorAll("body p");
     assert.equal(ps.length, 1);
     assert.equal(cleanNamespace(ps[0].outerHTML),
                  "<p>Blah blah <term>blah</term>" +
@@ -208,7 +208,7 @@ describe("InputTrigger", () => {
                  "after undo");
 
     editor.redo();
-    ps = editor.data_root.querySelectorAll("body p");
+    ps = editor.dataRoot.querySelectorAll("body p");
     assert.equal(ps.length, 3, "after redo: length");
     assert.equal(cleanNamespace(ps[0].outerHTML), "<p>ab</p>",
                  "after redo: 1st part");
@@ -224,7 +224,7 @@ describe("InputTrigger", () => {
     let pInHeader: HTMLElement;
 
     beforeEach(() => {
-      pInHeader = editor.data_root.querySelector("teiHeader p");
+      pInHeader = editor.dataRoot.querySelector("teiHeader p");
       assert.isDefined(pInHeader);
     });
 

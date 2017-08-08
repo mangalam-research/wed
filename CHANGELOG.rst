@@ -17,8 +17,8 @@ odd bug fix may not get mentioned here at all.
     actually contains and what a mode expects. This is a prerequiste to
     supporting the new "submode" feature.
 
-  - Addition of the submode feature, which causes breaking changes. This matters
-    if you designed your own mode:
+  - Breaking changes: Addition of the submode feature, which causes breaking
+    changes. This matters if you designed your own mode:
 
     + ``Editor`` no longer has ``this.attributes`` and
       ``this.attributeHiding``. The information they provided must be sought
@@ -27,8 +27,28 @@ odd bug fix may not get mentioned here at all.
     + ``Editor`` no longer has ``this.resolver``. The absolute resolver must be
       obtained through ``modeTree``.
 
-  - ``Editor`` no longer acts as an ad hoc event emitter/conditioned object. The
-    consequences are:
+  - ``editor.my_window`` is now ``editor.window``.
+
+  - Breaking changes: Converted the core of wed to TS. This entails that the
+    properties of ``Editor`` were converted to camel case: ``straddling_modal``,
+    ``help_modal``, ``$error_list``, ```complex_pattern_action``, ``paste_tr``,
+    ``cut_tr``, ``split_node_tr``,
+    ``merge_with_previous_homogeneous_sibling_tr``,
+    ``merge_with_next_homogeneous_sibling_tr``.
+
+  - Breaking change: Wed now needs to have ``Promise`` available in its
+    environment. It no longer loads Bluebird in an ad hoc manner by calling
+    ``require`` (or using ``import``) in modules that use promises. You may use
+    Bluebird as a polyfill for IE11. You may also want to use Bluebird generally
+    on all platforms to allow consistent handling of unhandled rejections. At
+    the time of writing, only Chrome 49 and later support
+    ``onunhandledrejection``, but Bluebird adds support for it.
+
+  - Passing ``null`` to ``onbeforeunload.check`` as the second argument is no
+    longer valid. That it worked before was a bug.
+
+  - Breaking changes: ``Editor`` no longer acts as an ad hoc event
+    emitter/conditioned object. The consequences are:
 
     + The "saved"/"autosaved" events are no longer emitted by ``Editor``. The
       ``saver`` is now public. Subcribe to the events that it emits. The

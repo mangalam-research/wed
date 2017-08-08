@@ -223,7 +223,7 @@ export class Decorator {
                    postContextHandler: ((wedEv: JQueryMouseEventObject,
                                          ev: Event) => boolean) | undefined):
   void {
-    if (level > this.editor.max_label_level) {
+    if (level > this.editor.maxLabelLevel) {
       throw new Error(
         `level higher than the maximum set by the mode: ${level}`);
     }
@@ -460,18 +460,18 @@ export class Decorator {
         }
       }
       else {
-        pushItem(null, editor.complex_pattern_action);
+        pushItem(null, editor.complexPatternAction);
       }
     }
 
-    const real = closestByClass(node, "_real", editor.gui_root);
+    const real = closestByClass(node, "_real", editor.guiRoot);
     const readonly = real !== null && real.classList.contains("_readonly");
 
-    const attrVal = closestByClass(node, "_attribute_value", editor.gui_root);
+    const attrVal = closestByClass(node, "_attribute_value", editor.guiRoot);
     if (attrVal !== null) {
       const dataNode = editor.toDataNode(attrVal) as Attr;
       const treeCaret =
-        DLoc.mustMakeDLoc(editor.data_root, dataNode.ownerElement);
+        DLoc.mustMakeDLoc(editor.dataRoot, dataNode.ownerElement);
       const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
       editor.validator.possibleAt(treeCaret, true).forEach((event) => {
         if (event.params[0] !== "attributeName") {
@@ -489,14 +489,14 @@ export class Decorator {
     }
     else {
       // We want the first real parent.
-      const candidate = closestByClass(node, "_real", editor.gui_root);
+      const candidate = closestByClass(node, "_real", editor.guiRoot);
       if (candidate === null) {
         throw new Error("cannot find real parent");
       }
 
       node = candidate;
 
-      const topNode = (node.parentNode === editor.gui_root);
+      const topNode = (node.parentNode === editor.guiRoot);
 
       // We first gather the transformations that pertain to the node to which
       // the label belongs.

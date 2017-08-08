@@ -43,7 +43,7 @@ describe("onbeforeunload", function onbeforeunloadBlock() {
     });
 
     it("works when force is set", function test() {
-      onbeforeunload.install(window, null, true);
+      onbeforeunload.install(window, undefined, true);
       assert.isTrue(window.onbeforeunload());
     });
 

@@ -4,7 +4,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird"; //tslint:disable-line:no-unsafe-any
 
 /**
  * Calculates the distance on the basis of two deltas. This would typically be
@@ -431,6 +430,15 @@ export function fixPrototype(obj: any, parent: Function): void {
       (obj as any).__proto__ = parent.prototype;
     }
   }
+}
+
+export function suppressUnhandledRejections<P extends Promise<any>>(p: P): P {
+  const pAsAny: any = p as any;
+  if (pAsAny.suppressUnhandledRejections as boolean) {
+    pAsAny.suppressUnhandledRejections();
+  }
+
+  return p;
 }
 // tslint:enable:no-any
 

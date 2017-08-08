@@ -5,7 +5,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
 import * as bluejax from "bluejax";
 import { Dexie } from "dexie";
 import * as mergeOptions from "merge-options";

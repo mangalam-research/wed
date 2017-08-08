@@ -271,18 +271,18 @@ export class ModeTree {
       return this.root;
     }
 
-    if (this.editor.data_root.contains(node)) {
+    if (this.editor.dataRoot.contains(node)) {
       const data = this.editor.fromDataNode(node);
       if (data !== null) {
         node = data;
       }
     }
 
-    if (!this.editor.gui_root.contains(node)) {
+    if (!this.editor.guiRoot.contains(node)) {
       throw new Error("did not pass a node in the GUI or data tree");
     }
 
-    const result = this._getModeNode(this.root, this.editor.gui_root, node);
+    const result = this._getModeNode(this.root, this.editor.guiRoot, node);
     if (result === undefined) {
       throw new Error("cannot find a mode for the node; something is wrong");
     }

@@ -294,7 +294,7 @@ export class ValidationController {
     }
 
     this.processErrorsRunner.reset();
-    this.editor._resumeTaskWhenPossible(this.processErrorsRunner);
+    this.editor.resumeTaskWhenPossible(this.processErrorsRunner);
   }
 
   /**
@@ -494,7 +494,7 @@ export class ValidationController {
    */
   refreshErrors(): void {
     this.refreshErrorsRunner.reset();
-    this.editor._resumeTaskWhenPossible(this.refreshErrorsRunner);
+    this.editor.resumeTaskWhenPossible(this.refreshErrorsRunner);
   }
 
   /**

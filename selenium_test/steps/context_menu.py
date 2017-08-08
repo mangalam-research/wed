@@ -293,11 +293,11 @@ def context_choices_insert(context):
     var el = arguments[0];
 
     var $element = jQuery(el);
-    var $gui_root = wed_editor.$gui_root;
+    var $guiRoot = wed_editor.$guiRoot;
     var pos = $element.offset();
-    var gui_pos = $gui_root.offset();
+    var gui_pos = $guiRoot.offset();
     pos.top = pos.top - gui_pos.top;
-    return pos.top > $gui_root.outerHeight();
+    return pos.top > $guiRoot.outerHeight();
     """, item), "Outside editor panel")
 
 
@@ -368,7 +368,6 @@ def step_impl(context, choice):
     driver = context.driver
     util = context.util
 
-    class_name = None
     if choice == "a placeholder":
         parent, where = driver.execute_script("""
         var $ph = jQuery("._placeholder");

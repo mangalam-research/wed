@@ -52,17 +52,17 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
       const offset = text.data.indexOf(sep);
       if (node.firstChild === text && offset === 0) {
         // We just drop the separator
-        editor.data_updater.deleteText(text, offset, 1);
+        editor.dataUpdater.deleteText(text, offset, 1);
         modified = true;
       }
       else if (node.lastChild === text && offset !== -1 &&
                offset === text.length - 1) {
         // Just drop the separator
-        editor.data_updater.deleteText(text, text.length - 1, 1);
+        editor.dataUpdater.deleteText(text, text.length - 1, 1);
         modified = true;
       }
       else if (offset !== -1) {
-        const [, end] = editor.data_updater.splitAt(node, text, offset);
+        const [, end] = editor.dataUpdater.splitAt(node, text, offset);
         // Continue with the 2nd half of the split
         if (end === null) {
           throw new Error("null end; we should not be getting that");
@@ -112,7 +112,7 @@ InputTrigger {
       ev.preventDefault();
     }
     if (eventType === "keypress" || eventType === "keydown") {
-      editor.fireTransformation(editor.split_node_tr, { node: el });
+      editor.fireTransformation(editor.splitNodeTr, { node: el });
     }
     else {
       editor.fireTransformation(
@@ -140,9 +140,8 @@ InputTrigger {
         ev.stopImmediatePropagation();
         ev.preventDefault();
       }
-      editor.fireTransformation(
-        editor.merge_with_previous_homogeneous_sibling_tr,
-        { node: el, name: el.tagName });
+      editor.fireTransformation(editor.mergeWithPreviousHomogeneousSiblingTr,
+                                { node: el, name: el.tagName });
     }
   });
 
@@ -163,9 +162,8 @@ InputTrigger {
         ev.stopImmediatePropagation();
         ev.preventDefault();
       }
-      editor.fireTransformation(
-        editor.merge_with_next_homogeneous_sibling_tr,
-        { node: el, name: el.tagName });
+      editor.fireTransformation(editor.mergeWithNextHomogeneousSiblingTr,
+                                { node: el, name: el.tagName });
     }
   });
   return ret;

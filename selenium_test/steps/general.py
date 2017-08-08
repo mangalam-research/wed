@@ -261,7 +261,7 @@ def step_impl(context):
     scroll_top = context.editor_pane_new_scroll_top
 
     new_scroll_top = context.driver.execute_script(
-        "return  window.wed_editor._scroller.scrollTop;")
+        "return  window.wed_editor.scroller.scrollTop;")
 
     # On IE 10 something causes the scroll to shift a tiny bit. It is
     # unclear what causes this.
@@ -360,7 +360,7 @@ def step_impl(context):
 
     def cond(*_):
         return driver.execute_script("""
-        return window.document.activeElement === wed_editor._$input_field[0];
+        return window.document.activeElement === wed_editor.$inputField[0];
         """)
     util.wait(cond)
 
@@ -540,7 +540,7 @@ def step_impl(context, text):
 @when('the input field is focused')
 def step_impl(context):
     context.driver.execute_script("""
-    wed_editor._$input_field[0].focus();
+    wed_editor.$inputField[0].focus();
     """)
 
 

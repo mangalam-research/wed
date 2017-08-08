@@ -45,8 +45,8 @@ export class EditingMenuManager {
   constructor(private readonly editor: Editor) {
     this.caretManager = editor.caretManager;
     this.mode = editor.mode;
-    this.guiRoot = editor.gui_root;
-    this.dataRoot = editor.data_root;
+    this.guiRoot = editor.guiRoot;
+    this.dataRoot = editor.dataRoot;
     this.doc = this.guiRoot.ownerDocument;
   }
 

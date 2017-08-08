@@ -154,7 +154,7 @@ def step_impl(context):
 
     def cond(driver):
         text = driver.execute_script("""
-        var ps = wed_editor.data_root.querySelectorAll("body>p");
+        var ps = wed_editor.dataRoot.querySelectorAll("body>p");
         var p = ps[ps.length - 1];
         return p.nextSibling.textContent;
         """)

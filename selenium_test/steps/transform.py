@@ -128,10 +128,10 @@ def step_impl(context):
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""
-        if (wed_editor.gui_root.children.length !== 1)
+        if (wed_editor.guiRoot.children.length !== 1)
             return false;
 
-        var node = wed_editor.gui_root.firstElementChild;
+        var node = wed_editor.guiRoot.firstElementChild;
 
         if (!node)
             return false;
@@ -146,10 +146,10 @@ def step_impl(context):
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""
-        if (wed_editor.data_root.childNodes.length !== 1)
+        if (wed_editor.dataRoot.childNodes.length !== 1)
             return false;
 
-        var node = wed_editor.data_root.firstElementChild;
+        var node = wed_editor.dataRoot.firstElementChild;
 
         if (!node)
             return false;

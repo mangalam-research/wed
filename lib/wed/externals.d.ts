@@ -17,8 +17,6 @@ interface JQuery {
 }
 
 declare module "bluejax" {
-  import * as Promise from "bluebird";
-
   export type Pair = {
     promise: Promise<any>;
     xhr: JQueryXHR;
@@ -45,3 +43,5 @@ interface Window {
     new(): DOMParser;
   }
 }
+
+declare var __WED_TESTING: any;

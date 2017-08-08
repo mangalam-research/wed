@@ -5,7 +5,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
 import { Observable, Subject } from "rxjs";
 
 import * as browsers from "./browsers";
@@ -102,6 +101,11 @@ export interface Autosaved {
 
 export type SaveEvents = Saved | Autosaved | ChangedEvent | FailedEvent;
 
+export interface SaverOptions {
+  /** The time between autosaves in seconds. */
+  autosave?: number;
+}
+
 /**
  * A saver is responsible for saving a document's data. This class cannot be
  * instantiated as-is, but only through subclasses.
@@ -185,7 +189,8 @@ export abstract class Saver {
   constructor(protected readonly runtime: Runtime,
               protected readonly version: string,
               protected readonly dataUpdater: TreeUpdater,
-              protected readonly dataTree: Node) {
+              protected readonly dataTree: Node,
+              protected readonly options: SaverOptions) {
     dataUpdater.events.subscribe((ev) => {
       if (ev.name !== "Changed") {
         return;
@@ -207,6 +212,10 @@ export abstract class Saver {
     this._events = new Subject();
 
     this.events = this._events.asObservable();
+
+    if (options.autosave !== undefined) {
+      this.setAutosaveInterval(options.autosave * 1000);
+    }
   }
 
   /**
@@ -299,6 +308,7 @@ export abstract class Saver {
 
     if (this.currentGeneration !== this.savedGeneration) {
       // We have something to save!
+      // tslint:disable-next-line:no-floating-promises
       this._save(true).then(done);
     }
     else {
@@ -397,6 +407,11 @@ export abstract class Saver {
   getLastSaveKind(): number | undefined {
     return this.lastSaveKind;
   }
+}
+
+export interface SaverConstructor {
+  new (runtime: Runtime, version: string, dataUpdater: TreeUpdater,
+       dataTree: Node, options: SaverOptions): Saver;
 }
 
 //  LocalWords:  jQuery jquery url jshint validthis Dubeau MPL oop

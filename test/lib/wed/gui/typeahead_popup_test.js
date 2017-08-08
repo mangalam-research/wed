@@ -44,7 +44,7 @@ describe("TypeaheadPopup", function TypeaheadPopup() {
     fw = new jsdomfw.FW();
     fw.create(function created() {
       window = fw.window;
-      window.require(["wed/gui/typeahead_popup"],
+      window.require(["wed/gui/typeahead-popup"],
                      function loaded(_typeahead_popup) {
                        try {
                          assert.isUndefined(window.document.errors);

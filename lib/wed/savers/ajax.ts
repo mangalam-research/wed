@@ -6,7 +6,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
 import * as $ from "jquery";
 
 import { Runtime } from "../runtime";
@@ -58,7 +57,7 @@ function getMessages(data: Response): ParsedResponse | undefined {
   return ret;
 }
 
-export interface Options {
+export interface Options extends saver.SaverOptions {
   /** The url location to POST save requests. */
   url: string;
 
@@ -93,7 +92,7 @@ class AjaxSaver extends saver.Saver {
 
   constructor(runtime: Runtime, version: string, dataUpdater: TreeUpdater,
               dataTree: Node, options: Options) {
-    super(runtime, version, dataUpdater, dataTree);
+    super(runtime, version, dataUpdater, dataTree, options);
 
     this.headers = options.headers;
     // This value is saved with the double quotes around it so that we can just

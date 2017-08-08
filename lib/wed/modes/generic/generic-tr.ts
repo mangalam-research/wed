@@ -12,8 +12,8 @@ import { ErrorData } from "salve-dom";
 import { DLoc } from "wed/dloc";
 import { isAttr, isElement } from "wed/domtypeguards";
 import { childByClass, indexOf } from "wed/domutil";
-import { insertElement, Transformation, TransformationData, unwrap,
-         wrapInElement } from "wed/transformation";
+import { insertElement, NamedTransformationData, Transformation,
+         TransformationData, unwrap, wrapInElement } from "wed/transformation";
 import { Editor } from "wed/wed";
 
 function errFilter(err: ErrorData): boolean {
@@ -84,7 +84,7 @@ function _autoinsert(el: Element, editor: Editor): void {
   }
 }
 
-function executeInsert(editor: Editor, data: TransformationData): void {
+function executeInsert(editor: Editor, data: NamedTransformationData): void {
   const caret = editor.caretManager.getDataCaret();
   if (caret === undefined) {
     throw new Error("inserting without a defined caret!");
@@ -97,7 +97,7 @@ function executeInsert(editor: Editor, data: TransformationData): void {
   }
   const unresolved = editor.validator.unresolveNameAt(caret.node, caret.offset,
                                                       ename.ns, ename.name);
-  const el = insertElement(editor.data_updater, caret.node,
+  const el = insertElement(editor.dataUpdater, caret.node,
                            caret.offset, ename.ns, data.name);
   if (unresolved === undefined) {
     // The namespace used by the element has not been defined yet. So we need to
@@ -107,11 +107,12 @@ function executeInsert(editor: Editor, data: TransformationData): void {
     // The next name is necessarily resolvable so we assert that it is not
     // resolving to undefined.
     const xmlnsURI = absoluteResolver.resolveName("xmlns:q")!.ns;
-    editor.data_updater.setAttributeNS(el, xmlnsURI, name, ename.ns);
+    editor.dataUpdater.setAttributeNS(el, xmlnsURI, name, ename.ns);
   }
 
   let caretNode: Node | null = el;
-  if (editor.mode.getModeOptions().autoinsert as boolean) {
+  // tslint:disable-next-line:no-any
+  if ((editor.mode.getModeOptions() as any).autoinsert as boolean) {
     _autoinsert(el, editor);
 
     // Set el to the deepest first child, so that the caret is put in the right
@@ -134,11 +135,11 @@ function executeUnwrap(editor: Editor, data: TransformationData): void {
   }
   const parent = node.parentNode!;
   const index = indexOf(parent.childNodes, node);
-  unwrap(editor.data_updater, node);
+  unwrap(editor.dataUpdater, node);
   editor.caretManager.setCaret(parent, index);
 }
 
-function executeWrap(editor: Editor, data: TransformationData): void {
+function executeWrap(editor: Editor, data: NamedTransformationData): void {
   const sel = editor.caretManager.sel;
   if (sel == null) {
     throw new Error("wrap transformation called with undefined range");
@@ -152,7 +153,7 @@ function executeWrap(editor: Editor, data: TransformationData): void {
   if (ename === undefined) {
     throw new Error(`cannot resolve ${data.name}`);
   }
-  const el = wrapInElement(editor.data_updater, startCaret.node,
+  const el = wrapInElement(editor.dataUpdater, startCaret.node,
                            startCaret.offset, endCaret.node, endCaret.offset,
                            ename.ns, data.name);
   const parent = el.parentNode!;
@@ -160,7 +161,8 @@ function executeWrap(editor: Editor, data: TransformationData): void {
                                   indexOf(parent.childNodes, el) + 1));
 }
 
-function executeWrapContent(editor: Editor, data: TransformationData): void {
+function executeWrapContent(editor: Editor,
+                            data: NamedTransformationData): void {
   const toWrap = data.node;
 
   if (!isElement(toWrap)) {
@@ -171,7 +173,7 @@ function executeWrapContent(editor: Editor, data: TransformationData): void {
   if (ename === undefined) {
     throw new Error(`cannot resolve ${data.name}`);
   }
-  wrapInElement(editor.data_updater, toWrap, 0, toWrap,
+  wrapInElement(editor.dataUpdater, toWrap, 0, toWrap,
                 toWrap.childNodes.length, ename.ns, data.name);
 }
 
@@ -188,7 +190,7 @@ function executeDeleteElement(editor: Editor, data: TransformationData): void {
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
-    editor.data_updater.removeNode(node);
+    editor.dataUpdater.removeNode(node);
     editor.caretManager.setCaret(parent, index);
   }
 }
@@ -206,12 +208,13 @@ function executeDeleteParent(editor: Editor, data: TransformationData): void {
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
-    editor.data_updater.removeNode(node);
+    editor.dataUpdater.removeNode(node);
     editor.caretManager.setCaret(parent, index);
   }
 }
 
-function executeAddAttribute(editor: Editor, data: TransformationData): void {
+function executeAddAttribute(editor: Editor,
+                             data: NamedTransformationData): void {
   const node = data.node;
 
   if (!isElement(node)) {
@@ -222,7 +225,7 @@ function executeAddAttribute(editor: Editor, data: TransformationData): void {
   // If the node we start with is an Element, then the node in guiLoc is
   // necessarily an Element too.
   if (!(guiLoc.node as Element).classList.contains("_readonly")) {
-    editor.data_updater.setAttribute(node, data.name, "");
+    editor.dataUpdater.setAttribute(node, data.name, "");
     const attr = node.getAttributeNode(data.name);
     editor.caretManager.setCaret(attr, 0);
   }
@@ -261,7 +264,7 @@ function executeDeleteAttribute(editor: Editor,
     const nextAttr = nextGUIValue != null ?
       editor.toDataNode(nextGUIValue) : null;
 
-    editor.data_updater.setAttribute(element, encoded, null);
+    editor.dataUpdater.setAttribute(element, encoded, null);
 
     // We set the caret inside the next attribute, or if it does not exist,
     // inside the label.
@@ -305,12 +308,13 @@ Record<string, Transformation<TransformationData>> {
                                                "Delete this attribute",
                                                undefined,
                                                executeDeleteAttribute);
-  ret["insert-text"] = new Transformation(forEditor, "insert-text",
-                                          "Insert \"<name>\"", undefined,
-                                          (editor: Editor, data) => {
-                                            editor.type(data.name);
-                                          });
-  ret.split = forEditor.split_node_tr;
+  ret["insert-text"] = new Transformation(
+    forEditor, "insert-text",
+    "Insert \"<name>\"", undefined,
+    (editor: Editor, data: NamedTransformationData) => {
+      editor.type(data.name);
+    });
+  ret.split = forEditor.splitNodeTr;
 
   return ret;
 }

@@ -7,7 +7,7 @@
 import * as $ from "jquery";
 
 import * as keyConstants from "../key-constants";
-import { Editor } from "../wed";
+import { Editor, KeydownHandler } from "../wed";
 import { ContextMenu, DismissCallback } from "./context-menu";
 
 /**
@@ -17,7 +17,7 @@ export class CompletionMenu extends ContextMenu {
   private readonly completionPrefix: string;
   private readonly completionItems: string[];
   private readonly editor: Editor;
-  private readonly boundCompletionKeydownHandler: Function;
+  private readonly boundCompletionKeydownHandler: KeydownHandler;
   private _focused: boolean = false;
 
   /**

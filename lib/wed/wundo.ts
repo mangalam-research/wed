@@ -58,7 +58,7 @@ corrupted state and thus an internal error`);
       // trap stupid mistakes in managing the data.
       return [undefined, undefined];
     }
-    return [this.editor.data_updater.nodeToPath(caret.node), caret.offset];
+    return [this.editor.dataUpdater.nodeToPath(caret.node), caret.offset];
   }
 
   /**
@@ -72,7 +72,7 @@ corrupted state and thus an internal error`);
       return;
     }
     this.editor.caretManager.setCaret(
-      this.editor.data_updater.pathToNode(caret[0]!), caret[1]);
+      this.editor.dataUpdater.pathToNode(caret[0]!), caret[1]);
   }
 
   /**

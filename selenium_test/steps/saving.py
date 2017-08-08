@@ -101,7 +101,7 @@ def step_impl(context):
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""
-        return wed_editor._$modification_status.hasClass("label-success");
+        return wed_editor.$modificationStatus.hasClass("label-success");
         """)
 
     util = context.util

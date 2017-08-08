@@ -4,7 +4,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird";
 import * as $ from "jquery";
 import * as mergeOptions from "merge-options";
 import { EName, ValidationError } from "salve";
@@ -12,8 +11,10 @@ import { ErrorData } from "salve-dom";
 
 import { Action } from "wed/action";
 import { Decorator } from "wed/decorator";
+import { Listener } from "wed/domlistener";
 import { closestByClass, indexOf } from "wed/domutil";
 import { GUISelector } from "wed/gui-selector";
+import { GUIUpdater } from "wed/gui-updater";
 import * as context_menu from "wed/gui/context-menu";
 import { Modal } from "wed/gui/modal";
 import * as input_trigger_factory from "wed/input-trigger-factory";
@@ -29,7 +30,7 @@ import { Editor } from "wed/wed";
 
 // tslint:disable-next-line:completed-docs
 class Validator implements ModeValidator {
-  constructor(private readonly dataRoot: Element) {}
+  constructor(private readonly dataRoot: Element | Document) {}
 
   validateDocument(): ErrorData[] {
     return [{
@@ -413,12 +414,10 @@ export class TestMode extends GenericMode<TestModeOptions> {
     return ret;
   }
 
-  makeDecorator(): TestDecorator {
-    const obj = Object.create(TestDecorator.prototype);
-    let args = Array.prototype.slice.call(arguments);
-    args = [this, this.metadata, this.options].concat(args);
-    TestDecorator.apply(obj, args);
-    return obj;
+  makeDecorator(domlistener: Listener,
+                editor: Editor, guiUpdater: GUIUpdater): GenericDecorator {
+    return new TestDecorator(this, this.metadata, this.options,
+                             domlistener, editor, guiUpdater);
   }
 
   getAttributeCompletions(attr: Attr): string[] {
@@ -430,7 +429,7 @@ export class TestMode extends GenericMode<TestModeOptions> {
   }
 
   getValidator(): ModeValidator {
-    return new Validator(this.editor.data_root);
+    return new Validator(this.editor.dataRoot);
   }
 }
 

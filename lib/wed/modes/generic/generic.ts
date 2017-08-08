@@ -5,11 +5,12 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
 import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
 import { Action } from "wed/action";
+import { Listener } from "wed/domlistener";
+import { GUIUpdater } from "wed/gui-updater";
 import { BaseMode } from "wed/mode";
 import * as objectCheck from "wed/object-check";
 import { Transformation, TransformationData } from "wed/transformation";
@@ -167,12 +168,10 @@ class GenericMode<Options extends GenericModeOptions>
     return this.resolver;
   }
 
-  makeDecorator(): GenericDecorator {
-    const obj = Object.create(GenericDecorator.prototype);
-    let args = Array.prototype.slice.call(arguments);
-    args = [this, this.metadata, this.options].concat(args);
-    GenericDecorator.apply(obj, args);
-    return obj;
+  makeDecorator(domlistener: Listener,
+                editor: Editor, guiUpdater: GUIUpdater): GenericDecorator {
+    return new GenericDecorator(this, this.metadata, this.options,
+                                domlistener, editor, guiUpdater);
   }
 
   /**

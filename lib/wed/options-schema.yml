@@ -48,6 +48,14 @@ properties:
       another. Wed makes use of it only when dealing with some types of
       crashes.
     type: string
+  demo:
+    description: A flag indicating that the editor instance is a demo.
+      You probably won\'t use this. It is meant to be used for wed\'s own demos.
+      A dialog is brought up on startup with the value of this option when it is
+      a string. Otherwise a default message is shown.
+    oneOf:
+      - type: string
+      - type: boolean
   schema:
     description: The schema to use for editing.
     oneOf:

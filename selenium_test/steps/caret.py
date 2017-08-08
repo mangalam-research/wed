@@ -728,7 +728,7 @@ def step_impl(context):
 
     context.caret_path = driver.execute_script("""
     var caret = wed_editor.caretManager.getDataCaret();
-    return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
+    return [wed_editor.dataUpdater.nodeToPath(caret.node), caret.offset];
     """)
 
     pos = wedutil.caret_selection_pos(driver)
@@ -749,6 +749,6 @@ def step_impl(context):
     driver = context.driver
     caret_path = driver.execute_script("""
     var caret = wed_editor.caretManager.getDataCaret();
-    return [wed_editor.data_updater.nodeToPath(caret.node), caret.offset];
+    return [wed_editor.dataUpdater.nodeToPath(caret.node), caret.offset];
     """)
     assert_equal(context.caret_path, caret_path)

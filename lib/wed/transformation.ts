@@ -107,7 +107,7 @@ export interface TransformationData {
    * The name of the node to add, remove, etc. Should be set by the code that
    * invokes the transformation.
    */
-  name: string;
+  name?: string;
 
   /**
    * A position to which the caret is moved before the transformation is fired.
@@ -115,6 +115,10 @@ export interface TransformationData {
    * transformation.
    */
   moveCaretTo?: DLoc;
+}
+
+export interface NamedTransformationData extends TransformationData {
+  name: string;
 }
 
 /**
@@ -227,6 +231,10 @@ export class Transformation<Data extends TransformationData>
   }
 
   getDescriptionFor(data: Data): string {
+    if (data.name === undefined) {
+      return this.desc;
+    }
+
     return this.desc.replace(/<name>/, data.name);
   }
 
@@ -531,7 +539,7 @@ export function splitNode(editor: Editor, node: Node): void {
     throw new Error("caret outside node");
   }
 
-  const pair = editor.data_updater.splitAt(node, caret);
+  const pair = editor.dataUpdater.splitAt(node, caret);
   // Find the deepest location at the start of the 2nd element.
   editor.caretManager.setCaret(firstDescendantOrSelf(pair[1]), 0);
 }
@@ -568,20 +576,20 @@ export function mergeWithPreviousHomogeneousSibling(editor: Editor,
   const insertionPoint = prev.childNodes.length;
   // Reverse order
   for (let i = node.childNodes.length - 1; i >= 0; --i) {
-    editor.data_updater.insertAt(
+    editor.dataUpdater.insertAt(
       prev, insertionPoint,
       node.childNodes[i].cloneNode(true) as (Element | Text));
   }
 
   if (wasText) {
     // If wasText is true, lastChild cannot be null.
-    editor.data_updater.mergeTextNodes(lastChild!);
+    editor.dataUpdater.mergeTextNodes(lastChild!);
     editor.caretManager.setCaret(prev.childNodes[caretPos - 1], textLen);
   }
   else {
     editor.caretManager.setCaret(prev, caretPos);
   }
-  editor.data_updater.removeNode(node);
+  editor.dataUpdater.removeNode(node);
 }
 
 /**
@@ -629,8 +637,8 @@ export function swapWithPreviousHomogeneousSibling(editor: Editor,
     throw new Error("detached node");
   }
 
-  editor.data_updater.removeNode(node);
-  editor.data_updater.insertBefore(parent as Element, node, prev);
+  editor.dataUpdater.removeNode(node);
+  editor.dataUpdater.insertBefore(parent as Element, node, prev);
   editor.caretManager.setCaret(node);
 }
 

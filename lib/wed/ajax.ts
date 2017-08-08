@@ -1,10 +1,11 @@
 /**
  * Ajax utilities for wed.
  */
-import * as Promise from "bluebird";
 import * as bluejax from "bluejax";
 import "bootstrap";
 import * as $ from "jquery";
+
+import { suppressUnhandledRejections } from "./util";
 
 // tslint:disable-next-line:no-jquery-raw-elements
 const $modal = $("\
@@ -65,10 +66,12 @@ export function make(baseOpts: any):
         $modal.on("hide.bs.modal.modal", (ev: JQueryEventObject) => {
           ev.stopPropagation();
           ev.preventDefault();
-          diagnose(baseOpts.diagnose.serverURL).then(
-            () => {
-              window.location.reload();
-            }).suppressUnhandledRejections();
+          // tslint:disable-next-line:no-floating-promises
+          suppressUnhandledRejections(
+            diagnose(baseOpts.diagnose.serverURL).then(
+              () => {
+                window.location.reload();
+              }));
         });
         $modal.modal();
 

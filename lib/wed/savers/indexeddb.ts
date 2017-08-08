@@ -7,8 +7,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
-
 import { Runtime } from "../runtime";
 import * as saver from "../saver";
 import { TreeUpdater } from "../tree-updater";
@@ -17,7 +15,7 @@ export interface Store {
   put(name: string, data: string): Promise<void>;
 }
 
-export interface Options {
+export interface Options extends saver.SaverOptions {
   /**
    * The "name" of the file to save. This is the key used to save the file.
    */
@@ -60,7 +58,7 @@ export class Saver extends saver.Saver {
    */
   constructor(runtime: Runtime, version: string, dataUpdater: TreeUpdater,
               dataTree: Node, options: Options) {
-    super(runtime, version, dataUpdater, dataTree);
+    super(runtime, version, dataUpdater, dataTree, options);
     this.initialized = true;
     this.failed = false;
     this.name = options.name;

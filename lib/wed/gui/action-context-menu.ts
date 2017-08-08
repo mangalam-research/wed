@@ -479,14 +479,14 @@ export class ActionContextMenu extends Base {
       if (textFilter[0] === "^") {
         const textFilterRe = RegExp(textFilter);
         textMatch = (item: Item) => {
-          const text = (item.data !== null) ?
+          const text = (item.data !== null && item.data.name !== undefined) ?
             item.data.name : item.item.textContent!;
           return textFilterRe.test(text);
         };
       }
       else {
           textMatch = (item: Item) => {
-            const text = (item.data !== null) ?
+            const text = (item.data !== null && item.data.name !== undefined) ?
               item.data.name : item.item.textContent!;
             return text.indexOf(textFilter) !== -1;
           };
