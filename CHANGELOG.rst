@@ -29,6 +29,9 @@ odd bug fix may not get mentioned here at all.
 
   - ``editor.my_window`` is now ``editor.window``.
 
+  - Breaking changes: the first two parameters of ``editor.init`` have been
+    transferred to the constructor of the ``Editor`` class.
+
   - Breaking changes: Converted the core of wed to TS. This entails that the
     properties of ``Editor`` were converted to camel case: ``straddling_modal``,
     ``help_modal``, ``$error_list``, ```complex_pattern_action``, ``paste_tr``,

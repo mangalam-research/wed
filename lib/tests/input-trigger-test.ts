@@ -75,12 +75,12 @@ describe("InputTrigger", () => {
   });
 
   beforeEach(() => {
-    editor = new wed.Editor();
     const wedroot =
       (window.parent.document.getElementById("wedframe") as HTMLIFrameElement)
-      .contentWindow.document.getElementById("wedroot");
-    return editor.init(wedroot, mergeOptions({}, globalConfig.config, options),
-                       source)
+      .contentWindow.document.getElementById("wedroot")!;
+    editor = new wed.Editor(wedroot,
+                            mergeOptions({}, globalConfig.config, options));
+    return editor.init(source)
       .then(() => {
         mode = editor.modeTree.getMode(editor.guiRoot);
         pInBody = editor.dataRoot.querySelector("body p");

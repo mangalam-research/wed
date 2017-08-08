@@ -90,7 +90,7 @@ const FRAMEWORK_TEMPLATE = "\
   <div class='row'>\
    <div class='progress'>\
     <span></span>\
-    <div id='validation-progress' class='progress-bar' style='width: 0%'></div>\
+    <div class='wed-validation-progress progress-bar' style='width: 0%'></div>\
    </div>\
   </div>\
   <div class='row'>\
@@ -106,7 +106,7 @@ const FRAMEWORK_TEMPLATE = "\
    <div class='wed-location-bar'><span>&nbsp;</span></div>\
   </div>\
  </div>\
- <div id='sidebar' class='col-sm-pull-10 col-lg-2 col-md-2 col-sm-2'>\
+ <div class='wed-sidebar col-sm-pull-10 col-lg-2 col-md-2 col-sm-2'>\
   <div class='wed-save-and-modification-status'>\
    <span class='wed-modification-status label label-success' \
          title='Modification status'>\
@@ -175,37 +175,37 @@ export class Editor {
   private currentLabelLevel: number;
   /** A temporary initialization value. */
   private _dataChild: Element | undefined;
-  private scroller: Scroller;
-  private inputField: HTMLInputElement;
-  private $inputField: JQuery;
-  private cutBuffer: HTMLElement;
-  private caretLayer: Layer;
-  private errorLayer: ErrorLayer;
-  private wedLocationBar: HTMLElement;
-  private sidebar: HTMLElement;
-  private validationProgress: HTMLElement;
-  private validationMessage: HTMLElement;
-  private caretOwners: NodeList;
-  private clickedLabels: NodeList;
-  private withCaret: NodeList;
+  private readonly scroller: Scroller;
+  private readonly inputField: HTMLInputElement;
+  private readonly $inputField: JQuery;
+  private readonly cutBuffer: HTMLElement;
+  private readonly caretLayer: Layer;
+  private readonly errorLayer: ErrorLayer;
+  private readonly wedLocationBar: HTMLElement;
+  private readonly sidebar: HTMLElement;
+  private readonly validationProgress: HTMLElement;
+  private readonly validationMessage: HTMLElement;
+  private readonly caretOwners: NodeList;
+  private readonly clickedLabels: NodeList;
+  private readonly withCaret: NodeList;
+  private readonly $modificationStatus: JQuery;
+  private readonly $saveStatus: JQuery;
+  private readonly $navigationPanel: JQuery;
+  private readonly $navigationList: JQuery;
+  private readonly $excludedFromBlur: JQuery;
+  private readonly errorItemHandlerBound: ErrorItemHandler;
+  private _undo: UndoList;
   private guiUpdater: GUIUpdater;
   private undoRecorder: UndoRecorder;
-  private $modificationStatus: JQuery;
-  private $saveStatus: JQuery;
-  private $navigationPanel: JQuery;
   private limitationModal: Modal;
   private pasteModal: Modal;
   private disconnectModal: Modal;
   private editedByOtherModal: Modal;
   private tooOldModal: Modal;
-  private $navigationList: JQuery;
-  private $excludedFromBlur: JQuery;
-  private errorItemHandlerBound: ErrorItemHandler;
-  private _undo: UndoList;
   private saveStatusInterval: number | undefined;
   private readonly globalKeydownHandlers: KeydownHandler[] = [];
   private updatingPlaceholder: number = 0;
-  private preferences: preferences.Preferences;
+  private readonly preferences: preferences.Preferences;
   private composing: boolean = false;
   private compositionData: {
     // tslint:disable-next-line:no-any
@@ -224,37 +224,55 @@ export class Editor {
   readonly initialized: Promise<Editor>;
 
   /** The HTMLElement controlled by this editor */
-  widget: HTMLElement;
+  readonly widget: HTMLElement;
 
   /** Same as [[widget]] but as a jQuery object. */
-  $widget: JQuery;
+  readonly $widget: JQuery;
 
   /** The &lt;html> element that holds the widget. */
-  $frame: JQuery;
+  readonly $frame: JQuery;
 
   /** The window which holds the widget. */
-  window: Window;
+  readonly window: Window;
 
   /** The document which holds the widget. */
-  doc: Document;
+  readonly doc: Document;
+
+  /** The runtime associated with this editor. */
+  readonly runtime: Runtime;
+
+  /** The options used by this editor. */
+  readonly options: Options;
+
+  /** The root of the GUI tree. */
+  readonly guiRoot: HTMLElement;
+
+  /** Same as [[guiRoot]] but as a jQuery object. */
+  readonly $guiRoot: JQuery;
+
+  /** The list of errors in the sidebar. */
+  readonly $errorList: JQuery;
+
+  /**
+   * The action to perform is a user is tyring to do something with a complex
+   * pattern.
+   */
+  readonly complexPatternAction: Action<{}>;
+
+  /** Paste transformation. */
+  readonly pasteTr: Transformation<PasteTransformationData>;
+
+  /** Cut transformation. */
+  readonly cutTr: Transformation<TransformationData>;
+
+  /** Transformation for splitting nodes. */
+  readonly splitNodeTr: Transformation<TransformationData>;
 
   /** The root of the data tree. */
   dataRoot: Document;
 
   /** Same as [[dataRoot]] but as a jQuery object. */
   $dataRoot: JQuery;
-
-  /** The root of the GUI tree. */
-  guiRoot: HTMLElement;
-
-  /** Same as [[guiRoot]] but as a jQuery object. */
-  $guiRoot: JQuery;
-
-  /** The runtime associated with this editor. */
-  runtime: Runtime;
-
-  /** The options used by this editor. */
-  options: Options;
 
   /** The maximum label level that labels may have. */
   maxLabelLevel: number;
@@ -280,24 +298,6 @@ export class Editor {
   /** DOM listener on the GUI tree. */
   domlistener: domlistener.Listener;
 
-  /** The list of errors in the sidebar. */
-  $errorList: JQuery;
-
-  /**
-   * The action to perform is a user is tyring to do something with a complex
-   * pattern.
-   */
-  complexPatternAction: Action<{}>;
-
-  /** Paste transformation. */
-  pasteTr: Transformation<PasteTransformationData>;
-
-  /** Cut transformation. */
-  cutTr: Transformation<TransformationData>;
-
-  /** Transformation for splitting nodes. */
-  splitNodeTr: Transformation<TransformationData>;
-
   /** The link for the embedded documentation page. */
   docLink: string;
 
@@ -321,7 +321,8 @@ export class Editor {
 
   saver: Saver;
 
-  constructor() {
+  // tslint:disable-next-line:max-func-body-length
+  constructor(widget: HTMLElement, options: Options | Runtime) {
     // tslint:disable-next-line:promise-must-complete
     this.firstValidationComplete = new Promise((resolve) => {
       this.firstValidationCompleteResolve = resolve;
@@ -333,6 +334,171 @@ export class Editor {
     });
 
     onerror.editors.push(this);
+
+    this.widget = widget;
+    this.$widget = $(this.widget);
+
+    // We could be loaded in a frame in which case we should not alter anything
+    // outside our frame.
+    this.$frame = $(closest(this.widget, "html"));
+    const doc = this.doc = this.$frame[0].ownerDocument;
+    this.window = doc.defaultView;
+
+    // It is possible to pass a runtime as "options" but if the user passed
+    // actual options, then make a runtime from them.
+    this.runtime = (options instanceof Runtime) ? options :
+      new Runtime(options);
+    options = this.runtime.options;
+
+    // ignore_module_config allows us to completely ignore the module config. In
+    // some case, it may be difficult to just override individual values.
+    // tslint:disable-next-line:no-any strict-boolean-expressions
+    if ((options as any).ignore_module_config) {
+      console.warn("the option ignore_module_config is no longer useful");
+    }
+
+    const ajv = new Ajv();
+    const optionsValidator = ajv.compile(optionsSchema);
+
+    if (!optionsValidator(options)) {
+      // tslint:disable-next-line:prefer-template
+      throw new Error("the options passed to wed are not valid: " +
+                      // We need "as string" due to:
+                      // https://github.com/palantir/tslint/issues/2736
+                      (ajv.errorsText(optionsValidator.errors, {
+                        dataVar: "options",
+                      }) as string));
+    }
+
+    if (options.ajaxlog !== undefined) {
+      log.addURL(options.ajaxlog.url, options.ajaxlog.headers);
+    }
+
+    this.name = options.name !== undefined ? options.name : "";
+    this.options = options;
+
+    this.preferences = new preferences.Preferences({
+      tooltips: true,
+    });
+
+    // This structure will wrap around the document to be edited.
+    //
+    // We duplicate data-parent on the toggles and on the collapsible
+    // elements due to a bug in Bootstrap 3.0.0. See
+    // https://github.com/twbs/bootstrap/issues/9933.
+    //
+    const framework = htmlToElements(FRAMEWORK_TEMPLATE, doc)[0] as HTMLElement;
+
+    //
+    // Grab all the references we need while framework does not yet contain the
+    // document to be edited. (Faster!)
+    //
+
+    // $guiRoot represents the document root in the HTML elements displayed. The
+    // top level element of the XML document being edited will be the single
+    // child of $guiRoot.
+    const guiRoot = this.guiRoot =
+      framework.getElementsByClassName("wed-document")[0] as HTMLElement;
+    this.$guiRoot = $(guiRoot);
+    this.scroller =
+      new Scroller(
+        framework.getElementsByClassName("wed-scroller")[0] as HTMLElement);
+
+    this.inputField =
+      framework.getElementsByClassName("wed-comp-field")[0] as HTMLInputElement;
+    this.$inputField = $(this.inputField);
+    this.cutBuffer =
+      framework.getElementsByClassName("wed-cut-buffer")[0] as HTMLElement;
+
+    this.caretLayer = new Layer(
+      framework.getElementsByClassName("wed-caret-layer")[0] as HTMLElement);
+    this.errorLayer = new ErrorLayer(
+      framework.getElementsByClassName("wed-error-layer")[0] as HTMLElement);
+
+    this.wedLocationBar =
+      framework.getElementsByClassName("wed-location-bar")[0] as HTMLElement;
+
+    const sidebar = this.sidebar =
+      framework.getElementsByClassName("wed-sidebar")[0] as HTMLElement;
+
+    this.validationProgress =
+      framework
+      .getElementsByClassName("wed-validation-progress")[0] as HTMLElement;
+    this.validationMessage =
+      this.validationProgress.previousElementSibling as HTMLElement;
+
+    // Insert the framework and put the document in its proper place.
+    const rootPlaceholder = framework.getElementsByClassName("root-here")[0];
+
+    if (this.widget.firstChild !== null) {
+      // tslint:disable-next-line:no-any
+      if (!(this.widget.firstChild instanceof (this.window as any).Element)) {
+        throw new Error("the data is populated with DOM elements constructed " +
+                        "from another window");
+      }
+
+      rootPlaceholder.parentNode!.insertBefore(this.widget.firstChild,
+                                               rootPlaceholder);
+    }
+    rootPlaceholder.parentNode!.removeChild(rootPlaceholder);
+    this.widget.appendChild(framework);
+
+    this.caretOwners = guiRoot.getElementsByClassName("_owns_caret");
+    this.clickedLabels = guiRoot.getElementsByClassName("_label_clicked");
+    this.withCaret = guiRoot.getElementsByClassName("_with_caret");
+
+    this.$modificationStatus =
+      $(sidebar.getElementsByClassName("wed-modification-status")[0]);
+    this.$saveStatus =
+      $(sidebar.getElementsByClassName("wed-save-status")[0]);
+
+    this.$navigationPanel =
+      $(sidebar.getElementsByClassName("wed-navigation-panel")[0]);
+    this.$navigationPanel.css("display", "none");
+
+    this.$navigationList = $(doc.getElementById("navlist"));
+    this.$errorList = $(doc.getElementById("sb-errorlist"));
+    this.$excludedFromBlur = $();
+    this.errorItemHandlerBound = this.errorItemHandler.bind(this);
+    this._undo = new UndoList();
+
+    this.complexPatternAction = new ComplexPatternAction(
+      this, "Complex name pattern", undefined, icon.makeHTML("exclamation"),
+      true);
+
+    this.pasteTr = new Transformation(this, "add", "Paste",
+                                      this.paste.bind(this));
+    this.cutTr = new Transformation(this, "delete", "Cut", this.cut.bind(this));
+    this.splitNodeTr =
+      new Transformation(this, "split", "Split <name>",
+                         (editor, data) => {
+                           splitNode(editor, data.node!);
+                         });
+
+    this.mergeWithPreviousHomogeneousSiblingTr =
+      new Transformation(
+        this, "merge-with-previous", "Merge <name> with previous",
+        (editor, data) => {
+          mergeWithPreviousHomogeneousSibling(editor, data.node as Element);
+        });
+
+    this.mergeWithNextHomogeneousSiblingTr =
+      new Transformation(
+        this, "merge-with-next", "Merge <name> with next",
+        (editor, data) => {
+          mergeWithNextHomogeneousSibling(editor, data.node as Element);
+        });
+
+    // Setup the cleanup code.
+    $(this.window).on("unload.wed", { editor: this }, (e) => {
+      e.data.editor.destroy();
+    });
+
+    $(this.window).on("popstate.wed", () => {
+      if (document.location.hash === "") {
+        this.guiRoot.scrollTop = 0;
+      }
+    });
   }
 
   /**
@@ -933,22 +1099,7 @@ export class Editor {
   }
 
   // tslint:disable-next-line:max-func-body-length
-  async init(widget: HTMLElement, options: Options,
-             xmlData?: string): Promise<Editor> {
-    this.preferences = new preferences.Preferences({
-      tooltips: true,
-    });
-
-    this.widget = widget;
-    this.$widget = $(this.widget);
-
-    // We could be loaded in a frame in which case we should not alter anything
-    // outside our frame.
-    this.$frame = $(closest(this.widget, "html"));
-    const doc = this.$frame[0].ownerDocument;
-    this.window = doc.defaultView;
-    this.doc = doc;
-
+  async init(xmlData?: string): Promise<Editor> {
     const parser = new this.window.DOMParser();
     if (xmlData !== undefined && xmlData !== "") {
       this.dataRoot = parser.parseFromString(xmlData, "text/xml");
@@ -959,107 +1110,6 @@ export class Editor {
       this._dataChild = undefined;
     }
     this.dataRoot.removeChild(this.dataRoot.firstChild!);
-
-    // It is possible to pass a runtime as "options" but if the user passed
-    // actual options, then make a runtime from them.
-    this.runtime = (options instanceof Runtime) ? options :
-      new Runtime(options);
-    options = this.runtime.options;
-
-    // ignore_module_config allows us to completely ignore the module config. In
-    // some case, it may be difficult to just override individual values.
-    // tslint:disable-next-line:no-any strict-boolean-expressions
-    if ((options as any).ignore_module_config) {
-      console.warn("the option ignore_module_config is no longer useful");
-    }
-
-    const ajv = new Ajv();
-    const optionsValidator = ajv.compile(optionsSchema);
-
-    if (!optionsValidator(options)) {
-      // tslint:disable-next-line:prefer-template
-      throw new Error("the options passed to wed are not valid: " +
-                      // We need "as string" due to:
-                      // https://github.com/palantir/tslint/issues/2736
-                      (ajv.errorsText(optionsValidator.errors, {
-                        dataVar: "options",
-                      }) as string));
-    }
-
-    this.options = options;
-
-    this.name = options.name !== undefined ? options.name : "";
-
-    if (options.ajaxlog !== undefined) {
-      log.addURL(options.ajaxlog.url, options.ajaxlog.headers);
-    }
-
-    // This structure will wrap around the document to be edited.
-    //
-    // We duplicate data-parent on the toggles and on the collapsible
-    // elements due to a bug in Bootstrap 3.0.0. See
-    // https://github.com/twbs/bootstrap/issues/9933.
-    //
-    const framework = htmlToElements(FRAMEWORK_TEMPLATE, doc)[0] as HTMLElement;
-
-    //
-    // Grab all the references we need while framework does not yet contain the
-    // document to be edited. (Faster!)
-    //
-
-    // $guiRoot represents the document root in the HTML elements displayed. The
-    // top level element of the XML document being edited will be the single
-    // child of $guiRoot.
-    this.guiRoot =
-      framework.getElementsByClassName("wed-document")[0] as HTMLElement;
-    this.$guiRoot = $(this.guiRoot);
-    this.scroller =
-      new Scroller(
-        framework.getElementsByClassName("wed-scroller")[0] as HTMLElement);
-
-    this.inputField =
-      framework.getElementsByClassName("wed-comp-field")[0] as HTMLInputElement;
-    this.$inputField = $(this.inputField);
-    this.cutBuffer =
-      framework.getElementsByClassName("wed-cut-buffer")[0] as HTMLElement;
-
-    this.caretLayer = new Layer(
-      framework.getElementsByClassName("wed-caret-layer")[0] as HTMLElement);
-    this.errorLayer = new ErrorLayer(
-      framework.getElementsByClassName("wed-error-layer")[0] as HTMLElement);
-
-    this.wedLocationBar =
-      framework.getElementsByClassName("wed-location-bar")[0] as HTMLElement;
-
-    // Insert the framework and put the document in its proper place.
-    const rootPlaceholder = framework.getElementsByClassName("root-here")[0];
-
-    if (widget.firstChild !== null) {
-      // tslint:disable-next-line:no-any
-      if (!(widget.firstChild instanceof (this.window as any).Element)) {
-        throw new Error("the data is populated with DOM elements constructed " +
-                        "from another window");
-      }
-
-      rootPlaceholder.parentNode!.insertBefore(widget.firstChild,
-                                               rootPlaceholder);
-    }
-    rootPlaceholder.parentNode!.removeChild(rootPlaceholder);
-    this.widget.appendChild(framework);
-
-    // These call to getElementById must be done after we insert the framework
-    // into the document.
-    const sidebar = doc.getElementById("sidebar")!;
-    this.sidebar = sidebar;
-
-    this.validationProgress = doc.getElementById("validation-progress")!;
-    this.validationMessage =
-      this.validationProgress.previousElementSibling as HTMLElement;
-
-    this.caretOwners = this.guiRoot.getElementsByClassName("_owns_caret");
-    this.clickedLabels =
-      this.guiRoot.getElementsByClassName("_label_clicked");
-    this.withCaret = this.guiRoot.getElementsByClassName("_with_caret");
 
     // $dataRoot is the document we are editing, $guiRoot will become decorated
     // with all kinds of HTML elements so we keep the two separate.
@@ -1110,15 +1160,6 @@ export class Editor {
         }
       }
     });
-
-    this.$modificationStatus =
-      $(sidebar.getElementsByClassName("wed-modification-status")[0]);
-    this.$saveStatus =
-      $(sidebar.getElementsByClassName("wed-save-status")[0]);
-
-    this.$navigationPanel =
-      $(sidebar.getElementsByClassName("wed-navigation-panel")[0]);
-    this.$navigationPanel.css("display", "none");
 
     // The limitation modal is a modal that comes up when wed cannot proceed.
     // It is not created with this.makeModal() because we don't care about the
@@ -1201,54 +1242,9 @@ saved it. You must reload it before trying to edit further.");
 trying to edit further.");
     this.tooOldModal.addButton("Reload", true);
 
-    this.$navigationList = $(doc.getElementById("navlist"));
-
     this.domlistener = new domlistener.Listener(this.guiRoot, this.guiUpdater);
 
-    // Setup the cleanup code.
-
-    $(this.window).on("unload.wed", { editor: this }, (e) => {
-      e.data.editor.destroy();
-    });
-    $(this.window).on("popstate.wed", () => {
-      if (document.location.hash === "") {
-        this.guiRoot.scrollTop = 0;
-      }
-    });
-
-    this.$errorList = $(doc.getElementById("sb-errorlist"));
-    this.$excludedFromBlur = $();
-    this.errorItemHandlerBound = this.errorItemHandler.bind(this);
-    this._undo = new UndoList();
-
-    this.complexPatternAction = new ComplexPatternAction(
-      this, "Complex name pattern", undefined, icon.makeHTML("exclamation"),
-      true);
-
-    this.pasteTr = new Transformation(this, "add", "Paste",
-                                      this.paste.bind(this));
-    this.cutTr = new Transformation(this, "delete", "Cut", this.cut.bind(this));
-    this.splitNodeTr =
-      new Transformation(this, "split", "Split <name>",
-                         (editor, data) => {
-                           splitNode(editor, data.node!);
-                         });
-
-    this.mergeWithPreviousHomogeneousSiblingTr =
-      new Transformation(
-        this, "merge-with-previous", "Merge <name> with previous",
-        (editor, data) => {
-          mergeWithPreviousHomogeneousSibling(editor, data.node as Element);
-        });
-
-    this.mergeWithNextHomogeneousSiblingTr =
-      new Transformation(
-        this, "merge-with-next", "Merge <name> with next",
-        (editor, data) => {
-          mergeWithNextHomogeneousSibling(editor, data.node as Element);
-        });
-
-    this.modeTree = new ModeTree(this, options.mode);
+    this.modeTree = new ModeTree(this, this.options.mode);
 
     await this.modeTree.init();
     return this.onModeChange(this.modeTree.getMode(this.guiRoot));

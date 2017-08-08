@@ -100,9 +100,9 @@ define(function f(require) {
     .then(function start() {
       $(function ready() {
         var widget = document.getElementById("widget");
-        window.wed_editor = new wed.Editor();
         var finalOptions = mergeOptions({}, globalConfig.config, options);
-        window.wed_editor.init(widget, finalOptions, text);
+        window.wed_editor = new wed.Editor(widget, finalOptions);
+        window.wed_editor.init(text);
       });
     });
 });
