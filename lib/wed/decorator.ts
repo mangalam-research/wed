@@ -195,7 +195,7 @@ export abstract class Decorator {
       el.removeChild(remove);
     }
 
-    const attributesHTML = [];
+    let attributesHTML = "";
     let hiddenAttributes = false;
     const attributeHandling = this.editor.modeTree.getAttributeHandling(el);
     if (attributeHandling === "show" || attributeHandling === "edit") {
@@ -211,17 +211,13 @@ export abstract class Decorator {
 
         const extra = hideAttribute ? " _shown_when_caret_in_label" : "";
 
-        attributesHTML.push([
-          `<span class=\"_phantom _attribute${extra}\">`,
-          "<span class=\"_phantom _attribute_name\">", name,
-          "</span>=\"<span class=\"_phantom _attribute_value\">",
-          domutil.textToHTML(attributes[name]),
-          "</span>\"</span>",
-        ].join(""));
+        attributesHTML += ` \
+<span class="_phantom _attribute${extra}">\
+<span class="_phantom _attribute_name">${name}</span>=\
+"<span class="_phantom _attribute_value">\
+${domutil.textToHTML(attributes[name])}</span>"</span>`;
       }
     }
-    const attributesStr = (attributesHTML.length !== 0 ? " " : "") +
-      attributesHTML.join(" ");
 
     const doc = el.ownerDocument;
     cls += ` _label_level_${level}`;
@@ -238,7 +234,7 @@ export abstract class Decorator {
     prePh.className = "_phantom";
     // tslint:disable-next-line:no-inner-html
     prePh.innerHTML = `&nbsp;<span class='_phantom _element_name'>${origName}\
-</span>${attributesStr}<span class='_phantom _greater_than'> >&nbsp;</span>`;
+</span>${attributesHTML}<span class='_phantom _greater_than'> >&nbsp;</span>`;
     pre.appendChild(prePh);
     this.guiUpdater.insertNodeAt(el, 0, pre);
 
