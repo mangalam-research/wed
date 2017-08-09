@@ -1618,6 +1618,36 @@ export function isNotDisplayed(el: HTMLElement,
   return false;
 }
 
+/**
+ * A ``contains`` function that handles attributes. Attributes are not part of
+ * the node tree and performing a ``contains`` test on them is always ``false``.
+ *
+ * Yet it makes sense to say that an element A contains its own attributes and
+ * thus by transitivity if element A is contained by element B, then all
+ * attributes of A are contained by B. This function supports the contention
+ * just described.
+ *
+ * Usage note: this function is typically not *needed* when doing tests in the
+ * GUI tree because we do not address attributes in that tree. There is,
+ * however, no harm in using it where it is not strictly needed. In the data
+ * tree, however, we do address attributes. Code that works with either tree
+ * (e.g. the [["dloc"]] module) should use this function as a general rule so
+ * that it can work with either tree.
+ *
+ * @param container The thing which should contain in the test.
+ *
+ * @param contained The thing which should be contained in the test.
+ *
+ * @returns Whether ``container`` contains ``contained``.
+ */
+export function contains(container: Node, contained: Node): boolean {
+  if (isAttr(contained)) {
+    contained = contained.ownerElement;
+  }
+
+  return container.contains(contained);
+}
+
 // Re-export, for historical reasons.
 export { isAttr };
 

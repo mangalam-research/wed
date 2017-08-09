@@ -572,11 +572,7 @@ export class Editor {
         data.node = dataNode === null ? undefined : dataNode;
       }
       else {
-        // A data node could be an attribute node but unfortunately,
-        // ``contains`` does not work on such nodes so we need to manually
-        // handle it.
-        const check = isAttr(node) ? node.ownerElement : node;
-        if (!this.dataRoot.contains(check)) {
+        if (!domutil.contains(this.dataRoot, node)) {
           throw new Error("node is neither in the gui tree nor the data tree");
         }
       }

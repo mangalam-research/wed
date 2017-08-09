@@ -13,8 +13,9 @@ import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
 import { DLoc, DLocRoot } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
-import { childByClass, closestByClass, dumpRange, focusNode as focusTheNode,
-         getSelectionRange, indexOf, RangeInfo } from "./domutil";
+import { childByClass, closestByClass, contains, dumpRange,
+         focusNode as focusTheNode, getSelectionRange, indexOf,
+         RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
@@ -539,17 +540,11 @@ export class CaretManager implements GUIToDataConverter {
       return undefined;
     }
 
-    // Attribute nodes are not "contained" by anything. :-/
-    let check = node;
-    if (isAttr(node)) {
-      check = node.ownerElement;
-    }
-
     let root;
-    if (this.guiRootEl.contains(check)) {
+    if (this.guiRootEl.contains(node)) {
       root = this.guiRoot;
     }
-    else if (this.dataRootEl.contains(check)) {
+    else if (contains(this.dataRootEl, node)) {
       root = this.dataRoot;
     }
 

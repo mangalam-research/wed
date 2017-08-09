@@ -6,7 +6,7 @@
  */
 import * as mergeOptions from "merge-options";
 
-import { toGUISelector } from "./domutil";
+import { contains, toGUISelector } from "./domutil";
 import { Mode } from "./mode";
 import { ModeLoader } from "./mode-loader";
 import { Mode as ModeOption } from "./options";
@@ -271,7 +271,7 @@ export class ModeTree {
       return this.root;
     }
 
-    if (this.editor.dataRoot.contains(node)) {
+    if (contains(this.editor.dataRoot, node)) {
       const data = this.editor.fromDataNode(node);
       if (data !== null) {
         node = data;

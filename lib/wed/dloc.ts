@@ -7,7 +7,8 @@
 import * as $ from "jquery";
 import * as rangy from "rangy";
 import { isAttr, isDocument, isElement } from "./domtypeguards";
-import { Caret, indexOf, rangeFromPoints, RangeInfo } from "./domutil";
+import { Caret, contains, indexOf, rangeFromPoints,
+         RangeInfo } from "./domutil";
 
 export type ValidRoots = Document | Element;
 
@@ -45,12 +46,7 @@ export class DLocRoot {
       return "";
     }
 
-    let checkNode = node;
-    if (isAttr(node)) {
-      checkNode = node.ownerElement;
-    }
-
-    if (!root.contains(checkNode)) {
+    if (!contains(root, node)) {
       throw new Error("node is not a descendant of root");
     }
 
@@ -286,12 +282,7 @@ export class DLoc {
       throw new Error("root has not been marked as a root");
     }
 
-    if (isAttr(node)) {
-      if (!root.contains(node.ownerElement)) {
-        throw new Error("node not in root");
-      }
-    }
-    else if (!root.contains(node)) {
+    if (!contains(root, node)) {
       throw new Error("node not in root");
     }
 
