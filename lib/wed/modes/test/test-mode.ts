@@ -11,7 +11,7 @@ import { ErrorData } from "salve-dom";
 
 import { Action } from "wed/action";
 import { Decorator } from "wed/decorator";
-import { closestByClass, indexOf } from "wed/domutil";
+import { childrenByClass, closestByClass, indexOf } from "wed/domutil";
 import { GUISelector } from "wed/gui-selector";
 import * as context_menu from "wed/gui/context-menu";
 import { Modal } from "wed/gui/modal";
@@ -63,6 +63,10 @@ export class TestDecorator extends GenericDecorator {
 
   // tslint:disable:no-jquery-raw-elements
   elementDecorator(root: Element, el: Element): void {
+    if (this.editor.modeTree.getMode(el) !== this.mode) {
+      // The element is not governed by this mode.
+      return;
+    }
     const dataNode = this.editor.toDataNode(el) as Element;
     const rend = dataNode.getAttribute("rend");
 
@@ -140,6 +144,11 @@ export class TestDecorator extends GenericDecorator {
       case "wrap":
         if (closestByClass(el, "_gui_test") !== null) {
           break;
+        }
+
+        const toRemove = childrenByClass(el, "_gui");
+        for (const remove of toRemove) {
+          el.removeChild(remove);
         }
 
         const wrapper = $("<div class='_gui _phantom_wrap _gui_test btn " +

@@ -3,25 +3,18 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { expect } from "chai";
+import { expect, use } from "chai";
 import * as mergeOptions from "merge-options";
 import * as salve from "salve";
+import * as sinon from "sinon";
+import * as sinonChai from "sinon-chai";
+use(sinonChai);
 
 import * as log from "wed/log";
 import { ModeTree } from "wed/mode-tree";
 import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 import * as wed from "wed/wed";
-
-// Declare this for our own purposes.
-declare module "wed/onerror" {
-  export interface TestInterface {
-    reset(): void;
-  }
-
-  // tslint:disable-next-line:variable-name
-  export const __test: TestInterface;
-}
 
 import * as globalConfig from "./base-config";
 import { DataProvider } from "./global";
@@ -377,6 +370,78 @@ describe("ModeTree", () => {
       const validators = tree.getValidators();
       expect(validators).to.have.length(2);
       expect(validators).to.have.deep.property("[0].validateDocument");
+    });
+  });
+
+  describe("#addDecoratorHandlers", () => {
+    let tree: ModeTree;
+    let sandbox: sinon.SinonSandbox;
+
+    before(() => {
+      sandbox = sinon.sandbox.create();
+    });
+
+    beforeEach(async () => {
+      tree = new ModeTree(editor, options.mode);
+      await tree.init();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("calls addHandlers on all decorators", () => {
+      // tslint:disable-next-line:no-any
+      const root = (tree as any).root;
+      const decorators =
+        // tslint:disable-next-line:no-any
+        root.reduceTopFirst((accumulator: any[], node: any) => {
+          return accumulator.concat(node.decorator);
+        }, []);
+      const spies = [];
+      for (const decorator of decorators) {
+        spies.push(sandbox.spy(decorator, "addHandlers"));
+      }
+      tree.addDecoratorHandlers();
+      for (const spy of spies) {
+        expect(spy).to.have.been.calledOnce;
+      }
+    });
+  });
+
+  describe("#startListening", () => {
+    let tree: ModeTree;
+    let sandbox: sinon.SinonSandbox;
+
+    before(() => {
+      sandbox = sinon.sandbox.create();
+    });
+
+    beforeEach(async () => {
+      tree = new ModeTree(editor, options.mode);
+      await tree.init();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("calls startListening on all decorators", () => {
+      // tslint:disable-next-line:no-any
+      const root = (tree as any).root;
+      const decorators =
+        // tslint:disable-next-line:no-any
+        root.reduceTopFirst((accumulator: any[], node: any) => {
+          return accumulator.concat(node.decorator);
+        }, []);
+      const spies = [];
+      for (const decorator of decorators) {
+        spies.push(sandbox.spy(decorator, "startListening"));
+      }
+      tree.startListening();
+      for (const spy of spies) {
+        expect(spy).to.have.been.calledOnce;
+      }
     });
   });
 });

@@ -19,8 +19,10 @@
     <script>
       require.config({
           paths: {
-              'mocha': '/node_modules/mocha',
-              'chai': '/node_modules/chai/chai'
+              mocha: "/node_modules/mocha",
+              chai: "/node_modules/chai/chai",
+              sinon: "/downloads/sinon",
+              "sinon-chai": "/node_modules/sinon-chai/lib/sinon-chai",
           },
           shim: {
               'mocha/mocha': {
@@ -171,6 +173,7 @@
                    "tests/domutil_test",
                    "tests/wed_test", "tests/input-trigger-test",
                    "tests/mode-tree-test",
+                   "tests/wed-submode-test",
                    "tests/input_trigger_factory_test",
                    "tests/modal_test",
                    "tests/domlistener_test",

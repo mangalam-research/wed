@@ -6,6 +6,7 @@
  */
 import * as mergeOptions from "merge-options";
 
+import { Decorator } from "./decorator";
 import { contains, toGUISelector } from "./domutil";
 import { Mode } from "./mode";
 import { ModeLoader } from "./mode-loader";
@@ -35,6 +36,7 @@ export interface AttributeHidingSpecs {
  */
 class ModeNode {
   private _attributeHidingSpecs: AttributeHidingSpecs | null;
+  private _decorator: Decorator | undefined;
 
   /**
    * @param mode The mode that this node holds.
@@ -45,6 +47,7 @@ class ModeNode {
    * @param submodes The submodes set for this mode.
    */
   constructor(public readonly mode: Mode<{}>,
+              public readonly editor: Editor,
               public readonly selector: string,
               public readonly submodes: ModeNode[],
               public readonly wedOptions: CleanedWedOptions) {}
@@ -93,6 +96,14 @@ class ModeNode {
     return value;
   }
 
+  eachTopFirst(fn: (node: ModeNode) => void): void {
+    fn(this);
+
+    for (const submode of this.submodes) {
+      submode.eachTopFirst(fn);
+    }
+  }
+
   get attributeHidingSpecs(): AttributeHidingSpecs | null {
     if (this._attributeHidingSpecs === undefined) {
       const attributeHiding = this.wedOptions.attributes.autohide;
@@ -123,6 +134,14 @@ class ModeNode {
     }
 
     return this._attributeHidingSpecs;
+  }
+
+  get decorator(): Decorator {
+    if (this._decorator === undefined) {
+      this._decorator = this.mode.makeDecorator();
+    }
+
+    return this._decorator;
   }
 }
 
@@ -210,7 +229,7 @@ export class ModeTree {
     else {
       cleanedOptions = result;
     }
-    return new ModeNode(mode, selector, submodes, cleanedOptions);
+    return new ModeNode(mode, this.editor, selector, submodes, cleanedOptions);
   }
 
   /**
@@ -223,6 +242,13 @@ export class ModeTree {
    */
   getMode(node: Node): Mode<{}> {
     return this.getModeNode(node).mode;
+  }
+
+  /**
+   * Get the decorator that governs a node.
+   */
+  getDecorator(node: Node): Decorator {
+    return this.getModeNode(node).decorator;
   }
 
   /**
@@ -378,5 +404,23 @@ export class ModeTree {
         return validator !== undefined ?
           accumulator.concat(validator) : accumulator;
       }, []);
+  }
+
+  /**
+   * Call on each decorator to add its event handlers.
+   */
+  addDecoratorHandlers(): void {
+    this.root.eachTopFirst((node) => {
+      node.decorator.addHandlers();
+    });
+  }
+
+  /**
+   * Call on each decorator to start listening.
+   */
+  startListening(): void {
+    this.root.eachTopFirst((node) => {
+      node.decorator.startListening();
+    });
   }
 }

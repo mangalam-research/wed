@@ -14,7 +14,6 @@ import { Action } from "./action";
 import * as buildInfo from "./build-info";
 import { CaretChange, CaretManager } from "./caret-manager";
 import * as caretMovement from "./caret-movement";
-import { Decorator } from "./decorator";
 import { DLoc, DLocRoot } from "./dloc";
 import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
@@ -31,7 +30,7 @@ import { notify } from "./gui/notify";
 import { Scroller } from "./gui/scroller";
 import { tooltip } from "./gui/tooltip";
 import { TypeaheadPopup } from "./gui/typeahead-popup";
-import { GUIRoot } from "./guiroot";
+import { AttributeNotFound, GUIRoot } from "./guiroot";
 import { Key, makeKey } from "./key";
 import * as keyConstants from "./key-constants";
 import * as log from "./log";
@@ -309,8 +308,6 @@ export class Editor {
   mergeWithNextHomogeneousSiblingTr: Transformation<TransformationData>;
 
   modeTree: ModeTree;
-
-  decorator: Decorator;
 
   mode: Mode<{}>;
 
@@ -909,11 +906,28 @@ export class Editor {
     this.dataUpdater.setAttributeNS(dataReal, resolved.ns, resolved.name, val);
     // Redecoration of the attribute's element may have destroyed our old
     // attrVal node. Refetch. And after redecoration, the attribute value
-    // element may not have a child.
-    let moveTo = this.pathToNode(guiPath)!;
-    if (moveTo.firstChild !== null) {
-      moveTo = moveTo.firstChild;
+    // element may not have a child. Not only that, but the attribute may no
+    // longer be shown at all.
+    let moveTo;
+    try {
+      moveTo = this.pathToNode(guiPath)!;
+      if (moveTo.firstChild !== null) {
+        moveTo = moveTo.firstChild;
+      }
     }
+    catch (ex) {
+      if (!(ex instanceof AttributeNotFound)) {
+        throw ex;
+      }
+    }
+
+    // We don't have an attribute to go back to. Go back to the element that
+    // held the attribute.
+    if (moveTo == null) {
+      moveTo = dataReal;
+      offset = 0;
+    }
+
     this.caretManager.setCaret(moveTo, offset, { textEdit: true });
     textUndo.recordCaretAfter();
   }
@@ -1358,7 +1372,6 @@ trying to edit further.");
         }
       });
 
-    this.decorator = this.mode.makeDecorator();
     // Revalidate on attribute change.
     this.domlistener.addHandler(
       "attribute-changed",
@@ -1376,7 +1389,7 @@ trying to edit further.");
         }
       });
 
-    this.decorator.addHandlers();
+    this.modeTree.addDecoratorHandlers();
 
     this.domlistener.addHandler(
       "included-element",
@@ -1505,7 +1518,7 @@ trying to edit further.");
         attributePlaceholderHandler(target);
       });
 
-    this.decorator.startListening();
+    this.modeTree.startListening();
     if (this._dataChild !== undefined) {
       this.dataUpdater.insertAt(this.dataRoot, 0, this._dataChild);
     }
@@ -2905,11 +2918,12 @@ in a way not supported by this version of wed.";
     }
 
     if (guiNode != null) {
+      const decorator = this.modeTree.getDecorator(node);
       // guiNode is necessarily an Element if we get here.
       // And the property is necessarily set.
-      this.decorator.setReadOnly(guiNode as Element,
-                                 this.validator.getNodeProperty(
-                                   node, "PossibleDueToWildcard")!);
+      decorator.setReadOnly(guiNode as Element,
+                            this.validator.getNodeProperty(
+                              node, "PossibleDueToWildcard")!);
     }
 
     // If the GUI node does not exist yet, then the decorator will take care of

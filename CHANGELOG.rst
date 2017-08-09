@@ -27,6 +27,9 @@ odd bug fix may not get mentioned here at all.
     + ``Editor`` no longer has ``this.resolver``. The absolute resolver must be
       obtained through ``modeTree``.
 
+    + ``Editor`` no longer has a ``decorator`` property. The decorators must be
+      fetched through ``modeTree``.
+
   - ``editor.my_window`` is now ``editor.window``.
 
   - Breaking changes: the first two parameters of ``editor.init`` have been

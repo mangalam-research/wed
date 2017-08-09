@@ -82,6 +82,11 @@ export abstract class Decorator {
    * @param sep A separator.
    */
   listDecorator(el: Element, sep: string | Element): void {
+    if (this.editor.modeTree.getMode(el) !== this.mode) {
+      // The element is not governed by this mode.
+      return;
+    }
+
     // We expect to work with a homogeneous list. That is, all children the same
     // element.
     const nameMap: Record<string, number> = Object.create(null);
@@ -166,6 +171,11 @@ export abstract class Decorator {
                    postContextHandler: ((wedEv: JQueryMouseEventObject,
                                          ev: Event) => boolean) | undefined):
   void {
+    if (this.editor.modeTree.getMode(el) !== this.mode) {
+      // The element is not governed by this mode.
+      return;
+    }
+
     if (level > this.editor.maxLabelLevel) {
       throw new Error(
         `level higher than the maximum set by the mode: ${level}`);
