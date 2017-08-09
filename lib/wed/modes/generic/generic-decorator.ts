@@ -91,8 +91,6 @@ export class GenericDecorator extends Decorator {
                                 (root: Element, el: Element) => {
                                   this.elementDecorator(root, el);
                                 });
-
-    super.addHandlers();
   }
 
   elementDecorator(root: Element, el: Element): void {

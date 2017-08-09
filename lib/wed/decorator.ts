@@ -11,12 +11,11 @@ import * as salve from "salve";
 import { Action } from "./action";
 import { DLoc } from "./dloc";
 import { Listener } from "./domlistener";
-import { isAttr, isElement } from "./domtypeguards";
+import { isAttr } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { ActionContextMenu, Item } from "./gui/action-context-menu";
 import { TransformationData } from "./transformation";
-import { BeforeInsertNodeAtEvent, InsertNodeAtEvent } from "./tree-updater";
 import * as  util from "./util";
 import { Editor } from "./wed";
 
@@ -40,7 +39,7 @@ function attributeSelectorMatch(selector: string, name: string): boolean {
  * A decorator is responsible for adding decorations to a tree of DOM
  * elements. Decorations are GUI elements.
  */
-export class Decorator {
+export abstract class Decorator {
   /**
    * @param domlistener The listener that the decorator must use to know when
    * the DOM tree has changed and must be redecorated.
@@ -60,23 +59,7 @@ export class Decorator {
   /**
    * Request that the decorator add its event handlers to its listener.
    */
-  addHandlers(): void {
-    this.guiUpdater.events.subscribe((ev) => {
-      switch (ev.name) {
-      case "BeforeInsertNodeAt":
-        if (isElement(ev.node)) {
-          this.initialContentEditableHandler(ev);
-        }
-        break;
-      case "InsertNodeAt":
-        if (isElement(ev.node)) {
-          this.finalContentEditableHandler(ev);
-        }
-        break;
-      default:
-      }
-    });
-  }
+  abstract addHandlers(): void;
 
   /**
    * Start listening to changes to the DOM tree.
@@ -154,51 +137,6 @@ export class Decorator {
         }
       }
       child = child.nextElementSibling;
-    }
-  }
-
-  /**
-   * Handler for setting ``contenteditable`` on nodes included into the
-   * tree. This handler preforms an initial generic setup that does not need
-   * mode-specific information. It sets ``contenteditable`` to true on any real
-   * element or any attribute value.
-   */
-  initialContentEditableHandler(ev: BeforeInsertNodeAtEvent): void {
-    const mod = (el: Element) => {
-      // All elements that may get a selection must be focusable to
-      // work around issue:
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
-      el.setAttribute("tabindex", "-1");
-      el.setAttribute("contenteditable",
-                      String(el.classList.contains("_real") ||
-                              el.classList.contains("_attribute_value")));
-      let child = el.firstElementChild;
-      while (child !== null) {
-        mod(child);
-        child = child.nextElementSibling;
-      }
-    };
-
-    // We never call this function with something else than an Element for
-    // ev.node.
-    mod(ev.node as Element);
-  }
-
-  /**
-   * Handler for setting ``contenteditable`` on nodes included into the
-   * tree. This handler adjusts whether attribute values are editable by using
-   * mode-specific data.
-   */
-  finalContentEditableHandler(ev: InsertNodeAtEvent): void {
-    // We never call this function with something else than an Element for
-    // ev.node.
-    const el = ev.node as Element;
-
-    const attrs = el.getElementsByClassName("_attribute_value");
-    for (const attr of Array.from(attrs)) {
-      if (this.editor.modeTree.getAttributeHandling(attr) !== "edit") {
-        attr.setAttribute("contenteditable", "false");
-      }
     }
   }
 

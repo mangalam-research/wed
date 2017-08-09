@@ -48,7 +48,8 @@ import { Task, TaskRunner } from "./task-runner";
 import { insertElement, mergeWithNextHomogeneousSibling,
          mergeWithPreviousHomogeneousSibling, splitNode, Transformation,
          TransformationData } from "./transformation";
-import { TreeUpdater } from "./tree-updater";
+import { BeforeInsertNodeAtEvent, InsertNodeAtEvent,
+         TreeUpdater } from "./tree-updater";
 import { Undo, UndoList } from "./undo";
 import { UndoRecorder } from "./undo-recorder";
 import * as util from "./util";
@@ -1122,6 +1123,22 @@ export class Editor {
     this.guiUpdater = new GUIUpdater(this.guiRoot, this.dataUpdater);
     this.undoRecorder = new UndoRecorder(this, this.dataUpdater);
 
+    this.guiUpdater.events.subscribe((ev) => {
+      switch (ev.name) {
+      case "BeforeInsertNodeAt":
+        if (isElement(ev.node)) {
+          this.initialContentEditableHandler(ev);
+        }
+        break;
+      case "InsertNodeAt":
+        if (isElement(ev.node)) {
+          this.finalContentEditableHandler(ev);
+        }
+        break;
+      default:
+      }
+    });
+
     // This is a workaround for a problem in Bootstrap >= 3.0.0 <= 3.2.0. When
     // removing a Node that has an tooltip associated with it and the trigger is
     // delayed, a timeout is started which may timeout *after* the Node and its
@@ -1671,6 +1688,51 @@ wed's generic help. The link by default will open in a new tab.</p>`);
     await savePromise;
     this.initializedResolve(this);
     return this;
+  }
+
+  /**
+   * Handler for setting ``contenteditable`` on nodes included into the
+   * tree. This handler preforms an initial generic setup that does not need
+   * mode-specific information. It sets ``contenteditable`` to true on any real
+   * element or any attribute value.
+   */
+  private initialContentEditableHandler(ev: BeforeInsertNodeAtEvent): void {
+    const mod = (el: Element) => {
+      // All elements that may get a selection must be focusable to
+      // work around issue:
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
+      el.setAttribute("tabindex", "-1");
+      el.setAttribute("contenteditable",
+                      String(el.classList.contains("_real") ||
+                             el.classList.contains("_attribute_value")));
+      let child = el.firstElementChild;
+      while (child !== null) {
+        mod(child);
+        child = child.nextElementSibling;
+      }
+    };
+
+    // We never call this function with something else than an Element for
+    // ev.node.
+    mod(ev.node as Element);
+  }
+
+  /**
+   * Handler for setting ``contenteditable`` on nodes included into the
+   * tree. This handler adjusts whether attribute values are editable by using
+   * mode-specific data.
+   */
+  private finalContentEditableHandler(ev: InsertNodeAtEvent): void {
+    // We never call this function with something else than an Element for
+    // ev.node.
+    const el = ev.node as Element;
+
+    const attrs = el.getElementsByClassName("_attribute_value");
+    for (const attr of Array.from(attrs)) {
+      if (this.modeTree.getAttributeHandling(attr) !== "edit") {
+        attr.setAttribute("contenteditable", "false");
+      }
+    }
   }
 
   private initializeNamespaces(): string | undefined {
