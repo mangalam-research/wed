@@ -32,6 +32,9 @@ odd bug fix may not get mentioned here at all.
   - Breaking changes: the first two parameters of ``editor.init`` have been
     transferred to the constructor of the ``Editor`` class.
 
+  - Breaking change. The signature for the constructor for ``Decorator`` has
+    changed to allow a simpler way to create decorators.
+
   - Breaking changes: Converted the core of wed to TS. This entails that the
     properties of ``Editor`` were converted to camel case: ``straddling_modal``,
     ``help_modal``, ``$error_list``, ```complex_pattern_action``, ``paste_tr``,

@@ -196,7 +196,6 @@ export class Editor {
   private readonly $excludedFromBlur: JQuery;
   private readonly errorItemHandlerBound: ErrorItemHandler;
   private _undo: UndoList;
-  private guiUpdater: GUIUpdater;
   private undoRecorder: UndoRecorder;
   private limitationModal: Modal;
   private pasteModal: Modal;
@@ -286,6 +285,9 @@ export class Editor {
 
   /** The updater through which all data tree manipulations must be made. */
   dataUpdater: TreeUpdater;
+
+  /** The updater through which all GUI tree manipulations must be made. */
+  guiUpdater: GUIUpdater;
 
   /** Modal to display when there is an XML straddling error. */
   straddlingModal: Modal;
@@ -1360,8 +1362,7 @@ trying to edit further.");
         }
       });
 
-    this.decorator = this.mode.makeDecorator(this.domlistener,
-                                             this, this.guiUpdater);
+    this.decorator = this.mode.makeDecorator();
     // Revalidate on attribute change.
     this.domlistener.addHandler(
       "attribute-changed",

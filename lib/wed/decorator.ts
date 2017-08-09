@@ -15,6 +15,7 @@ import { isAttr } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { ActionContextMenu, Item } from "./gui/action-context-menu";
+import { Mode } from "./mode";
 import { TransformationData } from "./transformation";
 import * as  util from "./util";
 import { Editor } from "./wed";
@@ -40,6 +41,10 @@ function attributeSelectorMatch(selector: string, name: string): boolean {
  * elements. Decorations are GUI elements.
  */
 export abstract class Decorator {
+  protected readonly namespaces: Record<string, string>;
+  protected readonly domlistener: Listener;
+  protected readonly guiUpdater: GUIUpdater;
+
   /**
    * @param domlistener The listener that the decorator must use to know when
    * the DOM tree has changed and must be redecorated.
@@ -48,13 +53,13 @@ export abstract class Decorator {
    *
    * @param guiUpdater The updater to use to modify the GUI tree. All
    * modifications to the GUI must go through this updater.
-   *
-   * @param namespaces A copy of the absolute namespace mappings in effect.
    */
-  constructor(protected readonly domlistener: Listener,
-              protected readonly editor: Editor,
-              protected readonly guiUpdater: GUIUpdater,
-              protected readonly namespaces: Record<string, string>) {}
+  constructor(protected readonly mode: Mode<{}>,
+              protected readonly editor: Editor) {
+    this.domlistener = editor.domlistener;
+    this.guiUpdater = editor.guiUpdater;
+    this.namespaces = mode.getAbsoluteNamespaceMappings();
+  }
 
   /**
    * Request that the decorator add its event handlers to its listener.

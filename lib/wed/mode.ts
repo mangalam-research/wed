@@ -11,10 +11,8 @@ import { EName, NameResolver } from "salve";
 
 import { Action } from "./action";
 import { Decorator } from "./decorator";
-import * as domlistener from "./domlistener";
 import { isElement } from "./domtypeguards";
 import * as domutil from "./domutil";
-import { GUIUpdater } from "./gui-updater";
 import { ModeValidator } from "./validator";
 import { Editor } from "./wed";
 import { WedOptions } from "./wed-options";
@@ -80,8 +78,7 @@ export interface Mode<ModeOptions> {
   /**
    * Make a decorator that this mode will use.
    */
-  makeDecorator(domlistener: domlistener.Listener,
-                editor: Editor, guiUpdater: GUIUpdater): Decorator;
+  makeDecorator(): Decorator;
 
   /**
    * Modes must implement this method to specify what transformations they allow
@@ -324,8 +321,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   abstract getAbsoluteNamespaceMappings(): Record<string, string>;
   abstract unresolveName(name: EName): string | undefined;
   abstract getAbsoluteResolver(): NameResolver;
-  abstract makeDecorator(domlistener: domlistener.Listener,
-                         editor: Editor, guiUpdater: GUIUpdater): Decorator;
+  abstract makeDecorator(): Decorator;
   abstract getContextualActions(transformationType: string | string[],
                                 tag: string,
                                 container: Node,

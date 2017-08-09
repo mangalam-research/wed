@@ -5,9 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { Decorator } from "wed/decorator";
-import { Listener } from "wed/domlistener";
 import { isElement, isText } from "wed/domtypeguards";
-import { GUIUpdater } from "wed/gui-updater";
 import { Mode } from "wed/mode";
 import * as util from "wed/util";
 import { Editor } from "wed/wed";
@@ -21,27 +19,20 @@ export class GenericDecorator extends Decorator {
   /**
    * @param mode The mode object.
    *
+   * @param editor The wed editor to which the mode is applied.
+   *
    * @param metadata Meta-information about the schema.
    *
    * @param options The options object passed to the mode which uses this
    * decorator.
    *
-   * @param listener The DOM listener that will listen to changes on the
-   * document.
-   *
-   * @param editor The wed editor to which the mode is applied.
-   *
-   * @param guiUpdater The updater to use to modify the GUI tree. All
-   * modifications to the GUI must go through this updater.
    */
   // tslint:disable-next-line:no-any
-  constructor(protected readonly mode: Mode<any>,
+  constructor(mode: Mode<{}>, editor: Editor,
               protected readonly metadata: Metadata,
               // tslint:disable-next-line:no-any
-              protected readonly options: any,
-              domlistener: Listener,
-              editor: Editor, guiUpdater: GUIUpdater) {
-    super(domlistener, editor, guiUpdater, mode.getAbsoluteNamespaceMappings());
+              protected readonly options: any) {
+    super(mode, editor);
   }
 
   addHandlers(): void {

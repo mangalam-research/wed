@@ -11,10 +11,8 @@ import { ErrorData } from "salve-dom";
 
 import { Action } from "wed/action";
 import { Decorator } from "wed/decorator";
-import { Listener } from "wed/domlistener";
 import { closestByClass, indexOf } from "wed/domutil";
 import { GUISelector } from "wed/gui-selector";
-import { GUIUpdater } from "wed/gui-updater";
 import * as context_menu from "wed/gui/context-menu";
 import { Modal } from "wed/gui/modal";
 import * as input_trigger_factory from "wed/input-trigger-factory";
@@ -414,10 +412,8 @@ export class TestMode extends GenericMode<TestModeOptions> {
     return ret;
   }
 
-  makeDecorator(domlistener: Listener,
-                editor: Editor, guiUpdater: GUIUpdater): GenericDecorator {
-    return new TestDecorator(this, this.metadata, this.options,
-                             domlistener, editor, guiUpdater);
+  makeDecorator(): GenericDecorator {
+    return new TestDecorator(this, this.editor, this.metadata, this.options);
   }
 
   getAttributeCompletions(attr: Attr): string[] {

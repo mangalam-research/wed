@@ -9,8 +9,6 @@ import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
 import { Action } from "wed/action";
-import { Listener } from "wed/domlistener";
-import { GUIUpdater } from "wed/gui-updater";
 import { BaseMode } from "wed/mode";
 import * as objectCheck from "wed/object-check";
 import { Transformation, TransformationData } from "wed/transformation";
@@ -168,10 +166,8 @@ class GenericMode<Options extends GenericModeOptions>
     return this.resolver;
   }
 
-  makeDecorator(domlistener: Listener,
-                editor: Editor, guiUpdater: GUIUpdater): GenericDecorator {
-    return new GenericDecorator(this, this.metadata, this.options,
-                                domlistener, editor, guiUpdater);
+  makeDecorator(): GenericDecorator {
+    return new GenericDecorator(this, this.editor, this.metadata, this.options);
   }
 
   /**
