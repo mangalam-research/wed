@@ -252,8 +252,8 @@ export abstract class Decorator {
     post.appendChild(postPh);
     this.guiUpdater.insertBefore(el, post, null);
 
-    // Setup a handler so that clicking one label highlights it and
-    // the other label.
+    // Setup a handler so that clicking one label highlights it and the other
+    // label.
     $(pre).on("wed-context-menu",
               preContextHandler !== undefined ? preContextHandler : false);
 
@@ -278,7 +278,7 @@ export abstract class Decorator {
    *
    * @returns ``true`` if the attribute must be hidden. ``false`` otherwise.
    */
-  mustHideAttribute(el: Element, name: string): boolean {
+  protected mustHideAttribute(el: Element, name: string): boolean {
     const specs = this.editor.modeTree.getAttributeHidingSpecs(el);
     if (specs === null) {
       return false;
