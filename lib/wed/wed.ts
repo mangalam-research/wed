@@ -11,7 +11,6 @@ import * as salve from "salve";
 import { WorkingState, WorkingStateData } from "salve-dom";
 
 import { Action } from "./action";
-import * as buildInfo from "./build-info";
 import { CaretChange, CaretManager } from "./caret-manager";
 import * as caretMovement from "./caret-movement";
 import { DLoc, DLocRoot } from "./dloc";
@@ -43,6 +42,7 @@ import * as optionsSchema from "./options-schema.json";
 import * as preferences from "./preferences";
 import { Runtime } from "./runtime";
 import { FailedEvent, SaveKind, Saver, SaverConstructor } from "./saver";
+import { StockModals } from "./stock-modals";
 import { Task, TaskRunner } from "./task-runner";
 import { insertElement, mergeWithNextHomogeneousSibling,
          mergeWithPreviousHomogeneousSibling, splitNode, Transformation,
@@ -75,8 +75,25 @@ function filterSaveEvents(name: string, ev: { name: string }): boolean {
  * An action for bringing up the complex pattern modal.
  */
 class ComplexPatternAction extends Action<{}> {
+  private _modal: Modal | undefined;
+
+  get modal(): Modal {
+    if (this._modal === undefined) {
+      const modal = this._modal = this.editor.makeModal();
+      modal.setTitle("Complex Name Pattern Encountered");
+      modal.setBody(
+        "<p>The schema contains here a complex name pattern modal. While wed \
+has no problem validating such cases. It does not currently have facilities to \
+add elements or attributes that match such patterns. You can continue editing \
+your document but you will not be able to take advantage of the possibilities \
+provided by the complex pattern here.</p>");
+      modal.addButton("Ok", true);
+    }
+    return this._modal;
+  }
+
   execute(): void {
-    this.editor.complexPatternModal.modal();
+    this.modal.modal();
   }
 }
 
@@ -196,11 +213,6 @@ export class Editor {
   private readonly errorItemHandlerBound: ErrorItemHandler;
   private _undo: UndoList;
   private undoRecorder: UndoRecorder;
-  private limitationModal: Modal;
-  private pasteModal: Modal;
-  private disconnectModal: Modal;
-  private editedByOtherModal: Modal;
-  private tooOldModal: Modal;
   private saveStatusInterval: number | undefined;
   private readonly globalKeydownHandlers: KeydownHandler[] = [];
   private updatingPlaceholder: number = 0;
@@ -288,20 +300,14 @@ export class Editor {
   /** The updater through which all GUI tree manipulations must be made. */
   guiUpdater: GUIUpdater;
 
-  /** Modal to display when there is an XML straddling error. */
-  straddlingModal: Modal;
-
-  /** The modal that shows generic help. */
-  helpModal: Modal;
-
-  /** A modal to present when encountering a complex name pattern. */
-  complexPatternModal: Modal;
-
   /** DOM listener on the GUI tree. */
   domlistener: domlistener.Listener;
 
   /** The link for the embedded documentation page. */
   docLink: string;
+
+  /** A collection of stock modals. */
+  modals: StockModals;
 
   mergeWithPreviousHomogeneousSiblingTr: Transformation<TransformationData>;
 
@@ -347,6 +353,8 @@ export class Editor {
     this.runtime = (options instanceof Runtime) ? options :
       new Runtime(options);
     options = this.runtime.options;
+
+    this.modals = new StockModals(this);
 
     // ignore_module_config allows us to completely ignore the module config. In
     // some case, it may be difficult to just override individual values.
@@ -988,17 +996,17 @@ export class Editor {
     const error = event.error;
     if (error.type === "too_old") {
       // Reload when the modal is dismissed.
-      this.tooOldModal.modal(
+      this.modals.getModal("tooOld").modal(
         this.window.location.reload.bind(this.window.location));
     }
     else if (error.type === "save_disconnected") {
-      this.disconnectModal.modal(() => {
+      this.modals.getModal("disconnect").modal(() => {
         // tslint:disable-next-line:no-floating-promises
         this.save();
       });
     }
     else if (error.type === "save_edited") {
-      this.editedByOtherModal.modal(() => {
+      this.modals.getModal("editedByOther").modal(() => {
         this.window.location.reload();
       });
     }
@@ -1110,7 +1118,6 @@ export class Editor {
     this.destroy = function fakeDestroy(): void {};
   }
 
-  // tslint:disable-next-line:max-func-body-length
   async init(xmlData?: string): Promise<Editor> {
     const parser = new this.window.DOMParser();
     if (xmlData !== undefined && xmlData !== "") {
@@ -1189,86 +1196,9 @@ export class Editor {
       }
     });
 
-    // The limitation modal is a modal that comes up when wed cannot proceed.
-    // It is not created with this.makeModal() because we don't care about the
-    // selection.
-    this.limitationModal = new Modal();
-    this.limitationModal.setTitle("Cannot proceed");
-
-    this.complexPatternModal = this.makeModal();
-    this.complexPatternModal.setTitle("Complex Name Pattern Encountered");
-    this.complexPatternModal.setBody(
-      "<p>The schema contains here a complex name pattern modal. While wed has \
-no problem validating such cases. It does not currently have facilities to add \
-elements or attributes that match such patterns. You can continue editing your \
-document but you will not be able to take advantage of the possibilities \
-provided by the complex pattern here.</p>");
-    this.complexPatternModal.addButton("Ok", true);
-
-    this.pasteModal = this.makeModal();
-    this.pasteModal.setTitle("Invalid structure");
-    this.pasteModal.setBody("<p>The data you are trying to paste appears to be \
-XML. However, pasting it here will result in a structurally invalid document. \
-Do you want to paste it as text instead? (If you answer negatively, the data \
-won't be pasted at all.)<p>");
-    this.pasteModal.addYesNo();
-
-    this.straddlingModal = this.makeModal();
-    this.straddlingModal.setTitle("Invalid modification");
-    this.straddlingModal.setBody("<p>The text selected straddles disparate \
-elements of the document. You may be able to achieve what you want to do by \
-selecting smaller sections.<p>");
-    this.straddlingModal.addButton("Ok", true);
-
-    const docLink = this.docLink =
+    this.docLink =
       // tslint:disable-next-line:no-any
       (require as any).toUrl("../../doc/index.html") as string;
-    this.helpModal = this.makeModal();
-    this.helpModal.setTitle("Help");
-    this.helpModal.setBody(`
-<p>Click <a href='${docLink}' target='_blank'>this link</a> to see
-wed's generic help. The link by default will open in a new tab.</p>
-<p>The key combinations with Ctrl below are done with Command in OS X.</p>
-<ul>
-  <li>Clicking the right mouse button on the document contents brings up a
-contextual menu.</li>
-  <li>F1: help</li>
-  <li>Ctrl-[: Decrease the label visibility level.</li>
-  <li>Ctrl-]: Increase the label visibility level.</li>
-  <li>Ctrl-S: Save</li>
-  <li>Ctrl-X: Cut</li>
-  <li>Ctrl-V: Paste</li>
-  <li>Ctrl-C: Copy</li>
-  <li>Ctrl-Z: Undo</li>
-  <li>Ctrl-Y: Redo</li>
-  <li>Ctrl-/: Bring up a contextual menu.</li>
-</ul>
-<p class='wed-build-info'>Build descriptor: ${buildInfo.desc}<br/>
-Build date: ${buildInfo.date}</p>`);
-    this.helpModal.addButton("Close", true);
-
-    this.disconnectModal = this.makeModal();
-    this.disconnectModal.setTitle("Disconnected from server!");
-    this.disconnectModal.setBody(
-      "It appears your browser is disconnected from the server. Editing is \
-frozen until the connection is reestablished. Dismissing this dialog will \
-retry saving. If the operation is successful, you'll be able to continue \
-editing. If not, this message will reappear.");
-    this.disconnectModal.addButton("Retry", true);
-
-    this.editedByOtherModal = this.makeModal();
-    this.editedByOtherModal.setTitle("Edited by another!");
-    this.editedByOtherModal.setBody(
-      "Your document was edited by someone else since you last loaded or \
-saved it. You must reload it before trying to edit further.");
-    this.editedByOtherModal.addButton("Reload", true);
-
-    this.tooOldModal = this.makeModal();
-    this.tooOldModal.setTitle("Newer version!");
-    this.tooOldModal.setBody(
-      "There is a newer version of the editor. You must reload it before \
-trying to edit further.");
-    this.tooOldModal.addButton("Reload", true);
 
     this.domlistener = new domlistener.Listener(this.guiRoot, this.guiUpdater);
 
@@ -1620,8 +1550,9 @@ trying to edit further.");
 
     const namespaceError = this.initializeNamespaces();
     if (namespaceError !== undefined) {
-      this.limitationModal.setBody(namespaceError);
-      this.limitationModal.modal();
+      const limitationModal = this.modals.getModal("limitation");
+      limitationModal.setBody(namespaceError);
+      limitationModal.modal();
       this.destroy();
       return this;
     }
@@ -1990,7 +1921,7 @@ in a way not supported by this version of wed.";
       return true;
     }
 
-    this.straddlingModal.modal();
+    this.modals.getModal("straddling").modal();
     return false;
   }
 
@@ -2046,8 +1977,9 @@ in a way not supported by this version of wed.";
       if (errors) {
         // We need to save this before we bring up the modal because clicking to
         // dismiss the modal will mangle ``cd``.
-        this.pasteModal.modal(() => {
-          if (this.pasteModal.getClickedAsText() === "Yes") {
+        const modal = this.modals.getModal("paste");
+        modal.modal(() => {
+          if (modal.getClickedAsText() === "Yes") {
             data = this.doc.createElement("div");
             data.textContent = text;
             // At this point data is a single top level fake <div> element which
@@ -2122,7 +2054,7 @@ in a way not supported by this version of wed.";
 
     // F1
     if (e.which === 112) {
-      this.helpModal.modal();
+      this.modals.getModal("help").modal();
       return terminate();
     }
 

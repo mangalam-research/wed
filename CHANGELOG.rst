@@ -23,10 +23,13 @@ odd bug fix may not get mentioned here at all.
     ``editor.modeTree`` instead: ``mode``, ``attributes``, ``attributeHiding``,
     ``resolver``, ``decorator``.
 
-  - ``editor.my_window`` is now ``editor.window``.
+  - Breaking change: ``editor.my_window`` is now ``editor.window``.
 
   - Breaking changes: the first two parameters of ``editor.init`` have been
     transferred to the constructor of the ``Editor`` class.
+
+  - Breaking change: the modals are now accessible through the ``modals``
+    property of editors rather than as individual names.
 
   - Breaking change. The signature for the constructor for ``Decorator`` has
     changed to allow a simpler way to create decorators.
