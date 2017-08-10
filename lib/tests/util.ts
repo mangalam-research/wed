@@ -1,4 +1,5 @@
 /**
+ * Utilities that don't require a DOM to run.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
