@@ -8,7 +8,7 @@
         <tei:p rend="wrap">Wrapped</tei:p>
       </tei:publicationStmt>
       <tei:sourceDesc>
-        <tei:p></tei:p>
+        <tei:p n=""></tei:p>
       </tei:sourceDesc>
     </tei:fileDesc>
   </tei:teiHeader>

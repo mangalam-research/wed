@@ -29,7 +29,6 @@ function errFilter(err: ErrorData): boolean {
  * @param editor The editor which owns the element.
  */
 function _autoinsert(el: Element, editor: Editor): void {
-  const mode = editor.mode;
   // tslint:disable-next-line:no-constant-condition strict-boolean-expressions
   while (true) {
     let errors = editor.validator.getErrorsFor(el);
@@ -55,6 +54,7 @@ function _autoinsert(el: Element, editor: Editor): void {
       break;
     }
 
+    const mode = editor.modeTree.getMode(el);
     const unresolved =
       mode.getAbsoluteResolver().unresolveName(name.ns, name.name);
     if (unresolved === undefined) {
@@ -90,7 +90,8 @@ function executeInsert(editor: Editor, data: NamedTransformationData): void {
     throw new Error("inserting without a defined caret!");
   }
 
-  const absoluteResolver = editor.mode.getAbsoluteResolver();
+  const mode = editor.modeTree.getMode(caret.node);
+  const absoluteResolver = mode.getAbsoluteResolver();
   const ename = absoluteResolver.resolveName(data.name);
   if (ename === undefined) {
     throw new Error(`cannot resolve ${data.name}`);
@@ -111,8 +112,7 @@ function executeInsert(editor: Editor, data: NamedTransformationData): void {
   }
 
   let caretNode: Node | null = el;
-  // tslint:disable-next-line:no-any
-  if ((editor.mode.getModeOptions() as any).autoinsert as boolean) {
+  if (mode.getModeOptions().autoinsert as boolean) {
     _autoinsert(el, editor);
 
     // Set el to the deepest first child, so that the caret is put in the right
@@ -149,7 +149,8 @@ function executeWrap(editor: Editor, data: NamedTransformationData): void {
     throw new Error("wrap transformation called with collapsed range");
   }
   const [startCaret, endCaret] = sel.mustAsDataCarets();
-  const ename = editor.mode.getAbsoluteResolver().resolveName(data.name);
+  const mode = editor.modeTree.getMode(startCaret.node);
+  const ename = mode.getAbsoluteResolver().resolveName(data.name);
   if (ename === undefined) {
     throw new Error(`cannot resolve ${data.name}`);
   }
@@ -169,7 +170,8 @@ function executeWrapContent(editor: Editor,
     throw new Error("node must be an element");
   }
 
-  const ename = editor.mode.getAbsoluteResolver().resolveName(data.name);
+  const mode = editor.modeTree.getMode(toWrap);
+  const ename = mode.getAbsoluteResolver().resolveName(data.name);
   if (ename === undefined) {
     throw new Error(`cannot resolve ${data.name}`);
   }

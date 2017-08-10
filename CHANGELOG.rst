@@ -18,17 +18,10 @@ odd bug fix may not get mentioned here at all.
     supporting the new "submode" feature.
 
   - Breaking changes: Addition of the submode feature, which causes breaking
-    changes. This matters if you designed your own mode:
-
-    + ``Editor`` no longer has ``this.attributes`` and
-      ``this.attributeHiding``. The information they provided must be sought
-      from methods on ``Editor``'s ``modeTree`` property.
-
-    + ``Editor`` no longer has ``this.resolver``. The absolute resolver must be
-      obtained through ``modeTree``.
-
-    + ``Editor`` no longer has a ``decorator`` property. The decorators must be
-      fetched through ``modeTree``.
+    changes. This matters if you designed your own mode. ``Editor`` no longer
+    has the following properties. They must be fetched through
+    ``editor.modeTree`` instead: ``mode``, ``attributes``, ``attributeHiding``,
+    ``resolver``, ``decorator``.
 
   - ``editor.my_window`` is now ``editor.window``.
 

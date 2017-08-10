@@ -309,8 +309,6 @@ export class Editor {
 
   modeTree: ModeTree;
 
-  mode: Mode;
-
   caretManager: CaretManager;
 
   validator: Validator;
@@ -899,7 +897,8 @@ export class Editor {
     const guiPath = this.nodeToPath(attrVal);
     const name =
       domutil.siblingByClass(attrVal, "_attribute_name")!.textContent!;
-    const resolved = this.mode.getAbsoluteResolver().resolveName(name, true);
+    const mode = this.modeTree.getMode(attrVal);
+    const resolved = mode.getAbsoluteResolver().resolveName(name, true);
     if (resolved === undefined) {
       throw new Error(`cannot resolve ${name}`);
     }
@@ -1286,7 +1285,6 @@ trying to edit further.");
     if (this.destroyed) {
       return this;
     }
-    this.mode = mode;
 
     this.maxLabelLevel = this.modeTree.getMaxLabelLevel();
     this.currentLabelLevel = this.modeTree.getInitialLabelLevel();
@@ -1300,7 +1298,6 @@ trying to edit further.");
     this.guiRoot.setAttribute("tabindex", "-1");
     this.$guiRoot.focus();
 
-    const modeTree = this.modeTree;
     this.caretManager = new CaretManager(
       this.guiDLocRoot,
       this.dataDLocRoot,
@@ -1308,8 +1305,7 @@ trying to edit further.");
       this.guiUpdater,
       this.caretLayer,
       this.scroller,
-      (node) => modeTree.getAttributeHandling(node) === "edit",
-      this.mode);
+      this.modeTree);
     this.editingMenuManager = new EditingMenuManager(this);
     this.caretManager.events.subscribe(this.caretChange.bind(this));
     this.resizeHandler();
@@ -1451,14 +1447,15 @@ trying to edit further.");
              (toConsider.length === 1 &&
               removed.indexOf(toConsider[0]) !== -1)) {
            if (ph === undefined) {
-             const nodes = this.mode.nodesAroundEditableContents(target);
+             const mode = this.modeTree.getMode(target);
+             const nodes = mode.nodesAroundEditableContents(target);
              if (target === this.guiRoot) {
                const loc = caretManager.makeCaret(this.guiRoot, 0)!;
                ph = this.insertTransientPlaceholderAt(loc);
                caretManager.setCaret(loc, { textEdit: true });
              }
              else {
-               ph = this.mode.makePlaceholderFor(target);
+               ph = mode.makePlaceholderFor(target);
                this.guiUpdater.insertBefore(target, ph, nodes[1]);
              }
            }
@@ -1746,7 +1743,8 @@ wed's generic help. The link by default will open in a new tab.</p>`);
   }
 
   private initializeNamespaces(): string | undefined {
-    const resolver = this.mode.getAbsoluteResolver();
+    const mode = this.modeTree.getMode(this.guiRoot);
+    const resolver = mode.getAbsoluteResolver();
     let failure: string | undefined;
     if (this.dataRoot.firstChild === null) {
       // The document is empty: create a child node with the absolute namespace
@@ -1938,7 +1936,7 @@ in a way not supported by this version of wed.";
   getElementTransformationsAt(treeCaret: DLoc, types: string |  string[]):
   { tr: Action<{}>, name?: string }[]
   {
-    const mode = this.mode;
+    const mode = this.modeTree.getMode(treeCaret.node);
     const resolver = mode.getAbsoluteResolver();
     const ret: { tr: Action<{}>, name?: string }[] = [];
     this.validator.possibleAt(treeCaret).forEach((ev: salve.Event) => {
@@ -2295,9 +2293,11 @@ in a way not supported by this version of wed.";
       const el = closestByClass(label, "_real", this.guiRoot);
       const dataNode =
         this.dataUpdater.pathToNode(this.nodeToPath(el!)) as HTMLElement;
-      const trs = this.mode.getContextualActions("delete-parent",
-                                                 dataNode.tagName,
-                                                 dataNode, 0);
+      const mode = this.modeTree.getMode(el!);
+      // Yes, delete-parent is correct because we take position 0 *inside*
+      // dataNode.
+      const trs = mode.getContextualActions("delete-parent", dataNode.tagName,
+                                            dataNode, 0);
 
       trs[0].execute({ node: dataNode, name: dataNode.tagName });
       return terminate();
@@ -2786,7 +2786,8 @@ in a way not supported by this version of wed.";
           if (!(this.preferences.get("tooltips") as boolean)) {
             return undefined;
           }
-          return this.mode.shortDescriptionFor(origName);
+          const mode = this.modeTree.getMode(label);
+          return mode.shortDescriptionFor(origName);
         },
         container: "body",
         delay: { show: 1000 },

@@ -14,8 +14,9 @@ import * as wed from "wed/wed";
 
 import * as globalConfig from "./base-config";
 import { DataProvider } from "./global";
-// import { waitForSuccess } from "./util";
 import { config } from "./submode-config";
+import { activateContextMenu, contextMenuHasOption,
+         getAttributeValuesFor } from "./wed-test-util";
 
 describe("wed submodes", () => {
   let source: string;
@@ -83,5 +84,51 @@ the test mode",
                "the second paragraph with rend='wrap' should not be decorated \
 by the test mode",
                false);
+  });
+
+  it("present a contextual menu showing mode-specific actions", () => {
+    function check(el: HTMLElement, msg: string, custom: boolean): void {
+      expect(el).to.not.be.null;
+      activateContextMenu(editor!, el);
+      contextMenuHasOption(editor!, /^Test draggable$/, custom ? 1 : 0);
+      editor!.editingMenuManager.dismiss();
+    }
+
+    const first =
+      editor!.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
+    check(first as HTMLElement,
+          "the first paragraph should have the test-mode options", true);
+
+    const second =
+      editor!.guiRoot.querySelector(".tei\\:body._real>.tei\\:p._real");
+    check(second as HTMLElement,
+          "the second paragraph should not have the test-mode options", false);
+  });
+
+  it("present mode-specific completions", () => {
+    function check(el: HTMLElement, msg: string, custom: boolean): void {
+      expect(el).to.not.be.null;
+      const attrVals = getAttributeValuesFor(el);
+      editor!.caretManager.setCaret(attrVals[0].firstChild, 0);
+      // This is an arbitrary menu item we check for.
+      if (custom) {
+        contextMenuHasOption(editor!, /^completion1$/);
+      }
+      else {
+        const menu = editor!.window.document
+          .getElementsByClassName("wed-context-menu")[0];
+        expect(menu).to.be.undefined;
+      }
+    }
+
+    const first =
+      editor!.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
+    check(first as HTMLElement,
+          "the first paragraph should have the completions", true);
+
+    const second =
+      editor!.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
+    check(second as HTMLElement,
+          "the second paragraph should not have the completions", false);
   });
 });

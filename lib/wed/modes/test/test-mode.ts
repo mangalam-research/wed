@@ -277,28 +277,55 @@ class TypeaheadAction extends Action<{}> {
 
 // tslint:disable-next-line:completed-docs
 class DraggableModalAction extends Action<{}> {
+  private _modal: Modal | undefined;
+
+  private get modal(): Modal {
+    if (this._modal === undefined) {
+      this._modal = this.editor.makeModal({ draggable: true });
+    }
+
+    return this._modal;
+  }
+
   execute(): void {
-    const editor = this.editor;
-    const modal = (editor.mode as TestMode).draggable;
-    modal.modal();
+    this.modal.modal();
   }
 }
 
 // tslint:disable-next-line:completed-docs
 class ResizableModalAction extends Action<{}> {
+  private _modal: Modal | undefined;
+
+  private get modal(): Modal {
+    if (this._modal === undefined) {
+      this._modal = this.editor.makeModal({
+          resizable: true,
+          draggable: true,
+        });
+    }
+
+    return this._modal;
+  }
+
   execute(): void {
-    const editor = this.editor;
-    const modal = (editor.mode as TestMode).resizable;
-    modal.modal();
+    this.modal.modal();
   }
 }
 
 // tslint:disable-next-line:completed-docs
 class DraggableResizableModalAction extends Action<{}> {
+  private _modal: Modal | undefined;
+
+  private get modal(): Modal {
+    if (this._modal === undefined) {
+      this._modal = this.editor.makeModal({ resizable: true });
+    }
+
+    return this._modal;
+  }
+
   execute(): void {
-    const editor = this.editor;
-    const modal = (editor.mode as TestMode).draggableResizable;
-    modal.modal();
+    this.modal.modal();
   }
 }
 
@@ -308,9 +335,6 @@ class DraggableResizableModalAction extends Action<{}> {
  */
 export class TestMode extends GenericMode<TestModeOptions> {
   private typeaheadAction: TypeaheadAction;
-  public draggable: Modal;
-  public resizable: Modal;
-  public draggableResizable: Modal;
   private draggableAction: DraggableModalAction;
   private resizableAction: ResizableModalAction;
   private draggableResizableAction: DraggableResizableModalAction;
@@ -369,13 +393,6 @@ export class TestMode extends GenericMode<TestModeOptions> {
           editor, "Test typeahead", undefined,
           "<i class='fa fa-plus fa-fw'></i>", true);
 
-        this.draggable = editor.makeModal({ draggable: true });
-        this.resizable = editor.makeModal({ resizable: true });
-        this.draggableResizable = editor.makeModal({
-          resizable: true,
-          draggable: true,
-        });
-
         this.draggableAction = new DraggableModalAction(
           editor, "Test draggable", undefined, undefined, true);
         this.resizableAction = new ResizableModalAction(
@@ -414,6 +431,8 @@ export class TestMode extends GenericMode<TestModeOptions> {
 
     if (tag === "ref" &&
         (transformationType === "insert" || transformationType === "wrap")) {
+      // It is a bit peculiar to tie the draggable and resizable actions to
+      // "ref", because it is not necessary, but meh...
       ret.push(this.typeaheadAction, this.draggableAction,
                this.resizableAction, this.draggableResizableAction);
     }

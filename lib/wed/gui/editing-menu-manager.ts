@@ -10,7 +10,7 @@ import { DLoc } from "../dloc";
 import { isElement } from "../domtypeguards";
 import { closestByClass, htmlToElements, indexOf,
          isNotDisplayed } from "../domutil";
-import { Mode } from "../mode";
+import { ModeTree } from "../mode-tree";
 import { Transformation, TransformationData } from "../transformation";
 import { Editor } from "../wed";
 import { ActionContextMenu, Item } from "./action-context-menu";
@@ -36,7 +36,7 @@ export class EditingMenuManager {
   private readonly guiRoot: HTMLDocument | HTMLElement;
   private readonly dataRoot: Document | Element;
   private currentDropdown: ContextMenu | undefined;
-  private readonly mode: Mode<{}>;
+  private readonly modeTree: ModeTree;
   private readonly doc: HTMLDocument;
 
   /**
@@ -44,7 +44,7 @@ export class EditingMenuManager {
    */
   constructor(private readonly editor: Editor) {
     this.caretManager = editor.caretManager;
-    this.mode = editor.mode;
+    this.modeTree = editor.modeTree;
     this.guiRoot = editor.guiRoot;
     this.dataRoot = editor.dataRoot;
     this.doc = this.guiRoot.ownerDocument;
@@ -198,8 +198,9 @@ export class EditingMenuManager {
       // document is empty.
       const dataNode = treeCaret.node as Element;
       const tagName = dataNode.tagName;
+      const mode = this.modeTree.getMode(dataNode);
       if (tagName != null) {
-        const docURL = this.mode.documentationLinkFor(tagName);
+        const docURL = mode.documentationLinkFor(tagName);
 
         if (docURL != null) {
           const li = this.makeDocumentationMenuItem(docURL);
@@ -216,7 +217,7 @@ export class EditingMenuManager {
       }
 
       if (dataNode !== this.dataRoot.firstChild && dataNode !== this.dataRoot) {
-        const actions = this.mode.getContextualActions(
+        const actions = mode.getContextualActions(
           ["unwrap", "delete-parent", "split"], tagName, dataNode, 0);
         for (const action of actions) {
           pushItem({ node: dataNode, name: tagName }, action);
@@ -236,7 +237,8 @@ export class EditingMenuManager {
           // with .has().
           return this.contains(actualNode!);
         })[0];
-      const actions = this.mode.getContextualActions(
+      const mode = this.modeTree.getMode(transformationNode);
+      const actions = mode.getContextualActions(
         ["merge-with-next", "merge-with-previous", "append", "prepend"], sepFor,
         $.data(transformationNode, "wed_mirror_node"), 0);
       for (const action of actions) {
@@ -334,7 +336,8 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
       }
 
       // First see if the mode has something to say.
-      const possible = this.mode.getAttributeCompletions(dataNode);
+      const mode = this.modeTree.getMode(dataNode);
+      const possible = mode.getAttributeCompletions(dataNode);
 
       if (possible.length === 0) {
         // Nothing from the mode, use the validator.

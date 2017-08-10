@@ -19,7 +19,7 @@ import { childByClass, closestByClass, contains, dumpRange,
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
-import { Mode } from "./mode";
+import { ModeTree } from "./mode-tree";
 import * as objectCheck from "./object-check";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
 import { getAttrValueNode } from "./wed-util";
@@ -124,9 +124,8 @@ export class CaretManager implements GUIToDataConverter {
    *
    * @param scroller: The element that scrolls ``guiRoot``.
    *
-   * @param moveInAttributes: Whether or not to move into attributes.
    *
-   * @param mode: The current mode in effect.
+   * @param modeTree: The mode tree from which to get modes.
    */
   constructor(private readonly guiRoot: DLocRoot,
               private readonly dataRoot: DLocRoot,
@@ -134,8 +133,7 @@ export class CaretManager implements GUIToDataConverter {
               private readonly guiUpdater: GUIUpdater,
               layer: Layer,
               scroller: Scroller,
-              private readonly moveInAttributes: caretMovement.MoveInAttributes,
-              private readonly mode: Mode<{}>) {
+              private readonly modeTree: ModeTree) {
     this.mark = new CaretMark(this, guiRoot.node.ownerDocument, layer,
                               inputField, scroller);
     scroller.events.subscribe(() => {
@@ -272,7 +270,8 @@ export class CaretManager implements GUIToDataConverter {
     if (isElement(node)) {
       // Normalize to a range within the editable nodes. We could be outside of
       // them in an element which is empty, for instance.
-      const [first, second] = this.mode.nodesAroundEditableContents(node);
+      const mode = this.modeTree.getMode(node);
+      const [first, second] = mode.nodesAroundEditableContents(node);
       const firstIndex = first !== null ? indexOf(node.childNodes, first) : -1;
       if (offset <= firstIndex) {
         offset = firstIndex + 1;
@@ -345,7 +344,8 @@ export class CaretManager implements GUIToDataConverter {
     if (isElement(node)) {
       // Normalize to a range within the editable nodes. We could be outside of
       // them in an element which is empty, for instance.
-      const [first, second] = this.mode.nodesAroundEditableContents(node);
+      const mode = this.modeTree.getMode(node);
+      const [first, second] = mode.nodesAroundEditableContents(node);
       const firstIndex = (first !== null) ? indexOf(node.childNodes, first) :
         -1;
 
@@ -634,9 +634,8 @@ export class CaretManager implements GUIToDataConverter {
   newPosition(pos: DLoc | undefined,
               direction: caretMovement.Direction): DLoc | undefined {
     return caretMovement.newPosition(pos, direction,
-                                     this.moveInAttributes,
                                      this.guiRootEl,
-                                     this.mode);
+                                     this.modeTree);
   }
 
   /**
