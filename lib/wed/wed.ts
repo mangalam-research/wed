@@ -2153,8 +2153,8 @@ in a way not supported by this version of wed.";
       return terminate();
     }
     else if (keyConstants.CTRLEQ_FORWARD_SLASH.matchesEvent(e)) {
-      let selFocusNode = selFocus !== undefined ? selFocus.node : undefined;
-      if (selFocusNode !== undefined) {
+      if (selFocus !== undefined) {
+        let selFocusNode = selFocus.node;
         const gui = closestByClass(selFocusNode, "_gui", selFocus!.root);
         if (gui !== null && gui.classList.contains("_label_clicked")) {
           if (isText(selFocusNode)) {
