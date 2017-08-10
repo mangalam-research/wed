@@ -46,7 +46,7 @@ class ModeNode {
    *
    * @param submodes The submodes set for this mode.
    */
-  constructor(public readonly mode: Mode<{}>,
+  constructor(public readonly mode: Mode,
               public readonly editor: Editor,
               public readonly selector: string,
               public readonly submodes: ModeNode[],
@@ -240,7 +240,7 @@ export class ModeTree {
    *
    * @returns The mode that governs the node.
    */
-  getMode(node: Node): Mode<{}> {
+  getMode(node: Node): Mode {
     return this.getModeNode(node).mode;
   }
 

@@ -28,7 +28,7 @@ export class GenericDecorator extends Decorator {
    *
    */
   // tslint:disable-next-line:no-any
-  constructor(mode: Mode<{}>, editor: Editor,
+  constructor(mode: Mode, editor: Editor,
               protected readonly metadata: Metadata,
               // tslint:disable-next-line:no-any
               protected readonly options: any) {

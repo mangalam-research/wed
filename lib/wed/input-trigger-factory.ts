@@ -96,7 +96,7 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
  * @returns The input trigger.
  */
 export function makeSplitMergeInputTrigger(editor: Editor,
-                                           mode: Mode<{}>,
+                                           mode: Mode,
                                            selector: GUISelector,
                                            splitKey: Key,
                                            mergeWithPreviousKey: Key,

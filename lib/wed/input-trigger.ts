@@ -64,7 +64,7 @@ export class InputTrigger {
    * [["domutil".toGUISelector]].)
    */
   constructor(private readonly editor: Editor,
-              private readonly mode: Mode<{}>,
+              private readonly mode: Mode,
               private readonly selector: GUISelector) {
     // This is a map of keys that are actually text keys to their handlers. This
     // map is in effect a submap of _key_to_handler. We want this for speed,

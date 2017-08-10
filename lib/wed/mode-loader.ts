@@ -9,7 +9,7 @@ import { Mode } from "./mode";
 import { Runtime } from "./runtime";
 
 interface ModeConstructor {
-  new (editor: {}, modeOptions: {}): Mode<{}>;
+  new (editor: {}, modeOptions: {}): Mode;
 }
 
 interface ModeModule {
@@ -35,8 +35,7 @@ export class ModeLoader {
    *
    * @returns A promise that resolves to the initialized [[Mode]] object.
    */
-  async initMode(path: string,
-                 options: {} | undefined = {}): Promise<Mode<{}>> {
+  async initMode(path: string, options: {} | undefined = {}): Promise<Mode> {
     const mmodule: ModeModule = await this.loadMode(path);
     const mode = new mmodule.Mode(this.editor, options);
 

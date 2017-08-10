@@ -54,7 +54,7 @@ export abstract class Decorator {
    * @param guiUpdater The updater to use to modify the GUI tree. All
    * modifications to the GUI must go through this updater.
    */
-  constructor(protected readonly mode: Mode<{}>,
+  constructor(protected readonly mode: Mode,
               protected readonly editor: Editor) {
     this.domlistener = editor.domlistener;
     this.guiUpdater = editor.guiUpdater;

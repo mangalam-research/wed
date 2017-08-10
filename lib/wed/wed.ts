@@ -309,7 +309,7 @@ export class Editor {
 
   modeTree: ModeTree;
 
-  mode: Mode<{}>;
+  mode: Mode;
 
   caretManager: CaretManager;
 
@@ -1279,7 +1279,7 @@ trying to edit further.");
     return this.onModeChange(this.modeTree.getMode(this.guiRoot));
   }
 
-  async onModeChange(mode: Mode<{}>): Promise<Editor> {
+  async onModeChange(mode: Mode): Promise<Editor> {
     // We purposely do not raise an error here so that calls to destroy can be
     // done as early as possible. It aborts the initialization sequence without
     // causing an error.

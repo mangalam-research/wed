@@ -9,7 +9,7 @@ import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
 import { Action } from "wed/action";
-import { BaseMode } from "wed/mode";
+import { BaseMode, CommonModeOptions } from "wed/mode";
 import * as objectCheck from "wed/object-check";
 import { Transformation, TransformationData } from "wed/transformation";
 import { Editor } from "wed/wed";
@@ -18,9 +18,8 @@ import { makeTagTr } from "./generic-tr";
 import { Metadata } from "./metadata";
 import { MetadataMultiversionReader } from "./metadata-multiversion-reader";
 
-export interface GenericModeOptions {
+export interface GenericModeOptions extends CommonModeOptions {
   metadata: string;
-  autoinsert?: boolean;
 }
 
 /**

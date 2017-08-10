@@ -17,7 +17,17 @@ import { ModeValidator } from "./validator";
 import { Editor } from "./wed";
 import { WedOptions } from "./wed-options";
 
-export interface Mode<ModeOptions> {
+/**
+ * These are mode options that are supported by default by all modes. Wed is
+ * responsible for providing support for them.
+ */
+export interface CommonModeOptions {
+  /** Whether to turn on autoinsertion of elements. */
+  autoinsert?: boolean;
+}
+
+export interface Mode<ModeOptions extends CommonModeOptions =
+  CommonModeOptions> {
   /**
    * This is called by the editor when a mode is ready to be initialized. The
    * mode could use this to add a toolbar above the editor or add listeners to
