@@ -472,6 +472,7 @@ function *generateModes(x) {
   const common = `wed/modes/${x}/`;
   for (const ext of ["js", "ts"]) {
     yield `${common}${x}.${ext}`;
+    yield `${common}${x}-mode.${ext}`;
     yield `${common}${x}_mode.${ext}`;
   }
 }
