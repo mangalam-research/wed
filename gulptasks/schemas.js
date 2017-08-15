@@ -38,9 +38,10 @@ function xmlToJsonChain(name, dest) {
       gutil.log(`Skipped running saxon for ${json}.`);
       return;
     }
-    exec(`${options.saxon} -xsl:` +
-         "/usr/share/xml/tei/stylesheet/odds/odd2json.xsl" +
-         ` -s:${compiled} -o:${json} callback=''`);
+
+    yield exec(`${options.saxon} -xsl:` +
+               "/usr/share/xml/tei/stylesheet/odds/odd2json.xsl" +
+               ` -s:${compiled} -o:${json} callback=''`);
   }
 
   gulp.task(compiledToJsonTaskName, [rngTaskName],
