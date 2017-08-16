@@ -17,6 +17,25 @@ odd bug fix may not get mentioned here at all.
     actually contains and what a mode expects. This is a prerequiste to
     supporting the new "submode" feature.
 
+  - Breaking change: the ``stringRepeat`` polyfill has been removed from the
+    code base. We now recommend using ``core-js`` to provide a consistent
+    environment for Wed across browser platforms.
+
+    If you use ``core-js``, and use Bluebird to override the default ``Promise``
+    implementation provided by your platform (which you should do), we recommend
+    loading Bluebird **after** ``core-js``. Otherwise, you are stuck with
+    ``core-js`` implementation of promises, which is, to put it politely,
+    incomplete. (See https://github.com/zloirock/core-js/issues/205).
+
+  - Breaking change: you need to add a polyfill for ``Array.from`` if you are
+    using your own polyfills and do not move to ``core-js`` (which does provide
+    it). Note that it is very unlikely that in the future we'll be documenting
+    each new case that needs polyfilling. We're doing it now because
+    ``Array.from`` is the case that triggered the switch to ``core-js``. In the
+    future, it is unlikely we'll even *know* that we're using something
+    polyfilled by ``core-js``. Polyfilling is usually required for running on
+    IE11, which is not a priority for us, support-wise.
+
   - Breaking changes: Addition of the submode feature, which causes breaking
     changes. This matters if you designed your own mode. ``Editor`` no longer
     has the following properties. They must be fetched through
