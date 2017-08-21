@@ -19,7 +19,7 @@ exports.del = _del;
 const copy = exports.copy = fs.copyAsync;
 
 const cprp = exports.cprp = function cprp(src, dest) {
-  return copy(src, dest, { clobber: true, preserveTimestamps: true });
+  return copy(src, dest, { overwrite: true, preserveTimestamps: true });
 };
 
 exports.cprpdir = function cprpdir(src, dest) {

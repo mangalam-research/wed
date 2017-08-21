@@ -598,7 +598,7 @@ function *buildStandaloneOptimized() {
              .then(() => {
                throw err;
              }));
-    yield fs.moveAsync(newStamp, stamp, { clobber: true });
+    yield fs.moveAsync(newStamp, stamp, { overwrite: true });
   }
 }
 
