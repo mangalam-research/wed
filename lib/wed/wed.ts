@@ -715,8 +715,8 @@ export class Editor {
    *
    * @returns ``true`` if the attribute is protected.
    */
-  isAttrProtected(name: string, parent: Element): boolean;
-  isAttrProtected(node: Attr | Element): boolean;
+  isAttrProtected(attr: string, parent: Element): boolean;
+  isAttrProtected(attr: Attr | Element): boolean;
   isAttrProtected(attr: Attr | Element | string, parent?: Element): boolean {
     let name;
     if (typeof attr === "string") {

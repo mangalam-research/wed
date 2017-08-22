@@ -41,10 +41,15 @@ class ModeNode {
   /**
    * @param mode The mode that this node holds.
    *
+   * @param editor The editor for which we are holding a mode.
+   *
    * @param selector The selector that determines to what this modes apply. This
    * selector must have been converted to operate in the GUI tree.
    *
    * @param submodes The submodes set for this mode.
+   *
+   * @param wedOptions The cleaned up wed options that pertain to the mode held
+   * by this node.
    */
   constructor(public readonly mode: Mode,
               public readonly editor: Editor,
