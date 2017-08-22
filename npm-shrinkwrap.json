@@ -45,21 +45,27 @@
       "dev": true
     },
     "@types/fs-extra": {
-      "version": "3.0.3",
-      "from": "@types/fs-extra@>=3.0.0 <4.0.0",
-      "resolved": "https://registry.npmjs.org/@types/fs-extra/-/fs-extra-3.0.3.tgz",
+      "version": "4.0.0",
+      "from": "@types/fs-extra@>=4.0.0 <5.0.0",
+      "resolved": "https://registry.npmjs.org/@types/fs-extra/-/fs-extra-4.0.0.tgz",
+      "dev": true
+    },
+    "@types/glob": {
+      "version": "5.0.32",
+      "from": "@types/glob@*",
+      "resolved": "https://registry.npmjs.org/@types/glob/-/glob-5.0.32.tgz",
       "dev": true
     },
     "@types/handlebars": {
-      "version": "4.0.33",
+      "version": "4.0.36",
       "from": "@types/handlebars@>=4.0.31 <5.0.0",
-      "resolved": "https://registry.npmjs.org/@types/handlebars/-/handlebars-4.0.33.tgz",
+      "resolved": "https://registry.npmjs.org/@types/handlebars/-/handlebars-4.0.36.tgz",
       "dev": true
     },
     "@types/highlight.js": {
-      "version": "9.1.9",
+      "version": "9.1.10",
       "from": "@types/highlight.js@>=9.1.8 <10.0.0",
-      "resolved": "https://registry.npmjs.org/@types/highlight.js/-/highlight.js-9.1.9.tgz",
+      "resolved": "https://registry.npmjs.org/@types/highlight.js/-/highlight.js-9.1.10.tgz",
       "dev": true
     },
     "@types/interact.js": {
@@ -117,9 +123,9 @@
       "dev": true
     },
     "@types/shelljs": {
-      "version": "0.7.2",
+      "version": "0.7.4",
       "from": "@types/shelljs@>=0.7.0 <0.8.0",
-      "resolved": "https://registry.npmjs.org/@types/shelljs/-/shelljs-0.7.2.tgz",
+      "resolved": "https://registry.npmjs.org/@types/shelljs/-/shelljs-0.7.4.tgz",
       "dev": true
     },
     "@types/sinon": {
@@ -454,7 +460,7 @@
     },
     "async": {
       "version": "1.5.2",
-      "from": "async@>=1.0.0 <2.0.0",
+      "from": "async@>=1.4.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/async/-/async-1.5.2.tgz",
       "dev": true
     },
@@ -5104,9 +5110,9 @@
       "dev": true
     },
     "marked": {
-      "version": "0.3.5",
-      "from": "marked@>=0.3.4 <0.4.0",
-      "resolved": "https://registry.npmjs.org/marked/-/marked-0.3.5.tgz",
+      "version": "0.3.6",
+      "from": "marked@>=0.3.5 <0.4.0",
+      "resolved": "https://registry.npmjs.org/marked/-/marked-0.3.6.tgz",
       "dev": true
     },
     "media-typer": {
@@ -7013,9 +7019,9 @@
       "dev": true
     },
     "typedoc": {
-      "version": "0.7.1",
+      "version": "0.8.0",
       "from": "typedoc@latest",
-      "resolved": "https://registry.npmjs.org/typedoc/-/typedoc-0.7.1.tgz",
+      "resolved": "https://registry.npmjs.org/typedoc/-/typedoc-0.8.0.tgz",
       "dev": true,
       "dependencies": {
         "balanced-match": {
@@ -7029,27 +7035,6 @@
           "from": "brace-expansion@>=1.1.7 <2.0.0",
           "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.8.tgz",
           "dev": true
-        },
-        "fs-extra": {
-          "version": "3.0.1",
-          "from": "fs-extra@>=3.0.0 <4.0.0",
-          "resolved": "https://registry.npmjs.org/fs-extra/-/fs-extra-3.0.1.tgz",
-          "dev": true
-        },
-        "jsonfile": {
-          "version": "3.0.0",
-          "from": "jsonfile@>=3.0.0 <4.0.0",
-          "resolved": "https://registry.npmjs.org/jsonfile/-/jsonfile-3.0.0.tgz",
-          "dev": true,
-          "dependencies": {
-            "graceful-fs": {
-              "version": "4.1.11",
-              "from": "graceful-fs@>=4.1.6 <5.0.0",
-              "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.11.tgz",
-              "dev": true,
-              "optional": true
-            }
-          }
         },
         "lodash": {
           "version": "4.17.4",
@@ -7067,12 +7052,6 @@
           "version": "2.0.0",
           "from": "progress@>=2.0.0 <3.0.0",
           "resolved": "https://registry.npmjs.org/progress/-/progress-2.0.0.tgz",
-          "dev": true
-        },
-        "typescript": {
-          "version": "2.3.2",
-          "from": "typescript@2.3.2",
-          "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.3.2.tgz",
           "dev": true
         }
       }
