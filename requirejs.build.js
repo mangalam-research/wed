@@ -29,7 +29,6 @@
         "bootstrap-notify",
         "lodash",
         "localforage",
-        "async",
         "bootbox",
         "typeahead",
         "wed/patches/bootstrap",

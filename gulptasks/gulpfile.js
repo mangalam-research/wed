@@ -405,8 +405,6 @@ npmCopyTask("typeahead", "typeahead.js/dist/typeahead.bundle.min.js");
 
 npmCopyTask("localforage/dist/localforage.js");
 
-npmCopyTask("async/lib/async.js");
-
 npmCopyTask("bootbox/bootbox*.js");
 
 npmCopyTask("urijs/src/**", "external/urijs");

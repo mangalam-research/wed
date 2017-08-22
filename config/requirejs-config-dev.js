@@ -14,7 +14,6 @@ require.config({
     text: "requirejs/text",
     optional: "requirejs/optional",
     localforage: "external/localforage",
-    async: "external/async",
     angular: "external/angular",
     bootbox: "external/bootbox",
     typeahead: "external/typeahead.bundle.min",

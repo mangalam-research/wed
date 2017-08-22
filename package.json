@@ -48,7 +48,6 @@
     "@types/sinon-chai": "^2.7.28",
     "@types/slug": "^0.9.0",
     "amd-loader": "https://registry.npmjs.org/amd-loader/-/amd-loader-0.0.8.tgz",
-    "async": ">=1 <2",
     "bluebird": "^3.5.0",
     "bluejax": "^1.1.0",
     "bluejax.try": "^1.0.0",
