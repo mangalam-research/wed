@@ -41,10 +41,10 @@ function normalizeNS(ns: string | null): string {
  *
  * The attributes of the XML element appear on the HTML element with the name
  * ``data-wed-<attribute name>``, where ``attribute name`` is converted by
- * [["util".encodeAttrName]]. This attribute has for value the original value in
- * the XML. A second attribute ``data-wed--ns-<attribute name>`` contains the
- * namespace URI of the attribute. If the attribute was not in a namespace, then
- * ``data-wed--ns-<attribute name>`` is omitted.
+ * [[encodeAttrName]]. This attribute has for value the original
+ * value in the XML. A second attribute ``data-wed--ns-<attribute name>``
+ * contains the namespace URI of the attribute. If the attribute was not in a
+ * namespace, then ``data-wed--ns-<attribute name>`` is omitted.
  *
  * @param doc The HTML document in which we are going to use the generated
  * tree.
