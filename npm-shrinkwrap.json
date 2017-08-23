@@ -4340,10 +4340,10 @@
         }
       }
     },
-    "interact.js": {
-      "version": "1.2.6",
-      "from": "interact.js@>=1.2.6 <2.0.0",
-      "resolved": "https://registry.npmjs.org/interact.js/-/interact.js-1.2.6.tgz",
+    "interactjs": {
+      "version": "1.2.9",
+      "from": "interactjs@latest",
+      "resolved": "https://registry.npmjs.org/interactjs/-/interactjs-1.2.9.tgz",
       "dev": true
     },
     "interpret": {

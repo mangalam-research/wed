@@ -419,7 +419,7 @@ npmCopyTask("salve/salve*");
 
 npmCopyTask("salve-dom/salve-dom*");
 
-npmCopyTask("interact.js/dist/interact.min.js");
+npmCopyTask("interactjs/dist/interact.min.js");
 
 npmCopyTask("merge-options", "merge-options/index.js",
             { rename: "merge-options.js", wrapAmd: true });
