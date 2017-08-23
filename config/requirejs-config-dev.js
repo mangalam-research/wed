@@ -42,6 +42,10 @@ require.config({
   ],
   map: {
     "*": {
+      // This is needed due to the disconnect between the hardcoded name
+      // in the file that is shipped by interactjs and the name of the npm
+      // package.
+      interactjs: "interact",
       bootstrap: "wed/patches/bootstrap",
       "wed/modes/generic/metadata-schema.json": "json!wed/modes/generic/metadata-schema.json",
       "wed/wed-options-schema.json": "json!wed/wed-options-schema.json",

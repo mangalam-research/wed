@@ -7,7 +7,6 @@
       "rangy": ["../types/rangy"],
       "merge-options": ["../types/merge-options"],
       "log4javascript": ["../types/log4javascript"],
-      "interact": ["interact.js"],
       "tests/*": ["../build/standalone/lib/tests/*"]
     },
     "noEmitOnError": true,

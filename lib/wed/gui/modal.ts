@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import "bootstrap";
-import * as interact from "interact";
+import * as interact from "interactjs";
 import * as $ from "jquery";
 import * as browsers from "../browsers";
 
@@ -188,7 +188,7 @@ export class Modal {
           },
                      0);
         })
-        .on("resizemove", (event: Interact.InteractEvent) => {
+        .on("resizemove", (event: interact.InteractEvent) => {
           const target = event.target;
 
           const change = new PseudoAtomicRectChange();
@@ -209,7 +209,7 @@ export class Modal {
                        },
                      },
                    })
-        .on("dragmove", (event: Interact.InteractEvent) => {
+        .on("dragmove", (event: interact.InteractEvent) => {
           const target = content;
 
           target.style.left = `${event.clientX - event.clientX0}px`;
