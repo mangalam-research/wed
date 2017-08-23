@@ -251,4 +251,4 @@ export class UndoGroup extends Undo {
   }
 }
 
-//  LocalWords:  UndoList oop Mangalam MPL Dubeau boolean
+//  LocalWords:  boolean Dubeau MPL Mangalam UndoList

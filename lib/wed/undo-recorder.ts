@@ -287,7 +287,6 @@ export class UndoRecorder {
   }
 }
 
-//  LocalWords:  html Mangalam MPL Dubeau nodeToPath pathToNode param
-//  LocalWords:  jQuery DeleteNodeUndo SetTextNodeValueUndo ev oop
-//  LocalWords:  InsertNodeAtUndo deleteNode setTextNodeValue jquery
-//  LocalWords:  insertNodeAt domutil
+//  LocalWords:  domutil insertNodeAt setTextNodeValue deleteNode ev param MPL
+//  LocalWords:  InsertNodeAtUndo SetTextNodeValueUndo DeleteNodeUndo Dubeau
+//  LocalWords:  pathToNode nodeToPath Mangalam

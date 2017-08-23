@@ -145,5 +145,5 @@ export class MarkerUndo extends undo.Undo {
   redo(): void {}
 }
 
-//  LocalWords:  TextUndoGroup UndoGroup param wundo oop Mangalam MPL
-//  LocalWords:  Dubeau nodeToPath pathToNode domutil
+//  LocalWords:  pathToNode nodeToPath Dubeau MPL Mangalam param UndoGroup
+//  LocalWords:  TextUndoGroup

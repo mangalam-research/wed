@@ -150,6 +150,11 @@ odd bug fix may not get mentioned here at all.
   - Breaking change: ``action-context-menu`` exports ``ActionContextMenu``
     instead of the old ``ContextMenu``.
 
+  - Breaking change: the ``oop`` module is no longer distributed with wed,
+    because wed does not need it. If you were using it, you could grab a copy
+    from an old version of wed or find a replacement for it from a third-party
+    library.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

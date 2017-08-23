@@ -193,10 +193,5 @@ export class Validator extends BaseValidator {
   }
 }
 
-//  LocalWords:  revalidating inspect's leaveContext leaveStartTag el
-//  LocalWords:  attributeValue endTag attributeName enterContext DOM
-//  LocalWords:  SimpleEventEmitter namespace mixin ProgressState oop
-//  LocalWords:  validateUpTo unclosed fireEvent definePrefix xmlns
-//  LocalWords:  speculativelyValidate RequireJS enterStartTag MPL
-//  LocalWords:  namespaces validator Mangalam Dubeau nextSibling
-//  LocalWords:  prev whitespace boolean jquery util
+//  LocalWords:  boolean Dubeau Mangalam validator MPL RequireJS unclosed DOM
+//  LocalWords:  speculativelyValidate

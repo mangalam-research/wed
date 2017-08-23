@@ -58,18 +58,8 @@ configuration is updated to look for the external libraries at the right places.
 
 Wed's build process creates a configuration for the optimized bundle at
 ``build/standalone-optimized/requirejs-config.js``. This configuration allows an
-external custom mode to load individual modules of wed, because it has mappings
-like these::
-
-    "wed/log": "wed/wed",
-    "wed/oop": "wed/wed",
-    "wed/lib/simple_event_emitter": "wed/wed",
-    [...]
-
-which map each individual module forming wed to the single bundle file created
-during the optimization process. If you base your own run time RequireJS
-configuration on this file, it is possible for code external to the bundle, for
-instance a custom mode, to load parts of wed in an arbitrary order.
+external custom mode to load some individual modules of wed in any order because
+it includes a ``bundles`` configuration option.
 
 It is also possible to use a configuration file that does not have the
 individual module mappings. In this scenario, it is **not** possible for code
@@ -952,15 +942,11 @@ under the second approach. Version 0.17.0 cleaned up a good deal of the old code
 (first approach) that was made obsolete by the incremental changes, but some
 obsolete code may still remain.
 
-..  LocalWords:  contenteditable MutationObserver MutationObservers
-..  LocalWords:  keydown keypress javascript jQuery util contextmenu
-..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
-..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
-..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
-..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText js
-..  LocalWords:  RequireJS setTimeout localhost selenic addr config
-..  LocalWords:  PYTHONPATH SauceLab Makefile DOM desc
-..  LocalWords:  getSelection namespace programmatically profiler CSS
-..  LocalWords:  gitflow oop wedutil SauceLabs nvie AVH deployable py
-..  LocalWords:  requirejs unoptimized conf gui LocalWords github
-..  LocalWords:  unclick unclicked truthy
+..  LocalWords:  truthy unclicked unclick github gui requirejs py deployable js
+..  LocalWords:  AVH nvie SauceLabs wedutil gitflow CSS programmatically desc
+..  LocalWords:  namespace DOM PYTHONPATH config selenic setTimeout RequireJS
+..  LocalWords:  Github msg JSON CSRF url ajaxlog IM XmlLayout AjaxAppender TEI
+..  LocalWords:  IBus étranger Étranger GUIUpdater capturable livre livré keyup
+..  LocalWords:  compositionend sendkeys lang xml prepended wed's InputTrigger
+..  LocalWords:  contextmenu jQuery javascript keypress keydown contenteditable
+..  LocalWords:  MutationObserver

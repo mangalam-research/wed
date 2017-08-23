@@ -550,5 +550,4 @@ export function getRoot(node: Node | Attr | undefined | null): DLocRoot {
   return ret;
 }
 
-//  LocalWords:  dloc MPL jquery domutil oop DLoc makeDLoc jshint
-//  LocalWords:  newcap validthis
+//  LocalWords:  makeDLoc DLoc domutil jquery MPL dloc

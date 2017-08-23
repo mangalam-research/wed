@@ -111,5 +111,4 @@ export class AlphabeticLabelManager extends LabelManager {
   _deallocateAllLabels(): void {}
 }
 
-//  LocalWords:  LabelManager jshint MPL overriden allocateLabel
-//  LocalWords:  oop Mangalam Dubeau labelman
+//  LocalWords:  Dubeau Mangalam allocateLabel MPL LabelManager

@@ -661,8 +661,7 @@ export function swapWithNextHomogeneousSibling(editor: Editor,
   swapWithPreviousHomogeneousSibling(editor, next);
 }
 
-//  LocalWords:  concat prepend refman endOffset endContainer DOM oop
-//  LocalWords:  startOffset startContainer html Mangalam MPL Dubeau
-//  LocalWords:  previousSibling nextSibling insertNodeAt deleteNode
-//  LocalWords:  mergeTextNodes lastChild prev deleteText Prepend lt
-//  LocalWords:  domutil util
+//  LocalWords:  domutil Prepend deleteText prev lastChild mergeTextNodes MPL
+//  LocalWords:  deleteNode insertNodeAt nextSibling previousSibling Dubeau DOM
+//  LocalWords:  Mangalam html startContainer startOffset endContainer prepend
+//  LocalWords:  endOffset

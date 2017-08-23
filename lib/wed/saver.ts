@@ -414,6 +414,4 @@ export interface SaverConstructor {
        dataTree: Node, options: SaverOptions): Saver;
 }
 
-//  LocalWords:  jQuery jquery url jshint validthis Dubeau MPL oop
-//  LocalWords:  Mangalam mixin's json unintialized param dataType
-//  LocalWords:  SimpleEventEmitter
+//  LocalWords:  param unintialized Mangalam MPL Dubeau

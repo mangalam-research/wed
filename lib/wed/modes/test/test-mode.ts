@@ -459,5 +459,4 @@ export class TestMode extends GenericMode<TestModeOptions> {
 
 export { TestMode as Mode };
 
-//  LocalWords:  domutil metas tei oop util Mangalam MPL
-//  LocalWords:  Dubeau
+//  LocalWords:  Dubeau MPL Mangalam tei domutil

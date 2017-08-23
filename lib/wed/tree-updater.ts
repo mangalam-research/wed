@@ -886,9 +886,8 @@ export class TreeUpdater {
   }
 }
 
-//  LocalWords:  DOM Mangalam MPL Dubeau previousSibling nextSibling
-//  LocalWords:  mergeTextNodes prev insertIntoText nodeToPath
-//  LocalWords:  pathToNode SimpleEventEmitter deleteNode setTextNode
-//  LocalWords:  cd abfoocd abcd insertNodeAt TreeUpdater param mixin
-//  LocalWords:  setTextNodeValue removeNode deleteText insertBefore
-//  LocalWords:  insertText insertAt splitAt oop domutil
+//  LocalWords:  domutil splitAt insertAt insertText insertBefore deleteText cd
+//  LocalWords:  removeNode setTextNodeValue param TreeUpdater insertNodeAt MPL
+//  LocalWords:  abcd abfoocd setTextNode deleteNode pathToNode nodeToPath prev
+//  LocalWords:  insertIntoText mergeTextNodes nextSibling previousSibling DOM
+//  LocalWords:  Dubeau Mangalam
