@@ -534,7 +534,7 @@ ${domutil.textToHTML(attributes[name])}</span>"</span>`;
   }
 }
 
-//  LocalWords:  sep el focusable lt enterStartTag unclick nbsp li
-//  LocalWords:  tabindex listDecorator contenteditable href jQuery
-//  LocalWords:  gui domlistener domutil util validator jquery
-//  LocalWords:  Mangalam MPL Dubeau
+//  LocalWords:  attributeName unresolve func tslint readonly localName endCls
+//  LocalWords:  PossibleDueToWildcard Dubeau MPL Mangalam attributesHTML util
+//  LocalWords:  jquery validator domutil domlistener gui autohidden jQuery cls
+//  LocalWords:  listDecorator origName li nbsp lt el sep

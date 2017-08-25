@@ -62,9 +62,11 @@ export abstract class MetadataJSONReader implements MetadataReader {
   /**
    * Convert the object to a metadata instance.
    *
-   * @param object Object to convert.
+   * @param object The object to convert.
    *
    * @returns A new metadata instance.
    */
   protected abstract convert(object: Object): Metadata;
 }
+
+//  LocalWords:  MPL

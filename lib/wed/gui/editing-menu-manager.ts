@@ -142,7 +142,6 @@ export class EditingMenuManager {
 
     this.dismiss();
     this.caretManager.pushSelection();
-    // eslint-disable-next-line new-cap
     this.currentDropdown = new cmClass(
       this.doc, x, y, items,
       () => {
@@ -447,3 +446,7 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
     throw new Error("no position for displaying the menu");
   }
 }
+
+//  LocalWords:  MPL contextMenuHandler readonly actualNode treeCaret jQuery li
+//  LocalWords:  prepend tabindex href getDescriptionFor iconHtml mousedown
+//  LocalWords:  attributeValue mouseup contextmenu

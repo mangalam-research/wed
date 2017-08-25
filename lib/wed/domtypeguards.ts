@@ -18,14 +18,6 @@ export function isText(node?: Node | null): node is Text {
   return node != null && node.nodeType === Node.TEXT_NODE;
 }
 
-//
-// export function isAttribute ...
-//
-// Not implemented yet. The caveats with implementing such a function need to be
-// investigated. See [["domutil".isAttr]] for information about the problems
-// related to determining whether a node is an attribute or not.
-//
-
 const attrNodeType = Node.ATTRIBUTE_NODE;
 // Specialized for when Node.ATTRIBUTE_NODE still exists.
 function isAttrWithType(it: Attr | Node): it is Attr {
@@ -53,10 +45,10 @@ function isAttrNoType(it: Attr | Node): it is Attr {
  * decided that attributes were no longer really nodes. So they decided to make
  * attribute objects inherit from the ``Attr`` interface **only**. This means
  * that ``nodeType`` no longer exists for attributes. The new way to test
- * whether something is an attribute is to test with ``instanceof
- * Attr``. However, as usual, the DOM implementation for XML lags behind the
- * HTML side and on Chrome 49 (to name just one case), ``instanceof Attr`` does
- * not work on XML attributes whereas testing ``nodeType`` does.
+ * whether something is an attribute is to test with ``instanceof Attr``.
+ * However, as usual, the DOM implementation for XML lags behind the HTML side
+ * and on Chrome 49 (to name just one case), ``instanceof Attr`` does not work
+ * on XML attributes whereas testing ``nodeType`` does.
  *
  * This function performs a test that works on HTML attributes and XML
  * attributes.
@@ -83,3 +75,5 @@ node is DocumentFragment {
 export function isDocument(node?: Node | null): node is Document {
   return node != null && node.nodeType === Node.DOCUMENT_NODE;
 }
+
+//  LocalWords:  Typeguards MPL isAttribute attrNodeType

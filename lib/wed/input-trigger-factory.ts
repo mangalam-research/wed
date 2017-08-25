@@ -169,6 +169,5 @@ InputTrigger {
   return ret;
 }
 
-//  LocalWords:  Mangalam MPL Dubeau lastChild deleteText domutil
-//  LocalWords:  keypress keydown util
-//  LocalWords:  InputTrigger
+//  LocalWords:  InputTrigger keydown keypress domutil deleteText lastChild MPL
+//  LocalWords:  Dubeau Mangalam

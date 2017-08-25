@@ -26,7 +26,7 @@ export class CaretMark {
 
   /**
    * This is an element used to calculate the position of the caret on the
-   * screen. It is temporarily inserted in the the DOM to perform the position
+   * screen. It is temporarily inserted in the DOM to perform the position
    * calculations.
    */
   private readonly dummy: HTMLElement;
@@ -202,3 +202,5 @@ export class CaretMark {
     return this.el.getBoundingClientRect();
   }
 }
+
+//  LocalWords:  MPL scroller contenteditable px

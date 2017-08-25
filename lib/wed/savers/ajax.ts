@@ -58,7 +58,7 @@ function getMessages(data: Response): ParsedResponse | undefined {
 }
 
 export interface Options extends saver.SaverOptions {
-  /** The url location to POST save requests. */
+  /** The URL location to POST save requests. */
   url: string;
 
   /**
@@ -273,3 +273,5 @@ saving. Please contact technical support before trying to edit again.`);
 }
 
 export { AjaxSaver as Saver };
+
+//  LocalWords:  MPL ETag runtime etag json url autosave

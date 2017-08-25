@@ -41,4 +41,4 @@ export const EDITING_KEYS: ReadonlyArray<key.Key> = [
   ENTER,
 ];
 
-//  LocalWords:  Mangalam MPL Dubeau
+//  LocalWords:  Mangalam MPL Dubeau Ctrl

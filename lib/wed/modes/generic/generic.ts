@@ -235,4 +235,4 @@ class GenericMode<Options extends GenericModeOptions>
 
 export { GenericMode as Mode };
 
-//  LocalWords:  gui jquery Mangalam MPL Dubeau
+//  LocalWords:  gui jquery Mangalam MPL Dubeau metadata's

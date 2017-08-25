@@ -190,3 +190,6 @@ Node | undefined {
     throw ex;
   }
 }
+
+//  LocalWords:  MPL domutil util boundaryXY nodeType getClientRects rect
+//  LocalWords:  getAttrValueNode

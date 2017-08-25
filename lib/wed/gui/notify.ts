@@ -23,3 +23,5 @@ export function notify(message: string, settings?: NotifySettings): void {
     mergeOptions(defaultSettings, settings);
   $.notify({ message }, s);
 }
+
+//  LocalWords:  MPL

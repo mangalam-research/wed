@@ -131,3 +131,5 @@ export function check(template: Template, object: CheckedObject): CheckResults {
 }
 
 exports.check = check;
+
+//  LocalWords:  MPL baz bip

@@ -1,5 +1,5 @@
 /**
- * Modelization of GUI tree selectors.
+ * GUI tree selectors.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
@@ -51,3 +51,5 @@ export class GUISelector {
     return new GUISelector(toGUISelector(selector, namespaces));
   }
 }
+
+//  LocalWords:  MPL

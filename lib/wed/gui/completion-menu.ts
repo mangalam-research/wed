@@ -140,3 +140,5 @@ export class CompletionMenu extends ContextMenu {
     super.dismiss();
   }
 }
+
+//  LocalWords:  MPL li href

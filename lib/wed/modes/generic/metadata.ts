@@ -74,3 +74,5 @@ export interface Metadata {
    */
   unresolveName(name: EName): string | undefined;
 }
+
+//  LocalWords:  MPL URIs

@@ -158,5 +158,5 @@ export function flush(): void {
   }
 }
 
-//  LocalWords:  param CSRFToken Django rethrown unhandled appender
-//  LocalWords:  popup Mangalam MPL Dubeau
+//  LocalWords:  Dubeau MPL Mangalam popup appender unhandled rethrown Django
+//  LocalWords:  CSRFToken param

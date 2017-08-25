@@ -160,3 +160,5 @@ export class Saver extends saver.Saver {
       .catch(() => false);
   }
 }
+
+//  LocalWords:  localforage MPL runtime

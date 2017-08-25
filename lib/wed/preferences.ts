@@ -133,3 +133,5 @@ export class Preferences {
     this._validatePrefs(this.prefs);
   }
 }
+
+//  LocalWords:  wed's MPL

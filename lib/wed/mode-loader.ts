@@ -80,3 +80,5 @@ export class ModeLoader {
     return (await runtime.resolveModules(`${path}_mode`))[0] as ModeModule;
   }
 }
+
+//  LocalWords:  MPL runtime

@@ -51,4 +51,4 @@ if (!test) {
   install(window);
 }
 
-// LocalWords:  onbeforeunload Dubeau MPL Mangalam
+//  LocalWords:  reregistering Mangalam MPL Dubeau onbeforeunload

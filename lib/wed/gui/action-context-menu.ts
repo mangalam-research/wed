@@ -343,7 +343,7 @@ export class ActionContextMenu extends Base {
         const whichFilter = spec.which;
         // Don't treat the key specially if the filter is already set.
         if (this.filters[whichFilter] !== null) {
-          continue; // eslint-disable-line no-continue
+          continue;
         }
         this.filters[whichFilter] = spec.filter;
         this.render();
@@ -506,3 +506,6 @@ export class ActionContextMenu extends Base {
     return ret;
   }
 }
+
+//  LocalWords:  MPL li Dropdown nowrap sm keydown tooltips keypress btn xs
+//  LocalWords:  tooltip dropdown actionType actionFilterItem actionFilterInput

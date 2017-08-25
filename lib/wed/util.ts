@@ -17,7 +17,6 @@
  * @returns The distance.
  */
 export function distFromDeltas(delta1: number, delta2: number): number {
-  // eslint-disable-next-line no-mixed-operators
   return Math.sqrt(delta1 * delta1 + delta2 * delta2);
 }
 
@@ -26,17 +25,17 @@ export function distFromDeltas(delta1: number, delta2: number): number {
  * rectangle or touches it, the distance is 0. In the nomenclature below, left
  * and right are on the X axis and top and bottom on the Y axis.
  *
- * @param x X coordinate of the point.
+ * @param x The x coordinate of the point.
  *
- * @param y Y coordinate of the point.
+ * @param y The y coordinate of the point.
  *
- * @param left Left coordinate of the rectangle.
+ * @param left The left coordinate of the rectangle.
  *
- * @param top Top coordinate of the rectangle.
+ * @param top The top coordinate of the rectangle.
  *
- * @param right Right coordinate of the rectangle.
+ * @param right The right coordinate of the rectangle.
  *
- * @param bottom Bottom coordinate of the rectangle.
+ * @param bottom The bottom coordinate of the rectangle.
  *
  * @returns The distance.
  */
@@ -53,10 +52,8 @@ export function distFromRect(x: number, y: number, left: number, top: number,
   const lefter = leftDelta < 0;
   const righter = rightDelta > 0;
 
-  /* eslint-disable no-nested-ternary */
   const deltaX = lefter ? leftDelta : (righter ? rightDelta : 0);
   const deltaY = above ? topDelta : (below ? bottomDelta : 0);
-  /* eslint-enable */
 
   return distFromDeltas(deltaX, deltaY);
 }
@@ -67,17 +64,17 @@ export function distFromRect(x: number, y: number, left: number, top: number,
  * 0. In the nomenclature below, left and right are on the X axis and top and
  * bottom on the Y axis.
  *
- * @param x X coordinate of the point.
+ * @param x The x coordinate of the point.
  *
- * @param y Y coordinate of the point.
+ * @param y The y coordinate of the point.
  *
- * @param left Left coordinate of the rectangle.
+ * @param left The left coordinate of the rectangle.
  *
- * @param top Top coordinate of the rectangle.
+ * @param top The top coordinate of the rectangle.
  *
- * @param right Right coordinate of the rectangle.
+ * @param right The right coordinate of the rectangle.
  *
- * @param bottom Bottom coordinate of the rectangle.
+ * @param bottom The bottom coordinate of the rectangle.
  *
  * @returns The distance.
  */
@@ -95,10 +92,8 @@ export function distsFromRect(x: number, y: number, left: number, top: number,
   const lefter = leftDelta < 0;
   const righter = rightDelta > 0;
 
-  /* eslint-disable no-nested-ternary */
   const deltaX = lefter ? leftDelta : (righter ? rightDelta : 0);
   const deltaY = above ? topDelta : (below ? bottomDelta : 0);
-  /* eslint-enable */
 
   return { x: Math.abs(deltaX), y: Math.abs(deltaY) };
 }
@@ -319,13 +314,13 @@ export function stackTrace(): string {
  * function is meant to be used for "complex" name patterns that we may get from
  * salve. Note that a "pattern object" is the result of calling ``toObject()``
  * on the pattern. The goal of this function is to convert the pattern object to
- * a string that would be intepretable by the end user.
+ * a string that would be interpretable by the end user.
  *
  * An explanation about how this handles namespaces and wildcard patterns is in
  * order. In a Relax NG schema the name pattern ``*`` in the compact notation is
  * equivalent to ``<anyName/>`` in the expanded notation. And ``foo:*`` is
  * equivalent to ``<nsName ns="uri_of_foo">`` where ``uri_of_foo`` is the URI
- * that has been assocated with ``foo`` in the compact schema. It would be nice
+ * that has been associated with ``foo`` in the compact schema. It would be nice
  * if the function here could reuse this notation, but we cannot. Consider the
  * case where an Relax NG schema in the compact notation wants to declare a name
  * pattern which means "any name in the default namespace". In XML we express a
@@ -442,4 +437,6 @@ export function suppressUnhandledRejections<P extends Promise<any>>(p: P): P {
 }
 // tslint:enable:no-any
 
-//  LocalWords:  Mangalam MPL Dubeau util CSS wed's unencoded
+//  LocalWords:  Mangalam MPL Dubeau util CSS wed's unencoded URIs localName ns
+//  LocalWords:  escapeCSSClass xmlns prepended nextID NG NameChoice AnyName
+//  LocalWords:  convertPatternObj NsName

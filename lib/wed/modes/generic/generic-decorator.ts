@@ -108,4 +108,4 @@ export class GenericDecorator extends Decorator {
   }
 }
 
-//  LocalWords:  Dubeau MPL Mangalam util
+//  LocalWords:  Dubeau MPL Mangalam util klass

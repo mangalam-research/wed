@@ -1,5 +1,5 @@
 /**
- * Metadata management cli tool.
+ * Metadata management CLI tool.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
@@ -215,3 +215,6 @@ else {
   // tslint:disable-next-line:no-console
   console.log(stringified);
 }
+
+//  LocalWords:  CLI MPL uncaughtException utf TEI's json xsl stdout tei
+//  LocalWords:  storeTrue elementSpec

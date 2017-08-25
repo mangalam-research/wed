@@ -251,7 +251,7 @@ function executeDeleteAttribute(editor: Editor,
     const encoded = node.name;
     const startLabel = childByClass(guiOwner, "__start_label")!;
 
-    // An earlier version of this code relied on the order of attributres in the
+    // An earlier version of this code relied on the order of attributes in the
     // data tree. However, this order is not consistent from platform to
     // platform. Using the order of attributes in the GUI is
     // consistent. Therefore we go to the GUI to find the next attribute.
@@ -321,4 +321,6 @@ Record<string, Transformation<TransformationData>> {
   return ret;
 }
 
-//  LocalWords:  TransformationRegistry Mangalam MPL Dubeau
+//  LocalWords:  TransformationRegistry Mangalam MPL Dubeau autoinsertion ie el
+//  LocalWords:  autoinsert enterStartTag moveCaretTo xmlns guiLoc readonly
+//  LocalWords:  guiOwnerLoc fromDataLocation

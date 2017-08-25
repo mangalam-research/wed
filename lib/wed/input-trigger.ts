@@ -272,6 +272,5 @@ export class InputTrigger {
   }
 }
 
-//  LocalWords:  DOM html gui Mangalam MPL Dubeau li ul focusable
-//  LocalWords:  submap keypress tabindex keydown hashstructs
-//  LocalWords:  util InputTrigger
+//  LocalWords:  InputTrigger keydown tabindex keypress submap jQuery focusable
+//  LocalWords:  Dubeau MPL Mangalam gui html DOM

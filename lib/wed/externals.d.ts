@@ -45,3 +45,5 @@ interface Window {
 }
 
 declare var __WED_TESTING: any;
+
+//  LocalWords:  bluejax jQuery jquery

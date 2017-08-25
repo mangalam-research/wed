@@ -265,7 +265,7 @@ export class Editor {
   readonly $errorList: JQuery;
 
   /**
-   * The action to perform is a user is tyring to do something with a complex
+   * The action to perform is a user is trying to do something with a complex
    * pattern.
    */
   readonly complexPatternAction: Action<{}>;
@@ -288,10 +288,10 @@ export class Editor {
   /** The maximum label level that labels may have. */
   maxLabelLevel: number;
 
-  /** The DLocRoot object marking the root of the GUI tree. */
+  /** The [[DLocRoot]] object marking the root of the GUI tree. */
   guiDLocRoot: DLocRoot;
 
-  /** The DLocRoot object marking the root of the data tree. */
+  /** The [[DLocRoot]] object marking the root of the data tree. */
   dataDLocRoot: DLocRoot;
 
   /** The updater through which all data tree manipulations must be made. */
@@ -400,9 +400,6 @@ export class Editor {
     // document to be edited. (Faster!)
     //
 
-    // $guiRoot represents the document root in the HTML elements displayed. The
-    // top level element of the XML document being edited will be the single
-    // child of $guiRoot.
     const guiRoot = this.guiRoot =
       framework.getElementsByClassName("wed-document")[0] as HTMLElement;
     this.$guiRoot = $(guiRoot);
@@ -1844,7 +1841,7 @@ in a way not supported by this version of wed.";
   /**
    * Opens a documentation link.
    *
-   * @param url The url to open.
+   * @param url The URL to open.
    */
   openDocumentationLink(url: string): void {
     window.open(url);
@@ -3383,3 +3380,20 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
     this.$guiRoot.trigger("wed-post-paste", [data.e, caret, dataClone]);
   }
 }
+
+//  LocalWords:  MPL keyConstants KEYPRESS sm md contenteditable constrainer sb
+//  LocalWords:  scroller nbsp href nav ul li errorlist HTMLElement jQuery lt
+//  LocalWords:  html runtime DLocRoot config navlist popstate attr xmlns xml
+//  LocalWords:  getDescriptionFor fireTransformation exitTaskSuspension tooOld
+//  LocalWords:  readonly attrVal Refetch pathToNode nodeToPath Autosaved bs ev
+//  LocalWords:  editedByOther autosaving guiRoot BeforeInsertNodeAt tooltip ns
+//  LocalWords:  InsertNodeAt tooltips BeforeDeleteNode stylesheet css tabindex
+//  LocalWords:  revalidate dragenter dragstart dragover keydown keypress pageX
+//  LocalWords:  compositionstart compositionupdate compositionend mousedown px
+//  LocalWords:  mouseover mouseout contextmenu mousemove mouseup pageY screenX
+//  LocalWords:  screenY docLink wed's enterStartTag pheight maxPanelHeight cd
+//  LocalWords:  domutil childByClass outerHeight clipboardData parsererror Yay
+//  LocalWords:  Ctrl CapsLock activeElement querySelector getCaret dataNode nd
+//  LocalWords:  noop keyup mousedownHandler caretManager mouseoutHandler rect
+//  LocalWords:  typeahead autosave guiNode PossibleDueToWildcard RTL nodeType
+//  LocalWords:  currentLabelLevel elementAtMouse newPosition

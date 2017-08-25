@@ -97,3 +97,5 @@ export class WedSelection {
     return this.focus.equals(other.focus) && this.anchor.equals(other.anchor);
   }
 }
+
+//  LocalWords:  MPL foci

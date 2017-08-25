@@ -25,9 +25,9 @@ export interface Options extends saver.SaverOptions {
 }
 
 /**
- * Defines a saver that uses localforage to save documents.
+ * Defines a saver that uses IndexedDB to save documents.
  *
- * This saver stores the document as a "file" into an indexeddb instance. The
+ * This saver stores the document as a "file" into an IndexedDB instance. The
  * objects are not really files but similar to files. Henceforth, the name
  * "file" will be used without quotes to refer to the objects stored.
  *
@@ -101,3 +101,5 @@ export class Saver extends saver.Saver {
       .catch(() => false);
   }
 }
+
+//  LocalWords:  IndexedDB MPL runtime

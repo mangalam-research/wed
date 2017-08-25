@@ -110,3 +110,5 @@ export class MetadataReaderV2 extends MetadataReaderBase {
     super(MetadataV2);
   }
 }
+
+//  LocalWords:  MPL inlines tei

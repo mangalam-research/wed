@@ -359,7 +359,7 @@ export function positionLeft(pos: DLoc | undefined | null,
           moveInAttributes(closestByClass(closestGUI, "_real", root)!,
                            modeTree)) {
         if (closestByClass(node, "_attribute_value", closestGUI) !== null) {
-          // We're in an atribute value, stop here.
+          // We're in an attribute value, stop here.
           break;
         }
 
@@ -606,3 +606,5 @@ export function positionUp(pos: DLoc | undefined | null,
 
   return minPosition;
 }
+
+//  LocalWords:  docRoot firstChild pos

@@ -218,10 +218,10 @@ export class DLoc {
    *
    * @param location The location as a node, offset pair.
    *
-   * @param normalize Normalize the offset to a valid value.
+   * @param normalize Whether to normalize the offset to a valid value.
    *
    * @returns The location. It returns ``undefined`` if the ``node`` is "absent"
-   * because it is ``undefined`` or ``null``. This is true irrespctive of the
+   * because it is ``undefined`` or ``null``. This is true irrespective of the
    * signature used. If you use a [[Caret]] and it has an absent node, then the
    * result is ``undefined``.
    *
@@ -550,4 +550,4 @@ export function getRoot(node: Node | Attr | undefined | null): DLocRoot {
   return ret;
 }
 
-//  LocalWords:  makeDLoc DLoc domutil jquery MPL dloc
+//  LocalWords:  makeDLoc DLoc domutil jquery MPL dloc mustMakeDLoc nd

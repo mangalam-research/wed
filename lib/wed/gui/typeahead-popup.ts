@@ -41,7 +41,7 @@ export class TypeaheadPopup {
    *
    * @param y Position of popup.
    *
-   * @param width The desired width of the popup. This value may get overriden.
+   * @param width The desired width of the popup. This value may get overridden.
    *
    * @param  placeholder The placeholder text to use.
    *
@@ -247,3 +247,6 @@ actualWidth))}px`;
     (this.$ta as any).typeahead("val", value);
   }
 }
+
+//  LocalWords:  typeahead MPL px keydown actualWidth winWidth tt dropdown
+//  LocalWords:  dropdownMaxHeight mouseenter mouseleave ttTypeahead

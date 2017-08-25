@@ -190,4 +190,5 @@ export class GUIUpdater extends TreeUpdater {
 }
 
 //  LocalWords:  domutil jquery pathToNode nodeToPath jQuery deleteNode Dubeau
-//  LocalWords:  insertNodeAt MPL Mangalam gui setTextNodeValue TreeUpdater
+//  LocalWords:  insertNodeAt MPL Mangalam gui setTextNodeValue TreeUpdater ev
+//  LocalWords:  BeforeDeleteNode SetAttributeNS

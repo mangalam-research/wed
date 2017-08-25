@@ -1,5 +1,5 @@
 /**
- * Convertion from XML to HTML.
+ * Conversion from XML to HTML.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
@@ -99,3 +99,6 @@ _real`;
 
   return ret;
 }
+
+//  LocalWords:  MPL subtree tagName localName xmlns normalizeNS namespaceURI
+//  LocalWords:  ns nodeType

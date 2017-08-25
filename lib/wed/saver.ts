@@ -24,7 +24,7 @@ function deltaToString(delta: number): string {
     timeDesc = " ≈ ";
     // To get a single digit after the decimal point, we divide by (factor /
     // 10), round the result, and then divide by 10. Note that this is imprecise
-    // due to rounding errors in floating point arithmetics but we don't care.
+    // due to rounding errors in floating point arithmetic but we don't care.
     if (delta > 60 * 60 * 24) {
       timeDesc += `${Math.round(delta / (6 * 60 * 24)) / 10}d`;
     }
@@ -372,8 +372,8 @@ export abstract class Saver {
    * Returns information regarding whether the saver sees the data tree as
    * having been modified since the last save occurred.
    *
-   * @returns Returns ``false`` if the tree has not been modified. Otherwise,
-   * returns a string that describes how long ago the modification happened.
+   * @returns ``false`` if the tree has not been modified. Otherwise, returns a
+   * string that describes how long ago the modification happened.
    */
   getModifiedWhen(): false | string {
     if (this.savedGeneration === this.currentGeneration) {
@@ -414,4 +414,5 @@ export interface SaverConstructor {
        dataTree: Node, options: SaverOptions): Saver;
 }
 
-//  LocalWords:  param unintialized Mangalam MPL Dubeau
+//  LocalWords:  param unintialized Mangalam MPL Dubeau autosaved autosaves pre
+//  LocalWords:  autosave runtime autosaving setAutosaveInterval setTimeout

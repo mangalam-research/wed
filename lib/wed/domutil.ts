@@ -86,7 +86,7 @@ export function rangeFromPoints(startContainer: Node,
 /**
  * Focuses the node itself or if the node is a text node, focuses the parent.
  *
- * @param node Node to focus.
+ * @param node The node to focus.
  *
  * @throws {Error} If the node is neither a text node nor an element. Trying to
  * focus something other than these is almost certainly an algorithmic bug.
@@ -136,9 +136,9 @@ export type Caret = [Node, number];
  * @param noText If true, and a text node would be returned, the function will
  * instead return the parent of the text node.
  *
- * @returns Returns the next caret position, or ``null`` if such position does
- * not exist. The ``container`` parameter constrains movements to positions
- * inside it.
+ * @returns The next caret position, or ``null`` if such position does not
+ * exist. The ``container`` parameter constrains movements to positions inside
+ * it.
  */
 // tslint:disable-next-line:cyclomatic-complexity
 export function nextCaretPosition(caret: Caret,
@@ -243,9 +243,9 @@ export function nextCaretPosition(caret: Caret,
  * @param noText If true, and a text node would be returned, the function will
  * instead return the parent of the text node.
  *
- * @returns Returns the previous caret position, or ``null`` if such position
- * does not exist. The ``container`` parameter constrains movements to positions
- * inside it.
+ * @returns The previous caret position, or ``null`` if such position does not
+ * exist. The ``container`` parameter constrains movements to positions inside
+ * it.
  */
 // tslint:disable-next-line:cyclomatic-complexity
 export function prevCaretPosition(caret: Caret,
@@ -1599,7 +1599,7 @@ export function isNotDisplayed(el: HTMLElement,
                                root: HTMLElement | HTMLDocument): boolean {
   const win = el.ownerDocument.defaultView;
 
-  // We don't put put a menu for attributes that are somehow not
+  // We don't put a menu for attributes that are somehow not
   // displayed.
   while (el != null && el !== root) {
     if (el.style.display === "none") {
@@ -1651,11 +1651,10 @@ export function contains(container: Node, contained: Node): boolean {
 // Re-export, for historical reasons.
 export { isAttr };
 
-//  LocalWords:  genericInsertIntoText endOffset endContainer mockup
-//  LocalWords:  startOffset startContainer unlinks DOM gui Mangalam
-//  LocalWords:  MPL Dubeau nextSibling versa insertFragAt validthis
-//  LocalWords:  insertNodeAt jshint mergeTextNodes deleteNode dom lt
-//  LocalWords:  lastChild prev getSelectionRange jQuery deleteText
-//  LocalWords:  Prepend insertIntoText cd abfoocd abcd nodeToPath
-//  LocalWords:  contenteditable pathToNode whitespace util jquery
-//  LocalWords:  domutil
+//  LocalWords:  wed's URIs rect clientTop jquery util whitespace clientLeft cd
+//  LocalWords:  contenteditable abcd abfoocd insertIntoText Prepend scrollbars
+//  LocalWords:  deleteText jQuery getSelectionRange prev lastChild nodeType zA
+//  LocalWords:  dom deleteNode mergeTextNodes jshint insertNodeAt noop treeA
+//  LocalWords:  validthis insertFragAt versa nextSibling Dubeau MPL nodeInA
+//  LocalWords:  Mangalam gui DOM unlinks startContainer startOffset childNodes
+//  LocalWords:  endContainer endOffset genericInsertIntoText

@@ -31,7 +31,7 @@ export interface Task {
    * work. For instance, if the task is to do something to all elements in an
    * array, one cycle could process a set number of elements from the array.
    *
-   * @param task The task that is peforming the computation.
+   * @param task The task that is performing the computation.
    *
    * @returns False if there is no more work to be done. True otherwise.
    */
@@ -52,10 +52,9 @@ export interface State {
 
 /**
  * A task is a computation that should produce a definite goal after a finite
- * time. The TaskRunner class is used to allow the task to happen in a way that
- * does not completely block the JavaScript virtual machine. The task
- * will happen in cycles that run for a maximum amount of time before
- * relinquishing control.
+ * time. This class is used to allow the task to happen in a way that does not
+ * completely block the JavaScript virtual machine. The task will happen in
+ * cycles that run for a maximum amount of time before relinquishing control.
  */
 export class TaskRunner {
   private readonly _timeout: number = 0;
@@ -220,3 +219,5 @@ export class TaskRunner {
     this._state.complete();
   }
 }
+
+//  LocalWords:  MPL maxTimespan workWrapper

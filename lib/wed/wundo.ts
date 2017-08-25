@@ -146,4 +146,4 @@ export class MarkerUndo extends undo.Undo {
 }
 
 //  LocalWords:  pathToNode nodeToPath Dubeau MPL Mangalam param UndoGroup
-//  LocalWords:  TextUndoGroup
+//  LocalWords:  TextUndoGroup caretAsPathAfter

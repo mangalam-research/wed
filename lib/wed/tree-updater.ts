@@ -514,23 +514,15 @@ export class TreeUpdater {
   /**
    * A primitive method. Inserts a node at the specified position.
    *
-   * @param {module:dloc~DLoc} loc The location at which to insert.
-   * @param {Node} node The node to insert.
-   *
-   * @emits module:tree_updater~TreeUpdater#insertNodeAt
-   * @emits module:tree_updater~TreeUpdater#change
-   * @throws {Error} If ``node`` is a document fragment Node type.
-   *
-   * @also
-   *
-   * @param {Node} parent The node which will become the parent of the
+   * @param loc The location at which to insert.
+   * @param node The node to insert.
+   * @param parent The node which will become the parent of the
    * inserted node.
-   * @param {integer} index The position at which to insert the node
+   * @param index The position at which to insert the node
    * into the parent.
-   * @param {Node} node The node to insert.
    *
-   * @emits module:tree_updater~TreeUpdater#insertNodeAt
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits InsertNodeAtEvent
+   * @emits ChangedEvent
    * @throws {Error} If ``node`` is a document fragment Node type.
    */
   insertNodeAt(loc: DLoc, node: Node): void;
@@ -600,8 +592,8 @@ export class TreeUpdater {
    *
    * @param value The new value of the node.
    *
-   * @emits module:tree_updater~TreeUpdater#setTextNodeValue
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits SetTextNodeValueEvent
+   * @emits ChangedEvent
    * @throws {Error} If called on a non-text Node type.
    */
   setTextNodeValue(node: Text, value: string): void {
@@ -707,9 +699,9 @@ export class TreeUpdater {
    * A complex method. Removes the contents between the start and end carets
    * from the DOM tree. If two text nodes become adjacent, they are merged.
    *
-   * @param start Start position.
+   * @param start The start position.
    *
-   * @param end Ending position.
+   * @param end The end position.
    *
    * @returns A pair of items. The first item is a ``DLoc`` object indicating
    * the position where the cut happened. The second item is a list of nodes,
@@ -782,9 +774,9 @@ export class TreeUpdater {
    *
    * @param node The node to remove
    *
-   * @emits module:tree_updater~TreeUpdater#deleteNode
-   * @emits module:tree_updater~TreeUpdater#beforeDeleteNode
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits DeleteNodeEvent
+   * @emits BeforeDeleteNodeEvent
+   * @emits ChangedEvent
    */
   deleteNode(node: Node): void {
     this._emit({ name: "BeforeDeleteNode", node: node });
@@ -810,8 +802,8 @@ export class TreeUpdater {
    *
    * @param value The value to give to the attribute.
    *
-   * @emits module:tree_updater~TreeUpdater#setAttributeNS
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits SetAttributeNSEvent
+   * @emits ChangedEvent
    */
   setAttribute(node: Element, attribute: string,
                value: string | null | undefined): void {
@@ -830,8 +822,8 @@ export class TreeUpdater {
    *
    * @param value The value to give to the attribute.
    *
-   * @emits module:tree_updater~TreeUpdater#setAttributeNS
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits SetAttributeNSEvent
+   * @emits ChangedEvent
    */
   setAttributeNS(node: Element, ns: string, attribute: string,
                  value: string | null | undefined): void {
@@ -890,4 +882,5 @@ export class TreeUpdater {
 //  LocalWords:  removeNode setTextNodeValue param TreeUpdater insertNodeAt MPL
 //  LocalWords:  abcd abfoocd setTextNode deleteNode pathToNode nodeToPath prev
 //  LocalWords:  insertIntoText mergeTextNodes nextSibling previousSibling DOM
-//  LocalWords:  Dubeau Mangalam
+//  LocalWords:  Dubeau Mangalam BeforeInsertNodeAt BeforeDeleteNode DLocRoot
+//  LocalWords:  SetAttributeNS NodeList nodeType beforeThis nd setAttribute

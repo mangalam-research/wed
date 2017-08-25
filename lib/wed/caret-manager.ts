@@ -85,8 +85,8 @@ function previousTextOrReal(node: Node): Text | Element | null {
  * vice-versa.
  *
  * Given wed's notion of parallel data and GUI trees. A caret can either point
- * into the GUI tree or into the data tree. In in the following documentation,
- * if the caret is not qualified, then it is a GUI caret.
+ * into the GUI tree or into the data tree. In the following documentation, if
+ * the caret is not qualified, then it is a GUI caret.
  *
  * Similarly, a selection can either span a range in the GUI tree or in the data
  * tree. Again, "selection" without qualifier is a GUI selection.
@@ -111,21 +111,20 @@ export class CaretManager implements GUIToDataConverter {
   readonly mark: CaretMark;
 
   /**
-   * @param guiRoot: The object representing the root of the gui tree.
+   * @param guiRoot The object representing the root of the gui tree.
    *
-   * @param dataRoot: The object representing the root of the data tree.
+   * @param dataRoot The object representing the root of the data tree.
    *
-   * @param inputField: The HTML element that is the input field.
+   * @param inputField The HTML element that is the input field.
    *
-   * @param guiUpdater: The GUI updater that is responsible for updating the
+   * @param guiUpdater The GUI updater that is responsible for updating the
    * tree whose root is ``guiRoot``.
    *
-   * @param layer: The layer that holds the caret.
+   * @param layer The layer that holds the caret.
    *
-   * @param scroller: The element that scrolls ``guiRoot``.
+   * @param scroller The element that scrolls ``guiRoot``.
    *
-   *
-   * @param modeTree: The mode tree from which to get modes.
+   * @param modeTree The mode tree from which to get modes.
    */
   constructor(private readonly guiRoot: DLocRoot,
               private readonly dataRoot: DLocRoot,
@@ -784,8 +783,8 @@ export class CaretManager implements GUIToDataConverter {
    */
   pushSelection(): void {
     this.selectionStack.push(this._sel);
-    // _clearDOMSelection is to work around a problem in Rangy
-    // 1.3alpha.804. See ``tech_notes.rst``.
+    // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
+    // ``tech_notes.rst``.
     if (browsers.MSIE_TO_10) {
       this._clearDOMSelection();
     }
@@ -793,7 +792,7 @@ export class CaretManager implements GUIToDataConverter {
 
   /**
    * Pop the last selection that was pushed with ``pushSelection`` and restore
-   * the current caret and selection on the basis of the poped value.
+   * the current caret and selection on the basis of the popped value.
    */
   popSelection(): void {
     this._sel = this.selectionStack.pop();
@@ -881,7 +880,7 @@ export class CaretManager implements GUIToDataConverter {
     }
 
     // tslint:disable-next-line:no-suspicious-comment
-    // The domutil.focusNode call is required to work around bug:
+    // The focusTheNode call is required to work around bug:
     // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
     if (browsers.FIREFOX) {
       focusTheNode(range.endContainer);
@@ -901,7 +900,7 @@ export class CaretManager implements GUIToDataConverter {
    *
    * @param loc The new position.
    *
-   * @param options Options governing the caret movement.
+   * @param options Set of options governing the caret movement.
    */
   private _setGUICaret(loc: DLoc, options: SetCaretOptions): void {
     let offset = loc.offset;
@@ -1063,3 +1062,6 @@ export class CaretManager implements GUIToDataConverter {
     /* tslint:enable:no-console */
   }
 }
+
+//  LocalWords:  MPL wed's DLoc sel setCaret clearDOMSelection rst focusTheNode
+//  LocalWords:  bugzilla nd noop activeElement

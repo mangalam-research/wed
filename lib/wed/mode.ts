@@ -338,5 +338,5 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
                                 offset: number): Action<{}>[];
 }
 
-//  LocalWords:  RequireJS stylesheets subarrays overriden html MPL
-//  LocalWords:  Mangalam Dubeau domutil
+//  LocalWords:  autoinsertion domutil Dubeau Mangalam MPL html overriden
+//  LocalWords:  stylesheets

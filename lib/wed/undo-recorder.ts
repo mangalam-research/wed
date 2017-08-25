@@ -289,4 +289,5 @@ export class UndoRecorder {
 
 //  LocalWords:  domutil insertNodeAt setTextNodeValue deleteNode ev param MPL
 //  LocalWords:  InsertNodeAtUndo SetTextNodeValueUndo DeleteNodeUndo Dubeau
-//  LocalWords:  pathToNode nodeToPath Mangalam
+//  LocalWords:  pathToNode nodeToPath Mangalam SetAttributeNSUndo
+//  LocalWords:  BeforeDeleteNode SetAttributeNS suppressRecording

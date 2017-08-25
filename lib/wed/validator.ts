@@ -194,4 +194,4 @@ export class Validator extends BaseValidator {
 }
 
 //  LocalWords:  boolean Dubeau Mangalam validator MPL RequireJS unclosed DOM
-//  LocalWords:  speculativelyValidate
+//  LocalWords:  speculativelyValidate nd toParse

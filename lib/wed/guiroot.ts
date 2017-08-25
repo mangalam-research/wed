@@ -107,7 +107,8 @@ function findInPhantomWrap(top: Element, index: number): FindResult {
 }
 
 /**
- * This is a DLocRoot class customized for use to mark the root of the GUI tree.
+ * This is a [[DLocRoot]] class customized for use to mark the root of the GUI
+ * tree.
  */
 export class GUIRoot extends DLocRoot {
 
@@ -277,3 +278,5 @@ export class GUIRoot extends DLocRoot {
     return parent;
   }
 }
+
+//  LocalWords:  MPL

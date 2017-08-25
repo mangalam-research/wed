@@ -273,6 +273,5 @@ export function makeCtrlEqKey(ch: string | number): Key {
   return makeMetaKey(ch);
 }
 
-//  LocalWords:  metaKey altKey ctrlKey charcode keyCode param keyup
-//  LocalWords:  Ctrl DOM Mangalam MPL Dubeau boolean keypress
-//  LocalWords:  keydown jQuery
+//  LocalWords:  jQuery keydown keypress boolean Dubeau MPL Mangalam DOM Ctrl
+//  LocalWords:  keyup param keyCode charcode ctrlKey altKey metaKey

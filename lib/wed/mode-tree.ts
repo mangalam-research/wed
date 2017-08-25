@@ -170,7 +170,7 @@ export class ModeTree {
   }
 
   /**
-   * Load the modes, initalize them and build the tree.
+   * Load the modes, initialize them and build the tree.
    *
    * @returns A promise that resolves to ``this`` once all the modes are loaded
    * and initialized.
@@ -280,7 +280,7 @@ export class ModeTree {
    * Get the attribute hiding specs that apply to a specific node.
    *
    * @returns The specifications that apply to the node. These specifications
-   * have been pre-processed to convert the selectors from being appropriate for
+   * have been preprocessed to convert the selectors from being appropriate for
    * the data tree to selectors appropriate for the GUI tree. ``null`` is
    * returned if there are no specs.
    */
@@ -429,3 +429,6 @@ export class ModeTree {
     });
   }
 }
+
+//  LocalWords:  MPL submodes submode combinedErrors nd preprocessed
+//  LocalWords:  stylesheets

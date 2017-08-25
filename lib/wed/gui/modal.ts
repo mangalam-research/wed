@@ -345,7 +345,6 @@ export class Modal {
     const dialog = this._$dom.find(".modal-dialog")[0];
     const rect = dialog.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(dialog);
-    // eslint-disable-next-line no-mixed-operators
     const diff = -rect.top + (winHeight - rect.height) -
       parseInt(computedStyle.marginBottom!);
     const dialogMaxHeight = rect.height + diff;
@@ -355,6 +354,8 @@ export class Modal {
   }
 }
 
-//  LocalWords:  Ok DOM gui Mangalam MPL Dubeau getClickedAsText pre
-//  LocalWords:  addYesNo setBody setTitle mymodal jquery html href
-//  LocalWords:  bs jQuery param btn tabindex util getTopLevel
+//  LocalWords:  dialogMaxHeight clientY clientX resizemove dragmove setTimeout
+//  LocalWords:  ignoreBackdropClick getBoundingClientRect resizeend tabindex
+//  LocalWords:  getTopLevel btn param jQuery bs resizestart href jquery px pre
+//  LocalWords:  mymodal setTitle setBody addYesNo rect getClickedAsText Dubeau
+//  LocalWords:  MPL Mangalam DOM Ok

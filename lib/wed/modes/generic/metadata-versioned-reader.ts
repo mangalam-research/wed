@@ -105,7 +105,7 @@ got ${metadata.version}`);
 }
 
 /**
- * A contstructor of [[MetadataBase]] objects.
+ * A constructor of [[MetadataBase]] objects.
  */
 export interface MetadataBaseCtor {
   // tslint:disable-next-line:no-any
@@ -126,3 +126,5 @@ export class MetadataReaderBase extends MetadataJSONReader {
     return new this.metadataClass(object as MetadataInterface);
   }
 }
+
+//  LocalWords:  MPL expectedVersion xml tei elNs elPrefix el

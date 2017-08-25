@@ -536,3 +536,6 @@ export class ValidationController {
     this.errorLayer.append(elementsToFrag(this.document, markers));
   }
 }
+
+//  LocalWords:  MPL scroller processErrors li markerId loc scrollerPos px
+//  LocalWords:  scrollTop scrollLeft
