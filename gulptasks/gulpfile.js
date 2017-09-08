@@ -127,36 +127,49 @@ gulp.task("convert-wed-yaml", () => {
 });
 
 const moduleFix = /^(define\(\["require", "exports")(.*?\], function \(require, exports)(.*)$/m;
-function tsc(project, dest) {
+function tsc(project, dest, done) {
   // The .once nonsense is to work around a gulp-typescript bug
   //
   // See: https://github.com/ivogabe/gulp-typescript/issues/295
   //
-  // For the fix see:
+  // The fix is inspired by these comments:
   // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-197299175
+  // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-284483600
   //
   const result = project.src()
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(project())
-        .once("error", function onError() {
+        .once("error", function finish() {
+          // We need to use "finish" rather than "end" due to a bug in
+          // gulp-typescript:
+          //
+          // https://github.com/ivogabe/gulp-typescript/issues/540
+          //
           this.once("finish", () => {
-            process.exit(1);
+            const err = new Error("TypeScript compilation failed");
+            err.showStack = false;
+            done(err);
           });
         });
 
-  return es.merge(result.js
-                  //
-                  // This ``replace`` to work around the problem that ``module``
-                  // is not defined when compiling to "amd". See:
-                  //
-                  // https://github.com/Microsoft/TypeScript/issues/13591
-                  //
-                  // We need to compile to "amd" for now.
-                  //
-                  .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
-                  .pipe(sourcemaps.write("."))
-                  .pipe(gulp.dest(dest)),
-                  result.dts.pipe(gulp.dest(dest)));
+  es.merge(result.js
+           //
+           // This ``replace`` to work around the problem that ``module``
+           // is not defined when compiling to "amd". See:
+           //
+           // https://github.com/Microsoft/TypeScript/issues/13591
+           //
+           // We need to compile to "amd" for now.
+           //
+           .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
+           .pipe(sourcemaps.write("."))
+           .pipe(gulp.dest(dest)),
+           result.dts.pipe(gulp.dest(dest)))
+  // The stream that es.merge returns is only readable, not writable. So there's
+  // no finish event for it, only "end".
+    .on("end", () => {
+      done();
+    });
 }
 
 function parseFile(name, data) {
@@ -218,7 +231,9 @@ gulp.task("generate-ts", () =>
 
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
 gulp.task("tsc-wed", ["generate-ts"],
-          () => tsc(wedProject, "build/standalone/lib"));
+          (done) => {
+            tsc(wedProject, "build/standalone/lib", done);
+          });
 
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
