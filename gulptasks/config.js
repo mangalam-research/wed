@@ -80,6 +80,10 @@ main branch`,
     action: "storeTrue",
     defaultValue: false,
   },
+  watch_task: {
+    help: "Which task to run when the files change.",
+    defaultValue: "test",
+  },
 };
 
 /**
