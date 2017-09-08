@@ -162,3 +162,14 @@ for (const feature of glob.sync("selenium_test/*.feature")) {
   gulp.task(feature, seleniumTest.deps, () => selenium([feature]));
 }
 exports.seleniumTest = seleniumTest;
+
+function runKarma(localOptions) {
+  // We cannot let it be set to ``null`` or ``undefined``.
+  if (options.browsers) {
+    localOptions = localOptions.concat("--browsers", options.browsers);
+  }
+  return spawn("./node_modules/.bin/karma", localOptions, { stdio: "inherit" });
+}
+
+gulp.task("test-karma", ["default"],
+          () => runKarma(["start", "--single-run"]));
