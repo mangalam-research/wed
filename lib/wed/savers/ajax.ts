@@ -98,7 +98,8 @@ class AjaxSaver extends saver.Saver {
     this.headers = headers != null ? headers : {};
     // This value is saved with the double quotes around it so that we can just
     // pass it to 'If-Match'.
-    this.etag = `"${options.initial_etag}"`;
+    const initial_etag = options.initial_etag;
+    this.etag = initial_etag != null ? `"${initial_etag}"` : undefined;
     this.url = options.url;
 
     // Every 5 minutes.
