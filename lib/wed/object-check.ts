@@ -18,7 +18,8 @@ export interface _CheckResults {
 export type CheckResults = Partial<_CheckResults>;
 
 export interface CheckedObject {
-  [key: string]: CheckedObject | boolean | number | string;
+  // tslint:disable-next-line:no-any
+  [key: string]: CheckedObject | boolean | number | string | any[];
 }
 
 /**

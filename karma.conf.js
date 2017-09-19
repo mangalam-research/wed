@@ -9,10 +9,9 @@ module.exports = function(config) {
       "build/standalone/requirejs-config.js",
       // Get it straight from the source, as it does not need compilation.
       "lib/tests/karma-main.js",
-      // A minimal incomplete polyfill for the jsdom environment.
-      "build/standalone/lib/tests/selection-range-fake.js",
-      { pattern: "build/standalone/lib/**/*.@(js|map)", included: false },
+      { pattern: "build/standalone/lib/**/*.@(js|map|xml|json)", included: false },
       { pattern: "node_modules/sinon/pkg/sinon.js", included: false },
+      { pattern: "node_modules/sinon-chai/lib/sinon-chai.js", included: false },
     ],
     exclude: [],
     preprocessors: {},
@@ -21,7 +20,7 @@ module.exports = function(config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: false,
-    browsers: ["jsdom"],
+    browsers: ["ChromeHeadless"],
     singleRun: false,
     concurrency: Infinity
   });

@@ -3,21 +3,13 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-"use strict";
-var requirejs = require("requirejs");
-var chai = require("chai");
-var path = require("path");
+import { check } from "wed/object-check";
 
-requirejs.config({
-  baseUrl: path.join(__dirname, "../../../build/standalone/lib"),
-  nodeRequire: require,
-});
-var object_check = requirejs("wed/object-check");
-var assert = chai.assert;
+const assert = chai.assert;
 
-describe("object_check", function object_checkBlock() {
-  describe("check", function check() {
-    var template = {
+describe("object-check", () => {
+  describe("check", () => {
+    const template = {
       foo: false,
       bar: {
         baz: true,
@@ -31,8 +23,8 @@ describe("object_check", function object_checkBlock() {
       toto: true,
     };
 
-    it("reports extraneous fields", function test() {
-      var ret = object_check.check(template, {
+    it("reports extraneous fields", () => {
+      const ret = check(template, {
         unknown1: "blah",
         unknown2: "blah",
         bar: {
@@ -52,8 +44,8 @@ describe("object_check", function object_checkBlock() {
       });
     });
 
-    it("reports missing fields", function test() {
-      var ret = object_check.check(template, {
+    it("reports missing fields", () => {
+      const ret = check(template, {
         bip: {
           baz: 1,
         },
@@ -63,16 +55,16 @@ describe("object_check", function object_checkBlock() {
       });
     });
 
-    it("reports missing fields and extraneous fields", function test() {
-      var ret = object_check.check(template, { unknown: 1 });
+    it("reports missing fields and extraneous fields", () => {
+      const ret = check(template, { unknown: 1 });
       assert.deepEqual(ret, {
         missing: ["bar", "bip", "toto"],
         extra: ["unknown"],
       });
     });
 
-    it("reports no error", function test() {
-      var ret = object_check.check(template, {
+    it("reports no error", () => {
+      const ret = check(template, {
         bar: {
           baz: 1,
         },

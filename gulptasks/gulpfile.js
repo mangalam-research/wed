@@ -63,7 +63,8 @@ parser.addArgument(["target"], {
   defaultValue: "default",
 });
 
-const options = config.options = parser.parseArgs(process.argv.slice(2));
+const options = config.options;
+Object.assign(options, parser.parseArgs(process.argv.slice(2)));
 
 // We purposely import the files there at this point so that the
 // configuration is set once and for all before they execute. Doing

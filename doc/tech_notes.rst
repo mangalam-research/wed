@@ -280,35 +280,52 @@ complications so it is unclear whether they are a viable solution.
 
 Tests are of three types:
 
-* Not browser-dependent and therefore may be run outside a browser. We run these
-  in Node.js.
+* Karma-based tests.
 
-* In-browser tests run *in* the browser.
+* Custom-test-runner-based tests.
 
 * Selenium-based tests which run *outside* the browser but use selenium to
   control a browser.
 
-Browser-Independent Tests
--------------------------
+Karma-Based Tests
+-----------------
 
-To run the tests that are not browser-dependent do::
+To run the Karma-based tests do::
 
-    $ gulp test-node
+    $ gulp test-karma
 
-These tests are located in the ``test/`` directory off the wed root. You can
-also run ``mocha`` directly from the command line but having ``gulp`` build the
-``test`` target will trigger a build to ensure that the tests are run against
-the latest code.
+These tests are located in the ``lib/tests/``. You can also run ``karma``
+directly from the command line but having ``gulp`` build the ``test`` target
+will trigger a build to ensure that the tests are run against the latest code.
 
 .. warning:: Keep in mind that tests are **always** run against the code present
              in ``build/standalone/``. If you modify your source and fail to
              rebuild before running the test suite, the suite will run against
-             **old code!**
+             **old code!
+
+In September 2017 we started implementing some of the tests in Karma and moving
+the tests that used to run in plain Node (i.e. Mocha running tests straight in
+the Node VM) to Karma. We evaluated the relative advantages of running the tests
+in jsdom, Chrome and ChromeHeadless. At some point in the implementation of the
+tests, we had 231 tests running in Karma, exercising multiple aspects of the
+DOM. Overall the speed results were:
+
+jsdom: 10.5s
+Chrome: 9.5s
+Chrome Headless: 8s
+
+There's no speed advantage to using jsdom relative to using Chrome, especially
+Chrome in headless mode.
+
+Also, the old Node+Mocha tests used to take 14s to run. Compare to the numbers
+above. There were many reasons for this. Some of it had to do with the fact that
+the TypeScript tests were compiled on the fly so the test run also included
+compilation time. The Karma tests, in contrast, run the pre-compiled code.
 
 .. _tech_notes_in_browser_tests:
 
-In-Browser Tests
-----------------
+Custom-test-runner-based Tests
+------------------------------
 
 You can run these tests from the command line by running::
 
@@ -332,12 +349,18 @@ If you need to run the server to perform diagnosis on failing tests, you can
 ``./server.js browser``. This will launch the browser on your desktop and start
 the tests. The browser and server will remain running until you kill them.
 
-Q. Why not use Karma?
+Q. Why not just use Karma?
 
 A. Historical reasons mostly. If Karma has been in the state it is now when the
-   project started, it would probably be used by the project now. ``server.js``
-   grew organically with the project and there is not at this moment a solid
-   reason to get rid of it in favor of Karma.
+   project started, ``server.js`` would probably not exist. ``server.js`` grew
+   organically with the project when Karma was still its infancy. So wed started
+   being developed without Karma.
+
+   There are also technical reasons. ``server.js`` does a slew of custom things
+   that in early versions of Karma was not evident to do.
+
+   Most of the issues are probably surmountable now. The plan is to
+   progressively move the ``server.js`` tests to Karma and retire ``server.js``.
 
 Selenium-Based Tests
 --------------------

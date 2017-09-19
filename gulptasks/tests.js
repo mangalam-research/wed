@@ -32,7 +32,7 @@ gulp.task("convert-xml-test-files", (callback) => {
         let isNewer;
         let xsl;
         if (tei) {
-          xsl = "test/xml-to-xml-tei.xsl";
+          xsl = "lib/tests/xml-to-xml-tei.xsl";
           isNewer = yield newer([file.path, xsl], dest);
         }
         else {
@@ -96,10 +96,18 @@ gulp.task("eslint", () =>
 
 gulp.task("lint", ["eslint", "tslint"]);
 
-const testNode = {
-  name: "test-node",
+function runKarma(localOptions) {
+  // We cannot let it be set to ``null`` or ``undefined``.
+  if (options.browsers) {
+    localOptions = localOptions.concat("--browsers", options.browsers);
+  }
+  return spawn("./node_modules/.bin/karma", localOptions, { stdio: "inherit" });
+}
+
+const testKarma = {
+  name: "test-karma",
   deps: ["build-standalone", "build-test-files"],
-  func: function *testNode() {
+  func: function *testKarma() {
     if (!options.skip_semver) {
       yield versync.run({
         verify: true,
@@ -107,9 +115,7 @@ const testNode = {
       });
     }
 
-    yield spawn("./node_modules/.bin/mocha",
-                options.mocha_params ? shell.parse(options.mocha_params) : [],
-                { stdio: "inherit" });
+    return runKarma(["start", "--single-run"]);
   },
 };
 
@@ -125,7 +131,7 @@ const testBrowser = {
   },
 };
 
-sequence("test-sequence", testNode, testBrowser);
+sequence("test-sequence", testKarma, testBrowser);
 
 const test = {
   name: "test",
@@ -162,14 +168,3 @@ for (const feature of glob.sync("selenium_test/*.feature")) {
   gulp.task(feature, seleniumTest.deps, () => selenium([feature]));
 }
 exports.seleniumTest = seleniumTest;
-
-function runKarma(localOptions) {
-  // We cannot let it be set to ``null`` or ``undefined``.
-  if (options.browsers) {
-    localOptions = localOptions.concat("--browsers", options.browsers);
-  }
-  return spawn("./node_modules/.bin/karma", localOptions, { stdio: "inherit" });
-}
-
-gulp.task("test-karma", ["default"],
-          () => runKarma(["start", "--single-run"]));

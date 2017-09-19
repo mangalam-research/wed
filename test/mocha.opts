@@ -1,3 +1,0 @@
---require test/tshook.js
---recursive
-test/**/*.{js,ts}

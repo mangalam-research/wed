@@ -111,7 +111,7 @@ describe("UndoList", () => {
     it("triggers the end() method on a group", () => {
       const group1 = new MyGroup("group1");
       let ended = false;
-      group1.end = function end() {
+      group1.end = () => {
         ended = true;
       };
       ul.startGroup(group1);
@@ -139,28 +139,28 @@ describe("UndoList", () => {
 
     it("triggers the end() method on a group, in the correct order",
        () => {
-         let group1_ended = false;
-         let group2_ended = false;
+         let group1Ended = false;
+         let group2Ended = false;
          const group1 = new MyGroup("group1");
-         group1.end = function end() {
-           group1_ended = true;
+         group1.end = () => {
+           group1Ended = true;
          };
          const group2 = new MyGroup("group2");
-         group2.end = function end() {
-           group2_ended = true;
-           assert.isFalse(group1_ended);
+         group2.end = () => {
+           group2Ended = true;
+           assert.isFalse(group1Ended);
          };
          ul.startGroup(group1);
          ul.startGroup(group2);
-         assert.isFalse(group1_ended);
-         assert.isFalse(group2_ended);
+         assert.isFalse(group1Ended);
+         assert.isFalse(group2Ended);
          ul.endAllGroups();
-         assert.isTrue(group1_ended);
-         assert.isTrue(group2_ended);
+         assert.isTrue(group1Ended);
+         assert.isTrue(group2Ended);
        });
   });
 
-  describe("getGroup", function getGroup() {
+  describe("getGroup", () => {
     it("returns undefined when object is new", () => {
       assert.equal(ul.getGroup(), undefined);
     });
@@ -190,24 +190,24 @@ describe("UndoList", () => {
     it("returns true in the middle of an undo but not before or after",
        () => {
          const undo1 = new MyUndo("undo1", obj);
-         let was_true;
-         undo1.undo = function undo() { // eslint-disable-line no-shadow
-           was_true = ul.undoingOrRedoing();
+         let wasTrue;
+         undo1.undo = () => {
+           wasTrue = ul.undoingOrRedoing();
          };
          assert.isFalse(ul.undoingOrRedoing());
          ul.record(undo1);
          assert.isFalse(ul.undoingOrRedoing());
          ul.undo();
          assert.isFalse(ul.undoingOrRedoing());
-         assert.isTrue(was_true);
+         assert.isTrue(wasTrue);
        });
 
     it("returns true in the middle of a redo, but not before or after",
        () => {
          const undo1 = new MyUndo("undo1", obj);
-         let was_true;
-         undo1.redo = function redo() {
-           was_true = ul.undoingOrRedoing();
+         let wasTrue;
+         undo1.redo = () => {
+           wasTrue = ul.undoingOrRedoing();
          };
          assert.isFalse(ul.undoingOrRedoing());
          ul.record(undo1);
@@ -216,7 +216,7 @@ describe("UndoList", () => {
          assert.isFalse(ul.undoingOrRedoing());
          ul.redo();
          assert.isFalse(ul.undoingOrRedoing());
-         assert.isTrue(was_true);
+         assert.isTrue(wasTrue);
        });
   });
 
