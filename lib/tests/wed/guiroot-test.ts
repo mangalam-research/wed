@@ -8,7 +8,8 @@
 import * as $ from "jquery";
 
 import * as convert from "wed/convert";
-import { findRoot } from "wed/dloc";
+import { DLocRoot, findRoot } from "wed/dloc";
+import { linkTrees } from "wed/domutil";
 import * as guiroot from "wed/guiroot";
 
 import * as sourceXML from "../guiroot_test_data/source_converted.xml";
@@ -27,16 +28,17 @@ describe("guiroot", () => {
   let root: HTMLElement;
   let rootObj: guiroot.GUIRoot;
   let htmlTree: Node;
+  let xmlDoc: Document;
 
   before(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
     $root = $(root);
     const parser = new window.DOMParser();
-    const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+    xmlDoc = parser.parseFromString(sourceXML, "text/xml");
     htmlTree = convert.toHTMLTree(window.document,
                                   xmlDoc.firstElementChild!);
-    root.appendChild(htmlTree);
+    root.appendChild(htmlTree.cloneNode(true));
     rootObj = new guiroot.GUIRoot(root);
   });
 
@@ -57,7 +59,7 @@ describe("guiroot", () => {
     });
 
     describe("nodeToPath", () => {
-      beforeEach(() => {
+      afterEach(() => {
         // Reset the tree.
         $root.empty();
         root.appendChild(htmlTree.cloneNode(true));
@@ -112,12 +114,11 @@ describe("guiroot", () => {
         assert.equal(rootObj.nodeToPath(node), "0/1/0/1/1/@type");
       });
 
-      it("fails on a node which is not a descendant of its root",
-         () => {
-           const node = defined($("body")[0]);
-           assert.throws(rootObj.nodeToPath.bind(rootObj, node),
-                         Error, "node is not a descendant of root");
-         });
+      it("fails on a node which is not a descendant of its root", () => {
+        const node = defined($("body")[0]);
+        assert.throws(rootObj.nodeToPath.bind(rootObj, node),
+                      Error, "node is not a descendant of root");
+      });
 
       it("fails on invalid node", () => {
         assert.throws(rootObj.nodeToPath.bind(rootObj, null),
@@ -125,6 +126,35 @@ describe("guiroot", () => {
 
         assert.throws(rootObj.nodeToPath.bind(rootObj, undefined),
                       Error, "node is not a descendant of root");
+      });
+
+      it("is equivalent to nodeToPath on a data tree", () => {
+        const dataRootObj = new DLocRoot(xmlDoc);
+
+        linkTrees(xmlDoc.firstElementChild!, root.firstElementChild!);
+        let targetDataNode = xmlDoc.getElementsByTagName("quote")[0];
+        const phantomWrapTemplate = "<span class='_phantom_wrap'></span>";
+        $($.data(targetDataNode, "wed_mirror_node"))
+          .wrap(phantomWrapTemplate)
+          .after("<span class='_phantom'>Boo</span>Blip")
+          .wrap(phantomWrapTemplate);
+
+        const dataNode = targetDataNode.parentNode as Element;
+        // Wrap twice for good measure.
+        $($.data(dataNode, "wed_mirror_node"))
+          .wrap(phantomWrapTemplate)
+          .wrap(phantomWrapTemplate);
+
+        targetDataNode = xmlDoc.getElementsByTagName("quote")[1];
+        const targetGuiNode = $.data(targetDataNode, "wed_mirror_node");
+        const guiPath = rootObj.nodeToPath(targetGuiNode);
+        const dataPath = dataRootObj.nodeToPath(targetDataNode);
+
+        // Both paths should be equal.
+        assert.equal(guiPath, dataPath);
+
+        // It should also be reversible.
+        assert.equal(rootObj.pathToNode(guiPath), targetGuiNode);
       });
     });
 
