@@ -5,6 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import * as Promise from "bluebird";
+import { ajax } from "bluejax";
 import { AssertionError, expect } from "chai";
 
 export function waitFor(fn: () => boolean | Promise<boolean>,
@@ -46,6 +47,39 @@ export function waitForSuccess(fn: () => void,
       throw e;
     }
   }, delay, timeout).then(() => undefined);
+}
+
+// tslint:disable-next-line:completed-docs
+export class DataProvider {
+  private readonly cache: Record<string, string> = Object.create(null);
+  private readonly parser: DOMParser = new DOMParser();
+
+  constructor(private readonly base: string) {}
+
+  getText(path: string): Promise<string> {
+    return this._getText(this.base + path);
+  }
+
+  _getText(path: string): Promise<string> {
+    return Promise.resolve().then(() => {
+      const cached = this.cache[path];
+      if (cached !== undefined) {
+        return cached;
+      }
+
+      return ajax({ url: path, dataType: "text"})
+        .then((data) => {
+          this.cache[path] = data;
+          return data;
+        });
+    });
+  }
+
+  getDoc(path: string): Promise<Document> {
+    return this._getText(this.base + path).then((data) => {
+      return this.parser.parseFromString(data, "text/xml");
+    });
+  }
 }
 
 // tslint:disable-next-line:no-any

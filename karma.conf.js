@@ -9,7 +9,8 @@ module.exports = function(config) {
       "build/standalone/requirejs-config.js",
       // Get it straight from the source, as it does not need compilation.
       "lib/tests/karma-main.js",
-      { pattern: "build/standalone/lib/**/*.@(js|map|xml|json)", included: false },
+      { pattern: "build/standalone/lib/**/*.@(js|map|xml|html|json)",
+        included: false },
       { pattern: "node_modules/sinon/pkg/sinon.js", included: false },
       { pattern: "node_modules/sinon-chai/lib/sinon-chai.js", included: false },
     ],
