@@ -113,3 +113,23 @@ export function expectError(fn: Function,
       }
     });
 }
+
+export function setupServer(server: sinon.SinonFakeServer): void {
+  // tslint:disable-next-line:no-any
+  const xhr = (server as any).xhr;
+  xhr.useFilters = true;
+  xhr.addFilter((method: string, url: string): boolean =>
+                !/^\/build\/ajax\//.test(url));
+  server.respondImmediately = true;
+  server.respondWith("POST", "/build/ajax/save.txt",
+                     [200, { "Content-Type": "application/json" },
+                      JSON.stringify({messages: []})]);
+  server.respondWith("POST", "/build/ajax/log.txt",
+                     [200, { "Content-Type": "application/json" }, "{}"]);
+}
+
+export function makeWedRoot(doc: Document): HTMLElement {
+  const wedroot = document.createElement("div");
+  wedroot.className = "wed-widget container";
+  return wedroot;
+}

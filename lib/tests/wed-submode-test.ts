@@ -13,8 +13,8 @@ import { Options } from "wed/options";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "./base-config";
-import { DataProvider } from "./global";
 import { config } from "./submode-config";
+import { DataProvider } from "./util";
 import { activateContextMenu, contextMenuHasOption,
          getAttributeValuesFor } from "./wed-test-util";
 

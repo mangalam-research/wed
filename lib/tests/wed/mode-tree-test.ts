@@ -17,7 +17,7 @@ import { Options } from "wed/options";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
-import { DataProvider, expectError } from "../util";
+import { DataProvider, expectError, makeWedRoot, setupServer } from "../util";
 
 const options: Options = {
   schema: "",
@@ -64,41 +64,29 @@ describe("ModeTree", () => {
   let topSandbox: sinon.SinonSandbox;
 
   before(() => {
-    const provider = new DataProvider("");
+    const provider = new DataProvider("/base/build/");
     // We get this data before we create the fake server.
     return Promise.all([
-      provider.getText("/base/build/schemas/tei-simplified-rng.js")
+      provider.getText("schemas/tei-simplified-rng.js")
         .then((schema) => {
           // Resolve the schema to a grammar.
           options.schema = salve.constructTree(schema);
         }),
       provider
-        .getText(
-          "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml")
+        .getText("standalone/lib/tests/wed_test_data/source_converted.xml")
         .then((xml) => {
           source = xml;
         }),
     ]);
-
   });
 
   before(() => {
     topSandbox = sinon.sandbox.create({
       useFakeServer: true,
     });
-    const server = topSandbox.server;
-    // tslint:disable-next-line:no-any
-    const xhr = (server as any).xhr;
-    xhr.useFilters = true;
-    xhr.addFilter((method: string, url: string): boolean =>
-                  !/^\/build\/ajax\//.test(url));
-    server.respondImmediately = true;
-    server.respondWith("POST", "/build/ajax/save.txt",
-                       [200, { "Content-Type": "application/json" },
-                        JSON.stringify({messages: []})]);
+    setupServer(topSandbox.server);
 
-    wedroot = document.createElement("div");
-    wedroot.className = "wed-widget container";
+    wedroot = makeWedRoot(document);
     document.body.appendChild(wedroot);
     editor = new wed.Editor(wedroot,
                             mergeOptions({}, globalConfig.config, options));

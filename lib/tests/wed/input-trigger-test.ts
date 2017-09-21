@@ -6,6 +6,7 @@
 import { assert } from "chai";
 import * as mergeOptions from "merge-options";
 import * as salve from "salve";
+import * as sinon from "sinon";
 
 import { GUISelector } from "wed/gui-selector";
 import { InputTrigger } from "wed/input-trigger";
@@ -15,25 +16,26 @@ import { BACKSPACE, DELETE, ENTER } from "wed/key-constants";
 import { Mode } from "wed/mode";
 import { Options} from "wed/options";
 import * as wed from "wed/wed";
-import * as globalConfig from "./base-config";
-import { DataProvider, makeFakePasteEvent } from "./global";
+import * as globalConfig from "../base-config";
+import { makeFakePasteEvent } from "../global";
+import { DataProvider, makeWedRoot, setupServer } from "../util";
 
 const options: Options = {
   schema: "",
   mode: {
     path: "wed/modes/generic/generic",
     options: {
-      metadata: "/build/schemas/tei-metadata.json",
+      metadata: "/base/build/schemas/tei-metadata.json",
     },
-    // We set a submode that operates on teiHeader so as to be able to test
-    // that input triggers operate only on their own region.
+    // We set a submode that operates on teiHeader so as to be able to test that
+    // input triggers operate only on their own region.
     submode: {
       method: "selector",
       selector: "TEI>teiHeader",
       mode: {
         path: "wed/modes/generic/generic",
         options: {
-          metadata: "/build/schemas/tei-metadata.json",
+          metadata: "/base/build/schemas/tei-metadata.json",
         },
       },
     },
@@ -56,18 +58,21 @@ describe("InputTrigger", () => {
   let pSelector: GUISelector;
   let pInBody: HTMLElement;
   let source: string;
+  let wedroot: HTMLElement;
+  let topSandbox: sinon.SinonSandbox;
 
   before(() => {
     pSelector = GUISelector.fromDataSelector("p", mappings);
-    const provider = new DataProvider("");
+    const provider = new DataProvider("/base/build/");
     return Promise.all([
-      provider.getText("../schemas/tei-simplified-rng.js")
+      provider.getText("schemas/tei-simplified-rng.js")
         .then((schema) => {
           // Resolve the schema to a grammar.
           options.schema = salve.constructTree(schema);
         }),
       provider
-        .getText("lib/tests/input_trigger_test_data/source_converted.xml")
+        .getText(
+          "standalone/lib/tests/input_trigger_test_data/source_converted.xml")
         .then((xml) => {
           source = xml;
         }),
@@ -75,9 +80,13 @@ describe("InputTrigger", () => {
   });
 
   beforeEach(() => {
-    const wedroot =
-      (window.parent.document.getElementById("wedframe") as HTMLIFrameElement)
-      .contentWindow.document.getElementById("wedroot")!;
+    topSandbox = sinon.sandbox.create({
+      useFakeServer: true,
+    });
+    setupServer(topSandbox.server);
+
+    wedroot = makeWedRoot(document);
+    document.body.appendChild(wedroot);
     editor = new wed.Editor(wedroot,
                             mergeOptions({}, globalConfig.config, options));
     return editor.init(source)
@@ -92,6 +101,14 @@ describe("InputTrigger", () => {
       editor.destroy();
     }
     editor = undefined;
+    document.body.removeChild(wedroot);
+    topSandbox.reset();
+  });
+
+  after(() => {
+    if (topSandbox !== undefined) {
+      topSandbox.restore();
+    }
   });
 
   function pasteTest(p: HTMLElement): number {
@@ -105,9 +122,7 @@ describe("InputTrigger", () => {
     // Synthetic event
     const event = makeFakePasteEvent({
       types: ["text/plain"],
-      getData: () => {
-        return "abc;def";
-      },
+      getData: () => "abc;def",
     });
     editor.caretManager.setCaret(p, 0);
     editor.$guiRoot.trigger(event);
@@ -172,9 +187,9 @@ describe("InputTrigger", () => {
     assert.equal(seen, 0);
   });
 
-  // The following tests need to modify the document in significant ways, so
-  // we use input_trigger_factory to create an input_trigger that does
-  // something significant.
+  // The following tests need to modify the document in significant ways, so we
+  // use input_trigger_factory to create an input_trigger that does something
+  // significant.
   it("does not try to act on undo/redo changes", () => {
     makeSplitMergeInputTrigger(
       editor, mode, pSelector, key.makeKey(";"), BACKSPACE, DELETE);
@@ -184,9 +199,7 @@ describe("InputTrigger", () => {
     // Synthetic event
     const event = makeFakePasteEvent({
       types: ["text/plain"],
-      getData: () => {
-        return "ab;cd;ef";
-      },
+      getData: () => "ab;cd;ef",
     });
     editor.$guiRoot.trigger(event);
 
@@ -195,16 +208,14 @@ describe("InputTrigger", () => {
     assert.equal(cleanNamespace(ps[0].outerHTML), "<p>ab</p>");
     assert.equal(cleanNamespace(ps[1].outerHTML), "<p>cd</p>");
     assert.equal(cleanNamespace(ps[2].outerHTML),
-                 "<p>efBlah blah <term>blah</term>" +
-                 "<term>blah2</term> blah.</p>",
+                 "<p>efBlah blah <term>blah</term><term>blah2</term> blah.</p>",
                  "first split: 3rd part");
 
     editor.undo();
     ps = editor.dataRoot.querySelectorAll("body p");
     assert.equal(ps.length, 1);
     assert.equal(cleanNamespace(ps[0].outerHTML),
-                 "<p>Blah blah <term>blah</term>" +
-                 "<term>blah2</term> blah.</p>",
+                 "<p>Blah blah <term>blah</term><term>blah2</term> blah.</p>",
                  "after undo");
 
     editor.redo();
@@ -215,8 +226,7 @@ describe("InputTrigger", () => {
     assert.equal(cleanNamespace(ps[1].outerHTML), "<p>cd</p>",
                  "after redo: 2nd part");
     assert.equal(cleanNamespace(ps[2].outerHTML),
-                 "<p>efBlah blah <term>blah</term>" +
-                 "<term>blah2</term> blah.</p>",
+                 "<p>efBlah blah <term>blah</term><term>blah2</term> blah.</p>",
                  "after redo: 3rd part");
   });
 
