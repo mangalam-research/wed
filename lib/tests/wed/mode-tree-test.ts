@@ -16,16 +16,15 @@ import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 import * as wed from "wed/wed";
 
-import * as globalConfig from "./base-config";
-import { DataProvider } from "./global";
-import { expectError } from "./util";
+import * as globalConfig from "../base-config";
+import { DataProvider, expectError } from "../util";
 
 const options: Options = {
   schema: "",
   mode: {
     path: "wed/modes/generic/generic",
     options: {
-      metadata: "/build/schemas/tei-metadata.json",
+      metadata: "/base/build/schemas/tei-metadata.json",
     },
     // We set a submode that operates on teiHeader so as to be able to test
     // that input triggers operate only on their own region.
@@ -35,7 +34,7 @@ const options: Options = {
       mode: {
         path: "wed/modes/test/test-mode",
         options: {
-          metadata: "/build/schemas/tei-metadata.json",
+          metadata: "/base/build/schemas/tei-metadata.json",
           nameSuffix: "1",
           hide_attributes: true,
           stylesheets: ["a.css", "b.css"],
@@ -46,7 +45,7 @@ const options: Options = {
           mode: {
             path: "wed/modes/test/test-mode",
             options: {
-              metadata: "/build/schemas/tei-metadata.json",
+              metadata: "/base/build/schemas/tei-metadata.json",
               nameSuffix: "2",
               stylesheets: ["b.css", "c.css"],
             },
@@ -61,33 +60,53 @@ describe("ModeTree", () => {
   let source: string;
   // tslint:disable-next-line:no-any
   let editor: any;
+  let wedroot: HTMLElement;
+  let topSandbox: sinon.SinonSandbox;
 
   before(() => {
     const provider = new DataProvider("");
+    // We get this data before we create the fake server.
     return Promise.all([
-      provider.getText("../schemas/tei-simplified-rng.js")
+      provider.getText("/base/build/schemas/tei-simplified-rng.js")
         .then((schema) => {
           // Resolve the schema to a grammar.
           options.schema = salve.constructTree(schema);
         }),
       provider
-        .getText("lib/tests/wed_test_data/source_converted.xml")
+        .getText(
+          "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml")
         .then((xml) => {
           source = xml;
         }),
     ]);
+
   });
 
   before(() => {
-    const wedroot =
-      (window.parent.document.getElementById("wedframe") as HTMLIFrameElement)
-      .contentWindow.document.getElementById("wedroot")!;
+    topSandbox = sinon.sandbox.create({
+      useFakeServer: true,
+    });
+    const server = topSandbox.server;
+    // tslint:disable-next-line:no-any
+    const xhr = (server as any).xhr;
+    xhr.useFilters = true;
+    xhr.addFilter((method: string, url: string): boolean =>
+                  !/^\/build\/ajax\//.test(url));
+    server.respondImmediately = true;
+    server.respondWith("POST", "/build/ajax/save.txt",
+                       [200, { "Content-Type": "application/json" },
+                        JSON.stringify({messages: []})]);
+
+    wedroot = document.createElement("div");
+    wedroot.className = "wed-widget container";
+    document.body.appendChild(wedroot);
     editor = new wed.Editor(wedroot,
                             mergeOptions({}, globalConfig.config, options));
     return editor.init(source);
   });
 
   after(() => {
+    topSandbox.restore();
     if (editor !== undefined) {
       editor.destroy();
     }
@@ -103,6 +122,7 @@ describe("ModeTree", () => {
       .to.equal(false, "test caused an unhandled exception to occur");
 
     editor = undefined;
+    document.body.removeChild(wedroot);
   });
 
   // tslint:disable-next-line:no-empty

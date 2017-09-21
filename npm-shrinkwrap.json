@@ -159,9 +159,9 @@
       }
     },
     "@types/sinon": {
-      "version": "2.3.3",
-      "resolved": "https://registry.npmjs.org/@types/sinon/-/sinon-2.3.3.tgz",
-      "integrity": "sha1-HyC5b5VLSZegnBwKICZKq6awAUc=",
+      "version": "2.3.5",
+      "resolved": "https://registry.npmjs.org/@types/sinon/-/sinon-2.3.5.tgz",
+      "integrity": "sha512-uqCU56xGg/eDCJDJKCC8kpGU4SZbIn+3dcHJOpLMtFo2HVhfNFJdJIsMY8G5jZZCfnyiECADrUcz4etptDq0rQ==",
       "dev": true
     },
     "@types/sinon-chai": {
@@ -171,7 +171,7 @@
       "dev": true,
       "requires": {
         "@types/chai": "3.4.35",
-        "@types/sinon": "2.3.3"
+        "@types/sinon": "2.3.5"
       }
     },
     "@types/slug": {
