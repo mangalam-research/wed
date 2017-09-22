@@ -49,14 +49,13 @@ function cleanNamespace(str: string): string {
 }
 
 describe("InputTrigger", () => {
-  // tslint:disable-next-line:no-any
-  let editor: any;
+  let editor: wed.Editor;
   let mode: Mode<{}>;
   const mappings: Record<string, string> =
     // tslint:disable-next-line:no-http-string
     { "": "http://www.tei-c.org/ns/1.0" };
   let pSelector: GUISelector;
-  let pInBody: HTMLElement;
+  let pInBody: Element;
   let source: string;
   let wedroot: HTMLElement;
   let topSandbox: sinon.SinonSandbox;
@@ -79,12 +78,14 @@ describe("InputTrigger", () => {
     ]);
   });
 
-  beforeEach(() => {
+  before(() => {
     topSandbox = sinon.sandbox.create({
       useFakeServer: true,
     });
     setupServer(topSandbox.server);
+  });
 
+  beforeEach(() => {
     wedroot = makeWedRoot(document);
     document.body.appendChild(wedroot);
     editor = new wed.Editor(wedroot,
@@ -92,7 +93,7 @@ describe("InputTrigger", () => {
     return editor.init(source)
       .then(() => {
         mode = editor.modeTree.getMode(editor.guiRoot);
-        pInBody = editor.dataRoot.querySelector("body p");
+        pInBody = editor.dataRoot.querySelector("body p")!;
       });
   });
 
@@ -100,9 +101,9 @@ describe("InputTrigger", () => {
     if (editor !== undefined) {
       editor.destroy();
     }
-    editor = undefined;
+    // tslint:disable-next-line:no-any
+    (editor as any) = undefined;
     document.body.removeChild(wedroot);
-    topSandbox.reset();
   });
 
   after(() => {
@@ -111,7 +112,7 @@ describe("InputTrigger", () => {
     }
   });
 
-  function pasteTest(p: HTMLElement): number {
+  function pasteTest(p: Element): number {
     const trigger = new InputTrigger(editor, mode, pSelector);
     let seen = 0;
     trigger.addKeyHandler(key.makeKey(";"), (evType, el) => {
@@ -129,7 +130,7 @@ describe("InputTrigger", () => {
     return seen;
   }
 
-  function keydownTest(p: HTMLElement): number {
+  function keydownTest(p: Element): number {
     const trigger = new InputTrigger(editor, mode, pSelector);
     let seen = 0;
     trigger.addKeyHandler(ENTER,
@@ -146,7 +147,7 @@ describe("InputTrigger", () => {
     return seen;
   }
 
-  function keypressTest(p: HTMLElement): number {
+  function keypressTest(p: Element): number {
     const trigger = new InputTrigger(editor, mode, pSelector);
     let seen = 0;
     trigger.addKeyHandler(key.makeKey(";"),
@@ -231,10 +232,10 @@ describe("InputTrigger", () => {
   });
 
   describe("respects mode regions", () => {
-    let pInHeader: HTMLElement;
+    let pInHeader: Element;
 
     beforeEach(() => {
-      pInHeader = editor.dataRoot.querySelector("teiHeader p");
+      pInHeader = editor.dataRoot.querySelector("teiHeader p")!;
       assert.isDefined(pInHeader);
     });
 
