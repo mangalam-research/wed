@@ -1291,7 +1291,7 @@ export function closestByClass(node: Node | undefined | null, cl: string,
  * @returns The first sibling (in document order) that matches the class, or
  * ``null`` if nothing matches.
  */
-export function siblingByClass(node: Node, cl: string): Element | null {
+export function siblingByClass(node: Node | null, cl: string): Element | null {
   if (!isElement(node)) {
     return null;
   }
@@ -1317,7 +1317,7 @@ export function siblingByClass(node: Node, cl: string): Element | null {
  *
  * @returns The children (in document order) that match the class.
  */
-export function childrenByClass(node: Node, cl: string): Element[] {
+export function childrenByClass(node: Node | null, cl: string): Element[] {
   if (!isElement(node)) {
     return [];
   }
@@ -1344,7 +1344,7 @@ export function childrenByClass(node: Node, cl: string): Element[] {
  * @returns The first child (in document order) that matches the class, or
  * ``null`` if nothing matches.
  */
-export function childByClass(node: Node, cl: string): Element | null {
+export function childByClass(node: Node | null, cl: string): Element | null {
   if (!isElement(node)) {
     return null;
   }
