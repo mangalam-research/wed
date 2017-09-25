@@ -27,7 +27,11 @@ module.exports = function(config) {
       "build/standalone/requirejs-config.js",
       // Get it straight from the source, as it does not need compilation.
       "lib/tests/karma-main.js",
-      { pattern: "build/standalone/lib/**/*.@(js|map|xml|html|json)",
+      ...["external/font-awesome/css/font-awesome.min.css",
+          "external/bootstrap/css/bootstrap.min.css",
+          "wed/wed.css"].map(x => `build/standalone/lib/${x}`),
+      { pattern:
+        "build/standalone/lib/**/*.@(js|map|xml|html|json|css|woff|woff2)",
         included: false },
       { pattern: "build/schemas/**/*.@(js|json)", included: false },
       { pattern: "node_modules/sinon/pkg/sinon.js", included: false },

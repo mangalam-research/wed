@@ -7,7 +7,7 @@
 
 import { expect } from "chai";
 
-import { childByClass } from "wed/domutil";
+import { childByClass, childrenByClass } from "wed/domutil";
 import { Editor } from "wed/wed";
 
 export function activateContextMenu(editor: Editor, el: Element): void {
@@ -65,6 +65,40 @@ export function firstGUI(container: Element): Element | null {
   return childByClass(container, "_gui");
 }
 
+export function lastGUI(container: Element): Element | null {
+  const children = childrenByClass(container, "_gui");
+  const last = children[children.length - 1];
+  return last !== undefined ? last : null;
+}
+
+export function getElementNameFor(container: Element,
+                                  last: boolean = false): Element | undefined {
+  const gui = last ? lastGUI(container) : firstGUI(container);
+
+  return gui!.getElementsByClassName("_element_name")[0];
+}
+
 export function getAttributeValuesFor(container: Element): NodeListOf<Element> {
   return firstGUI(container)!.getElementsByClassName("_attribute_value");
+}
+
+export function caretCheck(editor: Editor, container: Node,
+                           offset: number | null, msg: string): void {
+  const caret = editor.caretManager.caret!;
+  expect(caret, "there should be a caret").to.not.be.undefined;
+  if (offset !== null) {
+    expect(caret.toArray(), msg).to.deep.equal([container, offset]);
+  }
+  else {
+    // A null offset means we are not interested in the specific offset.  We
+    // just want to know that the caret is *inside* container either directly or
+    // indirectly.
+    expect(container.contains(caret.node), msg).to.be.true;
+  }
+}
+
+export function dataCaretCheck(editor: Editor, container: Node,
+                               offset: number, msg: string): void {
+  const dataCaret = editor.caretManager.getDataCaret()!;
+  expect(dataCaret.toArray(), msg).to.deep.equal([container, offset]);
 }
