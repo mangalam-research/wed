@@ -13,11 +13,11 @@ import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 import * as wed from "wed/wed";
 
-import * as globalConfig from "./base-config";
-import { config } from "./submode-config";
-import { DataProvider, makeWedRoot, setupServer } from "./util";
+import * as globalConfig from "../base-config";
+import { config } from "../submode-config";
+import { DataProvider, makeWedRoot, setupServer } from "../util";
 import { activateContextMenu, contextMenuHasOption,
-         getAttributeValuesFor } from "./wed-test-util";
+         getAttributeValuesFor } from "../wed-test-util";
 
 describe("wed submodes", () => {
   let source: string;

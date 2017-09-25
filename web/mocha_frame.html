@@ -167,7 +167,7 @@
           if (timeout !== undefined)
             mocha.mocha.timeout(parseInt(timeout));
 
-          require(["tests/wed_test"], function () {
+          require(["tests/integration/wed_test"], function () {
               // Allow uncaught was turned on early on in the test suite's existence.
               // It was used to handle cases that *probably* are no longer an issue.
               // We turned it back off because it has a severe consequence that non-terminating
