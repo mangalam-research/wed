@@ -8,11 +8,11 @@ import { Options } from "wed/options";
 import { config as base } from "./base-config";
 
 export const config: Options = {
-  schema: "../schemas/tei-simplified-rng.js",
+  schema: "/base/build/schemas/tei-simplified-rng.js",
   mode: {
     path: "wed/modes/generic/generic",
     options: {
-      metadata: "../schemas/tei-metadata.json",
+      metadata: "/base/build/schemas/tei-metadata.json",
     },
     submode: {
       method: "selector",
@@ -20,7 +20,7 @@ export const config: Options = {
       mode: {
         path: "wed/modes/test/test-mode",
         options: {
-          metadata: "../schemas/tei-metadata.json",
+          metadata: "/base/build/schemas/tei-metadata.json",
         },
       },
     },

@@ -6,6 +6,7 @@
 import { expect } from "chai";
 import * as mergeOptions from "merge-options";
 import * as salve from "salve";
+import * as sinon from "sinon";
 
 import * as log from "wed/log";
 import * as onerror from "wed/onerror";
@@ -14,7 +15,7 @@ import * as wed from "wed/wed";
 
 import * as globalConfig from "./base-config";
 import { config } from "./submode-config";
-import { DataProvider } from "./util";
+import { DataProvider, makeWedRoot, setupServer } from "./util";
 import { activateContextMenu, contextMenuHasOption,
          getAttributeValuesFor } from "./wed-test-util";
 
@@ -22,18 +23,20 @@ describe("wed submodes", () => {
   let source: string;
   let editor: wed.Editor | undefined;
   let options: Options;
+  let topSandbox: sinon.SinonSandbox;
+  let wedroot: HTMLElement;
 
   before(() => {
     options = mergeOptions({}, config);
-    const provider = new DataProvider("");
+    const provider = new DataProvider("/base/build/");
+    const dataDir = "standalone/lib/tests/wed_test_data";
     return Promise.all([
-      provider.getText("../schemas/tei-simplified-rng.js")
+      provider.getText("schemas/tei-simplified-rng.js")
         .then((schema) => {
           // Resolve the schema to a grammar.
           options.schema = salve.constructTree(schema);
         }),
-      provider
-        .getText("lib/tests/wed_test_data/source_for_submodes_converted.xml")
+      provider.getText(`${dataDir}/source_for_submodes_converted.xml`)
         .then((xml) => {
           source = xml;
         }),
@@ -41,9 +44,13 @@ describe("wed submodes", () => {
   });
 
   before(() => {
-    const wedroot =
-      (window.parent.document.getElementById("wedframe") as HTMLIFrameElement)
-      .contentWindow.document.getElementById("wedroot")!;
+    topSandbox = sinon.sandbox.create({
+      useFakeServer: true,
+    });
+    setupServer(topSandbox.server);
+
+    wedroot = makeWedRoot(document);
+    document.body.appendChild(wedroot);
     editor = new wed.Editor(wedroot,
                             mergeOptions({}, globalConfig.config, options));
     return editor.init(source);
@@ -65,6 +72,11 @@ describe("wed submodes", () => {
       .to.equal(false, "test caused an unhandled exception to occur");
 
     editor = undefined;
+
+    if (topSandbox !== undefined) {
+      topSandbox.restore();
+    }
+    document.body.removeChild(wedroot);
   });
 
   it("dispatch to proper decorators", () => {
