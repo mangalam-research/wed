@@ -60,6 +60,16 @@ describe("UndoList", () => {
       ul.undo();
       assert.isFalse(ul.canUndo());
     });
+
+    it("returns true when there is at least one group in effect", () =>  {
+      ul.startGroup(new MyGroup("group 1"));
+      assert.isTrue(ul.canUndo());
+
+      ul.endAllGroups();
+      // The group has been ended and put in the list of undo objects so this
+      // is still true.
+      assert.isTrue(ul.canUndo());
+    });
   });
 
   describe("canRedo", () => {

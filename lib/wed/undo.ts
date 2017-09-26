@@ -93,7 +93,10 @@ export class UndoList {
    * @returns True if there is something to undo, false otherwise.
    */
   canUndo(): boolean {
-    return this.index > -1;
+    // If there is a group on the stack, then we have to return true. That's
+    // because when the group is ended when undo() is called, it will be added
+    // at the end of this.list.
+    return this.index > -1 || this.stack.length > 0;
   }
 
   /**
