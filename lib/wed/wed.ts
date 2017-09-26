@@ -657,6 +657,12 @@ export class Editor {
     this._undo.record(undo);
   }
 
+  undoAll(): void {
+    while (this._undo.canUndo()) {
+      this.undo();
+    }
+  }
+
   undo(): void {
     // We need to replicate to some extent how fireTransformation inhibits
     // functions and reinstates them.
