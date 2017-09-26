@@ -189,6 +189,7 @@ export class Editor {
   private readonly replacedSpaces: RegExp = /\s+/g;
   private destroying: boolean = false;
   private destroyed: boolean = false;
+  private initialLabelLevel: number;
   private currentLabelLevel: number;
   /** A temporary initialization value. */
   private _dataChild: Element | undefined;
@@ -1220,7 +1221,8 @@ export class Editor {
     }
 
     this.maxLabelLevel = this.modeTree.getMaxLabelLevel();
-    this.currentLabelLevel = this.modeTree.getInitialLabelLevel();
+    this.initialLabelLevel = this.modeTree.getInitialLabelLevel();
+    this.currentLabelLevel = this.initialLabelLevel;
 
     const styles = this.modeTree.getStylesheets();
     const $head = this.$frame.children("head");
@@ -2911,6 +2913,35 @@ in a way not supported by this version of wed.";
     });
     this.$widget.prepend($top);
     return ret;
+  }
+
+  /**
+   * Reset the label visibility level to what it was when the editor was first
+   * initialized.
+   */
+  resetLabelVisibilityLevel(): void {
+    this.setLabelVisibilityLevel(this.initialLabelLevel);
+  }
+
+  /**
+   * Set the visibility level to a specific value. It is a no-op if it is called
+   * with a value that is less than 0 or greater than the maximum level
+   * supported, or if the new level is the same as the current level.
+   *
+   * @param level The new level.
+   */
+  setLabelVisibilityLevel(level: number): void {
+    if (level < 0 || level > this.maxLabelLevel) {
+      return;
+    }
+
+    while (this.currentLabelLevel > level) {
+      this.decreaseLabelVisiblityLevel();
+    }
+
+    while (this.currentLabelLevel < level) {
+      this.increaseLabelVisibilityLevel();
+    }
   }
 
   increaseLabelVisibilityLevel(): void {
