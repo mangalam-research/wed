@@ -8,8 +8,12 @@ import * as Promise from "bluebird";
 import { ajax } from "bluejax";
 import { AssertionError, expect } from "chai";
 
+export function delay(timeout: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+}
+
 export function waitFor(fn: () => boolean | Promise<boolean>,
-                        delay: number = 100,
+                        pollDelay: number = 100,
                         timeout?: number): Promise<boolean> {
   const start = Date.now();
 
@@ -23,16 +27,15 @@ export function waitFor(fn: () => boolean | Promise<boolean>,
       return false;
     }
 
-    return new Promise((resolve) => {
-      setTimeout(resolve, delay);
-    }).then(check);
+    return delay(pollDelay).then(check);
   }
 
+  // TypeScript does not like Promise.resolve(check).
   return Promise.resolve().then(check);
 }
 
 export function waitForSuccess(fn: () => void,
-                               delay?: number,
+                               pollDelay?: number,
                                timeout?: number): Promise<void> {
   return waitFor(() => {
     try {
@@ -46,15 +49,30 @@ export function waitForSuccess(fn: () => void,
 
       throw e;
     }
-  }, delay, timeout).then(() => undefined);
+  }, pollDelay, timeout).then(() => undefined);
 }
 
 // tslint:disable-next-line:completed-docs
 export class DataProvider {
   private readonly cache: Record<string, string> = Object.create(null);
   private readonly parser: DOMParser = new DOMParser();
+  private readonly registered: Record<string, string> = Object.create(null);
 
   constructor(private readonly base: string) {}
+
+  register(name: string, path: string): void {
+    this.registered[name] = path;
+  }
+
+  getNamed(name: string): Promise<string> {
+    const path = this.registered[name];
+    return this.getText(path);
+  }
+
+  getNamedDoc(name: string): Promise<Document> {
+    const path = this.registered[name];
+    return this.getDoc(path);
+  }
 
   getText(path: string): Promise<string> {
     return this._getText(this.base + path);
