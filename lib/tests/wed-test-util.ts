@@ -82,6 +82,10 @@ export function getAttributeValuesFor(container: Element): NodeListOf<Element> {
   return firstGUI(container)!.getElementsByClassName("_attribute_value");
 }
 
+export function getAttributeNamesFor(container: Element): NodeListOf<Element> {
+  return firstGUI(container)!.getElementsByClassName("_attribute_name");
+}
+
 export function caretCheck(editor: Editor, container: Node,
                            offset: number | null, msg: string): void {
   const caret = editor.caretManager.caret!;
