@@ -7,7 +7,9 @@ import { expect } from "chai";
 import * as mergeOptions from "merge-options";
 import * as sinon from "sinon";
 
+import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
+import { DLoc } from "wed/dloc";
 import { childByClass, firstDescendantOrSelf, indexOf } from "wed/domutil";
 import * as keyConstants from "wed/key-constants";
 import * as log from "wed/log";
@@ -619,5 +621,77 @@ describe("wed caret", () => {
 
     caretManager.setCaret(initial.firstChild,
                           initial.firstChild!.childNodes.length);
+  });
+
+  it("proper caret position for words that are too long to word wrap", () => {
+    const p = editor.dataRoot.getElementsByTagName("p")[0];
+    editor.dataUpdater.insertText(
+      p, 0,
+      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    caretManager.setCaret(p, 0);
+    const range = editor.window.document.createRange();
+    const guiCaret = caretManager.fromDataLocation(p.firstChild!, 0)!;
+    range.selectNode(guiCaret.node);
+    const rect = range.getBoundingClientRect();
+    // The caret should not be above the rectangle around the unbreakable text.
+    assert.isTrue(Math.round(rect.top) <=
+                  Math.round(caretManager.mark.getBoundingClientRect().top));
+  });
+
+  // tslint:disable-next-line:mocha-no-side-effect-code
+  const itNoIE = browsers.MSIE ? it.skip : it;
+
+  // We cannot right now run this on IE.
+  // tslint:disable-next-line:mocha-no-side-effect-code
+  itNoIE("proper caret position for elements that span lines", () => {
+    const p = editor.dataRoot.querySelectorAll("body>p")[5];
+
+    // Check that we are testing what we want to test. The end label for the hi
+    // element must be on the next line. If we don't have that condition yet,
+    // we modify the document to create the condition we want.
+    let textLoc: DLoc;
+    let hi: Element;
+    // This is extremely high on purpose. We don't want to have an arbitrarily
+    // low number that will cause issues *sometimes*.
+    let tries = 1000;
+    let satisfied = false;
+    // tslint:disable-next-line:no-constant-condition
+    while (true) {
+      tries--;
+      textLoc = caretManager.fromDataLocation(p.lastChild!, 2)!;
+      assert.equal(textLoc.node.nodeType, Node.TEXT_NODE);
+      const his =
+        (textLoc.node.parentNode as Element).getElementsByClassName("hi");
+      hi = his[his.length - 1];
+      const startRect = firstGUI(hi)!.getBoundingClientRect();
+      const endRect = lastGUI(hi)!.getBoundingClientRect();
+      if (endRect.top > startRect.top + startRect.height) {
+        satisfied = true;
+        break;
+      }
+      if (tries === 0) {
+        break;
+      }
+      editor.dataUpdater.insertText(editor.toDataNode(hi)!, 0, "AA");
+    }
+
+    assert.isTrue(satisfied,
+                  "PRECONDITION FAILED: the test is unable to establish the \
+necessary precondition");
+
+    hi.scrollIntoView(true);
+    const event = new $.Event("mousedown");
+    event.target = textLoc.node.parentNode as Element;
+    const { range } = textLoc.makeRange(textLoc.make(textLoc.node, 3))!;
+    const { top, bottom, left } = range.nativeRange.getBoundingClientRect();
+    event.clientX = left;
+    event.clientY = (top + bottom) / 2;
+    event.pageX = event.clientX + editor.window.document.body.scrollLeft;
+    event.pageY = event.clientY + editor.window.document.body.scrollTop;
+    event.which = 1; // First mouse button.
+    editor.$guiRoot.trigger(event);
+    caretCheck(editor, textLoc.node, textLoc.offset,
+               "the caret should be in the text node");
   });
 });
