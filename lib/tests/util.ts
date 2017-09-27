@@ -5,8 +5,12 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import * as Promise from "bluebird";
+// tslint:disable-next-line:import-name no-require-imports
+import md5 = require("blueimp-md5");
 import { ajax } from "bluejax";
 import { AssertionError, expect } from "chai";
+// tslint:disable-next-line: no-require-imports
+import qs = require("qs");
 
 export function delay(timeout: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, timeout));
@@ -132,6 +136,46 @@ export function expectError(fn: Function,
     });
 }
 
+interface Payload {
+  command: string;
+  data: string;
+}
+
+function decode(request: sinon.SinonFakeXMLHttpRequest): Payload {
+  const contentType = request.requestHeaders["Content-Type"];
+  const { requestBody } = request;
+  switch (contentType) {
+  case "application/x-www-form-urlencoded;charset=utf-8":
+    return qs.parse(requestBody);
+  case "json":
+    return JSON.parse(requestBody);
+  default:
+    throw new Error(`unknown content type: ${contentType}`);
+  }
+}
+
+function handleSave(request: sinon.SinonFakeXMLHttpRequest): void {
+  const decoded = decode(request);
+  const status = 200;
+  const headers: Record<string, string> =
+    { "Content-Type": "application/json" };
+  // tslint:disable-next-line:no-reserved-keywords
+  const messages: { type: string }[] = [];
+  switch (decoded.command) {
+  case "check":
+    break;
+  case "save":
+  case "autosave":
+    headers.ETag = btoa(md5(decoded.data, undefined, true));
+    messages.push({ type: "save_successful" });
+    break;
+  default:
+    throw new Error(`unknown command ${decoded.command}`);
+  }
+
+  request.respond(status, headers, JSON.stringify({ messages }));
+}
+
 export function setupServer(server: sinon.SinonFakeServer): void {
   // tslint:disable-next-line:no-any
   const xhr = (server as any).xhr;
@@ -139,9 +183,7 @@ export function setupServer(server: sinon.SinonFakeServer): void {
   xhr.addFilter((method: string, url: string): boolean =>
                 !/^\/build\/ajax\//.test(url));
   server.respondImmediately = true;
-  server.respondWith("POST", "/build/ajax/save.txt",
-                     [200, { "Content-Type": "application/json" },
-                      JSON.stringify({messages: []})]);
+  server.respondWith("POST", /^\/build\/ajax\/save\.txt$/, handleSave);
   server.respondWith("POST", "/build/ajax/log.txt",
                      [200, { "Content-Type": "application/json" }, "{}"]);
 }

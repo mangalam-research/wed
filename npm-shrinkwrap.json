@@ -25,6 +25,12 @@
       "integrity": "sha1-7PEQQhdJXlD+C1iNU4FGzW9zO4k=",
       "dev": true
     },
+    "@types/blueimp-md5": {
+      "version": "2.7.0",
+      "resolved": "https://registry.npmjs.org/@types/blueimp-md5/-/blueimp-md5-2.7.0.tgz",
+      "integrity": "sha1-QEIigGgAR4yieC6K1GWQq6fxRic=",
+      "dev": true
+    },
     "@types/bootbox": {
       "version": "4.4.30",
       "resolved": "https://registry.npmjs.org/@types/bootbox/-/bootbox-4.4.30.tgz",
@@ -146,6 +152,12 @@
       "version": "7.0.5",
       "resolved": "https://registry.npmjs.org/@types/node/-/node-7.0.5.tgz",
       "integrity": "sha1-lqDwphi3tgbx7FR0A8AGUCEL+7c=",
+      "dev": true
+    },
+    "@types/qs": {
+      "version": "6.5.0",
+      "resolved": "https://registry.npmjs.org/@types/qs/-/qs-6.5.0.tgz",
+      "integrity": "sha512-KCvdV85GNkZAyWOYxUUR+3XNairGv60Niu42GvVy9JlXRPEIZHXQuk0xMi/mla/25pLZzdY7uzLhBK/B81KZBg==",
       "dev": true
     },
     "@types/shelljs": {
@@ -750,6 +762,12 @@
     "bluebird": {
       "version": "https://registry.npmjs.org/bluebird/-/bluebird-3.5.0.tgz",
       "integrity": "sha1-eRQg1/VR7qKJdFOop3ZT+WYG1nw=",
+      "dev": true
+    },
+    "blueimp-md5": {
+      "version": "2.10.0",
+      "resolved": "https://registry.npmjs.org/blueimp-md5/-/blueimp-md5-2.10.0.tgz",
+      "integrity": "sha512-EkNUOi7tpV68TqjpiUz9D9NcT8um2+qtgntmMbi5UKssVX2m/2PLqotcric0RE63pB3HPN/fjf3cKHN2ufGSUQ==",
       "dev": true
     },
     "bluejax": {
@@ -2995,6 +3013,14 @@
         "type-is": "1.6.13",
         "utils-merge": "1.0.0",
         "vary": "1.1.0"
+      },
+      "dependencies": {
+        "qs": {
+          "version": "6.2.0",
+          "resolved": "https://registry.npmjs.org/qs/-/qs-6.2.0.tgz",
+          "integrity": "sha1-O3hIwDwt7OaalSKw+ujEEm10Xzs=",
+          "dev": true
+        }
       }
     },
     "extend": {
@@ -9038,9 +9064,9 @@
       "dev": true
     },
     "qs": {
-      "version": "6.2.0",
-      "resolved": "https://registry.npmjs.org/qs/-/qs-6.2.0.tgz",
-      "integrity": "sha1-O3hIwDwt7OaalSKw+ujEEm10Xzs=",
+      "version": "6.5.1",
+      "resolved": "https://registry.npmjs.org/qs/-/qs-6.5.1.tgz",
+      "integrity": "sha512-eRzhrN1WSINYCDCbrz796z37LOe3m5tmW7RQf6oBntukAG1nmovJvhnwHHRMAfeoItc1m2Hk02WER2aQ/iqs+A==",
       "dev": true
     },
     "querystring": {

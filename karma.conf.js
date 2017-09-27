@@ -36,6 +36,8 @@ module.exports = function(config) {
       { pattern: "build/schemas/**/*.@(js|json)", included: false },
       { pattern: "node_modules/sinon/pkg/sinon.js", included: false },
       { pattern: "node_modules/sinon-chai/lib/sinon-chai.js", included: false },
+      { pattern: "node_modules/blueimp-md5/js/md5.js", included: false },
+      { pattern: "node_modules/qs/dist/qs.js", included: false },
     ],
     exclude: [],
     preprocessors: {},
