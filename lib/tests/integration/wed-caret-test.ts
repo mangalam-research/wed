@@ -108,6 +108,12 @@ describe("wed caret", () => {
                   false);
   }
 
+  it("starts with undefined carets and selection ranges", () => {
+    assert.isUndefined(caretManager.caret, "no gui caret");
+    assert.isUndefined(caretManager.getDataCaret(), "no data caret");
+    assert.isUndefined(caretManager.range, "no gui selection range");
+  });
+
   describe("moveCaretRight", () => {
     it("works even if there is no caret defined", () => {
       editor.caretManager.onBlur();
