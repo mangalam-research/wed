@@ -3,9 +3,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as mergeOptions from "merge-options";
-
-import { Options } from "wed/options";
 import * as transformation from "wed/transformation";
 import * as wed from "wed/wed";
 
@@ -15,16 +12,6 @@ import { EditorSetup } from "../wed-test-util";
 
 const assert = chai.assert;
 
-const options: Options = {
-  schema: "/base/build/schemas/tei-simplified-rng.js",
-  mode: {
-    path: "wed/modes/test/test-mode",
-    options: {
-      metadata: "/base/build/schemas/tei-metadata.json",
-    },
-  },
-};
-
 describe("transformation", () => {
   let setup: EditorSetup;
   let editor: wed.Editor;
@@ -32,7 +19,7 @@ describe("transformation", () => {
   before(() => {
     setup = new EditorSetup(
       "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml",
-      mergeOptions(globalConfig.config, options),
+      globalConfig.config,
       document);
     ({ editor } = setup);
     return setup.init();

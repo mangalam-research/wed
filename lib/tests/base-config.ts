@@ -7,11 +7,11 @@
 import { Options } from "wed/options";
 
 export const config: Options = {
-  schema: "../schemas/tei-simplified-rng.js",
+  schema: "/base/build/schemas/tei-simplified-rng.js",
   mode: {
-    path: "wed/modes/generic/generic",
+    path: "wed/modes/test/test-mode",
     options: {
-      metadata: "../schemas/tei-metadata.json",
+      metadata: "/base/build/schemas/tei-metadata.json",
     },
   },
   // You certainly do not want this in actual deployment.

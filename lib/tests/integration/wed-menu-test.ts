@@ -3,8 +3,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as mergeOptions from "merge-options";
-
 import { CaretManager } from "wed/caret-manager";
 import { EditingMenuManager } from "wed/gui/editing-menu-manager";
 import * as wed from "wed/wed";
@@ -13,16 +11,6 @@ import * as globalConfig from "../base-config";
 import { delay } from "../util";
 import { activateContextMenu, contextMenuHasOption, EditorSetup,
          getAttributeValuesFor} from "../wed-test-util";
-
-const options = {
-  schema: "/base/build/schemas/tei-simplified-rng.js",
-  mode: {
-    path: "wed/modes/test/test-mode",
-    options: {
-      metadata: "/base/build/schemas/tei-metadata.json",
-    },
-  },
-};
 
 const assert = chai.assert;
 
@@ -37,7 +25,7 @@ describe("wed menus:", () => {
   before(() => {
     setup = new EditorSetup(
       "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml",
-      mergeOptions(globalConfig.config, options),
+      globalConfig.config,
       document);
     ({ editor } = setup);
     return setup.init().then(() => {

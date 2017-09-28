@@ -11,11 +11,8 @@ import * as globalConfig from "../base-config";
 import { EditorSetup } from "../wed-test-util";
 
 const options = {
-  schema: "/base/build/schemas/tei-simplified-rng.js",
   mode: {
-    path: "wed/modes/test/test-mode",
     options: {
-      metadata: "/base/build/schemas/tei-metadata.json",
       hide_attributes: true,
     },
   },

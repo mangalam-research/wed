@@ -3,8 +3,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as mergeOptions from "merge-options";
-
 import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
 import { DLoc } from "wed/dloc";
@@ -18,16 +16,6 @@ import { caretCheck, dataCaretCheck, EditorSetup, firstGUI,
          getAttributeValuesFor, getElementNameFor,
          lastGUI } from "../wed-test-util";
 
-const options = {
-  schema: "/base/build/schemas/tei-simplified-rng.js",
-  mode: {
-    path: "wed/modes/test/test-mode",
-    options: {
-      metadata: "/base/build/schemas/tei-metadata.json",
-    },
-  },
-};
-
 const assert = chai.assert;
 
 describe("wed caret", () => {
@@ -39,7 +27,7 @@ describe("wed caret", () => {
   before(() => {
     setup = new EditorSetup(
       "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml",
-      mergeOptions(globalConfig.config, options),
+      globalConfig.config,
       document);
     ({ editor } = setup);
     return setup.init().then(() => {

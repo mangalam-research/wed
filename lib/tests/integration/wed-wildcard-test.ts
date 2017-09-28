@@ -15,12 +15,6 @@ import { activateContextMenu, contextMenuHasOption, dataCaretCheck,
 
 const options = {
   schema: "/base/build/schemas/simplified-rng.js",
-  mode: {
-    path: "wed/modes/test/test-mode",
-    options: {
-      metadata: "/base/build/schemas/tei-metadata.json",
-    },
-  },
 };
 
 const assert = chai.assert;

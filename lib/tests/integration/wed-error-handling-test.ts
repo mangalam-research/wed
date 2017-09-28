@@ -3,24 +3,12 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as mergeOptions from "merge-options";
-
 import * as keyConstants from "wed/key-constants";
 import * as onerror from "wed/onerror";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup, WedServer } from "../wed-test-util";
-
-const options = {
-  schema: "/base/build/schemas/tei-simplified-rng.js",
-  mode: {
-    path: "wed/modes/test/test-mode",
-    options: {
-      metadata: "/base/build/schemas/tei-metadata.json",
-    },
-  },
-};
 
 const assert = chai.assert;
 
@@ -33,7 +21,7 @@ describe("wed error handling:", () => {
     setup = new EditorSetup(
       "/base/build/standalone/lib/tests/wed_test_data/\
 server_interaction_converted.xml",
-      mergeOptions(globalConfig.config, options),
+      globalConfig.config,
       document);
     ({ editor, server } = setup);
     return setup.init();
