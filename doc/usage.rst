@@ -171,7 +171,7 @@ Local Demos
 The demos, you must have a minimal server running. To run a server suitable for
 the demos, you can do::
 
-    $ ./misc/server.js server localhost:8888 &
+    $ ./misc/server.js localhost:8888 &
 
 The address and port ``localhost:8888`` is just a suggestion, but the link in
 the documentation below assume that's the address used.
