@@ -155,6 +155,11 @@ odd bug fix may not get mentioned here at all.
     from an old version of wed or find a replacement for it from a third-party
     library.
 
+  - Potentially breaking change: the ``log`` module no longer has
+    ``clearAppenders``. (Mode designers and users of wed normally don't use this
+    directly.) Instead the ``log.addURL`` method returns the appender created,
+    and it must be removed with ``log.removeAppender``.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

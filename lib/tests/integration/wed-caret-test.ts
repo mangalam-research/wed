@@ -12,7 +12,6 @@ import { CaretManager } from "wed/caret-manager";
 import { DLoc } from "wed/dloc";
 import { childByClass, firstDescendantOrSelf, indexOf } from "wed/domutil";
 import * as keyConstants from "wed/key-constants";
-import * as log from "wed/log";
 import * as onerror from "wed/onerror";
 import { distFromRect } from "wed/util";
 import * as wed from "wed/wed";
@@ -86,7 +85,6 @@ describe("wed caret", () => {
 
     // We don't reload our page so we need to do this.
     onerror.__test.reset();
-    log.clearAppenders();
     expect(wasTerminating)
       .to.equal(false, "test caused an unhandled exception to occur");
 

@@ -108,8 +108,6 @@ export function wrap<T extends (this: any, ...args: any[]) => any>(fn: T): T {
   } as T;
 }
 
-const appenders: log4javascript.AjaxAppender[] = [];
-
 /**
  * This method adds an Ajax appender to the topmost logger defined by wed so
  * that all messages are sent to the URL specified as a parameter. A server
@@ -121,8 +119,12 @@ const appenders: log4javascript.AjaxAppender[] = [];
  * to set for communicating. One use for this parameter would be for instance to
  * set the X-CSRFToken field when wed is being used on pages served by a Django
  * server.
+ *
+ * @returns The appender that was created to handle the URL. This may be used
+ * with [[removeAppender]] to remove an appender that is no longer used.
  */
-export function addURL(url: string, headers?: Record<string, string>): void {
+export function addURL(url: string, headers?: Record<string, string>):
+log4javascript.AjaxAppender {
   const appender = new log4javascript.AjaxAppender(url);
   appender.setThreshold(log4javascript.Level.ALL);
   const layout = new log4javascript.XmlLayout();
@@ -134,28 +136,17 @@ export function addURL(url: string, headers?: Record<string, string>): void {
   }
   ajaxLogger.addAppender(appender);
   log.info("Ajax appender initialized");
-  appenders.push(appender);
+  return appender;
 }
 
 /**
- * Flushes and removes all appenders from the logger.
+ * Removes an appender from the logger. Flushes out any pending messages first.
+ *
+ * @param appender The appender to remove.
  */
-export function clearAppenders(): void {
-  for (const appender of appenders) {
-    appender.sendAll();
-    ajaxLogger.removeAppender(appender);
-  }
-}
-
-/**
- * Flushes messages that are currently queued to all the locations that were
- * registered with [[addURL]]. This function is meant to be used mostly for
- * debugging purposes.
- */
-export function flush(): void {
-  for (const appender of appenders) {
-    appender.sendAll();
-  }
+export function removeAppender(appender: log4javascript.AjaxAppender): void {
+  appender.sendAll();
+  ajaxLogger.removeAppender(appender);
 }
 
 //  LocalWords:  Dubeau MPL Mangalam popup appender unhandled rethrown Django

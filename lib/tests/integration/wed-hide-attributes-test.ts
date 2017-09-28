@@ -7,7 +7,6 @@ import { expect } from "chai";
 import * as mergeOptions from "merge-options";
 import * as sinon from "sinon";
 
-import * as log from "wed/log";
 import * as onerror from "wed/onerror";
 import * as wed from "wed/wed";
 
@@ -80,7 +79,6 @@ describe("wed hide attributes:", () => {
 
     // We don't reload our page so we need to do this.
     onerror.__test.reset();
-    log.clearAppenders();
     expect(wasTerminating)
       .to.equal(false, "test caused an unhandled exception to occur");
 

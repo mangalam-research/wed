@@ -7,7 +7,6 @@ import * as mergeOptions from "merge-options";
 import * as salve from "salve";
 import * as sinon from "sinon";
 
-import * as log from "wed/log";
 import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 import * as transformation from "wed/transformation";
@@ -75,7 +74,6 @@ describe("transformation", () => {
                    "test caused an unhandled exception to occur");
     // We don't reload our page so we need to do this.
     onerror.__test.reset();
-    log.clearAppenders();
     document.body.removeChild(wedroot);
   });
 

@@ -10,7 +10,6 @@ import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 use(sinonChai);
 
-import * as log from "wed/log";
 import { ModeTree } from "wed/mode-tree";
 import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
@@ -105,7 +104,6 @@ describe("ModeTree", () => {
 
     // We don't reload our page so we need to do this.
     onerror.__test.reset();
-    log.clearAppenders();
     expect(wasTerminating)
       .to.equal(false, "test caused an unhandled exception to occur");
 

@@ -10,7 +10,6 @@ import { GUISelector } from "wed/gui-selector";
 import * as inputTriggerFactory from "wed/input-trigger-factory";
 import * as key from "wed/key";
 import { BACKSPACE, DELETE, ENTER } from "wed/key-constants";
-import * as log from "wed/log";
 import { Mode } from "wed/mode";
 import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
@@ -101,7 +100,6 @@ describe("input_trigger_factory", () => {
                    "test caused an unhandled exception to occur");
     // We don't reload our page so we need to do this.
     onerror.__test.reset();
-    log.clearAppenders();
     document.body.removeChild(wedroot);
   });
 

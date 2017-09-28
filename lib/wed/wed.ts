@@ -212,6 +212,7 @@ export class Editor {
   private readonly $navigationList: JQuery;
   private readonly $excludedFromBlur: JQuery;
   private readonly errorItemHandlerBound: ErrorItemHandler;
+  private readonly appender: log4javascript.AjaxAppender;
   private _undo: UndoList;
   private undoRecorder: UndoRecorder;
   private saveStatusInterval: number | undefined;
@@ -378,7 +379,7 @@ export class Editor {
     }
 
     if (options.ajaxlog !== undefined) {
-      log.addURL(options.ajaxlog.url, options.ajaxlog.headers);
+      this.appender = log.addURL(options.ajaxlog.url, options.ajaxlog.headers);
     }
 
     this.name = options.name !== undefined ? options.name : "";
@@ -1114,6 +1115,10 @@ export class Editor {
     for (const key of Object.keys(this)) {
       // tslint:disable-next-line:no-any
       delete (this as any)[key];
+    }
+
+    if (this.appender !== undefined) {
+      log.removeAppender(this.appender);
     }
 
     // ... but keep these two. Calling destroy over and over is okay.

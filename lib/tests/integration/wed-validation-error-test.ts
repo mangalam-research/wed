@@ -11,7 +11,6 @@ import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
 import { isAttr } from "wed/domtypeguards";
 import * as keyConstants from "wed/key-constants";
-import * as log from "wed/log";
 import * as onerror from "wed/onerror";
 import { TaskRunner } from "wed/task-runner";
 import { ValidationController } from "wed/validation-controller";
@@ -104,7 +103,6 @@ describe("wed validation errors:", () => {
 
     // We don't reload our page so we need to do this.
     onerror.__test.reset();
-    log.clearAppenders();
     expect(wasTerminating)
       .to.equal(false, "test caused an unhandled exception to occur");
 
