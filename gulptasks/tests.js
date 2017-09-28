@@ -8,8 +8,8 @@ const versync = require("versync");
 const Promise = require("bluebird");
 
 const { options } = require("./config");
-const { cprp, exec, existsInFile, mkdirpAsync, newer, sequence, spawn } =
-      require("./util");
+const { cprp, exec, existsInFile, mkdirpAsync, newer,
+        spawn } = require("./util");
 
 const convertXMLDirs = glob.sync("lib/tests/*_test_data")
         .filter(x => x !== "lib/tests/convert_test_data");
@@ -104,38 +104,21 @@ function runKarma(localOptions) {
   return spawn("./node_modules/.bin/karma", localOptions, { stdio: "inherit" });
 }
 
-const testKarma = {
-  name: "test-karma",
-  deps: ["build-standalone", "build-test-files"],
-  func: function *testKarma() {
-    if (!options.skip_semver) {
-      yield versync.run({
-        verify: true,
-        onMessage: gutil.log,
-      });
-    }
+gulp.task("test-karma", ["build-standalone", "build-test-files"],
+          Promise.coroutine(function *testKarma() {
+            if (!options.skip_semver) {
+              yield versync.run({
+                verify: true,
+                onMessage: gutil.log,
+              });
+            }
 
-    return runKarma(["start", "--single-run"]);
-  },
-};
-
-const testBrowser = {
-  name: "test-browser",
-  deps: ["build", "build-test-files"],
-  func: function testBrowser() {
-    const args = ["runner"];
-    if (options.optimize) {
-      args.push("--optimized");
-    }
-    return spawn("./misc/server.js", args, { stdio: "inherit" });
-  },
-};
-
-sequence("test-sequence", testKarma, testBrowser);
+            return runKarma(["start", "--single-run"]);
+          }));
 
 const test = {
   name: "test",
-  deps: ["lint", "test-sequence"],
+  deps: ["lint", "test-karma"],
   func: () => {},
 };
 exports.test = test;

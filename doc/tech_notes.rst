@@ -278,11 +278,9 @@ timeouts. The solution for now is don't push the tab in which tests are run to
 the background. Web workers would solve this problem but would create other
 complications so it is unclear whether they are a viable solution.
 
-Tests are of three types:
+Tests are of two types:
 
 * Karma-based tests.
-
-* Custom-test-runner-based tests.
 
 * Selenium-based tests which run *outside* the browser but use selenium to
   control a browser.
@@ -321,46 +319,6 @@ Also, the old Node+Mocha tests used to take 14s to run. Compare to the numbers
 above. There were many reasons for this. Some of it had to do with the fact that
 the TypeScript tests were compiled on the fly so the test run also included
 compilation time. The Karma tests, in contrast, run the pre-compiled code.
-
-.. _tech_notes_in_browser_tests:
-
-Custom-test-runner-based Tests
-------------------------------
-
-You can run these tests from the command line by running::
-
-  $ gulp test-browser
-
-The browser-dependent tests are located in the ``browser_test/`` directory off
-the wed root. These tests are run by launching ``./server.js`` with the option
-``runner``. This starts a server that can:
-
-- Serve wed's files.
-
-- Respond to wed's AJAX request.
-
-- Receive the results of the tests.
-
-It also starts a Chrome browser which loads the page that contains the tests to
-be run in the browser. The browser is run in ``Xvfb`` so that it does not appear
-on the desktop.
-
-If you need to run the server to perform diagnosis on failing tests, you can
-``./server.js browser``. This will launch the browser on your desktop and start
-the tests. The browser and server will remain running until you kill them.
-
-Q. Why not just use Karma?
-
-A. Historical reasons mostly. If Karma has been in the state it is now when the
-   project started, ``server.js`` would probably not exist. ``server.js`` grew
-   organically with the project when Karma was still its infancy. So wed started
-   being developed without Karma.
-
-   There are also technical reasons. ``server.js`` does a slew of custom things
-   that in early versions of Karma was not evident to do.
-
-   Most of the issues are probably surmountable now. The plan is to
-   progressively move the ``server.js`` tests to Karma and retire ``server.js``.
 
 Selenium-Based Tests
 --------------------

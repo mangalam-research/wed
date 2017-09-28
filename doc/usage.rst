@@ -168,12 +168,10 @@ See :doc:`tech_notes`.
 Local Demos
 ===========
 
-The demos, you must have a minimal server running just like the one needed to
-run the browser-dependent test suite (see the :ref:`tech_notes_in_browser_tests`
-section in :doc:`tech_notes`). To run a server suitable for the demos, you
-should do::
+The demos, you must have a minimal server running. To run a server suitable for
+the demos, you can do::
 
-    $ ./server.js server localhost:8888 &
+    $ ./misc/server.js server localhost:8888 &
 
 The address and port ``localhost:8888`` is just a suggestion, but the link in
 the documentation below assume that's the address used.

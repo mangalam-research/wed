@@ -249,3 +249,19 @@ export function makeWedRoot(doc: Document): HTMLElement {
   wedroot.className = "wed-widget container";
   return wedroot;
 }
+
+// tslint:disable-next-line:no-any
+export function makeFakePasteEvent(clipboardData: any): any {
+  const event = new $.Event("paste");
+  event.originalEvent = {
+    clipboardData,
+    // tslint:disable-next-line:no-empty
+    stopImmediatePropagation: () => {},
+    // tslint:disable-next-line:no-empty
+    preventDefault: () => {},
+    // tslint:disable-next-line:no-empty
+    stopPropagation: () => {},
+    // tslint:disable-next-line:no-any
+  } as any;
+  return event;
+}

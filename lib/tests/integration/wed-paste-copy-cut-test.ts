@@ -14,8 +14,8 @@ import * as onerror from "wed/onerror";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
-import { makeFakePasteEvent } from "../global";
-import { DataProvider, delay, makeWedRoot, setupServer } from "../util";
+import { DataProvider, delay, makeFakePasteEvent, makeWedRoot,
+         setupServer } from "../util";
 import { caretCheck, dataCaretCheck } from "../wed-test-util";
 
 const options = {

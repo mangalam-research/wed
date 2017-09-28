@@ -17,8 +17,8 @@ import { Mode } from "wed/mode";
 import { Options} from "wed/options";
 import * as wed from "wed/wed";
 import * as globalConfig from "../base-config";
-import { makeFakePasteEvent } from "../global";
-import { DataProvider, makeWedRoot, setupServer } from "../util";
+import { DataProvider, makeFakePasteEvent, makeWedRoot,
+         setupServer } from "../util";
 
 const options: Options = {
   schema: "",

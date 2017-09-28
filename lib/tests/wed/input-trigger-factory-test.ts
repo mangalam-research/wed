@@ -16,8 +16,8 @@ import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 import * as wed from "wed/wed";
 
-import { makeFakePasteEvent } from "../global";
-import { DataProvider, makeWedRoot, setupServer } from "../util";
+import { DataProvider, makeFakePasteEvent, makeWedRoot,
+         setupServer } from "../util";
 
 const assert = chai.assert;
 

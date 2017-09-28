@@ -18,8 +18,7 @@ import { ValidationController } from "wed/validation-controller";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
-import { makeFakePasteEvent } from "../global";
-import { DataProvider, makeWedRoot, setupServer,
+import { DataProvider, makeFakePasteEvent, makeWedRoot, setupServer,
          waitForSuccess } from "../util";
 import { firstGUI } from "../wed-test-util";
 
