@@ -3,25 +3,20 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as salve from "salve";
-import * as sinon from "sinon";
-
 import { GUISelector } from "wed/gui-selector";
 import * as inputTriggerFactory from "wed/input-trigger-factory";
 import * as key from "wed/key";
 import { BACKSPACE, DELETE, ENTER } from "wed/key-constants";
 import { Mode } from "wed/mode";
-import * as onerror from "wed/onerror";
-import { Options } from "wed/options";
 import * as wed from "wed/wed";
 
-import { DataProvider, makeFakePasteEvent, makeWedRoot,
-         setupServer } from "../util";
+import { makeFakePasteEvent } from "../util";
+import { EditorSetup } from "../wed-test-util";
 
 const assert = chai.assert;
 
-const options: Options = {
-  schema: "",
+const options = {
+  schema: "/base/build/schemas/tei-simplified-rng.js",
   mode: {
     path: "wed/modes/generic/generic",
     options: {
@@ -37,76 +32,36 @@ function cleanNamespace(str: string): string {
 }
 
 describe("input_trigger_factory", () => {
-  let wedroot: HTMLElement;
-  let topSandbox: sinon.SinonSandbox;
+  let setup: EditorSetup;
   let editor: wed.Editor;
   let mode: Mode;
-  let genericSrc: string;
-  let source2: string;
-  let source3: string;
-  const srcStack: string[] = [];
+  const dataDir = "/base/build/standalone/lib/tests/input_trigger_test_data";
 
+  // tslint:disable-next-line:mocha-no-side-effect-code
+  const srcStack: string[] = [`${dataDir}/source_converted.xml`];
+  // tslint:disable-next-line:mocha-no-side-effect-code
+  const source2: string = `${dataDir}/source2_converted.xml`;
+  // tslint:disable-next-line:mocha-no-side-effect-code
+  const source3: string = `${dataDir}/source3_converted.xml`;
   // tslint:disable-next-line:mocha-no-side-effect-code
   const pSelector = GUISelector.fromDataSelector(
     "p",
     // tslint:disable-next-line:no-http-string
     { "": "http://www.tei-c.org/ns/1.0" });
 
-  before(() => {
-    const provider = new DataProvider("/base/build/");
-    const dataDir = "standalone/lib/tests/input_trigger_test_data";
-
-    return Promise.all([
-      provider.getText("schemas/tei-simplified-rng.js").then((schema) => {
-        // Resolve the schema to a grammar.
-        options.schema = salve.constructTree(schema);
-      }),
-      provider.getText(`${dataDir}/source_converted.xml`).then((data) => {
-        genericSrc = data;
-        srcStack.push(genericSrc);
-      }),
-      provider.getText(`${dataDir}/source2_converted.xml`).then((data) => {
-        source2 = data;
-      }),
-      provider.getText(`${dataDir}/source3_converted.xml`).then((data) => {
-        source3 = data;
-      }),
-    ]);
-  });
-
-  before(() => {
-    topSandbox = sinon.sandbox.create({
-      useFakeServer: true,
-    });
-    setupServer(topSandbox.server);
-  });
-
   beforeEach(() => {
-    wedroot = makeWedRoot(document);
-    document.body.appendChild(wedroot);
-    editor = new wed.Editor(wedroot, options);
-    return editor.init(srcStack[0]).then(() => {
+    setup = new EditorSetup(srcStack[0], options, document);
+    ({ editor } = setup);
+    return setup.init().then(() => {
       mode = editor.modeTree.getMode(editor.guiRoot);
     });
   });
 
   afterEach(() => {
-    if (editor !== undefined) {
-      editor.destroy();
-    }
+    setup.restore();
+
     // tslint:disable-next-line:no-any
     (editor as any) = undefined;
-    assert.isFalse(onerror.is_terminating(),
-                   "test caused an unhandled exception to occur");
-    // We don't reload our page so we need to do this.
-    onerror.__test.reset();
-    document.body.removeChild(wedroot);
-  });
-
-  after(() => {
-    if (topSandbox !== undefined) {
-      topSandbox.restore();
-    }
   });
 
   function mit(name: string, fn: () => void): void {

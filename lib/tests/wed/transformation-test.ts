@@ -4,22 +4,19 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import * as mergeOptions from "merge-options";
-import * as salve from "salve";
-import * as sinon from "sinon";
 
-import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 import * as transformation from "wed/transformation";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 
-import { DataProvider, makeWedRoot, setupServer } from "../util";
+import { EditorSetup } from "../wed-test-util";
 
 const assert = chai.assert;
 
 const options: Options = {
-  schema: "",
+  schema: "/base/build/schemas/tei-simplified-rng.js",
   mode: {
     path: "wed/modes/test/test-mode",
     options: {
@@ -29,58 +26,26 @@ const options: Options = {
 };
 
 describe("transformation", () => {
-  let source: string;
+  let setup: EditorSetup;
   let editor: wed.Editor;
-  let topSandbox: sinon.SinonSandbox;
-  let wedroot: HTMLElement;
 
   before(() => {
-    const provider = new DataProvider("/base/build/");
-    const dataDir = "standalone/lib/tests/wed_test_data";
-
-    return Promise.all([
-      provider.getText("schemas/tei-simplified-rng.js").then((schema) => {
-        // Resolve the schema to a grammar.
-        options.schema = salve.constructTree(schema);
-      }),
-      provider.getText(`${dataDir}/source_converted.xml`).then((data) => {
-        source = data;
-      }),
-    ]);
-  });
-
-  before(() => {
-    topSandbox = sinon.sandbox.create({
-      useFakeServer: true,
-    });
-    setupServer(topSandbox.server);
-  });
-
-  beforeEach(() => {
-    wedroot = makeWedRoot(document);
-    document.body.appendChild(wedroot);
-    editor = new wed.Editor(wedroot,
-                            mergeOptions({}, globalConfig.config, options));
-    return editor.init(source);
+    setup = new EditorSetup(
+      "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml",
+      mergeOptions(globalConfig.config, options),
+      document);
+    ({ editor } = setup);
+    return setup.init();
   });
 
   afterEach(() => {
-    if (editor !== undefined) {
-      editor.destroy();
-    }
-    // tslint:disable-next-line:no-any
-    (editor as any) = undefined;
-    assert.isFalse(onerror.is_terminating(),
-                   "test caused an unhandled exception to occur");
-    // We don't reload our page so we need to do this.
-    onerror.__test.reset();
-    document.body.removeChild(wedroot);
+    setup.reset();
   });
 
   after(() => {
-    if (topSandbox !== undefined) {
-      topSandbox.restore();
-    }
+    setup.restore();
+    // tslint:disable-next-line:no-any
+    (editor as any) = undefined;
   });
 
   describe("swapWithPreviousHomogeneousSibling", () => {

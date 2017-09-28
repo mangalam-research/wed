@@ -5,8 +5,6 @@
  */
 import { assert } from "chai";
 import * as mergeOptions from "merge-options";
-import * as salve from "salve";
-import * as sinon from "sinon";
 
 import { GUISelector } from "wed/gui-selector";
 import { InputTrigger } from "wed/input-trigger";
@@ -17,11 +15,12 @@ import { Mode } from "wed/mode";
 import { Options} from "wed/options";
 import * as wed from "wed/wed";
 import * as globalConfig from "../base-config";
-import { DataProvider, makeFakePasteEvent, makeWedRoot,
-         setupServer } from "../util";
+
+import { makeFakePasteEvent } from "../util";
+import { EditorSetup } from "../wed-test-util";
 
 const options: Options = {
-  schema: "",
+  schema: "/base/build/schemas/tei-simplified-rng.js",
   mode: {
     path: "wed/modes/generic/generic",
     options: {
@@ -49,6 +48,7 @@ function cleanNamespace(str: string): string {
 }
 
 describe("InputTrigger", () => {
+  let setup: EditorSetup;
   let editor: wed.Editor;
   let mode: Mode<{}>;
   const mappings: Record<string, string> =
@@ -56,60 +56,28 @@ describe("InputTrigger", () => {
     { "": "http://www.tei-c.org/ns/1.0" };
   let pSelector: GUISelector;
   let pInBody: Element;
-  let source: string;
-  let wedroot: HTMLElement;
-  let topSandbox: sinon.SinonSandbox;
 
   before(() => {
     pSelector = GUISelector.fromDataSelector("p", mappings);
-    const provider = new DataProvider("/base/build/");
-    return Promise.all([
-      provider.getText("schemas/tei-simplified-rng.js")
-        .then((schema) => {
-          // Resolve the schema to a grammar.
-          options.schema = salve.constructTree(schema);
-        }),
-      provider
-        .getText(
-          "standalone/lib/tests/input_trigger_test_data/source_converted.xml")
-        .then((xml) => {
-          source = xml;
-        }),
-    ]);
-  });
-
-  before(() => {
-    topSandbox = sinon.sandbox.create({
-      useFakeServer: true,
-    });
-    setupServer(topSandbox.server);
   });
 
   beforeEach(() => {
-    wedroot = makeWedRoot(document);
-    document.body.appendChild(wedroot);
-    editor = new wed.Editor(wedroot,
-                            mergeOptions({}, globalConfig.config, options));
-    return editor.init(source)
-      .then(() => {
-        mode = editor.modeTree.getMode(editor.guiRoot);
-        pInBody = editor.dataRoot.querySelector("body p")!;
-      });
+    setup = new EditorSetup(
+      "/base/build/standalone/lib/tests/input_trigger_test_data/\
+source_converted.xml",
+      mergeOptions(globalConfig.config, options),
+      document);
+    ({ editor } = setup);
+    return setup.init().then(() => {
+      mode = editor.modeTree.getMode(editor.guiRoot);
+      pInBody = editor.dataRoot.querySelector("body p")!;
+    });
   });
 
   afterEach(() => {
-    if (editor !== undefined) {
-      editor.destroy();
-    }
+    setup.restore();
     // tslint:disable-next-line:no-any
     (editor as any) = undefined;
-    document.body.removeChild(wedroot);
-  });
-
-  after(() => {
-    if (topSandbox !== undefined) {
-      topSandbox.restore();
-    }
   });
 
   function pasteTest(p: Element): number {

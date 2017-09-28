@@ -5,21 +5,20 @@
  */
 import { expect, use } from "chai";
 import * as mergeOptions from "merge-options";
-import * as salve from "salve";
 import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 use(sinonChai);
 
 import { ModeTree } from "wed/mode-tree";
-import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
-import { DataProvider, expectError, makeWedRoot, setupServer } from "../util";
+import { expectError } from "../util";
+import { EditorSetup } from "../wed-test-util";
 
 const options: Options = {
-  schema: "",
+  schema: "/base/build/schemas/tei-simplified-rng.js",
   mode: {
     path: "wed/modes/generic/generic",
     options: {
@@ -56,59 +55,23 @@ const options: Options = {
 };
 
 describe("ModeTree", () => {
-  let source: string;
-  // tslint:disable-next-line:no-any
-  let editor: any;
-  let wedroot: HTMLElement;
-  let topSandbox: sinon.SinonSandbox;
+  let setup: EditorSetup;
+  let editor: wed.Editor;
 
   before(() => {
-    const provider = new DataProvider("/base/build/");
-    // We get this data before we create the fake server.
-    return Promise.all([
-      provider.getText("schemas/tei-simplified-rng.js")
-        .then((schema) => {
-          // Resolve the schema to a grammar.
-          options.schema = salve.constructTree(schema);
-        }),
-      provider
-        .getText("standalone/lib/tests/wed_test_data/source_converted.xml")
-        .then((xml) => {
-          source = xml;
-        }),
-    ]);
-  });
-
-  before(() => {
-    topSandbox = sinon.sandbox.create({
-      useFakeServer: true,
-    });
-    setupServer(topSandbox.server);
-
-    wedroot = makeWedRoot(document);
-    document.body.appendChild(wedroot);
-    editor = new wed.Editor(wedroot,
-                            mergeOptions({}, globalConfig.config, options));
-    return editor.init(source);
+    setup = new EditorSetup(
+      "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml",
+      mergeOptions(globalConfig.config, options),
+      document);
+    ({ editor } = setup);
+    return setup.init();
   });
 
   after(() => {
-    topSandbox.restore();
-    if (editor !== undefined) {
-      editor.destroy();
-    }
+    setup.restore();
 
-    // We read the state, reset, and do the assertion later so
-    // that if the assertion fails, we still have our reset.
-    const wasTerminating = onerror.is_terminating();
-
-    // We don't reload our page so we need to do this.
-    onerror.__test.reset();
-    expect(wasTerminating)
-      .to.equal(false, "test caused an unhandled exception to occur");
-
-    editor = undefined;
-    document.body.removeChild(wedroot);
+    // tslint:disable-next-line:no-any
+    (editor as any) = undefined;
   });
 
   // tslint:disable-next-line:no-empty
@@ -149,14 +112,14 @@ describe("ModeTree", () => {
     });
 
     it("returns a submode for a GUI node governed by a submode", () => {
-      const p = editor.guiRoot.querySelector(".p._real");
+      const p = editor.guiRoot.querySelector(".p._real")!;
       const mode = tree.getMode(p);
       expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
         .equal("Test1");
     });
 
     it("returns a submode for a data node governed by a submode", () => {
-      const p = editor.dataRoot.querySelector("p");
+      const p = editor.dataRoot.querySelector("p")!;
       const mode = tree.getMode(p);
       expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
         .equal("Test1");
@@ -167,7 +130,7 @@ describe("ModeTree", () => {
       const mode = tree.getMode(ps[0]);
       expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
         .equal("Test1");
-      for (const p of ps) {
+      for (const p of Array.from(ps)) {
         expect(mode).to.equal(tree.getMode(p));
       }
     });
@@ -177,7 +140,7 @@ describe("ModeTree", () => {
       // child of a mode that matches p. The one teiHeader in the document is
       // not a child of p and so should not match the submode. teiHeader should
       // be governed by the top mode.
-      const el = editor.dataRoot.querySelector("teiHeader");
+      const el = editor.dataRoot.querySelector("teiHeader")!;
       const mode = tree.getMode(el);
       expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
         .equal("Generic");
@@ -209,14 +172,14 @@ describe("ModeTree", () => {
 
     it("returns the submode options for a GUI node governed by a submode",
        () => {
-         const p = editor.guiRoot.querySelector(".p._real");
+         const p = editor.guiRoot.querySelector(".p._real")!;
          const opts = tree.getWedOptions(p);
          expect(opts).to.have.deep.property("metadata.name").equal("Test1");
        });
 
     it("returns the submode options for a data node governed by a submode",
        () => {
-         const p = editor.dataRoot.querySelector("p");
+         const p = editor.dataRoot.querySelector("p")!;
          const opts = tree.getWedOptions(p);
          expect(opts).have.deep.property("metadata.name").equal("Test1");
        });
@@ -227,7 +190,7 @@ describe("ModeTree", () => {
          const opts = tree.getWedOptions(ps[0]);
          expect(opts).to.have.deep.property("metadata.name")
            .equal("Test1");
-         for (const p of ps) {
+         for (const p of Array.from(ps)) {
            expect(opts).to.equal(tree.getWedOptions(p));
          }
        });
@@ -237,7 +200,7 @@ describe("ModeTree", () => {
       // child of a mode that matches p. The one teiHeader in the document is
       // not a child of p and so should not match the submode. teiHeader should
       // be governed by the top mode.
-      const el = editor.dataRoot.querySelector("teiHeader");
+      const el = editor.dataRoot.querySelector("teiHeader")!;
       const opts = tree.getWedOptions(el);
       expect(opts).to.have.deep.property("metadata.name").equal("Generic");
     });
@@ -267,13 +230,13 @@ describe("ModeTree", () => {
     });
 
     it("returns the right value for a GUI node governed by a submode", () => {
-      const p = editor.guiRoot.querySelector(".p._real");
+      const p = editor.guiRoot.querySelector(".p._real")!;
       const handling = tree.getAttributeHandling(p);
       expect(handling).to.equal("hide");
     });
 
     it("returns the right value for a data node governed by a submode", () => {
-      const p = editor.dataRoot.querySelector("p");
+      const p = editor.dataRoot.querySelector("p")!;
       const handling = tree.getAttributeHandling(p);
       expect(handling).to.equal("hide");
     });
@@ -301,13 +264,13 @@ describe("ModeTree", () => {
     });
 
     it("returns the right value for a GUI node governed by a submode", () => {
-      const p = editor.guiRoot.querySelector(".p._real");
+      const p = editor.guiRoot.querySelector(".p._real")!;
       const handling = tree.getAttributeHidingSpecs(p);
       expect(handling).to.not.be.null;
     });
 
     it("returns the right value for a data node governed by a submode", () => {
-      const p = editor.dataRoot.querySelector("p");
+      const p = editor.dataRoot.querySelector("p")!;
       const handling = tree.getAttributeHidingSpecs(p);
       expect(handling).to.not.be.null;
     });

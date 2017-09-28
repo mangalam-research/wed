@@ -3,18 +3,14 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { expect } from "chai";
 import * as mergeOptions from "merge-options";
-import * as sinon from "sinon";
 
 import { CaretManager } from "wed/caret-manager";
 import { isElement } from "wed/domtypeguards";
-import * as onerror from "wed/onerror";
 import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
-import { DataProvider, makeWedRoot, setupServer } from "../util";
-import { firstGUI, getAttributeNamesFor } from "../wed-test-util";
+import { EditorSetup, firstGUI, getAttributeNamesFor } from "../wed-test-util";
 
 const options = {
   schema: "/base/build/schemas/tei-simplified-rng.js",
@@ -29,79 +25,40 @@ const options = {
 const assert = chai.assert;
 
 describe("wed decoration:", () => {
-  let source: string;
+  let setup: EditorSetup;
   let editor: wed.Editor;
   let caretManager: CaretManager;
-  let topSandbox: sinon.SinonSandbox;
-  let wedroot: HTMLElement;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;
   let titles: NodeListOf<Element>;
 
-  before(async () => {
-    const provider =
-      new DataProvider("/base/build/standalone/lib/tests/wed_test_data/");
-    source = await provider.getText("source_converted.xml");
-  });
-
   before(() => {
-    topSandbox = sinon.sandbox.create({
-      useFakeServer: true,
+    setup = new EditorSetup(
+      "/base/build/standalone/lib/tests/wed_test_data/source_converted.xml",
+      mergeOptions(globalConfig.config, options),
+      document);
+    ({ editor } = setup);
+    return setup.init().then(() => {
+      // tslint:disable-next-line:no-any
+      (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
+      caretManager = editor.caretManager;
+      guiRoot = editor.guiRoot;
+      ps = guiRoot.querySelectorAll(".body .p");
+      titles = guiRoot.getElementsByClassName("title");
     });
-    setupServer(topSandbox.server);
-
-    wedroot = makeWedRoot(document);
-    document.body.appendChild(wedroot);
-    editor = new wed.Editor(wedroot,
-                            mergeOptions(globalConfig.config, options));
-    return editor.init(source)
-      .then(() => {
-        // tslint:disable-next-line:no-any
-        (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
-        caretManager = editor.caretManager;
-        guiRoot = editor.guiRoot;
-        ps = guiRoot.querySelectorAll(".body .p");
-        titles = guiRoot.getElementsByClassName("title");
-      });
-  });
-
-  beforeEach(() => {
-    editor.undoAll();
-    editor.resetLabelVisibilityLevel();
   });
 
   afterEach(() => {
-    assert.isFalse(onerror.is_terminating(),
-                   "test caused an unhandled exception to occur");
-    // We don't reload our page so we need to do this.
-    onerror.__test.reset();
-    editor.editingMenuManager.dismiss();
+    setup.reset();
   });
 
   after(() => {
-    if (editor !== undefined) {
-      editor.destroy();
-    }
-
-    // We read the state, reset, and do the assertion later so that if the
-    // assertion fails, we still have our reset.
-    const wasTerminating = onerror.is_terminating();
-
-    // We don't reload our page so we need to do this.
-    onerror.__test.reset();
-    expect(wasTerminating)
-      .to.equal(false, "test caused an unhandled exception to occur");
-
+    setup.restore();
     // tslint:disable-next-line:no-any
     (editor as any) = undefined;
     // tslint:disable-next-line:no-any
     (caretManager as any) = undefined;
     // tslint:disable-next-line:no-any
-
-    if (topSandbox !== undefined) {
-      topSandbox.restore();
-    }
-    document.body.removeChild(wedroot);
   });
 
   it("element becoming empty acquires a placeholder", () => {

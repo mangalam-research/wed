@@ -6,7 +6,7 @@
 import * as $ from "jquery";
 
 import { Modal } from "wed/gui/modal";
-import { makeWedRoot } from "../../util";
+import { makeWedRoot } from "../../wed-test-util";
 
 const assert = chai.assert;
 
