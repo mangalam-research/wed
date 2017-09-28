@@ -142,8 +142,14 @@ export interface Payload {
   readonly version: string;
 }
 
+// tslint:disable-next-line:completed-docs
 export class WedServer {
   private _saveRequests: Payload[] = [];
+
+  emptyResponseOnSave: boolean = false;
+  failOnSave: boolean = false;
+  preconditionFailOnSave: boolean = false;
+  tooOldOnSave: boolean = false;
 
   constructor(server: sinon.SinonFakeServer) {
     // tslint:disable-next-line:no-any
@@ -169,6 +175,10 @@ export class WedServer {
 
   reset(): void {
     this._saveRequests = [];
+    this.emptyResponseOnSave = false;
+    this.failOnSave = false;
+    this.preconditionFailOnSave = false;
+    this.tooOldOnSave = false;
   }
 
   private decode(request: sinon.SinonFakeXMLHttpRequest): Payload {
@@ -187,27 +197,47 @@ export class WedServer {
   private handleSave(request: sinon.SinonFakeXMLHttpRequest): void {
     const decoded = this.decode(request);
     this._saveRequests.push(decoded);
-    const status = 200;
+    let status = 200;
     const headers: Record<string, string> =
       { "Content-Type": "application/json" };
     // tslint:disable-next-line:no-reserved-keywords
     const messages: { type: string }[] = [];
+
+    function populateSaveResponse(): void {
+      headers.ETag = btoa(md5(decoded.data, undefined, true));
+      messages.push({ type: "save_successful" });
+    }
+
     switch (decoded.command) {
     case "check":
       break;
     case "save":
     case "autosave":
-      headers.ETag = btoa(md5(decoded.data, undefined, true));
-      messages.push({ type: "save_successful" });
+      if (!this.emptyResponseOnSave) {
+        if (this.tooOldOnSave) {
+          messages.push({ type: "version_too_old_error" });
+        }
+
+        if (this.preconditionFailOnSave) {
+          status = 412;
+        }
+        else if (this.failOnSave) {
+          status = 400;
+        }
+        else {
+          populateSaveResponse();
+        }
+      }
+      break;
+    case "recover":
+      populateSaveResponse();
       break;
     default:
-      throw new Error(`unknown command ${decoded.command}`);
+      status = 400;
     }
 
     request.respond(status, headers, JSON.stringify({ messages }));
   }
-
-
 }
 
 export function setupServer(server: sinon.SinonFakeServer): void {
