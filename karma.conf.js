@@ -22,7 +22,7 @@ module.exports = function(config) {
       "karma-*", // This is the default, which we need to keep here.
       { "middleware:serve-fake-css-files": ["factory", makeServeMiddleware] },
     ],
-    frameworks: ["requirejs", "mocha", "chai"],
+    frameworks: ["requirejs", "mocha", "chai", "source-map-support"],
     files: [
       "build/standalone/requirejs-config.js",
       // Get it straight from the source, as it does not need compilation.
