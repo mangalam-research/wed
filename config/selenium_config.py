@@ -88,7 +88,7 @@ caps = {
     "build": "version: " + version + ", git describe: " + describe
 }
 
-selenium_version = "2.49.0"
+selenium_version = "3.6.0"
 
 if REMOTE_SERVICE == "saucelabs":
     caps.update({
@@ -105,6 +105,7 @@ if REMOTE_SERVICE == "saucelabs":
         })
 
 elif REMOTE_SERVICE == "browserstack":
+    selenium_version = "3.5.2"
     caps.update({
         'project': 'Wed',
         'browserstack.selenium_version': selenium_version,
