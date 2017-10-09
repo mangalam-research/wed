@@ -404,21 +404,30 @@ def step_impl(context, what):
                                              1 if label.is_displayed() else 0))
 
     start = wedutil.caret_selection_pos(driver)
-    # On FF there's an off-by 1 issue in the CSS rendering which causes
-    # a problem unless we perform this adjustment.
-    start["left"] += 1
-
     util.send_keys(parent,
                    # Move to the end of the selection we want.
                    [Keys.ARROW_RIGHT] * len(what))
-
     end = wedutil.caret_selection_pos(driver)
-    # On FF there's an off-by 1 issue in the CSS rendering which causes
-    # a problem unless we perform this adjustment.
-    end["left"] -= 1
+
+    # We don't want to be too close to the edge to handle a problem when
+    # labels are. The problem is that when the labels are invisible they
+    # have 0 width and it is possible at least that the caret could be
+    # put over the invisible label. (That is, instead of the caret being
+    # put after the invisible start label, it would be put before the
+    # invisible start label.) When a user selects manually, the visual
+    # feedback tends to prevent this. In testing, we achieve the same
+    # through shifting the boundaries inwards a bit.
+    #
+    # Note that we've deemed it unnecessary to change the
+    # caret/selection code of wed to prevent the caret from moving over
+    # an invisible label. The fix would be rather complicated but
+    # selecting text by mouse when labels are invisible is a bit dodgy
+    # **at any rate**, and we're not going to work around this
+    # dodginess. For now, at least.
+    start["left"] += 5
+    end["left"] -= 5
 
     select_text(context, start, end)
-
     assert_equal(util.get_selection_text(), what,
                  "the selected text should be what we wanted to select")
     context.selection_parent = parent

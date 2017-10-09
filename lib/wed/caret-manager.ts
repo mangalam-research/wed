@@ -135,10 +135,6 @@ export class CaretManager implements GUIToDataConverter {
               private readonly modeTree: ModeTree) {
     this.mark = new CaretMark(this, guiRoot.node.ownerDocument, layer,
                               inputField, scroller);
-    scroller.events.subscribe(() => {
-      this.mark.refresh();
-    });
-
     this.guiRootEl = guiRoot.node;
     this.dataRootEl = dataRoot.node;
     this.doc = this.guiRootEl.ownerDocument;

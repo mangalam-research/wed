@@ -114,8 +114,8 @@ const FRAMEWORK_TEMPLATE = "\
    <div class='wed-cut-buffer' contenteditable='true'></div>\
    <div class='wed-document-constrainer'>\
     <input class='wed-comp-field' type='text'></input>\
-    <div class='wed-caret-layer'></div>\
     <div class='wed-scroller'>\
+     <div class='wed-caret-layer'></div>\
      <div class='wed-error-layer'></div>\
      <div class='wed-document'><span class='root-here'></span></div>\
     </div>\

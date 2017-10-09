@@ -119,18 +119,16 @@ export class CaretMark {
 
     const boundary = boundaryXY(caret);
     const grPosition = this.scroller.getBoundingClientRect();
-    const position = {
-      top: boundary.top - grPosition.top,
-      left: boundary.left - grPosition.left,
-    };
+    const top = boundary.top - grPosition.top + this.scroller.scrollTop;
+    const left = boundary.left - grPosition.left + this.scroller.scrollLeft;
 
     const node = caret.node;
     const heightNode = isElement(node) ? node : (node.parentNode as Element);
     const height = getComputedStyle(heightNode).lineHeight;
 
     const el = this.el;
-    const topStr = `${position.top}px`;
-    const leftStr = `${position.left}px`;
+    const topStr = `${top}px`;
+    const leftStr = `${left}px`;
     el.style.top = topStr;
     el.style.left = leftStr;
     el.style.height = height;
@@ -170,9 +168,6 @@ export class CaretMark {
     if (isNaN(pos.left) || isNaN(pos.top)) {
       throw new Error("NAN for left or top");
     }
-
-    pos.left += this.scroller.scrollLeft;
-    pos.top += this.scroller.scrollTop;
 
     return pos;
   }
