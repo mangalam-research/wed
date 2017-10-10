@@ -116,6 +116,8 @@ export function makeDraggable($top: JQuery): void {
   const header = $top.find(".modal-header")[0];
   const content = $top.find(".modal-content")[0];
 
+  let startLeft: number;
+  let startTop: number;
   interact(header)
     .draggable({
       restrict: {
@@ -127,10 +129,12 @@ export function makeDraggable($top: JQuery): void {
         },
       },
     })
+    .on("dragstart", () => {
+      startLeft = content.offsetLeft;
+      startTop = content.offsetTop;
+    })
     .on("dragmove", (event: interact.InteractEvent) => {
-      const target = content;
-
-      target.style.left = `${event.clientX - event.clientX0}px`;
-      target.style.top = `${event.clientY - event.clientY0}px`;
+      content.style.left = `${startLeft + event.clientX - event.clientX0}px`;
+      content.style.top = `${startTop + event.clientY - event.clientY0}px`;
     });
 }
