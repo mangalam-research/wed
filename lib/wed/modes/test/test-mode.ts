@@ -293,7 +293,7 @@ class DraggableModalAction extends Action<{}> {
 }
 
 // tslint:disable-next-line:completed-docs
-class ResizableModalAction extends Action<{}> {
+class DraggableResizableModalAction extends Action<{}> {
   private _modal: Modal | undefined;
 
   private get modal(): Modal {
@@ -313,7 +313,7 @@ class ResizableModalAction extends Action<{}> {
 }
 
 // tslint:disable-next-line:completed-docs
-class DraggableResizableModalAction extends Action<{}> {
+class ResizableModalAction extends Action<{}> {
   private _modal: Modal | undefined;
 
   private get modal(): Modal {
