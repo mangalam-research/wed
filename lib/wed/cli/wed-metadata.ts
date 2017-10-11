@@ -206,7 +206,7 @@ if (output.dochtml !== undefined) {
 }
 
 const stringified = JSON.stringify(output, undefined,
-                                   args.pretty as boolean ? 2 : undefined);
+                                   (args.pretty as boolean) ? 2 : undefined);
 
 if (args.output !== undefined) {
   fs.writeFileSync(args.output, stringified);
