@@ -34,7 +34,7 @@
     "@types/argparse": "^1.0.30",
     "@types/bluebird": "^3.5.2",
     "@types/blueimp-md5": "^2.7.0",
-    "@types/bootbox": "^4.4.30",
+    "@types/bootbox": "^4.4.35",
     "@types/bootstrap": "^3.3.32",
     "@types/bootstrap-notify": "^3.1.30",
     "@types/chai": "^3.4.35",
