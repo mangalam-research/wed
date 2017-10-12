@@ -8,7 +8,7 @@
 import * as $ from "jquery";
 
 import * as convert from "wed/convert";
-import { DLoc, DLocRoot, findRoot, getRoot } from "wed/dloc";
+import { DLoc, DLocRange, DLocRoot, findRoot, getRoot } from "wed/dloc";
 import { isAttr } from "wed/domutil";
 
 import * as sourceXML from "../dloc_test_data/source_converted.xml";
@@ -42,6 +42,32 @@ describe("dloc", () => {
   after(() => {
     document.body.removeChild(root);
   });
+
+  afterEach(() => {
+    // Some tests add elements with the class __test to the DOM tree.
+    // Proactively delete them here.
+    $(".__test").remove();
+  });
+
+  function makeAttributeNodeCase(): { attrLoc: DLoc, loc: DLoc } {
+    const a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+    const b = defined($(".body .p")[1]);
+    const attrLoc = defined(DLoc.makeDLoc(root, a, 0));
+    const loc = attrLoc.make(b, 1);
+    return { attrLoc, loc };
+  }
+
+  function makeInvalidCase(): { loc: DLoc, invalid: DLoc } {
+    $root.append("<div class='__test'></div>");
+    const t = defined($(".__test")[0]);
+    assert.equal(t.nodeType, Node.ELEMENT_NODE);
+    const b = defined($(".body .p")[1]);
+    const loc = defined(DLoc.makeDLoc(root, b, 1));
+    const invalid = loc.make(t, 0);
+    t.parentNode!.removeChild(t);
+    assert.isFalse(invalid.isValid());
+    return { loc, invalid };
+  }
 
   describe("DLocRoot", () => {
     it("marks the root", () => {
@@ -330,10 +356,6 @@ describe("dloc", () => {
     });
 
     describe("makeRange", () => {
-      afterEach(() => {
-        $(".__test").remove();
-      });
-
       it("makes a range", () => {
         const a = defined($(".body .p")[0]);
         const b = defined($(".body .p")[1]);
@@ -374,45 +396,74 @@ describe("dloc", () => {
       });
 
       it("fails on an attribute node", () => {
-        const a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
-        const b = defined($(".body .p")[1]);
-        const loc = defined(DLoc.makeDLoc(root, a, 0));
-        const loc2 = loc.make(b, 1);
-        assert.throws(loc.makeRange.bind(loc, loc2), Error,
+        const { attrLoc, loc } = makeAttributeNodeCase();
+        assert.throws(() => attrLoc.makeRange(loc), Error,
                      "cannot make range from attribute node");
       });
 
       it("fails on an attribute node passed as other", () => {
-        const a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
-        const b = defined($(".body .p")[1]);
-        const loc = defined(DLoc.makeDLoc(root, a, 0));
-        const loc2 = loc.make(b, 1);
-        assert.throws(loc2.makeRange.bind(loc2, loc), Error,
+        const { attrLoc, loc } = makeAttributeNodeCase();
+        assert.throws(() => loc.makeRange(attrLoc), Error,
                      "cannot make range from attribute node");
       });
 
       it("returns undefined on invalid location", () => {
-        $root.append("<div class='__test'></div>");
-        const t = defined($(".__test")[0]);
-        assert.equal(t.nodeType, Node.ELEMENT_NODE);
-        const loc = defined(DLoc.makeDLoc(root, t, 0));
-        t.parentNode!.removeChild(t);
-        assert.isFalse(loc.isValid());
-        const range = loc.makeRange();
+        const { invalid } = makeInvalidCase();
+        const range = invalid.makeRange();
         assert.isUndefined(range);
       });
 
       it("returns undefined on invalid other", () => {
-        $root.append("<div class='__test'></div>");
-        const t = defined($(".__test")[0]);
-        assert.equal(t.nodeType, Node.ELEMENT_NODE);
-        const b = defined($(".body .p")[1]);
-        const loc = defined(DLoc.makeDLoc(root, b, 1));
-        const loc2 = loc.make(t, 0);
-        t.parentNode!.removeChild(t);
-        assert.isFalse(loc2.isValid());
-        const range = loc.makeRange(loc2);
+        const { loc, invalid } = makeInvalidCase();
+        const range = loc.makeRange(invalid);
         assert.isUndefined(range);
+      });
+    });
+
+    describe("makeDLocRange", () => {
+      it("makes a range", () => {
+        const a = defined($(".body .p")[0]);
+        const b = defined($(".body .p")[1]);
+        const loc = defined(DLoc.makeDLoc(root, a, 0));
+        const loc2 = loc.make(b, 1);
+        const range = defined(loc.makeDLocRange(loc2));
+        assert.equal(range.start, loc);
+        assert.equal(range.end, loc2);
+      });
+
+      it("makes a collapsed range", () => {
+        const a = defined($(".body .p")[0]);
+        const loc = defined(DLoc.makeDLoc(root, a, 0));
+        const range = defined(loc.makeDLocRange());
+        assert.equal(range.start, loc);
+        assert.equal(range.end, loc);
+        assert.isTrue(range.collapsed);
+      });
+
+      it("returns undefined on invalid location", () => {
+        const { invalid } = makeInvalidCase();
+        const range = invalid.makeDLocRange();
+        assert.isUndefined(range);
+      });
+
+      it("returns undefined on invalid other", () => {
+        const { loc, invalid } = makeInvalidCase();
+        const range = loc.makeDLocRange(invalid);
+        assert.isUndefined(range);
+      });
+    });
+
+    describe("mustMakeDLocRange", () => {
+      it("throws on invalid location", () => {
+        const { invalid } = makeInvalidCase();
+        assert.throws(() => invalid.mustMakeDLocRange(), Error,
+                      "cannot make a range");
+      });
+
+      it("throws on invalid other", () => {
+        const { loc, invalid } = makeInvalidCase();
+        assert.throws(() => loc.mustMakeDLocRange(invalid), Error,
+                      "cannot make a range");
       });
     });
 
@@ -425,10 +476,6 @@ describe("dloc", () => {
     });
 
     describe("isValid", () => {
-      afterEach(() => {
-        $(".__test").remove();
-      });
-
       it("returns true when the location is valid (element)", () => {
         const p = defined($(".p")[0]);
         assert.equal(p.nodeType, Node.ELEMENT_NODE);
@@ -509,10 +556,6 @@ describe("dloc", () => {
     });
 
     describe("normalizeOffset", () => {
-      afterEach(() => {
-        $(".__test").remove();
-      });
-
       it("makes a new valid location (element)", () => {
         $root.append("<div class='__test'>test</div>");
         const t = defined($(".__test")[0]);
@@ -588,6 +631,146 @@ describe("dloc", () => {
       });
     });
 
+    describe("compare", () => {
+      let p: HTMLElement;
+      let loc: DLoc;
+      before(() => {
+        p = defined($(".body .p")[0]);
+        assert.equal(p.nodeType, Node.ELEMENT_NODE);
+        loc = defined(DLoc.makeDLoc(root, p, 0));
+      });
+
+      it("returns 0 if it is the same object", () => {
+        assert.equal(loc.compare(loc), 0);
+      });
+
+      it("returns 0 if the two locations are equal", () => {
+        const loc2 = DLoc.mustMakeDLoc(root, p, 0);
+        assert.equal(loc.compare(loc2), 0);
+      });
+
+      describe("(siblings)", () => {
+        let next: DLoc;
+
+        before(() => {
+          next = DLoc.mustMakeDLoc(root, p.nextSibling, 0);
+        });
+
+        it("returns -1 if this precedes other", () => {
+          assert.equal(loc.compare(next), -1);
+        });
+
+        it("returns 1 if this follows other", () => {
+          assert.equal(next.compare(loc), 1);
+        });
+      });
+
+      describe("(attribute - element)", () => {
+        let quote: DLoc;
+        let attr: DLoc;
+        before(() => {
+          const quoteNode = root.querySelector(".quote")!;
+          quote = DLoc.mustMakeDLoc(root, quoteNode);
+          attr = DLoc.mustMakeDLoc(
+            root,
+            quoteNode.getAttributeNode("data-wed-type"), 0);
+        });
+
+        it("returns -1 if other is an attribute of this", () => {
+          assert.equal(quote.compare(attr), -1);
+        });
+
+        it("returns 1 if this is an attribute of other", () => {
+          assert.equal(attr.compare(quote), 1);
+        });
+      });
+
+      describe("(two attributes)", () => {
+        let parent: Element;
+        let attr1: DLoc;
+        let attr2: DLoc;
+        before(() => {
+          parent = document.createElement("div");
+          parent.setAttribute("b", "2");
+          parent.setAttribute("a", "1");
+          new DLocRoot(parent);
+          attr1 = DLoc.mustMakeDLoc(parent, parent.getAttributeNode("a"), 0);
+          attr2 = DLoc.mustMakeDLoc(parent, parent.getAttributeNode("b"), 0);
+        });
+
+        it("returns -1 if this is an attribute coming before other", () => {
+          assert.equal(attr1.compare(attr2), -1);
+        });
+
+        it("returns 1 if this is an attribute coming aftger other", () => {
+          assert.equal(attr2.compare(attr1), 1);
+        });
+      });
+
+      describe("(parent - child positions)", () => {
+        let parentBefore: DLoc;
+        let parentAfter: DLoc;
+
+        before(() => {
+          parentBefore = DLoc.mustMakeDLoc(root, p.parentNode, 0);
+          parentAfter = parentBefore.makeWithOffset(1);
+          // We want to check that we are looking at the p element we think
+          // we are looking at.
+          assert.equal(parentBefore.node.childNodes[0], p);
+        });
+
+        it("returns -1 if this is a parent position before other", () => {
+          assert.equal(parentBefore.compare(loc), -1);
+        });
+
+        it("returns 1 if this is a parent position after other", () => {
+          assert.equal(parentAfter.compare(loc), 1);
+        });
+
+        it("returns 1 if this is a child position after other", () => {
+          assert.equal(loc.compare(parentBefore), 1);
+        });
+
+        it("returns -1 if this is a child position before other", () => {
+          assert.equal(loc.compare(parentAfter), -1);
+        });
+      });
+    });
+
+    describe("pointedNode", () => {
+      let quoteNode: Element;
+      let attributeNode: Attr;
+      let quote: DLoc;
+      let attr: DLoc;
+      before(() => {
+        quoteNode = root.querySelector(".quote")!;
+        attributeNode = quoteNode.getAttributeNode("data-wed-type");
+        quote = DLoc.mustMakeDLoc(root, quoteNode);
+        attr = DLoc.mustMakeDLoc(root, attributeNode, 0);
+      });
+
+      it("returns the child of an element node", () => {
+        assert.equal(quoteNode.parentNode, quote.node);
+        assert.equal(quote.pointedNode, quoteNode);
+      });
+
+      it("returns the text node itself", () => {
+        const text = quoteNode.firstChild!;
+        assert.equal(text.nodeType, Node.TEXT_NODE);
+        const newLoc = quote.make(text, 0);
+        assert.equal(newLoc.pointedNode, text);
+      });
+
+      it("returns the attribute node itself", () => {
+        assert.equal(attr.pointedNode, attributeNode);
+      });
+
+      it("returns undefined if the offset is past all children", () => {
+        assert.isUndefined(quote.make(quoteNode,
+                                      quoteNode.childNodes.length).pointedNode);
+      });
+    });
+
     describe("makeWithOffset", () => {
       let p: HTMLElement;
       let loc: DLoc;
@@ -651,6 +834,161 @@ describe("dloc", () => {
         const loc2 = loc.make(root, 0);
         assert.throws(loc2.getLocationAfterInParent.bind(loc2),
                       Error, "node not in root");
+      });
+    });
+  });
+
+  describe("DLocRange", () => {
+    let a: Node;
+    let loc: DLoc;
+
+    before(() => {
+      a = defined($(".body .p")[0].firstChild);
+      loc = DLoc.mustMakeDLoc(root, a, 0);
+    });
+
+    describe("collapsed", () => {
+      it("is true when a range is collapsed", () => {
+        assert.isTrue(new DLocRange(loc, loc).collapsed);
+      });
+
+      it("is false when a range is not collapsed", () => {
+        assert.isFalse(new DLocRange(loc, loc.makeWithOffset(1)).collapsed);
+      });
+    });
+
+    describe("equals", () => {
+      it("returns true when other is the same object as this", () => {
+        const range = new DLocRange(loc, loc);
+        assert.isTrue(range.equals(range));
+      });
+
+      it("returns true when the two ranges have the same start and end", () => {
+        const range = new DLocRange(loc, loc.makeWithOffset(1));
+        const range2 = new DLocRange(DLoc.mustMakeDLoc(root, a, 0),
+                                     DLoc.mustMakeDLoc(root, a, 1));
+        assert.isTrue(range.equals(range2));
+      });
+
+      it("returns false when the two ranges differ in start positions", () => {
+        const range = new DLocRange(loc, loc.makeWithOffset(1));
+        const range2 = new DLocRange(DLoc.mustMakeDLoc(root, a, 1),
+                                     DLoc.mustMakeDLoc(root, a, 1));
+        assert.isFalse(range.start.equals(range2.start));
+        assert.isTrue(range.end.equals(range2.end));
+        assert.isFalse(range.equals(range2));
+      });
+
+      it("returns false when the two ranges differ in end positions", () => {
+        const range = new DLocRange(loc, loc);
+        const range2 = new DLocRange(DLoc.mustMakeDLoc(root, a, 0),
+                                     DLoc.mustMakeDLoc(root, a, 1));
+        assert.isTrue(range.start.equals(range2.start));
+        assert.isFalse(range.end.equals(range2.end));
+        assert.isFalse(range.equals(range2));
+      });
+    });
+
+    describe("isValid", () => {
+      it("returns true if both ends are valid", () => {
+        assert.isTrue(new DLocRange(loc, loc).isValid());
+      });
+
+      it("returns false if start is invalid", () => {
+        const { invalid } = makeInvalidCase();
+        assert.isFalse(new DLocRange(invalid, loc).isValid());
+      });
+
+      it("returns false if end is invalid", () => {
+        const { invalid } = makeInvalidCase();
+        assert.isFalse(new DLocRange(loc, invalid).isValid());
+      });
+    });
+
+    describe("makeDOMRange", () => {
+      it("makes a DOM range", () => {
+        const loc2 = loc.makeWithOffset(1);
+        const range = new DLocRange(loc, loc2).makeDOMRange()!;
+        assert.isDefined(range);
+        assert.equal(range.startContainer, loc.node);
+        assert.equal(range.startOffset, loc.offset);
+        assert.equal(range.endContainer, loc2.node);
+        assert.equal(range.endOffset, loc2.offset);
+      });
+
+      it("fails if start is an attribute node", () => {
+        const { attrLoc, loc: loc2 } = makeAttributeNodeCase();
+        assert.throws(() => new DLocRange(attrLoc, loc2).makeDOMRange(), Error,
+                      "cannot make range from attribute node");
+      });
+
+      it("fails if end is an attribute node", () => {
+        const { attrLoc, loc: loc2 } = makeAttributeNodeCase();
+        assert.throws(() => new DLocRange(loc2, attrLoc).makeDOMRange(), Error,
+                      "cannot make range from attribute node");
+      });
+
+      it("returns undefined if start is invalid", () => {
+        const { invalid } = makeInvalidCase();
+        assert.isUndefined(new DLocRange(invalid, loc).makeDOMRange());
+      });
+
+      it("returns undefined if end is invalid", () => {
+        const { invalid } = makeInvalidCase();
+        assert.isUndefined(new DLocRange(loc, invalid).makeDOMRange());
+      });
+    });
+
+    describe("mustMakeDOMRange", () => {
+      it("makes a DOM range", () => {
+        const loc2 = loc.makeWithOffset(1);
+        const range = new DLocRange(loc, loc2).mustMakeDOMRange()!;
+        assert.isDefined(range);
+        assert.equal(range.startContainer, loc.node);
+        assert.equal(range.startOffset, loc.offset);
+        assert.equal(range.endContainer, loc2.node);
+        assert.equal(range.endOffset, loc2.offset);
+      });
+
+      it("throws if start is invalid", () => {
+        const { invalid } = makeInvalidCase();
+        const range = new DLocRange(invalid, loc);
+        assert.throws(() => range.mustMakeDOMRange(), Error,
+                      "cannot make a range");
+      });
+
+      it("throws if end is invalid", () => {
+        const { invalid } = makeInvalidCase();
+        const range = new DLocRange(loc, invalid);
+        assert.throws(() => range.mustMakeDOMRange(), Error,
+                     "cannot make a range");
+      });
+    });
+
+    describe("contains", () => {
+      let range: DLocRange;
+      before(() => {
+        range = new DLocRange(loc, loc.makeWithOffset(2));
+      });
+
+      it("returns false if the location is before the range", () => {
+        assert.isFalse(range.contains(loc.make(loc.node.parentNode!, 0)));
+      });
+
+      it("returns false if the location is after the range", () => {
+        assert.isFalse(range.contains(loc.makeWithOffset(3)));
+      });
+
+      it("returns true if the location is at start of the range", () => {
+        assert.isTrue(range.contains(loc.makeWithOffset(0)));
+      });
+
+      it("returns true if the location is at end of the range", () => {
+        assert.isTrue(range.contains(loc.makeWithOffset(2)));
+      });
+
+      it("returns true if the location is between the ends", () => {
+        assert.isTrue(range.contains(loc.makeWithOffset(1)));
       });
     });
   });
