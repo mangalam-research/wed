@@ -479,55 +479,88 @@ describe("domutil", () => {
       title = root.getElementsByTagName("title")[0];
     });
 
-    it("modifies a text node", () => {
-      const node = title.firstChild!;
-      const [first, second] = domutil.insertText(node, 2, "Q");
-      assert.equal(first, node);
-      assert.equal(second, node);
-      assert.equal(first!.nodeValue, "abQcd");
-    });
+    function makeSeries(seriesTitle: string,
+                        caretAtEnd: boolean,
+                        adapter: (node: Node,
+                                  offset: number,
+                                  text: string) => domutil.TextInsertionResult)
+    : void {
+      describe(seriesTitle, () => {
+        it("modifies a text node", () => {
+          const node = title.firstChild!;
+          const { node: textNode, isNew, caret } = adapter(node, 2, "Q");
+          assert.equal(textNode, node);
+          assert.isFalse(isNew);
+          assert.equal(textNode!.nodeValue, "abQcd");
+          assert.equal(caret[0], textNode);
+          assert.equal(caret[1], caretAtEnd ? 3 : 2);
+        });
 
-    it("uses the next text node if possible", () => {
-      const [first, second] = domutil.insertText(title, 0, "Q");
-      assert.equal(first, title.firstChild);
-      assert.equal(second, title.firstChild);
-      assert.equal(first!.nodeValue, "Qabcd");
-    });
+        it("uses the next text node if possible", () => {
+          const { node: textNode, isNew, caret } = adapter(title, 0, "Q");
+          assert.equal(textNode, title.firstChild);
+          assert.isFalse(isNew);
+          assert.equal(textNode!.nodeValue, "Qabcd");
+          assert.equal(caret[0], textNode);
+          assert.equal(caret[1], caretAtEnd ? 1 : 0);
+        });
 
-    it("uses the previous text node if possible", () => {
-      const [first, second] = domutil.insertText(title, 1, "Q");
-      assert.equal(first, title.firstChild);
-      assert.equal(second, title.firstChild);
-      assert.equal(first!.nodeValue, "abcdQ");
-    });
+        it("uses the previous text node if possible", () => {
+          const { node: textNode, isNew, caret } = adapter(title, 1, "Q");
+          assert.equal(textNode, title.firstChild);
+          assert.isFalse(isNew);
+          assert.equal(textNode!.nodeValue, "abcdQ");
+          assert.equal(caret[0], textNode);
+          assert.equal(caret[1], caretAtEnd ? 5 : 4);
+        });
 
-    it("creates a text node if needed", () => {
-      empty(title);
-      const [first, second] = domutil.insertText(title, 0, "test");
-      assert.isUndefined(first);
-      assert.equal(second, title.firstChild);
-      assert.equal(second!.nodeValue, "test");
-    });
+        it("creates a text node if needed", () => {
+          empty(title);
+          const { node: textNode, isNew, caret } = adapter(title, 0, "test");
+          assert.equal(textNode, title.firstChild);
+          assert.equal(textNode!.nodeValue, "test");
+          assert.isTrue(isNew);
+          assert.equal(caret[0], textNode);
+          assert.equal(caret[1], caretAtEnd ? 4 : 0);
+        });
 
-    it("does nothing if passed an empty string", () => {
-      assert.equal(title.firstChild!.nodeValue, "abcd");
-      const [first, second] = domutil.insertText(title, 1, "");
-      assert.equal(title.firstChild!.nodeValue, "abcd");
-      assert.isUndefined(first);
-      assert.isUndefined(second);
-    });
+        it("does nothing if passed an empty string", () => {
+          assert.equal(title.firstChild!.nodeValue, "abcd");
+          const { node: textNode, isNew, caret } = adapter(title, 1, "");
+          assert.equal(title.firstChild!.nodeValue, "abcd");
+          assert.isUndefined(textNode);
+          assert.isFalse(isNew);
+          assert.equal(caret[0], title);
+          assert.equal(caret[1], 1);
+        });
 
-    it("inserts in the correct position if it needs to create a text node",
-       () => {
-         empty(title);
-         const b = title.ownerDocument.createElement("b");
-         b.textContent = "q";
-         title.appendChild(b);
-         const [first, second] = domutil.insertText(title, 1, "test");
-         assert.isUndefined(first);
-         assert.equal(second, title.lastChild);
-         assert.equal(second!.nodeValue, "test");
-       });
+        it("inserts in correct position if needs to create text node", () => {
+          empty(title);
+          const b = title.ownerDocument.createElement("b");
+          b.textContent = "q";
+          title.appendChild(b);
+          const { node: textNode, isNew, caret } = adapter(title, 1, "test");
+          assert.equal(textNode, title.lastChild);
+          assert.equal(textNode!.nodeValue, "test");
+          assert.isTrue(isNew);
+          assert.equal(caret[0], textNode);
+          assert.equal(caret[1], caretAtEnd ? 4 : 0);
+        });
+      });
+    }
+
+    makeSeries("(caretAtEnd unspecified)",
+               true,
+               (node, offset, text) =>
+               domutil.insertText(node, offset, text));
+    makeSeries("(caretAtEnd true)",
+               true,
+               (node, offset, text) =>
+               domutil.insertText(node, offset, text, true));
+    makeSeries("(caretAtEnd false)",
+               false,
+               (node, offset, text) =>
+               domutil.insertText(node, offset, text, false));
   });
 
   describe("deleteText", () => {

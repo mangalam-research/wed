@@ -839,26 +839,8 @@ export class Editor {
         }
 
         const textUndo = this.initiateTextUndo();
-        const [modified, newText] = this.dataUpdater.insertText(caret, text);
-        if (modified === undefined) {
-          caretManager.setCaret(newText, text.length, { textEdit: true });
-        }
-        else {
-          let finalOffset;
-          // Before the call, either the caret was in the text node that
-          // received the new text...
-          if (modified === caret.node) {
-            finalOffset = caret.offset + text.length;
-          }
-          // ... or it was immediately adjacent to this text node.
-          else if (caret.node.childNodes[caret.offset] === modified) {
-            finalOffset = text.length;
-          }
-          else {
-            finalOffset = modified.nodeValue!.length;
-          }
-          caretManager.setCaret(modified, finalOffset, { textEdit: true });
-        }
+        const { caret: newCaret } = this.dataUpdater.insertText(caret, text);
+        caretManager.setCaret(newCaret, { textEdit: true });
         textUndo.recordCaretAfter();
       }
       else {
@@ -3381,15 +3363,8 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
                              guiCaret.offset, 0, toPaste.firstChild.data);
       }
       else {
-        const [modified, newText] =
-          this.dataUpdater.insertText(caret, toPaste.firstChild.data);
-        // In the first case, the node that contained the caret was modified to
-        // contain the text. In the 2nd case, a new node was created **or** the
-        // text that contains the text is a child of the original node.
-        newCaret = ((modified === newText) && (newText === caret.node)) ?
-          // tslint:disable-next-line:restrict-plus-operands
-          caret.make(caret.node, caret.offset + toPaste.firstChild.length) :
-          caret.make(newText!, newText!.length);
+        ({ caret: newCaret } =
+         this.dataUpdater.insertText(caret, toPaste.firstChild.data));
       }
     }
     else {

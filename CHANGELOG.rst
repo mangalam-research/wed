@@ -160,6 +160,16 @@ odd bug fix may not get mentioned here at all.
     directly.) Instead the ``log.addURL`` method returns the appender created,
     and it must be removed with ``log.removeAppender``.
 
+  - Breaking change: ``domutil.insertText`` returns an plain object rather than
+    an array. The same information as before is available, but in a different
+    format. See the function's documentation. The new function also allows
+    getting a caret position at the end or start of the inserted text.
+
+  - Breaking change: ``TreeUpdater.insertText`` returns a plain object rather
+    than an array. The same information as before is available, but in a
+    different format. See the function's documentation. The new function also
+    allows getting a caret position at the end or start of the inserted text.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

@@ -70,7 +70,20 @@ export type InsertableAtom = string | Element | Text;
 export type Insertable = InsertableAtom | InsertableAtom[] | NodeList;
 
 export type SplitResult = [Node | null, Node | null];
-export type TextInsertionResult = [Text | undefined, Text | undefined];
+
+/**
+ * Records the results of inserting text into the tree.
+ */
+export interface TextInsertionResult {
+  /** The node that contains the added text. */
+  node: Text | undefined;
+
+  /** Whether [[node]] is a new node. If ``false``, it was modified. */
+  isNew: boolean;
+
+  /** The caret position after the insertion. */
+  caret: DLoc;
+}
 export type InsertionBoundaries = [DLoc, DLoc];
 
 /**
@@ -400,25 +413,31 @@ export class TreeUpdater {
    *
    * @param text The text to insert.
    *
-   * @returns The first element of the array is the node that was modified to
-   * insert the text. It will be ``undefined`` if no node was modified. The
-   * second element is the text node which contains the new text. The two
-   * elements are defined and equal if a text node was modified to contain the
-   * newly inserted text. They are unequal if a new text node had to be created
-   * to contain the new text. A return value of ``[undefined, undefined]`` means
-   * that no modification occurred (because the text passed was "").
+   * @param caretAtEnd Whether the returned caret should be at the end of the
+   * inserted text or the start. If not specified, the default is ``true``.
+   *
+   * @returns The result of inserting text.
    *
    * @throws {Error} If ``node`` is not an element or text Node type.
    */
-  insertText(loc: DLoc, text: string): TextInsertionResult;
-  insertText(node: Node, index: number, text: string): TextInsertionResult;
+  insertText(loc: DLoc, text: string,
+             caretAtEnd?: boolean): TextInsertionResult;
+  insertText(node: Node, index: number, text: string,
+             caretAtEnd?: boolean): TextInsertionResult;
   insertText(loc: DLoc | Node, index: number | string,
-             text?: string): TextInsertionResult {
+             text: string | boolean = true,
+             caretAtEnd: boolean = true): TextInsertionResult {
     let node;
     if (loc instanceof DLoc) {
       if (typeof index !== "string") {
         throw new Error("text must be a string");
       }
+
+      if (typeof text !== "boolean") {
+        throw new Error("caretAtEnd must be a boolean");
+      }
+
+      caretAtEnd = text;
       text = index;
       node = loc.node;
       index = loc.offset;
@@ -427,7 +446,14 @@ export class TreeUpdater {
       node = loc;
     }
 
-    return domutil.genericInsertText.call(this, node, index, text);
+    const result = domutil.genericInsertText.call(this, node, index, text,
+                                                  caretAtEnd);
+
+    return {
+      ...result,
+      caret: DLoc.makeDLoc(this.dlocRoot, result.caret[0],
+                           result.caret[1]),
+    };
   }
 
   /**
@@ -884,3 +910,4 @@ export class TreeUpdater {
 //  LocalWords:  insertIntoText mergeTextNodes nextSibling previousSibling DOM
 //  LocalWords:  Dubeau Mangalam BeforeInsertNodeAt BeforeDeleteNode DLocRoot
 //  LocalWords:  SetAttributeNS NodeList nodeType beforeThis nd setAttribute
+//  LocalWords:  caretAtEnd

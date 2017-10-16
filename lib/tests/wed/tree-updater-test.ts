@@ -10,7 +10,8 @@ import { DLoc, DLocRoot } from "wed/dloc";
 import { childByClass, childrenByClass, indexOf } from "wed/domutil";
 import { BeforeDeleteNodeEvent, BeforeInsertNodeAtEvent, DeleteNodeEvent,
          InsertNodeAtEvent, SetAttributeNSEvent, SetTextNodeValueEvent,
-         TreeUpdater, TreeUpdaterEvents } from "wed/tree-updater";
+         TextInsertionResult, TreeUpdater,
+         TreeUpdaterEvents } from "wed/tree-updater";
 
 import * as sourceXML from "../tree_updater_test_data/source_converted.xml";
 
@@ -270,94 +271,128 @@ quoted3</div></div>\
         assert.equal(ev.value, "abQcd");
       });
       listener.expected.SetTextNodeValue = 1;
-      const pair = tu.insertText(node, 2, "Q");
+      const { node: textNode, isNew, caret } = tu.insertText(node, 2, "Q");
 
       // Check that we're doing what we think we're doing.
-      assert.equal(pair[0], node);
-      assert.equal(pair[1], node);
-      assert.equal(pair[0]!.nodeValue, "abQcd");
+      assert.equal(textNode, node);
+      assert.isFalse(isNew);
+      assert.equal(textNode!.nodeValue, "abQcd");
+      assert.equal(caret.node, textNode);
+      assert.equal(caret.offset, 3);
       listener.check();
     });
 
-    it("generates appropriate events when it uses the next text node", () => {
-      const node = root.querySelector(".title")!;
-      const listener = new Listener(tu);
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
-        assert.equal(ev.node, node.firstChild);
-        assert.equal(ev.value, "Qabcd");
-      });
-      listener.expected.SetTextNodeValue = 1;
+    function makeSeries(seriesTitle: string,
+                        caretAtEnd: boolean,
+                        adapter: (node: Node,
+                                  offset: number,
+                                  text: string) => TextInsertionResult)
+    : void {
+      describe(seriesTitle, () => {
+        it("generates appropriate events when it uses the next text node",
+           () => {
+             const node = root.querySelector(".title")!;
+             const listener = new Listener(tu);
+             tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+               assert.equal(ev.node, node.firstChild);
+               assert.equal(ev.value, "Qabcd");
+             });
+             listener.expected.SetTextNodeValue = 1;
 
-      const pair = tu.insertText(node, 0, "Q");
+             const { node: textNode, isNew, caret } = adapter(node, 0, "Q");
 
-      // Check that we're doing what we think we're doing.
-      assert.equal(pair[0], node.firstChild);
-      assert.equal(pair[1], node.firstChild);
-      assert.equal(pair[0]!.nodeValue, "Qabcd");
+             // Check that we're doing what we think we're doing.
+             assert.equal(textNode, node.firstChild);
+             assert.isFalse(isNew);
+             assert.equal(textNode!.nodeValue, "Qabcd");
+             assert.equal(caret.node, textNode);
+             assert.equal(caret.offset, caretAtEnd ? 1 : 0);
 
-      listener.check();
-    });
+             listener.check();
+           });
 
-    it("generates appropriate events when it uses the previous text node",
-       () => {
-         const node = root.querySelector(".title")!;
+        it("generates appropriate events when it uses the previous text node",
+           () => {
+             const node = root.querySelector(".title")!;
 
-         const listener = new Listener(tu);
-         tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
-           assert.equal(ev.node, node.firstChild);
-           assert.equal(ev.value, "abcdQ");
-         });
-         listener.expected.SetTextNodeValue = 1;
+             const listener = new Listener(tu);
+             tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+               assert.equal(ev.node, node.firstChild);
+               assert.equal(ev.value, "abcdQ");
+             });
+             listener.expected.SetTextNodeValue = 1;
 
-         const pair = tu.insertText(node, 1, "Q");
+             const { node: textNode, isNew, caret } = adapter(node, 1, "Q");
 
-         // Check that we're doing what we think we're doing.
-         assert.equal(pair[0], node.firstChild);
-         assert.equal(pair[1], node.firstChild);
-         assert.equal(pair[0]!.nodeValue, "abcdQ");
+             // Check that we're doing what we think we're doing.
+             assert.equal(textNode, node.firstChild);
+             assert.isFalse(isNew);
+             assert.equal(textNode!.nodeValue, "abcdQ");
+             assert.equal(caret.node, textNode);
+             assert.equal(caret.offset, caretAtEnd ? 5 : 4);
 
-         listener.check();
-       });
+             listener.check();
+           });
 
-    it("generates appropriate events when it creates a text node", () => {
-      const node = root.querySelector(".title") as HTMLElement;
-      // tslint:disable-next-line:no-inner-html
-      node.innerHTML = "";
+        it("generates appropriate events when it creates a text node", () => {
+          const node = root.querySelector(".title") as HTMLElement;
+          // tslint:disable-next-line:no-inner-html
+          node.innerHTML = "";
 
-      const listener = new Listener(tu);
-      tu.events.filter(filterInsertNodeAtAndBefore)
-        .subscribe((ev) => {
-          assert.equal(ev.parent, node);
-          assert.equal(ev.index, 0);
-          assert.equal(ev.node.nodeValue, "test");
+          const listener = new Listener(tu);
+          tu.events.filter(filterInsertNodeAtAndBefore)
+            .subscribe((ev) => {
+              assert.equal(ev.parent, node);
+              assert.equal(ev.index, 0);
+              assert.equal(ev.node.nodeValue, "test");
+            });
+          listener.expected.InsertNodeAt = 1;
+          listener.expected.BeforeInsertNodeAt = 1;
+
+          const { node: textNode, isNew, caret } = adapter(node, 0, "test");
+
+          // Check that we're doing what we think we're doing.
+          assert.equal(textNode, node.firstChild);
+          assert.equal(textNode!.nodeValue, "test");
+          assert.isTrue(isNew);
+          assert.equal(caret.node, textNode);
+          assert.equal(caret.offset, caretAtEnd ? 4 : 0);
+
+          listener.check();
         });
-      listener.expected.InsertNodeAt = 1;
-      listener.expected.BeforeInsertNodeAt = 1;
 
-      const pair = tu.insertText(node, 0, "test");
+        it("does nothing if passed an empty string", () => {
+          const node = root.querySelector(".title")!;
+          const listener = new Listener(tu);
 
-      // Check that we're doing what we think we're doing.
-      assert.isUndefined(pair[0]);
-      assert.equal(pair[1], node.firstChild);
-      assert.equal(pair[1]!.nodeValue, "test");
+          assert.equal(node.firstChild!.nodeValue, "abcd");
+          const { node: textNode, isNew, caret } = adapter(node, 1, "");
 
-      listener.check();
-    });
+          // Check that we're doing what we think we're doing.
+          assert.equal(node.firstChild!.nodeValue, "abcd");
+          assert.isUndefined(textNode);
+          assert.isFalse(isNew);
+          assert.equal(caret.node, node);
+          assert.equal(caret.offset, 1);
 
-    it("does nothing if passed an empty string", () => {
-      const node = root.querySelector(".title")!;
-      const listener = new Listener(tu);
+          listener.check();
+        });
+      });
+    }
 
-      assert.equal(node.firstChild!.nodeValue, "abcd");
-      const pair = tu.insertText(node, 1, "");
-
-      // Check that we're doing what we think we're doing.
-      assert.equal(node.firstChild!.nodeValue, "abcd");
-      assert.isUndefined(pair[0]);
-      assert.isUndefined(pair[1]);
-
-      listener.check();
-    });
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    makeSeries("(caretAtEnd unspecified)",
+               true,
+               (node, offset, text) => tu.insertText(node, offset, text));
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    makeSeries("(caretAtEnd true)",
+               true,
+               (node, offset, text) => tu.insertText(node, offset, text, true));
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    makeSeries("(caretAtEnd false)",
+               false,
+               (node, offset, text) =>
+               tu.insertText(node, offset, text, false));
   });
 
   describe("deleteText", () => {

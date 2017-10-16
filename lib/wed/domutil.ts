@@ -555,7 +555,19 @@ export function genericInsertIntoText(this: GenericInsertIntoTextContext,
   return _genericInsertIntoText.call(this, textNode, index, node);
 }
 
-export type TextInsertionResult = [Text | undefined, Text | undefined];
+/**
+ * Records the results of inserting text into the tree.
+ */
+export interface TextInsertionResult {
+  /** The node that contains the added text. */
+  node: Text | undefined;
+
+  /** Whether [[node]] is a new node. If ``false``, it was modified. */
+  isNew: boolean;
+
+  /** The caret position after the insertion. */
+  caret: Caret;
+}
 
 export interface GenericInsertTextContext {
   insertNodeAt(into: Element, index: number, node: Node): void;
@@ -573,28 +585,32 @@ export interface GenericInsertTextContext {
  *
  * @param text The text to insert.
  *
- * @returns The first element of the array is the node that was modified to
- * insert the text. It will be ``undefined`` if no node was modified. The second
- * element is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly inserted
- * text. They are unequal if a new text node had to be created to contain the
- * new text. A return value of ``[undefined, undefined]`` means that no
- * modification occurred (because the text passed was "").
+ * @param caretAtEnd Whether the caret position returned should be placed at the
+ * end of the inserted text.
+ *
+ * @returns The result of inserting the text.
  *
  * @throws {Error} If ``node`` is not an element or text Node type.
  */
 export function genericInsertText(this: GenericInsertTextContext,
                                   node: Node,
                                   index: number,
-                                  text: string): TextInsertionResult {
+                                  text: string,
+                                  caretAtEnd: boolean = true):
+TextInsertionResult {
   // This function is meant to be called with this set to a proper
   // value.
   if (text === "") {
-    return [undefined, undefined];
+    return {
+      node: undefined,
+      isNew: false,
+      caret: [node, index],
+    };
   }
 
-  let modifiedNode: Text | undefined;
+  let isNew: boolean = false;
   let textNode: Text;
+  let caret: Caret;
   work:
   // tslint:disable-next-line:no-constant-condition strict-boolean-expressions
   while (true) {
@@ -618,23 +634,30 @@ export function genericInsertText(this: GenericInsertTextContext,
 
       // We have to create a text node
       textNode = document.createTextNode(text);
+      isNew = true;
       // Node is necessarily an element when we get here.
       // tslint:disable-next-line:no-invalid-this
       this.insertNodeAt(node as Element, index, textNode);
+      caret = [textNode, caretAtEnd ? text.length : 0];
       break work;
     case Node.TEXT_NODE:
-      modifiedNode = node as Text;
-      const pre = modifiedNode.data.slice(0, index);
-      const post = modifiedNode.data.slice(index);
+      textNode = node as Text;
+      const pre = textNode.data.slice(0, index);
+      const post = textNode.data.slice(index);
       // tslint:disable-next-line:no-invalid-this
-      this.setTextNodeValue(modifiedNode, pre + text + post);
-      textNode = modifiedNode;
+      this.setTextNodeValue(textNode, pre + text + post);
+      caret = [textNode, caretAtEnd ? index + text.length : index];
       break work;
     default:
       throw new Error(`unexpected node type: ${node.nodeType}`);
     }
   }
-  return [modifiedNode, textNode];
+
+  return {
+    node: textNode,
+    isNew,
+    caret: caret,
+  };
 }
 
 /**
@@ -782,26 +805,24 @@ function insertNodeAt(parent: Element, index: number, node: Node): void {
  *
  * @param text The text to insert.
  *
- * @returns The first element of the array is the node that was modified to
- * insert the text. It will be ``undefined`` if no node was modified. The second
- * element is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly inserted
- * text. They are unequal if a new text node had to be created to contain the
- * new text. A return value of ``[undefined, undefined]`` means that no
- * modification occurred (because the text passed was "").
+ * @param caretAtEnd Whether to return the caret position at the end of the
+ * inserted text or at the beginning. Default to ``true``.
+ *
+ * @returns The result of inserting the text.
  *
  * @throws {Error} If ``node`` is not an element or text Node type.
  */
 export function insertText(node: Node,
                            index: number,
-                           text: string): TextInsertionResult {
+                           text: string,
+                           caretAtEnd?: boolean): TextInsertionResult {
   return genericInsertText.call({
     insertNodeAt: insertNodeAt,
     setTextNodeValue: (textNode: Text, value: string) => {
       textNode.data = value;
     },
     // tslint:disable-next-line:align
-  }, node, index, text);
+  }, node, index, text, caretAtEnd);
 }
 
 const plainDOMMockup: GenericInsertIntoTextContext = {
