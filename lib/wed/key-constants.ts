@@ -7,17 +7,19 @@
 
 import * as key from "./key";
 
-export const CTRLEQ_S = key.makeCtrlEqKey("S");
-export const CTRLEQ_Z = key.makeCtrlEqKey("Z");
-export const CTRLEQ_Y = key.makeCtrlEqKey("Y");
-export const CTRLEQ_C = key.makeCtrlEqKey("C");
-export const CTRLEQ_X = key.makeCtrlEqKey("X");
-export const CTRLEQ_V = key.makeCtrlEqKey("V");
-export const CTRLEQ_FORWARD_SLASH = key.makeCtrlEqKey(191);
-export const CTRLEQ_PERIOD = key.makeCtrlEqKey(190);
-export const CTRLEQ_BACKQUOTE = key.makeCtrlEqKey(192);
-export const CTRLEQ_OPEN_BRACKET = key.makeCtrlEqKey(219); // Ctrl-[
-export const CTRLEQ_CLOSE_BRACKET = key.makeCtrlEqKey(221); // Ctrl-]
+export const CTRLEQ_S = key.makeCtrlEqKey("S", false);
+export const CTRLEQ_Z = key.makeCtrlEqKey("Z", false);
+export const CTRLEQ_Y = key.makeCtrlEqKey("Y", false);
+export const CTRLEQ_C = key.makeCtrlEqKey("C", false);
+export const CTRLEQ_X = key.makeCtrlEqKey("X", false);
+export const CTRLEQ_V = key.makeCtrlEqKey("V", false);
+export const CTRLEQ_F = key.makeCtrlEqKey("F", false);
+export const CTRLEQ_B = key.makeCtrlEqKey("B", false);
+export const CTRLEQ_FORWARD_SLASH = key.makeCtrlEqKey(191, false);
+export const CTRLEQ_PERIOD = key.makeCtrlEqKey(190, false);
+export const CTRLEQ_BACKQUOTE = key.makeCtrlEqKey(192, false);
+export const CTRLEQ_OPEN_BRACKET = key.makeCtrlEqKey(219, false); // Ctrl-[
+export const CTRLEQ_CLOSE_BRACKET = key.makeCtrlEqKey(221, false); // Ctrl-]
 export const LEFT_ARROW = key.makeKey(37, false);
 export const UP_ARROW = key.makeKey(38, false);
 export const RIGHT_ARROW = key.makeKey(39, false);

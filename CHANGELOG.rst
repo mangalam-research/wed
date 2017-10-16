@@ -170,6 +170,12 @@ odd bug fix may not get mentioned here at all.
     different format. See the function's documentation. The new function also
     allows getting a caret position at the end or start of the inserted text.
 
+  - Breaking change: the functions that make keys in the ``key`` module now take
+    a parameter to specify a shift state. Shift states are meaningless for key
+    presses (and wed forces the use of the default value ``EITHER``). However,
+    it is now possible to specify keys likes Ctrl-Shift-A and distinguish it
+    from Ctrl-A.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

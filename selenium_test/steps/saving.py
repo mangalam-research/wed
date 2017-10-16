@@ -16,7 +16,7 @@ step_matcher("re")
 @when('the user saves')
 def step_impl(context):
     util = context.util
-    util.ctrl_equivalent_x('S')
+    util.ctrl_equivalent_x('s')
 
 last_obj_re = re.compile('.*}{')
 

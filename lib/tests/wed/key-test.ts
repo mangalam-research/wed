@@ -18,6 +18,8 @@ describe("key", () => {
     OSX: false,
   };
 
+  // We load the module into a frame so that we can give it a fake ``browsers``
+  // module.
   before((done) => {
     frame = document.createElement("iframe");
     document.body.appendChild(frame);
@@ -60,13 +62,14 @@ describe("key", () => {
 
   describe("makeKey", () => {
     it("makes a key", () => {
-      const k = key.makeKey(1, true, 2, 3, true, false, true);
+      const k = key.makeKey(1, true, 2, 3, true, false, true, key.EITHER);
       assert.equal(k.which, 1);
       assert.equal(k.keyCode, 2);
       assert.equal(k.charCode, 3);
       assert.equal(k.ctrlKey, true);
       assert.equal(k.altKey, false);
       assert.equal(k.metaKey, true);
+      assert.equal(k.shiftKey, key.EITHER);
       assert.equal(k.keypress, true);
     });
 
@@ -78,6 +81,7 @@ describe("key", () => {
       assert.equal(k.ctrlKey, false);
       assert.equal(k.altKey, false);
       assert.equal(k.metaKey, false);
+      assert.equal(k.shiftKey, key.EITHER);
       assert.equal(k.keypress, true);
     });
 
@@ -85,6 +89,8 @@ describe("key", () => {
       const k1 = key.makeKey(1, true, 2, 3, true, false, true);
       const k2 = key.makeKey(1, true, 2, 3, true, false, true);
       assert.equal(k1, k2);
+      const k3 = key.makeKey(1, true, 2, 3, true, false, true, key.EITHER);
+      assert.equal(k1, k3);
     });
   });
 
@@ -97,6 +103,7 @@ describe("key", () => {
       assert.equal(k.ctrlKey, true);
       assert.equal(k.altKey, false);
       assert.equal(k.metaKey, false);
+      assert.equal(k.shiftKey, key.EITHER);
       assert.equal(k.keypress, false);
     });
   });
@@ -110,6 +117,7 @@ describe("key", () => {
       assert.equal(k.ctrlKey, false);
       assert.equal(k.altKey, false);
       assert.equal(k.metaKey, true);
+      assert.equal(k.shiftKey, key.EITHER);
       assert.equal(k.keypress, false);
     });
   });
@@ -134,7 +142,8 @@ describe("key", () => {
   describe("Key", () => {
     describe("anyModifier", () => {
       it("returns true if any modifier is set", () => {
-        let k = key.makeCtrlKey(1);
+        // We set shift true here to show it does not impact anyModifier.
+        let k = key.makeCtrlKey(1, true);
         assert.isTrue(k.anyModifier());
 
         k = key.makeKey(1, false, 2, 3, false, true, false);
@@ -146,39 +155,74 @@ describe("key", () => {
     });
 
     describe("matchesEvent", () => {
-      it("matches keydown/keyup keys", () => {
+      it("matches keydown/keyup keys, with unspecified shift", () => {
         const k = key.makeCtrlKey(1);
-        assert.isTrue(k.matchesEvent({
+        const event = {
           which: 1,
           keyCode: 1,
           charCode: 0,
           ctrlKey: true,
           altKey: false,
           metaKey: false,
+          shiftKey: false,
           type: "keydown",
-        } as KeyboardEvent));
-        assert.isTrue(k.matchesEvent({
+        } as KeyboardEvent;
+        assert.isTrue(k.matchesEvent(event));
+
+        // Matches keyup too.
+        // tslint:disable-next-line:no-any
+        (event as any).type = "keyup";
+        assert.isTrue(k.matchesEvent(event));
+
+        // Shift state does not matter.
+        // tslint:disable-next-line:no-any
+        (event as any).shiftKey = true;
+        assert.isTrue(k.matchesEvent(event));
+      });
+
+      it("matches keydown/keyup keys, with specified shift", () => {
+        const k = key.makeCtrlKey(1, true);
+        const event = {
           which: 1,
           keyCode: 1,
           charCode: 0,
           ctrlKey: true,
           altKey: false,
           metaKey: false,
-          type: "keyup",
-        } as KeyboardEvent));
+          shiftKey: true,
+          type: "keydown",
+        } as KeyboardEvent;
+        assert.isTrue(k.matchesEvent(event));
+
+        // Matches keyup too.
+        // tslint:disable-next-line:no-any
+        (event as any).type = "keyup";
+        assert.isTrue(k.matchesEvent(event));
+
+        // Shift state matters.
+        // tslint:disable-next-line:no-any
+        (event as any).shiftKey = false;
+        assert.isFalse(k.matchesEvent(event));
       });
 
       it("matches a keypress key", () => {
         const k = key.makeKey(1);
-        assert.isTrue(k.matchesEvent({
+        const event = {
           which: 1,
           keyCode: 1,
           charCode: 1,
           ctrlKey: false,
           altKey: false,
           metaKey: false,
+          shiftKey: false,
           type: "keypress",
-        } as KeyboardEvent));
+        } as KeyboardEvent;
+        assert.isTrue(k.matchesEvent(event));
+
+        // Shift state does not matter.
+        // tslint:disable-next-line:no-any
+        (event as any).shiftKey = true;
+        assert.isTrue(k.matchesEvent(event));
       });
 
       it("returns false when not matching an event", () => {
@@ -190,18 +234,30 @@ describe("key", () => {
           ctrlKey: false,
           altKey: false,
           metaKey: false,
+          shiftKey: false,
         } as KeyboardEvent));
       });
     });
 
     describe("setEventToMatch", () => {
-      it("sets an event to match a ctrl key", () => {
+      it("sets an event to match a ctrl key, with unspecified shift", () => {
         const event = {} as KeyboardEvent;
         const k = key.makeCtrlKey(1);
         k.setEventToMatch(event);
         assert.isTrue(k.matchesEvent(event));
         // Biased towards keydown
         assert.equal(event.type, "keydown");
+        assert.isUndefined(event.shiftKey);
+      });
+
+      it("sets an event to match a ctrl key, with specified shift", () => {
+        const event = {} as KeyboardEvent;
+        const k = key.makeCtrlKey(1, true);
+        k.setEventToMatch(event);
+        assert.isTrue(k.matchesEvent(event));
+        // Biased towards keydown
+        assert.equal(event.type, "keydown");
+        assert.equal(event.shiftKey, true);
       });
 
       it("sets an event to match a keypress", () => {
@@ -209,6 +265,7 @@ describe("key", () => {
         const k = key.makeKey(1);
         k.setEventToMatch(event);
         assert.isTrue(k.matchesEvent(event));
+        assert.isUndefined(event.shiftKey);
       });
     });
   });
