@@ -53,10 +53,7 @@ export class Scroller {
    * @param height The height to which to coerce.
    */
   coerceHeight(height: number): void {
-    const el = this.el;
-    const heightStr = `${height}px`;
-    el.style.maxHeight = heightStr;
-    el.style.minHeight = heightStr;
+    this.el.style.height = `${height}px`;
   }
 
   /**
