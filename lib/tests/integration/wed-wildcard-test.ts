@@ -144,7 +144,7 @@ describe("wed wildcard support:", () => {
 
     editor.$guiRoot.trigger(event);
     assert.equal(initial.textContent, `a${initialValue}`);
-    dataCaretCheck(editor, initial.firstChild!, 4, "final position");
+    dataCaretCheck(editor, initial.firstChild!, 1, "final position");
   });
 
   it("prevents cutting from readonly elements", async () => {
