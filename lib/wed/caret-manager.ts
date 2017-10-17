@@ -24,16 +24,37 @@ import * as objectCheck from "./object-check";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
 import { getAttrValueNode } from "./wed-util";
 
+/**
+ * This is the template use with objectCheck to check whether the options passed
+ * are correct. Changes to [[SetCaretOptions]] must be reflected here.
+ */
 const caretOptionTemplate = {
   textEdit: false,
+  focus: false,
 };
 
+/** Options affecting how a caret gets set. */
 export interface SetCaretOptions {
+  /**
+   * When ``true`` indicates that the caret movement is due to a text editing
+   * operation. This matters for managing undo steps. Text edits are gathered
+   * into an single text undo step unless they are interrupted by some other
+   * operation (or reach a maximum size). Caret movements also interrupt the
+   * text undo steps, unless this flag is ``true``. The default is ``false``.
+   */
   textEdit?: boolean;
+
+  /**
+   * Indicates whether the caret change should set the focus. The default is
+   * ``true``.
+   */
+  focus?: boolean;
 }
 
+/** These are options that wed passes to itself. */
 export interface CaretChangeOptions extends SetCaretOptions {
-  focus?: boolean;
+  /** Indicates whether the caret is being changed due to a gain in focus. */
+  gainingFocus?: boolean;
 }
 
 /**
@@ -135,9 +156,9 @@ export class CaretManager implements GUIToDataConverter {
               private readonly modeTree: ModeTree) {
     this.mark = new CaretMark(this, guiRoot.node.ownerDocument, layer,
                               inputField, scroller);
-    this.guiRootEl = guiRoot.node;
+    const guiRootEl = this.guiRootEl = guiRoot.node;
     this.dataRootEl = dataRoot.node;
-    this.doc = this.guiRootEl.ownerDocument;
+    this.doc = guiRootEl.ownerDocument;
     this.win = this.doc.defaultView;
     this.$inputField = $(this.inputField);
     this._events = new Subject();
@@ -808,10 +829,11 @@ export class CaretManager implements GUIToDataConverter {
    * to deal with situations in which the caret and range may have been
    * "damaged" due to browser operations, changes of state, etc.
    *
-   * @param focus Whether the restoration of the caret and selection is due to
-   * regaining focus or not.
+   * @param gainingFocus Whether the restoration of the caret and selection is
+   * due to regaining focus or not.
    */
-  private _restoreCaretAndSelection(focus: boolean): void {
+  private _restoreCaretAndSelection(gainingFocus: boolean):
+  void {
     if (this.caret !== undefined && this.anchor !== undefined &&
         // It is possible that the anchor has been removed after focus was lost
         // so check for it.
@@ -820,13 +842,15 @@ export class CaretManager implements GUIToDataConverter {
       if (rr === undefined) {
         throw new Error("could not make a range");
       }
+
       this._setDOMSelectionRange(rr.range, rr.reversed);
-      this.mark.refresh();
+
       // We're not selecting anything...
       if (rr.range.collapsed) {
         this.focusInputField();
       }
-      this._caretChange({ focus });
+      this.mark.refresh();
+      this._caretChange({ gainingFocus });
     }
     else {
       this.clearSelection();
@@ -932,10 +956,16 @@ export class CaretManager implements GUIToDataConverter {
       return;
     }
 
-    this._clearDOMSelection(true);
+    // If we do not want to gain focus, we also don't want to take it away
+    // from somewhere else, so don't change the DOM.
+    if (options.focus !== false) {
+      this._clearDOMSelection(true);
+    }
     this._sel = new WedSelection(this, loc);
     this.mark.refresh();
-    this.focusInputField();
+    if (options.focus !== false) {
+      this.focusInputField();
+    }
     this._caretChange(options);
   }
 
