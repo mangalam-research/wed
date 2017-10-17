@@ -23,7 +23,8 @@ require.config({
     "is-plain-obj": "external/is-plain-obj",
     bluebird: "external/bluebird",
     "last-resort": "external/last-resort",
-    rangy: "external/rangy/rangy-core",
+    "rangy-core": "external/rangy/rangy-core",
+    "rangy-textrange": "external/rangy/rangy-textrange",
     salve: "external/salve",
     "salve-dom": "external/salve-dom",
     "bootstrap-notify": "external/bootstrap-notify",
@@ -50,6 +51,7 @@ require.config({
       "wed/modes/generic/metadata-schema.json": "json!wed/modes/generic/metadata-schema.json",
       "wed/wed-options-schema.json": "json!wed/wed-options-schema.json",
       "wed/options-schema.json": "json!wed/options-schema.json",
+      rangy: "wed/glue/rangy-glue",
     },
     "wed/patches/bootstrap": {
       bootstrap: "bootstrap",
@@ -59,6 +61,12 @@ require.config({
     // bootstrap return $.
     bootbox: {
       jquery: "bootstrap",
+    },
+    "wed/glue/rangy-glue": {
+      rangy: "rangy-core",
+    },
+    rangy: {
+      rangy: "rangy",
     },
   },
   shim: {

@@ -15,6 +15,8 @@ export const CTRLEQ_X = key.makeCtrlEqKey("X", false);
 export const CTRLEQ_V = key.makeCtrlEqKey("V", false);
 export const CTRLEQ_F = key.makeCtrlEqKey("F", false);
 export const CTRLEQ_B = key.makeCtrlEqKey("B", false);
+export const CTRLEQ_SHIFT_F = key.makeCtrlEqKey("F", true);
+export const CTRLEQ_SHIFT_B = key.makeCtrlEqKey("B", true);
 export const CTRLEQ_FORWARD_SLASH = key.makeCtrlEqKey(191, false);
 export const CTRLEQ_PERIOD = key.makeCtrlEqKey(190, false);
 export const CTRLEQ_BACKQUOTE = key.makeCtrlEqKey(192, false);
@@ -29,6 +31,11 @@ export const DELETE = key.makeKey(46, false);
 export const ENTER = key.makeKey(13, false);
 export const SPACE = key.makeKey(32, false);
 export const ESCAPE = key.makeKey(27, false);
+
+export const QUICKSEARCH_FORWARD = CTRLEQ_F;
+export const QUICKSEARCH_BACKWARDS = CTRLEQ_B;
+export const SEARCH_FORWARD = CTRLEQ_SHIFT_F;
+export const SEARCH_BACKWARDS = CTRLEQ_SHIFT_B;
 
 /**
  * These are the keys that appear to be regular text input keys because they do

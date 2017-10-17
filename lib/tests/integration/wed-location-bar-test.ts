@@ -50,7 +50,7 @@ describe("wed location bar", () => {
     assert.equal(
       // Normalize all spaces to a regular space with ``replace``.
       locationBar.textContent!.replace(/\s+/g, " "),
-      " TEI / teiHeader / fileDesc / publicationStmt / p ");
+      "@ TEI / teiHeader / fileDesc / publicationStmt / p ");
   });
 
   it("ignores phantom parents", () => {
@@ -63,6 +63,6 @@ describe("wed location bar", () => {
     assert.equal(
       // Normalize all spaces to a regular space with ``replace``.
       locationBar.textContent!.replace(/\s+/g, " "),
-      " TEI / text / body / p / ref ");
+      "@ TEI / text / body / p / ref ");
   });
 });

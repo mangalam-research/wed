@@ -13,19 +13,22 @@ import { WorkingState, WorkingStateData } from "salve-dom";
 import { Action } from "./action";
 import { CaretChange, CaretManager } from "./caret-manager";
 import * as caretMovement from "./caret-movement";
-import { DLoc, DLocRoot } from "./dloc";
+import { DLoc, DLocRange, DLocRoot } from "./dloc";
 import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import * as domutil from "./domutil";
 import { closest, closestByClass, htmlToElements, indexOf } from "./domutil";
 import { AbortTransformationException } from "./exceptions";
 import { GUIUpdater } from "./gui-updater";
+import { DialogSearchReplace } from "./gui/dialog-search-replace";
 import { EditingMenuManager } from "./gui/editing-menu-manager";
 import { ErrorLayer } from "./gui/error-layer";
 import * as icon from "./gui/icon";
 import { Layer } from "./gui/layer";
+import { Minibuffer } from "./gui/minibuffer";
 import { Modal, Options as ModalOptions } from "./gui/modal";
 import { notify } from "./gui/notify";
+import { Direction, QuickSearch } from "./gui/quick-search";
 import { Scroller } from "./gui/scroller";
 import { tooltip } from "./gui/tooltip";
 import { TypeaheadPopup } from "./gui/typeahead-popup";
@@ -101,6 +104,23 @@ export interface PasteTransformationData extends TransformationData {
   to_paste: Element;
 }
 
+export interface ReplaceRangeTransformationData extends TransformationData {
+  range: DLocRange;
+  newText: string;
+  caretAtEnd: boolean;
+}
+
+/**
+ * The possible targets for some wed operations that generate events. It is
+ * currently used to determine where to type keys when calling [[Editor.type]].
+ */
+export enum WedEventTarget {
+  /** The default target is the main editing panel. */
+  DEFAULT,
+  /** Target the minibuffer. */
+  MINIBUFFER,
+}
+
 const FRAMEWORK_TEMPLATE = "\
 <div class='row'>\
  <div class='wed-frame col-sm-push-2 col-lg-10 col-md-10 col-sm-10'>\
@@ -120,7 +140,8 @@ const FRAMEWORK_TEMPLATE = "\
      <div class='wed-document'><span class='root-here'></span></div>\
     </div>\
    </div>\
-   <div class='wed-location-bar'><span>&nbsp;</span></div>\
+   <div class='wed-minibuffer'></div>\
+   <div class='wed-location-bar'>@&nbsp;<span>&nbsp;</span></div>\
   </div>\
  </div>\
  <div class='wed-sidebar col-sm-pull-10 col-lg-2 col-md-2 col-sm-2'>\
@@ -194,6 +215,7 @@ export class Editor {
   /** A temporary initialization value. */
   private _dataChild: Element | undefined;
   private readonly scroller: Scroller;
+  private readonly constrainer: HTMLElement;
   private readonly inputField: HTMLInputElement;
   private readonly $inputField: JQuery;
   private readonly cutBuffer: HTMLElement;
@@ -280,6 +302,12 @@ export class Editor {
 
   /** Transformation for splitting nodes. */
   readonly splitNodeTr: Transformation<TransformationData>;
+
+  /** Replace a range with text. */
+  readonly replaceRangeTr: Transformation<ReplaceRangeTransformationData>;
+
+  /** The minibuffer for this editor instance. */
+  readonly minibuffer: Minibuffer;
 
   /** The root of the data tree. */
   dataRoot: Document;
@@ -409,6 +437,10 @@ export class Editor {
       new Scroller(
         framework.getElementsByClassName("wed-scroller")[0] as HTMLElement);
 
+    this.constrainer =
+      framework
+      .getElementsByClassName("wed-document-constrainer")[0] as HTMLElement;
+
     this.inputField =
       framework.getElementsByClassName("wed-comp-field")[0] as HTMLInputElement;
     this.$inputField = $(this.inputField);
@@ -422,6 +454,9 @@ export class Editor {
 
     this.wedLocationBar =
       framework.getElementsByClassName("wed-location-bar")[0] as HTMLElement;
+
+    this.minibuffer = new Minibuffer(
+      framework.getElementsByClassName("wed-minibuffer")[0] as HTMLElement);
 
     const sidebar = this.sidebar =
       framework.getElementsByClassName("wed-sidebar")[0] as HTMLElement;
@@ -474,6 +509,11 @@ export class Editor {
     this.pasteTr = new Transformation(this, "add", "Paste",
                                       this.paste.bind(this));
     this.cutTr = new Transformation(this, "delete", "Cut", this.cut.bind(this));
+
+    this.replaceRangeTr =
+      new Transformation(
+        this, "transform", "Replace Range", this.replaceRange.bind(this));
+
     this.splitNodeTr =
       new Transformation(this, "split", "Split <name>",
                          (editor, data) => {
@@ -1763,18 +1803,30 @@ in a way not supported by this version of wed.";
   private resizeHandler(): void {
     let heightAfter = 0;
 
-    function addHeight(this: Element): void {
-      heightAfter += this.scrollHeight;
+    function addHeight(x: Element): void {
+      heightAfter += x.getBoundingClientRect().height;
     }
 
-    let $examine = this.$widget;
-    while ($examine.length > 0) {
-      const $next = $examine.nextAll().not("script");
-      $next.each(addHeight);
-      $examine = $examine.parent();
+    let constrainerSibling = this.constrainer.nextElementSibling;
+    while (constrainerSibling !== null) {
+      addHeight(constrainerSibling);
+      constrainerSibling = constrainerSibling.nextElementSibling;
     }
 
-    heightAfter += this.wedLocationBar.scrollHeight;
+    let examine: Element | null = this.widget;
+    // We want to use isElement here because eventually we'll run into the
+    // document element that holds everything. We still declare examine as an
+    // Element or null because we never use it as a document.
+    while (isElement(examine)) {
+      let sibling = examine.nextElementSibling;
+      while (sibling !== null) {
+        if (sibling.tagName !== "script") {
+          addHeight(sibling);
+        }
+        sibling = sibling.nextElementSibling;
+      }
+      examine = examine.parentNode as (Element | null);
+    }
 
     // The height is the inner height of the window:
     // a. minus what appears before it.
@@ -1783,9 +1835,7 @@ in a way not supported by this version of wed.";
       // This is the space before
       (this.scroller.getBoundingClientRect().top + this.window.pageYOffset) -
       // This is the space after
-      heightAfter -
-      // Some rounding problem
-      1;
+      heightAfter;
 
     height = Math.floor(height);
 
@@ -2031,6 +2081,11 @@ in a way not supported by this version of wed.";
       return true;
     }
 
+    // We don't process any input if the minibuffer is enabled.
+    if (this.minibuffer.enabled) {
+      return true;
+    }
+
     function terminate(): false {
       e.stopPropagation();
       e.preventDefault();
@@ -2160,6 +2215,34 @@ in a way not supported by this version of wed.";
       if (this.editingMenuManager.contextMenuHandler(e) === false) {
         return terminate();
       }
+    }
+    else if (keyConstants.QUICKSEARCH_FORWARD.matchesEvent(e)) {
+      if (this.caretManager.caret !== undefined) {
+        // tslint:disable-next-line:no-unused-expression
+        new QuickSearch(this, this.scroller, Direction.FORWARD);
+      }
+      return terminate();
+    }
+    else if (keyConstants.QUICKSEARCH_BACKWARDS.matchesEvent(e)) {
+      if (this.caretManager.caret !== undefined) {
+        // tslint:disable-next-line:no-unused-expression
+        new QuickSearch(this, this.scroller, Direction.BACKWARDS);
+      }
+      return terminate();
+    }
+    else if (keyConstants.SEARCH_FORWARD.matchesEvent(e)) {
+      if (this.caretManager.caret !== undefined) {
+        // tslint:disable-next-line:no-unused-expression
+        new DialogSearchReplace(this, this.scroller, Direction.FORWARD);
+      }
+      return terminate();
+    }
+    else if (keyConstants.SEARCH_BACKWARDS.matchesEvent(e)) {
+      if (this.caretManager.caret !== undefined) {
+        // tslint:disable-next-line:no-unused-expression
+        new DialogSearchReplace(this, this.scroller, Direction.BACKWARDS);
+      }
+      return terminate();
     }
 
     if (selFocus === undefined) {
@@ -2385,11 +2468,21 @@ in a way not supported by this version of wed.";
   /**
    * Simulates typing text in the editor.
    *
+   * **NOTE**: this function is limited in what it can simulate. The main
+   * editing pane is where you get the most support. Other locations offer less
+   * support. One good example is the minibuffer. Typing a string into it works
+   * fine. Trying to use directional arrows and backspace/delete currently does
+   * not work. We'd have to write custom code to handle these cases because it
+   * is not possible, as we speak, to write JavaScript code that **entirely**
+   * simulates pressing keyboard keys. (JavaScript easily supports sending the
+   * events *generated* by hitting the keyboard, but this is not enough.)
+   *
    * @param text The text to type in. An array of keys, a string or a single
    * key.
    */
   // tslint:disable-next-line:no-reserved-keywords
-  type(text: string | Key | Key[]): void {
+  type(text: string | Key | Key[],
+       where: WedEventTarget = WedEventTarget.DEFAULT): void {
     if (text instanceof Key) {
       text = [text];
     }
@@ -2401,7 +2494,18 @@ in a way not supported by this version of wed.";
 
       const event = new $.Event("keydown");
       k.setEventToMatch(event);
-      this.$inputField.trigger(event);
+
+      switch (where) {
+      case WedEventTarget.MINIBUFFER:
+        this.minibuffer.forwardEvent(event);
+        break;
+      case WedEventTarget.DEFAULT:
+        this.$inputField.trigger(event);
+        break;
+      default:
+        const t: never = where;
+        throw new Error(`unhandled target: ${t}`);
+      }
     }
   }
 
@@ -3190,9 +3294,9 @@ in a way not supported by this version of wed.";
     }
 
     const textEdit = options.textEdit === true;
-    const focus = options.focus === true;
+    const gainingFocus = options.gainingFocus === true;
     // We don't want to do this on regaining focus.
-    if (!focus) {
+    if (!gainingFocus) {
       this.editingMenuManager.setupCompletionMenu();
     }
 
@@ -3257,7 +3361,7 @@ in a way not supported by this version of wed.";
       node.classList.add("_owns_caret");
     }
 
-    if (!focus) {
+    if (!gainingFocus) {
       manager.mark.scrollIntoView();
     }
 
@@ -3279,9 +3383,10 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
       }
       node = node.parentNode as HTMLElement;
     }
+    const span = this.wedLocationBar.getElementsByTagName("span")[0];
     // tslint:disable-next-line:no-inner-html
-    this.wedLocationBar.innerHTML = steps.length !== 0 ? steps.join("/") :
-      "<span>&nbsp;</span>";
+    span.innerHTML =
+      steps.length !== 0 ? steps.join("/") : "<span>&nbsp;</span>";
   }
 
   private cut(): void {
@@ -3342,7 +3447,6 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
     }, 0);
   }
 
-  // tslint:disable-next-line:no-any
   private paste(editor: Editor, data: PasteTransformationData): void {
     const toPaste = data.to_paste;
     const dataClone = toPaste.cloneNode(true);
@@ -3395,6 +3499,38 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
       caret = newCaret;
     }
     this.$guiRoot.trigger("wed-post-paste", [data.e, caret, dataClone]);
+  }
+
+  public replaceRange(editor: Editor,
+                      data: ReplaceRangeTransformationData): void {
+    const caretManager = editor.caretManager;
+    const { range, newText, caretAtEnd } = data;
+    const { start, end } = range;
+    const dataStart = caretManager.toDataLocation(start)!;
+    const dataEnd = caretManager.toDataLocation(end)!;
+
+    let caret: DLoc;
+    if (isAttr(dataStart.node)) {
+      const attr = dataStart.node;
+      let value = attr.value;
+      value = value.slice(0, dataStart.offset) + newText +
+        value.slice(dataEnd.offset);
+      editor.dataUpdater.setAttributeNS(
+        attr.ownerElement,
+        attr.namespaceURI === null ? "" : attr.namespaceURI,
+        attr.name, value);
+      if (caretAtEnd) {
+        caret = dataStart.makeWithOffset(dataStart.offset + newText.length);
+      }
+      else {
+        caret = dataStart;
+      }
+    }
+    else {
+      const cutRet = editor.dataUpdater.cut(dataStart, dataEnd)[0];
+      ({ caret } = editor.dataUpdater.insertText(cutRet, newText, caretAtEnd));
+    }
+    caretManager.setCaret(caret, { textEdit: true });
   }
 }
 

@@ -176,6 +176,12 @@ odd bug fix may not get mentioned here at all.
     it is now possible to specify keys likes Ctrl-Shift-A and distinguish it
     from Ctrl-A.
 
+  - Breaking change: implementations of ``Metadata`` must add an implementation
+    for ``unresolveName``.
+
+  - Breaking change: ``Validator`` takes an array of mode validators instead of
+    a single validator.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

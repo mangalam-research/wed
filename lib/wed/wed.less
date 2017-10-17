@@ -13,7 +13,7 @@
     max-width: none;
 }
 
-.modal-dialog {
+.modal-dialog:not(.modal-sm) {
     width: auto;
 }
 
@@ -180,11 +180,11 @@ div.wed-document-constrainer {
     }
 
     .wed-caret-layer {
-        position: relative;
+        position: absolute;
         z-index: 1;
-        // The following attribute is required for IE.
         background-color: white;
         pointer-events: none;
+        mix-blend-mode: multiply;
 
         ._wed_caret {
             position: absolute;
@@ -196,6 +196,12 @@ div.wed-document-constrainer {
             min-height: 100%;
             animation: caret 1s linear infinite;
             -webkit-animation: caret 1s linear infinite;
+        }
+
+        ._wed_highlight {
+          position: absolute;
+          background-color: yellow;
+          mix-blend-mode: multiply;
         }
 
     }
@@ -344,6 +350,20 @@ div.wed-frame {
                 -webkit-animation: blink 1s infinite;
             }
         }
+    }
+
+    div.wed-location-bar {
+      border: black 1px solid;
+      padding-left: 0.5ex;
+    }
+
+    div.wed-minibuffer {
+      display: flex;
+      border: black 1px solid;
+
+      input {
+        flex: 2;
+      }
     }
 }
 

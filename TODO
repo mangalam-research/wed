@@ -1,3 +1,25 @@
+Search and Replace
+==================
+
+- Fix the issue with scopes. There's a bug in rangy that happens if the start
+  position, for instance, is at the very end of the scope. In this case, Rangy
+  findText will return a hit outside the scope!
+
+- Support JavaScript regular expressions.
+
+- Ideally, scope:
+
+ - If nothing selected, whole document.
+
+ - If label clicked, only element.
+
+ - If text selection, only text.
+
+- Introduce a new undo object which has a "breakable" field. A search/replace
+  will turn "breakable" on. If the user undoes an undo object with "breakable"
+  turned on, then ask whether it should be done atomically or broken into
+  individual search/replace.
+
 Misc
 ====
 

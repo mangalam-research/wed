@@ -6,6 +6,7 @@
     "paths": {
       "wed/*": ["wed/*", "../build/generated/lib/wed/*"],
       "rangy": ["../types/rangy"],
+      "rangy-textrange": ["../types/rangy-textrange"],
       "merge-options": ["../types/merge-options"],
       "log4javascript": ["../types/log4javascript"]
     },

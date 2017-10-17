@@ -11,7 +11,7 @@ import { Observable, Subject } from "rxjs";
 import * as browsers from "./browsers";
 import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
-import { DLoc, DLocRoot } from "./dloc";
+import { DLoc, DLocRange, DLocRoot } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import { childByClass, closestByClass, contains, dumpRange,
          focusNode as focusTheNode, getSelectionRange, indexOf,
@@ -151,8 +151,8 @@ export class CaretManager implements GUIToDataConverter {
               private readonly dataRoot: DLocRoot,
               private readonly inputField: HTMLElement,
               private readonly guiUpdater: GUIUpdater,
-              layer: Layer,
-              scroller: Scroller,
+              private readonly layer: Layer,
+              private readonly scroller: Scroller,
               private readonly modeTree: ModeTree) {
     this.mark = new CaretMark(this, guiRoot.node.ownerDocument, layer,
                               inputField, scroller);
@@ -232,6 +232,19 @@ export class CaretManager implements GUIToDataConverter {
     }
 
     return sel.rangeInfo;
+  }
+
+  get minCaret(): DLoc {
+    return DLoc.mustMakeDLoc(this.guiRoot, this.guiRootEl, 0);
+  }
+
+  get maxCaret(): DLoc {
+    return  DLoc.mustMakeDLoc(this.guiRoot, this.guiRootEl,
+                              this.guiRootEl.childNodes.length);
+  }
+
+  get docDLocRange(): DLocRange {
+    return new DLocRange(this.minCaret, this.maxCaret);
   }
 
   /**
@@ -1039,6 +1052,28 @@ export class CaretManager implements GUIToDataConverter {
     }
   }
 
+  highlightRange(range: DLocRange): Element {
+    const domRange = range.mustMakeDOMRange();
+
+    const grPosition = this.scroller.getBoundingClientRect();
+    const topOffset = this.scroller.scrollTop - grPosition.top;
+    const leftOffset = this.scroller.scrollLeft - grPosition.left;
+
+    const highlight = this.doc.createElement("div");
+    for (const rect of Array.from(domRange.nativeRange.getClientRects())) {
+      const highlightPart = this.doc.createElement("div");
+      highlightPart.className = "_wed_highlight";
+      highlightPart.style.top = `${rect.top + topOffset}px`;
+      highlightPart.style.left = `${rect.left + leftOffset}px`;
+      highlightPart.style.height = `${rect.height}px`;
+      highlightPart.style.width = `${rect.width}px`;
+      highlight.appendChild(highlightPart);
+    }
+
+    this.layer.append(highlight);
+    return highlight;
+  }
+
   /**
    * Dump to the console caret-specific information.
    */
@@ -1090,4 +1125,5 @@ export class CaretManager implements GUIToDataConverter {
 }
 
 //  LocalWords:  MPL wed's DLoc sel setCaret clearDOMSelection rst focusTheNode
-//  LocalWords:  bugzilla nd noop activeElement
+//  LocalWords:  bugzilla nd noop activeElement px rect grPosition topOffset
+//  LocalWords:  leftOffset

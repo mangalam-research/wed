@@ -71,6 +71,7 @@ declare namespace rangy {
         initialized:boolean;
         supported:boolean;
         dom:DomUtils;
+        init(): void;
     }
 
     interface DomUtils {

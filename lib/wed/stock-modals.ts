@@ -68,13 +68,17 @@ contextual menu.</li>
   <li>F1: help</li>
   <li>Ctrl-[: Decrease the label visibility level.</li>
   <li>Ctrl-]: Increase the label visibility level.</li>
-  <li>Ctrl-S: Save</li>
-  <li>Ctrl-X: Cut</li>
-  <li>Ctrl-V: Paste</li>
-  <li>Ctrl-C: Copy</li>
-  <li>Ctrl-Z: Undo</li>
-  <li>Ctrl-Y: Redo</li>
+  <li>Ctrl-s: Save</li>
+  <li>Ctrl-x: Cut</li>
+  <li>Ctrl-v: Paste</li>
+  <li>Ctrl-c: Copy</li>
+  <li>Ctrl-z: Undo</li>
+  <li>Ctrl-y: Redo</li>
   <li>Ctrl-/: Bring up a contextual menu.</li>
+  <li>Ctrl-f: Quick search forward.</li>
+  <li>Ctrl-b: Quick search backwards.</li>
+  <li>Ctrl-Shift-f: Search forward.</li>
+  <li>Ctrl-Shift-b: Search backwards.</li>
 </ul>
 <p class='wed-build-info'>Build descriptor: ${buildInfo.desc}<br/>
 Build date: ${buildInfo.date}</p>`);
