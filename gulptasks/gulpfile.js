@@ -469,11 +469,6 @@ npmCopyTask("ajv/dist/ajv.min.js");
 
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
-  const isNewer = yield newer(["lib/**", "!**/*_flymake.*"], dest);
-  if (!isNewer) {
-    return;
-  }
-
   yield mkdirpAsync(path.dirname(dest));
 
   yield exec("node misc/generate_build_info.js --unclean " +
