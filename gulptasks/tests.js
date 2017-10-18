@@ -119,7 +119,8 @@ gulp.task("test-karma", ["build-standalone", "build-test-files"],
 const test = {
   name: "test",
   deps: ["lint", "test-karma"],
-  func: () => {},
+  // eslint-disable-next-line no-empty-function
+  *func() {},
 };
 exports.test = test;
 
