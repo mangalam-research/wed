@@ -17,6 +17,15 @@ odd bug fix may not get mentioned here at all.
     actually contains and what a mode expects. This is a prerequiste to
     supporting the new "submode" feature.
 
+  - New feature: wed supports submodes. See the documentation for details of
+    what submodes are.
+
+  - New feature: wed now supports searching and replacing. See the documentation
+    for details.
+
+  - New feature: wed now has a minibuffer. It is currently used for quick
+    searches.
+
   - Breaking change: the ``stringRepeat`` polyfill has been removed from the
     code base. We now recommend using ``core-js`` to provide a consistent
     environment for Wed across browser platforms.
