@@ -7,10 +7,8 @@
 import * as $ from "jquery";
 
 import * as keyConstants from "../key-constants";
+import { Editor, KeydownHandler } from "../wed";
 import { ContextMenu, DismissCallback } from "./context-menu";
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
 
 /**
  * A menu for displaying completions.
@@ -19,8 +17,8 @@ export class CompletionMenu extends ContextMenu {
   private readonly completionPrefix: string;
   private readonly completionItems: string[];
   private readonly editor: Editor;
-  private readonly boundCompletionKeydownHandler: Function;
-  private focused: boolean = false;
+  private readonly boundCompletionKeydownHandler: KeydownHandler;
+  private _focused: boolean = false;
 
   /**
    * @param editor The editor for which to create this menu.
@@ -69,13 +67,18 @@ export class CompletionMenu extends ContextMenu {
     this.display([]);
   }
 
+  /** Whether the completion menu has been focused. */
+  get focused(): boolean {
+    return this._focused;
+  }
+
   private globalKeydownHandler(wedEv: Event, ev: JQueryEventObject): boolean {
     if (keyConstants.ENTER.matchesEvent(ev)) {
       this.$menu.find("li:not(.divider):visible a").first().click();
       return false;
     }
     else if (keyConstants.DOWN_ARROW.matchesEvent(ev)) {
-      this.focused = true;
+      this._focused = true;
       this.$menu.find("li:not(.divider):visible a").first().focus();
       this.$menu.trigger(ev);
       return false;
@@ -101,7 +104,7 @@ export class CompletionMenu extends ContextMenu {
         const li = doc.createElement("li");
         // tslint:disable-next-line:no-inner-html
         li.innerHTML = "<a href='#'></a>";
-        li.lastChild.textContent = item;
+        li.lastChild!.textContent = item;
         items.push(li);
         $(li).click(item, typeData);
       }
@@ -109,8 +112,8 @@ export class CompletionMenu extends ContextMenu {
         const li = doc.createElement("li");
         // tslint:disable-next-line:no-inner-html
         li.innerHTML = "<a href='#'><b></b></a>";
-        const a = li.lastChild;
-        a.firstChild.textContent = item.slice(0, prefix.length);
+        const a = li.lastChild!;
+        a.firstChild!.textContent = item.slice(0, prefix.length);
         const tail = item.slice(prefix.length);
         a.appendChild(doc.createTextNode(tail));
         items.push(li);
@@ -137,3 +140,5 @@ export class CompletionMenu extends ContextMenu {
     super.dismiss();
   }
 }
+
+//  LocalWords:  MPL li href

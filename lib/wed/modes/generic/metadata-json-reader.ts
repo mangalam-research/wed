@@ -19,15 +19,15 @@ export abstract class MetadataJSONReader implements MetadataReader {
   /**
    * @param schema The JSON schema with which to validate the metadata.
    */
-  constructor(private readonly schema: string) {}
+  constructor(private readonly schema: {}) {}
 
   /**
-   * A validator that uses [[schema]].
+   * A validator that uses the schema set for this reader.
    */
   protected get validator(): Ajv.ValidateFunction {
     if (this._validator === undefined) {
       const ajv = new Ajv();
-      this._validator = ajv.compile(JSON.parse(this.schema));
+      this._validator = ajv.compile(this.schema);
     }
 
     return this._validator;
@@ -39,7 +39,7 @@ export abstract class MetadataJSONReader implements MetadataReader {
   }
 
   /**
-   * Validate the object against [[schema]].
+   * Validate the object against the schema that was set for this reader.
    *
    * @param object The object to validate.
    */
@@ -62,9 +62,11 @@ export abstract class MetadataJSONReader implements MetadataReader {
   /**
    * Convert the object to a metadata instance.
    *
-   * @param object Object to convert.
+   * @param object The object to convert.
    *
    * @returns A new metadata instance.
    */
   protected abstract convert(object: Object): Metadata;
 }
+
+//  LocalWords:  MPL

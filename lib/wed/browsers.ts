@@ -13,7 +13,7 @@
 // versions* of *specific browsers*, feature testing is mostly
 // useless. So... here we are.
 //
-// Note that symbols are introduced for purely ad-hoc reasons. If we need to
+// Note that symbols are introduced for purely ad hoc reasons. If we need to
 // test for a specific combination somewhere in wed's code base, we have a
 // flag. If we don't need the test, we don't have a flag.
 //
@@ -78,3 +78,5 @@ export const OSX = navigator.platform.lastIndexOf("Mac", 0) === 0;
  */
 // We don't care about old platforms or oddball Windows platforms.
 export const WINDOWS = navigator.platform === "Win32";
+
+//  LocalWords:  MPL wed's MSIE

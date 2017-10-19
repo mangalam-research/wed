@@ -14,7 +14,7 @@ for (const sample of samples) {
   const taskName = `build-sample-${basename}`;
   gulp.task(taskName, Promise.coroutine(function *task() {
     const dest = `build/samples/${path.basename(sample)}`;
-    const isNewer = yield newer([sample, "test/xml-to-xml-tei.xsl"], dest);
+    const isNewer = yield newer([sample, "lib/tests/xml-to-xml-tei.xsl"], dest);
     if (!isNewer) {
       gutil.log(`Skipping generation of ${dest}`);
       return;
@@ -24,7 +24,7 @@ for (const sample of samples) {
       "grep", ["http://www.tei-c.org/ns/1.0", sample]);
     if (needsSaxon) {
       yield checkOutputFile(options.saxon, [`-s:${sample}`, `-o:${dest}`,
-                                            "-xsl:test/xml-to-xml-tei.xsl"]);
+                                            "-xsl:lib/tests/xml-to-xml-tei.xsl"]);
     }
     else {
       yield cprp(sample, dest);

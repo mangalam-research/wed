@@ -7,7 +7,8 @@
 import * as $ from "jquery";
 import * as rangy from "rangy";
 import { isAttr, isDocument, isElement } from "./domtypeguards";
-import { Caret, indexOf, rangeFromPoints, RangeInfo } from "./domutil";
+import { Caret, contains, indexOf, rangeFromPoints,
+         RangeInfo } from "./domutil";
 
 export type ValidRoots = Document | Element;
 
@@ -45,12 +46,7 @@ export class DLocRoot {
       return "";
     }
 
-    let checkNode = node;
-    if (isAttr(node)) {
-      checkNode = node.ownerElement;
-    }
-
-    if (!root.contains(checkNode)) {
+    if (!contains(root, node)) {
       throw new Error("node is not a descendant of root");
     }
 
@@ -175,6 +171,32 @@ function getTestLength(node: Node | Attr): number {
 }
 
 /**
+ * Compare two locations that have already been determined to be in a
+ * parent-child relation. **Important: the relationship must have been formally
+ * tested *before* calling this function.**
+ *
+ * @returns -1 if ``parent`` is before ``child``, 1 otherwise.
+ */
+function parentChildCompare(parentNode: Node, parentOffset: number,
+                            childNode: Node): 1 | -1 {
+  // Find which child of parent is or contains the other node.
+  let curChild = parentNode.firstChild;
+  let ix = 0;
+  while (curChild !== null) {
+    if (curChild.contains(childNode)) {
+          break;
+    }
+    ix++;
+    curChild = curChild.nextSibling;
+  }
+
+  // This is ``<= 0`` and not just ``< 0`` because if our offset points exactly
+  // to the child we found, then parent location is necessarily before the child
+  // location.
+  return (parentOffset - ix) <= 0 ? -1 : 1;
+}
+
+/**
  * ``DLoc`` objects model locations in a DOM tree. Although the current
  * implementation does not enforce this, **these objects are to be treated as
  * immutable**. These objects have ``node`` and ``offset`` properties that are
@@ -203,6 +225,21 @@ export class DLoc {
                       public readonly offset: number) {}
 
   /**
+   * This is the node to which this location points. For locations pointing to
+   * attributes and text nodes, that's the same as [[node]]. For locations
+   * pointing to an element, that's the child to which the ``node, offset`` pair
+   * points. Since this pair may point after the last child of an element, the
+   * child obtained may be ``undefined``.
+   */
+  get pointedNode(): Node | Attr | undefined {
+    if (isElement(this.node)) {
+      return this.node.childNodes[this.offset];
+    }
+
+    return this.node;
+  }
+
+  /**
    * Creates a copy of the location.
    */
   clone(): DLoc {
@@ -222,10 +259,10 @@ export class DLoc {
    *
    * @param location The location as a node, offset pair.
    *
-   * @param normalize Normalize the offset to a valid value.
+   * @param normalize Whether to normalize the offset to a valid value.
    *
    * @returns The location. It returns ``undefined`` if the ``node`` is "absent"
-   * because it is ``undefined`` or ``null``. This is true irrespctive of the
+   * because it is ``undefined`` or ``null``. This is true irrespective of the
    * signature used. If you use a [[Caret]] and it has an absent node, then the
    * result is ``undefined``.
    *
@@ -286,12 +323,7 @@ export class DLoc {
       throw new Error("root has not been marked as a root");
     }
 
-    if (isAttr(node)) {
-      if (!root.contains(node.ownerElement)) {
-        throw new Error("node not in root");
-      }
-    }
-    else if (!root.contains(node)) {
+    if (!contains(root, node)) {
       throw new Error("node not in root");
     }
 
@@ -442,6 +474,9 @@ export class DLoc {
    * @returns The return value is just a range when the method is called without
    * ``other``. Otherwise, it is a range info object. The return value is
    * ``undefined`` if either ``this`` or ``other`` is invalid.
+   *
+   * @throws {Error} If trying to make a range from an attribute node. DOM
+   * ranges can only point into elements or text nodes.
    */
   makeRange(): rangy.RangyRange | undefined;
   makeRange(other: DLoc): RangeInfo | undefined;
@@ -469,6 +504,47 @@ export class DLoc {
     }
 
     return rangeFromPoints(this.node, this.offset, other.node, other.offset);
+  }
+
+  /**
+   * Make a range from this location. If ``other`` is not specified, the range
+   * starts and ends with this location. If ``other`` is specified, the range
+   * goes from this location to the ``other`` location.
+   *
+   * @param other The other location to use.
+   *
+   * @returns The range.
+   */
+  makeDLocRange(other?: DLoc): DLocRange | undefined {
+    if (!this.isValid()) {
+      return undefined;
+    }
+
+    if (other === undefined) {
+      // tslint:disable-next-line:no-use-before-declare
+      return new DLocRange(this, this);
+    }
+
+    if (!other.isValid()) {
+      return undefined;
+    }
+
+    // tslint:disable-next-line:no-use-before-declare
+    return new DLocRange(this, other);
+  }
+
+  /**
+   * Like [[makeDLocRange]] but throws if it cannot make a range, rather than
+   * return ``undefined``.
+   */
+  mustMakeDLocRange(other?: DLoc): DLocRange {
+    const ret = other !== undefined ?
+      this.makeDLocRange(other) : this.makeDLocRange();
+    if (ret === undefined) {
+      throw new Error("cannot make a range");
+    }
+
+    return ret;
   }
 
   /**
@@ -518,6 +594,109 @@ export class DLoc {
       (this.node === other.node) &&
       (this.offset === other.offset);
   }
+
+  /**
+   * Compare two locations. Note that for attribute ordering, this class
+   * arbitrarily decides that the order of two attributes on the same element is
+   * the same as the order of their ``name`` fields as if they were sorted in an
+   * array with ``Array.prototype.sort()``. This differs from how
+   * ``Node.compareDocumentPosition`` determines the order of attributes. We
+   * want something stable, which is not implementation dependent. In all other
+   * cases, the nodes are compared in the same way
+   * ``Node.compareDocumentPosition`` does.
+   *
+   * @param other The other location to compare this one with.
+   *
+   * @returns ``0`` if the locations are the same. ``-1`` if this location comes
+   * first. ``1`` if the other location comes first.
+   *
+   * @throws {Error} If the nodes are disconnected.
+   */
+  compare(other: DLoc): -1 | 0 | 1 {
+    if (this.equals(other)) {
+      return 0;
+    }
+
+    let { node: thisNode, offset: thisOffset } = this;
+    let { node: otherNode, offset: otherOffset } = other;
+
+    // We need to handle attributes specially, because
+    // ``compareDocumentPosition`` does not work reliably with attribute nodes.
+    if (isAttr(thisNode)) {
+      if (isAttr(otherNode)) {
+        // We do not want an implementation-specific order when we compare
+        // attributes. So we perform our own test.
+        if (thisNode.ownerElement === otherNode.ownerElement) {
+          // It is not clear what the default comparison function is, so create
+          // a temporary array and sort.
+          const names = [thisNode.name, otherNode.name].sort();
+          // 0 is not a possible value here because it is not possible for
+          // thisNode.name to equal otherNode.name.
+          return names[0] === thisNode.name ? -1 : 1;
+        }
+      }
+
+      const owner = thisNode.ownerElement;
+      if (owner === other.pointedNode) {
+        // This location points into an attribute that belongs to the node
+        // that other points to. So this is later than other.
+        return 1;
+      }
+
+      // If we get here we'll rely on ``compareDocumentPosition`` but using the
+      // position of the element that has the attribute.
+      thisNode = owner.parentNode!;
+      thisOffset = indexOf(thisNode.childNodes, owner);
+    }
+
+    if (isAttr(otherNode)) {
+      const owner = otherNode.ownerElement;
+      if (owner === this.pointedNode) {
+        // The other location points into an attribute that belongs to the node
+        // that this location points to. So this is earlier than other.
+        return -1;
+      }
+
+      // If we get here we'll rely on ``compareDocumentPosition`` but using the
+      // position of the element that has the attribute.
+      otherNode = owner.parentNode!;
+      otherOffset = indexOf(otherNode.childNodes, owner);
+    }
+
+    if (thisNode === otherNode) {
+      const d = thisOffset - otherOffset;
+      if (d === 0) {
+        return 0;
+      }
+
+      return d < 0 ? -1 : 1;
+    }
+
+    const comparison = thisNode.compareDocumentPosition(otherNode);
+    // tslint:disable:no-bitwise
+    if ((comparison & Node.DOCUMENT_POSITION_DISCONNECTED) !== 0) {
+      throw new Error("cannot compare disconnected nodes");
+    }
+
+    if ((comparison & Node.DOCUMENT_POSITION_CONTAINED_BY) !== 0) {
+      return parentChildCompare(thisNode, thisOffset, otherNode);
+    }
+
+    if ((comparison & Node.DOCUMENT_POSITION_CONTAINS) !== 0) {
+      return parentChildCompare(otherNode, otherOffset, thisNode) < 0 ? 1 : -1;
+    }
+
+    if ((comparison & Node.DOCUMENT_POSITION_PRECEDING) !== 0) {
+      return 1;
+    }
+
+    if ((comparison & Node.DOCUMENT_POSITION_FOLLOWING) !== 0) {
+      return -1;
+    }
+    // tslint:enable:no-bitwise
+
+    throw new Error("neither preceding nor following: this should not happen");
+  }
 }
 
 /**
@@ -559,5 +738,104 @@ export function getRoot(node: Node | Attr | undefined | null): DLocRoot {
   return ret;
 }
 
-//  LocalWords:  dloc MPL jquery domutil oop DLoc makeDLoc jshint
-//  LocalWords:  newcap validthis
+/**
+ * Represents a range spanning locations indicated by two [[DLoc]] objects.
+ * Though this is not enforced at the VM level, objects of this class are to be
+ * considered immutable.
+ */
+export class DLocRange {
+  /**
+   * @param start The start of the range.
+   * @param end The end of the range.
+   */
+  constructor(readonly start: DLoc, readonly end: DLoc) {
+    if (start.root !== end.root) {
+      throw new Error("the start and end must be in the same document");
+    }
+  }
+
+  /** Whether this range is collapsed. */
+  get collapsed(): boolean {
+    return this.start.equals(this.end);
+  }
+
+  /**
+   * Make a DOM range.
+   *
+   * @returns The range. Or ``undefined`` if either the start or end are not
+   * pointing to valid positions.
+   *
+   * @throws {Error} If trying to make a range from an attribute node. DOM
+   * ranges can only point into elements or text nodes.
+   */
+  makeDOMRange(): rangy.RangyRange | undefined {
+    if (isAttr(this.start.node)) {
+      throw new Error("cannot make range from attribute node");
+    }
+
+    if (!this.start.isValid()) {
+      return undefined;
+    }
+
+    if (isAttr(this.end.node)) {
+      throw new Error("cannot make range from attribute node");
+    }
+
+    if (!this.end.isValid()) {
+      return undefined;
+    }
+
+    return rangeFromPoints(this.start.node, this.start.offset, this.end.node,
+                           this.end.offset).range;
+  }
+
+  /**
+   * Same as [[makeDOMRange]] but throws instead of returning ``undefined``.
+   */
+  mustMakeDOMRange(): rangy.RangyRange {
+    const ret = this.makeDOMRange();
+    if (ret === undefined) {
+      throw new Error("cannot make a range");
+    }
+
+    return ret;
+  }
+
+  /**
+   * @returns Whether ``this`` and ``other`` are equal. They are equal if they
+   * are the same object or if they have equal start and ends.
+   */
+  equals(other: DLocRange | undefined | null): boolean {
+    if (other == null) {
+      return false;
+    }
+
+    return this === other ||
+      (this.start.equals(other.start) && this.end.equals(other.end));
+  }
+
+  /**
+   * @returns Whether the two endpoints of the range are valid.
+   */
+  isValid(): boolean {
+    return this.start.isValid() && this.end.isValid();
+  }
+
+  /**
+   * @param loc The location to test.
+   *
+   * @returns Whether a location is within the range.
+   */
+  contains(loc: DLoc): boolean {
+    const startTest = this.start.compare(loc);
+    const endTest = this.end.compare(loc);
+    // Reversed ranges are valid. So one end must be lower or equal to loc, and
+    // the other end must be greater or equal to loc. The following test ensures
+    // this. (If both are -1, then the result is > 0, and if both are 1, then
+    // then result > 0.)
+    return startTest * endTest <= 0;
+  }
+}
+
+//  LocalWords:  makeDLoc DLoc domutil jquery MPL dloc mustMakeDLoc nd thisNode
+//  LocalWords:  otherNode compareDocumentPosition makeDOMRange

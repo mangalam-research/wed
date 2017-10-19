@@ -102,7 +102,7 @@ def start_server(context):
     def start():
         # Start a server just for our tests...
         context.server = subprocess.Popen(["node", "./misc/server.js",
-                                           "server", "localhost:" + port])
+                                           "localhost:" + port])
         # This is the address at which we can control the server
         # locally.
         local_server = "http://localhost:" + port + builder.WED_ROOT
@@ -123,7 +123,7 @@ def start_server(context):
         success = False
         while not success and tries < 10:
             try:
-                control(local_server, 'ping', 'failed to ping')
+                requests.get(urljoin(local_server, '/blank'))
                 success = True
             except ConnectionError:
                 time.sleep(0.5)
@@ -272,16 +272,6 @@ def before_all(context):
     context.start_time = time.time()
 
 
-def control(server, command, errmsg):
-    params = {"command": command}
-    resp = requests.post(urljoin(server, '/build/ajax/control'), params)
-    assert resp.json() == {}, errmsg
-
-
-def reset(server):
-    control(server, 'reset', 'failed to reset')
-
-
 def dump_javascript_log(context):
     driver = context.driver
     # Perform this query only if SELENIUM_LOGS is on.
@@ -323,7 +313,6 @@ def before_scenario(context, scenario):
     driver.set_window_size(context.initial_window_size["width"],
                            context.initial_window_size["height"])
     driver.set_window_position(0, 0)
-    reset(context.local_server)
 
 
 def after_scenario(context, _scenario):

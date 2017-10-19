@@ -19,7 +19,7 @@ export abstract class MetadataBase implements Metadata {
   readonly date?: string;
 
   protected readonly namespaceMappings: Record<string, string>;
-  protected readonly reverseMapping: Record<string, string> =
+  protected readonly reverseMappings: Record<string, string> =
     Object.create(null);
   protected descMap: Record<string, string> = Object.create(null);
 
@@ -53,11 +53,11 @@ got ${metadata.version}`);
       const ns = this.namespaceMappings[prefix];
       // If prefix foo resolves to http://bar and bar resolves to the same URI
       // and foo is before bar, then foo wins.
-      if (this.reverseMapping[ns] === undefined) {
-        this.reverseMapping[ns] = prefix;
+      if (this.reverseMappings[ns] === undefined) {
+        this.reverseMappings[ns] = prefix;
       }
     }
-    this.reverseMapping[this.namespaceMappings[""]] = "";
+    this.reverseMappings[this.namespaceMappings[""]] = "";
 
     const elements = metadata.elements;
     if (elements !== undefined) {
@@ -68,7 +68,7 @@ got ${metadata.version}`);
         const elNs = el.ns !== undefined ? el.ns :
           // tslint:disable-next-line:no-http-string
           "http://www.tei-c.org/ns/1.0";
-        const elPrefix = this.reverseMapping[elNs];
+        const elPrefix = this.reverseMappings[elNs];
         if (elPrefix === undefined) {
           throw new Error(`undefined namespace: ${elNs}`);
         }
@@ -94,16 +94,8 @@ got ${metadata.version}`);
   abstract isInline(node: Element): boolean;
   abstract documentationLinkFor(name: EName): string | undefined;
 
-  /**
-   * Unresolve a name using the mapping defined by the metadata.
-   *
-   * @param name The name to unresolve.
-   *
-   * @returns The unresolved name or ``undefined`` if the name cannot be
-   * unresolved.
-   */
-  protected unresolveName(name: EName): string | undefined {
-    const prefix = this.reverseMapping[name.ns];
+  unresolveName(name: EName): string | undefined {
+    const prefix = this.reverseMappings[name.ns];
     if (prefix === undefined) {
       return undefined;
     }
@@ -113,7 +105,7 @@ got ${metadata.version}`);
 }
 
 /**
- * A contstructor of [[MetadataBase]] objects.
+ * A constructor of [[MetadataBase]] objects.
  */
 export interface MetadataBaseCtor {
   // tslint:disable-next-line:no-any
@@ -134,3 +126,5 @@ export class MetadataReaderBase extends MetadataJSONReader {
     return new this.metadataClass(object as MetadataInterface);
   }
 }
+
+//  LocalWords:  MPL expectedVersion xml tei elNs elPrefix el

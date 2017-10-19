@@ -17,8 +17,6 @@ interface JQuery {
 }
 
 declare module "bluejax" {
-  import * as Promise from "bluebird";
-
   export type Pair = {
     promise: Promise<any>;
     xhr: JQueryXHR;
@@ -38,3 +36,14 @@ type RequireJSCall = (deps: string[],
                       errback?: (...args: any[]) => void) => void;
 declare var requirejs: RequireJSCall;
 declare var require: RequireJSCall;
+
+interface Window {
+  DOMParser: {
+    prototype: DOMParser;
+    new(): DOMParser;
+  }
+}
+
+declare var __WED_TESTING: any;
+
+//  LocalWords:  bluejax jQuery jquery

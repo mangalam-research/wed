@@ -63,4 +63,16 @@ export interface Metadata {
    * not available.
    */
   documentationLinkFor(name: EName): string | undefined;
+
+  /**
+   * Unresolve a name using the mapping defined by the metadata.
+   *
+   * @param name The name to unresolve.
+   *
+   * @returns The unresolved name or ``undefined`` if the name cannot be
+   * unresolved.
+   */
+  unresolveName(name: EName): string | undefined;
 }
+
+//  LocalWords:  MPL URIs

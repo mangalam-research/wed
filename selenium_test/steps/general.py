@@ -261,7 +261,7 @@ def step_impl(context):
     scroll_top = context.editor_pane_new_scroll_top
 
     new_scroll_top = context.driver.execute_script(
-        "return  window.wed_editor._scroller.scrollTop;")
+        "return  window.wed_editor.scroller.scrollTop;")
 
     # On IE 10 something causes the scroll to shift a tiny bit. It is
     # unclear what causes this.
@@ -278,15 +278,14 @@ def step_impl(context):
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/source_converted.xml")
+        text="lib/tests/wed_test_data/source_converted.xml")
 
 
 @given(ur"a document that has multiple top namespaces\.?")
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/" +
-        "multiple_top_namespaces_converted.xml",
+        text="lib/tests/wed_test_data/multiple_top_namespaces_converted.xml",
         schema="@math")
 
 
@@ -294,7 +293,7 @@ def open_simple_doc(context):
 def step_impl(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/source_converted.xml",
+        text="lib/tests/wed_test_data/source_converted.xml",
         tooltips=True)
     if context.util.ie:
         # For most browsers, this is not needed. However, in IE10, IE11,
@@ -309,21 +308,21 @@ def step_impl(context):
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/complex_converted.xml")
+        text="lib/tests/wed_test_data/complex_converted.xml")
 
 
 @given(ur'a document without "hi"')
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/nohi_converted.xml")
+        text="lib/tests/wed_test_data/nohi_converted.xml")
 
 
 @given(ur'a document without "text"')
 def open_simple_doc(context):
     load_and_wait_for_editor(
         context,
-        text="/build/test-files/wed_test_data/notext_converted.xml")
+        text="lib/tests/wed_test_data/notext_converted.xml")
 
 
 @when(ur"the user scrolls the window (?P<choice>completely down|down "
@@ -361,7 +360,7 @@ def step_impl(context):
 
     def cond(*_):
         return driver.execute_script("""
-        return window.document.activeElement === wed_editor._$input_field[0];
+        return window.document.activeElement === wed_editor.$inputField[0];
         """)
     util.wait(cond)
 
@@ -541,7 +540,7 @@ def step_impl(context, text):
 @when('the input field is focused')
 def step_impl(context):
     context.driver.execute_script("""
-    wed_editor._$input_field[0].focus();
+    wed_editor.$inputField[0].focus();
     """)
 
 

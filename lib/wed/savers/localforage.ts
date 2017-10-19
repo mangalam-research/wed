@@ -7,7 +7,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
 import * as localforage from "localforage";
 
 import { Runtime } from "../runtime";
@@ -34,7 +33,7 @@ export function config(): LocalForage {
    * @property {string} name
    */
 
-export interface Options {
+export interface Options extends saver.SaverOptions {
   /**
    * The "name" of the file to save. This is the key used to save the file in
    * localforage.
@@ -107,7 +106,7 @@ export class Saver extends saver.Saver {
    */
   constructor(runtime: Runtime, version: string, dataUpdater: TreeUpdater,
               dataTree: Node, options: Options) {
-    super(runtime, version, dataUpdater, dataTree);
+    super(runtime, version, dataUpdater, dataTree, options);
 
     this.initialized = true;
     this.failed = false;
@@ -161,3 +160,5 @@ export class Saver extends saver.Saver {
       .catch(() => false);
   }
 }
+
+//  LocalWords:  localforage MPL runtime

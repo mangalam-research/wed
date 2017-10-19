@@ -118,7 +118,7 @@ def step_impl(context, which):
             throw new Error("unexpected link");
 
         var target = document.getElementById(href.slice(1));
-        var scroller_rect = wed_editor._scroller.getBoundingClientRect();
+        var scroller_rect = wed_editor.scroller.getBoundingClientRect();
         var target_rect = target.getBoundingClientRect();
         function rectToObj(rect) {
             return {top: rect.top, bottom: rect.bottom,

@@ -227,5 +227,6 @@ export class ContextMenu {
   }
 }
 
-//  LocalWords:  contextmenu mousedown dropdown tabindex href gui MPL
-//  LocalWords:  Mangalam Dubeau ul jQuery Prepend util jquery
+//  LocalWords:  contextmenu mousedown dropdown tabindex href gui MPL px
+//  LocalWords:  Mangalam Dubeau ul jQuery Prepend util jquery mouseup winWidth
+//  LocalWords:  dropdowns

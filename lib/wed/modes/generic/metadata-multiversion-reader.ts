@@ -51,3 +51,5 @@ export class MetadataMultiversionReader implements MetadataReader {
 }
 
 MetadataMultiversionReader.init();
+
+//  LocalWords:  MPL

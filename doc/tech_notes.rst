@@ -58,18 +58,8 @@ configuration is updated to look for the external libraries at the right places.
 
 Wed's build process creates a configuration for the optimized bundle at
 ``build/standalone-optimized/requirejs-config.js``. This configuration allows an
-external custom mode to load individual modules of wed, because it has mappings
-like these::
-
-    "wed/log": "wed/wed",
-    "wed/oop": "wed/wed",
-    "wed/lib/simple_event_emitter": "wed/wed",
-    [...]
-
-which map each individual module forming wed to the single bundle file created
-during the optimization process. If you base your own run time RequireJS
-configuration on this file, it is possible for code external to the bundle, for
-instance a custom mode, to load parts of wed in an arbitrary order.
+external custom mode to load some individual modules of wed in any order because
+it includes a ``bundles`` configuration option.
 
 It is also possible to use a configuration file that does not have the
 individual module mappings. In this scenario, it is **not** possible for code
@@ -288,66 +278,47 @@ timeouts. The solution for now is don't push the tab in which tests are run to
 the background. Web workers would solve this problem but would create other
 complications so it is unclear whether they are a viable solution.
 
-Tests are of three types:
+Tests are of two types:
 
-* Not browser-dependent and therefore may be run outside a browser. We run these
-  in Node.js.
-
-* In-browser tests run *in* the browser.
+* Karma-based tests.
 
 * Selenium-based tests which run *outside* the browser but use selenium to
   control a browser.
 
-Browser-Independent Tests
--------------------------
+Karma-Based Tests
+-----------------
 
-To run the tests that are not browser-dependent do::
+To run the Karma-based tests do::
 
-    $ gulp test-node
+    $ gulp test-karma
 
-These tests are located in the ``test/`` directory off the wed root. You can
-also run ``mocha`` directly from the command line but having ``gulp`` build the
-``test`` target will trigger a build to ensure that the tests are run against
-the latest code.
+These tests are located in the ``lib/tests/``. You can also run ``karma``
+directly from the command line but having ``gulp`` build the ``test`` target
+will trigger a build to ensure that the tests are run against the latest code.
 
 .. warning:: Keep in mind that tests are **always** run against the code present
              in ``build/standalone/``. If you modify your source and fail to
              rebuild before running the test suite, the suite will run against
-             **old code!**
+             **old code!
 
-.. _tech_notes_in_browser_tests:
+In September 2017 we started implementing some of the tests in Karma and moving
+the tests that used to run in plain Node (i.e. Mocha running tests straight in
+the Node VM) to Karma. We evaluated the relative advantages of running the tests
+in jsdom, Chrome and ChromeHeadless. At some point in the implementation of the
+tests, we had 231 tests running in Karma, exercising multiple aspects of the
+DOM. Overall the speed results were:
 
-In-Browser Tests
-----------------
+jsdom: 10.5s
+Chrome: 9.5s
+Chrome Headless: 8s
 
-You can run these tests from the command line by running::
+There's no speed advantage to using jsdom relative to using Chrome, especially
+Chrome in headless mode.
 
-  $ gulp test-browser
-
-The browser-dependent tests are located in the ``browser_test/`` directory off
-the wed root. These tests are run by launching ``./server.js`` with the option
-``runner``. This starts a server that can:
-
-- Serve wed's files.
-
-- Respond to wed's AJAX request.
-
-- Receive the results of the tests.
-
-It also starts a Chrome browser which loads the page that contains the tests to
-be run in the browser. The browser is run in ``Xvfb`` so that it does not appear
-on the desktop.
-
-If you need to run the server to perform diagnosis on failing tests, you can
-``./server.js browser``. This will launch the browser on your desktop and start
-the tests. The browser and server will remain running until you kill them.
-
-Q. Why not use Karma?
-
-A. Historical reasons mostly. If Karma has been in the state it is now when the
-   project started, it would probably be used by the project now. ``server.js``
-   grew organically with the project and there is not at this moment a solid
-   reason to get rid of it in favor of Karma.
+Also, the old Node+Mocha tests used to take 14s to run. Compare to the numbers
+above. There were many reasons for this. Some of it had to do with the fact that
+the TypeScript tests were compiled on the fly so the test run also included
+compilation time. The Karma tests, in contrast, run the pre-compiled code.
 
 Selenium-Based Tests
 --------------------
@@ -500,7 +471,7 @@ handler chain, etc.
 
 Modes that define elements in the GUI tree that want to have their own custom
 context menu handler must listen for ``wed-context-menu`` **and** define a data
-field named ``data-wed-custom-context-menu`` set to a truthy value. This field
+field named ``data-wed-custom--context-menu`` set to a truthy value. This field
 must be set **in the DOM** as an attribute (and not merely using jQuery's
 ``data()`` method.
 
@@ -952,15 +923,11 @@ under the second approach. Version 0.17.0 cleaned up a good deal of the old code
 (first approach) that was made obsolete by the incremental changes, but some
 obsolete code may still remain.
 
-..  LocalWords:  contenteditable MutationObserver MutationObservers
-..  LocalWords:  keydown keypress javascript jQuery util contextmenu
-..  LocalWords:  InputTrigger wed's prepended xml lang keyup sendkeys
-..  LocalWords:  compositionend wo livré livre capturable GUIUpdater
-..  LocalWords:  TEI Étranger étranger IBus AjaxAppender XmlLayout IM
-..  LocalWords:  ajaxlog url CSRF JSON msg Github reStructuredText js
-..  LocalWords:  RequireJS setTimeout localhost selenic addr config
-..  LocalWords:  PYTHONPATH SauceLab Makefile DOM desc
-..  LocalWords:  getSelection namespace programmatically profiler CSS
-..  LocalWords:  gitflow oop wedutil SauceLabs nvie AVH deployable py
-..  LocalWords:  requirejs unoptimized conf gui LocalWords github
-..  LocalWords:  unclick unclicked truthy
+..  LocalWords:  truthy unclicked unclick github gui requirejs py deployable js
+..  LocalWords:  AVH nvie SauceLabs wedutil gitflow CSS programmatically desc
+..  LocalWords:  namespace DOM PYTHONPATH config selenic setTimeout RequireJS
+..  LocalWords:  Github msg JSON CSRF url ajaxlog IM XmlLayout AjaxAppender TEI
+..  LocalWords:  IBus étranger Étranger GUIUpdater capturable livre livré keyup
+..  LocalWords:  compositionend sendkeys lang xml prepended wed's InputTrigger
+..  LocalWords:  contextmenu jQuery javascript keypress keydown contenteditable
+..  LocalWords:  MutationObserver

@@ -6,47 +6,22 @@
  */
 
 import * as  $ from "jquery";
-import * as mergeOptions from "merge-options";
 import * as salve from "salve";
 
 import { Action } from "./action";
-import { CaretManager } from "./caret-manager";
 import { DLoc } from "./dloc";
 import { Listener } from "./domlistener";
-import { isAttr, isText } from "./domtypeguards";
+import { isAttr } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
-import { ContextMenu } from "./gui/action-context-menu";
-import { Transformation, TransformationData } from "./transformation";
-import { BeforeInsertNodeAtEvent } from "./tree-updater";
+import { ActionContextMenu, Item } from "./gui/action-context-menu";
+import { Mode } from "./mode";
+import { TransformationData } from "./transformation";
 import * as  util from "./util";
-import { Validator } from "./validator";
+import { Editor } from "./wed";
 
 const indexOf = domutil.indexOf;
 const closestByClass = domutil.closestByClass;
-
-export interface Editor {
-  gui_root: Element;
-  data_root: Element;
-  max_label_level: number;
-  complex_pattern_action: Action<{}>;
-  attributes: string;
-  validator: Validator;
-  caretManager: CaretManager;
-  // tslint:disable-next-line:no-any
-  mode: any;
-  _makeMenuItemForAction(action: Action<{}>, data?: {}): HTMLElement;
-  resolver: salve.NameResolver;
-  isAttrProtected(name: string, parent: Element): boolean;
-  isAttrProtected(node: Node): boolean;
-  toDataNode(el: Node): Node | Attr;
-  makeDocumentationLink(url: string): HTMLElement;
-  getElementTransformationsAt(pos: DLoc, transformationType: string):
-  { name: string,
-    tr: Transformation<TransformationData> }[];
-  // tslint:disable-next-line:no-any
-  [key: string]: any;
-}
 
 function tryToSetDataCaret(editor: Editor, dataCaret: DLoc): void {
   try {
@@ -61,19 +36,14 @@ function attributeSelectorMatch(selector: string, name: string): boolean {
   return selector === "*" || selector === name;
 }
 
-interface AttributeHidingSpecs {
-  elements: {
-    selector: string,
-    attributes: (string | { except: string[]})[];
-  }[];
-}
-
 /**
  * A decorator is responsible for adding decorations to a tree of DOM
  * elements. Decorations are GUI elements.
  */
-export class Decorator {
-  private _attributeHidingSpecs: AttributeHidingSpecs | null;
+export abstract class Decorator {
+  protected readonly namespaces: Record<string, string>;
+  protected readonly domlistener: Listener;
+  protected readonly guiUpdater: GUIUpdater;
 
   /**
    * @param domlistener The listener that the decorator must use to know when
@@ -84,22 +54,17 @@ export class Decorator {
    * @param guiUpdater The updater to use to modify the GUI tree. All
    * modifications to the GUI must go through this updater.
    */
-  constructor(protected readonly domlistener: Listener,
-              protected readonly editor: Editor,
-              protected readonly guiUpdater: GUIUpdater) {}
+  constructor(protected readonly mode: Mode,
+              protected readonly editor: Editor) {
+    this.domlistener = editor.domlistener;
+    this.guiUpdater = editor.guiUpdater;
+    this.namespaces = mode.getAbsoluteNamespaceMappings();
+  }
 
   /**
    * Request that the decorator add its event handlers to its listener.
    */
-  addHandlers(): void {
-    this.guiUpdater.events.subscribe((ev) => {
-      if (ev.name !== "BeforeInsertNodeAt" || isText(ev.node)) {
-        return;
-      }
-
-      this.contentEditableHandler(ev);
-    });
-  }
+  abstract addHandlers(): void;
 
   /**
    * Start listening to changes to the DOM tree.
@@ -117,6 +82,11 @@ export class Decorator {
    * @param sep A separator.
    */
   listDecorator(el: Element, sep: string | Element): void {
+    if (this.editor.modeTree.getMode(el) !== this.mode) {
+      // The element is not governed by this mode.
+      return;
+    }
+
     // We expect to work with a homogeneous list. That is, all children the same
     // element.
     const nameMap: Record<string, number> = Object.create(null);
@@ -181,33 +151,6 @@ export class Decorator {
   }
 
   /**
-   * Generic handler for setting ``contenteditable`` on nodes included into the
-   * tree.
-   */
-  contentEditableHandler(ev: BeforeInsertNodeAtEvent): void {
-    const editAttributes = this.editor.attributes === "edit";
-    function mod(el: Element): void {
-      // All elements that may get a selection must be focusable to
-      // work around issue:
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
-      el.setAttribute("tabindex", "-1");
-      el.setAttribute("contenteditable",
-                      String(el.classList.contains("_real") ||
-                             (editAttributes &&
-                              el.classList.contains("_attribute_value"))));
-      let child = el.firstElementChild;
-      while (child !== null) {
-        mod(child);
-        child = child.nextElementSibling;
-      }
-    }
-
-    // We never call this function with something else than an Element for
-    // ev.node.
-    mod(ev.node as Element);
-  }
-
-  /**
    * Add a start label at the start of an element and an end label at the end.
    *
    * @param root The root of the decorated tree.
@@ -228,7 +171,12 @@ export class Decorator {
                    postContextHandler: ((wedEv: JQueryMouseEventObject,
                                          ev: Event) => boolean) | undefined):
   void {
-    if (level > this.editor.max_label_level) {
+    if (this.editor.modeTree.getMode(el) !== this.mode) {
+      // The element is not governed by this mode.
+      return;
+    }
+
+    if (level > this.editor.maxLabelLevel) {
       throw new Error(
         `level higher than the maximum set by the mode: ${level}`);
     }
@@ -257,10 +205,10 @@ export class Decorator {
       el.removeChild(remove);
     }
 
-    const attributesHTML = [];
+    let attributesHTML = "";
     let hiddenAttributes = false;
-    if (this.editor.attributes === "show" ||
-        this.editor.attributes === "edit") {
+    const attributeHandling = this.editor.modeTree.getAttributeHandling(el);
+    if (attributeHandling === "show" || attributeHandling === "edit") {
       // include the attributes
       const attributes = util.getOriginalAttributes(el);
       const names = Object.keys(attributes).sort();
@@ -273,17 +221,13 @@ export class Decorator {
 
         const extra = hideAttribute ? " _shown_when_caret_in_label" : "";
 
-        attributesHTML.push([
-          `<span class=\"_phantom _attribute${extra}\">`,
-          "<span class=\"_phantom _attribute_name\">", name,
-          "</span>=\"<span class=\"_phantom _attribute_value\">",
-          domutil.textToHTML(attributes[name]),
-          "</span>\"</span>",
-        ].join(""));
+        attributesHTML += ` \
+<span class="_phantom _attribute${extra}">\
+<span class="_phantom _attribute_name">${name}</span>=\
+"<span class="_phantom _attribute_value">\
+${domutil.textToHTML(attributes[name])}</span>"</span>`;
       }
     }
-    const attributesStr = (attributesHTML.length !== 0 ? " " : "") +
-      attributesHTML.join(" ");
 
     const doc = el.ownerDocument;
     cls += ` _label_level_${level}`;
@@ -300,7 +244,7 @@ export class Decorator {
     prePh.className = "_phantom";
     // tslint:disable-next-line:no-inner-html
     prePh.innerHTML = `&nbsp;<span class='_phantom _element_name'>${origName}\
-</span>${attributesStr}<span class='_phantom _greater_than'> >&nbsp;</span>`;
+</span>${attributesHTML}<span class='_phantom _greater_than'> >&nbsp;</span>`;
     pre.appendChild(prePh);
     this.guiUpdater.insertNodeAt(el, 0, pre);
 
@@ -314,8 +258,8 @@ export class Decorator {
     post.appendChild(postPh);
     this.guiUpdater.insertBefore(el, post, null);
 
-    // Setup a handler so that clicking one label highlights it and
-    // the other label.
+    // Setup a handler so that clicking one label highlights it and the other
+    // label.
     $(pre).on("wed-context-menu",
               preContextHandler !== undefined ? preContextHandler : false);
 
@@ -340,8 +284,8 @@ export class Decorator {
    *
    * @returns ``true`` if the attribute must be hidden. ``false`` otherwise.
    */
-  mustHideAttribute(el: Element, name: string): boolean {
-    const specs = this.attributeHidingSpecs;
+  protected mustHideAttribute(el: Element, name: string): boolean {
+    const specs = this.editor.modeTree.getAttributeHidingSpecs(el);
     if (specs === null) {
       return false;
     }
@@ -381,36 +325,6 @@ export class Decorator {
     return false;
   }
 
-  private get attributeHidingSpecs(): AttributeHidingSpecs | null {
-    if (this._attributeHidingSpecs === undefined) {
-      const attributeHiding = this.editor.attributeHiding;
-      if (attributeHiding === undefined) {
-        // No attribute hiding...
-        this._attributeHidingSpecs = null;
-      }
-      else {
-        const method = attributeHiding.method;
-        if (method !== "selector") {
-          throw new Error(`unknown attribute hiding method: ${method}`);
-        }
-
-        const specs: AttributeHidingSpecs = {
-          elements: [],
-        };
-
-        for (const element of attributeHiding.elements) {
-          const copy = mergeOptions({}, element);
-          copy.selector = domutil.toGUISelector(copy.selector);
-          specs.elements.push(copy);
-        }
-
-        this._attributeHidingSpecs = specs;
-      }
-    }
-
-    return this._attributeHidingSpecs;
-  }
-
   /**
    * Add or remove the CSS class ``_readonly`` on the basis of the 2nd argument.
    *
@@ -437,34 +351,22 @@ export class Decorator {
    */
   // tslint:disable-next-line:max-func-body-length
   protected contextMenuHandler(atStart: boolean, wedEv: JQueryMouseEventObject,
-                               ev: Event): boolean {
+                               ev: JQueryEventObject): boolean {
     const editor = this.editor;
     let node = wedEv.target as Element;
-    const menuItems: {
-      action: Action<{}> | null,
-      item: Element,
-      data?: TransformationData | null,
-    }[] = [];
-    const mode = editor.mode;
-    const doc = node.ownerDocument;
-    const atStartToTxt: Record<string, string> = {
-      undefined: "",
-      true: " before this element",
-      false: " after this element",
-    };
+    const menuItems: Item[] = [];
+    const mode = editor.modeTree.getMode(node);
 
-    function pushItem(data: TransformationData | undefined,
-                      tr: Action<{}>, start?: boolean | undefined): void {
-      const li = editor._makeMenuItemForAction(tr, data) as Element;
-      const a = li.getElementsByTagName("a")[0];
-      const text = doc.createTextNode(atStartToTxt[String(start)]);
-      a.appendChild(text);
-      a.normalize();
+    function pushItem(data: TransformationData | null,
+                      tr: Action<TransformationData>,
+                      start?: boolean): void {
+      const li = editor.editingMenuManager.makeMenuItemForAction(tr, data,
+                                                                 start);
       menuItems.push({ action: tr, item: li, data: data });
     }
 
-    function pushItems(data: TransformationData | undefined,
-                       trs?: Action<{}>[], start?: boolean | undefined): void {
+    function pushItems(data: TransformationData | null,
+                       trs?: Action<{}>[], start?: boolean): void {
       if (trs === undefined) {
         return;
       }
@@ -491,7 +393,8 @@ export class Decorator {
       // tslint:disable-next-line:strict-boolean-expressions
       if (namePattern.simple()) {
         for (const name of namePattern.toArray()) {
-          const unresolved = editor.resolver.unresolveName(name.ns, name.name);
+          const unresolved =
+            mode.getAbsoluteResolver().unresolveName(name.ns, name.name);
           if (unresolved === undefined) {
             throw new Error("cannot unresolve attribute");
           }
@@ -506,23 +409,23 @@ export class Decorator {
         }
       }
       else {
-        pushItem(undefined, editor.complex_pattern_action);
+        pushItem(null, editor.complexPatternAction);
       }
     }
 
-    const real = closestByClass(node, "_real", editor.gui_root);
+    const real = closestByClass(node, "_real", editor.guiRoot);
     const readonly = real !== null && real.classList.contains("_readonly");
 
-    const attrVal = closestByClass(node, "_attribute_value", editor.gui_root);
+    const attrVal = closestByClass(node, "_attribute_value", editor.guiRoot);
     if (attrVal !== null) {
       const dataNode = editor.toDataNode(attrVal) as Attr;
       const treeCaret =
-        DLoc.mustMakeDLoc(editor.data_root, dataNode.ownerElement);
+        DLoc.mustMakeDLoc(editor.dataRoot, dataNode.ownerElement);
+      const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
       editor.validator.possibleAt(treeCaret, true).forEach((event) => {
         if (event.params[0] !== "attributeName") {
           return;
         }
-        const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
         processAttributeNameEvent(event, toAddTo as Element);
       });
 
@@ -535,14 +438,14 @@ export class Decorator {
     }
     else {
       // We want the first real parent.
-      const candidate = closestByClass(node, "_real", editor.gui_root);
+      const candidate = closestByClass(node, "_real", editor.guiRoot);
       if (candidate === null) {
         throw new Error("cannot find real parent");
       }
 
       node = candidate;
 
-      const topNode = (node.parentNode === editor.gui_root);
+      const topNode = (node.parentNode === editor.guiRoot);
 
       // We first gather the transformations that pertain to the node to which
       // the label belongs.
@@ -550,8 +453,8 @@ export class Decorator {
 
       const docURL = mode.documentationLinkFor(orig);
       if (docURL != null) {
-        const li = doc.createElement("li");
-        li.appendChild(this.editor.makeDocumentationLink(docURL));
+        const li =
+          this.editor.editingMenuManager.makeDocumentationMenuItem(docURL);
         menuItems.push({ action: null, item: li, data: null });
       }
 
@@ -577,14 +480,17 @@ export class Decorator {
         throw new Error("cannot get caret");
       }
 
-      if (atStart && editor.attributes === "edit") {
-        editor.validator.possibleAt(treeCaret, true).forEach((event) => {
+      if (atStart) {
+        const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
+        const attributeHandling = editor.modeTree.getAttributeHandling(toAddTo);
+        if (attributeHandling === "edit") {
+          editor.validator.possibleAt(treeCaret, true).forEach((event) => {
             if (event.params[0] !== "attributeName") {
               return;
             }
-            const toAddTo = treeCaret.node.childNodes[treeCaret.offset];
             processAttributeNameEvent(event, toAddTo as Element);
           });
+        }
       }
 
       if (!topNode) {
@@ -596,7 +502,7 @@ export class Decorator {
           }
           else {
             // It is an action rather than a transformation.
-            pushItem(undefined, tr.tr);
+            pushItem(null, tr.tr);
           }
         }
 
@@ -608,7 +514,7 @@ export class Decorator {
           for (const tr of editor.getElementTransformationsAt(caretInside,
                                                               "wrap-content")) {
             pushItem(tr.name !== undefined ? { name: tr.name, node: node }
-                     : undefined,
+                     : null,
                      tr.tr);
           }
         }
@@ -620,14 +526,15 @@ export class Decorator {
       return true;
     }
 
-    const pos = editor.computeContextMenuPosition(ev);
-    editor.displayContextMenu(ContextMenu, pos.left, pos.top, menuItems,
-                              readonly);
+    const pos = editor.editingMenuManager.computeMenuPosition(ev);
+    editor.editingMenuManager
+      .displayContextMenu(ActionContextMenu, pos.left, pos.top, menuItems,
+                          readonly);
     return false;
   }
 }
 
-//  LocalWords:  sep el focusable lt enterStartTag unclick nbsp li
-//  LocalWords:  tabindex listDecorator contenteditable href jQuery
-//  LocalWords:  gui domlistener domutil util validator jquery
-//  LocalWords:  Mangalam MPL Dubeau
+//  LocalWords:  attributeName unresolve func tslint readonly localName endCls
+//  LocalWords:  PossibleDueToWildcard Dubeau MPL Mangalam attributesHTML util
+//  LocalWords:  jquery validator domutil domlistener gui autohidden jQuery cls
+//  LocalWords:  listDecorator origName li nbsp lt el sep

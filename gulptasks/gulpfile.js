@@ -9,14 +9,10 @@ const vinylFile = require("vinyl-file");
 const Promise = require("bluebird");
 const path = require("path");
 const gutil = require("gulp-util");
-const glob = require("glob");
-const shell = require("shell-quote");
 const requireDir = require("require-dir");
 const rjs = require("requirejs");
 const wrapAmd = require("gulp-wrap-amd");
-const eslint = require("gulp-eslint");
 const replace = require("gulp-replace");
-const versync = require("versync");
 const argparse = require("argparse");
 const gulpTs = require("gulp-typescript");
 const sourcemaps = require("gulp-sourcemaps");
@@ -25,8 +21,10 @@ const { compile: compileToTS } = require("json-schema-to-typescript");
 
 const config = require("./config");
 const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
-        cprpdir, spawn, existsInFile, sequence, mkdirpAsync, fs, stampPath }
-      = require("./util");
+        cprpdir, spawn, sequence, mkdirpAsync, fs, stampPath } =
+      require("./util");
+
+const { test, seleniumTest } = require("./tests");
 
 const ArgumentParser = argparse.ArgumentParser;
 
@@ -65,7 +63,8 @@ parser.addArgument(["target"], {
   defaultValue: "default",
 });
 
-const options = config.options = parser.parseArgs(process.argv.slice(2));
+const options = config.options;
+Object.assign(options, parser.parseArgs(process.argv.slice(2)));
 
 // We purposely import the files there at this point so that the
 // configuration is set once and for all before they execute. Doing
@@ -103,8 +102,10 @@ gulp.task("build-standalone-wed", ["copy-wed-source",
 
 gulp.task("copy-wed-source", () => {
   const dest = "build/standalone/";
-  return gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/flycheck*",
-                   "!**/*.{less,ts,yml}"], { base: "." })
+  return es.merge(gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/flycheck*",
+                            "!**/*.{less,ts,yml}", "lib/**/*.d.ts"],
+                           { base: "." }),
+                  gulp.src(["lib/**/*.d.ts"], { base: "." }))
     .pipe(gulpNewer(dest))
     .pipe(gulp.dest(dest));
 });
@@ -127,37 +128,49 @@ gulp.task("convert-wed-yaml", () => {
 });
 
 const moduleFix = /^(define\(\["require", "exports")(.*?\], function \(require, exports)(.*)$/m;
-function tsc(project) {
+function tsc(project, dest, done) {
   // The .once nonsense is to work around a gulp-typescript bug
   //
   // See: https://github.com/ivogabe/gulp-typescript/issues/295
   //
-  // For the fix see:
+  // The fix is inspired by these comments:
   // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-197299175
+  // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-284483600
   //
   const result = project.src()
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(project())
-        .once("error", function onError() {
+        .once("error", function finish() {
+          // We need to use "finish" rather than "end" due to a bug in
+          // gulp-typescript:
+          //
+          // https://github.com/ivogabe/gulp-typescript/issues/540
+          //
           this.once("finish", () => {
-            process.exit(1);
+            const err = new Error("TypeScript compilation failed");
+            err.showStack = false;
+            done(err);
           });
         });
 
-  const dest = "build/standalone/lib";
-  return es.merge(result.js
-                  //
-                  // This ``replace`` to work around the problem that ``module``
-                  // is not defined when compiling to "amd". See:
-                  //
-                  // https://github.com/Microsoft/TypeScript/issues/13591
-                  //
-                  // We need to compile to "amd" for now.
-                  //
-                  .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
-                  .pipe(sourcemaps.write("."))
-                  .pipe(gulp.dest(dest)),
-                  result.dts.pipe(gulp.dest(dest)));
+  es.merge(result.js
+           //
+           // This ``replace`` to work around the problem that ``module``
+           // is not defined when compiling to "amd". See:
+           //
+           // https://github.com/Microsoft/TypeScript/issues/13591
+           //
+           // We need to compile to "amd" for now.
+           //
+           .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
+           .pipe(sourcemaps.write("."))
+           .pipe(gulp.dest(dest)),
+           result.dts.pipe(gulp.dest(dest)))
+  // The stream that es.merge returns is only readable, not writable. So there's
+  // no finish event for it, only "end".
+    .on("end", () => {
+      done();
+    });
 }
 
 function parseFile(name, data) {
@@ -213,10 +226,15 @@ gulp.task("generate-ts", () =>
                                   "metadata-as-json.d.ts"),
             convertJSONSchemaToTS(
               "lib/wed/wed-options-schema.yml", "wed-options.d.ts"),
+            convertJSONSchemaToTS(
+              "lib/wed/options-schema.yml", "options.d.ts"),
           ]));
 
 const wedProject = gulpTs.createProject("lib/tsconfig.json");
-gulp.task("tsc-wed", ["generate-ts"], () => tsc(wedProject));
+gulp.task("tsc-wed", ["generate-ts"],
+          (done) => {
+            tsc(wedProject, "build/standalone/lib", done);
+          });
 
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
@@ -401,8 +419,6 @@ npmCopyTask("typeahead", "typeahead.js/dist/typeahead.bundle.min.js");
 
 npmCopyTask("localforage/dist/localforage.js");
 
-npmCopyTask("async/lib/async.js");
-
 npmCopyTask("bootbox/bootbox*.js");
 
 npmCopyTask("urijs/src/**", "external/urijs");
@@ -417,7 +433,7 @@ npmCopyTask("salve/salve*");
 
 npmCopyTask("salve-dom/salve-dom*");
 
-npmCopyTask("interact.js/dist/interact.min.js");
+npmCopyTask("interactjs/dist/interact.min.js");
 
 npmCopyTask("merge-options", "merge-options/index.js",
             { rename: "merge-options.js", wrapAmd: true });
@@ -453,11 +469,6 @@ npmCopyTask("ajv/dist/ajv.min.js");
 
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
-  const isNewer = yield newer(["lib/**", "!**/*_flymake.*"], dest);
-  if (!isNewer) {
-    return;
-  }
-
   yield mkdirpAsync(path.dirname(dest));
 
   yield exec("node misc/generate_build_info.js --unclean " +
@@ -468,6 +479,7 @@ function *generateModes(x) {
   const common = `wed/modes/${x}/`;
   for (const ext of ["js", "ts"]) {
     yield `${common}${x}.${ext}`;
+    yield `${common}${x}-mode.${ext}`;
     yield `${common}${x}_mode.${ext}`;
   }
 }
@@ -518,6 +530,7 @@ gulp.task("build-standalone",
             "build-standalone-wed-less",
             "build-standalone-wed-config",
             "copy-log4javascript",
+            "download-sinon",
             "copy-bin",
             copyTasks,
             "build-schemas",
@@ -592,7 +605,7 @@ function *buildStandaloneOptimized() {
              .then(() => {
                throw err;
              }));
-    yield fs.moveAsync(newStamp, stamp, { clobber: true });
+    yield fs.moveAsync(newStamp, stamp, { overwrite: true });
   }
 }
 
@@ -657,18 +670,12 @@ function *ghPages() {
                  "build/standalone-optimized"], destBuild);
 
   for (const tree of ["standalone", "standalone-optimized"]) {
-    const rjsConfig = `${dest}/build/${tree}/requirejs-config.js`;
     const globalConfig = `${dest}/build/${tree}/lib/global-config.js`;
-    yield fs.moveAsync(rjsConfig, `${rjsConfig}.t`);
-    yield exec("node misc/modify_config.js -d paths.browser_test " +
-               `${rjsConfig}.t > ${rjsConfig}`);
-
     yield fs.moveAsync(globalConfig, `${globalConfig}.t`);
     yield exec("node misc/modify_config.js -d config.ajaxlog -d config.save " +
                `${globalConfig}.t > ${globalConfig}`);
 
-    yield del([`${rjsConfig}.t`,
-               `${globalConfig}.t`,
+    yield del([`${globalConfig}.t`,
                `${dest}/build/${tree}/test.html`,
                `${dest}/build/${tree}/mocha_frame.html`,
                `${dest}/build/${tree}/wed_test.html`]);
@@ -677,186 +684,6 @@ function *ghPages() {
 
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
           Promise.coroutine(ghPages));
-
-gulp.task("copy-test-files", () => {
-  const dest = "build/test-files";
-  gulp.src("browser_test/convert_test_data/**", { base: "browser_test" })
-    .pipe(gulpNewer(dest))
-    .pipe(gulp.dest(dest));
-});
-
-const convertHTMLDirs = ["dloc", "guiroot", "tree_updater"]
-        .map(x => `browser_test/${x}_test_data`);
-const convertXMLDirs = glob.sync("browser_test/*_test_data")
-        .filter(x => x !== "browser_test/convert_test_data" &&
-                convertHTMLDirs.indexOf(x) === -1);
-
-gulp.task("convert-xml-test-files", (callback) => {
-  const promises = [];
-  gulp.src(convertXMLDirs.map(x => `${x}/**`),
-           { base: "browser_test", read: false, nodir: true })
-    .on("data", (file) => {
-      const p = Promise.coroutine(function *dataPromise() {
-        const ext = path.extname(file.relative);
-        const destName = path.join(
-          "build/test-files",
-          file.relative.substring(0, file.relative.length - ext.length));
-        const dest = `${destName}_converted.xml`;
-
-        const tei = yield existsInFile(file.path,
-                                       /http:\/\/www.tei-c.org\/ns\/1.0/);
-
-        let isNewer;
-        let xsl;
-        if (tei) {
-          xsl = "test/xml-to-xml-tei.xsl";
-          isNewer = yield newer([file.path, xsl], dest);
-        }
-        else {
-          isNewer = yield newer(file.path, dest);
-        }
-
-        if (!isNewer) {
-          return;
-        }
-
-        if (tei) {
-          yield exec(`${options.saxon} -s:${file.path} -o:${dest} -xsl:${xsl}`);
-        }
-        else {
-          yield mkdirpAsync(path.dirname(dest));
-          yield cprp(file.path, dest);
-        }
-      })();
-      promises.push(p);
-    })
-    .on("end", () => {
-      Promise.all(promises).asCallback(callback);
-    });
-});
-
-gulp.task("convert-html-test-files", (callback) => {
-  const promises = [];
-  gulp.src(convertHTMLDirs.map(x => `${x}/**`),
-           { base: "browser_test", read: false, nodir: true })
-    .on("data", (file) => {
-      const p = Promise.coroutine(function *dataPromise() {
-        const tei = yield existsInFile(file.path,
-                                       /http:\/\/www.tei-c.org\/ns\/1.0/);
-        const xsl = tei ? "test/xml-to-html-tei.xsl" : "lib/wed/xml-to-html.xsl";
-        const ext = path.extname(file.relative);
-        const destName = path.join(
-          "build/test-files",
-          file.relative.substring(0, file.relative.length - ext.length));
-        const dest = `${destName}_converted.xml`;
-
-        const isNewer = yield newer([file.path, xsl], dest);
-        if (!isNewer) {
-          return;
-        }
-
-        yield exec(`${options.saxon} -s:${file.path} -o:${dest} -xsl:${xsl}`);
-      })();
-      promises.push(p);
-    })
-    .on("end", () => {
-      Promise.all(promises).asCallback(callback);
-    });
-});
-
-gulp.task("build-test-files", ["copy-test-files",
-                               "convert-html-test-files",
-                               "convert-xml-test-files"]);
-
-// function runTslint(program) {
-//   const files = tslint.Linter.getFileNames(program);
-//   ts.getPreEmitDiagnostics(program);
-//   return gulp.src(files)
-//     .pipe(gulpTslint({
-//       formatter: "verbose",
-//       program,
-//     }))
-//     .pipe(gulpTslint.report({
-//       summarizeFailureOutput: true,
-//     }));
-// }
-
-function runTslint(tsconfig, tslintConfig) {
-  return spawn(
-    "./node_modules/.bin/tslint",
-    ["--type-check", "--project", tsconfig, "-c", tslintConfig,
-     "-t", "verbose"],
-    { stdio: "inherit" });
-}
-
-gulp.task("tslint-wed", ["generate-ts"],
-          () => runTslint("lib/tsconfig.json", "lib/tslint.json"));
-
-gulp.task("tslint", ["tslint-wed"]);
-
-gulp.task("eslint", () =>
-          gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",
-                    "gulptasks/**/*.js", "misc/**/*.js", "test/**/*.js"])
-          .pipe(eslint())
-          .pipe(eslint.format())
-          .pipe(eslint.failAfterError()));
-
-gulp.task("lint", ["eslint", "tslint"]);
-
-const testNode = {
-  name: "test-node",
-  deps: ["lint", "build-standalone", "build-test-files"],
-  func: function *testNode() {
-    if (!options.skip_semver) {
-      yield versync.run({
-        verify: true,
-        onMessage: gutil.log,
-      });
-    }
-
-    yield spawn("./node_modules/.bin/mocha",
-                options.mocha_params ? options.mocha_params.split() : [],
-                { stdio: "inherit" });
-  },
-};
-
-const testBrowser = {
-  name: "test-browser",
-  deps: ["lint", "build", "build-test-files"],
-  func: function testBrowser() {
-    return spawn("./misc/server.js", ["runner"], { stdio: "inherit" });
-  },
-};
-
-const test = sequence("test", testNode, testBrowser);
-
-// Features is an optional array of features to run instead of running all
-// features.
-function selenium(features) {
-  let args = options.behave_params ? shell.parse(options.behave_params) : [];
-
-  // We check what we obtained from `behave_params` too, just in case someone is
-  // trying to select a specific feature though behave_params.
-  if (args.filter(x => /\.feature$/.test(x)).length === 0 && !features) {
-    args.push("selenium_test");
-  }
-
-  if (features) {
-    args = features.concat(args);
-  }
-
-  return spawn("behave", args, { stdio: "inherit" });
-}
-
-const seleniumTest = {
-  name: "selenium-test",
-  deps: ["build", "build-test-files"],
-  func: () => selenium(),
-};
-
-for (const feature of glob.sync("selenium_test/*.feature")) {
-  gulp.task(feature, seleniumTest.deps, () => selenium([feature]));
-}
 
 const distNoTest = {
   name: "dist-notest",
@@ -868,6 +695,14 @@ const distNoTest = {
     yield cprpdir(["build/standalone", "build/standalone-optimized",
                    "bin", "package.json", "npm-shrinkwrap.json"],
                   dist);
+    yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
+*
+!standalone/**
+!standalone-optimized/**
+!bin/**
+standalone/lib/tests/**
+standalone-optimized/lib/tests/**
+`);
     yield cprp("NPM_README.md", "build/dist/README.md");
     yield exec("ln -sf `(cd build; npm pack dist)` build/LATEST-DIST.tgz");
     yield del("build/t");

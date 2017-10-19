@@ -53,10 +53,7 @@ export class Scroller {
    * @param height The height to which to coerce.
    */
   coerceHeight(height: number): void {
-    const el = this.el;
-    const heightStr = `${height}px`;
-    el.style.maxHeight = heightStr;
-    el.style.minHeight = heightStr;
+    this.el.style.height = `${height}px`;
   }
 
   /**
@@ -73,7 +70,7 @@ export class Scroller {
    * element.
    *
    * This method tries to be the least disruptive it can: it will adjust the
-   * scoller and the window *just enough* to show the rectangle.
+   * scroller and the window *just enough* to show the rectangle.
    */
   scrollIntoView(left: number, top: number, right: number,
                  bottom: number): void {
@@ -124,3 +121,5 @@ export class Scroller {
     doc.defaultView.scrollBy(byX, byY);
   }
 }
+
+//  LocalWords:  scroller MPL px

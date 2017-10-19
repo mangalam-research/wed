@@ -86,7 +86,7 @@ export function rangeFromPoints(startContainer: Node,
 /**
  * Focuses the node itself or if the node is a text node, focuses the parent.
  *
- * @param node Node to focus.
+ * @param node The node to focus.
  *
  * @throws {Error} If the node is neither a text node nor an element. Trying to
  * focus something other than these is almost certainly an algorithmic bug.
@@ -136,9 +136,9 @@ export type Caret = [Node, number];
  * @param noText If true, and a text node would be returned, the function will
  * instead return the parent of the text node.
  *
- * @returns Returns the next caret position, or ``null`` if such position does
- * not exist. The ``container`` parameter constrains movements to positions
- * inside it.
+ * @returns The next caret position, or ``null`` if such position does not
+ * exist. The ``container`` parameter constrains movements to positions inside
+ * it.
  */
 // tslint:disable-next-line:cyclomatic-complexity
 export function nextCaretPosition(caret: Caret,
@@ -243,9 +243,9 @@ export function nextCaretPosition(caret: Caret,
  * @param noText If true, and a text node would be returned, the function will
  * instead return the parent of the text node.
  *
- * @returns Returns the previous caret position, or ``null`` if such position
- * does not exist. The ``container`` parameter constrains movements to positions
- * inside it.
+ * @returns The previous caret position, or ``null`` if such position does not
+ * exist. The ``container`` parameter constrains movements to positions inside
+ * it.
  */
 // tslint:disable-next-line:cyclomatic-complexity
 export function prevCaretPosition(caret: Caret,
@@ -555,7 +555,19 @@ export function genericInsertIntoText(this: GenericInsertIntoTextContext,
   return _genericInsertIntoText.call(this, textNode, index, node);
 }
 
-export type TextInsertionResult = [Text | undefined, Text | undefined];
+/**
+ * Records the results of inserting text into the tree.
+ */
+export interface TextInsertionResult {
+  /** The node that contains the added text. */
+  node: Text | undefined;
+
+  /** Whether [[node]] is a new node. If ``false``, it was modified. */
+  isNew: boolean;
+
+  /** The caret position after the insertion. */
+  caret: Caret;
+}
 
 export interface GenericInsertTextContext {
   insertNodeAt(into: Element, index: number, node: Node): void;
@@ -573,28 +585,32 @@ export interface GenericInsertTextContext {
  *
  * @param text The text to insert.
  *
- * @returns The first element of the array is the node that was modified to
- * insert the text. It will be ``undefined`` if no node was modified. The second
- * element is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly inserted
- * text. They are unequal if a new text node had to be created to contain the
- * new text. A return value of ``[undefined, undefined]`` means that no
- * modification occurred (because the text passed was "").
+ * @param caretAtEnd Whether the caret position returned should be placed at the
+ * end of the inserted text.
+ *
+ * @returns The result of inserting the text.
  *
  * @throws {Error} If ``node`` is not an element or text Node type.
  */
 export function genericInsertText(this: GenericInsertTextContext,
                                   node: Node,
                                   index: number,
-                                  text: string): TextInsertionResult {
+                                  text: string,
+                                  caretAtEnd: boolean = true):
+TextInsertionResult {
   // This function is meant to be called with this set to a proper
   // value.
   if (text === "") {
-    return [undefined, undefined];
+    return {
+      node: undefined,
+      isNew: false,
+      caret: [node, index],
+    };
   }
 
-  let modifiedNode: Text | undefined;
+  let isNew: boolean = false;
   let textNode: Text;
+  let caret: Caret;
   work:
   // tslint:disable-next-line:no-constant-condition strict-boolean-expressions
   while (true) {
@@ -618,23 +634,30 @@ export function genericInsertText(this: GenericInsertTextContext,
 
       // We have to create a text node
       textNode = document.createTextNode(text);
+      isNew = true;
       // Node is necessarily an element when we get here.
       // tslint:disable-next-line:no-invalid-this
       this.insertNodeAt(node as Element, index, textNode);
+      caret = [textNode, caretAtEnd ? text.length : 0];
       break work;
     case Node.TEXT_NODE:
-      modifiedNode = node as Text;
-      const pre = modifiedNode.data.slice(0, index);
-      const post = modifiedNode.data.slice(index);
+      textNode = node as Text;
+      const pre = textNode.data.slice(0, index);
+      const post = textNode.data.slice(index);
       // tslint:disable-next-line:no-invalid-this
-      this.setTextNodeValue(modifiedNode, pre + text + post);
-      textNode = modifiedNode;
+      this.setTextNodeValue(textNode, pre + text + post);
+      caret = [textNode, caretAtEnd ? index + text.length : index];
       break work;
     default:
       throw new Error(`unexpected node type: ${node.nodeType}`);
     }
   }
-  return [modifiedNode, textNode];
+
+  return {
+    node: textNode,
+    isNew,
+    caret: caret,
+  };
 }
 
 /**
@@ -782,26 +805,24 @@ function insertNodeAt(parent: Element, index: number, node: Node): void {
  *
  * @param text The text to insert.
  *
- * @returns The first element of the array is the node that was modified to
- * insert the text. It will be ``undefined`` if no node was modified. The second
- * element is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly inserted
- * text. They are unequal if a new text node had to be created to contain the
- * new text. A return value of ``[undefined, undefined]`` means that no
- * modification occurred (because the text passed was "").
+ * @param caretAtEnd Whether to return the caret position at the end of the
+ * inserted text or at the beginning. Default to ``true``.
+ *
+ * @returns The result of inserting the text.
  *
  * @throws {Error} If ``node`` is not an element or text Node type.
  */
 export function insertText(node: Node,
                            index: number,
-                           text: string): TextInsertionResult {
+                           text: string,
+                           caretAtEnd?: boolean): TextInsertionResult {
   return genericInsertText.call({
     insertNodeAt: insertNodeAt,
     setTextNodeValue: (textNode: Text, value: string) => {
       textNode.data = value;
     },
     // tslint:disable-next-line:align
-  }, node, index, text);
+  }, node, index, text, caretAtEnd);
 }
 
 const plainDOMMockup: GenericInsertIntoTextContext = {
@@ -1291,7 +1312,7 @@ export function closestByClass(node: Node | undefined | null, cl: string,
  * @returns The first sibling (in document order) that matches the class, or
  * ``null`` if nothing matches.
  */
-export function siblingByClass(node: Node, cl: string): Element | null {
+export function siblingByClass(node: Node | null, cl: string): Element | null {
   if (!isElement(node)) {
     return null;
   }
@@ -1317,7 +1338,7 @@ export function siblingByClass(node: Node, cl: string): Element | null {
  *
  * @returns The children (in document order) that match the class.
  */
-export function childrenByClass(node: Node, cl: string): Element[] {
+export function childrenByClass(node: Node | null, cl: string): Element[] {
   if (!isElement(node)) {
     return [];
   }
@@ -1344,7 +1365,7 @@ export function childrenByClass(node: Node, cl: string): Element[] {
  * @returns The first child (in document order) that matches the class, or
  * ``null`` if nothing matches.
  */
-export function childByClass(node: Node, cl: string): Element | null {
+export function childByClass(node: Node | null, cl: string): Element | null {
   if (!isElement(node)) {
     return null;
   }
@@ -1391,11 +1412,19 @@ const separatorRe = new RegExp(`([${separators}]+)`);
  *
  * @param selector The selector to convert.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The converted selector.
  */
-export function toGUISelector(selector: string): string {
+export function toGUISelector(selector: string,
+                              namespaces: Record<string, string>): string {
   if (/[\]['"()]/.test(selector)) {
     throw new Error("selector is too complex");
+  }
+
+  if (/\\:/.test(selector)) {
+    throw new Error("we do not accept escaped colons for now");
   }
 
   const parts = selector.split(separatorRe);
@@ -1408,7 +1437,7 @@ export function toGUISelector(selector: string): string {
       else if (/[a-zA-Z]/.test(part[0])) {
         part = part.trim();
         const nameSplit = part.split(/(.#)/);
-        ret.push(util.classFromOriginalName(nameSplit[0]));
+        ret.push(util.classFromOriginalName(nameSplit[0], namespaces));
         ret = ret.concat(nameSplit.slice(1));
       }
       else {
@@ -1440,10 +1469,14 @@ export function toGUISelector(selector: string): string {
  *
  * @param selector The selector to use.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The resulting data node.
  */
-export function dataFind(node: Element, selector: string): Element | null {
-  const guiSelector = toGUISelector(selector);
+export function dataFind(node: Element, selector: string,
+                         namespaces: Record<string, string>): Element | null {
+  const guiSelector = toGUISelector(selector, namespaces);
   const guiNode = $.data(node, "wed_mirror_node") as Element;
   const foundNodes = guiNode.querySelector(guiSelector);
   if (foundNodes == null) {
@@ -1461,10 +1494,14 @@ export function dataFind(node: Element, selector: string): Element | null {
  *
  * @param selector The selector to use.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The resulting data nodes.
  */
-export function dataFindAll(node: Element, selector: string): Element[] {
-  const guiSelector = toGUISelector(selector);
+export function dataFindAll(node: Element, selector: string,
+                            namespaces: Record<string, string>): Element[] {
+  const guiSelector = toGUISelector(selector, namespaces);
   const guiNode = $.data(node, "wed_mirror_node") as Element;
   const foundNodes = guiNode.querySelectorAll(guiSelector);
   const ret: Element[] = [];
@@ -1498,7 +1535,13 @@ export function htmlToElements(html: string, document?: Document): Node[] {
   //
   // tslint:disable-next-line:no-inner-html
   div.innerHTML = html;
-  return Array.prototype.slice.call(div.childNodes);
+  const ret = Array.prototype.slice.call(div.childNodes);
+  // Clear the div so that the children cannot access the DOM objects we created
+  // only to convert the HTML to DOM elements.
+  while (div.firstChild !== null) {
+    div.removeChild(div.firstChild);
+  }
+  return ret;
 }
 
 /**
@@ -1573,10 +1616,11 @@ export function getCharacterImmediatelyAt(caret: Caret): string | undefined {
  * displayed. ``false`` otherwise. If the search up the DOM tree hits ``root``,
  * then the value returned is ``false``.
  */
-export function isNotDisplayed(el: HTMLElement, root: Element): boolean {
+export function isNotDisplayed(el: HTMLElement,
+                               root: HTMLElement | HTMLDocument): boolean {
   const win = el.ownerDocument.defaultView;
 
-  // We don't put put a menu for attributes that are somehow not
+  // We don't put a menu for attributes that are somehow not
   // displayed.
   while (el != null && el !== root) {
     if (el.style.display === "none") {
@@ -1595,14 +1639,43 @@ export function isNotDisplayed(el: HTMLElement, root: Element): boolean {
   return false;
 }
 
+/**
+ * A ``contains`` function that handles attributes. Attributes are not part of
+ * the node tree and performing a ``contains`` test on them is always ``false``.
+ *
+ * Yet it makes sense to say that an element A contains its own attributes and
+ * thus by transitivity if element A is contained by element B, then all
+ * attributes of A are contained by B. This function supports the contention
+ * just described.
+ *
+ * Usage note: this function is typically not *needed* when doing tests in the
+ * GUI tree because we do not address attributes in that tree. There is,
+ * however, no harm in using it where it is not strictly needed. In the data
+ * tree, however, we do address attributes. Code that works with either tree
+ * (e.g. the [["dloc"]] module) should use this function as a general rule so
+ * that it can work with either tree.
+ *
+ * @param container The thing which should contain in the test.
+ *
+ * @param contained The thing which should be contained in the test.
+ *
+ * @returns Whether ``container`` contains ``contained``.
+ */
+export function contains(container: Node, contained: Node): boolean {
+  if (isAttr(contained)) {
+    contained = contained.ownerElement;
+  }
+
+  return container.contains(contained);
+}
+
 // Re-export, for historical reasons.
 export { isAttr };
 
-//  LocalWords:  genericInsertIntoText endOffset endContainer mockup
-//  LocalWords:  startOffset startContainer unlinks DOM gui Mangalam
-//  LocalWords:  MPL Dubeau nextSibling versa insertFragAt validthis
-//  LocalWords:  insertNodeAt jshint mergeTextNodes deleteNode dom lt
-//  LocalWords:  lastChild prev getSelectionRange jQuery deleteText
-//  LocalWords:  Prepend insertIntoText cd abfoocd abcd nodeToPath
-//  LocalWords:  contenteditable pathToNode whitespace util jquery
-//  LocalWords:  domutil
+//  LocalWords:  wed's URIs rect clientTop jquery util whitespace clientLeft cd
+//  LocalWords:  contenteditable abcd abfoocd insertIntoText Prepend scrollbars
+//  LocalWords:  deleteText jQuery getSelectionRange prev lastChild nodeType zA
+//  LocalWords:  dom deleteNode mergeTextNodes jshint insertNodeAt noop treeA
+//  LocalWords:  validthis insertFragAt versa nextSibling Dubeau MPL nodeInA
+//  LocalWords:  Mangalam gui DOM unlinks startContainer startOffset childNodes
+//  LocalWords:  endContainer endOffset genericInsertIntoText

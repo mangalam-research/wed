@@ -5,6 +5,192 @@ work correctly when viewed there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 0.30.0:
+
+  - This version contains a slew of changes that improve the handling of
+    namespaces. Wed has had namespace support since the very beginning but it
+    would have been fair to call the support "very temperamental". For instance,
+    if a mode expected the TEI namespace to be the default namespace
+    (unprefixed) and you tried to edit a file with the TEI namespace assigned to
+    the prefix "tei", you would have been in trouble. The changes in this
+    version aim to smooth out the possible differences between what a file
+    actually contains and what a mode expects. This is a prerequiste to
+    supporting the new "submode" feature.
+
+  - New feature: wed supports submodes. See the documentation for details of
+    what submodes are.
+
+  - New feature: wed now supports searching and replacing. See the documentation
+    for details.
+
+  - New feature: wed now has a minibuffer. It is currently used for quick
+    searches.
+
+  - Breaking change: the ``stringRepeat`` polyfill has been removed from the
+    code base. We now recommend using ``core-js`` to provide a consistent
+    environment for Wed across browser platforms.
+
+    If you use ``core-js``, and use Bluebird to override the default ``Promise``
+    implementation provided by your platform (which you should do), we recommend
+    loading Bluebird **after** ``core-js``. Otherwise, you are stuck with
+    ``core-js`` implementation of promises, which is, to put it politely,
+    incomplete. (See https://github.com/zloirock/core-js/issues/205).
+
+  - Breaking change: you need to add a polyfill for ``Array.from`` if you are
+    using your own polyfills and do not move to ``core-js`` (which does provide
+    it). Note that it is very unlikely that in the future we'll be documenting
+    each new case that needs polyfilling. We're doing it now because
+    ``Array.from`` is the case that triggered the switch to ``core-js``. In the
+    future, it is unlikely we'll even *know* that we're using something
+    polyfilled by ``core-js``. Polyfilling is usually required for running on
+    IE11, which is not a priority for us, support-wise.
+
+  - Breaking changes: Addition of the submode feature, which causes breaking
+    changes. This matters if you designed your own mode. ``Editor`` no longer
+    has the following properties. They must be fetched through
+    ``editor.modeTree`` instead: ``mode``, ``attributes``, ``attributeHiding``,
+    ``resolver``, ``decorator``.
+
+  - Breaking change: ``editor.my_window`` is now ``editor.window``.
+
+  - Breaking changes: the first two parameters of ``editor.init`` have been
+    transferred to the constructor of the ``Editor`` class.
+
+  - Breaking change: the modals are now accessible through the ``modals``
+    property of editors rather than as individual names.
+
+  - Breaking change. The signature for the constructor for ``Decorator`` has
+    changed to allow a simpler way to create decorators.
+
+  - Breaking changes: Converted the core of wed to TS. This entails that the
+    properties of ``Editor`` were converted to camel case: ``straddling_modal``,
+    ``help_modal``, ``$error_list``, ```complex_pattern_action``, ``paste_tr``,
+    ``cut_tr``, ``split_node_tr``,
+    ``merge_with_previous_homogeneous_sibling_tr``,
+    ``merge_with_next_homogeneous_sibling_tr``.
+
+  - Breaking change: Wed now needs to have ``Promise`` available in its
+    environment. It no longer loads Bluebird in an ad hoc manner by calling
+    ``require`` (or using ``import``) in modules that use promises. You may use
+    Bluebird as a polyfill for IE11. You may also want to use Bluebird generally
+    on all platforms to allow consistent handling of unhandled rejections. At
+    the time of writing, only Chrome 49 and later support
+    ``onunhandledrejection``, but Bluebird adds support for it.
+
+  - Passing ``null`` to ``onbeforeunload.check`` as the second argument is no
+    longer valid. That it worked before was a bug.
+
+  - Breaking changes: ``Editor`` no longer acts as an ad hoc event
+    emitter/conditioned object. The consequences are:
+
+    + The "saved"/"autosaved" events are no longer emitted by ``Editor``. The
+      ``saver`` is now public. Subcribe to the events that it emits. The
+      corresponding event names are capitalized: ``"Saved"`` and
+      ``"Autosaved"``.
+
+    + In order to know when the first validation is complete, previously you'd
+      do ``editor.whenCondition("first-validation-complete", ...)``. You must
+      now instead grab ``editor.firstValidationComplete``, which is a promise
+      that resolves when the first validation is complete. It is also no longer
+      possible to listen on the corresponding event.
+
+    + Similarly, you could do ``editor.whenCondition("initialized", ...)`` to
+      execute code when the initialization procedure was completed. You must now
+      instead either act on the promise a) returned by ``editor.init()`` or, b)
+      held in ``editor.initialized`` which resolve when the initialization is
+      complete. As above, the corresponding event is no longer emitted.
+
+  - Breaking changes:
+
+    + ``decorator.Decorator`` needs the mode's absolute namespace mappings in
+      its constructor.
+
+    + ``domutil.toGUISelector`` needs the mode's absolute namespace mappings.
+
+    + ``domutil.dataFind`` needs the mode's absolute namespace mappings.
+
+    + ``domutil.dataFindAll`` needs the mode's absolute namespace mappings.
+
+    + ``util.classFromOriginalName`` needs the mode's absolute namespace
+      mappings.
+
+  - Potentially breaking change: Modes must implement
+    ``getAbsoluteNamespaceMappings`` and ``unresolveName``. This matters if you
+    design modes. Modes derived from ``generic`` may rely on the default
+    implementation.
+
+  - Potentially breaking change: The special attribute named
+    ``data-wed-custom-context-menu`` is now named
+    ``data-wed--custom-context-menu``. This matters if you design modes.
+
+    This is required because the original name could have clashed with the
+    ``data-wed-`` attributes created for XML attributes. An XML attribute called
+    ``custom-context-menu`` would have clashed. The double dash ensures that a
+    clash cannot occur because an attribute name cannot begin with a dash.
+
+  - Potentially breaking change: The HTML tree created by wed to represent the
+    XML now has classes of the form ``_local_...`` and ``_xmlns_...``. If a mode
+    sets classes of this form, then that's a clash.
+
+  - Potentially breaking change: The HTML tree created by wed now has attributes
+    of the form ``data-wed--ns-...``. If a mode sets attributes of this form,
+    then that's a clash.
+
+  - Breaking changes: context menu methods are no longer directly on the
+    ``Editor`` class. The following methods are accessible on
+    ``editor.editingMenuManager`` (where ``editor`` is an ``Editor`` instance):
+
+    + ``dismissDropdownMenu``, under the new name ``dismiss``.
+
+    + ``displayContextMenu``,
+
+    + ``getMenuItemsForAttribute``,
+
+    + ``getMenuItemsForElement``,
+
+    + ``makeMenuItemForAction``,
+
+    + ``computeContextMenuPosition``, under the new name
+      ``computeMenuPosition``.
+
+  - Breaking change: ``makeDocumentationLink`` no longer exists. It is replaced
+    by ``makeDocumentationMenuItem`` on ``EditingMenuManager``.
+
+  - Breaking change: ``action-context-menu`` exports ``ActionContextMenu``
+    instead of the old ``ContextMenu``.
+
+  - Breaking change: the ``oop`` module is no longer distributed with wed,
+    because wed does not need it. If you were using it, you could grab a copy
+    from an old version of wed or find a replacement for it from a third-party
+    library.
+
+  - Potentially breaking change: the ``log`` module no longer has
+    ``clearAppenders``. (Mode designers and users of wed normally don't use this
+    directly.) Instead the ``log.addURL`` method returns the appender created,
+    and it must be removed with ``log.removeAppender``.
+
+  - Breaking change: ``domutil.insertText`` returns an plain object rather than
+    an array. The same information as before is available, but in a different
+    format. See the function's documentation. The new function also allows
+    getting a caret position at the end or start of the inserted text.
+
+  - Breaking change: ``TreeUpdater.insertText`` returns a plain object rather
+    than an array. The same information as before is available, but in a
+    different format. See the function's documentation. The new function also
+    allows getting a caret position at the end or start of the inserted text.
+
+  - Breaking change: the functions that make keys in the ``key`` module now take
+    a parameter to specify a shift state. Shift states are meaningless for key
+    presses (and wed forces the use of the default value ``EITHER``). However,
+    it is now possible to specify keys likes Ctrl-Shift-A and distinguish it
+    from Ctrl-A.
+
+  - Breaking change: implementations of ``Metadata`` must add an implementation
+    for ``unresolveName``.
+
+  - Breaking change: ``Validator`` takes an array of mode validators instead of
+    a single validator.
+
 * 0.29.0:
 
   - Major reorganization of the code: starting with this release, we are

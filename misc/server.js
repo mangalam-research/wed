@@ -16,7 +16,6 @@
 //   from now, which for the purpose of a test is "never".)
 //
 
-const childProcess = require("child_process");
 const express = require("express");
 const http = require("http");
 const compression = require("compression");
@@ -27,10 +26,7 @@ const fs = require("fs");
 const querystring = require("querystring");
 const crypto = require("crypto");
 const morgan = require("morgan");
-const webdriver = require("selenium-webdriver");
 const ArgumentParser = require("argparse").ArgumentParser;
-const colors = require("colors/safe");
-const headless = require("headless");
 
 const parser = new ArgumentParser({
   addHelp: true,
@@ -39,20 +35,6 @@ const parser = new ArgumentParser({
 parser.addArgument(["-v", "--verbose"], {
   help: "Run verbosely.",
   action: "storeTrue",
-});
-
-parser.addArgument(["--visible"], {
-  help: "Do not hide the browser.",
-  action: "storeTrue",
-});
-
-parser.addArgument(["--grep"], {
-  help: "Grep through the tests. (This is passed to Mocha.)",
-});
-
-
-parser.addArgument(["mode"], {
-  choices: ["browser", "runner", "server"],
 });
 
 parser.addArgument(["address"], {
@@ -118,19 +100,6 @@ function writeResponse(response, status, data, type, headers) {
   }
   response.end();
 }
-
-function unlinkIfExists(filePath) {
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
-  }
-}
-
-let failOnSave = false;
-let failOnRecover = false;
-let preconditionFailOnSave = false;
-let tooOldOnSave = false;
-let noResponseOnSave = false;
-let noResponseOnRecover = false;
 
 function dumpData(request, options, callback) {
   if (typeof options === "function") {
@@ -213,31 +182,8 @@ app.post(makePaths("/build/ajax/save.txt"), (request, response) => {
       break;
     case "save":
     case "autosave":
-      if (!noResponseOnSave) {
-        if (tooOldOnSave) {
-          messages.push({ type: "version_too_old_error" });
-        }
-
-        if (preconditionFailOnSave) {
-          status = 412;
-        }
-        else if (failOnSave) {
-          status = 400;
-        }
-        else {
-          success();
-        }
-      }
-      break;
     case "recover":
-      if (!noResponseOnRecover) {
-        if (!failOnRecover) {
-          success();
-        }
-        else {
-          status = 400;
-        }
-      }
+      success();
       break;
     default:
       status = 400;
@@ -248,71 +194,9 @@ app.post(makePaths("/build/ajax/save.txt"), (request, response) => {
   });
 });
 
-app.post(makePaths("/build/ajax/control"), (request, response) => {
-  dumpData(request, (decoded) => {
-    let status = 200;
-    switch (decoded.command) {
-    case "reset":
-      unlinkIfExists(path.join(cwd, "/build/ajax/log.txt"));
-      unlinkIfExists(path.join(cwd, "/build/ajax/save.txt"));
-      unlinkIfExists(path.join(cwd, "/build/ajax/control"));
-      failOnSave = false;
-      failOnRecover = false;
-      preconditionFailOnSave = false;
-      tooOldOnSave = false;
-      noResponseOnSave = false;
-      noResponseOnRecover = false;
-      break;
-    case "fail_on_save":
-      failOnSave = decoded.value;
-      break;
-    case "precondition_fail_on_save":
-      preconditionFailOnSave = decoded.value;
-      break;
-    case "too_old_on_save":
-      tooOldOnSave = decoded.value;
-      break;
-    case "fail_on_recover":
-      failOnRecover = decoded.value;
-      break;
-    case "no_response_on_save":
-      noResponseOnSave = decoded.value;
-      break;
-    case "no_response_on_recover":
-      noResponseOnRecover = decoded.value;
-      break;
-    case "ping":
-      break;
-    default:
-      status = 400;
-    }
-    writeResponse(response, status, "{}", "application/json");
-  });
-});
-
-app.post(makePaths("/test-results"), (request, response) => {
-  dumpData(request, { dump: false }, (decoded) => {
-    writeResponse(response, 200, "{}", "application/json");
-    app.emit("test-result", decoded);
-  });
-});
-
-app.get(makePaths(["/build/standalone/dashboard",
-                   "/build/standalone-optimized/dashboard"]),
-        (request, response) => {
-          response.redirect(`${request.path}/index.html`);
-        });
-
-app.get(makePaths(["/build/standalone/dashboard/*",
-                   "/build/standalone-optimized/dashboard/*"]),
-        (request, response) => {
-          response.redirect(`${request.path}`.replace(/dashboard\/.*$/,
-                                                      "dashboard/"));
-        });
-
-// Setting up the test environment requires getting *any* page from
-// the server in some cases. It does not matter what the content of
-// the page is. This serves the purpose.
+// Setting up the test environment requires getting *any* page from the server
+// in some cases. It does not matter what the content of the page is. This
+// serves the purpose.
 app.get(makePaths("/blank"), (request, response) => {
   response.end();
 });
@@ -327,102 +211,16 @@ function runserver() {
   else {
     app.listen(port, ip);
   }
-  let driver;
-  let xvfb;
-  let failures = [];
-  app.on("test-result", (result) => {
-    switch (result[0]) {
-    case "start":
-      failures = [];
-      break;
-    case "fail":
-      failures.push(result);
-      process.stdout.write(colors.red("."));
-      break;
-    case "pass":
-      process.stdout.write(".");
-      break;
-    case "end": {
-      console.log("\n");
-      for (const failure of failures) {
-        const error = failure[1];
-        console.log(colors.red(`Failed test: ${error.fullTitle}`));
-        if (error.err.stack) {
-          console.log(colors.red("Stack trace: "));
-          console.log(colors.red(error.err.stack.replace(/^/gm, "    ")));
-        }
-        else {
-          let err = error.err;
-          err = (typeof err !== "string") ? JSON.stringify(err, undefined, 4) :
-            err.replace(/^/gm, "    ");
-          console.log(colors.red("Error: "));
-          console.log(colors.red(err));
-        }
-      }
-      const stats = result[1];
-      const d = new Date(0, 0, 0, 0, 0, 0, stats.duration);
-      console.log(`Elapsed: ${d.getHours()}h${d.getMinutes()
-}m${d.getSeconds()}s`);
-      if (stats.failures > 0) {
-        console.log(colors.red(`Failures: ${stats.failures}`));
-      }
-      console.log(`Total: ${stats.tests}`);
-      if (args.mode === "runner") {
-        driver.quit().then(() => {
-          if (xvfb) {
-            xvfb.kill();
-          }
-          process.exit(result.failures ? 1 : 0);
-        });
-      }
-      break;
-    }
-    default:
-      break;
-    }
-  });
+}
 
-  function rundriver(nohtml) {
-    driver = new webdriver.Builder().forBrowser("chrome").build();
-    driver.manage().window().maximize();
-    const query = {};
-    if (nohtml) {
-      query.nohtml = "1";
-    }
-
-    if (args.grep) {
-      query.grep = args.grep;
-    }
-
-    const location = url.format({
-      protocol: "http",
-      hostname: ip,
-      port,
-      pathname: "/forever/build/standalone-optimized/test.html",
-      query,
-    });
-
-    driver.get(location);
-  }
-
-  if (args.mode === "server") {
-    return;
-  }
-
-  if (!args.visible) {
-    headless({
-      display: { width: 1680, height: 1050 },
-    }, (err, xvfb_, serverNo) => {
-      xvfb = xvfb_;
-      process.env.DISPLAY = `:${serverNo}`;
-      childProcess.spawn("fvwm2", { stdio: "ignore" });
-      rundriver(true);
-    });
-  }
-  else {
-    rundriver(false);
+function unlinkIfExists(filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
   }
 }
+
+unlinkIfExists(path.join(cwd, "/build/ajax/log.txt"));
+unlinkIfExists(path.join(cwd, "/build/ajax/save.txt"));
 
 runserver();
 

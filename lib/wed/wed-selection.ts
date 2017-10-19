@@ -76,6 +76,15 @@ export class WedSelection {
     return [startCaret, endCaret];
   }
 
+  mustAsDataCarets(): [DLoc, DLoc] {
+    const ret = this.asDataCarets();
+    if (ret === undefined) {
+      throw new Error("cannot get the selection as data carets");
+    }
+
+    return ret;
+  }
+
   /**
    * @returns Whether the two objects are equal. They are equal if they are the
    * same object or if they have equal focuses (foci?) and equal anchors.
@@ -88,3 +97,5 @@ export class WedSelection {
     return this.focus.equals(other.focus) && this.anchor.equals(other.anchor);
   }
 }
+
+//  LocalWords:  MPL foci

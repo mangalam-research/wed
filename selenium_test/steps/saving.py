@@ -16,7 +16,7 @@ step_matcher("re")
 @when('the user saves')
 def step_impl(context):
     util = context.util
-    util.ctrl_equivalent_x('S')
+    util.ctrl_equivalent_x('s')
 
 last_obj_re = re.compile('.*}{')
 
@@ -101,7 +101,7 @@ def step_impl(context):
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""
-        return wed_editor._$modification_status.hasClass("label-success");
+        return wed_editor.$modificationStatus.hasClass("label-success");
         """)
 
     util = context.util

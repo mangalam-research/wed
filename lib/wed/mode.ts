@@ -7,22 +7,27 @@
  */
 "use strict";
 
-import * as Promise from "bluebird";
-import { NameResolver } from "salve";
+import { EName, NameResolver } from "salve";
 
 import { Action } from "./action";
 import { Decorator } from "./decorator";
 import { isElement } from "./domtypeguards";
 import * as domutil from "./domutil";
 import { ModeValidator } from "./validator";
+import { Editor } from "./wed";
 import { WedOptions } from "./wed-options";
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
+/**
+ * These are mode options that are supported by default by all modes. Wed is
+ * responsible for providing support for them.
+ */
+export interface CommonModeOptions {
+  /** Whether to turn on autoinsertion of elements. */
+  autoinsert?: boolean;
+}
 
-export type ModeOptions = {};
-
-export interface Mode<ModeOptions> {
+export interface Mode<ModeOptions extends CommonModeOptions =
+  CommonModeOptions> {
   /**
    * This is called by the editor when a mode is ready to be initialized. The
    * mode could use this to add a toolbar above the editor or add listeners to
@@ -45,10 +50,38 @@ export interface Mode<ModeOptions> {
   getWedOptions(): WedOptions;
 
   /**
-   * This method returns a name resolver that is setup to resolve names outside
-   * the context of an XML tree. It is sometimes useful to use qualified names
-   * that do not depend on how a specific XML document is structured, this
-   * method provides for such functionality.
+   * This method returns a mappings of prefix to namespace URI that are set to
+   * resolve names outside the context of an XML tree. It is sometimes useful to
+   * use qualified names that do not depend on how a specific XML document is
+   * structured, this method provides for such functionality.
+   *
+   * @returns The mappings. This is a new copy which you can modify at will.
+   */
+  getAbsoluteNamespaceMappings(): Record<string, string>;
+
+  /**
+   * Unresolve a name according to the absolute reverse mapping.
+   *
+   * If the forward mappings define multiple prefixes pointing to the same URI,
+   * the unresolving algorithm will arbitrarily select one of the prefixes as
+   * the value corresponding to the URI. Modes may impose whatever rules they
+   * desire to select which prefix they should privilege.
+   *
+   * @param name The name to unresolve.
+   *
+   * @returns The unresolved name or ``undefined`` if the name cannot be
+   * unresolved.
+   */
+  unresolveName(name: EName): string | undefined;
+
+  /**
+   * This method returns a name resolver that uses the map returned by
+   * [[getAbsoluteNamespaceMappings]]. The resolver is created once and for
+   * all. So code using the resolver should not modify it because it will modify
+   * the resolver for all clients. If you need a resolver you can modify, use
+   * [[getAbsoluteNamespaceMappings]] and initialize a resolver from it.
+   *
+   * @returns The resolver.
    */
   getAbsoluteResolver(): NameResolver;
 
@@ -65,7 +98,9 @@ export interface Mode<ModeOptions> {
    *
    * @param transformationType The type or types of transformations to return.
    *
-   * @param tag The tag name we are interested in.
+   * @param tag The tag name we are interested in. This should be in a
+   * prefix:localName format where "prefix" is one of the prefixes defined in
+   * the absolute mappings known to the mode.
    *
    * @param container The position in the data tree.
    *
@@ -76,7 +111,7 @@ export interface Mode<ModeOptions> {
   getContextualActions(transformationType: string | string[],
                        tag: string,
                        container: Node,
-                       offset: number): Action<{}>[];
+                       offset?: number): Action<{}>[];
 
   /**
    * Provide the possible value completions for an attribute. This allows a mode
@@ -91,8 +126,8 @@ export interface Mode<ModeOptions> {
   /**
    * Get additional stylesheets to use to render the HTML.
    *
-   * @returns An array of paths to the stylesheets to
-   * load for this mode.
+   * @returns An array of paths to the stylesheets to load for this mode. The
+   * paths must not require any additional interpretation from wed.
    */
   getStylesheets(): string[];
 
@@ -293,6 +328,8 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   }
 
   abstract init(): Promise<void>;
+  abstract getAbsoluteNamespaceMappings(): Record<string, string>;
+  abstract unresolveName(name: EName): string | undefined;
   abstract getAbsoluteResolver(): NameResolver;
   abstract makeDecorator(): Decorator;
   abstract getContextualActions(transformationType: string | string[],
@@ -301,5 +338,5 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
                                 offset: number): Action<{}>[];
 }
 
-//  LocalWords:  RequireJS stylesheets subarrays overriden html MPL
-//  LocalWords:  Mangalam Dubeau domutil
+//  LocalWords:  autoinsertion domutil Dubeau Mangalam MPL html overriden
+//  LocalWords:  stylesheets

@@ -11,28 +11,50 @@ import { Observable, Subject } from "rxjs";
 import * as browsers from "./browsers";
 import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
-import { DLoc, DLocRoot } from "./dloc";
+import { DLoc, DLocRange, DLocRoot } from "./dloc";
 import { isAttr, isElement, isText } from "./domtypeguards";
-import { childByClass, closestByClass, dumpRange, focusNode, getSelectionRange,
-         indexOf, RangeInfo } from "./domutil";
+import { childByClass, closestByClass, contains, dumpRange,
+         focusNode as focusTheNode, getSelectionRange, indexOf,
+         RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
-import { Mode } from "./mode";
+import { ModeTree } from "./mode-tree";
 import * as objectCheck from "./object-check";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
 import { getAttrValueNode } from "./wed-util";
 
+/**
+ * This is the template use with objectCheck to check whether the options passed
+ * are correct. Changes to [[SetCaretOptions]] must be reflected here.
+ */
 const caretOptionTemplate = {
   textEdit: false,
+  focus: false,
 };
 
+/** Options affecting how a caret gets set. */
 export interface SetCaretOptions {
+  /**
+   * When ``true`` indicates that the caret movement is due to a text editing
+   * operation. This matters for managing undo steps. Text edits are gathered
+   * into an single text undo step unless they are interrupted by some other
+   * operation (or reach a maximum size). Caret movements also interrupt the
+   * text undo steps, unless this flag is ``true``. The default is ``false``.
+   */
   textEdit?: boolean;
+
+  /**
+   * Indicates whether the caret change should set the focus. The default is
+   * ``true``.
+   */
+  focus?: boolean;
 }
 
+/** These are options that wed passes to itself. */
 export interface CaretChangeOptions extends SetCaretOptions {
-  focus?: boolean;
+  /** Indicates whether the caret is being changed due to a gain in focus. */
+  gainingFocus?: boolean;
 }
 
 /**
@@ -84,8 +106,8 @@ function previousTextOrReal(node: Node): Text | Element | null {
  * vice-versa.
  *
  * Given wed's notion of parallel data and GUI trees. A caret can either point
- * into the GUI tree or into the data tree. In in the following documentation,
- * if the caret is not qualified, then it is a GUI caret.
+ * into the GUI tree or into the data tree. In the following documentation, if
+ * the caret is not qualified, then it is a GUI caret.
  *
  * Similarly, a selection can either span a range in the GUI tree or in the data
  * tree. Again, "selection" without qualifier is a GUI selection.
@@ -110,40 +132,33 @@ export class CaretManager implements GUIToDataConverter {
   readonly mark: CaretMark;
 
   /**
-   * @param guiRoot: The object representing the root of the gui tree.
+   * @param guiRoot The object representing the root of the gui tree.
    *
-   * @param dataRoot: The object representing the root of the data tree.
+   * @param dataRoot The object representing the root of the data tree.
    *
-   * @param inputField: The HTML element that is the input field.
+   * @param inputField The HTML element that is the input field.
    *
-   * @param guiUpdater: The GUI updater that is responsible for updating the
+   * @param guiUpdater The GUI updater that is responsible for updating the
    * tree whose root is ``guiRoot``.
    *
-   * @param layer: The layer that holds the caret.
+   * @param layer The layer that holds the caret.
    *
-   * @param scroller: The element that scrolls ``guiRoot``.
+   * @param scroller The element that scrolls ``guiRoot``.
    *
-   * @param inAttributes: Whether or not to move into attributes.
-   *
-   * @param mode: The current mode in effect.
+   * @param modeTree The mode tree from which to get modes.
    */
   constructor(private readonly guiRoot: DLocRoot,
               private readonly dataRoot: DLocRoot,
               private readonly inputField: HTMLElement,
               private readonly guiUpdater: GUIUpdater,
-              layer: Layer,
-              scroller: Scroller,
-              private readonly inAttributes: boolean,
-              private readonly mode: Mode<{}>) {
+              private readonly layer: Layer,
+              private readonly scroller: Scroller,
+              private readonly modeTree: ModeTree) {
     this.mark = new CaretMark(this, guiRoot.node.ownerDocument, layer,
                               inputField, scroller);
-    scroller.events.subscribe(() => {
-      this.mark.refresh();
-    });
-
-    this.guiRootEl = guiRoot.node;
+    const guiRootEl = this.guiRootEl = guiRoot.node;
     this.dataRootEl = dataRoot.node;
-    this.doc = this.guiRootEl.ownerDocument;
+    this.doc = guiRootEl.ownerDocument;
     this.win = this.doc.defaultView;
     this.$inputField = $(this.inputField);
     this._events = new Subject();
@@ -219,6 +234,19 @@ export class CaretManager implements GUIToDataConverter {
     return sel.rangeInfo;
   }
 
+  get minCaret(): DLoc {
+    return DLoc.mustMakeDLoc(this.guiRoot, this.guiRootEl, 0);
+  }
+
+  get maxCaret(): DLoc {
+    return  DLoc.mustMakeDLoc(this.guiRoot, this.guiRootEl,
+                              this.guiRootEl.childNodes.length);
+  }
+
+  get docDLocRange(): DLocRange {
+    return new DLocRange(this.minCaret, this.maxCaret);
+  }
+
   /**
    * Get a normalized caret.
    *
@@ -246,6 +274,20 @@ export class CaretManager implements GUIToDataConverter {
     return normalized == null ? undefined : normalized;
   }
 
+  /**
+   * Same as [[getNormalizedCaret]] but must return a location.
+   *
+   * @throws {Error} If it cannot return a location.
+   */
+  mustGetNormalizedCaret(): DLoc {
+    const ret = this.getNormalizedCaret();
+    if (ret === undefined) {
+      throw new Error("cannot get a normalized caret");
+    }
+
+    return ret;
+  }
+
   normalizeToEditableRange(loc: DLoc): DLoc {
     if (loc.root !== this.guiRootEl) {
       throw new Error("DLoc object must be for the GUI tree");
@@ -257,7 +299,8 @@ export class CaretManager implements GUIToDataConverter {
     if (isElement(node)) {
       // Normalize to a range within the editable nodes. We could be outside of
       // them in an element which is empty, for instance.
-      const [first, second] = this.mode.nodesAroundEditableContents(node);
+      const mode = this.modeTree.getMode(node);
+      const [first, second] = mode.nodesAroundEditableContents(node);
       const firstIndex = first !== null ? indexOf(node.childNodes, first) : -1;
       if (offset <= firstIndex) {
         offset = firstIndex + 1;
@@ -330,7 +373,8 @@ export class CaretManager implements GUIToDataConverter {
     if (isElement(node)) {
       // Normalize to a range within the editable nodes. We could be outside of
       // them in an element which is empty, for instance.
-      const [first, second] = this.mode.nodesAroundEditableContents(node);
+      const mode = this.modeTree.getMode(node);
+      const [first, second] = mode.nodesAroundEditableContents(node);
       const firstIndex = (first !== null) ? indexOf(node.childNodes, first) :
         -1;
 
@@ -346,6 +390,23 @@ export class CaretManager implements GUIToDataConverter {
       }
 
       return ret.makeWithOffset(newOffset);
+    }
+
+    return ret;
+  }
+
+  /**
+   * Does the same thing as [[fromDataLocation]] but must return a defined
+   * location.
+   *
+   * @throws {Error} If it cannot return a location.
+   */
+  mustFromDataLocation(loc: DLoc): DLoc;
+  mustFromDataLocation(node: Node, offset: number): DLoc;
+  mustFromDataLocation(node: Node | DLoc, offset?: number): DLoc {
+    const ret = this.fromDataLocation.apply(this, arguments);
+    if (ret === undefined) {
+      throw new Error("cannot convert to a data location");
     }
 
     return ret;
@@ -508,17 +569,11 @@ export class CaretManager implements GUIToDataConverter {
       return undefined;
     }
 
-    // Attribute nodes are not "contained" by anything. :-/
-    let check = node;
-    if (isAttr(node)) {
-      check = node.ownerElement;
-    }
-
     let root;
-    if (this.guiRootEl.contains(check)) {
+    if (this.guiRootEl.contains(node)) {
       root = this.guiRoot;
     }
-    else if (this.dataRootEl.contains(check)) {
+    else if (contains(this.dataRootEl, node)) {
       root = this.dataRoot;
     }
 
@@ -608,9 +663,8 @@ export class CaretManager implements GUIToDataConverter {
   newPosition(pos: DLoc | undefined,
               direction: caretMovement.Direction): DLoc | undefined {
     return caretMovement.newPosition(pos, direction,
-                                     this.inAttributes,
                                      this.guiRootEl,
-                                     this.mode);
+                                     this.modeTree);
   }
 
   /**
@@ -655,15 +709,18 @@ export class CaretManager implements GUIToDataConverter {
    *
    * @param loc The new position for the caret.
    *
-   * @param node The new position for the caret.
+   * @param node The new position for the caret. This may be ``undefined`` or
+   * ``null``, in which case the method does not do anything.
    *
    * @param offset The offset in ``node``.
    *
    * @param options The options for moving the caret.
    */
   setCaret(loc: DLoc, options?: SetCaretOptions): void;
-  setCaret(node: Node, offset?: number, options?: SetCaretOptions): void;
-  setCaret(node: Node | DLoc, offset?: number | SetCaretOptions,
+  setCaret(node: Node | null | undefined,
+           offset?: number, options?: SetCaretOptions): void;
+  setCaret(node: Node | DLoc | null | undefined,
+           offset?: number | SetCaretOptions,
            options?: SetCaretOptions): void {
     let loc: DLoc;
     if (node instanceof DLoc) {
@@ -756,8 +813,8 @@ export class CaretManager implements GUIToDataConverter {
    */
   pushSelection(): void {
     this.selectionStack.push(this._sel);
-    // _clearDOMSelection is to work around a problem in Rangy
-    // 1.3alpha.804. See ``tech_notes.rst``.
+    // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
+    // ``tech_notes.rst``.
     if (browsers.MSIE_TO_10) {
       this._clearDOMSelection();
     }
@@ -765,7 +822,7 @@ export class CaretManager implements GUIToDataConverter {
 
   /**
    * Pop the last selection that was pushed with ``pushSelection`` and restore
-   * the current caret and selection on the basis of the poped value.
+   * the current caret and selection on the basis of the popped value.
    */
   popSelection(): void {
     this._sel = this.selectionStack.pop();
@@ -785,10 +842,11 @@ export class CaretManager implements GUIToDataConverter {
    * to deal with situations in which the caret and range may have been
    * "damaged" due to browser operations, changes of state, etc.
    *
-   * @param focus Whether the restoration of the caret and selection is due to
-   * regaining focus or not.
+   * @param gainingFocus Whether the restoration of the caret and selection is
+   * due to regaining focus or not.
    */
-  private _restoreCaretAndSelection(focus: boolean): void {
+  private _restoreCaretAndSelection(gainingFocus: boolean):
+  void {
     if (this.caret !== undefined && this.anchor !== undefined &&
         // It is possible that the anchor has been removed after focus was lost
         // so check for it.
@@ -797,13 +855,15 @@ export class CaretManager implements GUIToDataConverter {
       if (rr === undefined) {
         throw new Error("could not make a range");
       }
+
       this._setDOMSelectionRange(rr.range, rr.reversed);
-      this.mark.refresh();
+
       // We're not selecting anything...
       if (rr.range.collapsed) {
         this.focusInputField();
       }
-      this._caretChange({ focus });
+      this.mark.refresh();
+      this._caretChange({ gainingFocus });
     }
     else {
       this.clearSelection();
@@ -853,10 +913,10 @@ export class CaretManager implements GUIToDataConverter {
     }
 
     // tslint:disable-next-line:no-suspicious-comment
-    // The domutil.focusNode call is required to work around bug:
+    // The focusTheNode call is required to work around bug:
     // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
     if (browsers.FIREFOX) {
-      focusNode(range.endContainer);
+      focusTheNode(range.endContainer);
     }
 
     // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
@@ -873,7 +933,7 @@ export class CaretManager implements GUIToDataConverter {
    *
    * @param loc The new position.
    *
-   * @param options Options governing the caret movement.
+   * @param options Set of options governing the caret movement.
    */
   private _setGUICaret(loc: DLoc, options: SetCaretOptions): void {
     let offset = loc.offset;
@@ -909,10 +969,16 @@ export class CaretManager implements GUIToDataConverter {
       return;
     }
 
-    this._clearDOMSelection(true);
+    // If we do not want to gain focus, we also don't want to take it away
+    // from somewhere else, so don't change the DOM.
+    if (options.focus !== false) {
+      this._clearDOMSelection(true);
+    }
     this._sel = new WedSelection(this, loc);
     this.mark.refresh();
-    this.focusInputField();
+    if (options.focus !== false) {
+      this.focusInputField();
+    }
     this._caretChange(options);
   }
 
@@ -986,6 +1052,28 @@ export class CaretManager implements GUIToDataConverter {
     }
   }
 
+  highlightRange(range: DLocRange): Element {
+    const domRange = range.mustMakeDOMRange();
+
+    const grPosition = this.scroller.getBoundingClientRect();
+    const topOffset = this.scroller.scrollTop - grPosition.top;
+    const leftOffset = this.scroller.scrollLeft - grPosition.left;
+
+    const highlight = this.doc.createElement("div");
+    for (const rect of Array.from(domRange.nativeRange.getClientRects())) {
+      const highlightPart = this.doc.createElement("div");
+      highlightPart.className = "_wed_highlight";
+      highlightPart.style.top = `${rect.top + topOffset}px`;
+      highlightPart.style.left = `${rect.left + leftOffset}px`;
+      highlightPart.style.height = `${rect.height}px`;
+      highlightPart.style.width = `${rect.width}px`;
+      highlight.appendChild(highlightPart);
+    }
+
+    this.layer.append(highlight);
+    return highlight;
+  }
+
   /**
    * Dump to the console caret-specific information.
    */
@@ -1035,3 +1123,7 @@ export class CaretManager implements GUIToDataConverter {
     /* tslint:enable:no-console */
   }
 }
+
+//  LocalWords:  MPL wed's DLoc sel setCaret clearDOMSelection rst focusTheNode
+//  LocalWords:  bugzilla nd noop activeElement px rect grPosition topOffset
+//  LocalWords:  leftOffset

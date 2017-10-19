@@ -11,14 +11,15 @@ import * as convert from "./convert";
 import { DLoc } from "./dloc";
 import { isElement, isText } from "./domtypeguards";
 import { isAttr, linkTrees, unlinkTree} from "./domutil";
-import * as treeUpdater from "./tree-updater";
+import { BeforeDeleteNodeEvent, InsertNodeAtEvent, SetAttributeNSEvent,
+         SetTextNodeValueEvent, TreeUpdater } from "./tree-updater";
 import * as util from "./util";
 
 /**
  * Updates a GUI tree so that its data nodes (those nodes that are not
  * decorations) mirror a data tree.
  */
-export class GUIUpdater extends treeUpdater.TreeUpdater {
+export class GUIUpdater extends TreeUpdater {
   /**
    * @param guiTree The DOM tree to update.
    *
@@ -26,8 +27,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    * a source of modification events which the object being created will listen
    * on.
    */
-  constructor(guiTree: Element,
-              private readonly treeUpdater: treeUpdater.TreeUpdater) {
+  constructor(guiTree: Element, private readonly treeUpdater: TreeUpdater) {
     super(guiTree);
     this.treeUpdater.events.subscribe((ev) => {
       switch (ev.name) {
@@ -54,7 +54,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    *
    * @param ev The event.
    */
-  private _insertNodeAtHandler(ev: treeUpdater.InsertNodeAtEvent): void {
+  private _insertNodeAtHandler(ev: InsertNodeAtEvent): void {
     const guiCaret = this.fromDataLocation(ev.parent, ev.index);
     if (guiCaret === null) {
       throw new Error("cannot find gui tree position");
@@ -72,7 +72,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    *
    * @param ev The event.
    */
-  private _setTextNodeValueHandler(ev: treeUpdater.SetTextNodeValueEvent):
+  private _setTextNodeValueHandler(ev: SetTextNodeValueEvent):
   void {
     const guiCaret = this.fromDataLocation(ev.node, 0);
     if (guiCaret === null) {
@@ -86,7 +86,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    *
    * @param ev The event.
    */
-  private _beforeDeleteNodeHandler(ev: treeUpdater.BeforeDeleteNodeEvent):
+  private _beforeDeleteNodeHandler(ev: BeforeDeleteNodeEvent):
   void {
     const dataNode = ev.node;
     let toRemove;
@@ -120,7 +120,7 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
    *
    * @param ev The event.
    */
-  private _setAttributeNSHandler(ev: treeUpdater.SetAttributeNSEvent): void {
+  private _setAttributeNSHandler(ev: SetAttributeNSEvent): void {
     const guiCaret = this.fromDataLocation(ev.node, 0);
     if (guiCaret === null) {
       throw new Error("cannot find gui tree position");
@@ -189,6 +189,6 @@ export class GUIUpdater extends treeUpdater.TreeUpdater {
   }
 }
 
-//  LocalWords:  TreeUpdater setTextNodeValue gui oop Mangalam MPL
-//  LocalWords:  Dubeau insertNodeAt deleteNode jQuery nodeToPath
-//  LocalWords:  pathToNode jquery domutil
+//  LocalWords:  domutil jquery pathToNode nodeToPath jQuery deleteNode Dubeau
+//  LocalWords:  insertNodeAt MPL Mangalam gui setTextNodeValue TreeUpdater ev
+//  LocalWords:  BeforeDeleteNode SetAttributeNS

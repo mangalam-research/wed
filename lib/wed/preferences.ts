@@ -71,7 +71,8 @@ export class Preferences {
     const parts = name.split(".");
     let ix = 0;
 
-    let it = this.prefs;
+    // tslint:disable-next-line:no-any
+    let it: any = this.prefs;
     while (ix < parts.length) {
       const part = parts[ix];
 
@@ -109,7 +110,8 @@ export class Preferences {
     const parts = name.split(".");
     let ix = 0;
 
-    let it = this.prefs;
+    // tslint:disable-next-line:no-any
+    let it: any = this.prefs;
     while (ix < parts.length - 1) {
       const part = parts[ix];
 
@@ -131,3 +133,5 @@ export class Preferences {
     this._validatePrefs(this.prefs);
   }
 }
+
+//  LocalWords:  wed's MPL

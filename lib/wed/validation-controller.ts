@@ -21,6 +21,7 @@ import { ProcessValidationErrors } from "./tasks/process-validation-errors";
 import { RefreshValidationErrors } from "./tasks/refresh-validation-errors";
 import { convertPatternObj, newGenericID } from "./util";
 import { Validator } from "./validator";
+import { Editor } from "./wed";
 import { boundaryXY, getGUINodeIfExists } from "./wed-util";
 
 const stateToStr: Record<string, string> = {};
@@ -35,9 +36,6 @@ stateToProgressType[WorkingState.WORKING] = "info";
 stateToProgressType[WorkingState.INVALID] = "danger";
 stateToProgressType[WorkingState.VALID] = "success";
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
-
 // This is a utility function for the method of the same name. If the mode is
 // set to not display attributes or if a custom decorator is set to not display
 // a specific attribute, then finding the GUI location of the attribute won't be
@@ -50,7 +48,7 @@ export type Editor = any;
 // create DOM elements for the attributes.)
 //
 function findInsertionPoint(editor: Editor, node: Node,
-                            index: number): DLoc | null {
+                            index: number): DLoc | undefined {
   const caretManager = editor.caretManager;
   try {
     return caretManager.fromDataLocation(node, index);
@@ -296,7 +294,7 @@ export class ValidationController {
     }
 
     this.processErrorsRunner.reset();
-    this.editor._resumeTaskWhenPossible(this.processErrorsRunner);
+    this.editor.resumeTaskWhenPossible(this.processErrorsRunner);
   }
 
   /**
@@ -319,7 +317,7 @@ export class ValidationController {
 
     const isAttributeNameError = error instanceof AttributeNameError;
 
-    let insertAt: DLoc | null;
+    let insertAt: DLoc | undefined;
 
     if (isAttributeNameError) {
       const guiNode = getGUINodeIfExists(this.editor, dataNode);
@@ -339,12 +337,11 @@ export class ValidationController {
     else {
       insertAt = findInsertionPoint(this.editor, dataNode, index);
 
-      if (insertAt === null) {
+      if (insertAt === undefined) {
         return undefined;
       }
 
-      insertAt = this.editor.caretManager
-        .normalizeToEditableRange(insertAt) as DLoc;
+      insertAt = this.editor.caretManager.normalizeToEditableRange(insertAt);
     }
 
     return insertAt;
@@ -391,8 +388,9 @@ export class ValidationController {
           throw new Error("we should be landing on an element");
         }
 
-        invisibleAttribute = isNotDisplayed(nodeToTest as HTMLElement,
-                                            insertAt.root as Element);
+        invisibleAttribute = isNotDisplayed(
+          nodeToTest as HTMLElement,
+          insertAt.root as (HTMLElement | HTMLDocument));
       }
 
       // Turn the names into qualified names.
@@ -496,7 +494,7 @@ export class ValidationController {
    */
   refreshErrors(): void {
     this.refreshErrorsRunner.reset();
-    this.editor._resumeTaskWhenPossible(this.refreshErrorsRunner);
+    this.editor.resumeTaskWhenPossible(this.refreshErrorsRunner);
   }
 
   /**
@@ -538,3 +536,6 @@ export class ValidationController {
     this.errorLayer.append(elementsToFrag(this.document, markers));
   }
 }
+
+//  LocalWords:  MPL scroller processErrors li markerId loc scrollerPos px
+//  LocalWords:  scrollTop scrollLeft

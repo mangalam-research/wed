@@ -4,7 +4,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird"; //tslint:disable-line:no-unsafe-any
 
 /**
  * Calculates the distance on the basis of two deltas. This would typically be
@@ -18,7 +17,6 @@ import * as Promise from "bluebird"; //tslint:disable-line:no-unsafe-any
  * @returns The distance.
  */
 export function distFromDeltas(delta1: number, delta2: number): number {
-  // eslint-disable-next-line no-mixed-operators
   return Math.sqrt(delta1 * delta1 + delta2 * delta2);
 }
 
@@ -27,17 +25,17 @@ export function distFromDeltas(delta1: number, delta2: number): number {
  * rectangle or touches it, the distance is 0. In the nomenclature below, left
  * and right are on the X axis and top and bottom on the Y axis.
  *
- * @param x X coordinate of the point.
+ * @param x The x coordinate of the point.
  *
- * @param y Y coordinate of the point.
+ * @param y The y coordinate of the point.
  *
- * @param left Left coordinate of the rectangle.
+ * @param left The left coordinate of the rectangle.
  *
- * @param top Top coordinate of the rectangle.
+ * @param top The top coordinate of the rectangle.
  *
- * @param right Right coordinate of the rectangle.
+ * @param right The right coordinate of the rectangle.
  *
- * @param bottom Bottom coordinate of the rectangle.
+ * @param bottom The bottom coordinate of the rectangle.
  *
  * @returns The distance.
  */
@@ -54,10 +52,8 @@ export function distFromRect(x: number, y: number, left: number, top: number,
   const lefter = leftDelta < 0;
   const righter = rightDelta > 0;
 
-  /* eslint-disable no-nested-ternary */
   const deltaX = lefter ? leftDelta : (righter ? rightDelta : 0);
   const deltaY = above ? topDelta : (below ? bottomDelta : 0);
-  /* eslint-enable */
 
   return distFromDeltas(deltaX, deltaY);
 }
@@ -68,17 +64,17 @@ export function distFromRect(x: number, y: number, left: number, top: number,
  * 0. In the nomenclature below, left and right are on the X axis and top and
  * bottom on the Y axis.
  *
- * @param x X coordinate of the point.
+ * @param x The x coordinate of the point.
  *
- * @param y Y coordinate of the point.
+ * @param y The y coordinate of the point.
  *
- * @param left Left coordinate of the rectangle.
+ * @param left The left coordinate of the rectangle.
  *
- * @param top Top coordinate of the rectangle.
+ * @param top The top coordinate of the rectangle.
  *
- * @param right Right coordinate of the rectangle.
+ * @param right The right coordinate of the rectangle.
  *
- * @param bottom Bottom coordinate of the rectangle.
+ * @param bottom The bottom coordinate of the rectangle.
  *
  * @returns The distance.
  */
@@ -96,25 +92,25 @@ export function distsFromRect(x: number, y: number, left: number, top: number,
   const lefter = leftDelta < 0;
   const righter = rightDelta > 0;
 
-  /* eslint-disable no-nested-ternary */
   const deltaX = lefter ? leftDelta : (righter ? rightDelta : 0);
   const deltaY = above ? topDelta : (below ? bottomDelta : 0);
-  /* eslint-enable */
 
   return { x: Math.abs(deltaX), y: Math.abs(deltaY) };
 }
 
 /**
  * Escape character in CSS class that could cause trouble in CSS
- * selectors. **This is not a general solution.** This function supports only
- * what wed uses.
+ * selectors. *This is not a general solution.* It supports enough for the needs
+ * of wed.
  *
  * @param cls The class
  *
  * @returns The escaped class.
  */
 export function escapeCSSClass(cls: string): string {
-  return cls.replace(/:/g, "\\:");
+  // We should investigate replacing this with CSS.escape whenever the spec for
+  // that function becomes stable.
+  return cls.replace(/([\][\\/!"#$%&'()*+,.:;<=>?@^`{|}~])/g, "\\$1");
 }
 
 /**
@@ -130,24 +126,46 @@ export function getOriginalName(el: Element): string {
 }
 
 /**
- * Makes a class string appropriate for a node in wed's data tree.
+ * Makes a class string for a node in wed's data tree. The string is meant to be
+ * used for the corresponding node in wed's GUI tree.
  *
  * @param name The original element name.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The class string.
  */
-export function classFromOriginalName(name: string): string {
+export function classFromOriginalName(name: string,
+                                      namespaces: Record<string, string>):
+string {
   // Special case if we want to match all
   if (name === "*") {
     return "._real";
   }
 
-  return `.${escapeCSSClass(name)}._real`;
+  let [prefix, localName] = name.split(":");
+
+  if (localName === undefined) {
+    localName = prefix;
+    prefix = "";
+  }
+
+  const ns = namespaces[prefix];
+  if (ns === undefined) {
+    throw new Error(`prefix ${prefix} is not defined in namespaces`);
+  }
+
+  // We do not output `.${escapeCSSClass(name)}` because that's redundant for a
+  // search.
+  return `._local_${escapeCSSClass(localName)}\
+._xmlns_${escapeCSSClass(ns)}._real`;
 }
 
 /**
  * Transforms an attribute name from wed's data tree to the original attribute
- * name before the data was transformed for use with wed.
+ * name before the data was transformed for use with wed. This reverses the
+ * transformation done with [[encodeAttrName]].
  *
  * @param name The encoded name.
  *
@@ -163,12 +181,37 @@ export function decodeAttrName(name: string): string {
  * original XML data (before transformation for use with wed) to its
  * encoded name.
  *
+ * A sequence of three dashes or more is converted by adding another dash. (So
+ * sequences of single dash, or a pair of dashes remain unchanged. But all
+ * sequences of 3 dashes or more gets an additional dash.)
+ *
+ * A colon (``:``) is converted to three dashes ``---``.
+ *
+ * After transformation above the name is prepended with ``data-wed-``.
+ *
+ * So ``foo:bar`` would become ``data-wed-foo---bar``.
+ *
+ * When ``qualifier`` is used, the qualifier is added just after ``data-wed-``
+ * and is prepended and appended with a dash. So ``foo:bar`` with the qualifier
+ * ``ns`` would become ``data-wed--ns-foo---bar``.
+ *
  * @param name The unencoded name.
+ *
+ * @param qualifier An optional qualifier.
  *
  * @returns The encoded name.
  */
-export function encodeAttrName(name: string): string {
-  return `data-wed-${name.replace(/--(-+)/g, "---$1").replace(/:/, "---")}`;
+export function encodeAttrName(name: string, qualifier?: string): string {
+  const sanitized = name.replace(/--(-+)/g, "---$1").replace(/:/, "---");
+  qualifier = qualifier === undefined ? "" : `-${qualifier}-`;
+  return `data-wed-${qualifier}${sanitized}`;
+}
+
+/**
+ * Determines whether a ``data-wed-`` attribute corresponds to an XML attribute.
+ */
+export function isXMLAttrName(name: string): boolean {
+  return /^data-wed-(?!-)/.test(name);
 }
 
 /**
@@ -187,9 +230,9 @@ export function getOriginalAttributes(node: Element): Record<string, string> {
   const attributes = node.attributes;
   for (let i = 0; i < attributes.length; ++i) {
     const attr = attributes[i];
-    // It is a node we want.
-    if (attr.localName!.lastIndexOf("data-wed-", 0) === 0) {
-      original[decodeAttrName(attr.localName!)] = attr.value;
+    const localName = attr.localName!;
+    if (isXMLAttrName(localName)) {
+      original[decodeAttrName(localName)] = attr.value;
     }
   }
   return original;
@@ -271,13 +314,13 @@ export function stackTrace(): string {
  * function is meant to be used for "complex" name patterns that we may get from
  * salve. Note that a "pattern object" is the result of calling ``toObject()``
  * on the pattern. The goal of this function is to convert the pattern object to
- * a string that would be intepretable by the end user.
+ * a string that would be interpretable by the end user.
  *
  * An explanation about how this handles namespaces and wildcard patterns is in
  * order. In a Relax NG schema the name pattern ``*`` in the compact notation is
  * equivalent to ``<anyName/>`` in the expanded notation. And ``foo:*`` is
  * equivalent to ``<nsName ns="uri_of_foo">`` where ``uri_of_foo`` is the URI
- * that has been assocated with ``foo`` in the compact schema. It would be nice
+ * that has been associated with ``foo`` in the compact schema. It would be nice
  * if the function here could reuse this notation, but we cannot. Consider the
  * case where an Relax NG schema in the compact notation wants to declare a name
  * pattern which means "any name in the default namespace". In XML we express a
@@ -383,6 +426,17 @@ export function fixPrototype(obj: any, parent: Function): void {
     }
   }
 }
+
+export function suppressUnhandledRejections<P extends Promise<any>>(p: P): P {
+  const pAsAny: any = p as any;
+  if (pAsAny.suppressUnhandledRejections as boolean) {
+    pAsAny.suppressUnhandledRejections();
+  }
+
+  return p;
+}
 // tslint:enable:no-any
 
-//  LocalWords:  Mangalam MPL Dubeau util CSS wed's unencoded
+//  LocalWords:  Mangalam MPL Dubeau util CSS wed's unencoded URIs localName ns
+//  LocalWords:  escapeCSSClass xmlns prepended nextID NG NameChoice AnyName
+//  LocalWords:  convertPatternObj NsName

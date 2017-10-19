@@ -6,8 +6,6 @@
 require.config({
   baseUrl: "lib/",
   paths: {
-    browser_test: "../../../browser_test",
-    "test-files": "../../test-files/",
     jquery: "external/jquery",
     bootstrap: "external/bootstrap/js/bootstrap.min",
     log4javascript: "external/log4javascript",
@@ -16,7 +14,6 @@ require.config({
     text: "requirejs/text",
     optional: "requirejs/optional",
     localforage: "external/localforage",
-    async: "external/async",
     angular: "external/angular",
     bootbox: "external/bootbox",
     typeahead: "external/typeahead.bundle.min",
@@ -26,7 +23,8 @@ require.config({
     "is-plain-obj": "external/is-plain-obj",
     bluebird: "external/bluebird",
     "last-resort": "external/last-resort",
-    rangy: "external/rangy/rangy-core",
+    "rangy-core": "external/rangy/rangy-core",
+    "rangy-textrange": "external/rangy/rangy-textrange",
     salve: "external/salve",
     "salve-dom": "external/salve-dom",
     "bootstrap-notify": "external/bootstrap-notify",
@@ -45,13 +43,15 @@ require.config({
   ],
   map: {
     "*": {
+      // This is needed due to the disconnect between the hardcoded name
+      // in the file that is shipped by interactjs and the name of the npm
+      // package.
+      interactjs: "interact",
       bootstrap: "wed/patches/bootstrap",
-      "last-resort": "wed/glue/last-resort",
-      "wed/modes/generic/metadata-schema.json": "text!wed/modes/generic/metadata-schema.json",
-      "wed/wed-options-schema.json": "text!wed/wed-options-schema.json",
-    },
-    "wed/glue/last-resort": {
-      "last-resort": "last-resort",
+      "wed/modes/generic/metadata-schema.json": "json!wed/modes/generic/metadata-schema.json",
+      "wed/wed-options-schema.json": "json!wed/wed-options-schema.json",
+      "wed/options-schema.json": "json!wed/options-schema.json",
+      rangy: "wed/glue/rangy-glue",
     },
     "wed/patches/bootstrap": {
       bootstrap: "bootstrap",
@@ -61,6 +61,12 @@ require.config({
     // bootstrap return $.
     bootbox: {
       jquery: "bootstrap",
+    },
+    "wed/glue/rangy-glue": {
+      rangy: "rangy-core",
+    },
+    rangy: {
+      rangy: "rangy",
     },
   },
   shim: {

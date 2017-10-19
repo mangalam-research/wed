@@ -7,7 +7,6 @@
   skipDirOptimize: true,
   useStrict: false,
   paths: {
-    browser_test: "empty:",
     "wed/config": "empty:",
   },
   modules: [
@@ -30,12 +29,12 @@
         "bootstrap-notify",
         "lodash",
         "localforage",
-        "async",
         "bootbox",
         "typeahead",
         "wed/patches/bootstrap",
         "dexie",
         "bluebird",
+        "bluejax",
       ],
     },
   ],

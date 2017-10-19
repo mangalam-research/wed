@@ -74,7 +74,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Wed'
-copyright = u'2013-2016 Mangalam Research Center for Buddhist Languages'
+copyright = u'Mangalam Research Center for Buddhist Languages'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

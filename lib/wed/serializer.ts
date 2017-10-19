@@ -58,7 +58,6 @@ function serializeElement(out: string[], node: Element): void {
     out.push(">");
     let child = node.firstChild;
     while (child !== null) {
-      // eslint-disable-next-line no-use-before-define
       _serialize(out, child);
       child = child.nextSibling;
     }
@@ -99,3 +98,5 @@ export function serialize(root: Element | Document | DocumentFragment): string {
 
   return out.join("");
 }
+
+//  LocalWords:  MPL lt nodeType CDATA

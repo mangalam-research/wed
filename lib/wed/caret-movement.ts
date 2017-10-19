@@ -9,8 +9,12 @@ import { DLoc } from "./dloc";
 import { isElement, isText } from "./domtypeguards";
 import { Caret, childByClass, closest, closestByClass, indexOf,
          nextCaretPosition, prevCaretPosition } from "./domutil";
-import { Mode } from "./mode";
+import { ModeTree } from "./mode-tree";
 import { boundaryXY, getAttrValueNode } from "./wed-util";
+
+function moveInAttributes(node: Node, modeTree: ModeTree): boolean {
+  return modeTree.getAttributeHandling(node) === "edit";
+}
 
 /**
  * @param pos The position form which we start.
@@ -77,12 +81,13 @@ function determineContainer(docRoot: Document | Element): Element {
  *
  * @param offset The offset into the element at which the caret is positioned.
  *
- * @param mode The mode which is effectively decorating the element.
+ * @param modeTree The mode tree from which to get a mode.
  *
  * @returns ``true`` if we are inside editable content, ``false`` otherwise.
  */
 function insideEditableContent(element: Element, offset: number,
-                               mode: Mode<{}>): boolean {
+                               modeTree: ModeTree): boolean {
+  const mode = modeTree.getMode(element);
   const [before, after] = mode.nodesAroundEditableContents(element);
 
   // If the element has nodes before editable contents and the caret would
@@ -155,15 +160,14 @@ const directionToFunction = {
 
 export function newPosition(pos: DLoc | undefined | null,
                             direction: Direction,
-                            inAttributes: boolean,
                             docRoot: Document | Element,
-                            mode: Mode<{}>): DLoc | undefined {
+                            modeTree: ModeTree): DLoc | undefined {
   const fn = directionToFunction[direction];
   if (fn === undefined) {
     throw new Error(`cannot resolve direction: ${direction}`);
   }
 
-  return fn(pos, inAttributes, docRoot, mode);
+  return fn(pos, docRoot, modeTree);
 }
 
 /**
@@ -173,19 +177,16 @@ export function newPosition(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
- *
  * @param docRoot The element within which caret movement is to be constrained.
  *
- * @param mode The mode governing editing.
+ * @param modeTree The mode tree from which to get a mode.
  *
  * @returns The new position, or ``undefined`` if there is no such position.
  */
 // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
 export function positionRight(pos: DLoc | undefined | null,
-                              inAttributes: boolean,
                               docRoot: Document | Element,
-                              mode: Mode<{}>): DLoc | undefined {
+                              modeTree: ModeTree): DLoc | undefined {
   if (pos == null) {
     return undefined;
   }
@@ -212,7 +213,9 @@ export function positionRight(pos: DLoc | undefined | null,
     const closestGUI = closest(node, "._gui:not(._invisible)", root);
     if (closestGUI !== null) {
       const startLabel = closestGUI.classList.contains("__start_label");
-      if (inAttributes && startLabel) {
+      if (startLabel &&
+          moveInAttributes(closestByClass(closestGUI, "_real", root)!,
+                           modeTree)) {
         if (closestByClass(node, "_attribute_value", root) !== null) {
           // We're in an attribute value, stop here.
           break;
@@ -294,7 +297,7 @@ export function positionRight(pos: DLoc | undefined | null,
       }
 
       // If the offset is not inside the editable content of the node, then...
-      if (!insideEditableContent(node, offset, mode)) {
+      if (!insideEditableContent(node, offset, modeTree)) {
         // ... can't stop here.
         continue;
       }
@@ -314,19 +317,16 @@ export function positionRight(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
- *
  * @param docRoot The element within which caret movement is to be constrained.
  *
- * @param mode The mode governing editing.
+ * @param modeTree The mode tree from which to get a mode.
  *
  * @returns The new position, or ``undefined`` if there is no such position.
  */
 // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
 export function positionLeft(pos: DLoc | undefined | null,
-                             inAttributes: boolean,
                              docRoot: Document | Element,
-                             mode: Mode<{}>): DLoc | undefined {
+                             modeTree: ModeTree): DLoc | undefined {
   if (pos == null) {
     return undefined;
   }
@@ -355,9 +355,11 @@ export function positionLeft(pos: DLoc | undefined | null,
                                                root);
     if (closestGUI !== null) {
       const startLabel = closestGUI.classList.contains("__start_label");
-      if (inAttributes && startLabel && !wasInName) {
+      if (startLabel && !wasInName &&
+          moveInAttributes(closestByClass(closestGUI, "_real", root)!,
+                           modeTree)) {
         if (closestByClass(node, "_attribute_value", closestGUI) !== null) {
-          // We're in an atribute value, stop here.
+          // We're in an attribute value, stop here.
           break;
         }
 
@@ -472,7 +474,7 @@ export function positionLeft(pos: DLoc | undefined | null,
       } // can't stop here
 
       // If the offset is not inside the editable content of the node, then...
-      if (!insideEditableContent(node, offset, mode)) {
+      if (!insideEditableContent(node, offset, modeTree)) {
         // ... can't stop here.
         continue;
       }
@@ -492,18 +494,15 @@ export function positionLeft(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
- *
  * @param docRoot The element within which caret movement is to be constrained.
  *
- * @param mode The mode governing editing.
+ * @param modeTree The mode tree from which to get a mode.
  *
  * @returns The new position, or ``undefined`` if there is no such position.
  */
 export function positionDown(pos: DLoc | undefined | null,
-                             inAttributes: boolean,
                              docRoot: Document | Element,
-                             mode: Mode<{}>): DLoc | undefined {
+                             modeTree: ModeTree): DLoc | undefined {
   if (pos == null) {
     return undefined;
   }
@@ -512,7 +511,7 @@ export function positionDown(pos: DLoc | undefined | null,
   const initialCaret = boundaryXY(pos);
   let next = initialCaret;
   while (initialCaret.bottom > next.top) {
-    pos = positionRight(pos, inAttributes, docRoot, mode);
+    pos = positionRight(pos, docRoot, modeTree);
     if (pos === undefined) {
       return undefined;
     }
@@ -539,7 +538,7 @@ export function positionDown(pos: DLoc | undefined | null,
 
     minDist = dist;
     minPosition = pos;
-    pos = positionRight(pos, inAttributes, docRoot, mode);
+    pos = positionRight(pos, docRoot, modeTree);
     if (pos !== undefined) {
       next = boundaryXY(pos);
     }
@@ -555,18 +554,15 @@ export function positionDown(pos: DLoc | undefined | null,
  *
  * @param pos The position at which we start.
  *
- * @param inAttributes Whether we are to move into attributes.
- *
  * @param docRoot The element within which caret movement is to be constrained.
  *
- * @param mode The mode governing editing.
+ * @param modeTree The mode tree from which to get a mode.
  *
  * @returns The new position, or ``undefined`` if there is no such position.
  */
 export function positionUp(pos: DLoc | undefined | null,
-                           inAttributes: boolean,
                            docRoot: Document | Element,
-                           mode: Mode<{}>): DLoc | undefined {
+                           modeTree: ModeTree): DLoc | undefined {
   if (pos == null) {
     return undefined;
   }
@@ -575,7 +571,7 @@ export function positionUp(pos: DLoc | undefined | null,
   const initialBoundary = boundaryXY(pos);
   let prev = initialBoundary;
   while (initialBoundary.top < prev.bottom) {
-    pos = positionLeft(pos, inAttributes, docRoot, mode);
+    pos = positionLeft(pos, docRoot, modeTree);
     if (pos === undefined) {
       return undefined;
     }
@@ -602,7 +598,7 @@ export function positionUp(pos: DLoc | undefined | null,
 
     minDist = dist;
     minPosition = pos;
-    pos = positionLeft(pos, inAttributes, docRoot, mode);
+    pos = positionLeft(pos, docRoot, modeTree);
     if (pos !== undefined) {
       prev = boundaryXY(pos);
     }
@@ -610,3 +606,5 @@ export function positionUp(pos: DLoc | undefined | null,
 
   return minPosition;
 }
+
+//  LocalWords:  docRoot firstChild pos

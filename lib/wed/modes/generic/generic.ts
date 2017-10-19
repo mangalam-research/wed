@@ -5,21 +5,21 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
-import { NameResolver } from "salve";
+import * as mergeOptions from "merge-options";
+import { EName, NameResolver } from "salve";
 
 import { Action } from "wed/action";
-import { BaseMode, Editor } from "wed/mode";
+import { BaseMode, CommonModeOptions } from "wed/mode";
 import * as objectCheck from "wed/object-check";
 import { Transformation, TransformationData } from "wed/transformation";
+import { Editor } from "wed/wed";
 import { GenericDecorator } from "./generic-decorator";
 import { makeTagTr } from "./generic-tr";
 import { Metadata } from "./metadata";
 import { MetadataMultiversionReader } from "./metadata-multiversion-reader";
 
-export interface GenericModeOptions {
+export interface GenericModeOptions extends CommonModeOptions {
   metadata: string;
-  autoinsert?: boolean;
 }
 
 /**
@@ -70,6 +70,7 @@ class GenericMode<Options extends GenericModeOptions>
 
     if (this.constructor === GenericMode) {
       // Set our metadata.
+      this.wedOptions = mergeOptions({}, this.wedOptions);
       this.wedOptions.metadata = {
         name: "Generic",
         authors: ["Louis-Dominique Dubeau"],
@@ -150,16 +151,22 @@ class GenericMode<Options extends GenericModeOptions>
       });
   }
 
+  getAbsoluteNamespaceMappings(): Record<string, string> {
+    // We return a copy of the metadata's namespace mapping. A shallow copy
+    // is good enough.
+    return {... this.metadata.getNamespaceMappings()};
+  }
+
+  unresolveName(name: EName): string | undefined {
+    return this.metadata.unresolveName(name);
+  }
+
   getAbsoluteResolver(): NameResolver {
     return this.resolver;
   }
 
   makeDecorator(): GenericDecorator {
-    const obj = Object.create(GenericDecorator.prototype);
-    let args = Array.prototype.slice.call(arguments);
-    args = [this, this.metadata, this.options].concat(args);
-    GenericDecorator.apply(obj, args);
-    return obj;
+    return new GenericDecorator(this, this.editor, this.metadata, this.options);
   }
 
   /**
@@ -228,4 +235,4 @@ class GenericMode<Options extends GenericModeOptions>
 
 export { GenericMode as Mode };
 
-//  LocalWords:  gui jquery Mangalam MPL Dubeau
+//  LocalWords:  gui jquery Mangalam MPL Dubeau metadata's

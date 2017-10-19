@@ -6,8 +6,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
-import * as $ from "jquery";
+import * as mergeOptions from "merge-options";
 
 import { Runtime } from "../runtime";
 import * as saver from "../saver";
@@ -58,8 +57,8 @@ function getMessages(data: Response): ParsedResponse | undefined {
   return ret;
 }
 
-export interface Options {
-  /** The url location to POST save requests. */
+export interface Options extends saver.SaverOptions {
+  /** The URL location to POST save requests. */
   url: string;
 
   /**
@@ -88,17 +87,19 @@ export interface Options {
  */
 class AjaxSaver extends saver.Saver {
   private readonly url: string;
-  private readonly headers: Record<string, string> | undefined;
+  private readonly headers: Record<string, string>;
   private etag: string | undefined;
 
   constructor(runtime: Runtime, version: string, dataUpdater: TreeUpdater,
               dataTree: Node, options: Options) {
-    super(runtime, version, dataUpdater, dataTree);
+    super(runtime, version, dataUpdater, dataTree, options);
 
-    this.headers = options.headers;
+    const headers = options.headers;
+    this.headers = headers != null ? headers : {};
     // This value is saved with the double quotes around it so that we can just
     // pass it to 'If-Match'.
-    this.etag = `"${options.initial_etag}"`;
+    const initial_etag = options.initial_etag;
+    this.etag = initial_etag != null ? `"${initial_etag}"` : undefined;
     this.url = options.url;
 
     // Every 5 minutes.
@@ -230,8 +231,9 @@ saving. Please contact technical support before trying to edit again.`);
     let headers;
 
     if (this.etag !== undefined) {
-      headers = $.extend({}, this.headers);
-      headers["If-Match"] = this.etag;
+      headers = mergeOptions(this.headers, {
+        "If-Match": this.etag,
+      });
     }
     else {
       headers = this.headers;
@@ -274,3 +276,5 @@ saving. Please contact technical support before trying to edit again.`);
 }
 
 export { AjaxSaver as Saver };
+
+//  LocalWords:  MPL ETag runtime etag json url autosave

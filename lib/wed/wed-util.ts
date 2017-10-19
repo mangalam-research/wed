@@ -13,9 +13,9 @@
 //
 
 import { DLoc } from "./dloc";
-import { isAttr, isElement, isText } from "./domtypeguards";
-import { closestByClass, indexOf } from "./domutil";
+import { isElement, isText } from "./domtypeguards";
 import { AttributeNotFound } from "./guiroot";
+import { Editor } from "./wed";
 
 export interface BoundaryCoordinates {
   left: number;
@@ -171,118 +171,6 @@ export function getAttrValueNode(attrVal: Element): Node {
   return ret;
 }
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
-
-export function cut(editor: Editor): void {
-  const caretManager = editor.caretManager;
-  const sel = caretManager.sel;
-  if (!(sel.wellFormed as boolean)) {
-    throw new Error("malformed range");
-  }
-
-  const [startCaret, endCaret] = sel.asDataCarets();
-  while (editor._cut_buffer.firstChild !== null) {
-    editor._cut_buffer.removeChild(editor._cut_buffer.firstChild);
-  }
-  if (isAttr(startCaret.node)) {
-    const attr = startCaret.node;
-    if (attr !== endCaret.node) {
-      throw new Error("attribute selection that does not start " +
-                      "and end in the same attribute");
-    }
-    const removedText = attr.value.slice(startCaret.offset, endCaret.offset);
-    editor._spliceAttribute(
-      closestByClass(caretManager.fromDataLocation(startCaret).node,
-                     "_attribute_value"),
-      startCaret.offset,
-      endCaret.offset - startCaret.offset, "");
-    editor._cut_buffer.textContent = removedText;
-  }
-  else {
-    const cutRet = editor.data_updater.cut(startCaret, endCaret);
-    const nodes = cutRet[1];
-    const parser = new editor.my_window.DOMParser();
-    const doc = parser.parseFromString("<div></div>", "text/xml");
-    for (const node of nodes) {
-      doc.firstChild.appendChild(doc.adoptNode(node));
-    }
-    editor._cut_buffer.textContent = doc.firstChild.innerHTML;
-    editor.caretManager.setCaret(cutRet[0]);
-  }
-
-  const range = editor.doc.createRange();
-  const container = editor._cut_buffer;
-  range.setStart(container, 0);
-  range.setEnd(container, container.childNodes.length);
-  const domSel = editor.my_window.getSelection();
-  domSel.removeAllRanges();
-  domSel.addRange(range);
-
-  // We've set the range to the cut buffer, which is what we want for the cut
-  // operation to work. However, the focus is also set to the cut buffer but
-  // once the cut is done we want the focus to be back to our caret, so...
-  setTimeout(() => {
-    caretManager.focusInputField();
-  }, 0);
-}
-
-// tslint:disable-next-line:no-any
-export function paste(editor: Editor, data: any): void {
-  const toPaste = data.to_paste;
-  const dataClone = toPaste.cloneNode(true);
-  let caret = editor.caretManager.getDataCaret();
-  let newCaret;
-  let ret;
-
-  // Handle the case where we are pasting only text.
-  if (toPaste.childNodes.length === 1 && isText(toPaste.firstChild)) {
-    if (isAttr(caret.node)) {
-      const guiCaret = editor.caretManager.getNormalizedCaret();
-      editor._spliceAttribute(closestByClass(guiCaret.node, "_attribute_value",
-                                             guiCaret.node),
-                              guiCaret.offset, 0, toPaste.firstChild.data);
-    }
-    else {
-      ret = editor.data_updater.insertText(caret, toPaste.firstChild.data);
-      // In the first case, the node that contained the caret was modified to
-      // contain the text. In the 2nd case, a new node was created **or** the
-      // text that contains the text is a child of the original node.
-      newCaret = ((ret[0] === ret[1]) && (ret[1] === caret.node)) ?
-        // tslint:disable-next-line:restrict-plus-operands
-        caret.make(caret.node, caret.offset + toPaste.firstChild.length) :
-        caret.make(ret[1], ret[1].length);
-    }
-  }
-  else {
-    const frag = document.createDocumentFragment();
-    while (toPaste.firstChild !== null) {
-      frag.appendChild(toPaste.firstChild);
-    }
-    switch (caret.node.nodeType) {
-    case Node.TEXT_NODE:
-      ret = editor.data_updater.insertIntoText(caret, frag);
-      newCaret = ret[1];
-      break;
-    case Node.ELEMENT_NODE:
-      const child = caret.node.childNodes[caret.offset];
-      const after = child != null ? child.nextSibling : null;
-      editor.data_updater.insertBefore(caret.node, frag, child);
-      newCaret = caret.makeWithOffset(after !== null ?
-                                      indexOf(caret.node.childNodes, after) :
-                                      caret.node.childNodes.length);
-      break;
-    default:
-      throw new Error(`unexpected node type: ${caret.node.nodeType}`);
-    }
-  }
-  if (newCaret != null) {
-    editor.caretManager.setCaret(newCaret);
-    caret = newCaret;
-  }
-  editor.$gui_root.trigger("wed-post-paste", [data.e, caret, dataClone]);
-}
-
 export function getGUINodeIfExists(editor: Editor,
                                    node: Node | null | undefined):
 Node | undefined {
@@ -302,3 +190,6 @@ Node | undefined {
     throw ex;
   }
 }
+
+//  LocalWords:  MPL domutil util boundaryXY nodeType getClientRects rect
+//  LocalWords:  getAttrValueNode

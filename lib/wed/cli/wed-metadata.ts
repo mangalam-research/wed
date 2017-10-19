@@ -1,5 +1,5 @@
 /**
- * Metadata management cli tool.
+ * Metadata management CLI tool.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
@@ -206,7 +206,7 @@ if (output.dochtml !== undefined) {
 }
 
 const stringified = JSON.stringify(output, undefined,
-                                   args.pretty as boolean ? 2 : undefined);
+                                   (args.pretty as boolean) ? 2 : undefined);
 
 if (args.output !== undefined) {
   fs.writeFileSync(args.output, stringified);
@@ -215,3 +215,6 @@ else {
   // tslint:disable-next-line:no-console
   console.log(stringified);
 }
+
+//  LocalWords:  CLI MPL uncaughtException utf TEI's json xsl stdout tei
+//  LocalWords:  storeTrue elementSpec

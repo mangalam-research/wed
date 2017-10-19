@@ -306,7 +306,7 @@ interface CallSpec<T extends Events> {
  *
  * <h2>Warnings:</h2>
  *
- * - Keep in mind that the the ``children-changed``, ``excluded-element`` and
+ * - Keep in mind that the ``children-changed``, ``excluded-element`` and
  *   ``removed-element`` events are generated **after** the DOM operation that
  *   triggers them. This has some consequences. In particular, a selector that
  *   will work perfectly with ``removing-element`` or ``excluding-element`` may
@@ -631,9 +631,9 @@ export class Listener {
    *
    * @param parent The parent of the children that have changed.
    *
-   * @param added Added children.
+   * @param added The children that were added.
    *
-   * @param removed Removed children.
+   * @param removed The children that were removed.
    *
    * @param prev Node preceding the children.
    *
@@ -790,5 +790,6 @@ export class Listener {
   }
 
 }
-//  LocalWords:  DOM Mangalam MPL Dubeau previousSibling li ul
-//  LocalWords:  nextSibling lt domlistener
+//  LocalWords:  eventType SetAttributeNS DeleteNode BeforeDeleteNode ul li MPL
+//  LocalWords:  SetTextNodeValue nextSibling InsertNodeAt previousSibling DOM
+//  LocalWords:  Dubeau Mangalam

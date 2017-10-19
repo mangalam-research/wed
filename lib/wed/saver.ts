@@ -5,7 +5,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
 import { Observable, Subject } from "rxjs";
 
 import * as browsers from "./browsers";
@@ -25,7 +24,7 @@ function deltaToString(delta: number): string {
     timeDesc = " ≈ ";
     // To get a single digit after the decimal point, we divide by (factor /
     // 10), round the result, and then divide by 10. Note that this is imprecise
-    // due to rounding errors in floating point arithmetics but we don't care.
+    // due to rounding errors in floating point arithmetic but we don't care.
     if (delta > 60 * 60 * 24) {
       timeDesc += `${Math.round(delta / (6 * 60 * 24)) / 10}d`;
     }
@@ -101,6 +100,11 @@ export interface Autosaved {
 }
 
 export type SaveEvents = Saved | Autosaved | ChangedEvent | FailedEvent;
+
+export interface SaverOptions {
+  /** The time between autosaves in seconds. */
+  autosave?: number;
+}
 
 /**
  * A saver is responsible for saving a document's data. This class cannot be
@@ -185,7 +189,8 @@ export abstract class Saver {
   constructor(protected readonly runtime: Runtime,
               protected readonly version: string,
               protected readonly dataUpdater: TreeUpdater,
-              protected readonly dataTree: Node) {
+              protected readonly dataTree: Node,
+              protected readonly options: SaverOptions) {
     dataUpdater.events.subscribe((ev) => {
       if (ev.name !== "Changed") {
         return;
@@ -207,6 +212,10 @@ export abstract class Saver {
     this._events = new Subject();
 
     this.events = this._events.asObservable();
+
+    if (options.autosave !== undefined) {
+      this.setAutosaveInterval(options.autosave * 1000);
+    }
   }
 
   /**
@@ -299,6 +308,7 @@ export abstract class Saver {
 
     if (this.currentGeneration !== this.savedGeneration) {
       // We have something to save!
+      // tslint:disable-next-line:no-floating-promises
       this._save(true).then(done);
     }
     else {
@@ -362,8 +372,8 @@ export abstract class Saver {
    * Returns information regarding whether the saver sees the data tree as
    * having been modified since the last save occurred.
    *
-   * @returns Returns ``false`` if the tree has not been modified. Otherwise,
-   * returns a string that describes how long ago the modification happened.
+   * @returns ``false`` if the tree has not been modified. Otherwise, returns a
+   * string that describes how long ago the modification happened.
    */
   getModifiedWhen(): false | string {
     if (this.savedGeneration === this.currentGeneration) {
@@ -399,6 +409,10 @@ export abstract class Saver {
   }
 }
 
-//  LocalWords:  jQuery jquery url jshint validthis Dubeau MPL oop
-//  LocalWords:  Mangalam mixin's json unintialized param dataType
-//  LocalWords:  SimpleEventEmitter
+export interface SaverConstructor {
+  new (runtime: Runtime, version: string, dataUpdater: TreeUpdater,
+       dataTree: Node, options: SaverOptions): Saver;
+}
+
+//  LocalWords:  param unintialized Mangalam MPL Dubeau autosaved autosaves pre
+//  LocalWords:  autosave runtime autosaving setAutosaveInterval setTimeout

@@ -32,6 +32,7 @@ gulp.task("typedoc", ["generate-ts", "stamp-dir", "lint"],
               "--out", "./build/api",
               "--name", "wed",
               "--tsconfig", "./lib/tsconfig.json",
+              "--exclude", "**/lib/tests/**/*",
               "--listInvalidSymbolLinks",
             ];
 

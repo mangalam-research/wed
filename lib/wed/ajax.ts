@@ -1,10 +1,15 @@
 /**
  * Ajax utilities for wed.
+ *
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird";
 import * as bluejax from "bluejax";
 import "bootstrap";
 import * as $ from "jquery";
+
+import { suppressUnhandledRejections } from "./util";
 
 // tslint:disable-next-line:no-jquery-raw-elements
 const $modal = $("\
@@ -51,7 +56,7 @@ export function make(baseOpts: any):
   function ajax$(settings: any): bluejax.Pair {
     if (arguments.length > 1) {
       throw new Error(
-        "we do not support passing the url as a separate argument; " +
+        "we do not support passing the URL as a separate argument; " +
           "please use a single settings argument");
     }
 
@@ -65,14 +70,16 @@ export function make(baseOpts: any):
         $modal.on("hide.bs.modal.modal", (ev: JQueryEventObject) => {
           ev.stopPropagation();
           ev.preventDefault();
-          diagnose(baseOpts.diagnose.serverURL).then(
-            () => {
-              window.location.reload();
-            }).suppressUnhandledRejections();
+          // tslint:disable-next-line:no-floating-promises
+          suppressUnhandledRejections(
+            diagnose(baseOpts.diagnose.serverURL).then(
+              () => {
+                window.location.reload();
+              }));
         });
         $modal.modal();
 
-        // Cancelling the promise is something that Bluebird provides. It allows
+        // Canceling the promise is something that Bluebird provides. It allows
         // us to handle the exception here while at the same time declaring that
         // no future handlers should be run.
         ret.promise.cancel();
@@ -89,3 +96,5 @@ export function make(baseOpts: any):
     ajax$: ajax$,
   };
 }
+
+//  LocalWords:  btw tabindex href btn MPL

@@ -137,7 +137,7 @@ interface Filters {
  * When no option is focused, typing ENTER will select the first option of the
  * menu.
  */
-export class ContextMenu extends Base {
+export class ActionContextMenu extends Base {
   private readonly actionItems: Item[];
   private readonly actionFilterItem: Element;
   private readonly actionFilterInput: HTMLInputElement;
@@ -343,7 +343,7 @@ export class ContextMenu extends Base {
         const whichFilter = spec.which;
         // Don't treat the key specially if the filter is already set.
         if (this.filters[whichFilter] !== null) {
-          continue; // eslint-disable-line no-continue
+          continue;
         }
         this.filters[whichFilter] = spec.filter;
         this.render();
@@ -479,14 +479,14 @@ export class ContextMenu extends Base {
       if (textFilter[0] === "^") {
         const textFilterRe = RegExp(textFilter);
         textMatch = (item: Item) => {
-          const text = (item.data !== null) ?
+          const text = (item.data !== null && item.data.name !== undefined) ?
             item.data.name : item.item.textContent!;
           return textFilterRe.test(text);
         };
       }
       else {
           textMatch = (item: Item) => {
-            const text = (item.data !== null) ?
+            const text = (item.data !== null && item.data.name !== undefined) ?
               item.data.name : item.item.textContent!;
             return text.indexOf(textFilter) !== -1;
           };
@@ -506,3 +506,6 @@ export class ContextMenu extends Base {
     return ret;
   }
 }
+
+//  LocalWords:  MPL li Dropdown nowrap sm keydown tooltips keypress btn xs
+//  LocalWords:  tooltip dropdown actionType actionFilterItem actionFilterInput

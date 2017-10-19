@@ -5,13 +5,11 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-// tslint:disable-next-line:no-any
-export type Editor = any;
+import { Editor } from "./wed";
 
 export type EventWithData<Data> = Event & { data: Data };
 
 /**
- *
  * Actions model "things the user can do." These can be contextual menu items,
  * menu items, buttons, keybindings, etc. The base class is always enabled but
  * derived classes can set their own enabled state depending on whatever
@@ -22,7 +20,7 @@ export abstract class Action<Data> {
   public readonly boundHandler: (this: Action<Data>, ev: Event) => void;
   public readonly boundTerminalHandler: (this: Action<Data>,
                                          ev: Event) => boolean;
-  /*
+  /**
    * @param editor The editor to which this action belongs.
    *
    * @param desc A simple string description of the action.
@@ -164,4 +162,4 @@ export abstract class Action<Data> {
   }
 }
 
-//  LocalWords:  keybindings html oop Mangalam MPL Dubeau
+//  LocalWords:  autoinsert Dubeau MPL Mangalam html keybindings

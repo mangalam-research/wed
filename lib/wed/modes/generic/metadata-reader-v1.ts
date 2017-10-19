@@ -48,3 +48,5 @@ export class MetadataReaderV1 extends MetadataReaderBase {
     super(MetadataV1);
   }
 }
+
+//  LocalWords:  MPL TEI html stylesheet

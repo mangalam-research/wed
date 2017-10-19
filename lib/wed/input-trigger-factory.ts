@@ -7,12 +7,12 @@
 
 import { isText } from "./domtypeguards";
 import * as domutil from "./domutil";
+import { GUISelector } from "./gui-selector";
 import { InputTrigger } from "./input-trigger";
 import { Key } from "./key";
+import { Mode } from "./mode";
 import * as transformation from "./transformation";
-
-// tslint:disable-next-line:no-any
-export type Editor = any;
+import { Editor } from "./wed";
 
 interface SplitData extends transformation.TransformationData {
   // node is no longer optional.
@@ -52,19 +52,22 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
       const offset = text.data.indexOf(sep);
       if (node.firstChild === text && offset === 0) {
         // We just drop the separator
-        editor.data_updater.deleteText(text, offset, 1);
+        editor.dataUpdater.deleteText(text, offset, 1);
         modified = true;
       }
       else if (node.lastChild === text && offset !== -1 &&
                offset === text.length - 1) {
         // Just drop the separator
-        editor.data_updater.deleteText(text, text.length - 1, 1);
+        editor.dataUpdater.deleteText(text, text.length - 1, 1);
         modified = true;
       }
       else if (offset !== -1) {
-        const pair = editor.data_updater.splitAt(node, text, offset);
+        const [, end] = editor.dataUpdater.splitAt(node, text, offset);
         // Continue with the 2nd half of the split
-        node = pair[1];
+        if (end === null) {
+          throw new Error("null end; we should not be getting that");
+        }
+        node = end;
         modified = true;
       }
     }
@@ -78,9 +81,9 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
  *
  * @param editor The editor for which to create the input trigger.
  *
- * @param elementName A CSS selector that determines which element we want to
+ * @param selector A CSS selector that determines which element we want to
  * split or merge. For instance, to operate on all paragraphs, this parameter
- * could be ``"p"``.
+ * could be ``"p"``. This selector must be fit to be used in the GUI tree.
  *
  * @param splitKey The key which splits the element.
  *
@@ -93,26 +96,31 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
  * @returns The input trigger.
  */
 export function makeSplitMergeInputTrigger(editor: Editor,
-                                           elementName: string,
+                                           mode: Mode,
+                                           selector: GUISelector,
                                            splitKey: Key,
                                            mergeWithPreviousKey: Key,
                                            mergeWithNextKey: Key):
 InputTrigger {
-  const splitNodeOnTr = new transformation.Transformation(
+  const splitNodeOnTr = new transformation.Transformation<SplitData>(
     editor, "split", "Split node on character", splitNodeOn);
 
-  const ret = new InputTrigger(editor, elementName);
+  const ret = new InputTrigger(editor, mode, selector);
   ret.addKeyHandler(splitKey, (eventType, el, ev) => {
     if (ev !== undefined) {
       ev.stopImmediatePropagation();
       ev.preventDefault();
     }
     if (eventType === "keypress" || eventType === "keydown") {
-      editor.fireTransformation(editor.split_node_tr, { node: el });
+      editor.fireTransformation(editor.splitNodeTr, { node: el });
     }
     else {
       editor.fireTransformation(
-        splitNodeOnTr, { node: el, sep: String.fromCharCode(splitKey.which) });
+        splitNodeOnTr, {
+          name: el.tagName,
+          node: el,
+          sep: String.fromCharCode(splitKey.which),
+        });
     }
   });
 
@@ -132,9 +140,8 @@ InputTrigger {
         ev.stopImmediatePropagation();
         ev.preventDefault();
       }
-      editor.fireTransformation(
-        editor.merge_with_previous_homogeneous_sibling_tr,
-        { node: el, name: el.tagName });
+      editor.fireTransformation(editor.mergeWithPreviousHomogeneousSiblingTr,
+                                { node: el, name: el.tagName });
     }
   });
 
@@ -155,14 +162,12 @@ InputTrigger {
         ev.stopImmediatePropagation();
         ev.preventDefault();
       }
-      editor.fireTransformation(
-        editor.merge_with_next_homogeneous_sibling_tr,
-        { node: el, name: el.tagName });
+      editor.fireTransformation(editor.mergeWithNextHomogeneousSiblingTr,
+                                { node: el, name: el.tagName });
     }
   });
   return ret;
 }
 
-//  LocalWords:  Mangalam MPL Dubeau lastChild deleteText domutil
-//  LocalWords:  keypress keydown util
-//  LocalWords:  InputTrigger
+//  LocalWords:  InputTrigger keydown keypress domutil deleteText lastChild MPL
+//  LocalWords:  Dubeau Mangalam

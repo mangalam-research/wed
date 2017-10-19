@@ -7,8 +7,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Promise from "bluebird";
-
 import { Runtime } from "../runtime";
 import * as saver from "../saver";
 import { TreeUpdater } from "../tree-updater";
@@ -17,7 +15,7 @@ export interface Store {
   put(name: string, data: string): Promise<void>;
 }
 
-export interface Options {
+export interface Options extends saver.SaverOptions {
   /**
    * The "name" of the file to save. This is the key used to save the file.
    */
@@ -27,9 +25,9 @@ export interface Options {
 }
 
 /**
- * Defines a saver that uses localforage to save documents.
+ * Defines a saver that uses IndexedDB to save documents.
  *
- * This saver stores the document as a "file" into an indexeddb instance. The
+ * This saver stores the document as a "file" into an IndexedDB instance. The
  * objects are not really files but similar to files. Henceforth, the name
  * "file" will be used without quotes to refer to the objects stored.
  *
@@ -60,7 +58,7 @@ export class Saver extends saver.Saver {
    */
   constructor(runtime: Runtime, version: string, dataUpdater: TreeUpdater,
               dataTree: Node, options: Options) {
-    super(runtime, version, dataUpdater, dataTree);
+    super(runtime, version, dataUpdater, dataTree, options);
     this.initialized = true;
     this.failed = false;
     this.name = options.name;
@@ -103,3 +101,5 @@ export class Saver extends saver.Saver {
       .catch(() => false);
   }
 }
+
+//  LocalWords:  IndexedDB MPL runtime

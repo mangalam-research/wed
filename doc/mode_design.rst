@@ -73,11 +73,28 @@ Design goals:
   a way that does not require ad-hoc modifications later if they are used with
   submodes.)
 
-Well-behaved main modes:
+Well-behaved modes:
 
-+ Take care to not operate on elements that are managed by submodes.
++ Take care to not operate **inside** elements that are managed by
+  submodes. However, they may operate on such elements *as a whole* and may
+  allow editing attributes on such elements.
 
-Well-behaved submodes:
+  This rule extends to classes or instances provided by modes. E.g. a
+  ``ModeValidator`` must check that it is operating only on appropriate nodes.
 
 + Take care to not operate on elements that are outside the region they manage,
   even though they have access to the whole document.
+
+  - In particular a customized ``Decorator`` will normally want to check that
+    the nodes it operates on are governed by the mode associated with the
+    decorator. The typical test is::
+
+      if (this.editor.modeTree.getMode(el) !== this.mode) {
+        // The element is not governed by this mode.
+        return;
+      }
+
++ Use stylesheets that are designed to apply only to the elements they
+  manage. This entails using CSS selectors that have enough specificity. [Wed
+  may eventually help with this, but for how the onus is entirely on mode
+  designers.]

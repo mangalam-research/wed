@@ -70,7 +70,20 @@ export type InsertableAtom = string | Element | Text;
 export type Insertable = InsertableAtom | InsertableAtom[] | NodeList;
 
 export type SplitResult = [Node | null, Node | null];
-export type TextInsertionResult = [Text | undefined, Text | undefined];
+
+/**
+ * Records the results of inserting text into the tree.
+ */
+export interface TextInsertionResult {
+  /** The node that contains the added text. */
+  node: Text | undefined;
+
+  /** Whether [[node]] is a new node. If ``false``, it was modified. */
+  isNew: boolean;
+
+  /** The caret position after the insertion. */
+  caret: DLoc;
+}
 export type InsertionBoundaries = [DLoc, DLoc];
 
 /**
@@ -118,7 +131,7 @@ export class TreeUpdater {
   /**
    * @param tree The node which contains the tree to update.
    */
-  constructor(protected readonly tree: Element) {
+  constructor(protected readonly tree: Element | Document) {
     const root = findRoot(tree);
     if (root === undefined) {
       throw new Error("the tree must have a DLocRoot");
@@ -400,25 +413,31 @@ export class TreeUpdater {
    *
    * @param text The text to insert.
    *
-   * @returns The first element of the array is the node that was modified to
-   * insert the text. It will be ``undefined`` if no node was modified. The
-   * second element is the text node which contains the new text. The two
-   * elements are defined and equal if a text node was modified to contain the
-   * newly inserted text. They are unequal if a new text node had to be created
-   * to contain the new text. A return value of ``[undefined, undefined]`` means
-   * that no modification occurred (because the text passed was "").
+   * @param caretAtEnd Whether the returned caret should be at the end of the
+   * inserted text or the start. If not specified, the default is ``true``.
+   *
+   * @returns The result of inserting text.
    *
    * @throws {Error} If ``node`` is not an element or text Node type.
    */
-  insertText(loc: DLoc, text: string): TextInsertionResult;
-  insertText(node: Node, index: number, text: string): TextInsertionResult;
+  insertText(loc: DLoc, text: string,
+             caretAtEnd?: boolean): TextInsertionResult;
+  insertText(node: Node, index: number, text: string,
+             caretAtEnd?: boolean): TextInsertionResult;
   insertText(loc: DLoc | Node, index: number | string,
-             text?: string): TextInsertionResult {
+             text: string | boolean = true,
+             caretAtEnd: boolean = true): TextInsertionResult {
     let node;
     if (loc instanceof DLoc) {
       if (typeof index !== "string") {
         throw new Error("text must be a string");
       }
+
+      if (typeof text !== "boolean") {
+        throw new Error("caretAtEnd must be a boolean");
+      }
+
+      caretAtEnd = text;
       text = index;
       node = loc.node;
       index = loc.offset;
@@ -427,7 +446,14 @@ export class TreeUpdater {
       node = loc;
     }
 
-    return domutil.genericInsertText.call(this, node, index, text);
+    const result = domutil.genericInsertText.call(this, node, index, text,
+                                                  caretAtEnd);
+
+    return {
+      ...result,
+      caret: DLoc.makeDLoc(this.dlocRoot, result.caret[0],
+                           result.caret[1]),
+    };
   }
 
   /**
@@ -514,23 +540,15 @@ export class TreeUpdater {
   /**
    * A primitive method. Inserts a node at the specified position.
    *
-   * @param {module:dloc~DLoc} loc The location at which to insert.
-   * @param {Node} node The node to insert.
-   *
-   * @emits module:tree_updater~TreeUpdater#insertNodeAt
-   * @emits module:tree_updater~TreeUpdater#change
-   * @throws {Error} If ``node`` is a document fragment Node type.
-   *
-   * @also
-   *
-   * @param {Node} parent The node which will become the parent of the
+   * @param loc The location at which to insert.
+   * @param node The node to insert.
+   * @param parent The node which will become the parent of the
    * inserted node.
-   * @param {integer} index The position at which to insert the node
+   * @param index The position at which to insert the node
    * into the parent.
-   * @param {Node} node The node to insert.
    *
-   * @emits module:tree_updater~TreeUpdater#insertNodeAt
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits InsertNodeAtEvent
+   * @emits ChangedEvent
    * @throws {Error} If ``node`` is a document fragment Node type.
    */
   insertNodeAt(loc: DLoc, node: Node): void;
@@ -600,8 +618,8 @@ export class TreeUpdater {
    *
    * @param value The new value of the node.
    *
-   * @emits module:tree_updater~TreeUpdater#setTextNodeValue
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits SetTextNodeValueEvent
+   * @emits ChangedEvent
    * @throws {Error} If called on a non-text Node type.
    */
   setTextNodeValue(node: Text, value: string): void {
@@ -707,9 +725,9 @@ export class TreeUpdater {
    * A complex method. Removes the contents between the start and end carets
    * from the DOM tree. If two text nodes become adjacent, they are merged.
    *
-   * @param start Start position.
+   * @param start The start position.
    *
-   * @param end Ending position.
+   * @param end The end position.
    *
    * @returns A pair of items. The first item is a ``DLoc`` object indicating
    * the position where the cut happened. The second item is a list of nodes,
@@ -782,9 +800,9 @@ export class TreeUpdater {
    *
    * @param node The node to remove
    *
-   * @emits module:tree_updater~TreeUpdater#deleteNode
-   * @emits module:tree_updater~TreeUpdater#beforeDeleteNode
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits DeleteNodeEvent
+   * @emits BeforeDeleteNodeEvent
+   * @emits ChangedEvent
    */
   deleteNode(node: Node): void {
     this._emit({ name: "BeforeDeleteNode", node: node });
@@ -810,8 +828,8 @@ export class TreeUpdater {
    *
    * @param value The value to give to the attribute.
    *
-   * @emits module:tree_updater~TreeUpdater#setAttributeNS
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits SetAttributeNSEvent
+   * @emits ChangedEvent
    */
   setAttribute(node: Element, attribute: string,
                value: string | null | undefined): void {
@@ -830,8 +848,8 @@ export class TreeUpdater {
    *
    * @param value The value to give to the attribute.
    *
-   * @emits module:tree_updater~TreeUpdater#setAttributeNS
-   * @emits module:tree_updater~TreeUpdater#change
+   * @emits SetAttributeNSEvent
+   * @emits ChangedEvent
    */
   setAttributeNS(node: Element, ns: string, attribute: string,
                  value: string | null | undefined): void {
@@ -886,9 +904,10 @@ export class TreeUpdater {
   }
 }
 
-//  LocalWords:  DOM Mangalam MPL Dubeau previousSibling nextSibling
-//  LocalWords:  mergeTextNodes prev insertIntoText nodeToPath
-//  LocalWords:  pathToNode SimpleEventEmitter deleteNode setTextNode
-//  LocalWords:  cd abfoocd abcd insertNodeAt TreeUpdater param mixin
-//  LocalWords:  setTextNodeValue removeNode deleteText insertBefore
-//  LocalWords:  insertText insertAt splitAt oop domutil
+//  LocalWords:  domutil splitAt insertAt insertText insertBefore deleteText cd
+//  LocalWords:  removeNode setTextNodeValue param TreeUpdater insertNodeAt MPL
+//  LocalWords:  abcd abfoocd setTextNode deleteNode pathToNode nodeToPath prev
+//  LocalWords:  insertIntoText mergeTextNodes nextSibling previousSibling DOM
+//  LocalWords:  Dubeau Mangalam BeforeInsertNodeAt BeforeDeleteNode DLocRoot
+//  LocalWords:  SetAttributeNS NodeList nodeType beforeThis nd setAttribute
+//  LocalWords:  caretAtEnd

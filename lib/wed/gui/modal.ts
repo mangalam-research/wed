@@ -5,65 +5,9 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import "bootstrap";
-import * as interact from "interact";
 import * as $ from "jquery";
-import * as browsers from "../browsers";
 
-/**
- * This records changes in such a way that if any of the changes cannot take
- * effect, then all the changes are "rolled back". It is called pseudo-atomic
- * because it is not really meant to track any changes that do not happen
- * through instances of this class. This is needed because we are changing the
- * size of multiple elements, and beyond a certain "smallness", some elements
- * won't register any change in dimensions (perhaps due to "min-..." styles.
- */
-class PseudoAtomicRectChange {
-  private readonly changes: { el: HTMLElement, rect: ClientRect }[] = [];
-  private rolledback: boolean = false;
-
-  updateElementRect(el: HTMLElement, dx: number, dy: number): void {
-    // If we've already rolled back, we don't do anything.
-    if (this.rolledback) {
-      return;
-    }
-
-    let rect = el.getBoundingClientRect();
-
-    // This works around a fractional pixel issue in IE. We set the element to
-    // the dimensions returned by getBoundingClientRect and then reacquire the
-    // dimensions to account for any funny adjustments IE may decide to do.
-    if (browsers.MSIE) {
-      el.style.width = `${rect.width}px`;
-      el.style.height = `${rect.height}px`;
-
-      rect = el.getBoundingClientRect();
-    }
-
-    const width = rect.width + dx;
-    const height = rect.height + dy;
-    el.style.width = `${width}px`;
-    el.style.height = `${height}px`;
-    this.changes.push({ el: el, rect: rect });
-    const newRect = el.getBoundingClientRect();
-
-    // Check whether the change "took". If not, roll back.
-    if (newRect.width !== width || newRect.height !== height) {
-      this.rollback();
-    }
-  }
-
-  rollback(): void {
-    const changes = this.changes;
-    for (const change of changes) {
-      const el = change.el;
-      const rect = change.rect;
-      el.style.width = `${rect.width}px`;
-      el.style.height = `${rect.height}px`;
-    }
-
-    this.rolledback = true;
-  }
-}
+import { makeDraggable, makeResizable } from "./interactivity";
 
 export interface Options {
   /**
@@ -126,7 +70,7 @@ export class Modal {
     // tabindex needed to make keyboard stuff work... grumble...
     // https://github.com/twitter/bootstrap/issues/4663
     // tslint:disable-next-line:no-jquery-raw-elements
-    this._$dom = $("\
+    const $dom = this._$dom = $("\
 <div class=\"modal\" style=\"position: absolute\" tabindex=\"1\">\
   <div class=\"modal-dialog\">\
     <div class=\"modal-content\">\
@@ -143,78 +87,23 @@ export class Modal {
     </div>\
   </div>\
 </div>");
-    this._$header = this._$dom.find(".modal-header");
-    this._$body = this._$dom.find(".modal-body");
-    this._$footer = this._$dom.find(".modal-footer");
-    this._$dom.on("click", ".btn", (ev) => {
+    this._$header = $dom.find(".modal-header");
+    this._$body = $dom.find(".modal-body");
+    this._$footer = $dom.find(".modal-footer");
+    $dom.on("click", ".btn", (ev) => {
       this._$clicked = $(ev.currentTarget);
       return true;
     });
 
-    this._$dom.on("shown.bs.modal.modal",
-                  this._handleShown.bind(this));
+    $dom.on("shown.bs.modal.modal", this._handleShown.bind(this));
 
-    const content = this._$dom.find(".modal-content")[0];
-    const body = this._$body[0];
-    const win = body.ownerDocument.defaultView;
-
-    const $dom = this._$dom;
     if (options.resizable as boolean) {
-      body.style.overflow = "auto";
-      // We listen to resizestart and resizeend to deal with the following
-      // scenario: the user starts resizing the modal, it goes beyond the limits
-      // of how big it can be resized, the mouse pointer moves outside the modal
-      // window and the user releases the button when the pointer is
-      // outside. Without the use of ignoreBackdropClick, this causes the modal
-      // to close.
-      interact(content)
-        .resizable({})
-        .on("resizestart", () => {
-          const modal = $dom.data("bs.modal");
-          if (modal == null) {
-            return; // Deal with edge cases.
-          }
-          // Prevent modal closure.
-          modal.ignoreBackdropClick = true;
-        })
-        .on("resizeend", () => {
-          // We use a setTimeout otherwise we turn ignoreBackdropClick too soon.
-          setTimeout(() => {
-            const modal = $dom.data("bs.modal");
-            if (modal == null) {
-              return; // Deal with edge cases.
-            }
-            modal.ignoreBackdropClick = false;
-          },
-                     0);
-        })
-        .on("resizemove", (event: Interact.InteractEvent) => {
-          const target = event.target;
-
-          const change = new PseudoAtomicRectChange();
-          change.updateElementRect(target, event.dx, event.dy);
-          change.updateElementRect(body, event.dx, event.dy);
-        });
+      this._$body[0].style.overflow = "auto";
+      makeResizable($dom);
     }
 
     if (options.draggable as boolean) {
-      interact(this._$header[0])
-        .draggable({
-                     restrict: {
-                       restriction: {
-                         left: 0,
-                         top: 0,
-                         right: win.innerWidth - 10,
-                         bottom: win.innerHeight - 10,
-                       },
-                     },
-                   })
-        .on("dragmove", (event: Interact.InteractEvent) => {
-          const target = content;
-
-          target.style.left = `${event.clientX - event.clientX0}px`;
-          target.style.top = `${event.clientY - event.clientY0}px`;
-        });
+      makeDraggable($dom);
     }
   }
 
@@ -304,7 +193,7 @@ export class Modal {
    * user did, and potentially clean up after itself. The callback is left out
    * if the modal is merely for informational purposes.
    */
-  modal(callback?: () => void): void {
+  modal(callback?: (ev: JQueryEventObject) => void): void {
     this._$clicked = undefined;
     if (callback !== undefined) {
       this._$dom.one("hidden.bs.modal.modal", callback);
@@ -345,7 +234,6 @@ export class Modal {
     const dialog = this._$dom.find(".modal-dialog")[0];
     const rect = dialog.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(dialog);
-    // eslint-disable-next-line no-mixed-operators
     const diff = -rect.top + (winHeight - rect.height) -
       parseInt(computedStyle.marginBottom!);
     const dialogMaxHeight = rect.height + diff;
@@ -355,6 +243,8 @@ export class Modal {
   }
 }
 
-//  LocalWords:  Ok DOM gui Mangalam MPL Dubeau getClickedAsText pre
-//  LocalWords:  addYesNo setBody setTitle mymodal jquery html href
-//  LocalWords:  bs jQuery param btn tabindex util getTopLevel
+//  LocalWords:  dialogMaxHeight clientY clientX resizemove dragmove setTimeout
+//  LocalWords:  ignoreBackdropClick getBoundingClientRect resizeend tabindex
+//  LocalWords:  getTopLevel btn param jQuery bs resizestart href jquery px pre
+//  LocalWords:  mymodal setTitle setBody addYesNo rect getClickedAsText Dubeau
+//  LocalWords:  MPL Mangalam DOM Ok

@@ -10,6 +10,21 @@ import * as browsers from "./browsers";
 
 let id = 0;
 
+// tslint:disable-next-line:completed-docs class-name
+export class EITHER_ {
+  toString(): string {
+    return "EITHER";
+  }
+}
+
+/**
+ * Value meaning "either true or false", by opposition to ``true`` and
+ * ``false``.
+ */
+export const EITHER = new EITHER_();
+
+export type TriValued = boolean | typeof EITHER;
+
 /**
  * One and only one instance of a Key object exists per set of parameters used
  * for its construction. So if ``a = new Key(1, 2, 3)`` and ``b = new Key(1, 2,
@@ -19,6 +34,14 @@ let id = 0;
  *
  * Key objects should be considered immutable. Modifying them after their
  * creation is likely to cause code to execute erratically.
+ *
+ * A note on the handling of the shift key. For key presses, we do not care
+ * whether shift was held or not when the key was pressed. It does not matter to
+ * us whether the user types the letter A because "Shift-a" was pressed or
+ * because the user was in caps lock mode and pressed "a". Conversely,
+ * ``keydown`` and ``keyup`` events concern themselves with Shift. We do want to
+ * distinguish Ctrl-A and Ctrl-Shift-A. (Yes, we use the capital A for both:
+ * browsers report that the key "A" was pressed whether Shift was held or not.)
  */
 export class Key {
   // tslint:disable-next-line:variable-name
@@ -30,6 +53,7 @@ export class Key {
   public readonly ctrlKey: boolean;
   public readonly altKey: boolean;
   public readonly metaKey: boolean;
+  public readonly shiftKey: TriValued;
   public readonly keypress: boolean;
 
   public readonly hashKey: string;
@@ -37,7 +61,6 @@ export class Key {
   private readonly id: number;
 
   /**
-   *
    * Client code should use the convenience functions provided by this module to
    * create keys rather than use this constructor directly.
    *
@@ -55,14 +78,19 @@ export class Key {
    * @param altKey Whether this key requires the Alt key held.
    *
    * @param metaKey Whether this key requires the meta key held.
+   *
+   * @param shiftKey Whether this key requires the shift key held. It is invalid
+   * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
+   * ``false``, an unspecified value here means ``false``.
    */
   constructor(which: number, keypress: boolean = true,
               keyCode: number, charCode: number = 0, ctrlKey: boolean = false,
-              altKey: boolean = false, metaKey: boolean = false) {
+              altKey: boolean = false, metaKey: boolean = false,
+              shiftKey: TriValued = EITHER) {
 
     // Some separator is necessary because otherwise there would be no way to
     // distinguish (1, 23, 4, ...) from (12, 3, 4, ...) or (1, 2, 34, ...).
-    const key = [which, keyCode, charCode, ctrlKey, altKey, metaKey,
+    const key = [which, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey,
                  keypress].join(",");
 
     // Ensure we have only one of each key created.
@@ -71,12 +99,19 @@ export class Key {
       return cached;
     }
 
+    if (keypress) {
+      if (shiftKey !== EITHER) {
+        throw new Error("shiftKey with key presses must be EITHER");
+      }
+    }
+
     this.which = which;
     this.keyCode = keyCode;
     this.charCode = charCode;
     this.ctrlKey = ctrlKey;
     this.altKey = altKey;
     this.metaKey = metaKey;
+    this.shiftKey = shiftKey;
     this.keypress = keypress;
 
     this.hashKey = key;
@@ -101,6 +136,8 @@ export class Key {
       ev.ctrlKey === this.ctrlKey &&
       ev.altKey === this.altKey &&
       ev.metaKey === this.metaKey &&
+      // If shiftKey is undefined, we don't compare it.
+      ((this.shiftKey === EITHER) || (ev.shiftKey === this.shiftKey)) &&
       (this.keypress ? (ev.type === "keypress") :
        ((ev.type === "keydown") || (ev.type === "keyup")));
   }
@@ -122,6 +159,9 @@ export class Key {
     asAny.ctrlKey = this.ctrlKey;
     asAny.altKey = this.altKey;
     asAny.metaKey = this.metaKey;
+    if (this.shiftKey !== EITHER) {
+      asAny.shiftKey = this.shiftKey;
+    }
     if (this.keypress) {
       asAny.type = "keypress";
     }
@@ -175,6 +215,9 @@ export class Key {
  *
  * @param metaKey Whether this key requires the meta key held.
  *
+ * @param shiftKey Whether this key requires the shift key held. It is invalid
+ * to use this parameter if ``keypress`` is ``true``.
+ *
  * @returns The key created.
  *
  * @throws {Error} If ``which`` is not a single character string or a number.
@@ -184,70 +227,78 @@ export function makeKey(which: string | number,
                         keyCode?: number, charCode?: number,
                         ctrlKey: boolean = false,
                         altKey: boolean = false,
-                        metaKey: boolean = false): Key {
-    if (typeof (which) === "string") {
-      if (which.length !== 1) {
-        throw new Error("when the first parameter is a string, " +
-                        "a one-character string is required");
-      }
-      which = which.charCodeAt(0);
+                        metaKey: boolean = false,
+                        shiftKey: TriValued = EITHER): Key {
+  if (typeof (which) === "string") {
+    if (which.length !== 1) {
+      throw new Error("when the first parameter is a string, " +
+                      "a one-character string is required");
     }
-    else if (typeof (which) !== "number") {
-      throw new Error("the first parameter must be a string or number");
-    }
-
-    if (keypress === undefined) {
-      keypress = true;
-    }
-    else {
-      keypress = !!keypress;
-    }
-
-    if (keyCode == null) {
-      keyCode = (keypress && browsers.GECKO) ? 0 : which;
-    }
-
-    if (charCode == null) {
-      charCode = keypress ? which : 0;
-    }
-
-    // Normalize
-    ctrlKey = !!ctrlKey;
-    altKey = !!altKey;
-    metaKey = !!metaKey;
-
-    return new Key(which, keypress, keyCode, charCode, ctrlKey, altKey,
-                   metaKey);
+    which = which.charCodeAt(0);
   }
+  else if (typeof (which) !== "number") {
+    throw new Error("the first parameter must be a string or number");
+  }
+
+  if (keypress === undefined) {
+    keypress = true;
+  }
+  else {
+    keypress = !!keypress;
+  }
+
+  if (keyCode == null) {
+    keyCode = (keypress && browsers.GECKO) ? 0 : which;
+  }
+
+  if (charCode == null) {
+    charCode = keypress ? which : 0;
+  }
+
+  // Normalize
+  ctrlKey = !!ctrlKey;
+  altKey = !!altKey;
+  metaKey = !!metaKey;
+  if (shiftKey !== EITHER) {
+    shiftKey = !!shiftKey;
+  }
+
+  return new Key(which, keypress, keyCode, charCode, ctrlKey, altKey,
+                 metaKey, shiftKey);
+}
 
 /**
  * This function creates a key object which represents a control character (a
  * character typed while Ctrl is held).
  *
- *
  * @param ch This parameter can be a string of length one which contains the
  * character for which we want to create a Key. If a number, it is the character
  * code of the key.
  *
+ * @param shiftKey Whether this is a Ctrl-Shift sequence or not.
+ *
  * @returns The key created.
  */
-export function makeCtrlKey(ch: string | number): Key {
-  return makeKey(ch, false, undefined, undefined, true, false, false);
+export function makeCtrlKey(ch: string | number,
+                            shiftKey: TriValued = EITHER): Key {
+  return makeKey(ch, false, undefined, undefined, true, false, false, shiftKey);
 }
 
 /**
  * This function creates a key object which represents a meta character (a
  * character typed while Meta is held).
  *
- *
  * @param ch This parameter can be a string of length one which contains the
  * character for which we want to create a Key. If a number, it is the character
  * code of the key.
  *
+ * @param shiftKey Whether this is a Meta-Shift sequence or not.
+ *
  * @returns The key created.
  */
-export function makeMetaKey(ch: string | number): Key {
-  return makeKey(ch, false, undefined, undefined, false, false, true);
+export function makeMetaKey(ch: string | number,
+                            shiftKey: TriValued = EITHER): Key {
+  return makeKey(ch, false, undefined, undefined, false, false, true, shiftKey);
 }
 
 /**
@@ -262,17 +313,19 @@ export function makeMetaKey(ch: string | number): Key {
  * character for which we want to create a Key. If a number, it is the character
  * code of the key.
  *
+ * @param shiftKey Whether this is a [...]-Shift sequence or not.
+ *
  * @returns The key created.
  */
-export function makeCtrlEqKey(ch: string | number): Key {
+export function makeCtrlEqKey(ch: string | number,
+                              shiftKey: TriValued = EITHER): Key {
   if (!browsers.OSX) {
-    return makeCtrlKey(ch);
+    return makeCtrlKey(ch, shiftKey);
   }
 
   // Command === Meta
-  return makeMetaKey(ch);
+  return makeMetaKey(ch, shiftKey);
 }
 
-//  LocalWords:  metaKey altKey ctrlKey charcode keyCode param keyup
-//  LocalWords:  Ctrl DOM Mangalam MPL Dubeau boolean keypress
-//  LocalWords:  keydown jQuery
+//  LocalWords:  jQuery keydown keypress boolean Dubeau MPL Mangalam DOM Ctrl
+//  LocalWords:  keyup param keyCode charcode ctrlKey altKey metaKey shiftKey

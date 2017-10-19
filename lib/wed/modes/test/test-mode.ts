@@ -4,14 +4,15 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird";
 import * as $ from "jquery";
-import { ValidationError } from "salve";
+import * as mergeOptions from "merge-options";
+import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
 import { Action } from "wed/action";
-import { Decorator, Editor } from "wed/decorator";
-import { closestByClass, indexOf } from "wed/domutil";
+import { Decorator } from "wed/decorator";
+import { childrenByClass, closestByClass, indexOf } from "wed/domutil";
+import { GUISelector } from "wed/gui-selector";
 import * as context_menu from "wed/gui/context-menu";
 import { Modal } from "wed/gui/modal";
 import * as input_trigger_factory from "wed/input-trigger-factory";
@@ -22,12 +23,12 @@ import { GenericModeOptions,
 import { GenericDecorator } from "wed/modes/generic/generic-decorator";
 import { Template } from "wed/object-check";
 import * as transformation from "wed/transformation";
-import * as util from "wed/util";
 import { ModeValidator } from "wed/validator";
+import { Editor } from "wed/wed";
 
 // tslint:disable-next-line:completed-docs
 class Validator implements ModeValidator {
-  constructor(private readonly dataRoot: Element) {}
+  constructor(private readonly dataRoot: Element | Document) {}
 
   validateDocument(): ErrorData[] {
     return [{
@@ -46,11 +47,15 @@ export class TestDecorator extends GenericDecorator {
     text: 1,
   };
 
+  protected readonly mode: TestMode;
+
   addHandlers(): void {
     super.addHandlers();
     input_trigger_factory.makeSplitMergeInputTrigger(
       this.editor,
-      "hi",
+      this.mode,
+      GUISelector.fromDataSelector("hi",
+                                   this.mode.getAbsoluteNamespaceMappings()),
       key.makeKey(";"),
       key_constants.BACKSPACE,
       key_constants.DELETE);
@@ -58,16 +63,26 @@ export class TestDecorator extends GenericDecorator {
 
   // tslint:disable:no-jquery-raw-elements
   elementDecorator(root: Element, el: Element): void {
+    if (this.editor.modeTree.getMode(el) !== this.mode) {
+      // The element is not governed by this mode.
+      return;
+    }
     const dataNode = this.editor.toDataNode(el) as Element;
     const rend = dataNode.getAttribute("rend");
 
-    const origName = util.getOriginalName(el);
-    let level = this.elementLevel[origName];
+    const localName = dataNode.localName!;
+    const inTEI = dataNode.namespaceURI === this.namespaces.tei;
+
+    let level = inTEI ? this.elementLevel[localName] : undefined;
     if (level === undefined) {
       level = 1;
     }
+
+    const isP = inTEI && localName === "p";
+    const isRef = inTEI && localName === "ref";
+
     // We don't run the default when we wrap p.
-    if (!(origName === "p" && rend === "wrap")) {
+    if (!(isP && rend === "wrap")) {
       // There's no super.super syntax we can use here.
       Decorator.prototype.elementDecorator.call(
         this, root, el, level,
@@ -75,7 +90,7 @@ export class TestDecorator extends GenericDecorator {
         this.contextMenuHandler.bind(this, false));
     }
 
-    if (origName === "ref") {
+    if (isRef) {
       $(el).children("._text._phantom").remove();
       this.guiUpdater.insertBefore(
         el,
@@ -89,10 +104,10 @@ export class TestDecorator extends GenericDecorator {
       $before.on("wed-context-menu",
                  { node: el },
                  this._navigationContextMenuHandler.bind(this));
-      $before[0].setAttribute("data-wed-custom-context-menu", "true");
+      $before[0].setAttribute("data-wed--custom-context-menu", "true");
     }
 
-    if (origName === "p") {
+    if (isP) {
       switch (rend) {
       case "foo":
         $(el).children("._gui_test").remove();
@@ -131,6 +146,11 @@ export class TestDecorator extends GenericDecorator {
           break;
         }
 
+        const toRemove = childrenByClass(el, "_gui");
+        for (const remove of toRemove) {
+          el.removeChild(remove);
+        }
+
         const wrapper = $("<div class='_gui _phantom_wrap _gui_test btn " +
                           "btn-default'></div>")[0];
         this.guiUpdater.insertBefore(el.parentNode! as Element, wrapper, el);
@@ -147,7 +167,15 @@ export class TestDecorator extends GenericDecorator {
     // node is the node in the GUI tree which corresponds to the navigation item
     // for which a context menu handler was required by the user.
     const node = wedEv.data.node;
-    const origName = util.getOriginalName(node);
+    const dataNode = this.editor.toDataNode(node) as Element;
+    const prefixedName = this.mode.unresolveName(
+      new EName(dataNode.namespaceURI === null ? "" : dataNode.namespaceURI,
+                dataNode.localName!));
+
+    // We don't know this element.
+    if (prefixedName === undefined) {
+      return true;
+    }
 
     // container, offset: location of the node in its parent.
     const container = node.parentNode;
@@ -155,11 +183,11 @@ export class TestDecorator extends GenericDecorator {
 
     // Create "insert" transformations for siblings that could be inserted
     // before this node.
-    const actions = this.mode.getContextualActions("insert", origName,
+    const actions = this.mode.getContextualActions("insert", prefixedName,
                                                    container, offset);
     // data to pass to transformations
     const data = {
-      name: origName,
+      name: prefixedName,
       moveCaretTo: this.editor.caretManager.makeCaret(container, offset),
     };
 
@@ -183,6 +211,8 @@ export interface TestModeOptions extends GenericModeOptions {
   ambiguous_fileDesc_insert: boolean;
   fileDesc_insert_needs_input: boolean;
   hide_attributes: boolean;
+  nameSuffix?: string;
+  stylesheets?: string[];
 }
 
 type MatchCallback = (matches: { value: string }[]) => void;
@@ -225,7 +255,7 @@ class TypeaheadAction extends Action<{}> {
       }],
     };
 
-    const pos = editor.computeContextMenuPosition(undefined, true);
+    const pos = editor.editingMenuManager.computeMenuPosition(undefined, true);
     const typeahead =
       editor.displayTypeaheadPopup(pos.left, pos.top, 300,
                                    "Test", options,
@@ -247,28 +277,55 @@ class TypeaheadAction extends Action<{}> {
 
 // tslint:disable-next-line:completed-docs
 class DraggableModalAction extends Action<{}> {
-  execute(): void {
-    const editor = this.editor;
-    const modal = editor.mode.draggable;
-    modal.modal();
-  }
-}
+  private _modal: Modal | undefined;
 
-// tslint:disable-next-line:completed-docs
-class ResizableModalAction extends Action<{}> {
+  private get modal(): Modal {
+    if (this._modal === undefined) {
+      this._modal = this.editor.makeModal({ draggable: true });
+    }
+
+    return this._modal;
+  }
+
   execute(): void {
-    const editor = this.editor;
-    const modal = editor.mode.resizable;
-    modal.modal();
+    this.modal.modal();
   }
 }
 
 // tslint:disable-next-line:completed-docs
 class DraggableResizableModalAction extends Action<{}> {
+  private _modal: Modal | undefined;
+
+  private get modal(): Modal {
+    if (this._modal === undefined) {
+      this._modal = this.editor.makeModal({
+          resizable: true,
+          draggable: true,
+        });
+    }
+
+    return this._modal;
+  }
+
   execute(): void {
-    const editor = this.editor;
-    const modal = editor.mode.draggableResizable;
-    modal.modal();
+    this.modal.modal();
+  }
+}
+
+// tslint:disable-next-line:completed-docs
+class ResizableModalAction extends Action<{}> {
+  private _modal: Modal | undefined;
+
+  private get modal(): Modal {
+    if (this._modal === undefined) {
+      this._modal = this.editor.makeModal({ resizable: true });
+    }
+
+    return this._modal;
+  }
+
+  execute(): void {
+    this.modal.modal();
   }
 }
 
@@ -276,11 +333,8 @@ class DraggableResizableModalAction extends Action<{}> {
  * This mode is purely designed to help test wed, and nothing
  * else. Don't derive anything from it and don't use it for editing.
  */
-class TestMode extends GenericMode<TestModeOptions> {
+export class TestMode extends GenericMode<TestModeOptions> {
   private typeaheadAction: TypeaheadAction;
-  private draggable: Modal;
-  private resizable: Modal;
-  private draggableResizable: Modal;
   private draggableAction: DraggableModalAction;
   private resizableAction: ResizableModalAction;
   private draggableResizableAction: DraggableResizableModalAction;
@@ -291,17 +345,17 @@ class TestMode extends GenericMode<TestModeOptions> {
     ambiguous_fileDesc_insert: false,
     fileDesc_insert_needs_input: false,
     hide_attributes: false,
+    // We use nameSuffix to vary the name given to multiple instances.
+    nameSuffix: false,
+    stylesheets: false,
   };
 
   constructor(editor: Editor, options: TestModeOptions) {
     super(editor, options);
-
-    if (this.constructor !== TestMode) {
-      throw new Error("this is a test mode; don't derive from it!");
-    }
-
+    this.wedOptions = mergeOptions({}, this.wedOptions);
+    const suffix = options.nameSuffix != null ? options.nameSuffix : "";
     this.wedOptions.metadata = {
-      name: "Test",
+      name: `Test${suffix}`,
       authors: ["Louis-Dominique Dubeau"],
       description: "TEST MODE. DO NOT USE IN PRODUCTION!",
       license: "MPL 2.0",
@@ -339,13 +393,6 @@ class TestMode extends GenericMode<TestModeOptions> {
           editor, "Test typeahead", undefined,
           "<i class='fa fa-plus fa-fw'></i>", true);
 
-        this.draggable = editor.makeModal({ draggable: true });
-        this.resizable = editor.makeModal({ resizable: true });
-        this.draggableResizable = editor.makeModal({
-          resizable: true,
-          draggable: true,
-        });
-
         this.draggableAction = new DraggableModalAction(
           editor, "Test draggable", undefined, undefined, true);
         this.resizableAction = new ResizableModalAction(
@@ -353,6 +400,11 @@ class TestMode extends GenericMode<TestModeOptions> {
         this.draggableResizableAction = new DraggableResizableModalAction(
           editor, "Test draggable resizable", undefined, undefined, true);
       });
+  }
+
+  getStylesheets(): string[] {
+    const stylesheets = this.options.stylesheets;
+    return stylesheets !== undefined ? stylesheets : [];
   }
 
   getContextualActions(transformationType: string | string[],
@@ -379,6 +431,8 @@ class TestMode extends GenericMode<TestModeOptions> {
 
     if (tag === "ref" &&
         (transformationType === "insert" || transformationType === "wrap")) {
+      // It is a bit peculiar to tie the draggable and resizable actions to
+      // "ref", because it is not necessary, but meh...
       ret.push(this.typeaheadAction, this.draggableAction,
                this.resizableAction, this.draggableResizableAction);
     }
@@ -386,12 +440,8 @@ class TestMode extends GenericMode<TestModeOptions> {
     return ret;
   }
 
-  makeDecorator(): TestDecorator {
-    const obj = Object.create(TestDecorator.prototype);
-    let args = Array.prototype.slice.call(arguments);
-    args = [this, this.metadata, this.options].concat(args);
-    TestDecorator.apply(obj, args);
-    return obj;
+  makeDecorator(): GenericDecorator {
+    return new TestDecorator(this, this.editor, this.metadata, this.options);
   }
 
   getAttributeCompletions(attr: Attr): string[] {
@@ -403,11 +453,11 @@ class TestMode extends GenericMode<TestModeOptions> {
   }
 
   getValidator(): ModeValidator {
-    return new Validator(this.editor.data_root);
+    return new Validator(this.editor.dataRoot);
   }
 }
 
 export { TestMode as Mode };
 
-//  LocalWords:  domutil metas tei oop util Mangalam MPL
-//  LocalWords:  Dubeau
+//  LocalWords:  Dubeau MPL Mangalam tei domutil btn getLabelFor tabindex href
+//  LocalWords:  li nameSuffix subtype typeahead fw draggable resizable

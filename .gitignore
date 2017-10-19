@@ -9,3 +9,4 @@
 *_flymake.*
 *.pyc
 /.venv
+.dir-locals.el

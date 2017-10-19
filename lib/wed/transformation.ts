@@ -14,10 +14,7 @@ import { Caret, firstDescendantOrSelf, indexOf,
          isWellFormedRange } from "./domutil";
 import * as icon from "./gui/icon";
 import { TreeUpdater } from "./tree-updater";
-
-// tslint:disable:no-any
-export type Editor = any;
-// tslint:enable:no-any
+import { Editor } from "./wed";
 
 const TYPE_TO_KIND = _.extend(Object.create(null), {
   // These are not actually type names. It is possible to use a kind name as a
@@ -110,7 +107,7 @@ export interface TransformationData {
    * The name of the node to add, remove, etc. Should be set by the code that
    * invokes the transformation.
    */
-  name: string;
+  name?: string;
 
   /**
    * A position to which the caret is moved before the transformation is fired.
@@ -120,10 +117,14 @@ export interface TransformationData {
   moveCaretTo?: DLoc;
 }
 
+export interface NamedTransformationData extends TransformationData {
+  name: string;
+}
+
 /**
  * @param editor The editor.
  *
- * @param data Data for the transformation.
+ * @param data The data for the transformation.
  */
 export type TransformationHandler =
   (editor: Editor, data: TransformationData) => void;
@@ -230,6 +231,10 @@ export class Transformation<Data extends TransformationData>
   }
 
   getDescriptionFor(data: Data): string {
+    if (data.name === undefined) {
+      return this.desc;
+    }
+
     return this.desc.replace(/<name>/, data.name);
   }
 
@@ -254,7 +259,7 @@ export type AttributeTable = Record<string, string>;
  *
  * @param ns The URI of the namespace to use for the new element.
  *
- * @param name Name of the new element.
+ * @param name The name of the new element.
  *
  * @param attrs An object whose fields will become attributes for the new
  * element.
@@ -279,13 +284,13 @@ export function makeElement(doc: Document, ns: string, name: string,
  *
  * @param dataUpdater A tree updater through which to update the DOM tree.
  *
- * @param parent Parent of the new node.
+ * @param parent The parent of the new node.
  *
  * @param index Offset in the parent where to insert the new node.
  *
  * @param ns The URI of the namespace to use for the new element.
  *
- * @param name Name of the new element.
+ * @param name The name of the new element.
  *
  * @param attrs An object whose fields will become attributes for the new
  * element.
@@ -309,7 +314,7 @@ export function insertElement(dataUpdater: TreeUpdater,
  *
  * @param node The DOM node where to wrap. Must be a text node.
  *
- * @param offset Offset in the node. This parameter specifies where to start
+ * @param offset The offset in the node. This parameter specifies where to start
  * wrapping.
  *
  * @param endOffset Offset in the node. This parameter specifies where to end
@@ -317,7 +322,7 @@ export function insertElement(dataUpdater: TreeUpdater,
  *
  * @param ns The URI of the namespace to use for the new element.
  *
- * @param name Name of the wrapping element.
+ * @param name The name of the wrapping element.
  *
  * @param attrs An object whose fields will become attributes for the new
  * element.
@@ -366,7 +371,7 @@ export function wrapTextInElement(dataUpdater: TreeUpdater, node: Text,
  *
  * @param offset Where to split the node
  *
- * @returns Returns a caret location marking where the split occurred.
+ * @returns A caret location marking where the split occurred.
  */
 function _wie_splitTextNode(dataUpdater: TreeUpdater, container: Text,
                             offset: number): Caret {
@@ -526,11 +531,15 @@ export function unwrap(dataUpdater: TreeUpdater, node: Element): Node[] {
 export function splitNode(editor: Editor, node: Node): void {
   const caret = editor.caretManager.getDataCaret();
 
+  if (caret === undefined) {
+    throw new Error("no caret");
+  }
+
   if (!node.contains(caret.node)) {
     throw new Error("caret outside node");
   }
 
-  const pair = editor.data_updater.splitAt(node, caret);
+  const pair = editor.dataUpdater.splitAt(node, caret);
   // Find the deepest location at the start of the 2nd element.
   editor.caretManager.setCaret(firstDescendantOrSelf(pair[1]), 0);
 }
@@ -567,18 +576,20 @@ export function mergeWithPreviousHomogeneousSibling(editor: Editor,
   const insertionPoint = prev.childNodes.length;
   // Reverse order
   for (let i = node.childNodes.length - 1; i >= 0; --i) {
-    editor.data_updater.insertAt(prev, insertionPoint,
-                                 node.childNodes[i].cloneNode(true));
+    editor.dataUpdater.insertAt(
+      prev, insertionPoint,
+      node.childNodes[i].cloneNode(true) as (Element | Text));
   }
 
   if (wasText) {
-    editor.data_updater.mergeTextNodes(lastChild);
+    // If wasText is true, lastChild cannot be null.
+    editor.dataUpdater.mergeTextNodes(lastChild!);
     editor.caretManager.setCaret(prev.childNodes[caretPos - 1], textLen);
   }
   else {
     editor.caretManager.setCaret(prev, caretPos);
   }
-  editor.data_updater.removeNode(node);
+  editor.dataUpdater.removeNode(node);
 }
 
 /**
@@ -626,8 +637,8 @@ export function swapWithPreviousHomogeneousSibling(editor: Editor,
     throw new Error("detached node");
   }
 
-  editor.data_updater.removeNode(node);
-  editor.data_updater.insertBefore(parent, node, prev);
+  editor.dataUpdater.removeNode(node);
+  editor.dataUpdater.insertBefore(parent as Element, node, prev);
   editor.caretManager.setCaret(node);
 }
 
@@ -650,8 +661,7 @@ export function swapWithNextHomogeneousSibling(editor: Editor,
   swapWithPreviousHomogeneousSibling(editor, next);
 }
 
-//  LocalWords:  concat prepend refman endOffset endContainer DOM oop
-//  LocalWords:  startOffset startContainer html Mangalam MPL Dubeau
-//  LocalWords:  previousSibling nextSibling insertNodeAt deleteNode
-//  LocalWords:  mergeTextNodes lastChild prev deleteText Prepend lt
-//  LocalWords:  domutil util
+//  LocalWords:  wasText endOffset prepend endContainer startOffset html DOM
+//  LocalWords:  startContainer Mangalam Dubeau previousSibling nextSibling MPL
+//  LocalWords:  insertNodeAt deleteNode mergeTextNodes lastChild prev Prepend
+//  LocalWords:  deleteText domutil

@@ -42,4 +42,4 @@ export function tooltip($for: JQuery, options: TooltipOptions): void {
     $for.on("show.bs.tooltip", _showHandler);
   }
 
-//  LocalWords:  tooltip Tooltips bs tooltips
+//  LocalWords:  MPL tooltips bs Tooltips tooltip
