@@ -14,14 +14,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "jquery", "./convert", "./dloc", "./domtypeguards", "./domutil", "./tree-updater", "./util"], function (require, exports, module, $, convert, dloc_1, domtypeguards_1, domutil_1, treeUpdater, util) {
+define(["require", "exports", "module", "jquery", "./convert", "./dloc", "./domtypeguards", "./domutil", "./tree-updater", "./util"], function (require, exports, module, $, convert, dloc_1, domtypeguards_1, domutil_1, tree_updater_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * Updates a GUI tree so that its data nodes (those nodes that are not
      * decorations) mirror a data tree.
      */
-    var GUIUpdater = (function (_super) {
+    var GUIUpdater = /** @class */ (function (_super) {
         __extends(GUIUpdater, _super);
         /**
          * @param guiTree The DOM tree to update.
@@ -166,11 +166,11 @@ define(["require", "exports", "module", "jquery", "./convert", "./dloc", "./domt
             return dloc_1.DLoc.mustMakeDLoc(this.tree, guiChild);
         };
         return GUIUpdater;
-    }(treeUpdater.TreeUpdater));
+    }(tree_updater_1.TreeUpdater));
     exports.GUIUpdater = GUIUpdater;
 });
-//  LocalWords:  TreeUpdater setTextNodeValue gui oop Mangalam MPL
-//  LocalWords:  Dubeau insertNodeAt deleteNode jQuery nodeToPath
-//  LocalWords:  pathToNode jquery domutil
+//  LocalWords:  domutil jquery pathToNode nodeToPath jQuery deleteNode Dubeau
+//  LocalWords:  insertNodeAt MPL Mangalam gui setTextNodeValue TreeUpdater ev
+//  LocalWords:  BeforeDeleteNode SetAttributeNS
 
 //# sourceMappingURL=gui-updater.js.map

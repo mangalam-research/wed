@@ -24,10 +24,10 @@
  *
  * Depends on Rangy core.
  *
- * Copyright 2015, Tim Down
+ * Copyright 2017, Tim Down
  * Licensed under the MIT license.
- * Version: 1.3.0
- * Build date: 10 May 2015
+ * Version: 1.3.1-dev
+ * Build date: 11 October 2017
  */
 
 /**
@@ -460,12 +460,14 @@
 
         function isCollapsedNode(node) {
             var type = node.nodeType;
+            var customIsCollapsedNode =  api.config.customIsCollapsedNode;
             return type == 7 /* PROCESSING_INSTRUCTION */ ||
                 type == 8 /* COMMENT */ ||
                 isHidden(node) ||
                 /^(script|style)$/i.test(node.nodeName) ||
                 isVisibilityHiddenTextNode(node) ||
-                isCollapsedWhitespaceNode(node);
+                isCollapsedWhitespaceNode(node) ||
+                (customIsCollapsedNode && customIsCollapsedNode(node));
         }
 
         function isIgnoredNode(node, win) {

@@ -23,7 +23,7 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
      * recording ends. This allows restoring the caret to sensible
      * positions before and after undoing or redoing.
      */
-    var UndoGroup = (function (_super) {
+    var UndoGroup = /** @class */ (function (_super) {
         __extends(UndoGroup, _super);
         /**
          * @param desc The description of this group.
@@ -59,7 +59,7 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
                 // trap stupid mistakes in managing the data.
                 return [undefined, undefined];
             }
-            return [this.editor.data_updater.nodeToPath(caret.node), caret.offset];
+            return [this.editor.dataUpdater.nodeToPath(caret.node), caret.offset];
         };
         /**
          * Set the data caret.
@@ -71,7 +71,7 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
             if (caret[0] === undefined && caret[1] === undefined) {
                 return;
             }
-            this.editor.caretManager.setCaret(this.editor.data_updater.pathToNode(caret[0]), caret[1]);
+            this.editor.caretManager.setCaret(this.editor.dataUpdater.pathToNode(caret[0]), caret[1]);
         };
         /**
          * This method can be used to record the caret position after the acts
@@ -98,7 +98,7 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
      * operation. It is better to undo it in chunks instead of reinserting the whole
      * sentence. This class allows for limiting the length of such chunks.
      */
-    var TextUndoGroup = (function (_super) {
+    var TextUndoGroup = /** @class */ (function (_super) {
         __extends(TextUndoGroup, _super);
         /**
          * @param desc The description of this group.
@@ -116,11 +116,11 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
             _this.limit = limit;
             return _this;
         }
-        TextUndoGroup.prototype.record = function (undo) {
+        TextUndoGroup.prototype.record = function (undoToRecord) {
             if (this.list.length >= this.limit) {
                 throw new Error("TextUndoGroup.record called beyond the limit");
             }
-            _super.prototype.record.call(this, undo);
+            _super.prototype.record.call(this, undoToRecord);
             if (this.list.length === this.limit) {
                 this.undoList.endGroup();
             }
@@ -131,7 +131,7 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
     /**
      * Serves as a marker for debugging.
      */
-    var MarkerUndo = (function (_super) {
+    var MarkerUndo = /** @class */ (function (_super) {
         __extends(MarkerUndo, _super);
         /**
          * @param msg A message to identify the marker.
@@ -147,7 +147,7 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
     }(undo.Undo));
     exports.MarkerUndo = MarkerUndo;
 });
-//  LocalWords:  TextUndoGroup UndoGroup param wundo oop Mangalam MPL
-//  LocalWords:  Dubeau nodeToPath pathToNode domutil
+//  LocalWords:  pathToNode nodeToPath Dubeau MPL Mangalam param UndoGroup
+//  LocalWords:  TextUndoGroup caretAsPathAfter
 
 //# sourceMappingURL=wundo.js.map

@@ -9,7 +9,7 @@ define(["require", "exports", "module", "lodash", "./object-check"], function (r
      * serializable as JSON. The class itself does not enforce this, so callers must
      * be careful.
      */
-    var Preferences = (function () {
+    var Preferences = /** @class */ (function () {
         /**
          * @param {Object} [initial={}] The initial preferences.
          * @throws {Error} If there is any error in the preferences.
@@ -56,6 +56,7 @@ define(["require", "exports", "module", "lodash", "./object-check"], function (r
         Preferences.prototype.get = function (name) {
             var parts = name.split(".");
             var ix = 0;
+            // tslint:disable-next-line:no-any
             var it = this.prefs;
             while (ix < parts.length) {
                 var part = parts[ix];
@@ -87,6 +88,7 @@ define(["require", "exports", "module", "lodash", "./object-check"], function (r
         Preferences.prototype.set = function (name, value) {
             var parts = name.split(".");
             var ix = 0;
+            // tslint:disable-next-line:no-any
             var it = this.prefs;
             while (ix < parts.length - 1) {
                 var part = parts[ix];
@@ -107,5 +109,6 @@ define(["require", "exports", "module", "lodash", "./object-check"], function (r
     }());
     exports.Preferences = Preferences;
 });
+//  LocalWords:  wed's MPL
 
 //# sourceMappingURL=preferences.js.map

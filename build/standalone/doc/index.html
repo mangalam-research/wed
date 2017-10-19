@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Wed’s Help &mdash; Wed v0.28.2-152-g4525c15d documentation</title>
+  <title>Wed’s Help &mdash; Wed v0.30.0-1-g9b8dc6e1-unclean documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.28.2-152-g4525c15d documentation" href="#"/> 
+    <link rel="top" title="Wed v0.30.0-1-g9b8dc6e1-unclean documentation" href="#"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                v0.28
+                v0.30
               </div>
             
           
@@ -90,6 +90,7 @@
 <li><a class="reference internal" href="#modification-and-save-status">Modification and Save Status</a></li>
 <li><a class="reference internal" href="#the-error-pane">The Error Pane</a></li>
 <li><a class="reference internal" href="#the-navigation-pane">The Navigation Pane</a></li>
+<li><a class="reference internal" href="#the-minibuffer">The Minibuffer</a></li>
 <li><a class="reference internal" href="#the-location-bar">The Location Bar</a></li>
 <li><a class="reference internal" href="#the-editing-pane">The Editing Pane</a><ul>
 <li><a class="reference internal" href="#the-caret">The Caret</a></li>
@@ -106,6 +107,11 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#kinds-of-xml-operations">Kinds of XML Operations</a></li>
+<li><a class="reference internal" href="#searching">Searching</a><ul>
+<li><a class="reference internal" href="#quick-search">Quick Search</a></li>
+<li><a class="reference internal" href="#dialog-search">Dialog Search</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#saving">Saving</a></li>
 <li><a class="reference internal" href="#cut-copy-and-paste">Cut, Copy and Paste</a></li>
 <li><a class="reference internal" href="#undo-and-redo">Undo and Redo</a></li>
@@ -273,7 +279,7 @@ has modifications that have not been saved yet.</p>
 <p class="caption"><span class="caption-text">The status shown for a document that has been modified since
 last loaded and has not yet been saved in this editing session.</span></p>
 </div>
-<p>When you save manually (for instance, by doing <code class="kbd docutils literal"><span class="pre">Ctrl-S</span></code>), the
+<p>When you save manually (for instance, by doing <code class="kbd docutils literal"><span class="pre">Ctrl-s</span></code>), the
 modification status returns to green and the saved status becomes
 green. The saved status also tells you how long ago the last save
 occurred. Hovering on the save status brings up a tooltip telling you
@@ -341,12 +347,27 @@ scroll the editing pane to the corresponding area of the
 document. Some modes may also support bringing up special contextual
 menus on the headings of the navigation pane.</p>
 </div>
+<div class="section" id="the-minibuffer">
+<h3>The Minibuffer<a class="headerlink" href="#the-minibuffer" title="Permalink to this headline">¶</a></h3>
+<p>As the name suggests, this is inspired by Emacs&#8217; minibuffer. However, wed&#8217;s
+minibuffer is much more primitive than Emacs&#8217;. The minibuffer is a space that
+wed uses to quickly prompt for input <em>instead of</em> bringing up a dialog box. It
+allows for quick operations like <a class="reference internal" href="#quick-search">quick searches</a>. When it is
+not in use, the minibuffer is empty. A prompt appears there when wed prompts the
+user.</p>
+<div class="figure align-center" id="id17">
+<img alt="Shows the minibuffer just under the editing pane." src="_images/minibuffer.png" />
+<p class="caption"><span class="caption-text">The minibuffer.</span></p>
+</div>
+<p>In the example above, the minibuffer is prompting the user for a quick search,
+forward in the document.</p>
+</div>
 <div class="section" id="the-location-bar">
 <h3>The Location Bar<a class="headerlink" href="#the-location-bar" title="Permalink to this headline">¶</a></h3>
-<p>The location bar appears right under the editing pane. It indicates
+<p>The location bar appears right under the minibuffer. It indicates
 the hierarchy of elements that contain the caret. Each XML element in
 the hierarchy is separated from the next by a forward slash (<code class="docutils literal"><span class="pre">/</span></code>).</p>
-<div class="figure align-center" id="id17">
+<div class="figure align-center" id="id18">
 <img alt="Shows where the location bar is situated." src="_images/location_bar.png" />
 <p class="caption"><span class="caption-text">The location bar.</span></p>
 </div>
@@ -360,7 +381,7 @@ element contained by a <code class="docutils literal"><span class="pre">biblFull
 where most changes to a document are performed. It appears under the
 validation progress bar, above the location bar and to the right of
 the error pane.</p>
-<div class="figure align-center" id="id18">
+<div class="figure align-center" id="id19">
 <img alt="Shows where the editing pane is located." src="_images/editing_pane.png" />
 <p class="caption"><span class="caption-text">The editing pane.</span></p>
 </div>
@@ -374,7 +395,7 @@ document.</p>
 blinking vertical bar. It can be moved by left clicking. When the
 caret is already in the document, the arrow keys on your keyboard can
 be used to move the caret.</p>
-<div class="figure align-center" id="id19">
+<div class="figure align-center" id="id20">
 <img alt="Shows the caret." src="_images/caret.gif" />
 <p class="caption"><span class="caption-text">The caret can be moved with left clicks of the mouse or the arrow
 keys.</span></p>
@@ -396,7 +417,7 @@ is edited to contain text or other elements, it loses its
 placeholder. When an element is emptied it gains a placeholder.  When
 the caret is in a placeholder, the placeholder blinks to indicate that
 it contains the caret.</p>
-<div class="figure align-center" id="id20">
+<div class="figure align-center" id="id21">
 <img alt="Text editing add and removes placeholders." src="_images/placeholder.gif" />
 <p class="caption"><span class="caption-text">The <code class="docutils literal"><span class="pre">hi</span></code> element gains a placeholder when the text is removed,
 and loses the placeholder when text is added back.</span></p>
@@ -419,7 +440,7 @@ labels. For instance, a custom mode could distinguish
 &#8220;paragraph&#8221; elements through line breaks and indentation,
 and omit the start and end labels of these elements.</p>
 </div>
-<div class="figure align-center" id="id21">
+<div class="figure align-center" id="id22">
 <img alt="An example of start and end labels." src="_images/start_end_labels.png" />
 <p class="caption"><span class="caption-text">This figure contains a total of 8 labels: two start labels for two
 elements <code class="docutils literal"><span class="pre">p</span></code>, and the corresponding two end labels, two start
@@ -429,7 +450,7 @@ labels.</span></p>
 <p>Clicking on an element&#8217;s label selects the element and allows the user
 to perform actions on the element as a whole. When the element is
 selected, both the start and end labels are colored orange.</p>
-<div class="figure align-center" id="id22">
+<div class="figure align-center" id="id23">
 <img alt="An example of selected labels." src="_images/selected_labels.png" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">p</span></code> element which is selected. Its labels are
 orange.</span></p>
@@ -440,7 +461,7 @@ label belongs. For each attribute, the label first shows the
 attribute&#8217;s name, followed by the equal sign (<code class="docutils literal"><span class="pre">=</span></code>) and the attribute
 value in double quotes (<code class="docutils literal"><span class="pre">&quot;</span></code>). The attribute&#8217;s value appears in black
 on a white background.</p>
-<div class="figure align-center" id="id23">
+<div class="figure align-center" id="id24">
 <img alt="An example of attributes in a start label." src="_images/attributes.png" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">p</span></code> element with the attributes <code class="docutils literal"><span class="pre">rend</span></code> and
 <code class="docutils literal"><span class="pre">style</span></code>.</span></p>
@@ -449,14 +470,14 @@ on a white background.</p>
 a start label, but shown then the caret is moved inside the start label. Labels
 that have hidden attributes will show an ellipsis (<code class="docutils literal"><span class="pre">...</span></code>) before the right
 angle bracket (<code class="docutils literal"><span class="pre">&gt;</span></code>).</p>
-<div class="figure align-center" id="id24">
+<div class="figure align-center" id="id25">
 <img alt="An example of start label with hidden attributes." src="_images/attributes_ellipsis.png" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">div</span></code> element with the ellipsis that indicates some
 attributes have been hidden.</span></p>
 </div>
 <p>When the caret is moved inside the start label, the hidden attributes are shown,
 and they are hidden again as soon as the caret is moved out of the start label.</p>
-<div class="figure align-center" id="id25">
+<div class="figure align-center" id="id26">
 <img alt="An example of start label with hidden attributes that are shown." src="_images/attributes_shown.gif" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">div</span></code> element with its hidden attributes shown.</span></p>
 </div>
@@ -480,7 +501,7 @@ properly.</strong></p>
 <p>Whenever the mode being used has provided element documentation,
 hovering over a label will bring up a tooltip with the documentation
 of the element.</p>
-<div class="figure align-center" id="id26">
+<div class="figure align-center" id="id27">
 <img alt="An example of a start label with its tooltip open." src="_images/label_tooltip.png" />
 <p class="caption"><span class="caption-text">This figure shows a label for a <code class="docutils literal"><span class="pre">p</span></code> element whose tooltip is
 open. The tooltip contains documentation on the element.</span></p>
@@ -506,14 +527,14 @@ text by showing it in italics, and so on. For each element that is
 represented on screen using styling, it is usually not necessary to
 show the end and start labels of the element: the presence of the
 element and its extent is already visible through styling.</p>
-<div class="figure align-center" id="id27">
+<div class="figure align-center" id="id28">
 <img alt="A document shown at default label visibility. There is no element label visible in the picture." src="_images/default_label_visibility.png" />
 <p class="caption"><span class="caption-text">This is an example of the situation described above in the text.</span></p>
 </div>
 <p>It still may be useful sometimes for users to see the labels. Perhaps
 there is an operation they want to perform that is easier to do with
 labels. In such case, wed allows changing the label visibility level.</p>
-<div class="figure align-center" id="id28">
+<div class="figure align-center" id="id29">
 <img alt="A document shown at increased label visibility. Every single element gets labels." src="_images/increased_label_visibility.png" />
 <p class="caption"><span class="caption-text">This is an example of the same document shown earlier but with
 increased label visibility. You&#8217;ll notice that the word &#8220;prasāda&#8221;
@@ -527,7 +548,7 @@ the <code class="docutils literal"><span class="pre">p</span></code> element.</s
 <p>Error markers indicate where in the document there is a validation
 error. They appear as red rectangles at the location of the errors
 they mark.</p>
-<div class="figure align-center" id="id29">
+<div class="figure align-center" id="id30">
 <img alt="An error marker." src="_images/error_marker.png" />
 <p class="caption"><span class="caption-text">An error marker appearing in an attribute value.</span></p>
 </div>
@@ -536,7 +557,7 @@ and will scroll the pane to show the error message corresponding to
 the error marker. Both the marker and the error message will become
 selected. Selected markers and their message blink slowly to indicate
 that they are selected.</p>
-<div class="figure align-center" id="id30">
+<div class="figure align-center" id="id31">
 <img alt="Clicking an error marker." src="_images/error_marker_click.gif" />
 <p class="caption"><span class="caption-text">When an error marker is clicked, the marker and the error&#8217;s
 description become selected.</span></p>
@@ -556,7 +577,7 @@ present on the element, then the contextual menu that you get when
 right-clicking on the start label of the element will show only an
 option to add the <code class="docutils literal"><span class="pre">a</span></code> attribute, because adding a <code class="docutils literal"><span class="pre">b</span></code> attribute
 again would not be valid.</p>
-<div class="figure align-center" id="id31">
+<div class="figure align-center" id="id32">
 <img alt="A contextual menu." src="_images/contextual_menu.png" />
 <p class="caption"><span class="caption-text">This is a contextual menu brought up on the start label of the
 <code class="docutils literal"><span class="pre">title</span></code> element.</span></p>
@@ -572,7 +593,7 @@ other options on the basis of the name of the option shown in the
 menu. When you bring up the contextual menu, the input field is
 focused automatically, so you can type in it right away, without
 having to focus it with the mouse.</p>
-<div class="figure align-center" id="id32">
+<div class="figure align-center" id="id33">
 <img alt="Using the input field to filter entries in the contextual menu." src="_images/contextual_menu_text_filter.gif" />
 <p class="caption"><span class="caption-text">The user brings up a contextual menu and filters options to those
 that contain the text <code class="docutils literal"><span class="pre">xml</span></code>.</span></p>
@@ -670,7 +691,7 @@ of possible values, wed will present the user with a completion
 menu. A common case is for attributes that may take only a limited set
 of values. Upon first placing the caret in a location that can be
 auto-completed, wed will present the whole list of possible values.</p>
-<div class="figure align-center" id="id33">
+<div class="figure align-center" id="id34">
 <img alt="A completion menu in its initial state." src="_images/completion_initial.png" />
 <p class="caption"><span class="caption-text">The user just clicked into the <code class="docutils literal"><span class="pre">sample</span></code> attribute. Wed presents
 the list of possible values.</span></p>
@@ -687,7 +708,7 @@ arrows and <code class="kbd docutils literal"><span class="pre">ENTER</span></co
 possible also to just type the whole value at the keyboard (which may
 be faster, in some cases, than fiddling with a menu), in which case
 the menu will close once the value is complete.</p>
-<div class="figure align-center" id="id34">
+<div class="figure align-center" id="id35">
 <img alt="A completion menu as the user types in." src="_images/completion_typing.gif" />
 <p class="caption"><span class="caption-text">The user types <code class="docutils literal"><span class="pre">med</span></code> into the completion menu and then hits
 <code class="kbd docutils literal"><span class="pre">ENTER</span></code> to complete the value.</span></p>
@@ -704,7 +725,7 @@ symbol. These are operations that add entirely new elements or
 attributes to the document. They normally do not operate on
 selections.</li>
 </ul>
-<div class="figure align-center" id="id35">
+<div class="figure align-center" id="id36">
 <img alt="A user adds an element." src="_images/adding.gif" />
 <p class="caption"><span class="caption-text">The user adds an <code class="docutils literal"><span class="pre">abbr</span></code> element to the document.</span></p>
 </div>
@@ -714,7 +735,7 @@ symbol. These are operations that remove whole elements or
 attributes from the document. They normally do not operate on
 selections.</li>
 </ul>
-<div class="figure align-center" id="id36">
+<div class="figure align-center" id="id37">
 <img alt="A user deletes an element." src="_images/deleting.gif" />
 <p class="caption"><span class="caption-text">The user deletes an <code class="docutils literal"><span class="pre">abbr</span></code> element from the document.</span></p>
 </div>
@@ -726,7 +747,7 @@ dragging with the mouse to select a part of the document. Therefore,
 wrapping operations appear in the contextual menu only if a
 selection is in effect. They &#8220;wrap&#8221; the selection in a new element.</li>
 </ul>
-<div class="figure align-center" id="id37">
+<div class="figure align-center" id="id38">
 <img alt="A user wraps an element." src="_images/wrapping.gif" />
 <p class="caption"><span class="caption-text">The user wraps text in an <code class="docutils literal"><span class="pre">abbr</span></code> element.</span></p>
 </div>
@@ -737,20 +758,156 @@ an element so as to remove the element but put the element&#8217;s
 original content in place of the element being removed. They
 normally do not operate on selections.</li>
 </ul>
-<div class="figure align-center" id="id38">
+<div class="figure align-center" id="id39">
 <img alt="A user unwraps the content of an element." src="_images/unwrapping.gif" />
 <p class="caption"><span class="caption-text">The user unwraps the content of an element.</span></p>
 </div>
 </div>
+<div class="section" id="searching">
+<h2>Searching<a class="headerlink" href="#searching" title="Permalink to this headline">¶</a></h2>
+<p>Wed offers two types of searches: quick searches, and dialog searches.</p>
+<p>Moreover, wed will search through text in two possible contexts. Do not confuse
+context and scope. The scope is the range of the document within which the
+search operates. The context determines what <em>in this range</em> is part of the
+search. Here are the two contexts:</p>
+<ul>
+<li><p class="first">Element text. This encompasses only the text of elements. For instance,
+searching for <code class="docutils literal"><span class="pre">some</span></code> in the XML <code class="docutils literal"><span class="pre">&lt;some.element</span> <span class="pre">some.attribute=&quot;some</span>
+<span class="pre">value&quot;&gt;some</span> <span class="pre">text&lt;/some.element&gt;</span></code> would only hit the word <code class="docutils literal"><span class="pre">some</span></code> that
+appears before the word <code class="docutils literal"><span class="pre">text</span></code> and nothing else.</p>
+<p>Note that because this context ignores the XML tags, it is possible for it to
+perform matches across element boundaries. For instance if you search for <code class="docutils literal"><span class="pre">I</span>
+<span class="pre">am</span> <span class="pre">happy</span></code> in the XML <code class="docutils literal"><span class="pre">&lt;p&gt;I</span> <span class="pre">&lt;bold&gt;am&lt;/bold&gt;</span> <span class="pre">happy&lt;/p&gt;</span></code>, the search will
+match the entire content of <code class="docutils literal"><span class="pre">p</span></code>. That is, the <code class="docutils literal"><span class="pre">bold</span></code> element does not
+prevent the match.</p>
+</li>
+<li><p class="first">Attribute values. This encompasses only the values of element attributes. In
+the example above, a search for <code class="docutils literal"><span class="pre">some</span></code> would match only the word <code class="docutils literal"><span class="pre">some</span></code>
+appearing before <code class="docutils literal"><span class="pre">value</span></code>.</p>
+<p>Note that this kind of search does not span attributes. For instance, if you
+have <code class="docutils literal"><span class="pre">&lt;p</span> <span class="pre">type=&quot;abc&quot;</span> <span class="pre">subtype=&quot;def&quot;/&gt;</span></code> and search for <code class="docutils literal"><span class="pre">abcdef</span></code> you will
+<strong>not</strong> get a match that spans the values of <code class="docutils literal"><span class="pre">&#64;type</span></code> and <code class="docutils literal"><span class="pre">&#64;subtype</span></code>. This
+is probably not a desirable behavior at any rate, but we&#8217;re mentioning it,
+just in case.</p>
+</li>
+</ul>
+<p>It is not possible to search for element names or attribute names with the quick
+search or dialog search. Nor is it possible to search for text which is purely
+created for the sake of displaying the XML. Here&#8217;s an example of the
+latter. Suppose the following document:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">doc</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+   <span class="n">Johnson</span> <span class="n">demonstrated</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">ref</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;/some/bibliographical/item&quot;</span><span class="o">/&gt;</span><span class="p">)</span> <span class="n">that</span> <span class="o">...</span>
+  <span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">doc</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>In this example, <code class="docutils literal"><span class="pre">ref</span></code> is a reference to a bibliographical item. Your wed
+mode, fetches the bibliographical information and shows it instead of showing
+the XML element as-is. So what you see is something like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">doc</span> <span class="o">&gt;</span>
+ <span class="n">p</span> <span class="o">&gt;</span>
+  <span class="n">Johnson</span> <span class="n">demonstrated</span> <span class="p">(</span><span class="n">Johnson</span><span class="p">,</span> <span class="n">Five</span> <span class="n">Ways</span> <span class="n">to</span> <span class="n">Eat</span> <span class="n">Sushi</span><span class="p">)</span> <span class="n">that</span> <span class="o">...</span>
+ <span class="o">&lt;</span> <span class="n">p</span>
+<span class="o">&lt;</span> <span class="n">doc</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">doc</span> <span class="pre">&gt;</span></code>, <code class="docutils literal"><span class="pre">p</span> <span class="pre">&gt;</span></code>, <code class="docutils literal"><span class="pre">p</span> <span class="pre">&lt;</span></code> and <code class="docutils literal"><span class="pre">&lt;</span> <span class="pre">doc</span></code> are the start and end labels that
+normally shows for elements. The string <code class="docutils literal"><span class="pre">Johnson,</span> <span class="pre">Five</span> <span class="pre">Ways</span> <span class="pre">to</span> <span class="pre">Eat</span> <span class="pre">Sushi</span></code> is
+text that is not part of the XML but that the editing mode adds when it shows
+you your document. It is more informative than <code class="docutils literal"><span class="pre">&lt;ref</span>
+<span class="pre">target=&quot;/some/bibliographical/item&quot;/&gt;</span></code>. At any rate, neither searching through
+element text or element attributes can find that text.</p>
+<p>If you need to search for element names, attribute names or text created for
+display purposes, you must use your browser&#8217;s built-in search.</p>
+<div class="section" id="quick-search">
+<h3>Quick Search<a class="headerlink" href="#quick-search" title="Permalink to this headline">¶</a></h3>
+<p>You can use <code class="kbd docutils literal"><span class="pre">Ctrl-f</span></code> to quick-search forward, and <code class="kbd docutils literal"><span class="pre">Ctrl-b</span></code> to
+quick-search backwards. When you hit either of these shortcuts, the <a class="reference internal" href="#the-minibuffer">minibuffer</a> becomes active and prompts you for a search term. As you
+type the term you are searching for, wed will search through the document and
+highlight in yellow the term it finds. To move to another hit, press
+<code class="kbd docutils literal"><span class="pre">Ctrl-f</span></code> or <code class="kbd docutils literal"><span class="pre">Ctrl-b</span></code> again. Type <code class="kbd docutils literal"><span class="pre">ESCAPE</span></code> to end the search.</p>
+<p>If you have a selection in effect when you start the search, the search will be
+scoped to that selection. That is, the search will only search between the start
+and end of the selection. (The selection disappears while you are searching:
+this is normal and a current limitation of wed.) If you have no selection in
+effect when you start the search, then the whole document will be searched.</p>
+<div class="figure align-center" id="id40">
+<img alt="Shows the minibuffer just under the editing pane." src="_images/minibuffer.png" />
+<p class="caption"><span class="caption-text">The minibuffer.</span></p>
+</div>
+<p>In the example above, the minibuffer is prompting the user for a quick search,
+forward in the document. You can see the word &#8220;original&#8221; was found and
+highlighted in yellow. When you hit the end of the search scope in either
+direction, the highlight will disappear. If you then hit the shortcut to
+continue in the same direction you were going, the search will continue from the
+start of your search scope.</p>
+</div>
+<div class="section" id="dialog-search">
+<h3>Dialog Search<a class="headerlink" href="#dialog-search" title="Permalink to this headline">¶</a></h3>
+<p>You can use <code class="kbd docutils literal"><span class="pre">Ctrl-Shift-f</span></code> to search forward, and <code class="kbd docutils literal"><span class="pre">Ctrl-Shift-b</span></code>
+to search backwards. Dialog searches are thus named because they bring up
+a dialog box to provide the user with more search options than the quick
+searches.</p>
+<p>Just like quick searches, if you have a selection in effect when you start the
+search, the search will be scoped to that selection. That is, the search will
+only search between the start and end of the selection. (The selection
+disappears while you are searching: this is normal and a current limitation of
+wed.) If you have no selection in effect when you start the search, then the
+whole document will be searched.</p>
+<div class="figure align-center" id="id41">
+<img alt="Shows the dialog that is brought up by dialog searches." src="_images/dialog_search.png" />
+<p class="caption"><span class="caption-text">A dialog search.</span></p>
+</div>
+<p>The &#8220;Search for:&#8221; field is where you type the term you are searching for.</p>
+<p>The &#8220;Replace with:&#8221; field is where you type the text you want to use to replace
+the hits you find.</p>
+<p>The &#8220;Direction&#8221;: buttons determine in which direction the search goes. The
+direction is initially determined by which shortcut you use to bring up the
+search but you may change it later if you want.</p>
+<p>The &#8220;Context:&#8221; buttons determine what is searched. There are two possible
+contexts:</p>
+<ul class="simple">
+<li>&#8220;Only element text&#8221;: this searches only through the text of
+elements. Consequently, attributes are not searched.</li>
+<li>&#8220;Only attributes&#8221;: this searches only through the attribute values of
+elements. Consequently, the text of elements is not searched.</li>
+</ul>
+<p>The buttons:</p>
+<ul class="simple">
+<li>&#8220;Find&#8221; looks for the next match.</li>
+<li>&#8220;Replace and Find&#8221; replaces the current match and finds the next.</li>
+<li>&#8220;Replace All&#8221; replaces all matches until the search reaches a boundary of the
+search scope currently in effect. The boundary depends on the direction of the
+search. If searching forward, the boundary marking the end of the search is
+the end of the scope. If searching backwards, it is the start of the scope.</li>
+<li>&#8220;Close&#8221; closes the dialog.</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Wed cannot replace hits that select an ill-formed portion of an XML
+document. For instance, you have the XML <code class="docutils literal"><span class="pre">tea&lt;bold&gt;pot&lt;/bold&gt;</span></code>
+and you search for <code class="docutils literal"><span class="pre">ap</span></code>. If we mark the start and end of the hit
+with the element <code class="docutils literal"><span class="pre">mark</span></code> we&#8217;d have
+<code class="docutils literal"><span class="pre">te&lt;mark&gt;a&lt;bold&gt;p&lt;/mark&gt;ot&lt;/bold&gt;</span></code>. This is not well-formed XML
+because <code class="docutils literal"><span class="pre">mark</span></code> and <code class="docutils literal"><span class="pre">bold</span></code> are straddling. Wed cannot replace
+such cases, and will disable the &#8220;Replace and Find&#8221; button when you
+land on such a case.</p>
+<p class="last">Note however that the &#8220;Replace All&#8221; button is never disabled. When
+you use &#8220;Replace All&#8221;, wed replaces all instances that it <strong>can</strong>
+replace.</p>
+</div>
+</div>
+</div>
 <div class="section" id="saving">
 <h2>Saving<a class="headerlink" href="#saving" title="Permalink to this headline">¶</a></h2>
-<p>You can save by using <code class="kbd docutils literal"><span class="pre">Ctrl-S</span></code> or whatever means provided by the
+<p>You can save by using <code class="kbd docutils literal"><span class="pre">Ctrl-s</span></code> or whatever means provided by the
 application that uses wed. Possible outcomes:</p>
 <ul>
 <li><p class="first">The data is saved. You will see a message telling you that the data
 was saved, and the <a class="reference external" href="ModificationandSaveStatus">save status</a>
 will indicate the data was saved.</p>
-<div class="figure align-center" id="id39">
+<div class="figure align-center" id="id42">
 <img alt="A green message saying &quot;Saved&quot;." src="_images/saved_message.png" />
 <p class="caption"><span class="caption-text">This is the message that a user gets when a document was saved.</span></p>
 </div>
@@ -820,12 +977,12 @@ because it edits XML, there are some limitations to what you can do:</p>
 <li><p class="first">Cutting will work only if the selection being cut starts and ends
 inside the same XML element. The selection can span over XML
 elements, provided that it completely contains these elements.</p>
-<div class="figure align-center" id="id40">
+<div class="figure align-center" id="id43">
 <img alt="A selection which cannot be cut." src="_images/invalid_selection_cut.png" />
 <p class="caption"><span class="caption-text">This selection cannot be cut from the document because it begins
 in one <code class="docutils literal"><span class="pre">p</span></code> element but ends in the subsequent <code class="docutils literal"><span class="pre">p</span></code> element.</span></p>
 </div>
-<div class="figure align-center" id="id41">
+<div class="figure align-center" id="id44">
 <img alt="A selection which can be cut." src="_images/valid_selection_cut.png" />
 <p class="caption"><span class="caption-text">This selection can be cut from the document because it begins and
 ends in the same <code class="docutils literal"><span class="pre">p</span></code> element. There is a <code class="docutils literal"><span class="pre">lb</span></code> element inside
@@ -867,10 +1024,10 @@ the text will be pasted.</p>
 <p>Wed maintains a list of the operations that have been performed on the
 document being edited. This list is created anew with each editing
 session. In other words, each time you open a document with wed, it
-creates a new list. You can use <code class="kbd docutils literal"><span class="pre">Ctrl-Z</span></code> to undo the last
+creates a new list. You can use <code class="kbd docutils literal"><span class="pre">Ctrl-z</span></code> to undo the last
 operation. Undoing again, will undo the operation before the last one,
 etc. You can undo as many editing operations as you want, up to the
-start of the undo list. Conversely, <code class="kbd docutils literal"><span class="pre">Ctrl-Y</span></code> will redo the
+start of the undo list. Conversely, <code class="kbd docutils literal"><span class="pre">Ctrl-y</span></code> will redo the
 operation that was just undone. It is useful in cases where you&#8217;ve
 undone more than you meant to.</p>
 </div>
@@ -882,8 +1039,8 @@ minimal configuration of wed (i.e. using the generic mode), but we&#8217;ll
 stick with it.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="20%" />
-<col width="80%" />
+<col width="25%" />
+<col width="75%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Key</th>
@@ -903,28 +1060,40 @@ stick with it.</p>
 <tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-]</span></code></td>
 <td>Increase the <a class="reference internal" href="#label-visibility">label visibility level</a>.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Z</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-z</span></code></td>
 <td><a class="reference internal" href="#undo-and-redo">Undo</a> an operation.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Y</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-y</span></code></td>
 <td><a class="reference internal" href="#undo-and-redo">Redo</a> an operation.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-X</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-x</span></code></td>
 <td><a class="reference internal" href="#cut-copy-and-paste">Cut</a> content.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-C</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-c</span></code></td>
 <td><a class="reference internal" href="#cut-copy-and-paste">Copy</a> content.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-V</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-v</span></code></td>
 <td><a class="reference internal" href="#cut-copy-and-paste">Paste</a> content.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-S</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-s</span></code></td>
 <td><a class="reference internal" href="#saving">Save</a> content.</td>
+</tr>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-f</span></code></td>
+<td><a class="reference internal" href="#quick-search">Quick search</a> forward.</td>
+</tr>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-b</span></code></td>
+<td><a class="reference internal" href="#quick-search">Quick search</a> backwards.</td>
+</tr>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Shift-f</span></code></td>
+<td><a class="reference internal" href="#dialog-search">Dialog search</a> forward.</td>
+</tr>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Shift-b</span></code></td>
+<td><a class="reference internal" href="#dialog-search">Dialog search</a> backwards.</td>
 </tr>
 </tbody>
 </table>
-<p>Note that in browsers running in OS X, instead of <code class="kbd docutils literal"><span class="pre">Ctrl-</span></code> wed
-expects <code class="kbd docutils literal"><span class="pre">Command-</span></code>.</p>
+<p>Note that in <strong>browsers running in OS X</strong>, instead of <code class="kbd docutils literal"><span class="pre">Ctrl-</span></code> wed expects
+<code class="kbd docutils literal"><span class="pre">Command-</span></code>.</p>
 </div>
 <div class="section" id="browser-requirements">
 <span id="help-browser-requirements"></span><h2>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h2>
@@ -970,6 +1139,8 @@ temporary.</p>
 <p>Update Summer 2016: things are looking up. The Firefox developers have
 been working on a driver named &#8220;Marionette&#8221; that <em>should</em> solve the
 support problems. Stay tuned.</p>
+<p>Update Fall 2017: Firefox support is still suspended. It may be easy to resume
+it but there&#8217;s been no demand for it, so...</p>
 <p>For years, wed was supporting Firefox. Early on, Firefox was even
 better supported than Chrome. However, the people responsible for
 maintaining Selenium decided to stop supporting native events in
@@ -1145,7 +1316,7 @@ problems mentioned above.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2013-2016 Mangalam Research Center for Buddhist Languages.
+        &copy; Copyright Mangalam Research Center for Buddhist Languages.
 
     </p>
   </div>
@@ -1167,7 +1338,7 @@ problems mentioned above.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.28.2-152-g4525c15d',
+            VERSION:'v0.30.0-1-g9b8dc6e1-unclean',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

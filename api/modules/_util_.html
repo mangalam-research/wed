@@ -66,6 +66,24 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Various utilities for wed.</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>author</dt>
+						<dd><p>Louis-Dominique Dubeau</p>
+						</dd>
+						<dt>license</dt>
+						<dd><p>MPL 2.0</p>
+						</dd>
+						<dt>copyright</dt>
+						<dd><p>Mangalam Research Center for Buddhist Languages</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -92,10 +110,12 @@
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#fixprototype" class="tsd-kind-icon">fix<wbr>Prototype</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#getoriginalattributes" class="tsd-kind-icon">get<wbr>Original<wbr>Attributes</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#getoriginalname" class="tsd-kind-icon">get<wbr>Original<wbr>Name</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#isxmlattrname" class="tsd-kind-icon">isXMLAttr<wbr>Name</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#newgenericid" class="tsd-kind-icon">new<wbr>GenericID</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#readfile" class="tsd-kind-icon">read<wbr>File</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#seleniumlog" class="tsd-kind-icon">selenium<wbr>Log</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_util_.html#stacktrace" class="tsd-kind-icon">stack<wbr>Trace</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-has-type-parameter"><a href="_util_.html#suppressunhandledrejections" class="tsd-kind-icon">suppress<wbr>Unhandled<wbr>Rejections</a></li>
 							</ul>
 						</section>
 					</div>
@@ -109,7 +129,7 @@
 					<div class="tsd-signature tsd-kind-icon">nextID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L198">util.ts:198</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L241">util.ts:241</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -126,7 +146,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L242">util.ts:242</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L285">util.ts:285</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -149,7 +169,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L217">util.ts:217</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L260">util.ts:260</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -173,18 +193,19 @@
 					<a name="classfromoriginalname" class="tsd-anchor"></a>
 					<h3>class<wbr>From<wbr>Original<wbr>Name</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">class<wbr>From<wbr>Original<wbr>Name<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">class<wbr>From<wbr>Original<wbr>Name<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, namespaces<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L139">util.ts:139</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L139">util.ts:139</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Makes a class string appropriate for a node in wed&#39;s data tree.</p>
+									<p>Makes a class string for a node in wed&#39;s data tree. The string is meant to be
+									used for the corresponding node in wed&#39;s GUI tree.</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -193,6 +214,13 @@
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The original element name.</p>
+									</div>
+								</li>
+								<li>
+									<h5>namespaces: <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The namespaces that are known. This is used to convert
+										element name prefixes to namespace URIs.</p>
 									</div>
 								</li>
 							</ul>
@@ -211,7 +239,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L303">util.ts:303</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L346">util.ts:346</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -220,13 +248,13 @@
 										function is meant to be used for &quot;complex&quot; name patterns that we may get from
 										salve. Note that a &quot;pattern object&quot; is the result of calling <code>toObject()</code>
 										on the pattern. The goal of this function is to convert the pattern object to
-									a string that would be intepretable by the end user.</p>
+									a string that would be interpretable by the end user.</p>
 								</div>
 								<p>An explanation about how this handles namespaces and wildcard patterns is in
 									order. In a Relax NG schema the name pattern <code>*</code> in the compact notation is
 									equivalent to <code>&lt;anyName/&gt;</code> in the expanded notation. And <code>foo:*</code> is
 									equivalent to <code>&lt;nsName ns=&quot;uri_of_foo&quot;&gt;</code> where <code>uri_of_foo</code> is the URI
-									that has been assocated with <code>foo</code> in the compact schema. It would be nice
+									that has been associated with <code>foo</code> in the compact schema. It would be nice
 									if the function here could reuse this notation, but we cannot. Consider the
 									case where an Relax NG schema in the compact notation wants to declare a name
 									pattern which means &quot;any name in the default namespace&quot;. In XML we express a
@@ -273,13 +301,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L156">util.ts:156</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L174">util.ts:174</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Transforms an attribute name from wed&#39;s data tree to the original attribute
-									name before the data was transformed for use with wed.</p>
+										name before the data was transformed for use with wed. This reverses the
+									transformation done with <a href="_util_.html#encodeattrname">encodeAttrName</a>.</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -306,7 +335,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L20">util.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L19">util.ts:19</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -346,7 +375,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L44">util.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L42">util.ts:42</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -361,37 +390,37 @@
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>X coordinate of the point.</p>
+										<p>The x coordinate of the point.</p>
 									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Y coordinate of the point.</p>
+										<p>The y coordinate of the point.</p>
 									</div>
 								</li>
 								<li>
 									<h5>left: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Left coordinate of the rectangle.</p>
+										<p>The left coordinate of the rectangle.</p>
 									</div>
 								</li>
 								<li>
 									<h5>top: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Top coordinate of the rectangle.</p>
+										<p>The top coordinate of the rectangle.</p>
 									</div>
 								</li>
 								<li>
 									<h5>right: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Right coordinate of the rectangle.</p>
+										<p>The right coordinate of the rectangle.</p>
 									</div>
 								</li>
 								<li>
 									<h5>bottom: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Bottom coordinate of the rectangle.</p>
+										<p>The bottom coordinate of the rectangle.</p>
 									</div>
 								</li>
 							</ul>
@@ -410,7 +439,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L85">util.ts:85</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L81">util.ts:81</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -428,37 +457,37 @@
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>X coordinate of the point.</p>
+										<p>The x coordinate of the point.</p>
 									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Y coordinate of the point.</p>
+										<p>The y coordinate of the point.</p>
 									</div>
 								</li>
 								<li>
 									<h5>left: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Left coordinate of the rectangle.</p>
+										<p>The left coordinate of the rectangle.</p>
 									</div>
 								</li>
 								<li>
 									<h5>top: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Top coordinate of the rectangle.</p>
+										<p>The top coordinate of the rectangle.</p>
 									</div>
 								</li>
 								<li>
 									<h5>right: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Right coordinate of the rectangle.</p>
+										<p>The right coordinate of the rectangle.</p>
 									</div>
 								</li>
 								<li>
 									<h5>bottom: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Bottom coordinate of the rectangle.</p>
+										<p>The bottom coordinate of the rectangle.</p>
 									</div>
 								</li>
 							</ul>
@@ -479,13 +508,13 @@
 					<a name="encodeattrname" class="tsd-anchor"></a>
 					<h3>encode<wbr>Attr<wbr>Name</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">encode<wbr>Attr<wbr>Name<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">encode<wbr>Attr<wbr>Name<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, qualifier<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L170">util.ts:170</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L204">util.ts:204</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -494,6 +523,15 @@
 										original XML data (before transformation for use with wed) to its
 									encoded name.</p>
 								</div>
+								<p>A sequence of three dashes or more is converted by adding another dash. (So
+									sequences of single dash, or a pair of dashes remain unchanged. But all
+								sequences of 3 dashes or more gets an additional dash.)</p>
+								<p>A colon (<code>:</code>) is converted to three dashes <code>---</code>.</p>
+								<p>After transformation above the name is prepended with <code>data-wed-</code>.</p>
+								<p>So <code>foo:bar</code> would become <code>data-wed-foo---bar</code>.</p>
+								<p>When <code>qualifier</code> is used, the qualifier is added just after <code>data-wed-</code>
+									and is prepended and appended with a dash. So <code>foo:bar</code> with the qualifier
+								<code>ns</code> would become <code>data-wed--ns-foo---bar</code>.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -501,6 +539,12 @@
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The unencoded name.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> qualifier: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An optional qualifier.</p>
 									</div>
 								</li>
 							</ul>
@@ -519,14 +563,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L116">util.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L110">util.ts:110</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Escape character in CSS class that could cause trouble in CSS
-										selectors. <strong>This is not a general solution.</strong> This function supports only
-									what wed uses.</p>
+										selectors. <em>This is not a general solution.</em> It supports enough for the needs
+									of wed.</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -553,7 +597,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L373">util.ts:373</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L416">util.ts:416</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -589,7 +633,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L184">util.ts:184</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L227">util.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -624,7 +668,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L127">util.ts:127</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L123">util.ts:123</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -647,6 +691,34 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="isxmlattrname" class="tsd-anchor"></a>
+					<h3>isXMLAttr<wbr>Name</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">isXMLAttr<wbr>Name<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L213">util.ts:213</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Determines whether a <code>data-wed-</code> attribute corresponds to an XML attribute.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
 					<a name="newgenericid" class="tsd-anchor"></a>
 					<h3>new<wbr>GenericID</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
@@ -656,7 +728,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L207">util.ts:207</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L250">util.ts:250</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -681,7 +753,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L352">util.ts:352</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L395">util.ts:395</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -704,7 +776,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L233">util.ts:233</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L276">util.ts:276</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -740,7 +812,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/util.ts#L258">util.ts:258</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L301">util.ts:301</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -751,6 +823,35 @@
 								<p>Support for IE 9 is missing because it was designed by baboons.</p>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-has-type-parameter">
+					<a name="suppressunhandledrejections" class="tsd-anchor"></a>
+					<h3>suppress<wbr>Unhandled<wbr>Rejections</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">suppress<wbr>Unhandled<wbr>Rejections&lt;P&gt;<span class="tsd-signature-symbol">(</span>p<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">P</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/util.ts#L430">util.ts:430</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>P<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>p: <span class="tsd-signature-type">P</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">P</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -812,6 +913,9 @@
 						<a href="_util_.html#getoriginalname" class="tsd-kind-icon">get<wbr>Original<wbr>Name</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_util_.html#isxmlattrname" class="tsd-kind-icon">isXMLAttr<wbr>Name</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="_util_.html#newgenericid" class="tsd-kind-icon">new<wbr>GenericID</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
@@ -822,6 +926,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="_util_.html#stacktrace" class="tsd-kind-icon">stack<wbr>Trace</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-has-type-parameter">
+						<a href="_util_.html#suppressunhandledrejections" class="tsd-kind-icon">suppress<wbr>Unhandled<wbr>Rejections</a>
 					</li>
 				</ul>
 			</nav>

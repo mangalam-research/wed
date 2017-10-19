@@ -12,7 +12,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
     /**
      * A literal value in a pattern.
      */
-    var Literal = (function () {
+    var Literal = /** @class */ (function () {
         /**
          * @param value The value to which this literal resolves to.
          */
@@ -27,7 +27,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
     /**
      * A concatenation operation.
      */
-    var Concat = (function () {
+    var Concat = /** @class */ (function () {
         /**
          * @param values The patterns to concatenate.
          */
@@ -42,7 +42,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
     /**
      * An interpolation like ``${foo}``.
      */
-    var Interpolation = (function () {
+    var Interpolation = /** @class */ (function () {
         /**
          * @param name The name to interpolate.
          */
@@ -57,7 +57,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
     /**
      * A substitution operation, like in ``${foo:s("a","b")}``.
      */
-    var Substitution = (function () {
+    var Substitution = /** @class */ (function () {
         function Substitution(pattern, substitution, child) {
             this.pattern = pattern;
             this.substitution = substitution;
@@ -137,5 +137,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }
     exports.compile = compile;
 });
+//  LocalWords:  dochtml MPL unresolvable param
 
 //# sourceMappingURL=doc-pattern.js.map

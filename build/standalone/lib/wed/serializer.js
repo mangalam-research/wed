@@ -53,7 +53,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
             out.push(">");
             var child = node.firstChild;
             while (child !== null) {
-                // eslint-disable-next-line no-use-before-define
                 _serialize(out, child);
                 child = child.nextSibling;
             }
@@ -91,5 +90,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }
     exports.serialize = serialize;
 });
+//  LocalWords:  MPL lt nodeType CDATA
 
 //# sourceMappingURL=serializer.js.map

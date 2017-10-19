@@ -57,7 +57,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
     /**
      * Focuses the node itself or if the node is a text node, focuses the parent.
      *
-     * @param node Node to focus.
+     * @param node The node to focus.
      *
      * @throws {Error} If the node is neither a text node nor an element. Trying to
      * focus something other than these is almost certainly an algorithmic bug.
@@ -99,9 +99,9 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      * @param noText If true, and a text node would be returned, the function will
      * instead return the parent of the text node.
      *
-     * @returns Returns the next caret position, or ``null`` if such position does
-     * not exist. The ``container`` parameter constrains movements to positions
-     * inside it.
+     * @returns The next caret position, or ``null`` if such position does not
+     * exist. The ``container`` parameter constrains movements to positions inside
+     * it.
      */
     // tslint:disable-next-line:cyclomatic-complexity
     function nextCaretPosition(caret, container, noText) {
@@ -194,9 +194,9 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      * @param noText If true, and a text node would be returned, the function will
      * instead return the parent of the text node.
      *
-     * @returns Returns the previous caret position, or ``null`` if such position
-     * does not exist. The ``container`` parameter constrains movements to positions
-     * inside it.
+     * @returns The previous caret position, or ``null`` if such position does not
+     * exist. The ``container`` parameter constrains movements to positions inside
+     * it.
      */
     // tslint:disable-next-line:cyclomatic-complexity
     function prevCaretPosition(caret, container, noText) {
@@ -469,24 +469,27 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      *
      * @param text The text to insert.
      *
-     * @returns The first element of the array is the node that was modified to
-     * insert the text. It will be ``undefined`` if no node was modified. The second
-     * element is the text node which contains the new text. The two elements are
-     * defined and equal if a text node was modified to contain the newly inserted
-     * text. They are unequal if a new text node had to be created to contain the
-     * new text. A return value of ``[undefined, undefined]`` means that no
-     * modification occurred (because the text passed was "").
+     * @param caretAtEnd Whether the caret position returned should be placed at the
+     * end of the inserted text.
+     *
+     * @returns The result of inserting the text.
      *
      * @throws {Error} If ``node`` is not an element or text Node type.
      */
-    function genericInsertText(node, index, text) {
+    function genericInsertText(node, index, text, caretAtEnd) {
+        if (caretAtEnd === void 0) { caretAtEnd = true; }
         // This function is meant to be called with this set to a proper
         // value.
         if (text === "") {
-            return [undefined, undefined];
+            return {
+                node: undefined,
+                isNew: false,
+                caret: [node, index],
+            };
         }
-        var modifiedNode;
+        var isNew = false;
         var textNode;
+        var caret;
         work: 
         // tslint:disable-next-line:no-constant-condition strict-boolean-expressions
         while (true) {
@@ -508,23 +511,29 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
                     }
                     // We have to create a text node
                     textNode = document.createTextNode(text);
+                    isNew = true;
                     // Node is necessarily an element when we get here.
                     // tslint:disable-next-line:no-invalid-this
                     this.insertNodeAt(node, index, textNode);
+                    caret = [textNode, caretAtEnd ? text.length : 0];
                     break work;
                 case Node.TEXT_NODE:
-                    modifiedNode = node;
-                    var pre = modifiedNode.data.slice(0, index);
-                    var post = modifiedNode.data.slice(index);
+                    textNode = node;
+                    var pre = textNode.data.slice(0, index);
+                    var post = textNode.data.slice(index);
                     // tslint:disable-next-line:no-invalid-this
-                    this.setTextNodeValue(modifiedNode, pre + text + post);
-                    textNode = modifiedNode;
+                    this.setTextNodeValue(textNode, pre + text + post);
+                    caret = [textNode, caretAtEnd ? index + text.length : index];
                     break work;
                 default:
                     throw new Error("unexpected node type: " + node.nodeType);
             }
         }
-        return [modifiedNode, textNode];
+        return {
+            node: textNode,
+            isNew: isNew,
+            caret: caret,
+        };
     }
     exports.genericInsertText = genericInsertText;
     /**
@@ -666,23 +675,20 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      *
      * @param text The text to insert.
      *
-     * @returns The first element of the array is the node that was modified to
-     * insert the text. It will be ``undefined`` if no node was modified. The second
-     * element is the text node which contains the new text. The two elements are
-     * defined and equal if a text node was modified to contain the newly inserted
-     * text. They are unequal if a new text node had to be created to contain the
-     * new text. A return value of ``[undefined, undefined]`` means that no
-     * modification occurred (because the text passed was "").
+     * @param caretAtEnd Whether to return the caret position at the end of the
+     * inserted text or at the beginning. Default to ``true``.
+     *
+     * @returns The result of inserting the text.
      *
      * @throws {Error} If ``node`` is not an element or text Node type.
      */
-    function insertText(node, index, text) {
+    function insertText(node, index, text, caretAtEnd) {
         return genericInsertText.call({
             insertNodeAt: insertNodeAt,
             setTextNodeValue: function (textNode, value) {
                 textNode.data = value;
             },
-        }, node, index, text);
+        }, node, index, text, caretAtEnd);
     }
     exports.insertText = insertText;
     var plainDOMMockup = {
@@ -1192,11 +1198,17 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      *
      * @param selector The selector to convert.
      *
+     * @param namespaces The namespaces that are known. This is used to convert
+     * element name prefixes to namespace URIs.
+     *
      * @returns The converted selector.
      */
-    function toGUISelector(selector) {
+    function toGUISelector(selector, namespaces) {
         if (/[\]['"()]/.test(selector)) {
             throw new Error("selector is too complex");
+        }
+        if (/\\:/.test(selector)) {
+            throw new Error("we do not accept escaped colons for now");
         }
         var parts = selector.split(separatorRe);
         var ret = [];
@@ -1209,7 +1221,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
                 else if (/[a-zA-Z]/.test(part[0])) {
                     part = part.trim();
                     var nameSplit = part.split(/(.#)/);
-                    ret.push(util.classFromOriginalName(nameSplit[0]));
+                    ret.push(util.classFromOriginalName(nameSplit[0], namespaces));
                     ret = ret.concat(nameSplit.slice(1));
                 }
                 else {
@@ -1241,10 +1253,13 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      *
      * @param selector The selector to use.
      *
+     * @param namespaces The namespaces that are known. This is used to convert
+     * element name prefixes to namespace URIs.
+     *
      * @returns The resulting data node.
      */
-    function dataFind(node, selector) {
-        var guiSelector = toGUISelector(selector);
+    function dataFind(node, selector, namespaces) {
+        var guiSelector = toGUISelector(selector, namespaces);
         var guiNode = $.data(node, "wed_mirror_node");
         var foundNodes = guiNode.querySelector(guiSelector);
         if (foundNodes == null) {
@@ -1262,10 +1277,13 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      *
      * @param selector The selector to use.
      *
+     * @param namespaces The namespaces that are known. This is used to convert
+     * element name prefixes to namespace URIs.
+     *
      * @returns The resulting data nodes.
      */
-    function dataFindAll(node, selector) {
-        var guiSelector = toGUISelector(selector);
+    function dataFindAll(node, selector, namespaces) {
+        var guiSelector = toGUISelector(selector, namespaces);
         var guiNode = $.data(node, "wed_mirror_node");
         var foundNodes = guiNode.querySelectorAll(guiSelector);
         var ret = [];
@@ -1299,7 +1317,13 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
         //
         // tslint:disable-next-line:no-inner-html
         div.innerHTML = html;
-        return Array.prototype.slice.call(div.childNodes);
+        var ret = Array.prototype.slice.call(div.childNodes);
+        // Clear the div so that the children cannot access the DOM objects we created
+        // only to convert the HTML to DOM elements.
+        while (div.firstChild !== null) {
+            div.removeChild(div.firstChild);
+        }
+        return ret;
     }
     exports.htmlToElements = htmlToElements;
     /**
@@ -1375,7 +1399,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      */
     function isNotDisplayed(el, root) {
         var win = el.ownerDocument.defaultView;
-        // We don't put put a menu for attributes that are somehow not
+        // We don't put a menu for attributes that are somehow not
         // displayed.
         while (el != null && el !== root) {
             if (el.style.display === "none") {
@@ -1390,14 +1414,42 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
         return false;
     }
     exports.isNotDisplayed = isNotDisplayed;
+    /**
+     * A ``contains`` function that handles attributes. Attributes are not part of
+     * the node tree and performing a ``contains`` test on them is always ``false``.
+     *
+     * Yet it makes sense to say that an element A contains its own attributes and
+     * thus by transitivity if element A is contained by element B, then all
+     * attributes of A are contained by B. This function supports the contention
+     * just described.
+     *
+     * Usage note: this function is typically not *needed* when doing tests in the
+     * GUI tree because we do not address attributes in that tree. There is,
+     * however, no harm in using it where it is not strictly needed. In the data
+     * tree, however, we do address attributes. Code that works with either tree
+     * (e.g. the [["dloc"]] module) should use this function as a general rule so
+     * that it can work with either tree.
+     *
+     * @param container The thing which should contain in the test.
+     *
+     * @param contained The thing which should be contained in the test.
+     *
+     * @returns Whether ``container`` contains ``contained``.
+     */
+    function contains(container, contained) {
+        if (domtypeguards_1.isAttr(contained)) {
+            contained = contained.ownerElement;
+        }
+        return container.contains(contained);
+    }
+    exports.contains = contains;
 });
-//  LocalWords:  genericInsertIntoText endOffset endContainer mockup
-//  LocalWords:  startOffset startContainer unlinks DOM gui Mangalam
-//  LocalWords:  MPL Dubeau nextSibling versa insertFragAt validthis
-//  LocalWords:  insertNodeAt jshint mergeTextNodes deleteNode dom lt
-//  LocalWords:  lastChild prev getSelectionRange jQuery deleteText
-//  LocalWords:  Prepend insertIntoText cd abfoocd abcd nodeToPath
-//  LocalWords:  contenteditable pathToNode whitespace util jquery
-//  LocalWords:  domutil
+//  LocalWords:  wed's URIs rect clientTop jquery util whitespace clientLeft cd
+//  LocalWords:  contenteditable abcd abfoocd insertIntoText Prepend scrollbars
+//  LocalWords:  deleteText jQuery getSelectionRange prev lastChild nodeType zA
+//  LocalWords:  dom deleteNode mergeTextNodes jshint insertNodeAt noop treeA
+//  LocalWords:  validthis insertFragAt versa nextSibling Dubeau MPL nodeInA
+//  LocalWords:  Mangalam gui DOM unlinks startContainer startOffset childNodes
+//  LocalWords:  endContainer endOffset genericInsertIntoText
 
 //# sourceMappingURL=domutil.js.map

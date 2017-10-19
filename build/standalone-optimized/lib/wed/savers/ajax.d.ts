@@ -1,17 +1,8 @@
-/// <reference types="bluebird" />
-/**
- * Data saving functionality, using Ajax.
- *
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
-import * as Promise from "bluebird";
 import { Runtime } from "../runtime";
 import * as saver from "../saver";
 import { TreeUpdater } from "../tree-updater";
-export interface Options {
-    /** The url location to POST save requests. */
+export interface Options extends saver.SaverOptions {
+    /** The URL location to POST save requests. */
     url: string;
     /**
      * Headers to set on the POST request. This may be necessary for cross

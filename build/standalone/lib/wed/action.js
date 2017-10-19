@@ -8,14 +8,13 @@ define(["require", "exports", "module"], function (require, exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
-     *
      * Actions model "things the user can do." These can be contextual menu items,
      * menu items, buttons, keybindings, etc. The base class is always enabled but
      * derived classes can set their own enabled state depending on whatever
      * conditions they choose.
      */
-    var Action = (function () {
-        /*
+    var Action = /** @class */ (function () {
+        /**
          * @param editor The editor to which this action belongs.
          *
          * @param desc A simple string description of the action.
@@ -147,6 +146,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }());
     exports.Action = Action;
 });
-//  LocalWords:  keybindings html oop Mangalam MPL Dubeau
+//  LocalWords:  autoinsert Dubeau MPL Mangalam html keybindings
 
 //# sourceMappingURL=action.js.map

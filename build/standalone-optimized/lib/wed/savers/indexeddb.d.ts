@@ -1,4 +1,3 @@
-/// <reference types="bluebird" />
 /**
  * Data saving functionality, using IndexedDB. Note that this saver is mainly
  * designed for demonstration purposes.
@@ -7,14 +6,13 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird";
 import { Runtime } from "../runtime";
 import * as saver from "../saver";
 import { TreeUpdater } from "../tree-updater";
 export interface Store {
     put(name: string, data: string): Promise<void>;
 }
-export interface Options {
+export interface Options extends saver.SaverOptions {
     /**
      * The "name" of the file to save. This is the key used to save the file.
      */
@@ -22,9 +20,9 @@ export interface Options {
     getStore(): Store;
 }
 /**
- * Defines a saver that uses localforage to save documents.
+ * Defines a saver that uses IndexedDB to save documents.
  *
- * This saver stores the document as a "file" into an indexeddb instance. The
+ * This saver stores the document as a "file" into an IndexedDB instance. The
  * objects are not really files but similar to files. Henceforth, the name
  * "file" will be used without quotes to refer to the objects stored.
  *

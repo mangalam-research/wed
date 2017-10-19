@@ -20,7 +20,7 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
     /**
      * Raised if an attribute could not be found when converting a path to a node.
      */
-    var AttributeNotFound = (function (_super) {
+    var AttributeNotFound = /** @class */ (function (_super) {
         __extends(AttributeNotFound, _super);
         function AttributeNotFound(message) {
             var _this = _super.call(this, message) || this;
@@ -109,9 +109,10 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
         };
     }
     /**
-     * This is a DLocRoot class customized for use to mark the root of the GUI tree.
+     * This is a [[DLocRoot]] class customized for use to mark the root of the GUI
+     * tree.
      */
-    var GUIRoot = (function (_super) {
+    var GUIRoot = /** @class */ (function (_super) {
         __extends(GUIRoot, _super);
         function GUIRoot() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -266,5 +267,6 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
     }(dloc_1.DLocRoot));
     exports.GUIRoot = GUIRoot;
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=guiroot.js.map

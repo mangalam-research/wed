@@ -1,10 +1,10 @@
 import { DLoc } from "./dloc";
-import * as treeUpdater from "./tree-updater";
+import { TreeUpdater } from "./tree-updater";
 /**
  * Updates a GUI tree so that its data nodes (those nodes that are not
  * decorations) mirror a data tree.
  */
-export declare class GUIUpdater extends treeUpdater.TreeUpdater {
+export declare class GUIUpdater extends TreeUpdater {
     private readonly treeUpdater;
     /**
      * @param guiTree The DOM tree to update.
@@ -13,7 +13,7 @@ export declare class GUIUpdater extends treeUpdater.TreeUpdater {
      * a source of modification events which the object being created will listen
      * on.
      */
-    constructor(guiTree: Element, treeUpdater: treeUpdater.TreeUpdater);
+    constructor(guiTree: Element, treeUpdater: TreeUpdater);
     /**
      * Handles "InsertNodeAt" events.
      *

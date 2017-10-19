@@ -5,7 +5,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * This task refreshes the position of the validation error markers on the
      * screen.
      */
-    var RefreshValidationErrors = (function () {
+    var RefreshValidationErrors = /** @class */ (function () {
         function RefreshValidationErrors(controller) {
             this.controller = controller;
         }
@@ -33,5 +33,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }());
     exports.RefreshValidationErrors = RefreshValidationErrors;
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=refresh-validation-errors.js.map

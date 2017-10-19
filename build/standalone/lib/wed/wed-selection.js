@@ -4,7 +4,7 @@ define(["require", "exports", "module", "./domutil"], function (require, exports
     /**
      * Represents a selection as wed understands it.
      */
-    var WedSelection = (function () {
+    var WedSelection = /** @class */ (function () {
         /**
          * @param anchor The anchor point of the selection. The anchor is where the
          * selection started. It does not move when the user selects text.
@@ -66,6 +66,13 @@ define(["require", "exports", "module", "./domutil"], function (require, exports
             }
             return [startCaret, endCaret];
         };
+        WedSelection.prototype.mustAsDataCarets = function () {
+            var ret = this.asDataCarets();
+            if (ret === undefined) {
+                throw new Error("cannot get the selection as data carets");
+            }
+            return ret;
+        };
         /**
          * @returns Whether the two objects are equal. They are equal if they are the
          * same object or if they have equal focuses (foci?) and equal anchors.
@@ -80,5 +87,6 @@ define(["require", "exports", "module", "./domutil"], function (require, exports
     }());
     exports.WedSelection = WedSelection;
 });
+//  LocalWords:  MPL foci
 
 //# sourceMappingURL=wed-selection.js.map

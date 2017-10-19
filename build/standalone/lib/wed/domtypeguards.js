@@ -20,13 +20,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
         return node != null && node.nodeType === Node.TEXT_NODE;
     }
     exports.isText = isText;
-    //
-    // export function isAttribute ...
-    //
-    // Not implemented yet. The caveats with implementing such a function need to be
-    // investigated. See [["domutil".isAttr]] for information about the problems
-    // related to determining whether a node is an attribute or not.
-    //
     var attrNodeType = Node.ATTRIBUTE_NODE;
     // Specialized for when Node.ATTRIBUTE_NODE still exists.
     function isAttrWithType(it) {
@@ -52,10 +45,10 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * decided that attributes were no longer really nodes. So they decided to make
      * attribute objects inherit from the ``Attr`` interface **only**. This means
      * that ``nodeType`` no longer exists for attributes. The new way to test
-     * whether something is an attribute is to test with ``instanceof
-     * Attr``. However, as usual, the DOM implementation for XML lags behind the
-     * HTML side and on Chrome 49 (to name just one case), ``instanceof Attr`` does
-     * not work on XML attributes whereas testing ``nodeType`` does.
+     * whether something is an attribute is to test with ``instanceof Attr``.
+     * However, as usual, the DOM implementation for XML lags behind the HTML side
+     * and on Chrome 49 (to name just one case), ``instanceof Attr`` does not work
+     * on XML attributes whereas testing ``nodeType`` does.
      *
      * This function performs a test that works on HTML attributes and XML
      * attributes.
@@ -81,5 +74,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }
     exports.isDocument = isDocument;
 });
+//  LocalWords:  Typeguards MPL isAttribute attrNodeType
 
 //# sourceMappingURL=domtypeguards.js.map

@@ -12,7 +12,8 @@ export declare class AttributeNotFound extends Error {
     constructor(message: string);
 }
 /**
- * This is a DLocRoot class customized for use to mark the root of the GUI tree.
+ * This is a [[DLocRoot]] class customized for use to mark the root of the GUI
+ * tree.
  */
 export declare class GUIRoot extends DLocRoot {
     /**

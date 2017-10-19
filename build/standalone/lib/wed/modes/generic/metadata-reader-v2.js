@@ -15,7 +15,7 @@ define(["require", "exports", "module", "wed/util", "./doc-pattern", "./metadata
      * Execution context for the [[DocPattern]] objects we evaluate with
      * [[MetadataV2]].
      */
-    var MetadataContext = (function () {
+    var MetadataContext = /** @class */ (function () {
         /**
          * @param name The value to return when we interpolate the symbol "name".
          */
@@ -31,7 +31,7 @@ define(["require", "exports", "module", "wed/util", "./doc-pattern", "./metadata
         return MetadataContext;
     }());
     // tslint:disable-next-line:completed-docs
-    var MetadataV2 = (function (_super) {
+    var MetadataV2 = /** @class */ (function (_super) {
         __extends(MetadataV2, _super);
         function MetadataV2(metadata) {
             var _this = _super.call(this, "2", metadata) || this;
@@ -90,7 +90,7 @@ define(["require", "exports", "module", "wed/util", "./doc-pattern", "./metadata
     /**
      * A reader that reads version 2 of the metadata format.
      */
-    var MetadataReaderV2 = (function (_super) {
+    var MetadataReaderV2 = /** @class */ (function (_super) {
         __extends(MetadataReaderV2, _super);
         function MetadataReaderV2() {
             return _super.call(this, MetadataV2) || this;
@@ -100,5 +100,6 @@ define(["require", "exports", "module", "wed/util", "./doc-pattern", "./metadata
     }(metadata_versioned_reader_1.MetadataReaderBase));
     exports.MetadataReaderV2 = MetadataReaderV2;
 });
+//  LocalWords:  MPL inlines tei
 
 //# sourceMappingURL=metadata-reader-v2.js.map

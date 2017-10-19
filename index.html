@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; Wed v0.28.2-152-g4525c15d documentation</title>
+  <title>Introduction &mdash; Wed v0.30.0 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.28.2-152-g4525c15d documentation" href="#"/>
+    <link rel="top" title="Wed v0.30.0 documentation" href="#"/>
         <link rel="next" title="Demos" href="demos.html"/> 
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                v0.28
+                v0.30
               </div>
             
           
@@ -166,10 +166,7 @@ build and test it,</li>
 <li><a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a> to learn about wed&#8217;s internals, design decisions,
 or about more complex usage scenarios,</li>
 <li>the <a class="reference external" href="api/index.html">API documentation</a> to write modes or extensions for
-wed. <strong>IMPORTANT NOTE: the API documentation is currently in shambles. This
-will be the case for as long as the transition to TypeScript is not
-complete.</strong> In the meantime, we recommend reading the documentation comments
-in the source code.</li>
+wed.</li>
 </ul>
 <div class="section" id="table-of-contents">
 <h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
@@ -186,11 +183,17 @@ in the source code.</li>
 <li class="toctree-l3"><a class="reference internal" href="help.html#modification-and-save-status">Modification and Save Status</a></li>
 <li class="toctree-l3"><a class="reference internal" href="help.html#the-error-pane">The Error Pane</a></li>
 <li class="toctree-l3"><a class="reference internal" href="help.html#the-navigation-pane">The Navigation Pane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#the-minibuffer">The Minibuffer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="help.html#the-location-bar">The Location Bar</a></li>
 <li class="toctree-l3"><a class="reference internal" href="help.html#the-editing-pane">The Editing Pane</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="help.html#kinds-of-xml-operations">Kinds of XML Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="help.html#searching">Searching</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="help.html#quick-search">Quick Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="help.html#dialog-search">Dialog Search</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="help.html#saving">Saving</a></li>
 <li class="toctree-l2"><a class="reference internal" href="help.html#cut-copy-and-paste">Cut, Copy and Paste</a></li>
 <li class="toctree-l2"><a class="reference internal" href="help.html#undo-and-redo">Undo and Redo</a></li>
@@ -242,8 +245,7 @@ in the source code.</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tech_notes.html#testing">Testing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#browser-independent-tests">Browser-Independent Tests</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#in-browser-tests">In-Browser Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tech_notes.html#karma-based-tests">Karma-Based Tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tech_notes.html#selenium-based-tests">Selenium-Based Tests</a></li>
 </ul>
 </li>
@@ -318,7 +320,7 @@ represent those of the National Endowment for the Humanities.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2013-2016 Mangalam Research Center for Buddhist Languages.
+        &copy; Copyright Mangalam Research Center for Buddhist Languages.
 
     </p>
   </div>
@@ -340,7 +342,7 @@ represent those of the National Endowment for the Humanities.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.28.2-152-g4525c15d',
+            VERSION:'v0.30.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

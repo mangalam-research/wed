@@ -31,6 +31,7 @@ export declare class WedSelection {
     readonly collapsed: boolean;
     readonly wellFormed: boolean;
     asDataCarets(): [DLoc, DLoc] | undefined;
+    mustAsDataCarets(): [DLoc, DLoc];
     /**
      * @returns Whether the two objects are equal. They are equal if they are the
      * same object or if they have equal focuses (foci?) and equal anchors.

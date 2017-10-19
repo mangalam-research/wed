@@ -1,43 +1,18 @@
 /// <reference types="jquery" />
-import * as salve from "salve";
-import { Action } from "./action";
-import { CaretManager } from "./caret-manager";
-import { DLoc } from "./dloc";
 import { Listener } from "./domlistener";
 import { GUIUpdater } from "./gui-updater";
-import { Transformation, TransformationData } from "./transformation";
-import { BeforeInsertNodeAtEvent } from "./tree-updater";
-import { Validator } from "./validator";
-export interface Editor {
-    gui_root: Element;
-    data_root: Element;
-    max_label_level: number;
-    complex_pattern_action: Action<{}>;
-    attributes: string;
-    validator: Validator;
-    caretManager: CaretManager;
-    mode: any;
-    _makeMenuItemForAction(action: Action<{}>, data?: {}): HTMLElement;
-    resolver: salve.NameResolver;
-    isAttrProtected(name: string, parent: Element): boolean;
-    isAttrProtected(node: Node): boolean;
-    toDataNode(el: Node): Node | Attr;
-    makeDocumentationLink(url: string): HTMLElement;
-    getElementTransformationsAt(pos: DLoc, transformationType: string): {
-        name: string;
-        tr: Transformation<TransformationData>;
-    }[];
-    [key: string]: any;
-}
+import { Mode } from "./mode";
+import { Editor } from "./wed";
 /**
  * A decorator is responsible for adding decorations to a tree of DOM
  * elements. Decorations are GUI elements.
  */
-export declare class Decorator {
-    protected readonly domlistener: Listener;
+export declare abstract class Decorator {
+    protected readonly mode: Mode;
     protected readonly editor: Editor;
+    protected readonly namespaces: Record<string, string>;
+    protected readonly domlistener: Listener;
     protected readonly guiUpdater: GUIUpdater;
-    private _attributeHidingSpecs;
     /**
      * @param domlistener The listener that the decorator must use to know when
      * the DOM tree has changed and must be redecorated.
@@ -47,11 +22,11 @@ export declare class Decorator {
      * @param guiUpdater The updater to use to modify the GUI tree. All
      * modifications to the GUI must go through this updater.
      */
-    constructor(domlistener: Listener, editor: Editor, guiUpdater: GUIUpdater);
+    constructor(mode: Mode, editor: Editor);
     /**
      * Request that the decorator add its event handlers to its listener.
      */
-    addHandlers(): void;
+    abstract addHandlers(): void;
     /**
      * Start listening to changes to the DOM tree.
      */
@@ -65,11 +40,6 @@ export declare class Decorator {
      * @param sep A separator.
      */
     listDecorator(el: Element, sep: string | Element): void;
-    /**
-     * Generic handler for setting ``contenteditable`` on nodes included into the
-     * tree.
-     */
-    contentEditableHandler(ev: BeforeInsertNodeAtEvent): void;
     /**
      * Add a start label at the start of an element and an end label at the end.
      *
@@ -99,8 +69,7 @@ export declare class Decorator {
      *
      * @returns ``true`` if the attribute must be hidden. ``false`` otherwise.
      */
-    mustHideAttribute(el: Element, name: string): boolean;
-    private readonly attributeHidingSpecs;
+    protected mustHideAttribute(el: Element, name: string): boolean;
     /**
      * Add or remove the CSS class ``_readonly`` on the basis of the 2nd argument.
      *
@@ -121,5 +90,5 @@ export declare class Decorator {
      *
      * @returns To be interpreted the same way as for all DOM event handlers.
      */
-    protected contextMenuHandler(atStart: boolean, wedEv: JQueryMouseEventObject, ev: Event): boolean;
+    protected contextMenuHandler(atStart: boolean, wedEv: JQueryMouseEventObject, ev: JQueryEventObject): boolean;
 }

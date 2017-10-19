@@ -12,7 +12,7 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
      * The "caret mark" is the graphical indicator
      * showing the position of the caret.
      */
-    var CaretMark = (function () {
+    var CaretMark = /** @class */ (function () {
         /**
          * @param manager The caret manager that holds this marker.
          *
@@ -87,16 +87,14 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
             }
             var boundary = wed_util_1.boundaryXY(caret);
             var grPosition = this.scroller.getBoundingClientRect();
-            var position = {
-                top: boundary.top - grPosition.top,
-                left: boundary.left - grPosition.left,
-            };
+            var top = boundary.top - grPosition.top + this.scroller.scrollTop;
+            var left = boundary.left - grPosition.left + this.scroller.scrollLeft;
             var node = caret.node;
             var heightNode = domtypeguards_1.isElement(node) ? node : node.parentNode;
             var height = getComputedStyle(heightNode).lineHeight;
             var el = this.el;
-            var topStr = position.top + "px";
-            var leftStr = position.left + "px";
+            var topStr = top + "px";
+            var leftStr = left + "px";
             el.style.top = topStr;
             el.style.left = leftStr;
             el.style.height = height;
@@ -131,8 +129,6 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
             if (isNaN(pos.left) || isNaN(pos.top)) {
                 throw new Error("NAN for left or top");
             }
-            pos.left += this.scroller.scrollLeft;
-            pos.top += this.scroller.scrollTop;
             return pos;
         };
         Object.defineProperty(CaretMark.prototype, "inDOM", {
@@ -164,5 +160,6 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
     }());
     exports.CaretMark = CaretMark;
 });
+//  LocalWords:  MPL scroller contenteditable px
 
 //# sourceMappingURL=caret-mark.js.map

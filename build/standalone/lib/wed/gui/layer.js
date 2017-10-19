@@ -11,7 +11,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * This class represents a layer over the editing area. Layers are used to show
      * information that are above (in z order) the edited content.
      */
-    var Layer = (function () {
+    var Layer = /** @class */ (function () {
         /**
          * @param el The DOM element which is the layer.
          */
@@ -40,5 +40,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }());
     exports.Layer = Layer;
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=layer.js.map

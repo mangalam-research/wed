@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import * as undo from "./undo";
-export declare type Editor = any;
+import { Editor } from "./wed";
 export declare type Caret = [string | undefined, number | undefined];
 /**
  * This class extends the vanilla UndoGroup class by recording the
@@ -68,7 +68,7 @@ export declare class TextUndoGroup extends UndoGroup {
      * record.
      */
     constructor(desc: string, editor: Editor, undoList: undo.UndoList, limit: number);
-    record(undo: undo.Undo): void;
+    record(undoToRecord: undo.Undo): void;
 }
 /**
  * Serves as a marker for debugging.

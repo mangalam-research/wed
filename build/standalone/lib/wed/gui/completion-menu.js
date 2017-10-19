@@ -14,7 +14,7 @@ define(["require", "exports", "module", "jquery", "../key-constants", "./context
     /**
      * A menu for displaying completions.
      */
-    var CompletionMenu = (function (_super) {
+    var CompletionMenu = /** @class */ (function (_super) {
         __extends(CompletionMenu, _super);
         /**
          * @param editor The editor for which to create this menu.
@@ -35,7 +35,7 @@ define(["require", "exports", "module", "jquery", "../key-constants", "./context
          */
         function CompletionMenu(editor, document, x, y, prefix, items, dismissCallback) {
             var _this = _super.call(this, document, x, y, [], dismissCallback, false) || this;
-            _this.focused = false;
+            _this._focused = false;
             _this.completionPrefix = prefix;
             _this.completionItems = items;
             _this.editor = editor;
@@ -58,13 +58,21 @@ define(["require", "exports", "module", "jquery", "../key-constants", "./context
             _this.display([]);
             return _this;
         }
+        Object.defineProperty(CompletionMenu.prototype, "focused", {
+            /** Whether the completion menu has been focused. */
+            get: function () {
+                return this._focused;
+            },
+            enumerable: true,
+            configurable: true
+        });
         CompletionMenu.prototype.globalKeydownHandler = function (wedEv, ev) {
             if (keyConstants.ENTER.matchesEvent(ev)) {
                 this.$menu.find("li:not(.divider):visible a").first().click();
                 return false;
             }
             else if (keyConstants.DOWN_ARROW.matchesEvent(ev)) {
-                this.focused = true;
+                this._focused = true;
                 this.$menu.find("li:not(.divider):visible a").first().focus();
                 this.$menu.trigger(ev);
                 return false;
@@ -124,5 +132,6 @@ define(["require", "exports", "module", "jquery", "../key-constants", "./context
     }(context_menu_1.ContextMenu));
     exports.CompletionMenu = CompletionMenu;
 });
+//  LocalWords:  MPL li href
 
 //# sourceMappingURL=completion-menu.js.map

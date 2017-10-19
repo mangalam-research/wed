@@ -124,13 +124,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Input<wbr>Trigger<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../modules/_input_trigger_.html#editor" class="tsd-signature-type">Editor</a>, selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_input_trigger_.inputtrigger.html" class="tsd-signature-type">InputTrigger</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Input<wbr>Trigger<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_wed_.editor.html" class="tsd-signature-type">Editor</a>, mode<span class="tsd-signature-symbol">: </span><a href="../interfaces/_mode_.mode.html" class="tsd-signature-type">Mode</a>, selector<span class="tsd-signature-symbol">: </span><a href="_gui_selector_.guiselector.html" class="tsd-signature-type">GUISelector</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_input_trigger_.inputtrigger.html" class="tsd-signature-type">InputTrigger</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/input-trigger.ts#L56">input-trigger.ts:56</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/input-trigger.ts#L55">input-trigger.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -138,21 +138,28 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="../modules/_input_trigger_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>The editor to which this InputTrigger belongs.</p>
+											<p>The editor to which this <code>InputTrigger</code> belongs.</p>
 										</div>
 									</div>
 								</li>
 								<li>
-									<h5>selector: <span class="tsd-signature-type">string</span></h5>
+									<h5>mode: <a href="../interfaces/_mode_.mode.html" class="tsd-signature-type">Mode</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>This is a CSS selector. The object created by this
-												constructor will listen to events that pertain only to DOM nodes matching
-												this selector. The form this selector can take is constrained by the limits
-											imposed by <a href="../modules/_domutil_.html#toguiselector">&quot;domutil&quot;.toGUISelector</a></p>
+											<p>The mode for which this <code>InputTrigger</code> is being created.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5>selector: <a href="_gui_selector_.guiselector.html" class="tsd-signature-type">GUISelector</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>This is a CSS selector which must be fit to be used in the
+												GUI tree. (For instance by being the output of
+											<a href="../modules/_domutil_.html#toguiselector">&quot;domutil&quot;.toGUISelector</a>.)</p>
 										</div>
 									</div>
 								</li>
@@ -174,7 +181,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/input-trigger.ts#L123">input-trigger.ts:123</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/input-trigger.ts#L122">input-trigger.ts:122</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -249,9 +256,6 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="../modules/_input_trigger_.html#editor" class="tsd-kind-icon">Editor</a>
-					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="../modules/_input_trigger_.html#keyhandler" class="tsd-kind-icon">Key<wbr>Handler</a>
 					</li>

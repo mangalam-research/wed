@@ -6,21 +6,22 @@
 define(["require", "exports", "module", "jquery", "merge-options", "bootstrap-notify"], function (require, exports, module, $, mergeOptions) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function notify(message, options) {
-        var opts = mergeOptions({
-            element: "body",
-            type: "info",
-            placement: {
-                from: "top",
-                align: "center",
-            },
-            delay: 1000,
-        }, options);
-        $.notify({
-            message: message,
-        }, opts);
+    var defaultSettings = {
+        element: "body",
+        type: "info",
+        placement: {
+            from: "top",
+            align: "center",
+        },
+        delay: 1000,
+    };
+    function notify(message, settings) {
+        var s = settings === undefined ? defaultSettings :
+            mergeOptions(defaultSettings, settings);
+        $.notify({ message: message }, s);
     }
     exports.notify = notify;
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=notify.js.map

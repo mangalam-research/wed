@@ -38,8 +38,12 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
             if (locations.length !== 1) {
                 break;
             }
-            var unresolved = editor.resolver.unresolveName(name_1.ns, name_1.name);
-            var actions = editor.mode.getContextualActions("insert", unresolved, el, locations[0]);
+            var mode = editor.modeTree.getMode(el);
+            var unresolved = mode.getAbsoluteResolver().unresolveName(name_1.ns, name_1.name);
+            if (unresolved === undefined) {
+                throw new Error("cannot unresolve {" + name_1.ns + "}" + name_1.name);
+            }
+            var actions = mode.getContextualActions("insert", unresolved, el, locations[0]);
             // Don't auto insert if it happens that the operation would be ambiguous
             // (ie. if there is more than one way to insert the element).
             if (actions.length !== 1) {
@@ -60,13 +64,17 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
     }
     function executeInsert(editor, data) {
         var caret = editor.caretManager.getDataCaret();
-        var absoluteResolver = editor.mode.getAbsoluteResolver();
+        if (caret === undefined) {
+            throw new Error("inserting without a defined caret!");
+        }
+        var mode = editor.modeTree.getMode(caret.node);
+        var absoluteResolver = mode.getAbsoluteResolver();
         var ename = absoluteResolver.resolveName(data.name);
         if (ename === undefined) {
             throw new Error("cannot resolve " + data.name);
         }
         var unresolved = editor.validator.unresolveNameAt(caret.node, caret.offset, ename.ns, ename.name);
-        var el = transformation_1.insertElement(editor.data_updater, caret.node, caret.offset, ename.ns, data.name);
+        var el = transformation_1.insertElement(editor.dataUpdater, caret.node, caret.offset, ename.ns, data.name);
         if (unresolved === undefined) {
             // The namespace used by the element has not been defined yet. So we need to
             // define it.
@@ -75,10 +83,10 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
             // The next name is necessarily resolvable so we assert that it is not
             // resolving to undefined.
             var xmlnsURI = absoluteResolver.resolveName("xmlns:q").ns;
-            editor.data_updater.setAttributeNS(el, xmlnsURI, name_2, ename.ns);
+            editor.dataUpdater.setAttributeNS(el, xmlnsURI, name_2, ename.ns);
         }
         var caretNode = el;
-        if (editor.mode.getModeOptions().autoinsert) {
+        if (mode.getModeOptions().autoinsert) {
             _autoinsert(el, editor);
             // Set el to the deepest first child, so that the caret is put in the right
             // position.
@@ -99,7 +107,7 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         }
         var parent = node.parentNode;
         var index = domutil_1.indexOf(parent.childNodes, node);
-        transformation_1.unwrap(editor.data_updater, node);
+        transformation_1.unwrap(editor.dataUpdater, node);
         editor.caretManager.setCaret(parent, index);
     }
     function executeWrap(editor, data) {
@@ -110,12 +118,13 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         if (sel.collapsed) {
             throw new Error("wrap transformation called with collapsed range");
         }
-        var _a = sel.asDataCarets(), startCaret = _a[0], endCaret = _a[1];
-        var ename = editor.mode.getAbsoluteResolver().resolveName(data.name);
+        var _a = sel.mustAsDataCarets(), startCaret = _a[0], endCaret = _a[1];
+        var mode = editor.modeTree.getMode(startCaret.node);
+        var ename = mode.getAbsoluteResolver().resolveName(data.name);
         if (ename === undefined) {
             throw new Error("cannot resolve " + data.name);
         }
-        var el = transformation_1.wrapInElement(editor.data_updater, startCaret.node, startCaret.offset, endCaret.node, endCaret.offset, ename.ns, data.name);
+        var el = transformation_1.wrapInElement(editor.dataUpdater, startCaret.node, startCaret.offset, endCaret.node, endCaret.offset, ename.ns, data.name);
         var parent = el.parentNode;
         editor.caretManager.setCaret(startCaret.make(parent, domutil_1.indexOf(parent.childNodes, el) + 1));
     }
@@ -124,11 +133,12 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         if (!domtypeguards_1.isElement(toWrap)) {
             throw new Error("node must be an element");
         }
-        var ename = editor.mode.getAbsoluteResolver().resolveName(data.name);
+        var mode = editor.modeTree.getMode(toWrap);
+        var ename = mode.getAbsoluteResolver().resolveName(data.name);
         if (ename === undefined) {
             throw new Error("cannot resolve " + data.name);
         }
-        transformation_1.wrapInElement(editor.data_updater, toWrap, 0, toWrap, toWrap.childNodes.length, ename.ns, data.name);
+        transformation_1.wrapInElement(editor.dataUpdater, toWrap, 0, toWrap, toWrap.childNodes.length, ename.ns, data.name);
     }
     function executeDeleteElement(editor, data) {
         var node = data.node;
@@ -141,7 +151,7 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         // If the node we start with is an Element, then the node in guiLoc is
         // necessarily an Element too.
         if (!guiLoc.node.classList.contains("_readonly")) {
-            editor.data_updater.removeNode(node);
+            editor.dataUpdater.removeNode(node);
             editor.caretManager.setCaret(parent, index);
         }
     }
@@ -152,11 +162,11 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         }
         var parent = node.parentNode;
         var index = domutil_1.indexOf(parent.childNodes, node);
-        var guiLoc = editor.caretManager.fromDataLocation(node, 0);
+        var guiLoc = editor.caretManager.mustFromDataLocation(node, 0);
         // If the node we start with is an Element, then the node in guiLoc is
         // necessarily an Element too.
         if (!guiLoc.node.classList.contains("_readonly")) {
-            editor.data_updater.removeNode(node);
+            editor.dataUpdater.removeNode(node);
             editor.caretManager.setCaret(parent, index);
         }
     }
@@ -165,11 +175,11 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         if (!domtypeguards_1.isElement(node)) {
             throw new Error("node must be an element");
         }
-        var guiLoc = editor.caretManager.fromDataLocation(node, 0);
+        var guiLoc = editor.caretManager.mustFromDataLocation(node, 0);
         // If the node we start with is an Element, then the node in guiLoc is
         // necessarily an Element too.
         if (!guiLoc.node.classList.contains("_readonly")) {
-            editor.data_updater.setAttribute(node, data.name, "");
+            editor.dataUpdater.setAttribute(node, data.name, "");
             var attr = node.getAttributeNode(data.name);
             editor.caretManager.setCaret(attr, 0);
         }
@@ -181,33 +191,33 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         }
         var element = node.ownerElement;
         var caretManager = editor.caretManager;
-        var guiOwnerLoc = caretManager.fromDataLocation(element, 0);
+        var guiOwnerLoc = caretManager.mustFromDataLocation(element, 0);
         // If the node we start with is an Element, then the node in guiOwnerLoc
         // is necessarily an Element too.
         var guiOwner = guiOwnerLoc.node;
         if (!guiOwner.classList.contains("_readonly")) {
             var encoded = node.name;
             var startLabel = domutil_1.childByClass(guiOwner, "__start_label");
-            // An earlier version of this code relied on the order of attributres in the
+            // An earlier version of this code relied on the order of attributes in the
             // data tree. However, this order is not consistent from platform to
             // platform. Using the order of attributes in the GUI is
             // consistent. Therefore we go to the GUI to find the next attribute.
             var values = startLabel.getElementsByClassName("_attribute_value");
             // We have to get the parent node because fromDataLocation brings us to the
             // text node that contains the value.
-            var guiNode = caretManager.fromDataLocation(node, 0).node.parentNode;
+            var guiNode = caretManager.mustFromDataLocation(node, 0).node.parentNode;
             var index = domutil_1.indexOf(values, guiNode);
             var nextGUIValue = values[index + 1];
             var nextAttr = nextGUIValue != null ?
                 editor.toDataNode(nextGUIValue) : null;
-            editor.data_updater.setAttribute(element, encoded, null);
+            editor.dataUpdater.setAttribute(element, encoded, null);
             // We set the caret inside the next attribute, or if it does not exist,
             // inside the label.
             if (nextAttr !== null) {
                 editor.caretManager.setCaret(nextAttr, 0);
             }
             else {
-                editor.caretManager.setCaret(guiOwnerLoc.node.getElementsByClassName("_element_name")[0], 0);
+                editor.caretManager.setCaret(guiOwner.getElementsByClassName("_element_name")[0], 0);
             }
         }
     }
@@ -227,11 +237,13 @@ define(["require", "exports", "module", "salve", "wed/domtypeguards", "wed/domut
         ret["insert-text"] = new transformation_1.Transformation(forEditor, "insert-text", "Insert \"<name>\"", undefined, function (editor, data) {
             editor.type(data.name);
         });
-        ret.split = forEditor.split_node_tr;
+        ret.split = forEditor.splitNodeTr;
         return ret;
     }
     exports.makeTagTr = makeTagTr;
 });
-//  LocalWords:  TransformationRegistry Mangalam MPL Dubeau
+//  LocalWords:  TransformationRegistry Mangalam MPL Dubeau autoinsertion ie el
+//  LocalWords:  autoinsert enterStartTag moveCaretTo xmlns guiLoc readonly
+//  LocalWords:  guiOwnerLoc fromDataLocation
 
 //# sourceMappingURL=generic-tr.js.map

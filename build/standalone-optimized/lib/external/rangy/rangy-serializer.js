@@ -8,10 +8,10 @@
  *
  * Depends on Rangy core.
  *
- * Copyright 2015, Tim Down
+ * Copyright 2017, Tim Down
  * Licensed under the MIT license.
- * Version: 1.3.0
- * Build date: 10 May 2015
+ * Version: 1.3.1-dev
+ * Build date: 11 October 2017
  */
 (function(factory, root) {
     if (typeof define == "function" && define.amd) {

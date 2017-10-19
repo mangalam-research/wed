@@ -5,7 +5,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      * A class for objects that are used to mark DOM nodes as roots for the purpose
      * of using DLoc objects.
      */
-    var DLocRoot = (function () {
+    var DLocRoot = /** @class */ (function () {
         /**
          * @param el The element to which this object is associated.
          */
@@ -32,11 +32,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
             if (root === node) {
                 return "";
             }
-            var checkNode = node;
-            if (domtypeguards_1.isAttr(node)) {
-                checkNode = node.ownerElement;
-            }
-            if (!root.contains(checkNode)) {
+            if (!domutil_1.contains(root, node)) {
                 throw new Error("node is not a descendant of root");
             }
             var ret = [];
@@ -143,6 +139,29 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
         return testLength;
     }
     /**
+     * Compare two locations that have already been determined to be in a
+     * parent-child relation. **Important: the relationship must have been formally
+     * tested *before* calling this function.**
+     *
+     * @returns -1 if ``parent`` is before ``child``, 1 otherwise.
+     */
+    function parentChildCompare(parentNode, parentOffset, childNode) {
+        // Find which child of parent is or contains the other node.
+        var curChild = parentNode.firstChild;
+        var ix = 0;
+        while (curChild !== null) {
+            if (curChild.contains(childNode)) {
+                break;
+            }
+            ix++;
+            curChild = curChild.nextSibling;
+        }
+        // This is ``<= 0`` and not just ``< 0`` because if our offset points exactly
+        // to the child we found, then parent location is necessarily before the child
+        // location.
+        return (parentOffset - ix) <= 0 ? -1 : 1;
+    }
+    /**
      * ``DLoc`` objects model locations in a DOM tree. Although the current
      * implementation does not enforce this, **these objects are to be treated as
      * immutable**. These objects have ``node`` and ``offset`` properties that are
@@ -158,7 +177,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      * is not legal.
      *
      */
-    var DLoc = (function () {
+    var DLoc = /** @class */ (function () {
         /**
          * @param root The root of the DOM tree to which this DLoc applies.
          *
@@ -171,6 +190,23 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
             this.node = node;
             this.offset = offset;
         }
+        Object.defineProperty(DLoc.prototype, "pointedNode", {
+            /**
+             * This is the node to which this location points. For locations pointing to
+             * attributes and text nodes, that's the same as [[node]]. For locations
+             * pointing to an element, that's the child to which the ``node, offset`` pair
+             * points. Since this pair may point after the last child of an element, the
+             * child obtained may be ``undefined``.
+             */
+            get: function () {
+                if (domtypeguards_1.isElement(this.node)) {
+                    return this.node.childNodes[this.offset];
+                }
+                return this.node;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * Creates a copy of the location.
          */
@@ -215,12 +251,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
             else if ($.data(root, "wed-dloc-root") == null) {
                 throw new Error("root has not been marked as a root");
             }
-            if (domtypeguards_1.isAttr(node)) {
-                if (!root.contains(node.ownerElement)) {
-                    throw new Error("node not in root");
-                }
-            }
-            else if (!root.contains(node)) {
+            if (!domutil_1.contains(root, node)) {
                 throw new Error("node not in root");
             }
             var testLength = getTestLength(node);
@@ -335,6 +366,41 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
             return domutil_1.rangeFromPoints(this.node, this.offset, other.node, other.offset);
         };
         /**
+         * Make a range from this location. If ``other`` is not specified, the range
+         * starts and ends with this location. If ``other`` is specified, the range
+         * goes from this location to the ``other`` location.
+         *
+         * @param other The other location to use.
+         *
+         * @returns The range.
+         */
+        DLoc.prototype.makeDLocRange = function (other) {
+            if (!this.isValid()) {
+                return undefined;
+            }
+            if (other === undefined) {
+                // tslint:disable-next-line:no-use-before-declare
+                return new DLocRange(this, this);
+            }
+            if (!other.isValid()) {
+                return undefined;
+            }
+            // tslint:disable-next-line:no-use-before-declare
+            return new DLocRange(this, other);
+        };
+        /**
+         * Like [[makeDLocRange]] but throws if it cannot make a range, rather than
+         * return ``undefined``.
+         */
+        DLoc.prototype.mustMakeDLocRange = function (other) {
+            var ret = other !== undefined ?
+                this.makeDLocRange(other) : this.makeDLocRange();
+            if (ret === undefined) {
+                throw new Error("cannot make a range");
+            }
+            return ret;
+        };
+        /**
          * Verifies whether the ``DLoc`` object points to a valid location. The
          * location is valid if its ``node`` is a child of its ``root`` and if its
          * ``offset`` points inside the range of children of its ``node``.
@@ -375,6 +441,94 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
             return this === other ||
                 (this.node === other.node) &&
                     (this.offset === other.offset);
+        };
+        /**
+         * Compare two locations. Note that for attribute ordering, this class
+         * arbitrarily decides that the order of two attributes on the same element is
+         * the same as the order of their ``name`` fields as if they were sorted in an
+         * array with ``Array.prototype.sort()``. This differs from how
+         * ``Node.compareDocumentPosition`` determines the order of attributes. We
+         * want something stable, which is not implementation dependent. In all other
+         * cases, the nodes are compared in the same way
+         * ``Node.compareDocumentPosition`` does.
+         *
+         * @param other The other location to compare this one with.
+         *
+         * @returns ``0`` if the locations are the same. ``-1`` if this location comes
+         * first. ``1`` if the other location comes first.
+         *
+         * @throws {Error} If the nodes are disconnected.
+         */
+        DLoc.prototype.compare = function (other) {
+            if (this.equals(other)) {
+                return 0;
+            }
+            var _a = this, thisNode = _a.node, thisOffset = _a.offset;
+            var otherNode = other.node, otherOffset = other.offset;
+            // We need to handle attributes specially, because
+            // ``compareDocumentPosition`` does not work reliably with attribute nodes.
+            if (domtypeguards_1.isAttr(thisNode)) {
+                if (domtypeguards_1.isAttr(otherNode)) {
+                    // We do not want an implementation-specific order when we compare
+                    // attributes. So we perform our own test.
+                    if (thisNode.ownerElement === otherNode.ownerElement) {
+                        // It is not clear what the default comparison function is, so create
+                        // a temporary array and sort.
+                        var names = [thisNode.name, otherNode.name].sort();
+                        // 0 is not a possible value here because it is not possible for
+                        // thisNode.name to equal otherNode.name.
+                        return names[0] === thisNode.name ? -1 : 1;
+                    }
+                }
+                var owner = thisNode.ownerElement;
+                if (owner === other.pointedNode) {
+                    // This location points into an attribute that belongs to the node
+                    // that other points to. So this is later than other.
+                    return 1;
+                }
+                // If we get here we'll rely on ``compareDocumentPosition`` but using the
+                // position of the element that has the attribute.
+                thisNode = owner.parentNode;
+                thisOffset = domutil_1.indexOf(thisNode.childNodes, owner);
+            }
+            if (domtypeguards_1.isAttr(otherNode)) {
+                var owner = otherNode.ownerElement;
+                if (owner === this.pointedNode) {
+                    // The other location points into an attribute that belongs to the node
+                    // that this location points to. So this is earlier than other.
+                    return -1;
+                }
+                // If we get here we'll rely on ``compareDocumentPosition`` but using the
+                // position of the element that has the attribute.
+                otherNode = owner.parentNode;
+                otherOffset = domutil_1.indexOf(otherNode.childNodes, owner);
+            }
+            if (thisNode === otherNode) {
+                var d = thisOffset - otherOffset;
+                if (d === 0) {
+                    return 0;
+                }
+                return d < 0 ? -1 : 1;
+            }
+            var comparison = thisNode.compareDocumentPosition(otherNode);
+            // tslint:disable:no-bitwise
+            if ((comparison & Node.DOCUMENT_POSITION_DISCONNECTED) !== 0) {
+                throw new Error("cannot compare disconnected nodes");
+            }
+            if ((comparison & Node.DOCUMENT_POSITION_CONTAINED_BY) !== 0) {
+                return parentChildCompare(thisNode, thisOffset, otherNode);
+            }
+            if ((comparison & Node.DOCUMENT_POSITION_CONTAINS) !== 0) {
+                return parentChildCompare(otherNode, otherOffset, thisNode) < 0 ? 1 : -1;
+            }
+            if ((comparison & Node.DOCUMENT_POSITION_PRECEDING) !== 0) {
+                return 1;
+            }
+            if ((comparison & Node.DOCUMENT_POSITION_FOLLOWING) !== 0) {
+                return -1;
+            }
+            // tslint:enable:no-bitwise
+            throw new Error("neither preceding nor following: this should not happen");
         };
         return DLoc;
     }());
@@ -417,8 +571,101 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
         return ret;
     }
     exports.getRoot = getRoot;
+    /**
+     * Represents a range spanning locations indicated by two [[DLoc]] objects.
+     * Though this is not enforced at the VM level, objects of this class are to be
+     * considered immutable.
+     */
+    var DLocRange = /** @class */ (function () {
+        /**
+         * @param start The start of the range.
+         * @param end The end of the range.
+         */
+        function DLocRange(start, end) {
+            this.start = start;
+            this.end = end;
+            if (start.root !== end.root) {
+                throw new Error("the start and end must be in the same document");
+            }
+        }
+        Object.defineProperty(DLocRange.prototype, "collapsed", {
+            /** Whether this range is collapsed. */
+            get: function () {
+                return this.start.equals(this.end);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * Make a DOM range.
+         *
+         * @returns The range. Or ``undefined`` if either the start or end are not
+         * pointing to valid positions.
+         *
+         * @throws {Error} If trying to make a range from an attribute node. DOM
+         * ranges can only point into elements or text nodes.
+         */
+        DLocRange.prototype.makeDOMRange = function () {
+            if (domtypeguards_1.isAttr(this.start.node)) {
+                throw new Error("cannot make range from attribute node");
+            }
+            if (!this.start.isValid()) {
+                return undefined;
+            }
+            if (domtypeguards_1.isAttr(this.end.node)) {
+                throw new Error("cannot make range from attribute node");
+            }
+            if (!this.end.isValid()) {
+                return undefined;
+            }
+            return domutil_1.rangeFromPoints(this.start.node, this.start.offset, this.end.node, this.end.offset).range;
+        };
+        /**
+         * Same as [[makeDOMRange]] but throws instead of returning ``undefined``.
+         */
+        DLocRange.prototype.mustMakeDOMRange = function () {
+            var ret = this.makeDOMRange();
+            if (ret === undefined) {
+                throw new Error("cannot make a range");
+            }
+            return ret;
+        };
+        /**
+         * @returns Whether ``this`` and ``other`` are equal. They are equal if they
+         * are the same object or if they have equal start and ends.
+         */
+        DLocRange.prototype.equals = function (other) {
+            if (other == null) {
+                return false;
+            }
+            return this === other ||
+                (this.start.equals(other.start) && this.end.equals(other.end));
+        };
+        /**
+         * @returns Whether the two endpoints of the range are valid.
+         */
+        DLocRange.prototype.isValid = function () {
+            return this.start.isValid() && this.end.isValid();
+        };
+        /**
+         * @param loc The location to test.
+         *
+         * @returns Whether a location is within the range.
+         */
+        DLocRange.prototype.contains = function (loc) {
+            var startTest = this.start.compare(loc);
+            var endTest = this.end.compare(loc);
+            // Reversed ranges are valid. So one end must be lower or equal to loc, and
+            // the other end must be greater or equal to loc. The following test ensures
+            // this. (If both are -1, then the result is > 0, and if both are 1, then
+            // then result > 0.)
+            return startTest * endTest <= 0;
+        };
+        return DLocRange;
+    }());
+    exports.DLocRange = DLocRange;
 });
-//  LocalWords:  dloc MPL jquery domutil oop DLoc makeDLoc jshint
-//  LocalWords:  newcap validthis
+//  LocalWords:  makeDLoc DLoc domutil jquery MPL dloc mustMakeDLoc nd thisNode
+//  LocalWords:  otherNode compareDocumentPosition makeDOMRange
 
 //# sourceMappingURL=dloc.js.map

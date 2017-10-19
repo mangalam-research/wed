@@ -1,11 +1,5 @@
-import { Mode } from "wed/mode";
 import { Transformation, TransformationData } from "wed/transformation";
-import { Validator } from "wed/validator";
-export interface Editor {
-    validator: Validator;
-    mode: Mode<any>;
-    [key: string]: any;
-}
+import { Editor } from "wed/wed";
 /**
  * @param forEditor The editor for which to create transformations.
  */

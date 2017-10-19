@@ -5,7 +5,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * This task processes the new validation errors that have not been processed
      * yet.
      */
-    var ProcessValidationErrors = (function () {
+    var ProcessValidationErrors = /** @class */ (function () {
         function ProcessValidationErrors(controller) {
             this.controller = controller;
         }
@@ -51,5 +51,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }());
     exports.ProcessValidationErrors = ProcessValidationErrors;
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=process-validation-errors.js.map

@@ -1,11 +1,9 @@
-/// <reference types="bluebird" />
 /**
  * Base class for savers.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird";
 import { Observable, Subject } from "rxjs";
 import { Runtime } from "./runtime";
 import { TreeUpdater } from "./tree-updater";
@@ -64,6 +62,10 @@ export interface Autosaved {
     name: "Autosaved";
 }
 export declare type SaveEvents = Saved | Autosaved | ChangedEvent | FailedEvent;
+export interface SaverOptions {
+    /** The time between autosaves in seconds. */
+    autosave?: number;
+}
 /**
  * A saver is responsible for saving a document's data. This class cannot be
  * instantiated as-is, but only through subclasses.
@@ -73,6 +75,7 @@ export declare abstract class Saver {
     protected readonly version: string;
     protected readonly dataUpdater: TreeUpdater;
     protected readonly dataTree: Node;
+    protected readonly options: SaverOptions;
     /**
      * Subclasses must set this variable to true once they have finished with
      * their initialization.
@@ -136,7 +139,7 @@ export declare abstract class Saver {
      *
      * @param {Node} dataTree The editor's data tree.
      */
-    constructor(runtime: Runtime, version: string, dataUpdater: TreeUpdater, dataTree: Node);
+    constructor(runtime: Runtime, version: string, dataUpdater: TreeUpdater, dataTree: Node, options: SaverOptions);
     /**
      * This method must be called before using the saver. **MUST BE CALLED ONLY
      * ONCE.**
@@ -220,8 +223,8 @@ export declare abstract class Saver {
      * Returns information regarding whether the saver sees the data tree as
      * having been modified since the last save occurred.
      *
-     * @returns Returns ``false`` if the tree has not been modified. Otherwise,
-     * returns a string that describes how long ago the modification happened.
+     * @returns ``false`` if the tree has not been modified. Otherwise, returns a
+     * string that describes how long ago the modification happened.
      */
     getModifiedWhen(): false | string;
     /**
@@ -239,4 +242,7 @@ export declare abstract class Saver {
      * ``undefined`` if there has not been any save yet.
      */
     getLastSaveKind(): number | undefined;
+}
+export interface SaverConstructor {
+    new (runtime: Runtime, version: string, dataUpdater: TreeUpdater, dataTree: Node, options: SaverOptions): Saver;
 }

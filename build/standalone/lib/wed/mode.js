@@ -14,7 +14,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil"], functio
      *
      *
      */
-    var BaseMode = (function () {
+    var BaseMode = /** @class */ (function () {
         /**
          * @param editor The editor with which the mode is being associated.
          *
@@ -129,7 +129,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil"], functio
     }());
     exports.BaseMode = BaseMode;
 });
-//  LocalWords:  RequireJS stylesheets subarrays overriden html MPL
-//  LocalWords:  Mangalam Dubeau domutil
+//  LocalWords:  autoinsertion domutil Dubeau Mangalam MPL html overriden
+//  LocalWords:  stylesheets
 
 //# sourceMappingURL=mode.js.map

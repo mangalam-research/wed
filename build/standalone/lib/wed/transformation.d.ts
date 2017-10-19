@@ -1,7 +1,7 @@
 import { Action } from "./action";
 import { DLoc } from "./dloc";
 import { TreeUpdater } from "./tree-updater";
-export declare type Editor = any;
+import { Editor } from "./wed";
 /**
  * Data passed to the transformation handler. The transformation types expect
  * the following values for the parameters passed to a handler.
@@ -38,7 +38,7 @@ export interface TransformationData {
      * The name of the node to add, remove, etc. Should be set by the code that
      * invokes the transformation.
      */
-    name: string;
+    name?: string;
     /**
      * A position to which the caret is moved before the transformation is fired.
      * **Wed performs the move.** Should be set by the code that invokes the
@@ -46,10 +46,13 @@ export interface TransformationData {
      */
     moveCaretTo?: DLoc;
 }
+export interface NamedTransformationData extends TransformationData {
+    name: string;
+}
 /**
  * @param editor The editor.
  *
- * @param data Data for the transformation.
+ * @param data The data for the transformation.
  */
 export declare type TransformationHandler = (editor: Editor, data: TransformationData) => void;
 /**
@@ -110,7 +113,7 @@ export declare type AttributeTable = Record<string, string>;
  *
  * @param ns The URI of the namespace to use for the new element.
  *
- * @param name Name of the new element.
+ * @param name The name of the new element.
  *
  * @param attrs An object whose fields will become attributes for the new
  * element.
@@ -123,13 +126,13 @@ export declare function makeElement(doc: Document, ns: string, name: string, att
  *
  * @param dataUpdater A tree updater through which to update the DOM tree.
  *
- * @param parent Parent of the new node.
+ * @param parent The parent of the new node.
  *
  * @param index Offset in the parent where to insert the new node.
  *
  * @param ns The URI of the namespace to use for the new element.
  *
- * @param name Name of the new element.
+ * @param name The name of the new element.
  *
  * @param attrs An object whose fields will become attributes for the new
  * element.
@@ -144,7 +147,7 @@ export declare function insertElement(dataUpdater: TreeUpdater, parent: Node, in
  *
  * @param node The DOM node where to wrap. Must be a text node.
  *
- * @param offset Offset in the node. This parameter specifies where to start
+ * @param offset The offset in the node. This parameter specifies where to start
  * wrapping.
  *
  * @param endOffset Offset in the node. This parameter specifies where to end
@@ -152,7 +155,7 @@ export declare function insertElement(dataUpdater: TreeUpdater, parent: Node, in
  *
  * @param ns The URI of the namespace to use for the new element.
  *
- * @param name Name of the wrapping element.
+ * @param name The name of the wrapping element.
  *
  * @param attrs An object whose fields will become attributes for the new
  * element.

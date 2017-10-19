@@ -4,7 +4,7 @@ define(["require", "exports", "module", "ajv"], function (require, exports, modu
     /**
      * Base class for all JSON readers.
      */
-    var MetadataJSONReader = (function () {
+    var MetadataJSONReader = /** @class */ (function () {
         /**
          * @param schema The JSON schema with which to validate the metadata.
          */
@@ -13,12 +13,12 @@ define(["require", "exports", "module", "ajv"], function (require, exports, modu
         }
         Object.defineProperty(MetadataJSONReader.prototype, "validator", {
             /**
-             * A validator that uses [[schema]].
+             * A validator that uses the schema set for this reader.
              */
             get: function () {
                 if (this._validator === undefined) {
                     var ajv = new Ajv();
-                    this._validator = ajv.compile(JSON.parse(this.schema));
+                    this._validator = ajv.compile(this.schema);
                 }
                 return this._validator;
             },
@@ -30,7 +30,7 @@ define(["require", "exports", "module", "ajv"], function (require, exports, modu
             return this.convert(object);
         };
         /**
-         * Validate the object against [[schema]].
+         * Validate the object against the schema that was set for this reader.
          *
          * @param object The object to validate.
          */
@@ -53,5 +53,6 @@ define(["require", "exports", "module", "ajv"], function (require, exports, modu
     }());
     exports.MetadataJSONReader = MetadataJSONReader;
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=metadata-json-reader.js.map

@@ -73,7 +73,7 @@
 				<h3>Type parameters</h3>
 				<ul class="tsd-type-parameters">
 					<li>
-						<h4>ModeOptions</h4>
+						<h4>ModeOptions<span class="tsd-signature-symbol">: </span><a href="_mode_.commonmodeoptions.html" class="tsd-signature-type">CommonModeOptions</a></h4>
 					</li>
 				</ul>
 			</section>
@@ -101,6 +101,7 @@
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#documentationlinkfor" class="tsd-kind-icon">documentation<wbr>Link<wbr>For</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#getabsolutenamespacemappings" class="tsd-kind-icon">get<wbr>Absolute<wbr>Namespace<wbr>Mappings</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#getabsoluteresolver" class="tsd-kind-icon">get<wbr>Absolute<wbr>Resolver</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#getattributecompletions" class="tsd-kind-icon">get<wbr>Attribute<wbr>Completions</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#getcontextualactions" class="tsd-kind-icon">get<wbr>Contextual<wbr>Actions</a></li>
@@ -113,6 +114,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#makeplaceholderfor" class="tsd-kind-icon">make<wbr>Placeholder<wbr>For</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#nodesaroundeditablecontents" class="tsd-kind-icon">nodes<wbr>Around<wbr>Editable<wbr>Contents</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#shortdescriptionfor" class="tsd-kind-icon">short<wbr>Description<wbr>For</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_mode_.mode.html#unresolvename" class="tsd-kind-icon">unresolve<wbr>Name</a></li>
 							</ul>
 						</section>
 					</div>
@@ -130,7 +132,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L149">mode.ts:149</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L184">mode.ts:184</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -163,6 +165,32 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="getabsolutenamespacemappings" class="tsd-anchor"></a>
+					<h3>get<wbr>Absolute<wbr>Namespace<wbr>Mappings</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Absolute<wbr>Namespace<wbr>Mappings<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L60">mode.ts:60</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>This method returns a mappings of prefix to namespace URI that are set to
+										resolve names outside the context of an XML tree. It is sometimes useful to
+										use qualified names that do not depend on how a specific XML document is
+									structured, this method provides for such functionality.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>The mappings. This is a new copy which you can modify at will.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="getabsoluteresolver" class="tsd-anchor"></a>
 					<h3>get<wbr>Absolute<wbr>Resolver</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -172,18 +200,20 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L53">mode.ts:53</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L86">mode.ts:86</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>This method returns a name resolver that is setup to resolve names outside
-										the context of an XML tree. It is sometimes useful to use qualified names
-										that do not depend on how a specific XML document is structured, this
-									method provides for such functionality.</p>
+									<p>This method returns a name resolver that uses the map returned by
+										<a href="_mode_.mode.html#getabsolutenamespacemappings">getAbsoluteNamespaceMappings</a>. The resolver is created once and for
+										all. So code using the resolver should not modify it because it will modify
+										the resolver for all clients. If you need a resolver you can modify, use
+									<a href="_mode_.mode.html#getabsolutenamespacemappings">getAbsoluteNamespaceMappings</a> and initialize a resolver from it.</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">NameResolver</span></h4>
+							<p>The resolver.</p>
 						</li>
 					</ul>
 				</section>
@@ -197,7 +227,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L89">mode.ts:89</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L124">mode.ts:124</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -224,13 +254,13 @@
 					<a name="getcontextualactions" class="tsd-anchor"></a>
 					<h3>get<wbr>Contextual<wbr>Actions</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Contextual<wbr>Actions<span class="tsd-signature-symbol">(</span>transformationType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, tag<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_action_.action.html" class="tsd-signature-type">Action</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Contextual<wbr>Actions<span class="tsd-signature-symbol">(</span>transformationType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, tag<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, offset<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_action_.action.html" class="tsd-signature-type">Action</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L76">mode.ts:76</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L111">mode.ts:111</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -252,7 +282,9 @@
 								<li>
 									<h5>tag: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The tag name we are interested in.</p>
+										<p>The tag name we are interested in. This should be in a
+											prefix:localName format where &quot;prefix&quot; is one of the prefixes defined in
+										the absolute mappings known to the mode.</p>
 									</div>
 								</li>
 								<li>
@@ -262,7 +294,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>offset: <span class="tsd-signature-type">number</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> offset: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The position in the data tree.</p>
 									</div>
@@ -283,7 +315,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L38">mode.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L43">mode.ts:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -305,7 +337,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L97">mode.ts:97</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L132">mode.ts:132</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -314,8 +346,8 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
-							<p>An array of paths to the stylesheets to
-							load for this mode.</p>
+							<p>An array of paths to the stylesheets to load for this mode. The
+							paths must not require any additional interpretation from wed.</p>
 						</li>
 					</ul>
 				</section>
@@ -329,7 +361,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L160">mode.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L195">mode.ts:195</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -359,7 +391,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L45">mode.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L50">mode.ts:50</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -382,7 +414,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L33">mode.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L38">mode.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -407,7 +439,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L58">mode.ts:58</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L91">mode.ts:91</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -429,7 +461,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L122">mode.ts:122</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L157">mode.ts:157</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -463,7 +495,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L111">mode.ts:111</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L146">mode.ts:146</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -500,7 +532,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/mode.ts#L135">mode.ts:135</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L170">mode.ts:170</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -531,6 +563,46 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="unresolvename" class="tsd-anchor"></a>
+					<h3>unresolve<wbr>Name</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">unresolve<wbr>Name<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">EName</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/mode.ts#L75">mode.ts:75</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Unresolve a name according to the absolute reverse mapping.</p>
+								</div>
+								<p>If the forward mappings define multiple prefixes pointing to the same URI,
+									the unresolving algorithm will arbitrarily select one of the prefixes as
+									the value corresponding to the URI. Modes may impose whatever rules they
+								desire to select which prefix they should privilege.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">EName</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The name to unresolve.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">undefined</span>
+							</h4>
+							<p>The unresolved name or <code>undefined</code> if the name cannot be
+							unresolved.</p>
+						</li>
+					</ul>
+				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -549,6 +621,9 @@
 					<li class=" tsd-kind-class tsd-parent-kind-external-module tsd-has-type-parameter">
 						<a href="../classes/_mode_.basemode.html" class="tsd-kind-icon">Base<wbr>Mode</a>
 					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_mode_.commonmodeoptions.html" class="tsd-kind-icon">Common<wbr>Mode<wbr>Options</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module tsd-has-type-parameter">
@@ -556,6 +631,9 @@
 						<ul>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="_mode_.mode.html#documentationlinkfor" class="tsd-kind-icon">documentation<wbr>Link<wbr>For</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_mode_.mode.html#getabsolutenamespacemappings" class="tsd-kind-icon">get<wbr>Absolute<wbr>Namespace<wbr>Mappings</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="_mode_.mode.html#getabsoluteresolver" class="tsd-kind-icon">get<wbr>Absolute<wbr>Resolver</a>
@@ -593,16 +671,13 @@
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="_mode_.mode.html#shortdescriptionfor" class="tsd-kind-icon">short<wbr>Description<wbr>For</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_mode_.mode.html#unresolvename" class="tsd-kind-icon">unresolve<wbr>Name</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="../modules/_mode_.html#editor" class="tsd-kind-icon">Editor</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="../modules/_mode_.html#modeoptions" class="tsd-kind-icon">Mode<wbr>Options</a>
-					</li>
 				</ul>
 			</nav>
 		</div>

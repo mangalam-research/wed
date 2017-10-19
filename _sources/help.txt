@@ -133,7 +133,7 @@ has modifications that have not been saved yet.
    The status shown for a document that has been modified since
    last loaded and has not yet been saved in this editing session.
 
-When you save manually (for instance, by doing :kbd:`Ctrl-S`), the
+When you save manually (for instance, by doing :kbd:`Ctrl-s`), the
 modification status returns to green and the saved status becomes
 green. The saved status also tells you how long ago the last save
 occurred. Hovering on the save status brings up a tooltip telling you
@@ -216,10 +216,29 @@ scroll the editing pane to the corresponding area of the
 document. Some modes may also support bringing up special contextual
 menus on the headings of the navigation pane.
 
+The Minibuffer
+--------------
+
+As the name suggests, this is inspired by Emacs' minibuffer. However, wed's
+minibuffer is much more primitive than Emacs'. The minibuffer is a space that
+wed uses to quickly prompt for input *instead of* bringing up a dialog box. It
+allows for quick operations like `quick searches <Quick Search_>`_. When it is
+not in use, the minibuffer is empty. A prompt appears there when wed prompts the
+user.
+
+.. figure:: help_images/minibuffer.png
+   :align: center
+   :alt: Shows the minibuffer just under the editing pane.
+
+   The minibuffer.
+
+In the example above, the minibuffer is prompting the user for a quick search,
+forward in the document.
+
 The Location Bar
 ----------------
 
-The location bar appears right under the editing pane. It indicates
+The location bar appears right under the minibuffer. It indicates
 the hierarchy of elements that contain the caret. Each XML element in
 the hierarchy is separated from the next by a forward slash (``/``).
 
@@ -703,10 +722,166 @@ Wed divides operations on elements and attributes into a few categories:
 
    The user unwraps the content of an element.
 
+Searching
+=========
+
+Wed offers two types of searches: quick searches, and dialog searches.
+
+Moreover, wed will search through text in two possible contexts. Do not confuse
+context and scope. The scope is the range of the document within which the
+search operates. The context determines what *in this range* is part of the
+search. Here are the two contexts:
+
+* Element text. This encompasses only the text of elements. For instance,
+  searching for ``some`` in the XML ``<some.element some.attribute="some
+  value">some text</some.element>`` would only hit the word ``some`` that
+  appears before the word ``text`` and nothing else.
+
+  Note that because this context ignores the XML tags, it is possible for it to
+  perform matches across element boundaries. For instance if you search for ``I
+  am happy`` in the XML ``<p>I <bold>am</bold> happy</p>``, the search will
+  match the entire content of ``p``. That is, the ``bold`` element does not
+  prevent the match.
+
+* Attribute values. This encompasses only the values of element attributes. In
+  the example above, a search for ``some`` would match only the word ``some``
+  appearing before ``value``.
+
+  Note that this kind of search does not span attributes. For instance, if you
+  have ``<p type="abc" subtype="def"/>`` and search for ``abcdef`` you will
+  **not** get a match that spans the values of ``@type`` and ``@subtype``. This
+  is probably not a desirable behavior at any rate, but we're mentioning it,
+  just in case.
+
+It is not possible to search for element names or attribute names with the quick
+search or dialog search. Nor is it possible to search for text which is purely
+created for the sake of displaying the XML. Here's an example of the
+latter. Suppose the following document::
+
+    <doc>
+      <p>
+       Johnson demonstrated (<ref target="/some/bibliographical/item"/>) that ...
+      </p>
+    </doc>
+
+In this example, ``ref`` is a reference to a bibliographical item. Your wed
+mode, fetches the bibliographical information and shows it instead of showing
+the XML element as-is. So what you see is something like::
+
+    doc >
+     p >
+      Johnson demonstrated (Johnson, Five Ways to Eat Sushi) that ...
+     < p
+    < doc
+
+``doc >``, ``p >``, ``p <`` and ``< doc`` are the start and end labels that
+normally shows for elements. The string ``Johnson, Five Ways to Eat Sushi`` is
+text that is not part of the XML but that the editing mode adds when it shows
+you your document. It is more informative than ``<ref
+target="/some/bibliographical/item"/>``. At any rate, neither searching through
+element text or element attributes can find that text.
+
+If you need to search for element names, attribute names or text created for
+display purposes, you must use your browser's built-in search.
+
+Quick Search
+------------
+
+You can use :kbd:`Ctrl-f` to quick-search forward, and :kbd:`Ctrl-b` to
+quick-search backwards. When you hit either of these shortcuts, the `minibuffer
+<The Minibuffer_>`_ becomes active and prompts you for a search term. As you
+type the term you are searching for, wed will search through the document and
+highlight in yellow the term it finds. To move to another hit, press
+:kbd:`Ctrl-f` or :kbd:`Ctrl-b` again. Type :kbd:`ESCAPE` to end the search.
+
+If you have a selection in effect when you start the search, the search will be
+scoped to that selection. That is, the search will only search between the start
+and end of the selection. (The selection disappears while you are searching:
+this is normal and a current limitation of wed.) If you have no selection in
+effect when you start the search, then the whole document will be searched.
+
+.. figure:: help_images/minibuffer.png
+   :align: center
+   :alt: Shows the minibuffer just under the editing pane.
+
+   The minibuffer.
+
+In the example above, the minibuffer is prompting the user for a quick search,
+forward in the document. You can see the word "original" was found and
+highlighted in yellow. When you hit the end of the search scope in either
+direction, the highlight will disappear. If you then hit the shortcut to
+continue in the same direction you were going, the search will continue from the
+start of your search scope.
+
+Dialog Search
+-------------
+
+You can use :kbd:`Ctrl-Shift-f` to search forward, and :kbd:`Ctrl-Shift-b`
+to search backwards. Dialog searches are thus named because they bring up
+a dialog box to provide the user with more search options than the quick
+searches.
+
+Just like quick searches, if you have a selection in effect when you start the
+search, the search will be scoped to that selection. That is, the search will
+only search between the start and end of the selection. (The selection
+disappears while you are searching: this is normal and a current limitation of
+wed.) If you have no selection in effect when you start the search, then the
+whole document will be searched.
+
+.. figure:: help_images/dialog_search.png
+   :align: center
+   :alt: Shows the dialog that is brought up by dialog searches.
+
+   A dialog search.
+
+The "Search for:" field is where you type the term you are searching for.
+
+The "Replace with:" field is where you type the text you want to use to replace
+the hits you find.
+
+The "Direction": buttons determine in which direction the search goes. The
+direction is initially determined by which shortcut you use to bring up the
+search but you may change it later if you want.
+
+The "Context:" buttons determine what is searched. There are two possible
+contexts:
+
+* "Only element text": this searches only through the text of
+  elements. Consequently, attributes are not searched.
+
+* "Only attributes": this searches only through the attribute values of
+  elements. Consequently, the text of elements is not searched.
+
+The buttons:
+
+* "Find" looks for the next match.
+
+* "Replace and Find" replaces the current match and finds the next.
+
+* "Replace All" replaces all matches until the search reaches a boundary of the
+  search scope currently in effect. The boundary depends on the direction of the
+  search. If searching forward, the boundary marking the end of the search is
+  the end of the scope. If searching backwards, it is the start of the scope.
+
+* "Close" closes the dialog.
+
+.. warning:: Wed cannot replace hits that select an ill-formed portion of an XML
+             document. For instance, you have the XML ``tea<bold>pot</bold>``
+             and you search for ``ap``. If we mark the start and end of the hit
+             with the element ``mark`` we'd have
+             ``te<mark>a<bold>p</mark>ot</bold>``. This is not well-formed XML
+             because ``mark`` and ``bold`` are straddling. Wed cannot replace
+             such cases, and will disable the "Replace and Find" button when you
+             land on such a case.
+
+             Note however that the "Replace All" button is never disabled. When
+             you use "Replace All", wed replaces all instances that it **can**
+             replace.
+
 Saving
 ======
 
-You can save by using :kbd:`Ctrl-S` or whatever means provided by the
+You can save by using :kbd:`Ctrl-s` or whatever means provided by the
 application that uses wed. Possible outcomes:
 
 * The data is saved. You will see a message telling you that the data
@@ -830,10 +1005,10 @@ Undo and Redo
 Wed maintains a list of the operations that have been performed on the
 document being edited. This list is created anew with each editing
 session. In other words, each time you open a document with wed, it
-creates a new list. You can use :kbd:`Ctrl-Z` to undo the last
+creates a new list. You can use :kbd:`Ctrl-z` to undo the last
 operation. Undoing again, will undo the operation before the last one,
 etc. You can undo as many editing operations as you want, up to the
-start of the undo list. Conversely, :kbd:`Ctrl-Y` will redo the
+start of the undo list. Conversely, :kbd:`Ctrl-y` will redo the
 operation that was just undone. It is useful in cases where you've
 undone more than you meant to.
 
@@ -845,23 +1020,27 @@ mentioned here are available only through the keyboard when using a
 minimal configuration of wed (i.e. using the generic mode), but we'll
 stick with it.
 
-===============     =====================================
- Key                 Function
-===============     =====================================
- :kbd:`F1`           Bring up the help.
- :kbd:`Ctrl-/`       Bring up the `contextual menu <Contextual Menus_>`_.
- :kbd:`Ctrl-[`       Decrease the `label visibility level <Label Visibility_>`_.
- :kbd:`Ctrl-]`       Increase the `label visibility level <Label Visibility_>`_.
- :kbd:`Ctrl-Z`       `Undo <Undo and Redo_>`_ an operation.
- :kbd:`Ctrl-Y`       `Redo <Undo and Redo_>`_ an operation.
- :kbd:`Ctrl-X`       `Cut <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-C`       `Copy <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-V`       `Paste <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-S`       `Save <Saving_>`_ content.
-===============     =====================================
+====================  =====================================
+ Key                  Function
+====================  =====================================
+ :kbd:`F1`            Bring up the help.
+ :kbd:`Ctrl-/`        Bring up the `contextual menu <Contextual Menus_>`_.
+ :kbd:`Ctrl-[`        Decrease the `label visibility level <Label Visibility_>`_.
+ :kbd:`Ctrl-]`        Increase the `label visibility level <Label Visibility_>`_.
+ :kbd:`Ctrl-z`        `Undo <Undo and Redo_>`_ an operation.
+ :kbd:`Ctrl-y`        `Redo <Undo and Redo_>`_ an operation.
+ :kbd:`Ctrl-x`        `Cut <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-c`        `Copy <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-v`        `Paste <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-s`        `Save <Saving_>`_ content.
+ :kbd:`Ctrl-f`        `Quick search <Quick Search_>`_ forward.
+ :kbd:`Ctrl-b`        `Quick search <Quick Search_>`_ backwards.
+ :kbd:`Ctrl-Shift-f`  `Dialog search <Dialog Search_>`_ forward.
+ :kbd:`Ctrl-Shift-b`  `Dialog search <Dialog Search_>`_ backwards.
+====================  =====================================
 
-Note that in browsers running in OS X, instead of :kbd:`Ctrl-` wed
-expects :kbd:`Command-`.
+Note that in **browsers running in OS X**, instead of :kbd:`Ctrl-` wed expects
+:kbd:`Command-`.
 
 .. _help_browser_requirements:
 
@@ -923,6 +1102,9 @@ temporary.
 Update Summer 2016: things are looking up. The Firefox developers have
 been working on a driver named "Marionette" that *should* solve the
 support problems. Stay tuned.
+
+Update Fall 2017: Firefox support is still suspended. It may be easy to resume
+it but there's been no demand for it, so...
 
 For years, wed was supporting Firefox. Early on, Firefox was even
 better supported than Chrome. However, the people responsible for
@@ -1109,6 +1291,7 @@ the final schema uses the actual elements specified by MathML rather
 than say "anything from MathML is valid here". This takes care of the
 problems mentioned above.
 
-..  LocalWords: toolbars NG Ctrl tooltip autosave autosaves biblFull
-..  LocalWords:  notesStmt TEI xml kbd ESC localStorage github Attr
-..  LocalWords:  ownerElement
+..  LocalWords: toolbars NG Ctrl tooltip autosave autosaves biblFull Minibuffer
+..  LocalWords:  notesStmt TEI xml kbd ESC localStorage github Attr minibuffer
+..  LocalWords:  ownerElement wed's prasāda abc subtype abcdef ap te ot DocBook
+..  LocalWords:  MathML SVG

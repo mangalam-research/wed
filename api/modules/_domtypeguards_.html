@@ -100,7 +100,7 @@
 					<div class="tsd-signature tsd-kind-icon">attr<wbr>Node<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Node.ATTRIBUTE_NODE</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L29">domtypeguards.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L21">domtypeguards.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -110,7 +110,7 @@
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Attr<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span><span class="tsd-signature-symbol"> =&nbsp;// We check that &#x60;&#x60;attrNodeType&#x60;&#x60; is not undefined because eventually// &#x60;&#x60;ATTRIBUTE_NODE&#x60;&#x60; will be removed from the &#x60;&#x60;Node&#x60;&#x60; interface, and then we// could be testing &#x60;&#x60;undefined &#x3D;&#x3D;&#x3D; undefined&#x60;&#x60; for objects which are not// attributes, which would return &#x60;&#x60;true&#x60;&#x60;. The function is not very strict// but it should not be too lax either.(attrNodeType &#x3D;&#x3D;&#x3D; undefined) ? isAttrNoType : isAttrWithType</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L68">domtypeguards.ts:68</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L60">domtypeguards.ts:60</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -129,10 +129,10 @@
 							decided that attributes were no longer really nodes. So they decided to make
 							attribute objects inherit from the <code>Attr</code> interface <strong>only</strong>. This means
 							that <code>nodeType</code> no longer exists for attributes. The new way to test
-							whether something is an attribute is to test with <code>instanceof
-Attr</code>. However, as usual, the DOM implementation for XML lags behind the
-							HTML side and on Chrome 49 (to name just one case), <code>instanceof Attr</code> does
-						not work on XML attributes whereas testing <code>nodeType</code> does.</p>
+							whether something is an attribute is to test with <code>instanceof Attr</code>.
+							However, as usual, the DOM implementation for XML lags behind the HTML side
+							and on Chrome 49 (to name just one case), <code>instanceof Attr</code> does not work
+						on XML attributes whereas testing <code>nodeType</code> does.</p>
 						<p>This function performs a test that works on HTML attributes and XML
 						attributes.</p>
 						<dl class="tsd-comment-tags">
@@ -179,7 +179,7 @@ Attr</code>. However, as usual, the DOM implementation for XML lags behind the
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L36">domtypeguards.ts:36</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L28">domtypeguards.ts:28</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -202,7 +202,7 @@ Attr</code>. However, as usual, the DOM implementation for XML lags behind the
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L31">domtypeguards.ts:31</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L23">domtypeguards.ts:23</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -225,7 +225,7 @@ Attr</code>. However, as usual, the DOM implementation for XML lags behind the
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L83">domtypeguards.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L75">domtypeguards.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -248,7 +248,7 @@ Attr</code>. However, as usual, the DOM implementation for XML lags behind the
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L78">domtypeguards.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L70">domtypeguards.ts:70</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -271,7 +271,7 @@ Attr</code>. However, as usual, the DOM implementation for XML lags behind the
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L13">domtypeguards.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L13">domtypeguards.ts:13</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -294,7 +294,7 @@ Attr</code>. However, as usual, the DOM implementation for XML lags behind the
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L9">domtypeguards.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L9">domtypeguards.ts:9</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -333,7 +333,7 @@ Attr</code>. However, as usual, the DOM implementation for XML lags behind the
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domtypeguards.ts#L17">domtypeguards.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domtypeguards.ts#L17">domtypeguards.ts:17</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>

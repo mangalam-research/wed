@@ -18,10 +18,10 @@ define(["require", "exports", "module", "./metadata-json-reader", "./metadata-sc
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:completed-docs
-    var MetadataBase = (function () {
+    var MetadataBase = /** @class */ (function () {
         function MetadataBase(expectedVersion, metadata) {
             this.metadata = metadata;
-            this.reverseMapping = Object.create(null);
+            this.reverseMappings = Object.create(null);
             this.descMap = Object.create(null);
             if (metadata.version !== expectedVersion) {
                 throw new Error("incorrect version number: expected " + expectedVersion + ", got " + metadata.version);
@@ -45,11 +45,11 @@ define(["require", "exports", "module", "./metadata-json-reader", "./metadata-sc
                 var ns = this.namespaceMappings[prefix];
                 // If prefix foo resolves to http://bar and bar resolves to the same URI
                 // and foo is before bar, then foo wins.
-                if (this.reverseMapping[ns] === undefined) {
-                    this.reverseMapping[ns] = prefix;
+                if (this.reverseMappings[ns] === undefined) {
+                    this.reverseMappings[ns] = prefix;
                 }
             }
-            this.reverseMapping[this.namespaceMappings[""]] = "";
+            this.reverseMappings[this.namespaceMappings[""]] = "";
             var elements = metadata.elements;
             if (elements !== undefined) {
                 var descMap = this.descMap;
@@ -59,7 +59,7 @@ define(["require", "exports", "module", "./metadata-json-reader", "./metadata-sc
                     var elNs = el.ns !== undefined ? el.ns :
                         // tslint:disable-next-line:no-http-string
                         "http://www.tei-c.org/ns/1.0";
-                    var elPrefix = this.reverseMapping[elNs];
+                    var elPrefix = this.reverseMappings[elNs];
                     if (elPrefix === undefined) {
                         throw new Error("undefined namespace: " + elNs);
                     }
@@ -78,16 +78,8 @@ define(["require", "exports", "module", "./metadata-json-reader", "./metadata-sc
             }
             return this.descMap[unresolved];
         };
-        /**
-         * Unresolve a name using the mapping defined by the metadata.
-         *
-         * @param name The name to unresolve.
-         *
-         * @returns The unresolved name or ``undefined`` if the name cannot be
-         * unresolved.
-         */
         MetadataBase.prototype.unresolveName = function (name) {
-            var prefix = this.reverseMapping[name.ns];
+            var prefix = this.reverseMappings[name.ns];
             if (prefix === undefined) {
                 return undefined;
             }
@@ -99,7 +91,7 @@ define(["require", "exports", "module", "./metadata-json-reader", "./metadata-sc
     /**
      * A reader that reads a versioned format of the metadata.
      */
-    var MetadataReaderBase = (function (_super) {
+    var MetadataReaderBase = /** @class */ (function (_super) {
         __extends(MetadataReaderBase, _super);
         function MetadataReaderBase(metadataClass) {
             var _this = _super.call(this, metadataSchema) || this;
@@ -114,5 +106,6 @@ define(["require", "exports", "module", "./metadata-json-reader", "./metadata-sc
     }(metadata_json_reader_1.MetadataJSONReader));
     exports.MetadataReaderBase = MetadataReaderBase;
 });
+//  LocalWords:  MPL expectedVersion xml tei elNs elPrefix el
 
 //# sourceMappingURL=metadata-versioned-reader.js.map

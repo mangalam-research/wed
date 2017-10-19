@@ -74,6 +74,7 @@
 							<h3>Classes</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_dloc_.dloc.html" class="tsd-kind-icon">DLoc</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_dloc_.dlocrange.html" class="tsd-kind-icon">DLoc<wbr>Range</a></li>
 								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_dloc_.dlocroot.html" class="tsd-kind-icon">DLoc<wbr>Root</a></li>
 							</ul>
 						</section>
@@ -89,6 +90,7 @@
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_dloc_.html#findroot" class="tsd-kind-icon">find<wbr>Root</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_dloc_.html#getroot" class="tsd-kind-icon">get<wbr>Root</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_dloc_.html#gettestlength" class="tsd-kind-icon">get<wbr>Test<wbr>Length</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_dloc_.html#parentchildcompare" class="tsd-kind-icon">parent<wbr>Child<wbr>Compare</a></li>
 							</ul>
 						</section>
 					</div>
@@ -102,7 +104,7 @@
 					<div class="tsd-signature tsd-kind-icon">Valid<wbr>Roots<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Document</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L12">dloc.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L13">dloc.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -119,7 +121,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L531">dloc.ts:531</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L710">dloc.ts:710</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -155,7 +157,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L554">dloc.ts:554</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L733">dloc.ts:733</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -192,7 +194,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L156">dloc.ts:156</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L152">dloc.ts:152</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -202,6 +204,46 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="parentchildcompare" class="tsd-anchor"></a>
+					<h3>parent<wbr>Child<wbr>Compare</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">parent<wbr>Child<wbr>Compare<span class="tsd-signature-symbol">(</span>parentNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, parentOffset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, childNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">1</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">-1</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L180">dloc.ts:180</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compare two locations that have already been determined to be in a
+										parent-child relation. <strong>Important: the relationship must have been formally
+									tested <em>before</em> calling this function.</strong></p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>parentNode: <span class="tsd-signature-type">Node</span></h5>
+								</li>
+								<li>
+									<h5>parentOffset: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>childNode: <span class="tsd-signature-type">Node</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">1</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">-1</span>
+							</h4>
+							<p>-1 if <code>parent</code> is before <code>child</code>, 1 otherwise.</p>
 						</li>
 					</ul>
 				</section>
@@ -224,6 +266,9 @@
 						<a href="../classes/_dloc_.dloc.html" class="tsd-kind-icon">DLoc</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/_dloc_.dlocrange.html" class="tsd-kind-icon">DLoc<wbr>Range</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="../classes/_dloc_.dlocroot.html" class="tsd-kind-icon">DLoc<wbr>Root</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
@@ -237,6 +282,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_dloc_.html#gettestlength" class="tsd-kind-icon">get<wbr>Test<wbr>Length</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_dloc_.html#parentchildcompare" class="tsd-kind-icon">parent<wbr>Child<wbr>Compare</a>
 					</li>
 				</ul>
 			</nav>

@@ -112,5 +112,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.check = check;
     exports.check = check;
 });
+//  LocalWords:  MPL baz bip
 
 //# sourceMappingURL=object-check.js.map

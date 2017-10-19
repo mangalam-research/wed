@@ -69,6 +69,13 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Options affecting how a caret gets set.</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -89,6 +96,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_caret_manager_.setcaretoptions.html#focus" class="tsd-kind-icon">focus</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_caret_manager_.setcaretoptions.html#textedit" class="tsd-kind-icon">text<wbr>Edit</a></li>
 							</ul>
 						</section>
@@ -98,14 +106,39 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="focus" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> focus</h3>
+					<div class="tsd-signature tsd-kind-icon">focus<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L51">caret-manager.ts:51</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Indicates whether the caret change should set the focus. The default is
+							<code>true</code>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="textedit" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> text<wbr>Edit</h3>
 					<div class="tsd-signature tsd-kind-icon">text<wbr>Edit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L31">caret-manager.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L45">caret-manager.ts:45</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>When <code>true</code> indicates that the caret movement is due to a text editing
+								operation. This matters for managing undo steps. Text edits are gathered
+								into an single text undo step unless they are interrupted by some other
+								operation (or reach a maximum size). Caret movements also interrupt the
+							text undo steps, unless this flag is <code>true</code>. The default is <code>false</code>.</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -136,6 +169,9 @@
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="_caret_manager_.setcaretoptions.html" class="tsd-kind-icon">Set<wbr>Caret<wbr>Options</a>
 						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_caret_manager_.setcaretoptions.html#focus" class="tsd-kind-icon">focus</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_caret_manager_.setcaretoptions.html#textedit" class="tsd-kind-icon">text<wbr>Edit</a>
 							</li>

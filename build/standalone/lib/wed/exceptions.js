@@ -22,7 +22,7 @@ define(["require", "exports", "module", "./util"], function (require, exports, m
      * if the user is trying to do something which is not allowed in this
      * context. Only transformations can throw this.
      */
-    var AbortTransformationException = (function (_super) {
+    var AbortTransformationException = /** @class */ (function (_super) {
         __extends(AbortTransformationException, _super);
         function AbortTransformationException(message) {
             var _this = _super.call(this, message) || this;

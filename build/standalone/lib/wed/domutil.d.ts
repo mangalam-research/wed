@@ -39,7 +39,7 @@ export declare function rangeFromPoints(startContainer: Node, startOffset: numbe
 /**
  * Focuses the node itself or if the node is a text node, focuses the parent.
  *
- * @param node Node to focus.
+ * @param node The node to focus.
  *
  * @throws {Error} If the node is neither a text node nor an element. Trying to
  * focus something other than these is almost certainly an algorithmic bug.
@@ -71,9 +71,9 @@ export declare type Caret = [Node, number];
  * @param noText If true, and a text node would be returned, the function will
  * instead return the parent of the text node.
  *
- * @returns Returns the next caret position, or ``null`` if such position does
- * not exist. The ``container`` parameter constrains movements to positions
- * inside it.
+ * @returns The next caret position, or ``null`` if such position does not
+ * exist. The ``container`` parameter constrains movements to positions inside
+ * it.
  */
 export declare function nextCaretPosition(caret: Caret, container: Node, noText: boolean): Caret | null;
 /**
@@ -95,9 +95,9 @@ export declare function nextCaretPosition(caret: Caret, container: Node, noText:
  * @param noText If true, and a text node would be returned, the function will
  * instead return the parent of the text node.
  *
- * @returns Returns the previous caret position, or ``null`` if such position
- * does not exist. The ``container`` parameter constrains movements to positions
- * inside it.
+ * @returns The previous caret position, or ``null`` if such position does not
+ * exist. The ``container`` parameter constrains movements to positions inside
+ * it.
  */
 export declare function prevCaretPosition(caret: Caret, container: Node, noText: boolean): Caret | null;
 /**
@@ -156,7 +156,17 @@ export interface GenericInsertIntoTextContext {
  * @throws {Error} If the node to insert is undefined or null.
  */
 export declare function genericInsertIntoText(this: GenericInsertIntoTextContext, textNode: Text, index: number, node?: Node): InsertionBoundaries;
-export declare type TextInsertionResult = [Text | undefined, Text | undefined];
+/**
+ * Records the results of inserting text into the tree.
+ */
+export interface TextInsertionResult {
+    /** The node that contains the added text. */
+    node: Text | undefined;
+    /** Whether [[node]] is a new node. If ``false``, it was modified. */
+    isNew: boolean;
+    /** The caret position after the insertion. */
+    caret: Caret;
+}
 export interface GenericInsertTextContext {
     insertNodeAt(into: Element, index: number, node: Node): void;
     setTextNodeValue(node: Text, value: string): void;
@@ -172,17 +182,14 @@ export interface GenericInsertTextContext {
  *
  * @param text The text to insert.
  *
- * @returns The first element of the array is the node that was modified to
- * insert the text. It will be ``undefined`` if no node was modified. The second
- * element is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly inserted
- * text. They are unequal if a new text node had to be created to contain the
- * new text. A return value of ``[undefined, undefined]`` means that no
- * modification occurred (because the text passed was "").
+ * @param caretAtEnd Whether the caret position returned should be placed at the
+ * end of the inserted text.
+ *
+ * @returns The result of inserting the text.
  *
  * @throws {Error} If ``node`` is not an element or text Node type.
  */
-export declare function genericInsertText(this: GenericInsertTextContext, node: Node, index: number, text: string): TextInsertionResult;
+export declare function genericInsertText(this: GenericInsertTextContext, node: Node, index: number, text: string, caretAtEnd?: boolean): TextInsertionResult;
 /**
  * Deletes text from a text node. If the text node becomes empty, it is deleted.
  *
@@ -256,17 +263,14 @@ export declare function deleteNode(node: Node): void;
  *
  * @param text The text to insert.
  *
- * @returns The first element of the array is the node that was modified to
- * insert the text. It will be ``undefined`` if no node was modified. The second
- * element is the text node which contains the new text. The two elements are
- * defined and equal if a text node was modified to contain the newly inserted
- * text. They are unequal if a new text node had to be created to contain the
- * new text. A return value of ``[undefined, undefined]`` means that no
- * modification occurred (because the text passed was "").
+ * @param caretAtEnd Whether to return the caret position at the end of the
+ * inserted text or at the beginning. Default to ``true``.
+ *
+ * @returns The result of inserting the text.
  *
  * @throws {Error} If ``node`` is not an element or text Node type.
  */
-export declare function insertText(node: Node, index: number, text: string): TextInsertionResult;
+export declare function insertText(node: Node, index: number, text: string, caretAtEnd?: boolean): TextInsertionResult;
 /**
  * Inserts an element into text, effectively splitting the text node in
  * two. This function takes care to modify the DOM tree only once.
@@ -427,7 +431,7 @@ export declare function closestByClass(node: Node | undefined | null, cl: string
  * @returns The first sibling (in document order) that matches the class, or
  * ``null`` if nothing matches.
  */
-export declare function siblingByClass(node: Node, cl: string): Element | null;
+export declare function siblingByClass(node: Node | null, cl: string): Element | null;
 /**
  * Find children matching the class.
  *
@@ -437,7 +441,7 @@ export declare function siblingByClass(node: Node, cl: string): Element | null;
  *
  * @returns The children (in document order) that match the class.
  */
-export declare function childrenByClass(node: Node, cl: string): Element[];
+export declare function childrenByClass(node: Node | null, cl: string): Element[];
 /**
  * Find child matching the class.
  *
@@ -448,7 +452,7 @@ export declare function childrenByClass(node: Node, cl: string): Element[];
  * @returns The first child (in document order) that matches the class, or
  * ``null`` if nothing matches.
  */
-export declare function childByClass(node: Node, cl: string): Element | null;
+export declare function childByClass(node: Node | null, cl: string): Element | null;
 /**
  * Convert a string to HTML encoding. For instance if you want to have the
  * less-than symbol be part of the contents of a ``span`` element, it would have
@@ -472,9 +476,12 @@ export declare function textToHTML(text: string): string;
  *
  * @param selector The selector to convert.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The converted selector.
  */
-export declare function toGUISelector(selector: string): string;
+export declare function toGUISelector(selector: string, namespaces: Record<string, string>): string;
 /**
  * Allows applying simple CSS selectors on the data tree as if it were an HTML
  * tree. This is necessary because the current browsers are unable to handle tag
@@ -496,9 +503,12 @@ export declare function toGUISelector(selector: string): string;
  *
  * @param selector The selector to use.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The resulting data node.
  */
-export declare function dataFind(node: Element, selector: string): Element | null;
+export declare function dataFind(node: Element, selector: string, namespaces: Record<string, string>): Element | null;
 /**
  * Allows applying simple CSS selectors on the data tree as if it were an HTML
  * tree. Operates like [[dataFind]] but returns an array of nodes.
@@ -507,9 +517,12 @@ export declare function dataFind(node: Element, selector: string): Element | nul
  *
  * @param selector The selector to use.
  *
+ * @param namespaces The namespaces that are known. This is used to convert
+ * element name prefixes to namespace URIs.
+ *
  * @returns The resulting data nodes.
  */
-export declare function dataFindAll(node: Element, selector: string): Element[];
+export declare function dataFindAll(node: Element, selector: string, namespaces: Record<string, string>): Element[];
 /**
  * Converts an HTML string to an array of DOM nodes. **This function is not
  * responsible for checking the HTML for security holes it is the responsibility
@@ -560,5 +573,28 @@ export declare function getCharacterImmediatelyAt(caret: Caret): string | undefi
  * displayed. ``false`` otherwise. If the search up the DOM tree hits ``root``,
  * then the value returned is ``false``.
  */
-export declare function isNotDisplayed(el: HTMLElement, root: Element): boolean;
+export declare function isNotDisplayed(el: HTMLElement, root: HTMLElement | HTMLDocument): boolean;
+/**
+ * A ``contains`` function that handles attributes. Attributes are not part of
+ * the node tree and performing a ``contains`` test on them is always ``false``.
+ *
+ * Yet it makes sense to say that an element A contains its own attributes and
+ * thus by transitivity if element A is contained by element B, then all
+ * attributes of A are contained by B. This function supports the contention
+ * just described.
+ *
+ * Usage note: this function is typically not *needed* when doing tests in the
+ * GUI tree because we do not address attributes in that tree. There is,
+ * however, no harm in using it where it is not strictly needed. In the data
+ * tree, however, we do address attributes. Code that works with either tree
+ * (e.g. the [["dloc"]] module) should use this function as a general rule so
+ * that it can work with either tree.
+ *
+ * @param container The thing which should contain in the test.
+ *
+ * @param contained The thing which should be contained in the test.
+ *
+ * @returns Whether ``container`` contains ``contained``.
+ */
+export declare function contains(container: Node, contained: Node): boolean;
 export { isAttr };

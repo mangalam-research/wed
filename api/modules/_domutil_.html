@@ -77,6 +77,7 @@
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_domutil_.genericinsertintotextcontext.html" class="tsd-kind-icon">Generic<wbr>Insert<wbr>Into<wbr>Text<wbr>Context</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_domutil_.genericinserttextcontext.html" class="tsd-kind-icon">Generic<wbr>Insert<wbr>Text<wbr>Context</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_domutil_.rangelike.html" class="tsd-kind-icon">Range<wbr>Like</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_domutil_.textinsertionresult.html" class="tsd-kind-icon">Text<wbr>Insertion<wbr>Result</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -88,7 +89,6 @@
 								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_domutil_.html#insertionboundaries" class="tsd-kind-icon">Insertion<wbr>Boundaries</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_domutil_.html#rangeinfo" class="tsd-kind-icon">Range<wbr>Info</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_domutil_.html#splitresult" class="tsd-kind-icon">Split<wbr>Result</a></li>
-								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_domutil_.html#textinsertionresult" class="tsd-kind-icon">Text<wbr>Insertion<wbr>Result</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-not-exported">
@@ -108,6 +108,7 @@
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_domutil_.html#childrenbyclass" class="tsd-kind-icon">children<wbr>ByClass</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_domutil_.html#closest" class="tsd-kind-icon">closest</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_domutil_.html#closestbyclass" class="tsd-kind-icon">closest<wbr>ByClass</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_domutil_.html#contains" class="tsd-kind-icon">contains</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_domutil_.html#correspondingnode" class="tsd-kind-icon">corresponding<wbr>Node</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_domutil_.html#datafind" class="tsd-kind-icon">data<wbr>Find</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_domutil_.html#datafindall" class="tsd-kind-icon">data<wbr>Find<wbr>All</a></li>
@@ -164,7 +165,7 @@
 					<div class="tsd-signature tsd-kind-icon">Caret<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L118">domutil.ts:118</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L118">domutil.ts:118</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -182,7 +183,7 @@
 					<div class="tsd-signature tsd-kind-icon">Cut<wbr>Result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><a href="_domutil_.html#caret" class="tsd-signature-type">Caret</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L975">domutil.ts:975</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L996">domutil.ts:996</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -192,7 +193,7 @@
 					<div class="tsd-signature tsd-kind-icon">Element<wbr>Pair<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L901">domutil.ts:901</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L922">domutil.ts:922</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -202,7 +203,7 @@
 					<div class="tsd-signature tsd-kind-icon">Insertion<wbr>Boundaries<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><a href="_domutil_.html#caret" class="tsd-signature-type">Caret</a><span class="tsd-signature-symbol">, </span><a href="_domutil_.html#caret" class="tsd-signature-type">Caret</a><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L399">domutil.ts:399</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L399">domutil.ts:399</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -212,7 +213,7 @@
 					<div class="tsd-signature tsd-kind-icon">Range<wbr>Info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L59">domutil.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L59">domutil.ts:59</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -241,17 +242,7 @@
 					<div class="tsd-signature tsd-kind-icon">Split<wbr>Result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L850">domutil.ts:850</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-external-module">
-					<a name="textinsertionresult" class="tsd-anchor"></a>
-					<h3>Text<wbr>Insertion<wbr>Result</h3>
-					<div class="tsd-signature tsd-kind-icon">Text<wbr>Insertion<wbr>Result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">Text</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Text</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L558">domutil.ts:558</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L871">domutil.ts:871</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -264,7 +255,7 @@
 					<div class="tsd-signature tsd-kind-icon">separator<wbr>Re<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol"> =&nbsp;new RegExp(&#x60;([${separators}]+)&#x60;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1380">domutil.ts:1380</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1401">domutil.ts:1401</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -274,7 +265,7 @@
 					<div class="tsd-signature tsd-kind-icon">separators<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">",&gt;+~ "</span><span class="tsd-signature-symbol"> =&nbsp;&quot;,&gt;+~ &quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1379">domutil.ts:1379</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1400">domutil.ts:1400</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -284,7 +275,7 @@
 					<div class="tsd-signature tsd-kind-icon">text<wbr>ToHTMLSpan<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLSpanElement</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1359">domutil.ts:1359</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1380">domutil.ts:1380</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -301,7 +292,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L441">domutil.ts:441</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L441">domutil.ts:441</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -364,7 +355,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L818">domutil.ts:818</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L839">domutil.ts:839</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -395,13 +386,13 @@
 					<a name="childbyclass" class="tsd-anchor"></a>
 					<h3>child<wbr>ByClass</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">child<wbr>ByClass<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, cl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+						<li class="tsd-signature tsd-kind-icon">child<wbr>ByClass<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, cl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1347">domutil.ts:1347</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1368">domutil.ts:1368</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -412,7 +403,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>node: <span class="tsd-signature-type">Node</span></h5>
+									<h5>node: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The element whose child we are looking for.</p>
 									</div>
@@ -437,13 +428,13 @@
 					<a name="childrenbyclass" class="tsd-anchor"></a>
 					<h3>children<wbr>ByClass</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">children<wbr>ByClass<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, cl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">children<wbr>ByClass<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, cl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1320">domutil.ts:1320</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1341">domutil.ts:1341</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -454,7 +445,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>node: <span class="tsd-signature-type">Node</span></h5>
+									<h5>node: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The element whose children we are looking for.</p>
 									</div>
@@ -481,7 +472,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1208">domutil.ts:1208</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1229">domutil.ts:1229</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -530,7 +521,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1253">domutil.ts:1253</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1274">domutil.ts:1274</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -570,6 +561,55 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="contains" class="tsd-anchor"></a>
+					<h3>contains</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">contains<span class="tsd-signature-symbol">(</span>container<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, contained<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1664">domutil.ts:1664</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>A <code>contains</code> function that handles attributes. Attributes are not part of
+									the node tree and performing a <code>contains</code> test on them is always <code>false</code>.</p>
+								</div>
+								<p>Yet it makes sense to say that an element A contains its own attributes and
+									thus by transitivity if element A is contained by element B, then all
+									attributes of A are contained by B. This function supports the contention
+								just described.</p>
+								<p>Usage note: this function is typically not <em>needed</em> when doing tests in the
+									GUI tree because we do not address attributes in that tree. There is,
+									however, no harm in using it where it is not strictly needed. In the data
+									tree, however, we do address attributes. Code that works with either tree
+									(e.g. the <a href="_dloc_.html">&quot;dloc&quot;</a> module) should use this function as a general rule so
+								that it can work with either tree.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>container: <span class="tsd-signature-type">Node</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The thing which should contain in the test.</p>
+									</div>
+								</li>
+								<li>
+									<h5>contained: <span class="tsd-signature-type">Node</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The thing which should be contained in the test.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>Whether <code>container</code> contains <code>contained</code>.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
 					<a name="correspondingnode" class="tsd-anchor"></a>
 					<h3>corresponding<wbr>Node</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
@@ -579,7 +619,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L363">domutil.ts:363</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L363">domutil.ts:363</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -625,13 +665,13 @@
 					<a name="datafind" class="tsd-anchor"></a>
 					<h3>data<wbr>Find</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">data<wbr>Find<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+						<li class="tsd-signature tsd-kind-icon">data<wbr>Find<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, namespaces<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1445">domutil.ts:1445</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1477">domutil.ts:1477</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -668,6 +708,13 @@
 										<p>The selector to use.</p>
 									</div>
 								</li>
+								<li>
+									<h5>namespaces: <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The namespaces that are known. This is used to convert
+										element name prefixes to namespace URIs.</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Element</span>
 								<span class="tsd-signature-symbol"> | </span>
@@ -681,13 +728,13 @@
 					<a name="datafindall" class="tsd-anchor"></a>
 					<h3>data<wbr>Find<wbr>All</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">data<wbr>Find<wbr>All<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">data<wbr>Find<wbr>All<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, namespaces<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1466">domutil.ts:1466</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1502">domutil.ts:1502</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -710,6 +757,13 @@
 										<p>The selector to use.</p>
 									</div>
 								</li>
+								<li>
+									<h5>namespaces: <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The namespaces that are known. This is used to convert
+										element name prefixes to namespace URIs.</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">[]</span></h4>
 							<p>The resulting data nodes.</p>
@@ -726,7 +780,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L750">domutil.ts:750</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L773">domutil.ts:773</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -757,7 +811,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L651">domutil.ts:651</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L674">domutil.ts:674</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -805,7 +859,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1139">domutil.ts:1139</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1160">domutil.ts:1160</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -842,7 +896,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1117">domutil.ts:1117</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1138">domutil.ts:1138</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -879,7 +933,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1150">domutil.ts:1150</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1171">domutil.ts:1171</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -916,7 +970,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L708">domutil.ts:708</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L731">domutil.ts:731</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -955,7 +1009,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L94">domutil.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L94">domutil.ts:94</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -974,7 +1028,7 @@
 								<li>
 									<h5>node: <span class="tsd-signature-type">Node</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Node to focus.</p>
+										<p>The node to focus.</p>
 									</div>
 								</li>
 							</ul>
@@ -992,7 +1046,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L991">domutil.ts:991</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1012">domutil.ts:1012</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1040,7 +1094,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L545">domutil.ts:545</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L545">domutil.ts:545</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1093,13 +1147,13 @@
 					<a name="genericinserttext" class="tsd-anchor"></a>
 					<h3>generic<wbr>Insert<wbr>Text</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">generic<wbr>Insert<wbr>Text<span class="tsd-signature-symbol">(</span>this<span class="tsd-signature-symbol">: </span><a href="../interfaces/_domutil_.genericinserttextcontext.html" class="tsd-signature-type">GenericInsertTextContext</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_domutil_.html#textinsertionresult" class="tsd-signature-type">TextInsertionResult</a></li>
+						<li class="tsd-signature tsd-kind-icon">generic<wbr>Insert<wbr>Text<span class="tsd-signature-symbol">(</span>this<span class="tsd-signature-symbol">: </span><a href="../interfaces/_domutil_.genericinserttextcontext.html" class="tsd-signature-type">GenericInsertTextContext</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, caretAtEnd<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_domutil_.textinsertionresult.html" class="tsd-signature-type">TextInsertionResult</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L586">domutil.ts:586</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L595">domutil.ts:595</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1137,15 +1191,16 @@
 										<p>The text to insert.</p>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> caretAtEnd: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether the caret position returned should be placed at the
+										end of the inserted text.</p>
+									</div>
+								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_domutil_.html#textinsertionresult" class="tsd-signature-type">TextInsertionResult</a></h4>
-							<p>The first element of the array is the node that was modified to
-								insert the text. It will be <code>undefined</code> if no node was modified. The second
-								element is the text node which contains the new text. The two elements are
-								defined and equal if a text node was modified to contain the newly inserted
-								text. They are unequal if a new text node had to be created to contain the
-								new text. A return value of <code>[undefined, undefined]</code> means that no
-							modification occurred (because the text passed was &quot;&quot;).</p>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_domutil_.textinsertionresult.html" class="tsd-signature-type">TextInsertionResult</a></h4>
+							<p>The result of inserting the text.</p>
 						</li>
 					</ul>
 				</section>
@@ -1159,7 +1214,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1543">domutil.ts:1543</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1586">domutil.ts:1586</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1197,7 +1252,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1514">domutil.ts:1514</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1557">domutil.ts:1557</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1235,7 +1290,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L43">domutil.ts:43</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L43">domutil.ts:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1271,7 +1326,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1489">domutil.ts:1489</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1526">domutil.ts:1526</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1313,7 +1368,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L23">domutil.ts:23</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L23">domutil.ts:23</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1342,7 +1397,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L24">domutil.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L24">domutil.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1374,7 +1429,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L844">domutil.ts:844</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L865">domutil.ts:865</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1425,7 +1480,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L768">domutil.ts:768</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L791">domutil.ts:791</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1463,13 +1518,13 @@
 					<a name="inserttext" class="tsd-anchor"></a>
 					<h3>insert<wbr>Text</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">insert<wbr>Text<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_domutil_.html#textinsertionresult" class="tsd-signature-type">TextInsertionResult</a></li>
+						<li class="tsd-signature tsd-kind-icon">insert<wbr>Text<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, caretAtEnd<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_domutil_.textinsertionresult.html" class="tsd-signature-type">TextInsertionResult</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L795">domutil.ts:795</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L815">domutil.ts:815</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1505,15 +1560,16 @@
 										<p>The text to insert.</p>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> caretAtEnd: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Whether to return the caret position at the end of the
+										inserted text or at the beginning. Default to <code>true</code>.</p>
+									</div>
+								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_domutil_.html#textinsertionresult" class="tsd-signature-type">TextInsertionResult</a></h4>
-							<p>The first element of the array is the node that was modified to
-								insert the text. It will be <code>undefined</code> if no node was modified. The second
-								element is the text node which contains the new text. The two elements are
-								defined and equal if a text node was modified to contain the newly inserted
-								text. They are unequal if a new text node had to be created to contain the
-								new text. A return value of <code>[undefined, undefined]</code> means that no
-							modification occurred (because the text passed was &quot;&quot;).</p>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_domutil_.textinsertionresult.html" class="tsd-signature-type">TextInsertionResult</a></h4>
+							<p>The result of inserting the text.</p>
 						</li>
 					</ul>
 				</section>
@@ -1521,13 +1577,13 @@
 					<a name="isnotdisplayed" class="tsd-anchor"></a>
 					<h3>is<wbr>Not<wbr>Displayed</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">is<wbr>Not<wbr>Displayed<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, root<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Not<wbr>Displayed<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, root<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">HTMLDocument</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1576">domutil.ts:1576</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1619">domutil.ts:1619</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1548,7 +1604,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>root: <span class="tsd-signature-type">Element</span></h5>
+									<h5>root: <span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">HTMLDocument</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The parent of <code>el</code> beyond which we do not search.</p>
 									</div>
@@ -1571,7 +1627,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L964">domutil.ts:964</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L985">domutil.ts:985</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1607,7 +1663,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L733">domutil.ts:733</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L756">domutil.ts:756</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1647,7 +1703,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L672">domutil.ts:672</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L695">domutil.ts:695</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1682,7 +1738,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L391">domutil.ts:391</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L391">domutil.ts:391</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1714,7 +1770,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L878">domutil.ts:878</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L899">domutil.ts:899</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1749,7 +1805,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L144">domutil.ts:144</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L144">domutil.ts:144</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1791,9 +1847,9 @@
 								<span class="tsd-signature-symbol"> | </span>
 								<span class="tsd-signature-type">null</span>
 							</h4>
-							<p>Returns the next caret position, or <code>null</code> if such position does
-								not exist. The <code>container</code> parameter constrains movements to positions
-							inside it.</p>
+							<p>The next caret position, or <code>null</code> if such position does not
+								exist. The <code>container</code> parameter constrains movements to positions inside
+							it.</p>
 						</li>
 					</ul>
 				</section>
@@ -1807,7 +1863,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L919">domutil.ts:919</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L940">domutil.ts:940</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1849,7 +1905,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1181">domutil.ts:1181</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1202">domutil.ts:1202</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1897,7 +1953,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L251">domutil.ts:251</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L251">domutil.ts:251</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1939,9 +1995,9 @@
 								<span class="tsd-signature-symbol"> | </span>
 								<span class="tsd-signature-type">null</span>
 							</h4>
-							<p>Returns the previous caret position, or <code>null</code> if such position
-								does not exist. The <code>container</code> parameter constrains movements to positions
-							inside it.</p>
+							<p>The previous caret position, or <code>null</code> if such position does not
+								exist. The <code>container</code> parameter constrains movements to positions inside
+							it.</p>
 						</li>
 					</ul>
 				</section>
@@ -1955,7 +2011,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L66">domutil.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L66">domutil.ts:66</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1987,13 +2043,13 @@
 					<a name="siblingbyclass" class="tsd-anchor"></a>
 					<h3>sibling<wbr>ByClass</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">sibling<wbr>ByClass<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, cl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+						<li class="tsd-signature tsd-kind-icon">sibling<wbr>ByClass<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, cl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1294">domutil.ts:1294</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1315">domutil.ts:1315</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2004,7 +2060,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>node: <span class="tsd-signature-type">Node</span></h5>
+									<h5>node: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The element whose sibling we are looking for.</p>
 									</div>
@@ -2035,7 +2091,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L863">domutil.ts:863</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L884">domutil.ts:884</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2075,7 +2131,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1371">domutil.ts:1371</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1392">domutil.ts:1392</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2104,13 +2160,13 @@
 					<a name="toguiselector" class="tsd-anchor"></a>
 					<h3>toGUISelector</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">toGUISelector<span class="tsd-signature-symbol">(</span>selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">toGUISelector<span class="tsd-signature-symbol">(</span>selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, namespaces<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L1396">domutil.ts:1396</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L1420">domutil.ts:1420</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2135,6 +2191,13 @@
 										<p>The selector to convert.</p>
 									</div>
 								</li>
+								<li>
+									<h5>namespaces: <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The namespaces that are known. This is used to convert
+										element name prefixes to namespace URIs.</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 							<p>The converted selector.</p>
@@ -2151,7 +2214,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L689">domutil.ts:689</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L712">domutil.ts:712</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2182,7 +2245,7 @@
 					<div class="tsd-signature tsd-kind-icon">plainDOMMockup<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L807">domutil.ts:807</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L828">domutil.ts:828</a></li>
 						</ul>
 					</aside>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
@@ -2191,7 +2254,7 @@
 						<div class="tsd-signature tsd-kind-icon">delete<wbr>Node<span class="tsd-signature-symbol">:</span> <a href="_domutil_.html#deletenode" class="tsd-signature-type">deleteNode</a><span class="tsd-signature-symbol"> =&nbsp;deleteNode</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L810">domutil.ts:810</a></li>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L831">domutil.ts:831</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -2201,7 +2264,7 @@
 						<div class="tsd-signature tsd-kind-icon">insert<wbr>Frag<wbr>At<span class="tsd-signature-symbol">:</span> <a href="_domutil_.html#insertnodeat" class="tsd-signature-type">insertNodeAt</a><span class="tsd-signature-symbol"> =&nbsp;insertNodeAt</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L809">domutil.ts:809</a></li>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L830">domutil.ts:830</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -2211,7 +2274,7 @@
 						<div class="tsd-signature tsd-kind-icon">insert<wbr>Node<wbr>At<span class="tsd-signature-symbol">:</span> <a href="_domutil_.html#insertnodeat" class="tsd-signature-type">insertNodeAt</a><span class="tsd-signature-symbol"> =&nbsp;insertNodeAt</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/domutil.ts#L808">domutil.ts:808</a></li>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/domutil.ts#L829">domutil.ts:829</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -2243,6 +2306,9 @@
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_domutil_.rangelike.html" class="tsd-kind-icon">Range<wbr>Like</a>
 					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_domutil_.textinsertionresult.html" class="tsd-kind-icon">Text<wbr>Insertion<wbr>Result</a>
+					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="_domutil_.html#caret" class="tsd-kind-icon">Caret</a>
 					</li>
@@ -2260,9 +2326,6 @@
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="_domutil_.html#splitresult" class="tsd-kind-icon">Split<wbr>Result</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="_domutil_.html#textinsertionresult" class="tsd-kind-icon">Text<wbr>Insertion<wbr>Result</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_domutil_.html#separatorre" class="tsd-kind-icon">separator<wbr>Re</a>
@@ -2290,6 +2353,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="_domutil_.html#closestbyclass" class="tsd-kind-icon">closest<wbr>ByClass</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_domutil_.html#contains" class="tsd-kind-icon">contains</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="_domutil_.html#correspondingnode" class="tsd-kind-icon">corresponding<wbr>Node</a>

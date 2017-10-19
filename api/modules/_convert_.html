@@ -70,44 +70,68 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
+						<section class="tsd-index-section tsd-is-not-exported">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_convert_.html#xml1_namespace" class="tsd-kind-icon">XML1_<wbr>NAMESPACE</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_convert_.html#xmlns_namespace" class="tsd-kind-icon">XMLNS_<wbr>NAMESPACE</a></li>
+							</ul>
+						</section>
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_convert_.html#ancestornamespacevalue" class="tsd-kind-icon">ancestor<wbr>Namespace<wbr>Value</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported"><a href="_convert_.html#normalizens" class="tsd-kind-icon">normalizeNS</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_convert_.html#tohtmltree" class="tsd-kind-icon">toHTMLTree</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="xml1_namespace" class="tsd-anchor"></a>
+					<h3>XML1_<wbr>NAMESPACE</h3>
+					<div class="tsd-signature tsd-kind-icon">XML1_<wbr>NAMESPACE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;http://www.w3.org/XML/1998/namespace&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/convert.ts#L12">convert.ts:12</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="xmlns_namespace" class="tsd-anchor"></a>
+					<h3>XMLNS_<wbr>NAMESPACE</h3>
+					<div class="tsd-signature tsd-kind-icon">XMLNS_<wbr>NAMESPACE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;http://www.w3.org/2000/xmlns/&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/convert.ts#L15">convert.ts:15</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-					<a name="ancestornamespacevalue" class="tsd-anchor"></a>
-					<h3>ancestor<wbr>Namespace<wbr>Value</h3>
+					<a name="normalizens" class="tsd-anchor"></a>
+					<h3>normalizeNS</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">ancestor<wbr>Namespace<wbr>Value<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+						<li class="tsd-signature tsd-kind-icon">normalizeNS<span class="tsd-signature-symbol">(</span>ns<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/convert.ts#L10">convert.ts:10</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/convert.ts#L17">convert.ts:17</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>node: <span class="tsd-signature-type">Element</span></h5>
-								</li>
-								<li>
-									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<h5>ns: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">undefined</span>
-							</h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -121,19 +145,53 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/convert.ts#L21">convert.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/convert.ts#L56">convert.ts:56</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert an XML tree or subtree into an HTML tree suitable to be inserted into
+									the GUI tree.</p>
+								</div>
+								<p>XML Elements are converted to <code>div</code> elements with a <code>class</code> that has:</p>
+								<ul>
+									<li><p>for first class the tag name (qualified name in XML parlance) of the
+										element,</p>
+									</li>
+									<li><p>for second class the <code>_local_&lt;local name&gt;</code> where <code>&lt;local name&gt;</code> is the
+										local name of the element,</p>
+									</li>
+									<li><p>for third class <code>_xmlns_&lt;namespace uri&gt;</code> where <code>namespace uri</code> is
+										the URI of the namespace of the XML element,</p>
+									</li>
+									<li><p>for fourth class <code>_real</code>.</p>
+									</li>
+								</ul>
+								<p>The attributes of the XML element appear on the HTML element with the name
+									<code>data-wed-&lt;attribute name&gt;</code>, where <code>attribute name</code> is converted by
+									<a href="_util_.html#encodeattrname">encodeAttrName</a>. This attribute has for value the original
+									value in the XML. A second attribute <code>data-wed--ns-&lt;attribute name&gt;</code>
+									contains the namespace URI of the attribute. If the attribute was not in a
+								namespace, then <code>data-wed--ns-&lt;attribute name&gt;</code> is omitted.</p>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>doc: <span class="tsd-signature-type">Document</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The HTML document in which we are going to use the generated
+										tree.</p>
+									</div>
 								</li>
 								<li>
 									<h5>node: <span class="tsd-signature-type">Node</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The root of the XML tree to convert.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Node</span></h4>
+							<p>The root of the newly created HTML tree.</p>
 						</li>
 					</ul>
 				</section>
@@ -152,8 +210,14 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_convert_.html#xml1_namespace" class="tsd-kind-icon">XML1_<wbr>NAMESPACE</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_convert_.html#xmlns_namespace" class="tsd-kind-icon">XMLNS_<wbr>NAMESPACE</a>
+					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_convert_.html#ancestornamespacevalue" class="tsd-kind-icon">ancestor<wbr>Namespace<wbr>Value</a>
+						<a href="_convert_.html#normalizens" class="tsd-kind-icon">normalizeNS</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="_convert_.html#tohtmltree" class="tsd-kind-icon">toHTMLTree</a>

@@ -4,10 +4,10 @@
  *
  * Depends on Rangy core, ClassApplier and optionally TextRange modules.
  *
- * Copyright 2015, Tim Down
+ * Copyright 2017, Tim Down
  * Licensed under the MIT license.
- * Version: 1.3.0
- * Build date: 10 May 2015
+ * Version: 1.3.1-dev
+ * Build date: 11 October 2017
  */
 (function(factory, root) {
     if (typeof define == "function" && define.amd) {
@@ -460,13 +460,12 @@
 
                 options = createOptions(options, {
                     containerElementId: null,
-                    selection: api.getSelection(this.doc),
                     exclusive: true
                 });
 
                 var containerElementId = options.containerElementId;
                 var exclusive = options.exclusive;
-                var selection = options.selection;
+                var selection = options.selection || api.getSelection(this.doc);
                 var doc = selection.win.document;
                 var containerElement = getContainerElement(doc, containerElementId);
 

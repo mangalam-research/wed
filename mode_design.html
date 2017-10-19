@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Creating a Mode &mdash; Wed v0.28.2-152-g4525c15d documentation</title>
+  <title>Creating a Mode &mdash; Wed v0.30.0 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.28.2-152-g4525c15d documentation" href="index.html"/>
+    <link rel="top" title="Wed v0.30.0 documentation" href="index.html"/>
         <link rel="next" title="Advanced Usage Notes" href="tech_notes.html"/>
         <link rel="prev" title="Using Wed in an Application" href="usage.html"/> 
 
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v0.28
+                v0.30
               </div>
             
           
@@ -202,14 +202,34 @@ point here is that there should be a set of rules that allow writing modes in
 a way that does not require ad-hoc modifications later if they are used with
 submodes.)</li>
 </ul>
-<p>Well-behaved main modes:</p>
-<ul class="simple">
-<li>Take care to not operate on elements that are managed by submodes.</li>
+<p>Well-behaved modes:</p>
+<ul>
+<li><p class="first">Take care to not operate <strong>inside</strong> elements that are managed by
+submodes. However, they may operate on such elements <em>as a whole</em> and may
+allow editing attributes on such elements.</p>
+<p>This rule extends to classes or instances provided by modes. E.g. a
+<code class="docutils literal"><span class="pre">ModeValidator</span></code> must check that it is operating only on appropriate nodes.</p>
+</li>
+<li><p class="first">Take care to not operate on elements that are outside the region they manage,
+even though they have access to the whole document.</p>
+<ul>
+<li><p class="first">In particular a customized <code class="docutils literal"><span class="pre">Decorator</span></code> will normally want to check that
+the nodes it operates on are governed by the mode associated with the
+decorator. The typical test is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">modeTree</span><span class="o">.</span><span class="n">getMode</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">!==</span> <span class="n">this</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="p">{</span>
+  <span class="o">//</span> <span class="n">The</span> <span class="n">element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">governed</span> <span class="n">by</span> <span class="n">this</span> <span class="n">mode</span><span class="o">.</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
 </ul>
-<p>Well-behaved submodes:</p>
-<ul class="simple">
-<li>Take care to not operate on elements that are outside the region they manage,
-even though they have access to the whole document.</li>
+</li>
+<li><p class="first">Use stylesheets that are designed to apply only to the elements they
+manage. This entails using CSS selectors that have enough specificity. [Wed
+may eventually help with this, but for how the onus is entirely on mode
+designers.]</p>
+</li>
 </ul>
 </div>
 
@@ -232,7 +252,7 @@ even though they have access to the whole document.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2013-2016 Mangalam Research Center for Buddhist Languages.
+        &copy; Copyright Mangalam Research Center for Buddhist Languages.
 
     </p>
   </div>
@@ -254,7 +274,7 @@ even though they have access to the whole document.</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.28.2-152-g4525c15d',
+            VERSION:'v0.30.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

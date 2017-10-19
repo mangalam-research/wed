@@ -18,7 +18,7 @@ export interface ModeValidator {
  * A document validator.
  */
 export declare class Validator extends BaseValidator {
-    private readonly modeValidator;
+    private readonly modeValidators;
     /**
      * @param schema A path to the schema to pass to salve for validation. This is
      * a path that will be interpreted by RequireJS. The schema must have already
@@ -29,9 +29,9 @@ export declare class Validator extends BaseValidator {
      * @param root The root of the DOM tree to validate. This root contains the
      * document to validate but is not **part** of it.
      *
-     * @param modeValidator The mode-specific validator to use.
+     * @param modeValidators The mode-specific validators to use.
      */
-    constructor(schema: Grammar, root: Element | Document, modeValidator?: ModeValidator | undefined);
+    constructor(schema: Grammar, root: Element | Document, modeValidators: ModeValidator[]);
     /**
      * Runs document-wide validation specific to the mode passed to
      * the validator.

@@ -99,16 +99,25 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_dloc_.dloc.html#pointednode" class="tsd-kind-icon">pointed<wbr>Node</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#clone" class="tsd-kind-icon">clone</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#compare" class="tsd-kind-icon">compare</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#equals" class="tsd-kind-icon">equals</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#getlocationafterinparent" class="tsd-kind-icon">get<wbr>Location<wbr>After<wbr>InParent</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#getlocationinparent" class="tsd-kind-icon">get<wbr>Location<wbr>InParent</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#isvalid" class="tsd-kind-icon">is<wbr>Valid</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#make" class="tsd-kind-icon">make</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#makedlocrange" class="tsd-kind-icon">makeDLoc<wbr>Range</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#makerange" class="tsd-kind-icon">make<wbr>Range</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#makewithoffset" class="tsd-kind-icon">make<wbr>With<wbr>Offset</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#mustmakedlocrange" class="tsd-kind-icon">must<wbr>MakeDLoc<wbr>Range</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#normalizeoffset" class="tsd-kind-icon">normalize<wbr>Offset</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dloc_.dloc.html#toarray" class="tsd-kind-icon">to<wbr>Array</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_dloc_.dloc.html#makedloc" class="tsd-kind-icon">makeDLoc</a></li>
@@ -116,6 +125,40 @@
 							</ul>
 						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="pointednode" class="tsd-anchor"></a>
+					<h3>pointed<wbr>Node</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> pointedNode<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Attr</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L234">dloc.ts:234</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>This is the node to which this location points. For locations pointing to
+										attributes and text nodes, that&#39;s the same as [[node]]. For locations
+										pointing to an element, that&#39;s the child to which the <code>node, offset</code> pair
+										points. Since this pair may point after the last child of an element, the
+									child obtained may be <code>undefined</code>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Node</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">Attr</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">undefined</span>
+							</h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -130,7 +173,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L208">dloc.ts:208</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L245">dloc.ts:245</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -139,6 +182,56 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="compare" class="tsd-anchor"></a>
+					<h3>compare</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">compare<span class="tsd-signature-symbol">(</span>other<span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">-1</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">1</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L615">dloc.ts:615</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compare two locations. Note that for attribute ordering, this class
+										arbitrarily decides that the order of two attributes on the same element is
+										the same as the order of their <code>name</code> fields as if they were sorted in an
+										array with <code>Array.prototype.sort()</code>. This differs from how
+										<code>Node.compareDocumentPosition</code> determines the order of attributes. We
+										want something stable, which is not implementation dependent. In all other
+										cases, the nodes are compared in the same way
+									<code>Node.compareDocumentPosition</code> does.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If the nodes are disconnected.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>other: <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The other location to compare this one with.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">-1</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">0</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">1</span>
+							</h4>
+							<p><code>0</code> if the locations are the same. <code>-1</code> if this location comes
+							first. <code>1</code> if the other location comes first.</p>
 						</li>
 					</ul>
 				</section>
@@ -152,7 +245,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L512">dloc.ts:512</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L588">dloc.ts:588</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -179,7 +272,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L409">dloc.ts:409</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L441">dloc.ts:441</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -208,7 +301,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L391">dloc.ts:391</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L423">dloc.ts:423</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -240,7 +333,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L481">dloc.ts:481</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L557">dloc.ts:557</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -266,7 +359,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L349">dloc.ts:349</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L381">dloc.ts:381</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -290,7 +383,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L350">dloc.ts:350</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L382">dloc.ts:382</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -307,6 +400,43 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="makedlocrange" class="tsd-anchor"></a>
+					<h3>makeDLoc<wbr>Range</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">makeDLoc<wbr>Range<span class="tsd-signature-symbol">(</span>other<span class="tsd-signature-symbol">?: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L518">dloc.ts:518</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Make a range from this location. If <code>other</code> is not specified, the range
+										starts and ends with this location. If <code>other</code> is specified, the range
+									goes from this location to the <code>other</code> location.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> other: <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The other location to use.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">undefined</span>
+							</h4>
+							<p>The range.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="makerange" class="tsd-anchor"></a>
 					<h3>make<wbr>Range</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -317,7 +447,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L446">dloc.ts:446</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L481">dloc.ts:481</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -330,6 +460,12 @@
 										below). (An undefined value for <code>other</code> is interpreted as an unspecified
 									<code>other</code>.)</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If trying to make a range from an attribute node. DOM
+										ranges can only point into elements or text nodes.</p>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">RangyRange</span>
 								<span class="tsd-signature-symbol"> | </span>
@@ -342,7 +478,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L447">dloc.ts:447</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L482">dloc.ts:482</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -368,7 +504,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L372">dloc.ts:372</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L404">dloc.ts:404</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -392,6 +528,35 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="mustmakedlocrange" class="tsd-anchor"></a>
+					<h3>must<wbr>MakeDLoc<wbr>Range</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">must<wbr>MakeDLoc<wbr>Range<span class="tsd-signature-symbol">(</span>other<span class="tsd-signature-symbol">?: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L540">dloc.ts:540</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Like <a href="_dloc_.dloc.html#makedlocrange">makeDLocRange</a> but throws if it cannot make a range, rather than
+									return <code>undefined</code>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> other: <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="normalizeoffset" class="tsd-anchor"></a>
 					<h3>normalize<wbr>Offset</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -401,7 +566,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L497">dloc.ts:497</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L573">dloc.ts:573</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -427,7 +592,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L427">dloc.ts:427</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L459">dloc.ts:459</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -454,7 +619,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L236">dloc.ts:236</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L273">dloc.ts:273</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -493,7 +658,7 @@
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> normalize: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Normalize the offset to a valid value.</p>
+										<p>Whether to normalize the offset to a valid value.</p>
 									</div>
 								</li>
 							</ul>
@@ -502,14 +667,14 @@
 								<span class="tsd-signature-type">undefined</span>
 							</h4>
 							<p>The location. It returns <code>undefined</code> if the <code>node</code> is &quot;absent&quot;
-								because it is <code>undefined</code> or <code>null</code>. This is true irrespctive of the
+								because it is <code>undefined</code> or <code>null</code>. This is true irrespective of the
 								signature used. If you use a <a href="../modules/_domutil_.html#caret">Caret</a> and it has an absent node, then the
 							result is <code>undefined</code>.</p>
 						</li>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L239">dloc.ts:239</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L276">dloc.ts:276</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -542,7 +707,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L315">dloc.ts:315</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L347">dloc.ts:347</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -571,7 +736,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/dloc.ts#L318">dloc.ts:318</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/dloc.ts#L350">dloc.ts:350</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -610,8 +775,14 @@
 					<li class="current tsd-kind-class tsd-parent-kind-external-module">
 						<a href="_dloc_.dloc.html" class="tsd-kind-icon">DLoc</a>
 						<ul>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_dloc_.dloc.html#pointednode" class="tsd-kind-icon">pointed<wbr>Node</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_dloc_.dloc.html#clone" class="tsd-kind-icon">clone</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_dloc_.dloc.html#compare" class="tsd-kind-icon">compare</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_dloc_.dloc.html#equals" class="tsd-kind-icon">equals</a>
@@ -629,10 +800,16 @@
 								<a href="_dloc_.dloc.html#make" class="tsd-kind-icon">make</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_dloc_.dloc.html#makedlocrange" class="tsd-kind-icon">makeDLoc<wbr>Range</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_dloc_.dloc.html#makerange" class="tsd-kind-icon">make<wbr>Range</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_dloc_.dloc.html#makewithoffset" class="tsd-kind-icon">make<wbr>With<wbr>Offset</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_dloc_.dloc.html#mustmakedlocrange" class="tsd-kind-icon">must<wbr>MakeDLoc<wbr>Range</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_dloc_.dloc.html#normalizeoffset" class="tsd-kind-icon">normalize<wbr>Offset</a>
@@ -651,6 +828,9 @@
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="_dloc_.dlocrange.html" class="tsd-kind-icon">DLoc<wbr>Range</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="_dloc_.dlocroot.html" class="tsd-kind-icon">DLoc<wbr>Root</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
@@ -664,6 +844,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_dloc_.html#gettestlength" class="tsd-kind-icon">get<wbr>Test<wbr>Length</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_dloc_.html#parentchildcompare" class="tsd-kind-icon">parent<wbr>Child<wbr>Compare</a>
 					</li>
 				</ul>
 			</nav>

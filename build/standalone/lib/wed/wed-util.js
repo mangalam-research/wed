@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil", "./guiroot"], function (require, exports, module, dloc_1, domtypeguards_1, domutil_1, guiroot_1) {
+define(["require", "exports", "module", "./dloc", "./domtypeguards", "./guiroot"], function (require, exports, module, dloc_1, domtypeguards_1, guiroot_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // Utility function for boundaryXY.
@@ -133,106 +133,6 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
         return ret;
     }
     exports.getAttrValueNode = getAttrValueNode;
-    function cut(editor) {
-        var caretManager = editor.caretManager;
-        var sel = caretManager.sel;
-        if (!sel.wellFormed) {
-            throw new Error("malformed range");
-        }
-        var _a = sel.asDataCarets(), startCaret = _a[0], endCaret = _a[1];
-        while (editor._cut_buffer.firstChild !== null) {
-            editor._cut_buffer.removeChild(editor._cut_buffer.firstChild);
-        }
-        if (domtypeguards_1.isAttr(startCaret.node)) {
-            var attr = startCaret.node;
-            if (attr !== endCaret.node) {
-                throw new Error("attribute selection that does not start " +
-                    "and end in the same attribute");
-            }
-            var removedText = attr.value.slice(startCaret.offset, endCaret.offset);
-            editor._spliceAttribute(domutil_1.closestByClass(caretManager.fromDataLocation(startCaret).node, "_attribute_value"), startCaret.offset, endCaret.offset - startCaret.offset, "");
-            editor._cut_buffer.textContent = removedText;
-        }
-        else {
-            var cutRet = editor.data_updater.cut(startCaret, endCaret);
-            var nodes = cutRet[1];
-            var parser = new editor.my_window.DOMParser();
-            var doc = parser.parseFromString("<div></div>", "text/xml");
-            for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
-                var node = nodes_1[_i];
-                doc.firstChild.appendChild(doc.adoptNode(node));
-            }
-            editor._cut_buffer.textContent = doc.firstChild.innerHTML;
-            editor.caretManager.setCaret(cutRet[0]);
-        }
-        var range = editor.doc.createRange();
-        var container = editor._cut_buffer;
-        range.setStart(container, 0);
-        range.setEnd(container, container.childNodes.length);
-        var domSel = editor.my_window.getSelection();
-        domSel.removeAllRanges();
-        domSel.addRange(range);
-        // We've set the range to the cut buffer, which is what we want for the cut
-        // operation to work. However, the focus is also set to the cut buffer but
-        // once the cut is done we want the focus to be back to our caret, so...
-        setTimeout(function () {
-            caretManager.focusInputField();
-        }, 0);
-    }
-    exports.cut = cut;
-    // tslint:disable-next-line:no-any
-    function paste(editor, data) {
-        var toPaste = data.to_paste;
-        var dataClone = toPaste.cloneNode(true);
-        var caret = editor.caretManager.getDataCaret();
-        var newCaret;
-        var ret;
-        // Handle the case where we are pasting only text.
-        if (toPaste.childNodes.length === 1 && domtypeguards_1.isText(toPaste.firstChild)) {
-            if (domtypeguards_1.isAttr(caret.node)) {
-                var guiCaret = editor.caretManager.getNormalizedCaret();
-                editor._spliceAttribute(domutil_1.closestByClass(guiCaret.node, "_attribute_value", guiCaret.node), guiCaret.offset, 0, toPaste.firstChild.data);
-            }
-            else {
-                ret = editor.data_updater.insertText(caret, toPaste.firstChild.data);
-                // In the first case, the node that contained the caret was modified to
-                // contain the text. In the 2nd case, a new node was created **or** the
-                // text that contains the text is a child of the original node.
-                newCaret = ((ret[0] === ret[1]) && (ret[1] === caret.node)) ?
-                    // tslint:disable-next-line:restrict-plus-operands
-                    caret.make(caret.node, caret.offset + toPaste.firstChild.length) :
-                    caret.make(ret[1], ret[1].length);
-            }
-        }
-        else {
-            var frag = document.createDocumentFragment();
-            while (toPaste.firstChild !== null) {
-                frag.appendChild(toPaste.firstChild);
-            }
-            switch (caret.node.nodeType) {
-                case Node.TEXT_NODE:
-                    ret = editor.data_updater.insertIntoText(caret, frag);
-                    newCaret = ret[1];
-                    break;
-                case Node.ELEMENT_NODE:
-                    var child = caret.node.childNodes[caret.offset];
-                    var after_1 = child != null ? child.nextSibling : null;
-                    editor.data_updater.insertBefore(caret.node, frag, child);
-                    newCaret = caret.makeWithOffset(after_1 !== null ?
-                        domutil_1.indexOf(caret.node.childNodes, after_1) :
-                        caret.node.childNodes.length);
-                    break;
-                default:
-                    throw new Error("unexpected node type: " + caret.node.nodeType);
-            }
-        }
-        if (newCaret != null) {
-            editor.caretManager.setCaret(newCaret);
-            caret = newCaret;
-        }
-        editor.$gui_root.trigger("wed-post-paste", [data.e, caret, dataClone]);
-    }
-    exports.paste = paste;
     function getGUINodeIfExists(editor, node) {
         if (node == null) {
             return undefined;
@@ -250,5 +150,7 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
     }
     exports.getGUINodeIfExists = getGUINodeIfExists;
 });
+//  LocalWords:  MPL domutil util boundaryXY nodeType getClientRects rect
+//  LocalWords:  getAttrValueNode
 
 //# sourceMappingURL=wed-util.js.map

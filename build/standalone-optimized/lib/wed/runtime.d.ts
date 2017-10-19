@@ -1,21 +1,20 @@
-/// <reference types="bluebird" />
 /**
  * An execution runtime for editors.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird";
 import * as bluejax from "bluejax";
+import { Options } from "./options";
 /**
  * An object representing the runtime environment in which an editor is
  * running. In particular it allows loading external resources.
  */
 export declare class Runtime {
-    private readonly options;
+    readonly options: Options;
     readonly ajax: bluejax.AjaxCall;
     readonly ajax$: bluejax.AjaxCall$;
-    constructor(options: any);
+    constructor(options: Options);
     /**
      * Resolve resource references. References may be of the form:
      *

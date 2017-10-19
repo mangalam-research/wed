@@ -55,7 +55,7 @@ export interface Item {
  * When no option is focused, typing ENTER will select the first option of the
  * menu.
  */
-export declare class ContextMenu extends Base {
+export declare class ActionContextMenu extends Base {
     private readonly actionItems;
     private readonly actionFilterItem;
     private readonly actionFilterInput;

@@ -13,7 +13,7 @@ export interface _CheckResults {
 }
 export declare type CheckResults = Partial<_CheckResults>;
 export interface CheckedObject {
-    [key: string]: CheckedObject;
+    [key: string]: CheckedObject | boolean | number | string | any[];
 }
 /**
  * Checks whether an object conforms to a template. The template must be an

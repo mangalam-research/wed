@@ -62,6 +62,14 @@ export declare class DLoc {
      */
     private constructor();
     /**
+     * This is the node to which this location points. For locations pointing to
+     * attributes and text nodes, that's the same as [[node]]. For locations
+     * pointing to an element, that's the child to which the ``node, offset`` pair
+     * points. Since this pair may point after the last child of an element, the
+     * child obtained may be ``undefined``.
+     */
+    readonly pointedNode: Node | Attr | undefined;
+    /**
      * Creates a copy of the location.
      */
     clone(): DLoc;
@@ -78,10 +86,10 @@ export declare class DLoc {
      *
      * @param location The location as a node, offset pair.
      *
-     * @param normalize Normalize the offset to a valid value.
+     * @param normalize Whether to normalize the offset to a valid value.
      *
      * @returns The location. It returns ``undefined`` if the ``node`` is "absent"
-     * because it is ``undefined`` or ``null``. This is true irrespctive of the
+     * because it is ``undefined`` or ``null``. This is true irrespective of the
      * signature used. If you use a [[Caret]] and it has an absent node, then the
      * result is ``undefined``.
      *
@@ -165,9 +173,27 @@ export declare class DLoc {
      * @returns The return value is just a range when the method is called without
      * ``other``. Otherwise, it is a range info object. The return value is
      * ``undefined`` if either ``this`` or ``other`` is invalid.
+     *
+     * @throws {Error} If trying to make a range from an attribute node. DOM
+     * ranges can only point into elements or text nodes.
      */
     makeRange(): rangy.RangyRange | undefined;
     makeRange(other: DLoc): RangeInfo | undefined;
+    /**
+     * Make a range from this location. If ``other`` is not specified, the range
+     * starts and ends with this location. If ``other`` is specified, the range
+     * goes from this location to the ``other`` location.
+     *
+     * @param other The other location to use.
+     *
+     * @returns The range.
+     */
+    makeDLocRange(other?: DLoc): DLocRange | undefined;
+    /**
+     * Like [[makeDLocRange]] but throws if it cannot make a range, rather than
+     * return ``undefined``.
+     */
+    mustMakeDLocRange(other?: DLoc): DLocRange;
     /**
      * Verifies whether the ``DLoc`` object points to a valid location. The
      * location is valid if its ``node`` is a child of its ``root`` and if its
@@ -190,6 +216,24 @@ export declare class DLoc {
      * are the same object or if they point to the same location.
      */
     equals(other: DLoc | undefined | null): boolean;
+    /**
+     * Compare two locations. Note that for attribute ordering, this class
+     * arbitrarily decides that the order of two attributes on the same element is
+     * the same as the order of their ``name`` fields as if they were sorted in an
+     * array with ``Array.prototype.sort()``. This differs from how
+     * ``Node.compareDocumentPosition`` determines the order of attributes. We
+     * want something stable, which is not implementation dependent. In all other
+     * cases, the nodes are compared in the same way
+     * ``Node.compareDocumentPosition`` does.
+     *
+     * @param other The other location to compare this one with.
+     *
+     * @returns ``0`` if the locations are the same. ``-1`` if this location comes
+     * first. ``1`` if the other location comes first.
+     *
+     * @throws {Error} If the nodes are disconnected.
+     */
+    compare(other: DLoc): -1 | 0 | 1;
 }
 /**
  * Finds the root under which a node resides. Note that in cases where an
@@ -210,3 +254,48 @@ export declare function findRoot(node: Node | Attr | undefined | null): DLocRoot
  * @throws {Error} If the root cannot be found.
  */
 export declare function getRoot(node: Node | Attr | undefined | null): DLocRoot;
+/**
+ * Represents a range spanning locations indicated by two [[DLoc]] objects.
+ * Though this is not enforced at the VM level, objects of this class are to be
+ * considered immutable.
+ */
+export declare class DLocRange {
+    readonly start: DLoc;
+    readonly end: DLoc;
+    /**
+     * @param start The start of the range.
+     * @param end The end of the range.
+     */
+    constructor(start: DLoc, end: DLoc);
+    /** Whether this range is collapsed. */
+    readonly collapsed: boolean;
+    /**
+     * Make a DOM range.
+     *
+     * @returns The range. Or ``undefined`` if either the start or end are not
+     * pointing to valid positions.
+     *
+     * @throws {Error} If trying to make a range from an attribute node. DOM
+     * ranges can only point into elements or text nodes.
+     */
+    makeDOMRange(): rangy.RangyRange | undefined;
+    /**
+     * Same as [[makeDOMRange]] but throws instead of returning ``undefined``.
+     */
+    mustMakeDOMRange(): rangy.RangyRange;
+    /**
+     * @returns Whether ``this`` and ``other`` are equal. They are equal if they
+     * are the same object or if they have equal start and ends.
+     */
+    equals(other: DLocRange | undefined | null): boolean;
+    /**
+     * @returns Whether the two endpoints of the range are valid.
+     */
+    isValid(): boolean;
+    /**
+     * @param loc The location to test.
+     *
+     * @returns Whether a location is within the range.
+     */
+    contains(loc: DLoc): boolean;
+}

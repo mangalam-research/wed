@@ -79,6 +79,7 @@
 						<section class="tsd-index-section ">
 							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_transformation_.namedtransformationdata.html" class="tsd-kind-icon">Named<wbr>Transformation<wbr>Data</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_transformation_.transformationdata.html" class="tsd-kind-icon">Transformation<wbr>Data</a></li>
 							</ul>
 						</section>
@@ -86,7 +87,6 @@
 							<h3>Type aliases</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_transformation_.html#attributetable" class="tsd-kind-icon">Attribute<wbr>Table</a></li>
-								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_transformation_.html#editor" class="tsd-kind-icon">Editor</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_transformation_.html#transformationhandler" class="tsd-kind-icon">Transformation<wbr>Handler</a></li>
 							</ul>
 						</section>
@@ -125,17 +125,7 @@
 					<div class="tsd-signature tsd-kind-icon">Attribute<wbr>Table<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L248">transformation.ts:248</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-external-module">
-					<a name="editor" class="tsd-anchor"></a>
-					<h3>Editor</h3>
-					<div class="tsd-signature tsd-kind-icon">Editor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L19">transformation.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L253">transformation.ts:253</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -145,7 +135,7 @@
 					<div class="tsd-signature tsd-kind-icon">Transformation<wbr>Handler<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L128">transformation.ts:128</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L129">transformation.ts:129</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -154,7 +144,7 @@
 							<dd><p>The editor.</p>
 							</dd>
 							<dt>param</dt>
-							<dd><p>Data for the transformation.</p>
+							<dd><p>The data for the transformation.</p>
 							</dd>
 						</dl>
 					</div>
@@ -163,14 +153,14 @@
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a>, data<span class="tsd-signature-symbol">: </span><a href="../interfaces/_transformation_.transformationdata.html" class="tsd-signature-type">TransformationData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, data<span class="tsd-signature-symbol">: </span><a href="../interfaces/_transformation_.transformationdata.html" class="tsd-signature-type">TransformationData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>editor: <a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a></h5>
+												<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 											</li>
 											<li>
 												<h5>data: <a href="../interfaces/_transformation_.transformationdata.html" class="tsd-signature-type">TransformationData</a></h5>
@@ -192,7 +182,7 @@
 					<div class="tsd-signature tsd-kind-icon">TYPE_<wbr>TO_<wbr>KIND<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;_.extend(Object.create(null), {// These are not actually type names. It is possible to use a kind name as a// type name if the transformation is not more specific. In this case the kind// &#x3D;&#x3D;&#x3D; type.add: &quot;add&quot;,delete: &quot;delete&quot;,transform: &quot;transform&quot;,insert: &quot;add&quot;,&quot;delete-element&quot;: &quot;delete&quot;,&quot;delete-parent&quot;: &quot;delete&quot;,wrap: &quot;wrap&quot;,&quot;wrap-content&quot;: &quot;wrap&quot;,&quot;merge-with-next&quot;: &quot;transform&quot;,&quot;merge-with-previous&quot;: &quot;transform&quot;,&quot;swap-with-next&quot;: &quot;transform&quot;,&quot;swap-with-previous&quot;: &quot;transform&quot;,split: &quot;transform&quot;,append: &quot;add&quot;,prepend: &quot;add&quot;,unwrap: &quot;unwrap&quot;,&quot;add-attribute&quot;: &quot;add&quot;,&quot;delete-attribute&quot;: &quot;delete&quot;,})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L22">transformation.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L19">transformation.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -202,7 +192,7 @@
 					<div class="tsd-signature tsd-kind-icon">TYPE_<wbr>TO_<wbr>NODE_<wbr>TYPE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;_.extend(Object.create(null), {// These are not actually type names. These are here to handle the// case where the type is actually a kind name. Since they are not// more specific, the node type is set to &quot;other&quot;. Note that// &quot;wrap&quot; and &quot;unwrap&quot; are always about elements so there is no// way to have a &quot;wrap/unwrap&quot; which has &quot;other&quot; for the node// type.add: &quot;other&quot;,delete: &quot;other&quot;,transform: &quot;other&quot;,insert: &quot;element&quot;,&quot;delete-element&quot;: &quot;element&quot;,&quot;delete-parent&quot;: &quot;element&quot;,wrap: &quot;element&quot;,&quot;wrap-content&quot;: &quot;element&quot;,&quot;merge-with-next&quot;: &quot;element&quot;,&quot;merge-with-previous&quot;: &quot;element&quot;,&quot;swap-with-next&quot;: &quot;element&quot;,&quot;swap-with-previous&quot;: &quot;element&quot;,split: &quot;element&quot;,append: &quot;element&quot;,prepend: &quot;element&quot;,unwrap: &quot;element&quot;,&quot;add-attribute&quot;: &quot;attribute&quot;,&quot;delete-attribute&quot;: &quot;attribute&quot;,})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L47">transformation.ts:47</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L44">transformation.ts:44</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -219,7 +209,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L371">transformation.ts:371</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L376">transformation.ts:376</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -249,7 +239,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_domutil_.html#caret" class="tsd-signature-type">Caret</a></h4>
-							<p>Returns a caret location marking where the split occurred.</p>
+							<p>A caret location marking where the split occurred.</p>
 						</li>
 					</ul>
 				</section>
@@ -263,7 +253,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L131">transformation.ts:131</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L132">transformation.ts:132</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -292,7 +282,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L295">transformation.ts:295</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L300">transformation.ts:300</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -311,7 +301,7 @@
 								<li>
 									<h5>parent: <span class="tsd-signature-type">Node</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Parent of the new node.</p>
+										<p>The parent of the new node.</p>
 									</div>
 								</li>
 								<li>
@@ -329,7 +319,7 @@
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Name of the new element.</p>
+										<p>The name of the new element.</p>
 									</div>
 								</li>
 								<li>
@@ -355,7 +345,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L264">transformation.ts:264</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L269">transformation.ts:269</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -380,7 +370,7 @@
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Name of the new element.</p>
+										<p>The name of the new element.</p>
 									</div>
 								</li>
 								<li>
@@ -400,13 +390,13 @@
 					<a name="mergewithnexthomogeneoussibling" class="tsd-anchor"></a>
 					<h3>merge<wbr>With<wbr>Next<wbr>Homogeneous<wbr>Sibling</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">merge<wbr>With<wbr>Next<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">merge<wbr>With<wbr>Next<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L593">transformation.ts:593</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L604">transformation.ts:604</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -419,7 +409,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The editor on which we are to perform the transformation.</p>
 									</div>
@@ -439,13 +429,13 @@
 					<a name="mergewithprevioushomogeneoussibling" class="tsd-anchor"></a>
 					<h3>merge<wbr>With<wbr>Previous<wbr>Homogeneous<wbr>Sibling</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">merge<wbr>With<wbr>Previous<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">merge<wbr>With<wbr>Previous<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L547">transformation.ts:547</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L556">transformation.ts:556</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -458,7 +448,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The editor on which we are to perform the transformation.</p>
 									</div>
@@ -478,13 +468,13 @@
 					<a name="splitnode" class="tsd-anchor"></a>
 					<h3>split<wbr>Node</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">split<wbr>Node<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">split<wbr>Node<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L526">transformation.ts:526</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L531">transformation.ts:531</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -501,7 +491,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The editor on which we are to perform the transformation.</p>
 									</div>
@@ -521,13 +511,13 @@
 					<a name="swapwithnexthomogeneoussibling" class="tsd-anchor"></a>
 					<h3>swap<wbr>With<wbr>Next<wbr>Homogeneous<wbr>Sibling</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">swap<wbr>With<wbr>Next<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">swap<wbr>With<wbr>Next<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L643">transformation.ts:643</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L654">transformation.ts:654</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -540,7 +530,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The editor on which we are to perform the transformation.</p>
 									</div>
@@ -560,13 +550,13 @@
 					<a name="swapwithprevioushomogeneoussibling" class="tsd-anchor"></a>
 					<h3>swap<wbr>With<wbr>Previous<wbr>Homogeneous<wbr>Sibling</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">swap<wbr>With<wbr>Previous<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">swap<wbr>With<wbr>Previous<wbr>Homogeneous<wbr>Sibling<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L612">transformation.ts:612</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L623">transformation.ts:623</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -579,7 +569,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="_transformation_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The editor on which we are to perform the transformation.</p>
 									</div>
@@ -605,7 +595,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L474">transformation.ts:474</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L479">transformation.ts:479</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -643,7 +633,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L422">transformation.ts:422</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L427">transformation.ts:427</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -720,7 +710,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/transformation.ts#L327">transformation.ts:327</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/transformation.ts#L332">transformation.ts:332</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -745,7 +735,7 @@
 								<li>
 									<h5>offset: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Offset in the node. This parameter specifies where to start
+										<p>The offset in the node. This parameter specifies where to start
 										wrapping.</p>
 									</div>
 								</li>
@@ -765,7 +755,7 @@
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Name of the wrapping element.</p>
+										<p>The name of the wrapping element.</p>
 									</div>
 								</li>
 								<li>
@@ -800,13 +790,13 @@
 						<a href="../classes/_transformation_.transformation.html" class="tsd-kind-icon">Transformation</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_transformation_.namedtransformationdata.html" class="tsd-kind-icon">Named<wbr>Transformation<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_transformation_.transformationdata.html" class="tsd-kind-icon">Transformation<wbr>Data</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="_transformation_.html#attributetable" class="tsd-kind-icon">Attribute<wbr>Table</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="_transformation_.html#editor" class="tsd-kind-icon">Editor</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
 						<a href="_transformation_.html#transformationhandler" class="tsd-kind-icon">Transformation<wbr>Handler</a>

@@ -17,12 +17,11 @@ define(["require", "exports", "module", "rxjs"], function (require, exports, mod
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * A task is a computation that should produce a definite goal after a finite
-     * time. The TaskRunner class is used to allow the task to happen in a way that
-     * does not completely block the JavaScript virtual machine. The task
-     * will happen in cycles that run for a maximum amount of time before
-     * relinquishing control.
+     * time. This class is used to allow the task to happen in a way that does not
+     * completely block the JavaScript virtual machine. The task will happen in
+     * cycles that run for a maximum amount of time before relinquishing control.
      */
-    var TaskRunner = (function () {
+    var TaskRunner = /** @class */ (function () {
         /**
          * @param task The computation controlled by this runner.
          *
@@ -177,5 +176,6 @@ define(["require", "exports", "module", "rxjs"], function (require, exports, mod
     }());
     exports.TaskRunner = TaskRunner;
 });
+//  LocalWords:  MPL maxTimespan workWrapper
 
 //# sourceMappingURL=task-runner.js.map

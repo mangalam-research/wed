@@ -78,8 +78,8 @@
 						vice-versa.</p>
 					</div>
 					<p>Given wed&#39;s notion of parallel data and GUI trees. A caret can either point
-						into the GUI tree or into the data tree. In in the following documentation,
-					if the caret is not qualified, then it is a GUI caret.</p>
+						into the GUI tree or into the data tree. In the following documentation, if
+					the caret is not qualified, then it is a GUI caret.</p>
 					<p>Similarly, a selection can either span a range in the GUI tree or in the data
 					tree. Again, &quot;selection&quot; without qualifier is a GUI selection.</p>
 				</div>
@@ -120,7 +120,10 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#anchor" class="tsd-kind-icon">anchor</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#caret" class="tsd-kind-icon">caret</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#docdlocrange" class="tsd-kind-icon">docDLoc<wbr>Range</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#focus" class="tsd-kind-icon">focus</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#maxcaret" class="tsd-kind-icon">max<wbr>Caret</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#mincaret" class="tsd-kind-icon">min<wbr>Caret</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#range" class="tsd-kind-icon">range</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#rangeinfo" class="tsd-kind-icon">range<wbr>Info</a></li>
 								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#sel" class="tsd-kind-icon">sel</a></li>
@@ -135,8 +138,11 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#fromdatalocation" class="tsd-kind-icon">from<wbr>Data<wbr>Location</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#getdatacaret" class="tsd-kind-icon">get<wbr>Data<wbr>Caret</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#getnormalizedcaret" class="tsd-kind-icon">get<wbr>Normalized<wbr>Caret</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#highlightrange" class="tsd-kind-icon">highlight<wbr>Range</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#makecaret" class="tsd-kind-icon">make<wbr>Caret</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#move" class="tsd-kind-icon">move</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#mustfromdatalocation" class="tsd-kind-icon">must<wbr>From<wbr>Data<wbr>Location</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#mustgetnormalizedcaret" class="tsd-kind-icon">must<wbr>Get<wbr>Normalized<wbr>Caret</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#newcaretposition" class="tsd-kind-icon">new<wbr>Caret<wbr>Position</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#newposition" class="tsd-kind-icon">new<wbr>Position</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_caret_manager_.caretmanager.html#normalizetoeditablerange" class="tsd-kind-icon">normalize<wbr>ToEditable<wbr>Range</a></li>
@@ -159,13 +165,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Caret<wbr>Manager<span class="tsd-signature-symbol">(</span>guiRoot<span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocroot.html" class="tsd-signature-type">DLocRoot</a>, dataRoot<span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocroot.html" class="tsd-signature-type">DLocRoot</a>, inputField<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, guiUpdater<span class="tsd-signature-symbol">: </span><a href="_gui_updater_.guiupdater.html" class="tsd-signature-type">GUIUpdater</a>, layer<span class="tsd-signature-symbol">: </span><a href="_gui_layer_.layer.html" class="tsd-signature-type">Layer</a>, scroller<span class="tsd-signature-symbol">: </span><a href="_gui_scroller_.scroller.html" class="tsd-signature-type">Scroller</a>, inAttributes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, mode<span class="tsd-signature-symbol">: </span><a href="../interfaces/_mode_.mode.html" class="tsd-signature-type">Mode</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_caret_manager_.caretmanager.html" class="tsd-signature-type">CaretManager</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Caret<wbr>Manager<span class="tsd-signature-symbol">(</span>guiRoot<span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocroot.html" class="tsd-signature-type">DLocRoot</a>, dataRoot<span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocroot.html" class="tsd-signature-type">DLocRoot</a>, inputField<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, guiUpdater<span class="tsd-signature-symbol">: </span><a href="_gui_updater_.guiupdater.html" class="tsd-signature-type">GUIUpdater</a>, layer<span class="tsd-signature-symbol">: </span><a href="_gui_layer_.layer.html" class="tsd-signature-type">Layer</a>, scroller<span class="tsd-signature-symbol">: </span><a href="_gui_scroller_.scroller.html" class="tsd-signature-type">Scroller</a>, modeTree<span class="tsd-signature-symbol">: </span><a href="_mode_tree_.modetree.html" class="tsd-signature-type">ModeTree</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_caret_manager_.caretmanager.html" class="tsd-signature-type">CaretManager</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L110">caret-manager.ts:110</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L132">caret-manager.ts:132</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -174,27 +180,60 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>guiRoot: <a href="_dloc_.dlocroot.html" class="tsd-signature-type">DLocRoot</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The object representing the root of the gui tree.</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5>dataRoot: <a href="_dloc_.dlocroot.html" class="tsd-signature-type">DLocRoot</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The object representing the root of the data tree.</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5>inputField: <span class="tsd-signature-type">HTMLElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The HTML element that is the input field.</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5>guiUpdater: <a href="_gui_updater_.guiupdater.html" class="tsd-signature-type">GUIUpdater</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The GUI updater that is responsible for updating the
+											tree whose root is <code>guiRoot</code>.</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5>layer: <a href="_gui_layer_.layer.html" class="tsd-signature-type">Layer</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The layer that holds the caret.</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5>scroller: <a href="_gui_scroller_.scroller.html" class="tsd-signature-type">Scroller</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The element that scrolls <code>guiRoot</code>.</p>
+										</div>
+									</div>
 								</li>
 								<li>
-									<h5>inAttributes: <span class="tsd-signature-type">boolean</span></h5>
-								</li>
-								<li>
-									<h5>mode: <a href="../interfaces/_mode_.mode.html" class="tsd-signature-type">Mode</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">__type</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>modeTree: <a href="_mode_tree_.modetree.html" class="tsd-signature-type">ModeTree</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The mode tree from which to get modes.</p>
+										</div>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_caret_manager_.caretmanager.html" class="tsd-signature-type">CaretManager</a></h4>
@@ -210,7 +249,7 @@
 					<div class="tsd-signature tsd-kind-icon">events<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_caret_manager_.caretchange.html" class="tsd-signature-type">CaretChange</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L107">caret-manager.ts:107</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L129">caret-manager.ts:129</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -225,7 +264,7 @@
 					<div class="tsd-signature tsd-kind-icon">mark<span class="tsd-signature-symbol">:</span> <a href="_caret_mark_.caretmark.html" class="tsd-signature-type">CaretMark</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L110">caret-manager.ts:110</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L132">caret-manager.ts:132</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -247,7 +286,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L193">caret-manager.ts:193</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L208">caret-manager.ts:208</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -272,7 +311,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L168">caret-manager.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L183">caret-manager.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -290,6 +329,23 @@ foo.focus === foo.sel.focus</code>).</p>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="docdlocrange" class="tsd-anchor"></a>
+					<h3>docDLoc<wbr>Range</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> docDLocRange<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L246">caret-manager.ts:246</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="focus" class="tsd-anchor"></a>
 					<h3>focus</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
@@ -299,7 +355,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L182">caret-manager.ts:182</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L197">caret-manager.ts:197</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -315,6 +371,40 @@ foo.focus === foo.sel.focus</code>).</p>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="maxcaret" class="tsd-anchor"></a>
+					<h3>max<wbr>Caret</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> maxCaret<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L241">caret-manager.ts:241</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="mincaret" class="tsd-anchor"></a>
+					<h3>min<wbr>Caret</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> minCaret<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L237">caret-manager.ts:237</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
 					<a name="range" class="tsd-anchor"></a>
 					<h3>range</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
@@ -324,7 +414,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L204">caret-manager.ts:204</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L219">caret-manager.ts:219</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -349,7 +439,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L212">caret-manager.ts:212</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L227">caret-manager.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -374,7 +464,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L175">caret-manager.ts:175</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L190">caret-manager.ts:190</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -402,7 +492,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L816">caret-manager.ts:816</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L876">caret-manager.ts:876</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -424,7 +514,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L992">caret-manager.ts:992</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L1080">caret-manager.ts:1080</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -446,7 +536,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L954">caret-manager.ts:954</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L1020">caret-manager.ts:1020</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -472,7 +562,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L311">caret-manager.ts:311</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L354">caret-manager.ts:354</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -499,7 +589,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L312">caret-manager.ts:312</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L355">caret-manager.ts:355</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -528,7 +618,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L290">caret-manager.ts:290</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L333">caret-manager.ts:333</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -567,7 +657,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L227">caret-manager.ts:227</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L255">caret-manager.ts:255</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -584,6 +674,29 @@ foo.focus === foo.sel.focus</code>).</p>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="highlightrange" class="tsd-anchor"></a>
+					<h3>highlight<wbr>Range</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">highlight<wbr>Range<span class="tsd-signature-symbol">(</span>range<span class="tsd-signature-symbol">: </span><a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L1055">caret-manager.ts:1055</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>range: <a href="_dloc_.dlocrange.html" class="tsd-signature-type">DLocRange</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Element</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="makecaret" class="tsd-anchor"></a>
 					<h3>make<wbr>Caret</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -593,7 +706,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L505">caret-manager.ts:505</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L566">caret-manager.ts:566</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -645,7 +758,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L636">caret-manager.ts:636</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L690">caret-manager.ts:690</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -671,6 +784,85 @@ foo.focus === foo.sel.focus</code>).</p>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="mustfromdatalocation" class="tsd-anchor"></a>
+					<h3>must<wbr>From<wbr>Data<wbr>Location</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">must<wbr>From<wbr>Data<wbr>Location<span class="tsd-signature-symbol">(</span>loc<span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></li>
+						<li class="tsd-signature tsd-kind-icon">must<wbr>From<wbr>Data<wbr>Location<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L404">caret-manager.ts:404</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Does the same thing as <a href="_caret_manager_.caretmanager.html#fromdatalocation">fromDataLocation</a> but must return a defined
+									location.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If it cannot return a location.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>loc: <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L405">caret-manager.ts:405</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>node: <span class="tsd-signature-type">Node</span></h5>
+								</li>
+								<li>
+									<h5>offset: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="mustgetnormalizedcaret" class="tsd-anchor"></a>
+					<h3>must<wbr>Get<wbr>Normalized<wbr>Caret</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">must<wbr>Get<wbr>Normalized<wbr>Caret<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L282">caret-manager.ts:282</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Same as <a href="_caret_manager_.caretmanager.html#getnormalizedcaret">getNormalizedCaret</a> but must return a location.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If it cannot return a location.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="newcaretposition" class="tsd-anchor"></a>
 					<h3>new<wbr>Caret<wbr>Position</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -680,7 +872,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L625">caret-manager.ts:625</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L679">caret-manager.ts:679</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -717,7 +909,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L608">caret-manager.ts:608</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L663">caret-manager.ts:663</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -763,7 +955,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L249">caret-manager.ts:249</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L291">caret-manager.ts:291</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -786,7 +978,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L970">caret-manager.ts:970</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L1036">caret-manager.ts:1036</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -810,13 +1002,13 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L770">caret-manager.ts:770</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L827">caret-manager.ts:827</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Pop the last selection that was pushed with <code>pushSelection</code> and restore
-									the current caret and selection on the basis of the poped value.</p>
+									the current caret and selection on the basis of the popped value.</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -833,7 +1025,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L779">caret-manager.ts:779</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L836">caret-manager.ts:836</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -856,7 +1048,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L757">caret-manager.ts:757</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L814">caret-manager.ts:814</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -873,13 +1065,13 @@ foo.focus === foo.sel.focus</code>).</p>
 					<h3>set<wbr>Caret</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">set<wbr>Caret<span class="tsd-signature-symbol">(</span>loc<span class="tsd-signature-symbol">: </span><a href="_dloc_.dloc.html" class="tsd-signature-type">DLoc</a>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_caret_manager_.setcaretoptions.html" class="tsd-signature-type">SetCaretOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Caret<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, offset<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_caret_manager_.setcaretoptions.html" class="tsd-signature-type">SetCaretOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Caret<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span>, offset<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_caret_manager_.setcaretoptions.html" class="tsd-signature-type">SetCaretOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L664">caret-manager.ts:664</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L719">caret-manager.ts:719</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -907,13 +1099,13 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L665">caret-manager.ts:665</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L720">caret-manager.ts:720</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>node: <span class="tsd-signature-type">Node</span></h5>
+									<h5>node: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> offset: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
@@ -936,7 +1128,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L731">caret-manager.ts:731</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L788">caret-manager.ts:788</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -991,7 +1183,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L547">caret-manager.ts:547</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L602">caret-manager.ts:602</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1031,7 +1223,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L549">caret-manager.ts:549</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L604">caret-manager.ts:604</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1058,7 +1250,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L372">caret-manager.ts:372</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L433">caret-manager.ts:433</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1095,7 +1287,7 @@ foo.focus === foo.sel.focus</code>).</p>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/caret-manager.ts#L373">caret-manager.ts:373</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/caret-manager.ts#L434">caret-manager.ts:434</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1153,7 +1345,16 @@ foo.focus === foo.sel.focus</code>).</p>
 								<a href="_caret_manager_.caretmanager.html#caret" class="tsd-kind-icon">caret</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_caret_manager_.caretmanager.html#docdlocrange" class="tsd-kind-icon">docDLoc<wbr>Range</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="_caret_manager_.caretmanager.html#focus" class="tsd-kind-icon">focus</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_caret_manager_.caretmanager.html#maxcaret" class="tsd-kind-icon">max<wbr>Caret</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="_caret_manager_.caretmanager.html#mincaret" class="tsd-kind-icon">min<wbr>Caret</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
 								<a href="_caret_manager_.caretmanager.html#range" class="tsd-kind-icon">range</a>
@@ -1183,10 +1384,19 @@ foo.focus === foo.sel.focus</code>).</p>
 								<a href="_caret_manager_.caretmanager.html#getnormalizedcaret" class="tsd-kind-icon">get<wbr>Normalized<wbr>Caret</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_caret_manager_.caretmanager.html#highlightrange" class="tsd-kind-icon">highlight<wbr>Range</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_caret_manager_.caretmanager.html#makecaret" class="tsd-kind-icon">make<wbr>Caret</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_caret_manager_.caretmanager.html#move" class="tsd-kind-icon">move</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_caret_manager_.caretmanager.html#mustfromdatalocation" class="tsd-kind-icon">must<wbr>From<wbr>Data<wbr>Location</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_caret_manager_.caretmanager.html#mustgetnormalizedcaret" class="tsd-kind-icon">must<wbr>Get<wbr>Normalized<wbr>Caret</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_caret_manager_.caretmanager.html#newcaretposition" class="tsd-kind-icon">new<wbr>Caret<wbr>Position</a>

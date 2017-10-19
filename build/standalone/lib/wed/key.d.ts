@@ -6,6 +6,15 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import "jquery";
+export declare class EITHER_ {
+    toString(): string;
+}
+/**
+ * Value meaning "either true or false", by opposition to ``true`` and
+ * ``false``.
+ */
+export declare const EITHER: EITHER_;
+export declare type TriValued = boolean | typeof EITHER;
 /**
  * One and only one instance of a Key object exists per set of parameters used
  * for its construction. So if ``a = new Key(1, 2, 3)`` and ``b = new Key(1, 2,
@@ -15,6 +24,14 @@ import "jquery";
  *
  * Key objects should be considered immutable. Modifying them after their
  * creation is likely to cause code to execute erratically.
+ *
+ * A note on the handling of the shift key. For key presses, we do not care
+ * whether shift was held or not when the key was pressed. It does not matter to
+ * us whether the user types the letter A because "Shift-a" was pressed or
+ * because the user was in caps lock mode and pressed "a". Conversely,
+ * ``keydown`` and ``keyup`` events concern themselves with Shift. We do want to
+ * distinguish Ctrl-A and Ctrl-Shift-A. (Yes, we use the capital A for both:
+ * browsers report that the key "A" was pressed whether Shift was held or not.)
  */
 export declare class Key {
     static __cache: Record<string, Key>;
@@ -24,11 +41,11 @@ export declare class Key {
     readonly ctrlKey: boolean;
     readonly altKey: boolean;
     readonly metaKey: boolean;
+    readonly shiftKey: TriValued;
     readonly keypress: boolean;
     readonly hashKey: string;
     private readonly id;
     /**
-     *
      * Client code should use the convenience functions provided by this module to
      * create keys rather than use this constructor directly.
      *
@@ -46,8 +63,12 @@ export declare class Key {
      * @param altKey Whether this key requires the Alt key held.
      *
      * @param metaKey Whether this key requires the meta key held.
+     *
+     * @param shiftKey Whether this key requires the shift key held. It is invalid
+     * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
+     * ``false``, an unspecified value here means ``false``.
      */
-    constructor(which: number, keypress: boolean | undefined, keyCode: number, charCode?: number, ctrlKey?: boolean, altKey?: boolean, metaKey?: boolean);
+    constructor(which: number, keypress: boolean | undefined, keyCode: number, charCode?: number, ctrlKey?: boolean, altKey?: boolean, metaKey?: boolean, shiftKey?: TriValued);
     /**
      * This method compares the key object to an event object. The event object
      * should have been generated for a keyboard event. This method does not check
@@ -106,35 +127,40 @@ export declare class Key {
  *
  * @param metaKey Whether this key requires the meta key held.
  *
+ * @param shiftKey Whether this key requires the shift key held. It is invalid
+ * to use this parameter if ``keypress`` is ``true``.
+ *
  * @returns The key created.
  *
  * @throws {Error} If ``which`` is not a single character string or a number.
  */
-export declare function makeKey(which: string | number, keypress?: boolean, keyCode?: number, charCode?: number, ctrlKey?: boolean, altKey?: boolean, metaKey?: boolean): Key;
+export declare function makeKey(which: string | number, keypress?: boolean, keyCode?: number, charCode?: number, ctrlKey?: boolean, altKey?: boolean, metaKey?: boolean, shiftKey?: TriValued): Key;
 /**
  * This function creates a key object which represents a control character (a
  * character typed while Ctrl is held).
  *
- *
  * @param ch This parameter can be a string of length one which contains the
  * character for which we want to create a Key. If a number, it is the character
  * code of the key.
  *
+ * @param shiftKey Whether this is a Ctrl-Shift sequence or not.
+ *
  * @returns The key created.
  */
-export declare function makeCtrlKey(ch: string | number): Key;
+export declare function makeCtrlKey(ch: string | number, shiftKey?: TriValued): Key;
 /**
  * This function creates a key object which represents a meta character (a
  * character typed while Meta is held).
  *
- *
  * @param ch This parameter can be a string of length one which contains the
  * character for which we want to create a Key. If a number, it is the character
  * code of the key.
  *
+ * @param shiftKey Whether this is a Meta-Shift sequence or not.
+ *
  * @returns The key created.
  */
-export declare function makeMetaKey(ch: string | number): Key;
+export declare function makeMetaKey(ch: string | number, shiftKey?: TriValued): Key;
 /**
  * This function creates a key object which represents a "control equivalent"
  * character. A "control equivalent" is equivalent to a control key on all
@@ -147,6 +173,8 @@ export declare function makeMetaKey(ch: string | number): Key;
  * character for which we want to create a Key. If a number, it is the character
  * code of the key.
  *
+ * @param shiftKey Whether this is a [...]-Shift sequence or not.
+ *
  * @returns The key created.
  */
-export declare function makeCtrlEqKey(ch: string | number): Key;
+export declare function makeCtrlEqKey(ch: string | number, shiftKey?: TriValued): Key;

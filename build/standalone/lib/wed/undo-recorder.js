@@ -30,7 +30,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
      *
      * @private
      */
-    var InsertNodeAtUndo = (function (_super) {
+    var InsertNodeAtUndo = /** @class */ (function (_super) {
         __extends(InsertNodeAtUndo, _super);
         /**
          * @param treeUpdater The tree updater to use to perform undo or redo
@@ -80,7 +80,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
      *
      * @private
      */
-    var SetTextNodeValueUndo = (function (_super) {
+    var SetTextNodeValueUndo = /** @class */ (function (_super) {
         __extends(SetTextNodeValueUndo, _super);
         /**
          * @param treeUpdater The tree updater to use to perform undo or redo
@@ -117,7 +117,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
      *
      * @private
      */
-    var DeleteNodeUndo = (function (_super) {
+    var DeleteNodeUndo = /** @class */ (function (_super) {
         __extends(DeleteNodeUndo, _super);
         /**
          * @param treeUpdater The tree updater to use to perform undo or redo
@@ -161,7 +161,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
      *
      * @private
      */
-    var SetAttributeNSUndo = (function (_super) {
+    var SetAttributeNSUndo = /** @class */ (function (_super) {
         __extends(SetAttributeNSUndo, _super);
         /**
          * @param treeUpdater The tree updater to use to perform undo or redo
@@ -198,7 +198,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
     /**
      * Records undo operations.
      */
-    var UndoRecorder = (function () {
+    var UndoRecorder = /** @class */ (function () {
         /**
          * @param editor The editor for which this recorder is created.
          *
@@ -270,9 +270,9 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
     }());
     exports.UndoRecorder = UndoRecorder;
 });
-//  LocalWords:  html Mangalam MPL Dubeau nodeToPath pathToNode param
-//  LocalWords:  jQuery DeleteNodeUndo SetTextNodeValueUndo ev oop
-//  LocalWords:  InsertNodeAtUndo deleteNode setTextNodeValue jquery
-//  LocalWords:  insertNodeAt domutil
+//  LocalWords:  domutil insertNodeAt setTextNodeValue deleteNode ev param MPL
+//  LocalWords:  InsertNodeAtUndo SetTextNodeValueUndo DeleteNodeUndo Dubeau
+//  LocalWords:  pathToNode nodeToPath Mangalam SetAttributeNSUndo
+//  LocalWords:  BeforeDeleteNode SetAttributeNS suppressRecording
 
 //# sourceMappingURL=undo-recorder.js.map

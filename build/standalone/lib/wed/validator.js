@@ -24,7 +24,7 @@ define(["require", "exports", "module", "salve-dom", "./dloc", "./domtypeguards"
     /**
      * A document validator.
      */
-    var Validator = (function (_super) {
+    var Validator = /** @class */ (function (_super) {
         __extends(Validator, _super);
         /**
          * @param schema A path to the schema to pass to salve for validation. This is
@@ -36,14 +36,14 @@ define(["require", "exports", "module", "salve-dom", "./dloc", "./domtypeguards"
          * @param root The root of the DOM tree to validate. This root contains the
          * document to validate but is not **part** of it.
          *
-         * @param modeValidator The mode-specific validator to use.
+         * @param modeValidators The mode-specific validators to use.
          */
-        function Validator(schema, root, modeValidator) {
+        function Validator(schema, root, modeValidators) {
             var _this = _super.call(this, schema, root, {
                 timeout: 0,
                 maxTimespan: 100,
             }) || this;
-            _this.modeValidator = modeValidator;
+            _this.modeValidators = modeValidators;
             return _this;
         }
         /**
@@ -51,13 +51,13 @@ define(["require", "exports", "module", "salve-dom", "./dloc", "./domtypeguards"
          * the validator.
          */
         Validator.prototype._runDocumentValidation = function () {
-            if (this.modeValidator === undefined) {
-                return;
-            }
-            var errors = this.modeValidator.validateDocument();
-            for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
-                var error = errors_1[_i];
-                this._processError(error);
+            for (var _i = 0, _a = this.modeValidators; _i < _a.length; _i++) {
+                var validator = _a[_i];
+                var errors = validator.validateDocument();
+                for (var _b = 0, errors_1 = errors; _b < errors_1.length; _b++) {
+                    var error = errors_1[_b];
+                    this._processError(error);
+                }
             }
         };
         Validator.prototype.possibleAt = function (container, index, attributes) {
@@ -115,12 +115,7 @@ define(["require", "exports", "module", "salve-dom", "./dloc", "./domtypeguards"
     }(salve_dom_1.Validator));
     exports.Validator = Validator;
 });
-//  LocalWords:  revalidating inspect's leaveContext leaveStartTag el
-//  LocalWords:  attributeValue endTag attributeName enterContext DOM
-//  LocalWords:  SimpleEventEmitter namespace mixin ProgressState oop
-//  LocalWords:  validateUpTo unclosed fireEvent definePrefix xmlns
-//  LocalWords:  speculativelyValidate RequireJS enterStartTag MPL
-//  LocalWords:  namespaces validator Mangalam Dubeau nextSibling
-//  LocalWords:  prev whitespace boolean jquery util
+//  LocalWords:  boolean Dubeau Mangalam validator MPL RequireJS unclosed DOM
+//  LocalWords:  speculativelyValidate nd toParse
 
 //# sourceMappingURL=validator.js.map

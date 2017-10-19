@@ -8,5 +8,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=metadata-reader.js.map

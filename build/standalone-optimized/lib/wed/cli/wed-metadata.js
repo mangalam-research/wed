@@ -1,5 +1,5 @@
 /**
- * Metadata management cli tool.
+ * Metadata management CLI tool.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
@@ -18,7 +18,7 @@ define(["require", "exports", "module", "ajv", "argparse", "fs", "js-yaml", "pat
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:completed-docs
-    var Fatal = (function (_super) {
+    var Fatal = /** @class */ (function (_super) {
         __extends(Fatal, _super);
         function Fatal(msg) {
             var _this = _super.call(this, msg) || this;
@@ -187,5 +187,7 @@ define(["require", "exports", "module", "ajv", "argparse", "fs", "js-yaml", "pat
         console.log(stringified);
     }
 });
+//  LocalWords:  CLI MPL uncaughtException utf TEI's json xsl stdout tei
+//  LocalWords:  storeTrue elementSpec
 
 //# sourceMappingURL=wed-metadata.js.map

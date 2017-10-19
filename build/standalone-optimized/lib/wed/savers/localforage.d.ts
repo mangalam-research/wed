@@ -1,14 +1,4 @@
 /// <reference types="localforage" />
-/// <reference types="bluebird" />
-/**
- * Data saving functionality, using localforage. Note that this saver is mainly
- * designed for demonstration purposes.
- *
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
-import * as Promise from "bluebird";
 import { Runtime } from "../runtime";
 import * as saver from "../saver";
 import { TreeUpdater } from "../tree-updater";
@@ -25,7 +15,7 @@ export declare function config(): LocalForage;
  * @type {Object}
  * @property {string} name
  */
-export interface Options {
+export interface Options extends saver.SaverOptions {
     /**
      * The "name" of the file to save. This is the key used to save the file in
      * localforage.

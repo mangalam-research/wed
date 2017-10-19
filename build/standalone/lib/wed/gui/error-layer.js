@@ -20,7 +20,7 @@ define(["require", "exports", "module", "./layer"], function (require, exports, 
     /**
      * Specialized layer for error markers.
      */
-    var ErrorLayer = (function (_super) {
+    var ErrorLayer = /** @class */ (function (_super) {
         __extends(ErrorLayer, _super);
         function ErrorLayer(el) {
             var _this = _super.call(this, el) || this;
@@ -45,5 +45,6 @@ define(["require", "exports", "module", "./layer"], function (require, exports, 
     }(layer_1.Layer));
     exports.ErrorLayer = ErrorLayer;
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=error-layer.js.map

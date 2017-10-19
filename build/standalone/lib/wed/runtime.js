@@ -4,17 +4,16 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "bluebird", "dexie", "merge-options", "./ajax", "./util"], function (require, exports, module, Promise, dexie_1, mergeOptions, ajax_1, util) {
+define(["require", "exports", "module", "dexie", "merge-options", "./ajax", "./util"], function (require, exports, module, dexie_1, mergeOptions, ajax_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * An object representing the runtime environment in which an editor is
      * running. In particular it allows loading external resources.
      */
-    var Runtime = (function () {
-        // tslint:disable-next-line:no-any
+    var Runtime = /** @class */ (function () {
         function Runtime(options) {
-            // Make a private deep copy.
+            // Make a deep copy.
             options = mergeOptions({}, options);
             this.options = options;
             var bluejaxOptions = options.bluejaxOptions != null ?
@@ -141,5 +140,6 @@ define(["require", "exports", "module", "bluebird", "dexie", "merge-options", ".
     }());
     exports.Runtime = Runtime;
 });
+//  LocalWords:  runtime MPL serverURL IndexedDB indexeddb keyType
 
 //# sourceMappingURL=runtime.js.map

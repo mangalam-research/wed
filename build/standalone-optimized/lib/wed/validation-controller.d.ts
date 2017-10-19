@@ -10,7 +10,7 @@ import { GUIValidationError } from "./gui-validation-error";
 import { ErrorLayer } from "./gui/error-layer";
 import { Scroller } from "./gui/scroller";
 import { Validator } from "./validator";
-export declare type Editor = any;
+import { Editor } from "./wed";
 /**
  * The click event handler to use on list items created by the controller.
  */

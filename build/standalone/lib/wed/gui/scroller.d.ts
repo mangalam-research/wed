@@ -44,7 +44,7 @@ export declare class Scroller {
      * element.
      *
      * This method tries to be the least disruptive it can: it will adjust the
-     * scoller and the window *just enough* to show the rectangle.
+     * scroller and the window *just enough* to show the rectangle.
      */
     scrollIntoView(left: number, top: number, right: number, bottom: number): void;
 }

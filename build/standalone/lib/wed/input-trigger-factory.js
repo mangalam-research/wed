@@ -38,19 +38,22 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./input
                 var offset = text.data.indexOf(sep);
                 if (node.firstChild === text && offset === 0) {
                     // We just drop the separator
-                    editor.data_updater.deleteText(text, offset, 1);
+                    editor.dataUpdater.deleteText(text, offset, 1);
                     modified = true;
                 }
                 else if (node.lastChild === text && offset !== -1 &&
                     offset === text.length - 1) {
                     // Just drop the separator
-                    editor.data_updater.deleteText(text, text.length - 1, 1);
+                    editor.dataUpdater.deleteText(text, text.length - 1, 1);
                     modified = true;
                 }
                 else if (offset !== -1) {
-                    var pair = editor.data_updater.splitAt(node, text, offset);
+                    var _a = editor.dataUpdater.splitAt(node, text, offset), end = _a[1];
                     // Continue with the 2nd half of the split
-                    node = pair[1];
+                    if (end === null) {
+                        throw new Error("null end; we should not be getting that");
+                    }
+                    node = end;
                     modified = true;
                 }
             }
@@ -63,9 +66,9 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./input
      *
      * @param editor The editor for which to create the input trigger.
      *
-     * @param elementName A CSS selector that determines which element we want to
+     * @param selector A CSS selector that determines which element we want to
      * split or merge. For instance, to operate on all paragraphs, this parameter
-     * could be ``"p"``.
+     * could be ``"p"``. This selector must be fit to be used in the GUI tree.
      *
      * @param splitKey The key which splits the element.
      *
@@ -77,19 +80,23 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./input
      *
      * @returns The input trigger.
      */
-    function makeSplitMergeInputTrigger(editor, elementName, splitKey, mergeWithPreviousKey, mergeWithNextKey) {
+    function makeSplitMergeInputTrigger(editor, mode, selector, splitKey, mergeWithPreviousKey, mergeWithNextKey) {
         var splitNodeOnTr = new transformation.Transformation(editor, "split", "Split node on character", splitNodeOn);
-        var ret = new input_trigger_1.InputTrigger(editor, elementName);
+        var ret = new input_trigger_1.InputTrigger(editor, mode, selector);
         ret.addKeyHandler(splitKey, function (eventType, el, ev) {
             if (ev !== undefined) {
                 ev.stopImmediatePropagation();
                 ev.preventDefault();
             }
             if (eventType === "keypress" || eventType === "keydown") {
-                editor.fireTransformation(editor.split_node_tr, { node: el });
+                editor.fireTransformation(editor.splitNodeTr, { node: el });
             }
             else {
-                editor.fireTransformation(splitNodeOnTr, { node: el, sep: String.fromCharCode(splitKey.which) });
+                editor.fireTransformation(splitNodeOnTr, {
+                    name: el.tagName,
+                    node: el,
+                    sep: String.fromCharCode(splitKey.which),
+                });
             }
         });
         ret.addKeyHandler(mergeWithPreviousKey, function (eventType, el, ev) {
@@ -106,7 +113,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./input
                     ev.stopImmediatePropagation();
                     ev.preventDefault();
                 }
-                editor.fireTransformation(editor.merge_with_previous_homogeneous_sibling_tr, { node: el, name: el.tagName });
+                editor.fireTransformation(editor.mergeWithPreviousHomogeneousSiblingTr, { node: el, name: el.tagName });
             }
         });
         ret.addKeyHandler(mergeWithNextKey, function (eventType, el, ev) {
@@ -124,15 +131,14 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./input
                     ev.stopImmediatePropagation();
                     ev.preventDefault();
                 }
-                editor.fireTransformation(editor.merge_with_next_homogeneous_sibling_tr, { node: el, name: el.tagName });
+                editor.fireTransformation(editor.mergeWithNextHomogeneousSiblingTr, { node: el, name: el.tagName });
             }
         });
         return ret;
     }
     exports.makeSplitMergeInputTrigger = makeSplitMergeInputTrigger;
 });
-//  LocalWords:  Mangalam MPL Dubeau lastChild deleteText domutil
-//  LocalWords:  keypress keydown util
-//  LocalWords:  InputTrigger
+//  LocalWords:  InputTrigger keydown keypress domutil deleteText lastChild MPL
+//  LocalWords:  Dubeau Mangalam
 
 //# sourceMappingURL=input-trigger-factory.js.map

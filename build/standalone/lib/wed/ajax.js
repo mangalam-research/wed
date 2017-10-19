@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "bluejax", "jquery", "bootstrap"], function (require, exports, module, bluejax, $) {
+define(["require", "exports", "module", "bluejax", "jquery", "./util", "bootstrap"], function (require, exports, module, bluejax, $, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:no-jquery-raw-elements
@@ -39,7 +39,7 @@ aria-hidden='true'>&times;</button>\
         }, "promise");
         function ajax$(settings) {
             if (arguments.length > 1) {
-                throw new Error("we do not support passing the url as a separate argument; " +
+                throw new Error("we do not support passing the URL as a separate argument; " +
                     "please use a single settings argument");
             }
             var ret = bajax.call(undefined, settings);
@@ -50,12 +50,13 @@ aria-hidden='true'>&times;</button>\
                 $modal.on("hide.bs.modal.modal", function (ev) {
                     ev.stopPropagation();
                     ev.preventDefault();
-                    diagnose(baseOpts.diagnose.serverURL).then(function () {
+                    // tslint:disable-next-line:no-floating-promises
+                    util_1.suppressUnhandledRejections(diagnose(baseOpts.diagnose.serverURL).then(function () {
                         window.location.reload();
-                    }).suppressUnhandledRejections();
+                    }));
                 });
                 $modal.modal();
-                // Cancelling the promise is something that Bluebird provides. It allows
+                // Canceling the promise is something that Bluebird provides. It allows
                 // us to handle the exception here while at the same time declaring that
                 // no future handlers should be run.
                 ret.promise.cancel();
@@ -72,5 +73,6 @@ aria-hidden='true'>&times;</button>\
     }
     exports.make = make;
 });
+//  LocalWords:  btw tabindex href btn MPL
 
 //# sourceMappingURL=ajax.js.map

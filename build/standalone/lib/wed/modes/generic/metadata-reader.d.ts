@@ -6,9 +6,9 @@
  */
 import { Metadata } from "./metadata";
 /**
- * Interface that objects reading metadat must implement. Note that the metadata
- * must have already been loaded beforehand. Objects implementing this interface
- * are "readers" in the sense that they read an object and produce a
+ * Interface that objects reading metadata must implement. Note that the
+ * metadata must have already been loaded beforehand. Objects implementing this
+ * interface are "readers" in the sense that they read an object and produce a
  * [[Metadata]] object out of it.
  */
 export interface MetadataReader {

@@ -7,6 +7,9 @@
 define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-util"], function (require, exports, module, domtypeguards_1, domutil_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    function moveInAttributes(node, modeTree) {
+        return modeTree.getAttributeHandling(node) === "edit";
+    }
     /**
      * @param pos The position form which we start.
      *
@@ -64,11 +67,12 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
      *
      * @param offset The offset into the element at which the caret is positioned.
      *
-     * @param mode The mode which is effectively decorating the element.
+     * @param modeTree The mode tree from which to get a mode.
      *
      * @returns ``true`` if we are inside editable content, ``false`` otherwise.
      */
-    function insideEditableContent(element, offset, mode) {
+    function insideEditableContent(element, offset, modeTree) {
+        var mode = modeTree.getMode(element);
         var _a = mode.nodesAroundEditableContents(element), before = _a[0], after = _a[1];
         // If the element has nodes before editable contents and the caret would
         // be before or among such nodes, then ...
@@ -127,12 +131,12 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
         up: positionUp,
         down: positionDown,
     };
-    function newPosition(pos, direction, inAttributes, docRoot, mode) {
+    function newPosition(pos, direction, docRoot, modeTree) {
         var fn = directionToFunction[direction];
         if (fn === undefined) {
             throw new Error("cannot resolve direction: " + direction);
         }
-        return fn(pos, inAttributes, docRoot, mode);
+        return fn(pos, docRoot, modeTree);
     }
     exports.newPosition = newPosition;
     /**
@@ -142,16 +146,14 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
      *
      * @param pos The position at which we start.
      *
-     * @param inAttributes Whether we are to move into attributes.
-     *
      * @param docRoot The element within which caret movement is to be constrained.
      *
-     * @param mode The mode governing editing.
+     * @param modeTree The mode tree from which to get a mode.
      *
      * @returns The new position, or ``undefined`` if there is no such position.
      */
     // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
-    function positionRight(pos, inAttributes, docRoot, mode) {
+    function positionRight(pos, docRoot, modeTree) {
         if (pos == null) {
             return undefined;
         }
@@ -172,7 +174,8 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
             var closestGUI = domutil_1.closest(node, "._gui:not(._invisible)", root);
             if (closestGUI !== null) {
                 var startLabel = closestGUI.classList.contains("__start_label");
-                if (inAttributes && startLabel) {
+                if (startLabel &&
+                    moveInAttributes(domutil_1.closestByClass(closestGUI, "_real", root), modeTree)) {
                     if (domutil_1.closestByClass(node, "_attribute_value", root) !== null) {
                         // We're in an attribute value, stop here.
                         break;
@@ -242,7 +245,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
                     continue;
                 }
                 // If the offset is not inside the editable content of the node, then...
-                if (!insideEditableContent(node, offset, mode)) {
+                if (!insideEditableContent(node, offset, modeTree)) {
                     // ... can't stop here.
                     continue;
                 }
@@ -260,16 +263,14 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
      *
      * @param pos The position at which we start.
      *
-     * @param inAttributes Whether we are to move into attributes.
-     *
      * @param docRoot The element within which caret movement is to be constrained.
      *
-     * @param mode The mode governing editing.
+     * @param modeTree The mode tree from which to get a mode.
      *
      * @returns The new position, or ``undefined`` if there is no such position.
      */
     // tslint:disable-next-line:cyclomatic-complexity max-func-body-length
-    function positionLeft(pos, inAttributes, docRoot, mode) {
+    function positionLeft(pos, docRoot, modeTree) {
         if (pos == null) {
             return undefined;
         }
@@ -292,9 +293,10 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
             var closestGUI = domutil_1.closest(node, "._gui:not(._invisible)", root);
             if (closestGUI !== null) {
                 var startLabel = closestGUI.classList.contains("__start_label");
-                if (inAttributes && startLabel && !wasInName) {
+                if (startLabel && !wasInName &&
+                    moveInAttributes(domutil_1.closestByClass(closestGUI, "_real", root), modeTree)) {
                     if (domutil_1.closestByClass(node, "_attribute_value", closestGUI) !== null) {
-                        // We're in an atribute value, stop here.
+                        // We're in an attribute value, stop here.
                         break;
                     }
                     var attr = domutil_1.closestByClass(node, "_attribute", closestGUI);
@@ -393,7 +395,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
                     continue;
                 } // can't stop here
                 // If the offset is not inside the editable content of the node, then...
-                if (!insideEditableContent(node, offset, mode)) {
+                if (!insideEditableContent(node, offset, modeTree)) {
                     // ... can't stop here.
                     continue;
                 }
@@ -411,15 +413,13 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
      *
      * @param pos The position at which we start.
      *
-     * @param inAttributes Whether we are to move into attributes.
-     *
      * @param docRoot The element within which caret movement is to be constrained.
      *
-     * @param mode The mode governing editing.
+     * @param modeTree The mode tree from which to get a mode.
      *
      * @returns The new position, or ``undefined`` if there is no such position.
      */
-    function positionDown(pos, inAttributes, docRoot, mode) {
+    function positionDown(pos, docRoot, modeTree) {
         if (pos == null) {
             return undefined;
         }
@@ -427,7 +427,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
         var initialCaret = wed_util_1.boundaryXY(pos);
         var next = initialCaret;
         while (initialCaret.bottom > next.top) {
-            pos = positionRight(pos, inAttributes, docRoot, mode);
+            pos = positionRight(pos, docRoot, modeTree);
             if (pos === undefined) {
                 return undefined;
             }
@@ -450,7 +450,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
             }
             minDist = dist;
             minPosition = pos;
-            pos = positionRight(pos, inAttributes, docRoot, mode);
+            pos = positionRight(pos, docRoot, modeTree);
             if (pos !== undefined) {
                 next = wed_util_1.boundaryXY(pos);
             }
@@ -465,15 +465,13 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
      *
      * @param pos The position at which we start.
      *
-     * @param inAttributes Whether we are to move into attributes.
-     *
      * @param docRoot The element within which caret movement is to be constrained.
      *
-     * @param mode The mode governing editing.
+     * @param modeTree The mode tree from which to get a mode.
      *
      * @returns The new position, or ``undefined`` if there is no such position.
      */
-    function positionUp(pos, inAttributes, docRoot, mode) {
+    function positionUp(pos, docRoot, modeTree) {
         if (pos == null) {
             return undefined;
         }
@@ -481,7 +479,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
         var initialBoundary = wed_util_1.boundaryXY(pos);
         var prev = initialBoundary;
         while (initialBoundary.top < prev.bottom) {
-            pos = positionLeft(pos, inAttributes, docRoot, mode);
+            pos = positionLeft(pos, docRoot, modeTree);
             if (pos === undefined) {
                 return undefined;
             }
@@ -504,7 +502,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
             }
             minDist = dist;
             minPosition = pos;
-            pos = positionLeft(pos, inAttributes, docRoot, mode);
+            pos = positionLeft(pos, docRoot, modeTree);
             if (pos !== undefined) {
                 prev = wed_util_1.boundaryXY(pos);
             }
@@ -513,5 +511,6 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
     }
     exports.positionUp = positionUp;
 });
+//  LocalWords:  docRoot firstChild pos
 
 //# sourceMappingURL=caret-movement.js.map

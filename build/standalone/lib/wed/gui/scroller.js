@@ -10,7 +10,7 @@ define(["require", "exports", "module", "rxjs", "../domutil"], function (require
     /**
      * Content scroller. This object is responsible for scrolling the GUI tree.
      */
-    var Scroller = (function () {
+    var Scroller = /** @class */ (function () {
         /**
          * @param el The DOM element responsible for scrolling.
          */
@@ -47,10 +47,7 @@ define(["require", "exports", "module", "rxjs", "../domutil"], function (require
          * @param height The height to which to coerce.
          */
         Scroller.prototype.coerceHeight = function (height) {
-            var el = this.el;
-            var heightStr = height + "px";
-            el.style.maxHeight = heightStr;
-            el.style.minHeight = heightStr;
+            this.el.style.height = height + "px";
         };
         /**
          * Determine whether a point is inside the DOM element managed by this
@@ -65,7 +62,7 @@ define(["require", "exports", "module", "rxjs", "../domutil"], function (require
          * element.
          *
          * This method tries to be the least disruptive it can: it will adjust the
-         * scoller and the window *just enough* to show the rectangle.
+         * scroller and the window *just enough* to show the rectangle.
          */
         Scroller.prototype.scrollIntoView = function (left, top, right, bottom) {
             // Adjust gui_root.
@@ -109,5 +106,6 @@ define(["require", "exports", "module", "rxjs", "../domutil"], function (require
     }());
     exports.Scroller = Scroller;
 });
+//  LocalWords:  scroller MPL px
 
 //# sourceMappingURL=scroller.js.map

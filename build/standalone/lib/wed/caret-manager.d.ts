@@ -2,18 +2,33 @@ import * as rangy from "rangy";
 import { Observable } from "rxjs";
 import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
-import { DLoc, DLocRoot } from "./dloc";
+import { DLoc, DLocRange, DLocRoot } from "./dloc";
 import { RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
-import { Mode } from "./mode";
+import { ModeTree } from "./mode-tree";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
+/** Options affecting how a caret gets set. */
 export interface SetCaretOptions {
+    /**
+     * When ``true`` indicates that the caret movement is due to a text editing
+     * operation. This matters for managing undo steps. Text edits are gathered
+     * into an single text undo step unless they are interrupted by some other
+     * operation (or reach a maximum size). Caret movements also interrupt the
+     * text undo steps, unless this flag is ``true``. The default is ``false``.
+     */
     textEdit?: boolean;
-}
-export interface CaretChangeOptions extends SetCaretOptions {
+    /**
+     * Indicates whether the caret change should set the focus. The default is
+     * ``true``.
+     */
     focus?: boolean;
+}
+/** These are options that wed passes to itself. */
+export interface CaretChangeOptions extends SetCaretOptions {
+    /** Indicates whether the caret is being changed due to a gain in focus. */
+    gainingFocus?: boolean;
 }
 /**
  * An event generated when the caret changes.
@@ -35,8 +50,8 @@ export interface CaretChange {
  * vice-versa.
  *
  * Given wed's notion of parallel data and GUI trees. A caret can either point
- * into the GUI tree or into the data tree. In in the following documentation,
- * if the caret is not qualified, then it is a GUI caret.
+ * into the GUI tree or into the data tree. In the following documentation, if
+ * the caret is not qualified, then it is a GUI caret.
  *
  * Similarly, a selection can either span a range in the GUI tree or in the data
  * tree. Again, "selection" without qualifier is a GUI selection.
@@ -46,8 +61,9 @@ export declare class CaretManager implements GUIToDataConverter {
     private readonly dataRoot;
     private readonly inputField;
     private readonly guiUpdater;
-    private readonly inAttributes;
-    private readonly mode;
+    private readonly layer;
+    private readonly scroller;
+    private readonly modeTree;
     private _sel;
     private selAtBlur;
     private readonly guiRootEl;
@@ -63,24 +79,22 @@ export declare class CaretManager implements GUIToDataConverter {
     /** The caret mark that represents the caret managed by this manager. */
     readonly mark: CaretMark;
     /**
-     * @param guiRoot: The object representing the root of the gui tree.
+     * @param guiRoot The object representing the root of the gui tree.
      *
-     * @param dataRoot: The object representing the root of the data tree.
+     * @param dataRoot The object representing the root of the data tree.
      *
-     * @param inputField: The HTML element that is the input field.
+     * @param inputField The HTML element that is the input field.
      *
-     * @param guiUpdater: The GUI updater that is responsible for updating the
+     * @param guiUpdater The GUI updater that is responsible for updating the
      * tree whose root is ``guiRoot``.
      *
-     * @param layer: The layer that holds the caret.
+     * @param layer The layer that holds the caret.
      *
-     * @param scroller: The element that scrolls ``guiRoot``.
+     * @param scroller The element that scrolls ``guiRoot``.
      *
-     * @param inAttributes: Whether or not to move into attributes.
-     *
-     * @param mode: The current mode in effect.
+     * @param modeTree The mode tree from which to get modes.
      */
-    constructor(guiRoot: DLocRoot, dataRoot: DLocRoot, inputField: HTMLElement, guiUpdater: GUIUpdater, layer: Layer, scroller: Scroller, inAttributes: boolean, mode: Mode<{}>);
+    constructor(guiRoot: DLocRoot, dataRoot: DLocRoot, inputField: HTMLElement, guiUpdater: GUIUpdater, layer: Layer, scroller: Scroller, modeTree: ModeTree);
     /**
      * The raw caret. Use [[getNormalizedCaret]] if you need it normalized.
      *
@@ -108,12 +122,21 @@ export declare class CaretManager implements GUIToDataConverter {
      * A range info object describing the current selection.
      */
     readonly rangeInfo: RangeInfo | undefined;
+    readonly minCaret: DLoc;
+    readonly maxCaret: DLoc;
+    readonly docDLocRange: DLocRange;
     /**
      * Get a normalized caret.
      *
      * @returns A normalized caret, or ``undefined`` if there is no caret.
      */
     getNormalizedCaret(): DLoc | undefined;
+    /**
+     * Same as [[getNormalizedCaret]] but must return a location.
+     *
+     * @throws {Error} If it cannot return a location.
+     */
+    mustGetNormalizedCaret(): DLoc;
     normalizeToEditableRange(loc: DLoc): DLoc;
     /**
      * Get the current caret position in the data tree.
@@ -141,6 +164,14 @@ export declare class CaretManager implements GUIToDataConverter {
      */
     fromDataLocation(loc: DLoc): DLoc | undefined;
     fromDataLocation(node: Node, offset: number): DLoc | undefined;
+    /**
+     * Does the same thing as [[fromDataLocation]] but must return a defined
+     * location.
+     *
+     * @throws {Error} If it cannot return a location.
+     */
+    mustFromDataLocation(loc: DLoc): DLoc;
+    mustFromDataLocation(node: Node, offset: number): DLoc;
     /**
      * Converts a gui location to a data location.
      *
@@ -243,14 +274,15 @@ export declare class CaretManager implements GUIToDataConverter {
      *
      * @param loc The new position for the caret.
      *
-     * @param node The new position for the caret.
+     * @param node The new position for the caret. This may be ``undefined`` or
+     * ``null``, in which case the method does not do anything.
      *
      * @param offset The offset in ``node``.
      *
      * @param options The options for moving the caret.
      */
     setCaret(loc: DLoc, options?: SetCaretOptions): void;
-    setCaret(node: Node, offset?: number, options?: SetCaretOptions): void;
+    setCaret(node: Node | null | undefined, offset?: number, options?: SetCaretOptions): void;
     /**
      * Set the caret into a normalized label position. There are only some
      * locations in which it is valid to put the caret inside a label:
@@ -277,7 +309,7 @@ export declare class CaretManager implements GUIToDataConverter {
     pushSelection(): void;
     /**
      * Pop the last selection that was pushed with ``pushSelection`` and restore
-     * the current caret and selection on the basis of the poped value.
+     * the current caret and selection on the basis of the popped value.
      */
     popSelection(): void;
     /**
@@ -290,10 +322,10 @@ export declare class CaretManager implements GUIToDataConverter {
      * to deal with situations in which the caret and range may have been
      * "damaged" due to browser operations, changes of state, etc.
      *
-     * @param focus Whether the restoration of the caret and selection is due to
-     * regaining focus or not.
+     * @param gainingFocus Whether the restoration of the caret and selection is
+     * due to regaining focus or not.
      */
-    private _restoreCaretAndSelection(focus);
+    private _restoreCaretAndSelection(gainingFocus);
     /**
      * Clear the selection and caret.
      */
@@ -312,7 +344,7 @@ export declare class CaretManager implements GUIToDataConverter {
      *
      * @param loc The new position.
      *
-     * @param options Options governing the caret movement.
+     * @param options Set of options governing the caret movement.
      */
     private _setGUICaret(loc, options);
     /**
@@ -335,6 +367,7 @@ export declare class CaretManager implements GUIToDataConverter {
      */
     onBlur(): void;
     private onFocus();
+    highlightRange(range: DLocRange): Element;
     /**
      * Dump to the console caret-specific information.
      */

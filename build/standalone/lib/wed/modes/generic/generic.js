@@ -14,7 +14,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "bluebird", "salve", "wed/mode", "wed/object-check", "./generic-decorator", "./generic-tr", "./metadata-multiversion-reader"], function (require, exports, module, Promise, salve_1, mode_1, objectCheck, generic_decorator_1, generic_tr_1, metadata_multiversion_reader_1) {
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+define(["require", "exports", "module", "merge-options", "salve", "wed/mode", "wed/object-check", "./generic-decorator", "./generic-tr", "./metadata-multiversion-reader"], function (require, exports, module, mergeOptions, salve_1, mode_1, objectCheck, generic_decorator_1, generic_tr_1, metadata_multiversion_reader_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -39,7 +47,7 @@ define(["require", "exports", "module", "bluebird", "salve", "wed/mode", "wed/ob
      *   could contain ``a`` or ``b``, then the mode won't add any children. This
      *   option is ``true`` by default.
      */
-    var GenericMode = (function (_super) {
+    var GenericMode = /** @class */ (function (_super) {
         __extends(GenericMode, _super);
         /**
          * @param editor The editor with which the mode is being associated.
@@ -59,6 +67,7 @@ define(["require", "exports", "module", "bluebird", "salve", "wed/mode", "wed/ob
             };
             if (_this.constructor === GenericMode) {
                 // Set our metadata.
+                _this.wedOptions = mergeOptions({}, _this.wedOptions);
                 _this.wedOptions.metadata = {
                     name: "Generic",
                     authors: ["Louis-Dominique Dubeau"],
@@ -133,15 +142,19 @@ define(["require", "exports", "module", "bluebird", "salve", "wed/mode", "wed/ob
                 return new metadata_multiversion_reader_1.MetadataMultiversionReader().read(obj);
             });
         };
+        GenericMode.prototype.getAbsoluteNamespaceMappings = function () {
+            // We return a copy of the metadata's namespace mapping. A shallow copy
+            // is good enough.
+            return __assign({}, this.metadata.getNamespaceMappings());
+        };
+        GenericMode.prototype.unresolveName = function (name) {
+            return this.metadata.unresolveName(name);
+        };
         GenericMode.prototype.getAbsoluteResolver = function () {
             return this.resolver;
         };
         GenericMode.prototype.makeDecorator = function () {
-            var obj = Object.create(generic_decorator_1.GenericDecorator.prototype);
-            var args = Array.prototype.slice.call(arguments);
-            args = [this, this.metadata, this.options].concat(args);
-            generic_decorator_1.GenericDecorator.apply(obj, args);
-            return obj;
+            return new generic_decorator_1.GenericDecorator(this, this.editor, this.metadata, this.options);
         };
         /**
          * Returns a short description for an element. The element should be named
@@ -203,6 +216,6 @@ define(["require", "exports", "module", "bluebird", "salve", "wed/mode", "wed/ob
     }(mode_1.BaseMode));
     exports.Mode = GenericMode;
 });
-//  LocalWords:  gui jquery Mangalam MPL Dubeau
+//  LocalWords:  gui jquery Mangalam MPL Dubeau metadata's
 
 //# sourceMappingURL=generic.js.map

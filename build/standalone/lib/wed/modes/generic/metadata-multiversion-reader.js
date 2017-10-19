@@ -11,7 +11,7 @@ define(["require", "exports", "module", "./metadata-reader-v1", "./metadata-read
      * A metadata reader that automatically handles different versions of the
      * metadata format.
      */
-    var MetadataMultiversionReader = (function () {
+    var MetadataMultiversionReader = /** @class */ (function () {
         function MetadataMultiversionReader() {
         }
         MetadataMultiversionReader.init = function () {
@@ -39,5 +39,6 @@ define(["require", "exports", "module", "./metadata-reader-v1", "./metadata-read
     exports.MetadataMultiversionReader = MetadataMultiversionReader;
     MetadataMultiversionReader.init();
 });
+//  LocalWords:  MPL
 
 //# sourceMappingURL=metadata-multiversion-reader.js.map

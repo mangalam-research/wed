@@ -1,0 +1,218 @@
+/**
+ * Search and replace GUI.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright Mangalam Research Center for Buddhist Languages
+ */
+import * as bootbox from "bootbox";
+import * as $ from "jquery";
+
+import { Editor } from "../wed";
+import { makeDraggable, makeResizable } from "./interactivity";
+import { Scroller } from "./scroller";
+import { Context, Direction, SearchOptions,
+         SearchReplace } from "./search-replace";
+
+export { Direction };
+
+export class DialogSearchReplace {
+  private readonly search: SearchReplace;
+  private readonly dialog: JQuery;
+  private readonly searchField: HTMLInputElement;
+  private readonly replaceField: HTMLInputElement;
+  private readonly forwardRadioButton: HTMLInputElement;
+  private readonly backwardRadioButton: HTMLInputElement;
+  private readonly textRadioButton: HTMLInputElement;
+  private readonly attributeRadioButton: HTMLInputElement;
+  private previousSearchValue: string | undefined;
+  private readonly replaceButtons: HTMLButtonElement[];
+
+  constructor(editor: Editor,
+              scroller: Scroller,
+              direction: Direction) {
+    this.search = new SearchReplace(editor, scroller);
+    const body = $(`
+<form>
+ <div class='form-group'>
+  <label>Search for:</label>
+  <input type='text' name='search' class='form-control'>
+ </div>
+ <div class='form-group'>
+  <label>Replace with:</label>
+  <input type='text' name='replace' class='form-control'>
+ </div>
+ <div class='radio'>
+  <span>Direction:</span>
+  <label class='radio-inline'>
+   <input type='radio' name='direction' value='forward'> Forward
+  </label>
+  <label class='radio-inline'>
+   <input type='radio' name='direction' value='backwards'> Backwards
+  </label>
+ </div>
+ <div class='radio'>
+  <span>Context:</span>
+  <label class='radio-inline'>
+   <input type='radio' name='context' value='text' checked>
+   Only element text
+  </label>
+  <label class='radio-inline'>
+   <input type='radio' name='context' value='attributes'>
+   Only attributes values
+  </label>
+ </div>
+</form>`)[0] as HTMLFormElement;
+    const dialog = this.dialog = bootbox.dialog({
+      title: "Search/Replace",
+      message: body,
+      onEscape: true,
+      backdrop: false,
+      size: "small",
+      buttons: {
+        find: {
+          label: "Find",
+          className: "btn-primary",
+          callback: this.onFind.bind(this),
+        },
+        replace: {
+          label: "Replace",
+          className: "btn-default replace-button",
+          callback: this.onReplace.bind(this),
+        },
+        replaceFind: {
+          label: "Replace and Find",
+          className: "btn-default replace-and-find-button",
+          callback: this.onReplaceAndFind.bind(this),
+        },
+        replaceAll: {
+          label: "Replace All",
+          callback: this.onReplaceAll.bind(this),
+        },
+        close: {
+          label: "Close",
+        },
+      },
+    });
+    makeResizable(dialog);
+    makeDraggable(dialog);
+    const directionItems = body.elements
+      .namedItem("direction") as HTMLCollectionOf<HTMLInputElement>;
+    this.forwardRadioButton = directionItems[0];
+    this.backwardRadioButton = directionItems[1];
+
+    const contextItems = body.elements
+      .namedItem("context") as HTMLCollectionOf<HTMLInputElement>;
+    this.textRadioButton = contextItems[0];
+    this.attributeRadioButton = contextItems[1];
+
+    let toCheck: HTMLInputElement;
+    switch (direction) {
+    case Direction.FORWARD:
+      toCheck = this.forwardRadioButton;
+      break;
+    case Direction.BACKWARDS:
+      toCheck = this.backwardRadioButton;
+      break;
+    default:
+      const d: never = direction;
+      throw new Error(`unknown direction: ${d}`);
+    }
+    toCheck.checked = true;
+
+    dialog.on("hidden.bs.modal", () => {
+      this.search.updateHighlight(null);
+      // Return the focus to the editor.
+      editor.caretManager.focusInputField();
+    });
+
+    const searchField = this.searchField =
+      body.elements.namedItem("search") as HTMLInputElement;
+    const $searchField = $(searchField);
+    $searchField.on("keyup", this.onSearchKeyup.bind(this));
+    $searchField.on("input", this.onSearchInput.bind(this));
+
+    this.replaceField =
+      body.elements.namedItem("replace") as HTMLInputElement;
+
+    this.replaceButtons =
+      Array.from(dialog[0].querySelectorAll(
+        ".replace-button, .replace-and-find-button")) as HTMLButtonElement[];
+  }
+
+  private getSearchOptions(): SearchOptions {
+    let direction: Direction;
+    if (this.forwardRadioButton.checked) {
+      direction = Direction.FORWARD;
+    }
+    else if (this.backwardRadioButton.checked) {
+      direction = Direction.BACKWARDS;
+    }
+    else {
+      throw new Error("cannot determine direction");
+    }
+
+    let context: Context;
+    if (this.textRadioButton.checked) {
+      context = Context.TEXT;
+    }
+    else if (this.attributeRadioButton.checked) {
+      context = Context.ATTRIBUTE_VALUES;
+    }
+    else {
+      throw new Error("cannot determine context");
+    }
+
+    return {
+      direction,
+      context,
+    };
+  }
+
+  private onFind(): boolean {
+    this.search.next(this.getSearchOptions());
+    this.enableReplace(this.search.canReplace);
+    return false;
+  }
+
+  private enableReplace(enable: boolean): void {
+    for (const button of this.replaceButtons) {
+      button.disabled = !enable;
+    }
+  }
+
+  private onReplace(): boolean {
+    this.search.replace(this.replaceField.value);
+    return false;
+  }
+
+  private onReplaceAndFind(): boolean {
+    this.onReplace();
+    this.onFind();
+    return false;
+  }
+
+  private onReplaceAll(): boolean {
+    return false;
+  }
+
+  private onSearchKeyup(ev: JQueryKeyEventObject): void {
+    this.checkPatternChange();
+  }
+
+  private onSearchInput(ev: JQueryKeyEventObject): void {
+    this.checkPatternChange();
+  }
+
+  private checkPatternChange(): void {
+    const value = this.searchField.value;
+    if (value !== this.previousSearchValue) {
+      this.previousSearchValue = value;
+      this.onPatternChange(value);
+    }
+  }
+
+  private onPatternChange(value: string): void {
+    this.search.updatePattern(value, this.getSearchOptions());
+    this.enableReplace(this.search.canReplace);
+  }
+}

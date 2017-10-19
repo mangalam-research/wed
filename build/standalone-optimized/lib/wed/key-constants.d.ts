@@ -11,6 +11,10 @@ export declare const CTRLEQ_Y: key.Key;
 export declare const CTRLEQ_C: key.Key;
 export declare const CTRLEQ_X: key.Key;
 export declare const CTRLEQ_V: key.Key;
+export declare const CTRLEQ_F: key.Key;
+export declare const CTRLEQ_B: key.Key;
+export declare const CTRLEQ_SHIFT_F: key.Key;
+export declare const CTRLEQ_SHIFT_B: key.Key;
 export declare const CTRLEQ_FORWARD_SLASH: key.Key;
 export declare const CTRLEQ_PERIOD: key.Key;
 export declare const CTRLEQ_BACKQUOTE: key.Key;
@@ -25,6 +29,10 @@ export declare const DELETE: key.Key;
 export declare const ENTER: key.Key;
 export declare const SPACE: key.Key;
 export declare const ESCAPE: key.Key;
+export declare const QUICKSEARCH_FORWARD: key.Key;
+export declare const QUICKSEARCH_BACKWARDS: key.Key;
+export declare const SEARCH_FORWARD: key.Key;
+export declare const SEARCH_BACKWARDS: key.Key;
 /**
  * These are the keys that appear to be regular text input keys because they do
  * not have any modifiers set, but which do not actually **insert**

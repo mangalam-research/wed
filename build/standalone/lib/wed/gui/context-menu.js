@@ -10,7 +10,7 @@ define(["require", "exports", "module", "jquery", "../domutil", "bootstrap"], fu
     /**
      * A context menu GUI element.
      */
-    var ContextMenu = (function () {
+    var ContextMenu = /** @class */ (function () {
         /**
          * @param document The DOM document for which to make this
          * context menu.
@@ -178,7 +178,8 @@ define(["require", "exports", "module", "jquery", "../domutil", "bootstrap"], fu
     }());
     exports.ContextMenu = ContextMenu;
 });
-//  LocalWords:  contextmenu mousedown dropdown tabindex href gui MPL
-//  LocalWords:  Mangalam Dubeau ul jQuery Prepend util jquery
+//  LocalWords:  contextmenu mousedown dropdown tabindex href gui MPL px
+//  LocalWords:  Mangalam Dubeau ul jQuery Prepend util jquery mouseup winWidth
+//  LocalWords:  dropdowns
 
 //# sourceMappingURL=context-menu.js.map

@@ -14,37 +14,31 @@ define(["require", "exports", "module", "wed/decorator", "wed/domtypeguards", "w
     /**
      * A decorator for the generic mode.
      */
-    var GenericDecorator = (function (_super) {
+    var GenericDecorator = /** @class */ (function (_super) {
         __extends(GenericDecorator, _super);
         /**
          * @param mode The mode object.
+         *
+         * @param editor The wed editor to which the mode is applied.
          *
          * @param metadata Meta-information about the schema.
          *
          * @param options The options object passed to the mode which uses this
          * decorator.
          *
-         * @param listener The DOM listener that will listen to changes on the
-         * document.
-         *
-         * @param editor The wed editor to which the mode is applied.
-         *
-         * @param guiUpdater The updater to use to modify the GUI tree. All
-         * modifications to the GUI must go through this updater.
          */
         // tslint:disable-next-line:no-any
-        function GenericDecorator(mode, metadata, 
+        function GenericDecorator(mode, editor, metadata, 
             // tslint:disable-next-line:no-any
-            options, domlistener, editor, guiUpdater) {
-            var _this = _super.call(this, domlistener, editor, guiUpdater) || this;
-            _this.mode = mode;
+            options) {
+            var _this = _super.call(this, mode, editor) || this;
             _this.metadata = metadata;
             _this.options = options;
             return _this;
         }
         GenericDecorator.prototype.addHandlers = function () {
             var _this = this;
-            this.domlistener.addHandler("included-element", util.classFromOriginalName("*"), function (root, tree, parent, prev, next, el) {
+            this.domlistener.addHandler("included-element", util.classFromOriginalName("*", {}), function (root, tree, parent, prev, next, el) {
                 // Skip elements which would already have been removed from the
                 // tree. Unlikely but...
                 if (!root.contains(el)) {
@@ -56,7 +50,7 @@ define(["require", "exports", "module", "wed/decorator", "wed/domtypeguards", "w
                     el.className += " " + klass;
                 }
             });
-            this.domlistener.addHandler("children-changed", util.classFromOriginalName("*"), function (root, added, removed, previousSibling, nextSibling, el) {
+            this.domlistener.addHandler("children-changed", util.classFromOriginalName("*", {}), function (root, added, removed, previousSibling, nextSibling, el) {
                 for (var _i = 0, _a = added.concat(removed); _i < _a.length; _i++) {
                     var child = _a[_i];
                     if (domtypeguards_1.isText(child) || (domtypeguards_1.isElement(child) &&
@@ -67,13 +61,12 @@ define(["require", "exports", "module", "wed/decorator", "wed/domtypeguards", "w
                     }
                 }
             });
-            this.domlistener.addHandler("text-changed", util.classFromOriginalName("*"), function (root, node) {
+            this.domlistener.addHandler("text-changed", util.classFromOriginalName("*", {}), function (root, node) {
                 _this.elementDecorator(root, node.parentNode);
             });
-            this.domlistener.addHandler("attribute-changed", util.classFromOriginalName("*"), function (root, el) {
+            this.domlistener.addHandler("attribute-changed", util.classFromOriginalName("*", {}), function (root, el) {
                 _this.elementDecorator(root, el);
             });
-            _super.prototype.addHandlers.call(this);
         };
         GenericDecorator.prototype.elementDecorator = function (root, el) {
             _super.prototype.elementDecorator.call(this, root, el, 1, this.contextMenuHandler.bind(this, true), this.contextMenuHandler.bind(this, false));
@@ -98,6 +91,6 @@ define(["require", "exports", "module", "wed/decorator", "wed/domtypeguards", "w
     }(decorator_1.Decorator));
     exports.GenericDecorator = GenericDecorator;
 });
-//  LocalWords:  DOM util oop Mangalam MPL Dubeau
+//  LocalWords:  Dubeau MPL Mangalam util klass
 
 //# sourceMappingURL=generic-decorator.js.map

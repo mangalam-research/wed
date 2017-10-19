@@ -17,7 +17,7 @@
 .container {
   max-width: none;
 }
-.modal-dialog {
+.modal-dialog:not(.modal-sm) {
   width: auto;
 }
 .wed-context-menu-backdrop,
@@ -146,10 +146,11 @@ div.wed-document-constrainer .wed-comp-field {
   width: 1em;
 }
 div.wed-document-constrainer .wed-caret-layer {
-  position: relative;
+  position: absolute;
   z-index: 1;
   background-color: white;
   pointer-events: none;
+  mix-blend-mode: multiply;
 }
 div.wed-document-constrainer .wed-caret-layer ._wed_caret {
   position: absolute;
@@ -161,6 +162,11 @@ div.wed-document-constrainer .wed-caret-layer ._wed_caret {
   min-height: 100%;
   animation: caret 1s linear infinite;
   -webkit-animation: caret 1s linear infinite;
+}
+div.wed-document-constrainer .wed-caret-layer ._wed_highlight {
+  position: absolute;
+  background-color: yellow;
+  mix-blend-mode: multiply;
 }
 div.wed-document-constrainer .wed-scroller {
   overflow-y: auto;
@@ -267,6 +273,17 @@ div.wed-frame div.wed-document ._placeholder._owns_caret {
   animation: blink 1s infinite;
   -webkit-animation: blink 1s infinite;
 }
+div.wed-frame div.wed-location-bar {
+  border: black 1px solid;
+  padding-left: 0.5ex;
+}
+div.wed-frame div.wed-minibuffer {
+  display: flex;
+  border: black 1px solid;
+}
+div.wed-frame div.wed-minibuffer input {
+  flex: 2;
+}
 @keyframes blink {
   0% {
     opacity: 0;
@@ -329,10 +346,7 @@ div.wed-frame div.wed-document ._placeholder._owns_caret {
   color: black;
   text-indent: 0em;
 }
-#sidebar {
-  font-size: 16px;
-}
-#validation-message {
+.wed-sidebar {
   font-size: 16px;
 }
 .label {

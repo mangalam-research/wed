@@ -8,11 +8,11 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/decorator", "wed/domutil", "wed/gui/context-menu", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "wed/modes/generic/generic", "wed/modes/generic/generic-decorator", "wed/transformation", "wed/util"], function (require, exports, module, $, salve_1, action_1, decorator_1, domutil_1, context_menu, input_trigger_factory, key, key_constants, generic_1, generic_decorator_1, transformation, util) {
+define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed/action", "wed/decorator", "wed/domutil", "wed/gui-selector", "wed/gui/context-menu", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "wed/modes/generic/generic", "wed/modes/generic/generic-decorator", "wed/transformation"], function (require, exports, module, $, mergeOptions, salve_1, action_1, decorator_1, domutil_1, gui_selector_1, context_menu, input_trigger_factory, key, key_constants, generic_1, generic_decorator_1, transformation) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:completed-docs
-    var Validator = (function () {
+    var Validator = /** @class */ (function () {
         function Validator(dataRoot) {
             this.dataRoot = dataRoot;
         }
@@ -26,7 +26,7 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
         return Validator;
     }());
     // tslint:disable-next-line:completed-docs
-    var TestDecorator = (function (_super) {
+    var TestDecorator = /** @class */ (function (_super) {
         __extends(TestDecorator, _super);
         function TestDecorator() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -39,31 +39,38 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
         }
         TestDecorator.prototype.addHandlers = function () {
             _super.prototype.addHandlers.call(this);
-            input_trigger_factory.makeSplitMergeInputTrigger(this.editor, "hi", key.makeKey(";"), key_constants.BACKSPACE, key_constants.DELETE);
+            input_trigger_factory.makeSplitMergeInputTrigger(this.editor, this.mode, gui_selector_1.GUISelector.fromDataSelector("hi", this.mode.getAbsoluteNamespaceMappings()), key.makeKey(";"), key_constants.BACKSPACE, key_constants.DELETE);
         };
         // tslint:disable:no-jquery-raw-elements
         TestDecorator.prototype.elementDecorator = function (root, el) {
+            if (this.editor.modeTree.getMode(el) !== this.mode) {
+                // The element is not governed by this mode.
+                return;
+            }
             var dataNode = this.editor.toDataNode(el);
             var rend = dataNode.getAttribute("rend");
-            var origName = util.getOriginalName(el);
-            var level = this.elementLevel[origName];
+            var localName = dataNode.localName;
+            var inTEI = dataNode.namespaceURI === this.namespaces.tei;
+            var level = inTEI ? this.elementLevel[localName] : undefined;
             if (level === undefined) {
                 level = 1;
             }
+            var isP = inTEI && localName === "p";
+            var isRef = inTEI && localName === "ref";
             // We don't run the default when we wrap p.
-            if (!(origName === "p" && rend === "wrap")) {
+            if (!(isP && rend === "wrap")) {
                 // There's no super.super syntax we can use here.
                 decorator_1.Decorator.prototype.elementDecorator.call(this, root, el, level, this.contextMenuHandler.bind(this, true), this.contextMenuHandler.bind(this, false));
             }
-            if (origName === "ref") {
+            if (isRef) {
                 $(el).children("._text._phantom").remove();
                 this.guiUpdater.insertBefore(el, $("<div class='_text _phantom _end_wrapper'>)</div>")[0], el.lastChild);
                 var $before = $("<div class='_text _phantom _start_wrapper'>(</div>");
                 this.guiUpdater.insertBefore(el, $before[0], el.firstChild.nextSibling);
                 $before.on("wed-context-menu", { node: el }, this._navigationContextMenuHandler.bind(this));
-                $before[0].setAttribute("data-wed-custom-context-menu", "true");
+                $before[0].setAttribute("data-wed--custom-context-menu", "true");
             }
-            if (origName === "p") {
+            if (isP) {
                 switch (rend) {
                     case "foo":
                         $(el).children("._gui_test").remove();
@@ -91,6 +98,11 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
                         if (domutil_1.closestByClass(el, "_gui_test") !== null) {
                             break;
                         }
+                        var toRemove = domutil_1.childrenByClass(el, "_gui");
+                        for (var _i = 0, toRemove_1 = toRemove; _i < toRemove_1.length; _i++) {
+                            var remove = toRemove_1[_i];
+                            el.removeChild(remove);
+                        }
                         var wrapper = $("<div class='_gui _phantom_wrap _gui_test btn " +
                             "btn-default'></div>")[0];
                         this.guiUpdater.insertBefore(el.parentNode, wrapper, el);
@@ -105,16 +117,21 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
             // node is the node in the GUI tree which corresponds to the navigation item
             // for which a context menu handler was required by the user.
             var node = wedEv.data.node;
-            var origName = util.getOriginalName(node);
+            var dataNode = this.editor.toDataNode(node);
+            var prefixedName = this.mode.unresolveName(new salve_1.EName(dataNode.namespaceURI === null ? "" : dataNode.namespaceURI, dataNode.localName));
+            // We don't know this element.
+            if (prefixedName === undefined) {
+                return true;
+            }
             // container, offset: location of the node in its parent.
             var container = node.parentNode;
             var offset = domutil_1.indexOf(container.childNodes, node);
             // Create "insert" transformations for siblings that could be inserted
             // before this node.
-            var actions = this.mode.getContextualActions("insert", origName, container, offset);
+            var actions = this.mode.getContextualActions("insert", prefixedName, container, offset);
             // data to pass to transformations
             var data = {
-                name: origName,
+                name: prefixedName,
                 moveCaretTo: this.editor.caretManager.makeCaret(container, offset),
             };
             var items = [];
@@ -133,7 +150,7 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
     }(generic_decorator_1.GenericDecorator));
     exports.TestDecorator = TestDecorator;
     // tslint:disable-next-line:completed-docs
-    var TypeaheadAction = (function (_super) {
+    var TypeaheadAction = /** @class */ (function (_super) {
         __extends(TypeaheadAction, _super);
         function TypeaheadAction() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -168,7 +185,7 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
                         source: substringMatcher(testData),
                     }],
             };
-            var pos = editor.computeContextMenuPosition(undefined, true);
+            var pos = editor.editingMenuManager.computeMenuPosition(undefined, true);
             var typeahead = editor.displayTypeaheadPopup(pos.left, pos.top, 300, "Test", options, function (obj) {
                 if (obj != null) {
                     editor.type(obj.value);
@@ -185,49 +202,76 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
         return TypeaheadAction;
     }(action_1.Action));
     // tslint:disable-next-line:completed-docs
-    var DraggableModalAction = (function (_super) {
+    var DraggableModalAction = /** @class */ (function (_super) {
         __extends(DraggableModalAction, _super);
         function DraggableModalAction() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
+        Object.defineProperty(DraggableModalAction.prototype, "modal", {
+            get: function () {
+                if (this._modal === undefined) {
+                    this._modal = this.editor.makeModal({ draggable: true });
+                }
+                return this._modal;
+            },
+            enumerable: true,
+            configurable: true
+        });
         DraggableModalAction.prototype.execute = function () {
-            var editor = this.editor;
-            var modal = editor.mode.draggable;
-            modal.modal();
+            this.modal.modal();
         };
         return DraggableModalAction;
     }(action_1.Action));
     // tslint:disable-next-line:completed-docs
-    var ResizableModalAction = (function (_super) {
-        __extends(ResizableModalAction, _super);
-        function ResizableModalAction() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        ResizableModalAction.prototype.execute = function () {
-            var editor = this.editor;
-            var modal = editor.mode.resizable;
-            modal.modal();
-        };
-        return ResizableModalAction;
-    }(action_1.Action));
-    // tslint:disable-next-line:completed-docs
-    var DraggableResizableModalAction = (function (_super) {
+    var DraggableResizableModalAction = /** @class */ (function (_super) {
         __extends(DraggableResizableModalAction, _super);
         function DraggableResizableModalAction() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
+        Object.defineProperty(DraggableResizableModalAction.prototype, "modal", {
+            get: function () {
+                if (this._modal === undefined) {
+                    this._modal = this.editor.makeModal({
+                        resizable: true,
+                        draggable: true,
+                    });
+                }
+                return this._modal;
+            },
+            enumerable: true,
+            configurable: true
+        });
         DraggableResizableModalAction.prototype.execute = function () {
-            var editor = this.editor;
-            var modal = editor.mode.draggableResizable;
-            modal.modal();
+            this.modal.modal();
         };
         return DraggableResizableModalAction;
+    }(action_1.Action));
+    // tslint:disable-next-line:completed-docs
+    var ResizableModalAction = /** @class */ (function (_super) {
+        __extends(ResizableModalAction, _super);
+        function ResizableModalAction() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        Object.defineProperty(ResizableModalAction.prototype, "modal", {
+            get: function () {
+                if (this._modal === undefined) {
+                    this._modal = this.editor.makeModal({ resizable: true });
+                }
+                return this._modal;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ResizableModalAction.prototype.execute = function () {
+            this.modal.modal();
+        };
+        return ResizableModalAction;
     }(action_1.Action));
     /**
      * This mode is purely designed to help test wed, and nothing
      * else. Don't derive anything from it and don't use it for editing.
      */
-    var TestMode = (function (_super) {
+    var TestMode = /** @class */ (function (_super) {
         __extends(TestMode, _super);
         function TestMode(editor, options) {
             var _this = _super.call(this, editor, options) || this;
@@ -237,12 +281,14 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
                 ambiguous_fileDesc_insert: false,
                 fileDesc_insert_needs_input: false,
                 hide_attributes: false,
+                // We use nameSuffix to vary the name given to multiple instances.
+                nameSuffix: false,
+                stylesheets: false,
             };
-            if (_this.constructor !== TestMode) {
-                throw new Error("this is a test mode; don't derive from it!");
-            }
+            _this.wedOptions = mergeOptions({}, _this.wedOptions);
+            var suffix = options.nameSuffix != null ? options.nameSuffix : "";
             _this.wedOptions.metadata = {
-                name: "Test",
+                name: "Test" + suffix,
                 authors: ["Louis-Dominique Dubeau"],
                 description: "TEST MODE. DO NOT USE IN PRODUCTION!",
                 license: "MPL 2.0",
@@ -277,16 +323,14 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
                 .then(function () {
                 var editor = _this.editor;
                 _this.typeaheadAction = new TypeaheadAction(editor, "Test typeahead", undefined, "<i class='fa fa-plus fa-fw'></i>", true);
-                _this.draggable = editor.makeModal({ draggable: true });
-                _this.resizable = editor.makeModal({ resizable: true });
-                _this.draggableResizable = editor.makeModal({
-                    resizable: true,
-                    draggable: true,
-                });
                 _this.draggableAction = new DraggableModalAction(editor, "Test draggable", undefined, undefined, true);
                 _this.resizableAction = new ResizableModalAction(editor, "Test resizable", undefined, undefined, true);
                 _this.draggableResizableAction = new DraggableResizableModalAction(editor, "Test draggable resizable", undefined, undefined, true);
             });
+        };
+        TestMode.prototype.getStylesheets = function () {
+            var stylesheets = this.options.stylesheets;
+            return stylesheets !== undefined ? stylesheets : [];
         };
         TestMode.prototype.getContextualActions = function (transformationType, tag, container, offset) {
             if (this.options.fileDesc_insert_needs_input &&
@@ -304,16 +348,14 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
             }
             if (tag === "ref" &&
                 (transformationType === "insert" || transformationType === "wrap")) {
+                // It is a bit peculiar to tie the draggable and resizable actions to
+                // "ref", because it is not necessary, but meh...
                 ret.push(this.typeaheadAction, this.draggableAction, this.resizableAction, this.draggableResizableAction);
             }
             return ret;
         };
         TestMode.prototype.makeDecorator = function () {
-            var obj = Object.create(TestDecorator.prototype);
-            var args = Array.prototype.slice.call(arguments);
-            args = [this, this.metadata, this.options].concat(args);
-            TestDecorator.apply(obj, args);
-            return obj;
+            return new TestDecorator(this, this.editor, this.metadata, this.options);
         };
         TestMode.prototype.getAttributeCompletions = function (attr) {
             if (attr.name === "n") {
@@ -322,13 +364,14 @@ define(["require", "exports", "module", "jquery", "salve", "wed/action", "wed/de
             return [];
         };
         TestMode.prototype.getValidator = function () {
-            return new Validator(this.editor.data_root);
+            return new Validator(this.editor.dataRoot);
         };
         return TestMode;
     }(generic_1.Mode));
+    exports.TestMode = TestMode;
     exports.Mode = TestMode;
 });
-//  LocalWords:  domutil metas tei oop util Mangalam MPL
-//  LocalWords:  Dubeau
+//  LocalWords:  Dubeau MPL Mangalam tei domutil btn getLabelFor tabindex href
+//  LocalWords:  li nameSuffix subtype typeahead fw draggable resizable
 
 //# sourceMappingURL=test-mode.js.map

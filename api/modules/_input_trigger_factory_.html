@@ -77,12 +77,6 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
-							<h3>Type aliases</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-type-alias tsd-parent-kind-external-module"><a href="_input_trigger_factory_.html#editor" class="tsd-kind-icon">Editor</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_input_trigger_factory_.html#makesplitmergeinputtrigger" class="tsd-kind-icon">make<wbr>Split<wbr>Merge<wbr>Input<wbr>Trigger</a></li>
@@ -93,31 +87,18 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Type aliases</h2>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-external-module">
-					<a name="editor" class="tsd-anchor"></a>
-					<h3>Editor</h3>
-					<div class="tsd-signature tsd-kind-icon">Editor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/input-trigger-factory.ts#L15">input-trigger-factory.ts:15</a></li>
-						</ul>
-					</aside>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
 					<a name="makesplitmergeinputtrigger" class="tsd-anchor"></a>
 					<h3>make<wbr>Split<wbr>Merge<wbr>Input<wbr>Trigger</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">make<wbr>Split<wbr>Merge<wbr>Input<wbr>Trigger<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_input_trigger_factory_.html#editor" class="tsd-signature-type">Editor</a>, elementName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, splitKey<span class="tsd-signature-symbol">: </span><a href="../classes/_key_.key.html" class="tsd-signature-type">Key</a>, mergeWithPreviousKey<span class="tsd-signature-symbol">: </span><a href="../classes/_key_.key.html" class="tsd-signature-type">Key</a>, mergeWithNextKey<span class="tsd-signature-symbol">: </span><a href="../classes/_key_.key.html" class="tsd-signature-type">Key</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_input_trigger_.inputtrigger.html" class="tsd-signature-type">InputTrigger</a></li>
+						<li class="tsd-signature tsd-kind-icon">make<wbr>Split<wbr>Merge<wbr>Input<wbr>Trigger<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, mode<span class="tsd-signature-symbol">: </span><a href="../interfaces/_mode_.mode.html" class="tsd-signature-type">Mode</a>, selector<span class="tsd-signature-symbol">: </span><a href="../classes/_gui_selector_.guiselector.html" class="tsd-signature-type">GUISelector</a>, splitKey<span class="tsd-signature-symbol">: </span><a href="../classes/_key_.key.html" class="tsd-signature-type">Key</a>, mergeWithPreviousKey<span class="tsd-signature-symbol">: </span><a href="../classes/_key_.key.html" class="tsd-signature-type">Key</a>, mergeWithNextKey<span class="tsd-signature-symbol">: </span><a href="../classes/_key_.key.html" class="tsd-signature-type">Key</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/_input_trigger_.inputtrigger.html" class="tsd-signature-type">InputTrigger</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/input-trigger-factory.ts#L95">input-trigger-factory.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/input-trigger-factory.ts#L98">input-trigger-factory.ts:98</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -128,17 +109,20 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="_input_trigger_factory_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The editor for which to create the input trigger.</p>
 									</div>
 								</li>
 								<li>
-									<h5>elementName: <span class="tsd-signature-type">string</span></h5>
+									<h5>mode: <a href="../interfaces/_mode_.mode.html" class="tsd-signature-type">Mode</a></h5>
+								</li>
+								<li>
+									<h5>selector: <a href="../classes/_gui_selector_.guiselector.html" class="tsd-signature-type">GUISelector</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>A CSS selector that determines which element we want to
 											split or merge. For instance, to operate on all paragraphs, this parameter
-										could be <code>&quot;p&quot;</code>.</p>
+										could be <code>&quot;p&quot;</code>. This selector must be fit to be used in the GUI tree.</p>
 									</div>
 								</li>
 								<li>
@@ -171,13 +155,13 @@
 					<a name="splitnodeon" class="tsd-anchor"></a>
 					<h3>split<wbr>Node<wbr>On</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">split<wbr>Node<wbr>On<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="_input_trigger_factory_.html#editor" class="tsd-signature-type">Editor</a>, data<span class="tsd-signature-symbol">: </span><a href="../interfaces/_input_trigger_factory_.splitdata.html" class="tsd-signature-type">SplitData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">split<wbr>Node<wbr>On<span class="tsd-signature-symbol">(</span>editor<span class="tsd-signature-symbol">: </span><a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a>, data<span class="tsd-signature-symbol">: </span><a href="../interfaces/_input_trigger_factory_.splitdata.html" class="tsd-signature-type">SplitData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4525c15d/lib/wed/input-trigger-factory.ts#L32">input-trigger-factory.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/48b2fc72/lib/wed/input-trigger-factory.ts#L32">input-trigger-factory.ts:32</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -193,7 +177,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>editor: <a href="_input_trigger_factory_.html#editor" class="tsd-signature-type">Editor</a></h5>
+									<h5>editor: <a href="../classes/_wed_.editor.html" class="tsd-signature-type">Editor</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The editor which invoked the transformation.</p>
 									</div>
@@ -226,9 +210,6 @@
 				<ul class="before-current">
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../interfaces/_input_trigger_factory_.splitdata.html" class="tsd-kind-icon">Split<wbr>Data</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
-						<a href="_input_trigger_factory_.html#editor" class="tsd-kind-icon">Editor</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="_input_trigger_factory_.html#makesplitmergeinputtrigger" class="tsd-kind-icon">make<wbr>Split<wbr>Merge<wbr>Input<wbr>Trigger</a>

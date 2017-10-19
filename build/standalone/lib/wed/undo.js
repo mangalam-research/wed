@@ -26,7 +26,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * recorded, C and D are undone and then E is recorded, the list of recorded
      * operations will then be A, B, E.
      */
-    var UndoList = (function () {
+    var UndoList = /** @class */ (function () {
         function UndoList() {
             this.stack = [];
             this.list = [];
@@ -101,7 +101,10 @@ define(["require", "exports", "module"], function (require, exports, module) {
          * @returns True if there is something to undo, false otherwise.
          */
         UndoList.prototype.canUndo = function () {
-            return this.index > -1;
+            // If there is a group on the stack, then we have to return true. That's
+            // because when the group is ended when undo() is called, it will be added
+            // at the end of this.list.
+            return this.index > -1 || this.stack.length > 0;
         };
         /**
          * @returns True if there is something to redo, false otherwise.
@@ -174,7 +177,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * An undo operation.
      * @param {string} desc The description of this undo operation.
      */
-    var Undo = (function () {
+    var Undo = /** @class */ (function () {
         function Undo(desc) {
             this.desc = desc;
         }
@@ -190,7 +193,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
     /**
      * A group of undo operations.
      */
-    var UndoGroup = (function (_super) {
+    var UndoGroup = /** @class */ (function (_super) {
         __extends(UndoGroup, _super);
         function UndoGroup() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -245,6 +248,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }(Undo));
     exports.UndoGroup = UndoGroup;
 });
-//  LocalWords:  UndoList oop Mangalam MPL Dubeau boolean
+//  LocalWords:  boolean Dubeau MPL Mangalam UndoList desc
 
 //# sourceMappingURL=undo.js.map

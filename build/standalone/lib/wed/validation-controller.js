@@ -97,7 +97,7 @@ define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domty
      * Controls the validator and the tasks that pertain to error processing and
      * refreshing. Takes care of reporting errors to the user.
      */
-    var ValidationController = (function () {
+    var ValidationController = /** @class */ (function () {
         /**
          * @param editor The editor for which this controller is created.
          *
@@ -240,7 +240,7 @@ define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domty
                 this.processErrorsTimeout = undefined;
             }
             this.processErrorsRunner.reset();
-            this.editor._resumeTaskWhenPossible(this.processErrorsRunner);
+            this.editor.resumeTaskWhenPossible(this.processErrorsRunner);
         };
         /**
          * Find where the error represented by the event passed should be marked.
@@ -273,11 +273,10 @@ define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domty
             }
             else {
                 insertAt = findInsertionPoint(this.editor, dataNode, index);
-                if (insertAt === null) {
+                if (insertAt === undefined) {
                     return undefined;
                 }
-                insertAt = this.editor.caretManager
-                    .normalizeToEditableRange(insertAt);
+                insertAt = this.editor.caretManager.normalizeToEditableRange(insertAt);
             }
             return insertAt;
         };
@@ -406,7 +405,7 @@ define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domty
          */
         ValidationController.prototype.refreshErrors = function () {
             this.refreshErrorsRunner.reset();
-            this.editor._resumeTaskWhenPossible(this.refreshErrorsRunner);
+            this.editor.resumeTaskWhenPossible(this.refreshErrorsRunner);
         };
         /**
          * This method recreates the error messages and the error markers associated
@@ -446,5 +445,7 @@ define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domty
     }());
     exports.ValidationController = ValidationController;
 });
+//  LocalWords:  MPL scroller processErrors li markerId loc scrollerPos px
+//  LocalWords:  scrollTop scrollLeft
 
 //# sourceMappingURL=validation-controller.js.map

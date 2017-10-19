@@ -40,6 +40,6 @@ define(["require", "exports", "module", "jquery", "bootstrap"], function (requir
     }
     exports.tooltip = tooltip;
 });
-//  LocalWords:  tooltip Tooltips bs tooltips
+//  LocalWords:  MPL tooltips bs Tooltips tooltip
 
 //# sourceMappingURL=tooltip.js.map

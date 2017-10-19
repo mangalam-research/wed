@@ -22,22 +22,17 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
      * allows for suppressing the generic handling of such events. See
      * [[addKeyHandler]] for more information.
      */
-    var InputTrigger = (function () {
+    var InputTrigger = /** @class */ (function () {
         /**
-         * @param editor The editor to which this InputTrigger belongs.
+         * @param editor The editor to which this ``InputTrigger`` belongs.
          *
-         * @param selector This is a CSS selector. The object created by this
-         * constructor will listen to events that pertain only to DOM nodes matching
-         * this selector. The form this selector can take is constrained by the limits
-         * imposed by [["domutil".toGUISelector]]
+         * @param mode The mode for which this ``InputTrigger`` is being created.
+         *
+         * @param selector This is a CSS selector which must be fit to be used in the
+         * GUI tree. (For instance by being the output of
+         * [["domutil".toGUISelector]].)
          */
-        function InputTrigger(editor, selector) {
-            this.editor = editor;
-            this.selector = selector;
-            // This is a map of all keys to their handlers.
-            this.keyToHandler = new salve_1.HashMap(hashHelper);
-            this.textInputKeyToHandler = new salve_1.HashMap(hashHelper);
-            this.guiSelector = domutil_1.toGUISelector(this.selector);
+        function InputTrigger(editor, mode, selector) {
             // This is a map of keys that are actually text keys to their handlers. This
             // map is in effect a submap of _key_to_handler. We want this for speed,
             // because otherwise each text change event would require that the
@@ -45,7 +40,13 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
             // that are "text input" keys are those that actually modify DOM text. So
             // things like cursor movement keys or ENTER, BACKSPACE, or control keys do
             // not appear *in* text and so are excluded from this map.
-            editor.$gui_root.on("wed-post-paste", this.pasteHandler.bind(this));
+            this.editor = editor;
+            this.mode = mode;
+            this.selector = selector;
+            // This is a map of all keys to their handlers.
+            this.keyToHandler = new salve_1.HashMap(hashHelper);
+            this.textInputKeyToHandler = new salve_1.HashMap(hashHelper);
+            editor.$guiRoot.on("wed-post-paste", this.pasteHandler.bind(this));
             // Implementation note: getting keydown events to get fired on random HTML
             // elements is finicky. For one thing, the element needs to be focusable,
             // which is false for most elements unless tabindex is set. Even with
@@ -55,8 +56,8 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
             // reliable. So we listen to all keydown events on $root and in the handler
             // we filter out what we don't care about. More expensive but works
             // reliably.
-            editor.$gui_root.on("wed-input-trigger-keydown", this.keydownHandler.bind(this));
-            editor.$gui_root.on("wed-input-trigger-keypress", this.keypressHandler.bind(this));
+            editor.$guiRoot.on("wed-input-trigger-keydown", this.keydownHandler.bind(this));
+            editor.$guiRoot.on("wed-input-trigger-keypress", this.keypressHandler.bind(this));
         }
         /**
          * Adds a key handler to the object.
@@ -103,6 +104,22 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
                 this.textInputKeyToHandler.add(key, handlers);
             }
         };
+        InputTrigger.prototype.getNodeOfInterest = function () {
+            var caret = this.editor.caretManager.getDataCaret(true);
+            if (caret == null) {
+                return null;
+            }
+            if (this.editor.modeTree.getMode(caret.node) !== this.mode) {
+                // Outside our jurisdiction.
+                return null;
+            }
+            // We transit through the GUI tree to perform our match because CSS
+            // selectors cannot operate on XML namespace prefixes (or, at the time of
+            // writing, on XML namespaces, period).
+            var dataNode = domtypeguards_1.isText(caret.node) ? caret.node.parentNode : caret.node;
+            var guiNode = $.data(dataNode, "wed_mirror_node");
+            return domutil_1.closest(guiNode, this.selector.value, this.editor.guiRoot);
+        };
         /**
          * Handles ``keydown`` events.
          *
@@ -111,27 +128,19 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
          * @param e The original DOM event that wed received.
          */
         InputTrigger.prototype.keydownHandler = function (wedEvent, e) {
-            var caret = this.editor.caretManager.getDataCaret(true);
-            if (caret == null) {
+            var nodeOfInterest = this.getNodeOfInterest();
+            if (nodeOfInterest === null) {
                 return;
             }
-            // We transit through the GUI tree to perform our match because CSS
-            // selectors cannot operate on XML namespace prefixes (or, at the time of
-            // writing, on XML namespaces, period).
-            var dataNode = domtypeguards_1.isText(caret.node) ? caret.node.parentNode : caret.node;
-            var guiNode = $.data(dataNode, "wed_mirror_node");
-            var nodeOfInterest = domutil_1.closest(guiNode, this.guiSelector, this.editor.gui_root);
-            if (nodeOfInterest !== null) {
-                dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-                this.keyToHandler.forEach(function (key, handlers) {
-                    if (key.matchesEvent(e)) {
-                        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
-                            var handler = handlers_1[_i];
-                            handler("keydown", dataNode, e);
-                        }
+            var dataNode = $.data(nodeOfInterest, "wed_mirror_node");
+            this.keyToHandler.forEach(function (key, handlers) {
+                if (key.matchesEvent(e)) {
+                    for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+                        var handler = handlers_1[_i];
+                        handler("keydown", dataNode, e);
                     }
-                });
-            }
+                }
+            });
         };
         /**
          * Handles ``keypress`` events.
@@ -141,27 +150,19 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
          * @param e The original DOM event that wed received.
          */
         InputTrigger.prototype.keypressHandler = function (wedEvent, e) {
-            var caret = this.editor.caretManager.getDataCaret(true);
-            if (caret == null) {
+            var nodeOfInterest = this.getNodeOfInterest();
+            if (nodeOfInterest === null) {
                 return;
             }
-            // We transit through the GUI tree to perform our match because CSS
-            // selectors cannot operate on XML namespace prefixes (or, at the time of
-            // writing, on XML namespaces, period).
-            var dataNode = domtypeguards_1.isText(caret.node) ? caret.node.parentNode : caret.node;
-            var guiNode = $.data(dataNode, "wed_mirror_node");
-            var nodeOfInterest = domutil_1.closest(guiNode, this.guiSelector, this.editor.gui_root);
-            if (nodeOfInterest !== null) {
-                dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-                this.keyToHandler.forEach(function (key, handlers) {
-                    if (key.matchesEvent(e)) {
-                        for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
-                            var handler = handlers_2[_i];
-                            handler("keypress", dataNode, e);
-                        }
+            var dataNode = $.data(nodeOfInterest, "wed_mirror_node");
+            this.keyToHandler.forEach(function (key, handlers) {
+                if (key.matchesEvent(e)) {
+                    for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
+                        var handler = handlers_2[_i];
+                        handler("keypress", dataNode, e);
                     }
-                });
-            }
+                }
+            });
         };
         /**
          * Handles ``paste`` events.
@@ -189,13 +190,17 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
             if (text.length === 0) {
                 return;
             }
+            if (this.editor.modeTree.getMode(caret.node) !== this.mode) {
+                // Outside our jurisdiction.
+                return;
+            }
             // We transit through the GUI tree to perform our match because CSS
             // selectors cannot operate on XML namespace prefixes (or, at the time of
             // writing, on XML namespaces, period).
             var nodeOfInterest = (domtypeguards_1.isText(caret.node) ?
                 caret.node.parentNode : caret.node);
             var guiNode = $.data(nodeOfInterest, "wed_mirror_node");
-            if (domutil_1.closest(guiNode, this.guiSelector, this.editor.gui_root) === null) {
+            if (domutil_1.closest(guiNode, this.selector.value, this.editor.guiRoot) === null) {
                 return;
             }
             this.textInputKeyToHandler.forEach(function (key, handlers) {
@@ -220,8 +225,7 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
     }());
     exports.InputTrigger = InputTrigger;
 });
-//  LocalWords:  DOM html gui Mangalam MPL Dubeau li ul focusable
-//  LocalWords:  submap keypress tabindex keydown hashstructs
-//  LocalWords:  util InputTrigger
+//  LocalWords:  InputTrigger keydown tabindex keypress submap jQuery focusable
+//  LocalWords:  Dubeau MPL Mangalam gui html DOM
 
 //# sourceMappingURL=input-trigger.js.map

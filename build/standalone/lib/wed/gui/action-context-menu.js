@@ -106,8 +106,8 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
      * When no option is focused, typing ENTER will select the first option of the
      * menu.
      */
-    var ContextMenu = (function (_super) {
-        __extends(ContextMenu, _super);
+    var ActionContextMenu = /** @class */ (function (_super) {
+        __extends(ActionContextMenu, _super);
         /**
          * @param document The DOM document for which to make this context menu.
          *
@@ -123,7 +123,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
          *
          * @param dismissCallback Function to call when the menu is dismissed.
          */
-        function ContextMenu(document, x, y, items, dismissCallback) {
+        function ActionContextMenu(document, x, y, items, dismissCallback) {
             var _this = _super.call(this, document, x, y, [], dismissCallback, false) || this;
             _this.filters = {
                 kind: null,
@@ -172,7 +172,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             textInput.focus();
             return _this;
         }
-        ContextMenu.prototype.makeKindGroup = function (document) {
+        ActionContextMenu.prototype.makeKindGroup = function (document) {
             var kindGroup = document.createElement("div");
             kindGroup.className = "btn-group btn-group-xs";
             for (var _i = 0, KIND_FILTERS_1 = KIND_FILTERS; _i < KIND_FILTERS_1.length; _i++) {
@@ -204,7 +204,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             }
             return kindGroup;
         };
-        ContextMenu.prototype.makeTypeGroup = function (document) {
+        ActionContextMenu.prototype.makeTypeGroup = function (document) {
             var typeGroup = document.createElement("div");
             typeGroup.className = "btn-group btn-group-xs";
             for (var _i = 0, TYPE_FILTERS_1 = TYPE_FILTERS; _i < TYPE_FILTERS_1.length; _i++) {
@@ -236,24 +236,24 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             }
             return typeGroup;
         };
-        ContextMenu.prototype.makeKindHandler = function (kind) {
+        ActionContextMenu.prototype.makeKindHandler = function (kind) {
             var _this = this;
             return function () {
                 _this.filters.kind = kind;
                 _this.render();
             };
         };
-        ContextMenu.prototype.makeTypeHandler = function (actionType) {
+        ActionContextMenu.prototype.makeTypeHandler = function (actionType) {
             var _this = this;
             return function () {
                 _this.filters.type = actionType;
                 _this.render();
             };
         };
-        ContextMenu.prototype.handleToggleFocus = function () {
+        ActionContextMenu.prototype.handleToggleFocus = function () {
             this.actionFilterInput.focus();
         };
-        ContextMenu.prototype.actionKeydownHandler = function (ev) {
+        ActionContextMenu.prototype.actionKeydownHandler = function (ev) {
             var _this = this;
             if (keyConstants.ESCAPE.matchesEvent(ev) &&
                 (this.filters.kind !== null ||
@@ -280,7 +280,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             }
             return true;
         };
-        ContextMenu.prototype.actionKeypressHandler = function (ev) {
+        ActionContextMenu.prototype.actionKeypressHandler = function (ev) {
             // If the user has started filtering on text, we don't interpret
             // the key as setting a kind or type filter.
             if (this.actionTextFilter !== "") {
@@ -293,7 +293,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
                     var whichFilter = spec.which;
                     // Don't treat the key specially if the filter is already set.
                     if (this.filters[whichFilter] !== null) {
-                        continue; // eslint-disable-line no-continue
+                        continue;
                     }
                     this.filters[whichFilter] = spec.filter;
                     this.render();
@@ -304,7 +304,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             }
             return true;
         };
-        ContextMenu.prototype.inputChangeHandler = function (ev) {
+        ActionContextMenu.prototype.inputChangeHandler = function (ev) {
             var previous = this.actionTextFilter;
             var newval = ev.target.value;
             // IE11 generates input events when focus is lost/gained. These
@@ -315,7 +315,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
                 this.render();
             }
         };
-        ContextMenu.prototype.inputKeydownHandler = function (ev) {
+        ActionContextMenu.prototype.inputKeydownHandler = function (ev) {
             if (keyConstants.ENTER.matchesEvent(ev)) {
                 this.$menu.find(ITEM_SELECTOR).first().focus().click();
                 ev.stopPropagation();
@@ -347,7 +347,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             }
             return true;
         };
-        ContextMenu.prototype.render = function () {
+        ActionContextMenu.prototype.render = function () {
             var menu = this.menu;
             var actionFilterItem = this.actionFilterItem;
             var actionKindFilter = this.filters.kind;
@@ -383,7 +383,7 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             var items = this.computeActionItemsToDisplay(this.actionItems);
             _super.prototype.render.call(this, items);
         };
-        ContextMenu.prototype.computeActionItemsToDisplay = function (items) {
+        ActionContextMenu.prototype.computeActionItemsToDisplay = function (items) {
             var kindFilter = this.filters.kind;
             var typeFilter = this.filters.type;
             var textFilter = this.actionTextFilter;
@@ -418,14 +418,14 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
                 if (textFilter[0] === "^") {
                     var textFilterRe_1 = RegExp(textFilter);
                     textMatch = function (item) {
-                        var text = (item.data !== null) ?
+                        var text = (item.data !== null && item.data.name !== undefined) ?
                             item.data.name : item.item.textContent;
                         return textFilterRe_1.test(text);
                     };
                 }
                 else {
                     textMatch = function (item) {
-                        var text = (item.data !== null) ?
+                        var text = (item.data !== null && item.data.name !== undefined) ?
                             item.data.name : item.item.textContent;
                         return text.indexOf(textFilter) !== -1;
                     };
@@ -443,9 +443,11 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             }
             return ret;
         };
-        return ContextMenu;
+        return ActionContextMenu;
     }(context_menu_1.ContextMenu));
-    exports.ContextMenu = ContextMenu;
+    exports.ActionContextMenu = ActionContextMenu;
 });
+//  LocalWords:  MPL li Dropdown nowrap sm keydown tooltips keypress btn xs
+//  LocalWords:  tooltip dropdown actionType actionFilterItem actionFilterInput
 
 //# sourceMappingURL=action-context-menu.js.map

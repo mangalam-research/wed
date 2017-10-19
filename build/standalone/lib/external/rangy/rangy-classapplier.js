@@ -7,10 +7,10 @@
  *
  * Depends on Rangy core.
  *
- * Copyright 2015, Tim Down
+ * Copyright 2017, Tim Down
  * Licensed under the MIT license.
- * Version: 1.3.0
- * Build date: 10 May 2015
+ * Version: 1.3.1-dev
+ * Build date: 11 October 2017
  */
 (function(factory, root) {
     if (typeof define == "function" && define.amd) {
@@ -698,13 +698,10 @@
             // Normalizes nodes after applying a class to a Range.
             postApply: function(textNodes, range, positionsToPreserve, isUndo) {
                 var firstNode = textNodes[0], lastNode = textNodes[textNodes.length - 1];
-
                 var merges = [], currentMerge;
-
                 var rangeStartNode = firstNode, rangeEndNode = lastNode;
                 var rangeStartOffset = 0, rangeEndOffset = lastNode.length;
-
-                var textNode, precedingTextNode;
+                var precedingTextNode;
 
                 // Check for every required merge and create a Merge object for each
                 forEach(textNodes, function(textNode) {
@@ -741,7 +738,7 @@
 
                 // Apply the merges
                 if (merges.length) {
-                    for (i = 0, len = merges.length; i < len; ++i) {
+                    for (var i = 0, len = merges.length; i < len; ++i) {
                         merges[i].doMerge(positionsToPreserve);
                     }
 

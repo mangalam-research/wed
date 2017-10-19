@@ -1,21 +1,13 @@
-/// <reference types="bluebird" />
-/**
- * The main module for the generic mode.
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
-import * as Promise from "bluebird";
-import { NameResolver } from "salve";
+import { EName, NameResolver } from "salve";
 import { Action } from "wed/action";
-import { BaseMode, Editor } from "wed/mode";
+import { BaseMode, CommonModeOptions } from "wed/mode";
 import * as objectCheck from "wed/object-check";
 import { Transformation, TransformationData } from "wed/transformation";
+import { Editor } from "wed/wed";
 import { GenericDecorator } from "./generic-decorator";
 import { Metadata } from "./metadata";
-export interface GenericModeOptions {
+export interface GenericModeOptions extends CommonModeOptions {
     metadata: string;
-    autoinsert?: boolean;
 }
 /**
  * This is the class that implements the generic mode. This mode decorates all
@@ -69,6 +61,8 @@ declare class GenericMode<Options extends GenericModeOptions> extends BaseMode<O
      * this as needed.
      */
     makeMetadata(): Promise<Metadata>;
+    getAbsoluteNamespaceMappings(): Record<string, string>;
+    unresolveName(name: EName): string | undefined;
     getAbsoluteResolver(): NameResolver;
     makeDecorator(): GenericDecorator;
     /**

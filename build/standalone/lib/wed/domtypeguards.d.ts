@@ -23,10 +23,10 @@ export declare function isText(node?: Node | null): node is Text;
  * decided that attributes were no longer really nodes. So they decided to make
  * attribute objects inherit from the ``Attr`` interface **only**. This means
  * that ``nodeType`` no longer exists for attributes. The new way to test
- * whether something is an attribute is to test with ``instanceof
- * Attr``. However, as usual, the DOM implementation for XML lags behind the
- * HTML side and on Chrome 49 (to name just one case), ``instanceof Attr`` does
- * not work on XML attributes whereas testing ``nodeType`` does.
+ * whether something is an attribute is to test with ``instanceof Attr``.
+ * However, as usual, the DOM implementation for XML lags behind the HTML side
+ * and on Chrome 49 (to name just one case), ``instanceof Attr`` does not work
+ * on XML attributes whereas testing ``nodeType`` does.
  *
  * This function performs a test that works on HTML attributes and XML
  * attributes.

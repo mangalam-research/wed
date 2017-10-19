@@ -16,7 +16,7 @@ export declare class CaretMark {
     private readonly el;
     /**
      * This is an element used to calculate the position of the caret on the
-     * screen. It is temporarily inserted in the the DOM to perform the position
+     * screen. It is temporarily inserted in the DOM to perform the position
      * calculations.
      */
     private readonly dummy;

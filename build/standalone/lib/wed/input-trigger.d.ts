@@ -1,6 +1,8 @@
 /// <reference types="jquery" />
+import { GUISelector } from "./gui-selector";
 import { Key } from "./key";
-export declare type Editor = any;
+import { Mode } from "./mode";
+import { Editor } from "./wed";
 /**
  * @param eventType The type of event being processed.
  *
@@ -29,19 +31,20 @@ export declare type KeyHandler = (eventType: "keypress" | "keydown" | "paste", e
  */
 export declare class InputTrigger {
     private readonly editor;
+    private readonly mode;
     private readonly selector;
-    private readonly guiSelector;
     private readonly keyToHandler;
     private readonly textInputKeyToHandler;
     /**
-     * @param editor The editor to which this InputTrigger belongs.
+     * @param editor The editor to which this ``InputTrigger`` belongs.
      *
-     * @param selector This is a CSS selector. The object created by this
-     * constructor will listen to events that pertain only to DOM nodes matching
-     * this selector. The form this selector can take is constrained by the limits
-     * imposed by [["domutil".toGUISelector]]
+     * @param mode The mode for which this ``InputTrigger`` is being created.
+     *
+     * @param selector This is a CSS selector which must be fit to be used in the
+     * GUI tree. (For instance by being the output of
+     * [["domutil".toGUISelector]].)
      */
-    constructor(editor: Editor, selector: string);
+    constructor(editor: Editor, mode: Mode, selector: GUISelector);
     /**
      * Adds a key handler to the object.
      *
@@ -71,6 +74,7 @@ export declare class InputTrigger {
      * @param handler The handler that will process events related to that key.
      */
     addKeyHandler(key: Key, handler: KeyHandler): void;
+    private getNodeOfInterest();
     /**
      * Handles ``keydown`` events.
      *

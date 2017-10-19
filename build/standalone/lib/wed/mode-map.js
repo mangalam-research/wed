@@ -1,1 +1,1 @@
-define({"modes":{"generic":"wed/modes/generic/generic"}});
+define({"modes":{"generic":"wed/modes/generic/generic","test":"wed/modes/test/test-mode"}});

@@ -17,7 +17,6 @@ var __extends = (this && this.__extends) || (function () {
 define(["require", "exports", "module", "lodash", "./action", "./domtypeguards", "./domutil", "./gui/icon"], function (require, exports, module, _, action_1, domtypeguards_1, domutil_1, icon) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // tslint:enable:no-any
     var TYPE_TO_KIND = _.extend(Object.create(null), {
         // These are not actually type names. It is possible to use a kind name as a
         // type name if the transformation is not more specific. In this case the kind
@@ -80,7 +79,7 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
     /**
      * An operation that transforms the data tree.
      */
-    var Transformation = (function (_super) {
+    var Transformation = /** @class */ (function (_super) {
         __extends(Transformation, _super);
         function Transformation(editor, transformationType, desc, abbreviatedDesc, iconHtml, needsInput, handler) {
             var _this = this;
@@ -109,6 +108,9 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
             return _this;
         }
         Transformation.prototype.getDescriptionFor = function (data) {
+            if (data.name === undefined) {
+                return this.desc;
+            }
             return this.desc.replace(/<name>/, data.name);
         };
         /**
@@ -131,7 +133,7 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
      *
      * @param ns The URI of the namespace to use for the new element.
      *
-     * @param name Name of the new element.
+     * @param name The name of the new element.
      *
      * @param attrs An object whose fields will become attributes for the new
      * element.
@@ -156,13 +158,13 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
      *
      * @param dataUpdater A tree updater through which to update the DOM tree.
      *
-     * @param parent Parent of the new node.
+     * @param parent The parent of the new node.
      *
      * @param index Offset in the parent where to insert the new node.
      *
      * @param ns The URI of the namespace to use for the new element.
      *
-     * @param name Name of the new element.
+     * @param name The name of the new element.
      *
      * @param attrs An object whose fields will become attributes for the new
      * element.
@@ -183,7 +185,7 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
      *
      * @param node The DOM node where to wrap. Must be a text node.
      *
-     * @param offset Offset in the node. This parameter specifies where to start
+     * @param offset The offset in the node. This parameter specifies where to start
      * wrapping.
      *
      * @param endOffset Offset in the node. This parameter specifies where to end
@@ -191,7 +193,7 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
      *
      * @param ns The URI of the namespace to use for the new element.
      *
-     * @param name Name of the wrapping element.
+     * @param name The name of the wrapping element.
      *
      * @param attrs An object whose fields will become attributes for the new
      * element.
@@ -232,7 +234,7 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
      *
      * @param offset Where to split the node
      *
-     * @returns Returns a caret location marking where the split occurred.
+     * @returns A caret location marking where the split occurred.
      */
     function _wie_splitTextNode(dataUpdater, container, offset) {
         var parent = container.parentNode;
@@ -367,10 +369,13 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
      */
     function splitNode(editor, node) {
         var caret = editor.caretManager.getDataCaret();
+        if (caret === undefined) {
+            throw new Error("no caret");
+        }
         if (!node.contains(caret.node)) {
             throw new Error("caret outside node");
         }
-        var pair = editor.data_updater.splitAt(node, caret);
+        var pair = editor.dataUpdater.splitAt(node, caret);
         // Find the deepest location at the start of the 2nd element.
         editor.caretManager.setCaret(domutil_1.firstDescendantOrSelf(pair[1]), 0);
     }
@@ -403,16 +408,17 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
         var insertionPoint = prev.childNodes.length;
         // Reverse order
         for (var i = node.childNodes.length - 1; i >= 0; --i) {
-            editor.data_updater.insertAt(prev, insertionPoint, node.childNodes[i].cloneNode(true));
+            editor.dataUpdater.insertAt(prev, insertionPoint, node.childNodes[i].cloneNode(true));
         }
         if (wasText) {
-            editor.data_updater.mergeTextNodes(lastChild);
+            // If wasText is true, lastChild cannot be null.
+            editor.dataUpdater.mergeTextNodes(lastChild);
             editor.caretManager.setCaret(prev.childNodes[caretPos - 1], textLen);
         }
         else {
             editor.caretManager.setCaret(prev, caretPos);
         }
-        editor.data_updater.removeNode(node);
+        editor.dataUpdater.removeNode(node);
     }
     exports.mergeWithPreviousHomogeneousSibling = mergeWithPreviousHomogeneousSibling;
     /**
@@ -454,8 +460,8 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
         if (parent === null) {
             throw new Error("detached node");
         }
-        editor.data_updater.removeNode(node);
-        editor.data_updater.insertBefore(parent, node, prev);
+        editor.dataUpdater.removeNode(node);
+        editor.dataUpdater.insertBefore(parent, node, prev);
         editor.caretManager.setCaret(node);
     }
     exports.swapWithPreviousHomogeneousSibling = swapWithPreviousHomogeneousSibling;
@@ -477,10 +483,9 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
     }
     exports.swapWithNextHomogeneousSibling = swapWithNextHomogeneousSibling;
 });
-//  LocalWords:  concat prepend refman endOffset endContainer DOM oop
-//  LocalWords:  startOffset startContainer html Mangalam MPL Dubeau
-//  LocalWords:  previousSibling nextSibling insertNodeAt deleteNode
-//  LocalWords:  mergeTextNodes lastChild prev deleteText Prepend lt
-//  LocalWords:  domutil util
+//  LocalWords:  wasText endOffset prepend endContainer startOffset html DOM
+//  LocalWords:  startContainer Mangalam Dubeau previousSibling nextSibling MPL
+//  LocalWords:  insertNodeAt deleteNode mergeTextNodes lastChild prev Prepend
+//  LocalWords:  deleteText domutil
 
 //# sourceMappingURL=transformation.js.map

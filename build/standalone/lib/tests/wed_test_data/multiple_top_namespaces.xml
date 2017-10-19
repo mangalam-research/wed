@@ -1,0 +1,14 @@
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:math="http://www.w3.org/1998/Math/MathML">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title></title></titleStmt>
+      <publicationStmt><p></p></publicationStmt>
+      <sourceDesc><p></p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p><formula><math:math></math:math></formula></p>
+    </body>
+  </text>
+</TEI>

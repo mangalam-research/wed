@@ -1,5 +1,5 @@
+import { Editor } from "../wed";
 import { ContextMenu, DismissCallback } from "./context-menu";
-export declare type Editor = any;
 /**
  * A menu for displaying completions.
  */
@@ -8,7 +8,7 @@ export declare class CompletionMenu extends ContextMenu {
     private readonly completionItems;
     private readonly editor;
     private readonly boundCompletionKeydownHandler;
-    private focused;
+    private _focused;
     /**
      * @param editor The editor for which to create this menu.
      *
@@ -27,6 +27,8 @@ export declare class CompletionMenu extends ContextMenu {
      * @param dismissCallback Function to call when the menu is dismissed.
      */
     constructor(editor: Editor, document: Document, x: number, y: number, prefix: string, items: string[], dismissCallback?: DismissCallback);
+    /** Whether the completion menu has been focused. */
+    readonly focused: boolean;
     private globalKeydownHandler(wedEv, ev);
     render(): void;
     dismiss(): void;

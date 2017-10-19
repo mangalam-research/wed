@@ -4,6 +4,14 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, module, rxjs_1, dloc_1, domtypeguards_1, domutil) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -45,7 +53,7 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
      * - [[DeleteNodeEvent]] has the additional ``formerParent`` property.
      *
      */
-    var TreeUpdater = (function () {
+    var TreeUpdater = /** @class */ (function () {
         /**
          * @param tree The node which contains the tree to update.
          */
@@ -249,12 +257,18 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
             }
             this.insertAt(parent, index, toInsert);
         };
-        TreeUpdater.prototype.insertText = function (loc, index, text) {
+        TreeUpdater.prototype.insertText = function (loc, index, text, caretAtEnd) {
+            if (text === void 0) { text = true; }
+            if (caretAtEnd === void 0) { caretAtEnd = true; }
             var node;
             if (loc instanceof dloc_1.DLoc) {
                 if (typeof index !== "string") {
                     throw new Error("text must be a string");
                 }
+                if (typeof text !== "boolean") {
+                    throw new Error("caretAtEnd must be a boolean");
+                }
+                caretAtEnd = text;
                 text = index;
                 node = loc.node;
                 index = loc.offset;
@@ -262,7 +276,8 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
             else {
                 node = loc;
             }
-            return domutil.genericInsertText.call(this, node, index, text);
+            var result = domutil.genericInsertText.call(this, node, index, text, caretAtEnd);
+            return __assign({}, result, { caret: dloc_1.DLoc.makeDLoc(this.dlocRoot, result.caret[0], result.caret[1]) });
         };
         TreeUpdater.prototype.deleteText = function (loc, index, length) {
             var node;
@@ -359,8 +374,8 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
          *
          * @param value The new value of the node.
          *
-         * @emits module:tree_updater~TreeUpdater#setTextNodeValue
-         * @emits module:tree_updater~TreeUpdater#change
+         * @emits SetTextNodeValueEvent
+         * @emits ChangedEvent
          * @throws {Error} If called on a non-text Node type.
          */
         TreeUpdater.prototype.setTextNodeValue = function (node, value) {
@@ -455,9 +470,9 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
          * A complex method. Removes the contents between the start and end carets
          * from the DOM tree. If two text nodes become adjacent, they are merged.
          *
-         * @param start Start position.
+         * @param start The start position.
          *
-         * @param end Ending position.
+         * @param end The end position.
          *
          * @returns A pair of items. The first item is a ``DLoc`` object indicating
          * the position where the cut happened. The second item is a list of nodes,
@@ -523,9 +538,9 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
          *
          * @param node The node to remove
          *
-         * @emits module:tree_updater~TreeUpdater#deleteNode
-         * @emits module:tree_updater~TreeUpdater#beforeDeleteNode
-         * @emits module:tree_updater~TreeUpdater#change
+         * @emits DeleteNodeEvent
+         * @emits BeforeDeleteNodeEvent
+         * @emits ChangedEvent
          */
         TreeUpdater.prototype.deleteNode = function (node) {
             this._emit({ name: "BeforeDeleteNode", node: node });
@@ -549,8 +564,8 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
          *
          * @param value The value to give to the attribute.
          *
-         * @emits module:tree_updater~TreeUpdater#setAttributeNS
-         * @emits module:tree_updater~TreeUpdater#change
+         * @emits SetAttributeNSEvent
+         * @emits ChangedEvent
          */
         TreeUpdater.prototype.setAttribute = function (node, attribute, value) {
             this.setAttributeNS(node, "", attribute, value);
@@ -567,8 +582,8 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
          *
          * @param value The value to give to the attribute.
          *
-         * @emits module:tree_updater~TreeUpdater#setAttributeNS
-         * @emits module:tree_updater~TreeUpdater#change
+         * @emits SetAttributeNSEvent
+         * @emits ChangedEvent
          */
         TreeUpdater.prototype.setAttributeNS = function (node, ns, attribute, value) {
             // Normalize to null.
@@ -618,11 +633,12 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
     }());
     exports.TreeUpdater = TreeUpdater;
 });
-//  LocalWords:  DOM Mangalam MPL Dubeau previousSibling nextSibling
-//  LocalWords:  mergeTextNodes prev insertIntoText nodeToPath
-//  LocalWords:  pathToNode SimpleEventEmitter deleteNode setTextNode
-//  LocalWords:  cd abfoocd abcd insertNodeAt TreeUpdater param mixin
-//  LocalWords:  setTextNodeValue removeNode deleteText insertBefore
-//  LocalWords:  insertText insertAt splitAt oop domutil
+//  LocalWords:  domutil splitAt insertAt insertText insertBefore deleteText cd
+//  LocalWords:  removeNode setTextNodeValue param TreeUpdater insertNodeAt MPL
+//  LocalWords:  abcd abfoocd setTextNode deleteNode pathToNode nodeToPath prev
+//  LocalWords:  insertIntoText mergeTextNodes nextSibling previousSibling DOM
+//  LocalWords:  Dubeau Mangalam BeforeInsertNodeAt BeforeDeleteNode DLocRoot
+//  LocalWords:  SetAttributeNS NodeList nodeType beforeThis nd setAttribute
+//  LocalWords:  caretAtEnd
 
 //# sourceMappingURL=tree-updater.js.map

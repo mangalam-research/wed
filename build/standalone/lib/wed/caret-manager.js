@@ -1,8 +1,13 @@
 define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers", "./caret-mark", "./caret-movement", "./dloc", "./domtypeguards", "./domutil", "./object-check", "./wed-selection", "./wed-util"], function (require, exports, module, $, rangy, rxjs_1, browsers, caret_mark_1, caretMovement, dloc_1, domtypeguards_1, domutil_1, objectCheck, wed_selection_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    /**
+     * This is the template use with objectCheck to check whether the options passed
+     * are correct. Changes to [[SetCaretOptions]] must be reflected here.
+     */
     var caretOptionTemplate = {
         textEdit: false,
+        focus: false,
     };
     /**
      * Find a previous sibling which is either a text node or a node with the class
@@ -34,47 +39,43 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
      * vice-versa.
      *
      * Given wed's notion of parallel data and GUI trees. A caret can either point
-     * into the GUI tree or into the data tree. In in the following documentation,
-     * if the caret is not qualified, then it is a GUI caret.
+     * into the GUI tree or into the data tree. In the following documentation, if
+     * the caret is not qualified, then it is a GUI caret.
      *
      * Similarly, a selection can either span a range in the GUI tree or in the data
      * tree. Again, "selection" without qualifier is a GUI selection.
      */
-    var CaretManager = (function () {
+    var CaretManager = /** @class */ (function () {
         /**
-         * @param guiRoot: The object representing the root of the gui tree.
+         * @param guiRoot The object representing the root of the gui tree.
          *
-         * @param dataRoot: The object representing the root of the data tree.
+         * @param dataRoot The object representing the root of the data tree.
          *
-         * @param inputField: The HTML element that is the input field.
+         * @param inputField The HTML element that is the input field.
          *
-         * @param guiUpdater: The GUI updater that is responsible for updating the
+         * @param guiUpdater The GUI updater that is responsible for updating the
          * tree whose root is ``guiRoot``.
          *
-         * @param layer: The layer that holds the caret.
+         * @param layer The layer that holds the caret.
          *
-         * @param scroller: The element that scrolls ``guiRoot``.
+         * @param scroller The element that scrolls ``guiRoot``.
          *
-         * @param inAttributes: Whether or not to move into attributes.
-         *
-         * @param mode: The current mode in effect.
+         * @param modeTree The mode tree from which to get modes.
          */
-        function CaretManager(guiRoot, dataRoot, inputField, guiUpdater, layer, scroller, inAttributes, mode) {
+        function CaretManager(guiRoot, dataRoot, inputField, guiUpdater, layer, scroller, modeTree) {
             var _this = this;
             this.guiRoot = guiRoot;
             this.dataRoot = dataRoot;
             this.inputField = inputField;
             this.guiUpdater = guiUpdater;
-            this.inAttributes = inAttributes;
-            this.mode = mode;
+            this.layer = layer;
+            this.scroller = scroller;
+            this.modeTree = modeTree;
             this.selectionStack = [];
             this.mark = new caret_mark_1.CaretMark(this, guiRoot.node.ownerDocument, layer, inputField, scroller);
-            scroller.events.subscribe(function () {
-                _this.mark.refresh();
-            });
-            this.guiRootEl = guiRoot.node;
+            var guiRootEl = this.guiRootEl = guiRoot.node;
             this.dataRootEl = dataRoot.node;
-            this.doc = this.guiRootEl.ownerDocument;
+            this.doc = guiRootEl.ownerDocument;
             this.win = this.doc.defaultView;
             this.$inputField = $(this.inputField);
             this._events = new rxjs_1.Subject();
@@ -161,6 +162,27 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(CaretManager.prototype, "minCaret", {
+            get: function () {
+                return dloc_1.DLoc.mustMakeDLoc(this.guiRoot, this.guiRootEl, 0);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CaretManager.prototype, "maxCaret", {
+            get: function () {
+                return dloc_1.DLoc.mustMakeDLoc(this.guiRoot, this.guiRootEl, this.guiRootEl.childNodes.length);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CaretManager.prototype, "docDLocRange", {
+            get: function () {
+                return new dloc_1.DLocRange(this.minCaret, this.maxCaret);
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * Get a normalized caret.
          *
@@ -183,6 +205,18 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             var normalized = this._normalizeCaret(caret);
             return normalized == null ? undefined : normalized;
         };
+        /**
+         * Same as [[getNormalizedCaret]] but must return a location.
+         *
+         * @throws {Error} If it cannot return a location.
+         */
+        CaretManager.prototype.mustGetNormalizedCaret = function () {
+            var ret = this.getNormalizedCaret();
+            if (ret === undefined) {
+                throw new Error("cannot get a normalized caret");
+            }
+            return ret;
+        };
         CaretManager.prototype.normalizeToEditableRange = function (loc) {
             if (loc.root !== this.guiRootEl) {
                 throw new Error("DLoc object must be for the GUI tree");
@@ -192,7 +226,8 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             if (domtypeguards_1.isElement(node)) {
                 // Normalize to a range within the editable nodes. We could be outside of
                 // them in an element which is empty, for instance.
-                var _a = this.mode.nodesAroundEditableContents(node), first = _a[0], second = _a[1];
+                var mode = this.modeTree.getMode(node);
+                var _a = mode.nodesAroundEditableContents(node), first = _a[0], second = _a[1];
                 var firstIndex = first !== null ? domutil_1.indexOf(node.childNodes, first) : -1;
                 if (offset <= firstIndex) {
                     offset = firstIndex + 1;
@@ -243,7 +278,8 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             if (domtypeguards_1.isElement(node)) {
                 // Normalize to a range within the editable nodes. We could be outside of
                 // them in an element which is empty, for instance.
-                var _a = this.mode.nodesAroundEditableContents(node), first = _a[0], second = _a[1];
+                var mode = this.modeTree.getMode(node);
+                var _a = mode.nodesAroundEditableContents(node), first = _a[0], second = _a[1];
                 var firstIndex = (first !== null) ? domutil_1.indexOf(node.childNodes, first) :
                     -1;
                 if (newOffset <= firstIndex) {
@@ -257,6 +293,13 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
                     }
                 }
                 return ret.makeWithOffset(newOffset);
+            }
+            return ret;
+        };
+        CaretManager.prototype.mustFromDataLocation = function (node, offset) {
+            var ret = this.fromDataLocation.apply(this, arguments);
+            if (ret === undefined) {
+                throw new Error("cannot convert to a data location");
             }
             return ret;
         };
@@ -380,16 +423,11 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             if (node == null) {
                 return undefined;
             }
-            // Attribute nodes are not "contained" by anything. :-/
-            var check = node;
-            if (domtypeguards_1.isAttr(node)) {
-                check = node.ownerElement;
-            }
             var root;
-            if (this.guiRootEl.contains(check)) {
+            if (this.guiRootEl.contains(node)) {
                 root = this.guiRoot;
             }
-            else if (this.dataRootEl.contains(check)) {
+            else if (domutil_1.contains(this.dataRootEl, node)) {
                 root = this.dataRoot;
             }
             if (root === undefined) {
@@ -447,7 +485,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
          * valid position to compute.
          */
         CaretManager.prototype.newPosition = function (pos, direction) {
-            return caretMovement.newPosition(pos, direction, this.inAttributes, this.guiRootEl, this.mode);
+            return caretMovement.newPosition(pos, direction, this.guiRootEl, this.modeTree);
         };
         /**
          * Compute the position of the current caret if it were moved according to
@@ -564,15 +602,15 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
          */
         CaretManager.prototype.pushSelection = function () {
             this.selectionStack.push(this._sel);
-            // _clearDOMSelection is to work around a problem in Rangy
-            // 1.3alpha.804. See ``tech_notes.rst``.
+            // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
+            // ``tech_notes.rst``.
             if (browsers.MSIE_TO_10) {
                 this._clearDOMSelection();
             }
         };
         /**
          * Pop the last selection that was pushed with ``pushSelection`` and restore
-         * the current caret and selection on the basis of the poped value.
+         * the current caret and selection on the basis of the popped value.
          */
         CaretManager.prototype.popSelection = function () {
             this._sel = this.selectionStack.pop();
@@ -590,10 +628,10 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
          * to deal with situations in which the caret and range may have been
          * "damaged" due to browser operations, changes of state, etc.
          *
-         * @param focus Whether the restoration of the caret and selection is due to
-         * regaining focus or not.
+         * @param gainingFocus Whether the restoration of the caret and selection is
+         * due to regaining focus or not.
          */
-        CaretManager.prototype._restoreCaretAndSelection = function (focus) {
+        CaretManager.prototype._restoreCaretAndSelection = function (gainingFocus) {
             if (this.caret !== undefined && this.anchor !== undefined &&
                 // It is possible that the anchor has been removed after focus was lost
                 // so check for it.
@@ -603,12 +641,12 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
                     throw new Error("could not make a range");
                 }
                 this._setDOMSelectionRange(rr.range, rr.reversed);
-                this.mark.refresh();
                 // We're not selecting anything...
                 if (rr.range.collapsed) {
                     this.focusInputField();
                 }
-                this._caretChange({ focus: focus });
+                this.mark.refresh();
+                this._caretChange({ gainingFocus: gainingFocus });
             }
             else {
                 this.clearSelection();
@@ -651,7 +689,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
                 return;
             }
             // tslint:disable-next-line:no-suspicious-comment
-            // The domutil.focusNode call is required to work around bug:
+            // The focusTheNode call is required to work around bug:
             // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
             if (browsers.FIREFOX) {
                 domutil_1.focusNode(range.endContainer);
@@ -669,7 +707,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
          *
          * @param loc The new position.
          *
-         * @param options Options governing the caret movement.
+         * @param options Set of options governing the caret movement.
          */
         CaretManager.prototype._setGUICaret = function (loc, options) {
             var offset = loc.offset;
@@ -701,10 +739,16 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
                 this.caret.offset === offset) {
                 return;
             }
-            this._clearDOMSelection(true);
+            // If we do not want to gain focus, we also don't want to take it away
+            // from somewhere else, so don't change the DOM.
+            if (options.focus !== false) {
+                this._clearDOMSelection(true);
+            }
             this._sel = new wed_selection_1.WedSelection(this, loc);
             this.mark.refresh();
-            this.focusInputField();
+            if (options.focus !== false) {
+                this.focusInputField();
+            }
             this._caretChange(options);
         };
         /**
@@ -772,6 +816,25 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
                 this.selAtBlur = undefined;
             }
         };
+        CaretManager.prototype.highlightRange = function (range) {
+            var domRange = range.mustMakeDOMRange();
+            var grPosition = this.scroller.getBoundingClientRect();
+            var topOffset = this.scroller.scrollTop - grPosition.top;
+            var leftOffset = this.scroller.scrollLeft - grPosition.left;
+            var highlight = this.doc.createElement("div");
+            for (var _i = 0, _a = Array.from(domRange.nativeRange.getClientRects()); _i < _a.length; _i++) {
+                var rect = _a[_i];
+                var highlightPart = this.doc.createElement("div");
+                highlightPart.className = "_wed_highlight";
+                highlightPart.style.top = rect.top + topOffset + "px";
+                highlightPart.style.left = rect.left + leftOffset + "px";
+                highlightPart.style.height = rect.height + "px";
+                highlightPart.style.width = rect.width + "px";
+                highlight.appendChild(highlightPart);
+            }
+            this.layer.append(highlight);
+            return highlight;
+        };
         /**
          * Dump to the console caret-specific information.
          */
@@ -817,5 +880,8 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
     }());
     exports.CaretManager = CaretManager;
 });
+//  LocalWords:  MPL wed's DLoc sel setCaret clearDOMSelection rst focusTheNode
+//  LocalWords:  bugzilla nd noop activeElement px rect grPosition topOffset
+//  LocalWords:  leftOffset
 
 //# sourceMappingURL=caret-manager.js.map

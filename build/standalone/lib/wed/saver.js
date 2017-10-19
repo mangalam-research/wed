@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./serializer"], function (require, exports, module, Promise, rxjs_1, browsers, serializer) {
+define(["require", "exports", "module", "rxjs", "./browsers", "./serializer"], function (require, exports, module, rxjs_1, browsers, serializer) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var SaveKind;
@@ -19,7 +19,7 @@ define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./ser
             timeDesc = " ≈ ";
             // To get a single digit after the decimal point, we divide by (factor /
             // 10), round the result, and then divide by 10. Note that this is imprecise
-            // due to rounding errors in floating point arithmetics but we don't care.
+            // due to rounding errors in floating point arithmetic but we don't care.
             if (delta > 60 * 60 * 24) {
                 timeDesc += Math.round(delta / (6 * 60 * 24)) / 10 + "d";
             }
@@ -40,7 +40,7 @@ define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./ser
      * A saver is responsible for saving a document's data. This class cannot be
      * instantiated as-is, but only through subclasses.
      */
-    var Saver = (function () {
+    var Saver = /** @class */ (function () {
         /**
          * @param runtime The runtime under which this saver is created.
          *
@@ -50,12 +50,13 @@ define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./ser
          *
          * @param {Node} dataTree The editor's data tree.
          */
-        function Saver(runtime, version, dataUpdater, dataTree) {
+        function Saver(runtime, version, dataUpdater, dataTree, options) {
             var _this = this;
             this.runtime = runtime;
             this.version = version;
             this.dataUpdater = dataUpdater;
             this.dataTree = dataTree;
+            this.options = options;
             /**
              * Subclasses must set this variable to true once they have finished with
              * their initialization.
@@ -88,6 +89,9 @@ define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./ser
             this._boundAutosave = this._autosave.bind(this);
             this._events = new rxjs_1.Subject();
             this.events = this._events.asObservable();
+            if (options.autosave !== undefined) {
+                this.setAutosaveInterval(options.autosave * 1000);
+            }
         }
         /**
          * This method must be called when the user manually initiates a save.
@@ -157,6 +161,7 @@ define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./ser
             };
             if (this.currentGeneration !== this.savedGeneration) {
                 // We have something to save!
+                // tslint:disable-next-line:no-floating-promises
                 this._save(true).then(done);
             }
             else {
@@ -206,8 +211,8 @@ define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./ser
          * Returns information regarding whether the saver sees the data tree as
          * having been modified since the last save occurred.
          *
-         * @returns Returns ``false`` if the tree has not been modified. Otherwise,
-         * returns a string that describes how long ago the modification happened.
+         * @returns ``false`` if the tree has not been modified. Otherwise, returns a
+         * string that describes how long ago the modification happened.
          */
         Saver.prototype.getModifiedWhen = function () {
             if (this.savedGeneration === this.currentGeneration) {
@@ -241,8 +246,7 @@ define(["require", "exports", "module", "bluebird", "rxjs", "./browsers", "./ser
     }());
     exports.Saver = Saver;
 });
-//  LocalWords:  jQuery jquery url jshint validthis Dubeau MPL oop
-//  LocalWords:  Mangalam mixin's json unintialized param dataType
-//  LocalWords:  SimpleEventEmitter
+//  LocalWords:  param unintialized Mangalam MPL Dubeau autosaved autosaves pre
+//  LocalWords:  autosave runtime autosaving setAutosaveInterval setTimeout
 
 //# sourceMappingURL=saver.js.map

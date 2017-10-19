@@ -1,3 +1,4 @@
+/// <reference types="jquery" />
 /**
  * Modal dialog boxes.
  * @author Louis-Dominique Dubeau
@@ -109,7 +110,7 @@ export declare class Modal {
      * user did, and potentially clean up after itself. The callback is left out
      * if the modal is merely for informational purposes.
      */
-    modal(callback?: () => void): void;
+    modal(callback?: (ev: JQueryEventObject) => void): void;
     /**
      * @returns The button that was clicked. Could be undefined if the modal
      * disappeared without being normally dismissed or if the modal has not been

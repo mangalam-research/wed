@@ -23,7 +23,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * already have one.
      *
      */
-    var LabelManager = (function () {
+    var LabelManager = /** @class */ (function () {
         /**
          * @param name The name of this label manager. This is a convenience that can
          * be used to produce distinctive error messages, for instance.
@@ -82,7 +82,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
      *
      * @param {string} name The name of this label manager.
      */
-    var AlphabeticLabelManager = (function (_super) {
+    var AlphabeticLabelManager = /** @class */ (function (_super) {
         __extends(AlphabeticLabelManager, _super);
         function AlphabeticLabelManager() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -105,7 +105,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
     }(LabelManager));
     exports.AlphabeticLabelManager = AlphabeticLabelManager;
 });
-//  LocalWords:  LabelManager jshint MPL overriden allocateLabel
-//  LocalWords:  oop Mangalam Dubeau labelman
+//  LocalWords:  LabelManager MPL allocateLabel Mangalam Dubeau
 
 //# sourceMappingURL=labelman.js.map

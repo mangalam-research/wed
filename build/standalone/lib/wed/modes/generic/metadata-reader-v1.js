@@ -12,7 +12,7 @@ define(["require", "exports", "module", "./metadata-versioned-reader"], function
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:completed-docs
-    var MetadataV1 = (function (_super) {
+    var MetadataV1 = /** @class */ (function (_super) {
         __extends(MetadataV1, _super);
         function MetadataV1(metadata) {
             return _super.call(this, "1", metadata) || this;
@@ -39,7 +39,7 @@ define(["require", "exports", "module", "./metadata-versioned-reader"], function
     /**
      * A reader that reads version 1 of the metadata format.
      */
-    var MetadataReaderV1 = (function (_super) {
+    var MetadataReaderV1 = /** @class */ (function (_super) {
         __extends(MetadataReaderV1, _super);
         function MetadataReaderV1() {
             return _super.call(this, MetadataV1) || this;
@@ -49,5 +49,6 @@ define(["require", "exports", "module", "./metadata-versioned-reader"], function
     }(metadata_versioned_reader_1.MetadataReaderBase));
     exports.MetadataReaderV1 = MetadataReaderV1;
 });
+//  LocalWords:  MPL TEI html stylesheet
 
 //# sourceMappingURL=metadata-reader-v1.js.map

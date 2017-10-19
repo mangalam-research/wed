@@ -1,57 +1,6 @@
-define(["require", "exports", "module", "interact", "jquery", "../browsers", "bootstrap"], function (require, exports, module, interact, $, browsers) {
+define(["require", "exports", "module", "jquery", "./interactivity", "bootstrap"], function (require, exports, module, $, interactivity_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    /**
-     * This records changes in such a way that if any of the changes cannot take
-     * effect, then all the changes are "rolled back". It is called pseudo-atomic
-     * because it is not really meant to track any changes that do not happen
-     * through instances of this class. This is needed because we are changing the
-     * size of multiple elements, and beyond a certain "smallness", some elements
-     * won't register any change in dimensions (perhaps due to "min-..." styles.
-     */
-    var PseudoAtomicRectChange = (function () {
-        function PseudoAtomicRectChange() {
-            this.changes = [];
-            this.rolledback = false;
-        }
-        PseudoAtomicRectChange.prototype.updateElementRect = function (el, dx, dy) {
-            // If we've already rolled back, we don't do anything.
-            if (this.rolledback) {
-                return;
-            }
-            var rect = el.getBoundingClientRect();
-            // This works around a fractional pixel issue in IE. We set the element to
-            // the dimensions returned by getBoundingClientRect and then reacquire the
-            // dimensions to account for any funny adjustments IE may decide to do.
-            if (browsers.MSIE) {
-                el.style.width = rect.width + "px";
-                el.style.height = rect.height + "px";
-                rect = el.getBoundingClientRect();
-            }
-            var width = rect.width + dx;
-            var height = rect.height + dy;
-            el.style.width = width + "px";
-            el.style.height = height + "px";
-            this.changes.push({ el: el, rect: rect });
-            var newRect = el.getBoundingClientRect();
-            // Check whether the change "took". If not, roll back.
-            if (newRect.width !== width || newRect.height !== height) {
-                this.rollback();
-            }
-        };
-        PseudoAtomicRectChange.prototype.rollback = function () {
-            var changes = this.changes;
-            for (var _i = 0, changes_1 = changes; _i < changes_1.length; _i++) {
-                var change = changes_1[_i];
-                var el = change.el;
-                var rect = change.rect;
-                el.style.width = rect.width + "px";
-                el.style.height = rect.height + "px";
-            }
-            this.rolledback = true;
-        };
-        return PseudoAtomicRectChange;
-    }());
     /**
      * A modal needs to be created only once per instance of wed. After creation it
      * must be installed into the DOM tree of the page on which it is going to be
@@ -88,14 +37,14 @@ define(["require", "exports", "module", "interact", "jquery", "../browsers", "bo
      * If the same modal must be displayed on two different pages, then two Modal
      * objects should be created, one per page.
      */
-    var Modal = (function () {
+    var Modal = /** @class */ (function () {
         function Modal(options) {
             var _this = this;
             options = options != null ? options : {};
             // tabindex needed to make keyboard stuff work... grumble...
             // https://github.com/twitter/bootstrap/issues/4663
             // tslint:disable-next-line:no-jquery-raw-elements
-            this._$dom = $("\
+            var $dom = this._$dom = $("\
 <div class=\"modal\" style=\"position: absolute\" tabindex=\"1\">\
   <div class=\"modal-dialog\">\
     <div class=\"modal-content\">\
@@ -112,70 +61,20 @@ define(["require", "exports", "module", "interact", "jquery", "../browsers", "bo
     </div>\
   </div>\
 </div>");
-            this._$header = this._$dom.find(".modal-header");
-            this._$body = this._$dom.find(".modal-body");
-            this._$footer = this._$dom.find(".modal-footer");
-            this._$dom.on("click", ".btn", function (ev) {
+            this._$header = $dom.find(".modal-header");
+            this._$body = $dom.find(".modal-body");
+            this._$footer = $dom.find(".modal-footer");
+            $dom.on("click", ".btn", function (ev) {
                 _this._$clicked = $(ev.currentTarget);
                 return true;
             });
-            this._$dom.on("shown.bs.modal.modal", this._handleShown.bind(this));
-            var content = this._$dom.find(".modal-content")[0];
-            var body = this._$body[0];
-            var win = body.ownerDocument.defaultView;
-            var $dom = this._$dom;
+            $dom.on("shown.bs.modal.modal", this._handleShown.bind(this));
             if (options.resizable) {
-                body.style.overflow = "auto";
-                // We listen to resizestart and resizeend to deal with the following
-                // scenario: the user starts resizing the modal, it goes beyond the limits
-                // of how big it can be resized, the mouse pointer moves outside the modal
-                // window and the user releases the button when the pointer is
-                // outside. Without the use of ignoreBackdropClick, this causes the modal
-                // to close.
-                interact(content)
-                    .resizable({})
-                    .on("resizestart", function () {
-                    var modal = $dom.data("bs.modal");
-                    if (modal == null) {
-                        return; // Deal with edge cases.
-                    }
-                    // Prevent modal closure.
-                    modal.ignoreBackdropClick = true;
-                })
-                    .on("resizeend", function () {
-                    // We use a setTimeout otherwise we turn ignoreBackdropClick too soon.
-                    setTimeout(function () {
-                        var modal = $dom.data("bs.modal");
-                        if (modal == null) {
-                            return; // Deal with edge cases.
-                        }
-                        modal.ignoreBackdropClick = false;
-                    }, 0);
-                })
-                    .on("resizemove", function (event) {
-                    var target = event.target;
-                    var change = new PseudoAtomicRectChange();
-                    change.updateElementRect(target, event.dx, event.dy);
-                    change.updateElementRect(body, event.dx, event.dy);
-                });
+                this._$body[0].style.overflow = "auto";
+                interactivity_1.makeResizable($dom);
             }
             if (options.draggable) {
-                interact(this._$header[0])
-                    .draggable({
-                    restrict: {
-                        restriction: {
-                            left: 0,
-                            top: 0,
-                            right: win.innerWidth - 10,
-                            bottom: win.innerHeight - 10,
-                        },
-                    },
-                })
-                    .on("dragmove", function (event) {
-                    var target = content;
-                    target.style.left = event.clientX - event.clientX0 + "px";
-                    target.style.top = event.clientY - event.clientY0 + "px";
-                });
+                interactivity_1.makeDraggable($dom);
             }
         }
         /**
@@ -294,7 +193,6 @@ define(["require", "exports", "module", "interact", "jquery", "../browsers", "bo
             var dialog = this._$dom.find(".modal-dialog")[0];
             var rect = dialog.getBoundingClientRect();
             var computedStyle = window.getComputedStyle(dialog);
-            // eslint-disable-next-line no-mixed-operators
             var diff = -rect.top + (winHeight - rect.height) -
                 parseInt(computedStyle.marginBottom);
             var dialogMaxHeight = rect.height + diff;
@@ -306,8 +204,10 @@ define(["require", "exports", "module", "interact", "jquery", "../browsers", "bo
     }());
     exports.Modal = Modal;
 });
-//  LocalWords:  Ok DOM gui Mangalam MPL Dubeau getClickedAsText pre
-//  LocalWords:  addYesNo setBody setTitle mymodal jquery html href
-//  LocalWords:  bs jQuery param btn tabindex util getTopLevel
+//  LocalWords:  dialogMaxHeight clientY clientX resizemove dragmove setTimeout
+//  LocalWords:  ignoreBackdropClick getBoundingClientRect resizeend tabindex
+//  LocalWords:  getTopLevel btn param jQuery bs resizestart href jquery px pre
+//  LocalWords:  mymodal setTitle setBody addYesNo rect getClickedAsText Dubeau
+//  LocalWords:  MPL Mangalam DOM Ok
 
 //# sourceMappingURL=modal.js.map
