@@ -3533,6 +3533,9 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
   }
 }
 
+// Reexport Runtime to make bootstraping wed easier.
+export { Runtime };
+
 //  LocalWords:  MPL keyConstants KEYPRESS sm md contenteditable constrainer sb
 //  LocalWords:  scroller nbsp href nav ul li errorlist HTMLElement jQuery lt
 //  LocalWords:  html runtime DLocRoot config navlist popstate attr xmlns xml
