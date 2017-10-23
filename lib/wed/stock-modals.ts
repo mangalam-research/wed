@@ -10,7 +10,7 @@ import { Modal } from "./gui/modal";
 
 export interface ModalMaker {
   makeModal(): Modal;
-  docLink: string;
+  docURL: string;
 }
 
 export type ModalNames = "limitation" | "paste" | "straddling" | "help" |
@@ -56,10 +56,10 @@ selecting smaller sections.<p>");
       modal.addButton("Ok", true);
       break;
     case "help":
-      const docLink = this.maker.docLink;
+      const docURL = this.maker.docURL;
       modal.setTitle("Help");
       modal.setBody(`
-<p>Click <a href='${docLink}' target='_blank'>this link</a> to see
+<p>Click <a href='${docURL}' target='_blank'>this link</a> to see
 wed's generic help. The link by default will open in a new tab.</p>
 <p>The key combinations with Ctrl below are done with Command in OS X.</p>
 <ul>
@@ -118,5 +118,5 @@ trying to edit further.");
   }
 }
 
-//  LocalWords:  MPL editedByOther tooOld href docLink wed's Ctrl ul li runtime
+//  LocalWords:  MPL editedByOther tooOld href docUrl wed's Ctrl ul li runtime
 //  LocalWords:  badName

@@ -5,6 +5,24 @@ work correctly when viewed there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 0.40.0:
+
+  - Possibly breaking change: wed has changed the way it looks for the embedded
+    documentation. It previously was looking for a path relative to the main
+    ``wed/wed`` module. That method depended on functions provided by
+    RequireJS. In order to eliminate dependencies on RequireJS, wed now look for
+    the embedded documentation relatively to the page where it is
+    loaded. Whether or not you need to act depends on how you use wed.
+
+    A new initialization option named ``docURL`` was added. It is optional. If
+    wed cannot find its embedded documentation, you may set the URL to the path
+    of the embedded documentation page. If the path is relative, remember that
+    it is interpreted relative to the *page* where wed is loaded.
+
+    To ascertain whether you need a custom value, open your wed instance, press
+    F1 to bring up the help dialog and click the link in the dialog. If you get
+    to the help page, then you are fine. If not, you need a custom value.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of

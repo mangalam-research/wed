@@ -67,6 +67,16 @@ properties:
         type: object
   mode:
     $ref: "#/definitions/mode"
+  docURL:
+    description: A URL pointing to the embedded documentation. This is the URL
+      that wed shows in the dialog that is presented when the user presses F1.
+      The default value is "./doc/index.html", which works if you copy wed\'s
+      distribution wholesale and use the ``kitchen-sink.html`` file to launch
+      wed, or if you place the page that launches wed in the same location as
+      ``kitchen-sink.html``. Otherwise, you need to provide a value here. It
+      can be an absolute URL, or one that is relative to the path of the page
+      that loads wed.
+    type: string
   ajaxlog:
     description: Settings for remote logging.
     type: object

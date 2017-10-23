@@ -333,8 +333,8 @@ export class Editor {
   /** DOM listener on the GUI tree. */
   domlistener: domlistener.Listener;
 
-  /** The link for the embedded documentation page. */
-  docLink: string;
+  /** The URL for the embedded documentation page. */
+  docURL: string;
 
   /** A collection of stock modals. */
   modals: StockModals;
@@ -1227,9 +1227,8 @@ export class Editor {
       }
     });
 
-    this.docLink =
-      // tslint:disable-next-line:no-any
-      (require as any).toUrl("../../doc/index.html") as string;
+    const docURL = this.options.docURL;
+    this.docURL = docURL == null ? "./doc/index.html" : docURL;
 
     this.domlistener = new domlistener.Listener(this.guiRoot, this.guiUpdater);
 
@@ -1605,7 +1604,7 @@ export class Editor {
       const demoModal = this.makeModal();
       demoModal.setTitle("Demo");
       demoModal.setBody(`<p>This is a demo of wed. ${demo}</p> \
-<p>Click <a href='${this.docLink}' target='_blank'>this link</a> to see \
+<p>Click <a href='${this.docURL}' target='_blank'>this link</a> to see \
 wed's generic help. The link by default will open in a new tab.</p>`);
       demoModal.addButton("Ok", true);
       demoModal.modal();
@@ -3544,7 +3543,7 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
 //  LocalWords:  revalidate dragenter dragstart dragover keydown keypress pageX
 //  LocalWords:  compositionstart compositionupdate compositionend mousedown px
 //  LocalWords:  mouseover mouseout contextmenu mousemove mouseup pageY screenX
-//  LocalWords:  screenY docLink wed's enterStartTag pheight maxPanelHeight cd
+//  LocalWords:  screenY docUrl wed's enterStartTag pheight maxPanelHeight cd
 //  LocalWords:  domutil childByClass outerHeight clipboardData parsererror Yay
 //  LocalWords:  Ctrl CapsLock activeElement querySelector getCaret dataNode nd
 //  LocalWords:  noop keyup mousedownHandler caretManager mouseoutHandler rect
