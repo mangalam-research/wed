@@ -18,6 +18,7 @@ const gulpTs = require("gulp-typescript");
 const sourcemaps = require("gulp-sourcemaps");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
+const createOptimizedConfig = require("../misc/create_optimized_config").create;
 
 const config = require("./config");
 const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
@@ -574,19 +575,20 @@ gulp.task("build-bundled-doc", ["build-standalone"],
 gulp.task(
   "build-optimized-config", ["config"],
   Promise.coroutine(function *task() {
-    const script = "misc/create_optimized_config.js";
     const origConfig = "build/config/requirejs-config-dev.js";
     const buildConfig = "requirejs.build.js";
     const optimizedConfig = "build/standalone-optimized/requirejs-config.js";
 
-    const isNewer = yield newer([script, origConfig, buildConfig],
-                                optimizedConfig);
+    const isNewer = yield newer([origConfig, buildConfig], optimizedConfig);
     if (!isNewer) {
       return;
     }
 
     yield mkdirpAsync(path.dirname(optimizedConfig));
-    yield exec(`node ${script} ${origConfig} > ${optimizedConfig}`);
+
+    yield fs.writeFileAsync(optimizedConfig, createOptimizedConfig({
+      config: origConfig,
+    }));
   }));
 
 function *buildStandaloneOptimized() {

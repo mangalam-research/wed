@@ -30,41 +30,52 @@
 //     "D": "bar.js"
 //
 const util = require("./util");
-const ArgumentParser = require("argparse").ArgumentParser;
 
 const fileAsString = util.fileAsString;
 
-const parser = new ArgumentParser({
-  version: "0.0.2",
-  addHelp: true,
-  description: "Creates an optimized configuration from a base configuration.",
-});
+function create(args) {
+  const configFilePath = args.config;
+  const configFileText = fileAsString(configFilePath);
 
-parser.addArgument(["--system"], {
-  help: "Process a SystemJS configuration.",
-  action: "storeTrue",
-  dest: "system",
-});
+  let bundleName = "wed/wed";
+  let modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
+                 "wed/browsers", "wed/runtime", "merge-options"];
+  if (args.system) {
+    bundleName += "-system.js";
+    modules = modules.map(x => `${x}.js`);
+    modules.push("wed/wed.js");
+  }
 
-parser.addArgument(["config"]);
+  const additionalConfig = { bundles: {} };
+  additionalConfig.bundles[bundleName] = modules;
 
-const args = parser.parseArgs();
+  let out = configFileText;
+  const call = args.system ? "SystemJS.config" : "require.config";
+  out += `${call}(${JSON.stringify(additionalConfig, null, 2)});`;
 
-const configFilePath = args.config;
-const configFileText = fileAsString(configFilePath);
-
-let bundleName = "wed/wed";
-let modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
-               "wed/browsers", "wed/runtime", "merge-options"];
-if (args.system) {
-  bundleName += "-system.js";
-  modules = modules.map(x => `${x}.js`);
-  modules.push("wed/wed.js");
+  return out;
 }
 
-const additionalConfig = { bundles: {} };
-additionalConfig.bundles[bundleName] = modules;
+exports.create = create;
 
-console.log(configFileText);
-const call = args.system ? "SystemJS.config" : "require.config";
-console.log(`${call}(${JSON.stringify(additionalConfig, null, 2)});`);
+if (require.main === module) {
+  // eslint-disable-next-line global-require
+  const ArgumentParser = require("argparse").ArgumentParser;
+
+  const parser = new ArgumentParser({
+    version: "0.0.2",
+    addHelp: true,
+    description: "Creates an optimized configuration from a base configuration.",
+  });
+
+  parser.addArgument(["--system"], {
+    help: "Process a SystemJS configuration.",
+    action: "storeTrue",
+    dest: "system",
+  });
+
+  parser.addArgument(["config"]);
+
+  const args = parser.parseArgs();
+  console.log(create(args));
+}
