@@ -4,4 +4,5 @@
 // into a different directory where there can be a different configuration file.
 // And here we are...
 /* global require */
+"use strict";
 require("./gulptasks/gulpfile.js");
