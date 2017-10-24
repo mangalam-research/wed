@@ -34,16 +34,16 @@ Known limitations:
   fact that wed sees the document as a DOM tree, not as a serialization. In a
   DOM tree, ``<foo/>`` and ``<foo></foo>`` are the same.
 
-* Elements that *must be empty* appear in the editor as if they could* contain
-  *contents. Note that the validator raises an error if these elements are
-  *filled with any contents but it would be nicer if they were displayed in a
-  *way that distinguished them from the elements that *can* be filled with
-  *contents. We worked on a prototype that would check whether an element *can*
-  *contain anything and display it differently if it could not. However, this
-  *required that the rendering engine query the validating engine during
-  *rendering, which made rendering extremely slow. Since the editor will raise
-  *an error if an element that should be empty is filled erroneously, we've
-  *decided that a solution to this problem can wait.
+* Elements that *must be empty* appear in the editor as if they *could* contain
+  contents. Note that the validator raises an error if these elements are filled
+  with any contents but it would be nicer if they were displayed in a way that
+  distinguished them from the elements that *can* be filled with contents. We
+  worked on a prototype that would check whether an element *can* contain
+  anything and display it differently if it could not. However, this required
+  that the rendering engine query the validating engine during rendering, which
+  made rendering extremely slow. Since the editor will raise an error if an
+  element that should be empty is filled erroneously, we've decided that a
+  solution to this problem can wait.
 
 * Eventually the plan is to handle XML namespace changes completely, and there
   is incipient code to deal with this; for now the safe thing to do if you have
