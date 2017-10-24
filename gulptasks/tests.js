@@ -89,7 +89,7 @@ gulp.task("tslint", ["tslint-wed"]);
 
 gulp.task("eslint", () =>
           gulp.src(["lib/**/*.js", "*.js", "bin/**", "config/**/*.js",
-                    "gulptasks/**/*.js", "misc/**/*.js", "test/**/*.js"])
+                    "web/**/*.js", "gulptasks/**/*.js", "misc/**/*.js"])
           .pipe(eslint())
           .pipe(eslint.format())
           .pipe(eslint.failAfterError()));
