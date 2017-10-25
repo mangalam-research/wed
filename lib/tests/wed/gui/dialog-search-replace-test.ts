@@ -5,10 +5,10 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { DLoc, DLocRange } from "wed/dloc";
+import { Editor } from "wed/editor";
 import { DialogSearchReplace, Direction } from "wed/gui/dialog-search-replace";
 import { Key } from "wed/key";
 import { SEARCH_BACKWARDS, SEARCH_FORWARD } from "wed/key-constants";
-import { Editor } from "wed/wed";
 
 import * as globalConfig from "../../base-config";
 

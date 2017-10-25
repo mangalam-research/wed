@@ -4,8 +4,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { Editor } from "../editor";
 import { QUICKSEARCH_BACKWARDS, QUICKSEARCH_FORWARD } from "../key-constants";
-import { Editor } from "../wed";
 import { ChangeEvent } from "./minibuffer";
 import { Scroller } from "./scroller";
 import { Context, Direction, SearchOptions,

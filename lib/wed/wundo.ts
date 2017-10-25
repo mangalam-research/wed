@@ -5,8 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
+import { Editor } from "./editor";
 import * as undo from "./undo";
-import { Editor } from "./wed";
 
 export type Caret = [string | undefined, number | undefined];
 

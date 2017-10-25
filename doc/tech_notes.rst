@@ -66,10 +66,10 @@ individual module mappings. In this scenario, it is **not** possible for code
 external to wed to load parts of wed in an arbitrary order. The ``wed.js`` file
 has to be loaded first, and then wed's modules become accessible. Note that this
 way of operating should work for the vast majority of cases because the typical
-usage scenario for wed is to first create a ``wed.Editor`` instance which
-dynamically loads a mode. Since the mode is loaded after ``wed.Editor`` is
-created, it is guaranteed that by the time the mode runs, all of wed's modules
-are available.
+usage scenario for wed is to first create a an ``Editor`` instance which
+dynamically loads a mode. Since the mode is loaded after ``Editor`` is created,
+it is guaranteed that by the time the mode runs, all of wed's modules are
+available.
 
 Schema and Structure Considerations
 ===================================

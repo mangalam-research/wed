@@ -8,10 +8,10 @@
  */
 
 import { indexOf } from "./domutil";
+import { Editor } from "./editor";
 import { BeforeDeleteNodeEvent, InsertNodeAtEvent, SetAttributeNSEvent,
          SetTextNodeValueEvent, TreeUpdater } from "./tree-updater";
 import * as undo from "./undo";
-import { Editor } from "./wed";
 
 function getOuterHTML(node: Node | undefined | null): string {
   return (node == null) ? "undefined" : (node as Element).outerHTML;

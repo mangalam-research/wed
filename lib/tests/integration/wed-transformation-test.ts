@@ -4,7 +4,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { CaretManager } from "wed/caret-manager";
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { caretCheck, EditorSetup, getAttributeNamesFor, getAttributeValuesFor,
@@ -14,7 +14,7 @@ const assert = chai.assert;
 
 describe("wed transformation:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;

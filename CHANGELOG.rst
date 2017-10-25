@@ -7,6 +7,25 @@ odd bug fix may not get mentioned here at all.
 
 * 0.40.0:
 
+  - Breaking change: major reorganization of the code to present a facade and
+    clarify what is public and what is not public. In particular:
+
+    * You may only load the ``wed`` module, ``wed/onerror``, ``wed/log`` and the
+      modules that make up the bundled modes. You may load polyfills, glue and
+      patches as needed. Note that the entry point to wed is no longer the
+      module ``wed/wed`` but the module ``wed``.
+
+    * You must use ``makeEditor`` to create a new editor instance. Code that
+      creates editors access them through the ``EditorInstance``
+      interface. Whereas modes use the ``EditorAPI`` interface.
+
+    * You may not use anything not exposed by the ``wed`` module. So if you are
+      a mode author, you must get everything your mode uses from ``wed`` instead
+      of trying to load the individual modules under ``wed/*``.
+
+    See the section titled ``Using`` in the documentation, specifically the part
+    about the changes in ``0.40``.
+
   - Possibly breaking change: wed has changed the way it looks for the embedded
     documentation. It previously was looking for a path relative to the main
     ``wed/wed`` module. That method depended on functions provided by

@@ -3,6 +3,7 @@ import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 
 import { expectError } from "tests/util";
+import { Editor } from "wed/editor";
 import { ModeLoader } from "wed/mode-loader";
 
 use(sinonChai);
@@ -25,7 +26,9 @@ describe("ModeLoader", () => {
   let loader: ModeLoader;
   // tslint:disable-next-line:no-any
   let runtime: any;
-  const editor = { editor: true };
+  // Yes, we cheat with a typecast.
+  // tslint:disable-next-line:no-any mocha-no-side-effect-code
+  const editor = { editor: true } as any as Editor;
   const options = { options: true };
   beforeEach(() => {
     const runtime_ = sinon.stub({
@@ -53,11 +56,11 @@ describe("ModeLoader", () => {
       expect(runtime).to.have.property("resolveModules").to.have.callCount(4);
       expect(runtime.resolveModules.firstCall).to.have.been.calledWith("moo");
       expect(runtime.resolveModules.secondCall)
-        .to.have.been.calledWith("./modes/moo/moo");
+        .to.have.been.calledWith("wed/modes/moo/moo");
       expect(runtime.resolveModules.thirdCall)
-        .to.have.been.calledWith("./modes/moo/moo-mode");
+        .to.have.been.calledWith("wed/modes/moo/moo-mode");
       expect(runtime.resolveModules.lastCall)
-        .to.have.been.calledWith("./modes/moo/moo_mode");
+        .to.have.been.calledWith("wed/modes/moo/moo_mode");
     });
 
     it("fails on first attempt if the path has a forward slash", async () => {

@@ -13,8 +13,8 @@ import { isDocument, isText } from "./domtypeguards";
 import { Caret, firstDescendantOrSelf, indexOf,
          isWellFormedRange } from "./domutil";
 import * as icon from "./gui/icon";
+import { EditorAPI } from "./mode-api";
 import { TreeUpdater } from "./tree-updater";
-import { Editor } from "./wed";
 
 const TYPE_TO_KIND = _.extend(Object.create(null), {
   // These are not actually type names. It is possible to use a kind name as a
@@ -127,7 +127,7 @@ export interface NamedTransformationData extends TransformationData {
  * @param data The data for the transformation.
  */
 export type TransformationHandler =
-  (editor: Editor, data: TransformationData) => void;
+  (editor: EditorAPI, data: TransformationData) => void;
 
 function computeIconHtml(iconHtml: string | undefined,
                          transformationType: string): string | undefined {
@@ -183,19 +183,19 @@ export class Transformation<Data extends TransformationData>
    *
    * @param handler The handler to call when this transformation is executed.
    */
-  constructor(editor: Editor, transformationType: string, desc: string,
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
               handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
               abbreviatedDesc: string | undefined,
               handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
               abbreviatedDesc: string | undefined,
               iconHtml: string | undefined,
               handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
               abbreviatedDesc: string | undefined, iconHtml: string | undefined,
               needsInput: boolean, handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
               abbreviatedDesc: string | TransformationHandler | undefined,
               iconHtml?: string | TransformationHandler | undefined,
               needsInput?: boolean | TransformationHandler,
@@ -528,7 +528,7 @@ export function unwrap(dataUpdater: TreeUpdater, node: Element): Node[] {
  *
  * @throws {Error} If the caret is not inside the node or its descendants.
  */
-export function splitNode(editor: Editor, node: Node): void {
+export function splitNode(editor: EditorAPI, node: Node): void {
   const caret = editor.caretManager.getDataCaret();
 
   if (caret === undefined) {
@@ -553,7 +553,7 @@ export function splitNode(editor: Editor, node: Node): void {
  *
  * @param node The element to merge with previous.
  */
-export function mergeWithPreviousHomogeneousSibling(editor: Editor,
+export function mergeWithPreviousHomogeneousSibling(editor: EditorAPI,
                                                     node: Element): void {
   const prev = node.previousElementSibling;
   if (prev === null) {
@@ -601,7 +601,7 @@ export function mergeWithPreviousHomogeneousSibling(editor: Editor,
  *
  * @param node The element to merge with next.
  */
-export function mergeWithNextHomogeneousSibling(editor: Editor,
+export function mergeWithNextHomogeneousSibling(editor: EditorAPI,
                                                 node: Element): void {
   const next = node.nextElementSibling;
   if (next === null) {
@@ -620,7 +620,7 @@ export function mergeWithNextHomogeneousSibling(editor: Editor,
  *
  * @param node The element to swap with previous.
  */
-export function swapWithPreviousHomogeneousSibling(editor: Editor,
+export function swapWithPreviousHomogeneousSibling(editor: EditorAPI,
                                                    node: Element): void {
   const prev = node.previousElementSibling;
   if (prev === null) {
@@ -651,7 +651,7 @@ export function swapWithPreviousHomogeneousSibling(editor: Editor,
  *
  * @param node The element to swap with next.
  */
-export function swapWithNextHomogeneousSibling(editor: Editor,
+export function swapWithNextHomogeneousSibling(editor: EditorAPI,
                                                node: Element): void {
   const next = node.nextElementSibling;
   if (next === null) {

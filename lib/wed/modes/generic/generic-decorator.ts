@@ -4,11 +4,9 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { Decorator } from "wed/decorator";
-import { isElement, isText } from "wed/domtypeguards";
-import { Mode } from "wed/mode";
-import * as util from "wed/util";
-import { Editor } from "wed/wed";
+import { Decorator, domtypeguards, EditorAPI, Mode, util } from "wed";
+
+const { isElement, isText } = domtypeguards;
 
 import { Metadata } from "./metadata";
 
@@ -28,7 +26,7 @@ export class GenericDecorator extends Decorator {
    *
    */
   // tslint:disable-next-line:no-any
-  constructor(mode: Mode, editor: Editor,
+  constructor(mode: Mode, editor: EditorAPI,
               protected readonly metadata: Metadata,
               // tslint:disable-next-line:no-any
               protected readonly options: any) {

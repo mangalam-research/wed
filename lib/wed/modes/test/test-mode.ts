@@ -9,22 +9,16 @@ import * as mergeOptions from "merge-options";
 import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
-import { Action } from "wed/action";
-import { Decorator } from "wed/decorator";
-import { childrenByClass, closestByClass, indexOf } from "wed/domutil";
-import { GUISelector } from "wed/gui-selector";
-import * as context_menu from "wed/gui/context-menu";
-import { Modal } from "wed/gui/modal";
-import * as input_trigger_factory from "wed/input-trigger-factory";
-import * as key from "wed/key";
-import * as key_constants from "wed/key-constants";
+import { Action, ContextMenu, Decorator, domutil, EditorAPI, GUISelector,
+         inputTriggerFactory, key, keyConstants, Modal, ModeValidator,
+         objectCheck, transformation } from "wed";
 import { GenericModeOptions,
          Mode as GenericMode } from "wed/modes/generic/generic";
 import { GenericDecorator } from "wed/modes/generic/generic-decorator";
-import { Template } from "wed/object-check";
-import * as transformation from "wed/transformation";
-import { ModeValidator } from "wed/validator";
-import { Editor } from "wed/wed";
+
+import Template = objectCheck.Template;
+
+const { childrenByClass, closestByClass, indexOf } = domutil;
 
 // tslint:disable-next-line:completed-docs
 class Validator implements ModeValidator {
@@ -51,14 +45,14 @@ export class TestDecorator extends GenericDecorator {
 
   addHandlers(): void {
     super.addHandlers();
-    input_trigger_factory.makeSplitMergeInputTrigger(
+    inputTriggerFactory.makeSplitMergeInputTrigger(
       this.editor,
       this.mode,
       GUISelector.fromDataSelector("hi",
                                    this.mode.getAbsoluteNamespaceMappings()),
       key.makeKey(";"),
-      key_constants.BACKSPACE,
-      key_constants.DELETE);
+      keyConstants.BACKSPACE,
+      keyConstants.DELETE);
   }
 
   // tslint:disable:no-jquery-raw-elements
@@ -200,8 +194,7 @@ export class TestDecorator extends GenericDecorator {
     }
 
     // tslint:disable-next-line:no-unused-expression
-    new context_menu.ContextMenu(this.editor.doc,
-                                 ev.clientX, ev.clientY, items);
+    new ContextMenu(this.editor.doc, ev.clientX, ev.clientY, items);
 
     return false;
   }
@@ -261,7 +254,7 @@ class TypeaheadAction extends Action<{}> {
                                    "Test", options,
                                    (obj?: { value: string }) => {
                                      if (obj != null) {
-                                       editor.type(obj.value);
+                                       editor.insertText(obj.value);
                                      }
                                    });
     typeahead.hideSpinner();
@@ -350,7 +343,7 @@ export class TestMode extends GenericMode<TestModeOptions> {
     stylesheets: false,
   };
 
-  constructor(editor: Editor, options: TestModeOptions) {
+  constructor(editor: EditorAPI, options: TestModeOptions) {
     super(editor, options);
     this.wedOptions = mergeOptions({}, this.wedOptions);
     const suffix = options.nameSuffix != null ? options.nameSuffix : "";

@@ -3,8 +3,9 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import * as wed from "wed";
+import { Editor } from "wed/editor";
 import * as keyConstants from "wed/key-constants";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup, WedServer } from "../wed-test-util";
@@ -13,7 +14,7 @@ const assert = chai.assert;
 
 describe("wed save:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let server: WedServer;
 
   before(() => {

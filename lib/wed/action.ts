@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { Editor } from "./wed";
+import { EditorAPI } from "./mode-api";
 
 export type EventWithData<Data> = Event & { data: Data };
 
@@ -42,7 +42,7 @@ export abstract class Action<Data> {
    * ``needsInput`` set to ``true`` so that the ``autoinsert`` logic backs off
    * from trying to insert these elements.
    */
-  constructor(readonly editor: Editor, protected readonly desc: string,
+  constructor(readonly editor: EditorAPI, protected readonly desc: string,
               protected readonly abbreviatedDesc: string | undefined,
               protected readonly icon: string = "",
               readonly needsInput: boolean = false) {

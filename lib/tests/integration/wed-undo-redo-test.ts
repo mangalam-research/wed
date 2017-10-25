@@ -4,8 +4,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { CaretManager } from "wed/caret-manager";
+import { Editor } from "wed/editor";
 import * as keyConstants from "wed/key-constants";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { caretCheck, EditorSetup, getAttributeNamesFor,
@@ -15,7 +15,7 @@ const assert = chai.assert;
 
 describe("wed undo redo:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let titles: NodeListOf<Element>;

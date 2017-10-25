@@ -5,11 +5,13 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
+import { Editor } from "./editor";
 import { Mode } from "./mode";
+import { EditorAPI } from "./mode-api";
 import { Runtime } from "./runtime";
 
 interface ModeConstructor {
-  new (editor: {}, modeOptions: {}): Mode;
+  new (editor: EditorAPI, modeOptions: {}): Mode;
 }
 
 interface ModeModule {
@@ -23,7 +25,7 @@ export class ModeLoader {
   /**
    * @param runtime The runtime to use to load the mode module.
    */
-  constructor(private readonly editor: {},
+  constructor(private readonly editor: Editor,
               private readonly runtime: Runtime) {}
 
   /**
@@ -63,7 +65,7 @@ export class ModeLoader {
       throw new Error(`can't load mode ${path}`);
     }
 
-    path = `./modes/${path}/${path}`;
+    path = `wed/modes/${path}/${path}`;
 
     try {
       return (await runtime.resolveModules(path))[0] as ModeModule;

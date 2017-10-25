@@ -7,9 +7,9 @@ import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
 import { DLoc } from "wed/dloc";
 import { childByClass, firstDescendantOrSelf, indexOf } from "wed/domutil";
+import { Editor } from "wed/editor";
 import * as keyConstants from "wed/key-constants";
 import { distFromRect } from "wed/util";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { caretCheck, dataCaretCheck, EditorSetup, firstGUI,
@@ -20,7 +20,7 @@ const assert = chai.assert;
 
 describe("wed caret", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
 

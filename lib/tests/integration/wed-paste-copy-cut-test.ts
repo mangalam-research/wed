@@ -5,7 +5,7 @@
  */
 import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { delay, makeFakePasteEvent } from "../util";
@@ -15,7 +15,7 @@ const assert = chai.assert;
 
 describe("wed paste copy cut:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;

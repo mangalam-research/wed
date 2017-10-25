@@ -8,15 +8,15 @@
 import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
-import { Action } from "wed/action";
-import { BaseMode, CommonModeOptions } from "wed/mode";
-import * as objectCheck from "wed/object-check";
-import { Transformation, TransformationData } from "wed/transformation";
-import { Editor } from "wed/wed";
+import { Action, BaseMode, CommonModeOptions, EditorAPI, objectCheck,
+         transformation } from "wed";
 import { GenericDecorator } from "./generic-decorator";
 import { makeTagTr } from "./generic-tr";
 import { Metadata } from "./metadata";
 import { MetadataMultiversionReader } from "./metadata-multiversion-reader";
+
+import Transformation = transformation.Transformation;
+import TransformationData = transformation.TransformationData;
 
 export interface GenericModeOptions extends CommonModeOptions {
   metadata: string;
@@ -59,13 +59,8 @@ class GenericMode<Options extends GenericModeOptions>
     autoinsert: false,
   };
 
-  /**
-   * @param editor The editor with which the mode is being associated.
-   *
-   * @param options The options for the mode.
-   */
   // tslint:disable-next-line:no-any
-  constructor(editor: Editor, options: Options) {
+  constructor(editor: EditorAPI, options: Options) {
     super(editor, options);
 
     if (this.constructor === GenericMode) {

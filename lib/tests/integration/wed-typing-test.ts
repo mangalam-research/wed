@@ -6,9 +6,9 @@
 import { CaretManager } from "wed/caret-manager";
 import { isElement } from "wed/domtypeguards";
 import { childByClass, closestByClass, indexOf } from "wed/domutil";
+import { Editor } from "wed/editor";
 import * as key from "wed/key";
 import * as keyConstants from "wed/key-constants";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { caretCheck, EditorSetup,
@@ -18,7 +18,7 @@ const assert = chai.assert;
 
 describe("wed typing:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;

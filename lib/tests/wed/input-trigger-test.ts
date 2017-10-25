@@ -6,6 +6,7 @@
 import { assert } from "chai";
 import * as mergeOptions from "merge-options";
 
+import { Editor } from "wed/editor";
 import { GUISelector } from "wed/gui-selector";
 import { InputTrigger } from "wed/input-trigger";
 import { makeSplitMergeInputTrigger } from "wed/input-trigger-factory";
@@ -13,9 +14,8 @@ import * as key from "wed/key";
 import { BACKSPACE, DELETE, ENTER } from "wed/key-constants";
 import { Mode } from "wed/mode";
 import { Options} from "wed/options";
-import * as wed from "wed/wed";
-import * as globalConfig from "../base-config";
 
+import * as globalConfig from "../base-config";
 import { makeFakePasteEvent } from "../util";
 import { EditorSetup } from "../wed-test-util";
 
@@ -49,7 +49,7 @@ function cleanNamespace(str: string): string {
 
 describe("InputTrigger", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let mode: Mode<{}>;
   const mappings: Record<string, string> =
     // tslint:disable-next-line:no-http-string

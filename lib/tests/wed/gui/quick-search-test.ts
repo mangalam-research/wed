@@ -5,11 +5,11 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { DLoc, DLocRange } from "wed/dloc";
+import { Editor, WedEventTarget } from "wed/editor";
 import { Direction, QuickSearch } from "wed/gui/quick-search";
 import { Key } from "wed/key";
 import { ESCAPE, QUICKSEARCH_BACKWARDS,
          QUICKSEARCH_FORWARD } from "wed/key-constants";
-import { Editor, WedEventTarget } from "wed/wed";
 
 import * as globalConfig from "../../base-config";
 

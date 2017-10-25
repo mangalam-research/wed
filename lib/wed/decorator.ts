@@ -16,14 +16,14 @@ import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { ActionContextMenu, Item } from "./gui/action-context-menu";
 import { Mode } from "./mode";
+import { DecoratorAPI, EditorAPI } from "./mode-api";
 import { TransformationData } from "./transformation";
 import * as  util from "./util";
-import { Editor } from "./wed";
 
 const indexOf = domutil.indexOf;
 const closestByClass = domutil.closestByClass;
 
-function tryToSetDataCaret(editor: Editor, dataCaret: DLoc): void {
+function tryToSetDataCaret(editor: EditorAPI, dataCaret: DLoc): void {
   try {
     editor.caretManager.setCaret(dataCaret, { textEdit: true });
   }
@@ -40,7 +40,7 @@ function attributeSelectorMatch(selector: string, name: string): boolean {
  * A decorator is responsible for adding decorations to a tree of DOM
  * elements. Decorations are GUI elements.
  */
-export abstract class Decorator {
+export abstract class Decorator implements DecoratorAPI {
   protected readonly namespaces: Record<string, string>;
   protected readonly domlistener: Listener;
   protected readonly guiUpdater: GUIUpdater;
@@ -55,7 +55,7 @@ export abstract class Decorator {
    * modifications to the GUI must go through this updater.
    */
   constructor(protected readonly mode: Mode,
-              protected readonly editor: Editor) {
+              protected readonly editor: EditorAPI) {
     this.domlistener = editor.domlistener;
     this.guiUpdater = editor.guiUpdater;
     this.namespaces = mode.getAbsoluteNamespaceMappings();
@@ -73,14 +73,6 @@ export abstract class Decorator {
     this.domlistener.startListening();
   }
 
-  /**
-   * This function adds a separator between each child element of the element
-   * passed as ``el``. The function only considers ``._real`` elements.
-   *
-   * @param el The element to decorate.
-   *
-   * @param sep A separator.
-   */
   listDecorator(el: Element, sep: string | Element): void {
     if (this.editor.modeTree.getMode(el) !== this.mode) {
       // The element is not governed by this mode.
@@ -150,21 +142,6 @@ export abstract class Decorator {
     }
   }
 
-  /**
-   * Add a start label at the start of an element and an end label at the end.
-   *
-   * @param root The root of the decorated tree.
-   *
-   * @param el The element to decorate.
-   *
-   * @param level The level of the labels for this element.
-   *
-   * @param preContextHandler An event handler to run when the user invokes a
-   * context menu on the start label.
-   *
-   * @param postContextHandler An event handler to run when the user invokes a
-   * context menu on the end label.
-   */
   elementDecorator(root: Element, el: Element, level: number,
                    preContextHandler: ((wedEv: JQueryMouseEventObject,
                                         ev: Event) => boolean) | undefined,

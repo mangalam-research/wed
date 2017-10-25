@@ -12,6 +12,7 @@ import { ErrorData, ResetData, WorkingState,
 import { DLoc } from "./dloc";
 import { isAttr, isElement } from "./domtypeguards";
 import { isNotDisplayed } from "./domutil";
+import { Editor } from "./editor";
 import { GUIValidationError } from "./gui-validation-error";
 import { ErrorLayer } from "./gui/error-layer";
 import { Scroller } from "./gui/scroller";
@@ -21,7 +22,6 @@ import { ProcessValidationErrors } from "./tasks/process-validation-errors";
 import { RefreshValidationErrors } from "./tasks/refresh-validation-errors";
 import { convertPatternObj, newGenericID } from "./util";
 import { Validator } from "./validator";
-import { Editor } from "./wed";
 import { boundaryXY, getGUINodeIfExists } from "./wed-util";
 
 const stateToStr: Record<string, string> = {};

@@ -13,7 +13,7 @@ import { closest } from "./domutil";
 import { GUISelector } from "./gui-selector";
 import { Key } from "./key";
 import { Mode } from "./mode";
-import { Editor } from "./wed";
+import { EditorAPI } from "./mode-api";
 
 // tslint:disable-next-line:no-any
 function hashHelper(o: any): any {
@@ -63,7 +63,7 @@ export class InputTrigger {
    * GUI tree. (For instance by being the output of
    * [["domutil".toGUISelector]].)
    */
-  constructor(private readonly editor: Editor,
+  constructor(private readonly editor: EditorAPI,
               private readonly mode: Mode,
               private readonly selector: GUISelector) {
     // This is a map of keys that are actually text keys to their handlers. This

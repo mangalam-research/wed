@@ -90,9 +90,9 @@ Known limitations:
 Dependencies
 ============
 
-Wed is packaged as a RequireJS module. To use it in a browser environment, you
-need to first load RequireJS and pass to it a configuration that will allow it
-to find wed's code. An example of such configuration, which allows running the
+Wed is packaged as an AMD module. To use it in a browser environment, you need
+to first load RequireJS and pass to it a configuration that will allow it to
+find wed's code. An example of such configuration, which allows running the
 browser-dependent test suite, is located in
 :github:`config/requirejs-config-dev.js`.
 
@@ -109,12 +109,10 @@ and development dependencies. Running the test suite also requires that `saxon
 
 Building wed's documentation **additionally** requires the following packages:
 
-* jsdoc3
 * rst2html
-* perl (a stop-gap measure which we plan to get rid of eventually)
 
 Running wed's selenium-based tests **additionally** requires Python 2.7 and the
-packages listed in ``dev_requirements.txt``.
+Python packages listed in ``dev_requirements.txt``.
 
 If you want to contribute to wed, your code will have to pass the checks listed
 in :github:`.glerbl/repo_conf.py`. So you either have to install glerbl to get
@@ -133,13 +131,13 @@ to record settings specific to your own build environment. Run ``gulp --help``
 to see what variables you can set. Note that the variable names when use on the
 command line have dashes where they would have underscore in
 ``gulp.local.js``. For instance, on the command line you'd use
-``--jsdoc3-default-template`` to set the path to the jsdoc3 default template but
-in ``gulp.local.js`` it would be ``jsdoc3_default_template``. Also note that
-your ``gulp.local.js`` file should return a single anonymous object whose fields
-are the values you want to set. For instance::
+``--behave-params`` to set the parameters passed to ``behave`` but in
+``gulp.local.js`` it would be ``behave_params``. Also note that your
+``gulp.local.js`` file should return a single anonymous object whose fields are
+the values you want to set. For instance::
 
   module.export = {
-      jsdoc3_default_template: "foo"
+      behave_params: "foo"
   };
 
 When everything is set, install gulp locally (``npm install gulp``) and run::
@@ -231,25 +229,51 @@ the mode.
 Using
 =====
 
+Starting with version 0.40, wed is much stricter as to what it exposes to
+libraries. The only parts of the code base that are safe to access are those
+exported by the facade exposed as ``wed``. ``wed`` exports ``EditorInstance``
+for the sake of allowing the creation of editors. However, modes **must** access
+the editor through the interface defined in ``wed/mode-api`` (which is
+reexported by ``wed``). It is **not** legal for a mode to cast an ``EditorAPI``
+variable to anything that exposes members that are not exposed through
+``wed/mode-api``. Any access that bypasses the public API is liable to break
+without notice, no complaints, no recourse.
+
+Also note that under the new regime the only module that is generally legitimate
+to load is ``wed``, and nothing else. You can probably still load individual
+modules from the ``standalone`` subdirectory as you used to, but this way of
+operating is deprecated and will most likely be gone by version 1.0. There are a
+few exceptions to the rule just given:
+
+* You may load ``wed/onerror`` by itself to set an error handler.
+
+* You may load ``wed/log`` by itself if you need to mess with logging.
+
+* The files in ``wed/glue``, ``wed/patches`` and ``wed/polyfills`` can (and
+  sometimes *must*) be used indepdently of the main ``wed`` module.
+
+* You may load any module from the bundled editing modes. This may be useful to
+  build your own modes.
+
 To include wed in a web page you must:
 
-* Require :github:`lib/wed/wed.js`
+* Require ``wed``
 
 * Instantiate an ``Editor`` object of that module as follows::
 
-    var editor = new wed.Editor();
+    var editor = wed.makeEditor(widget, options);
     [...]
-    editor.init(widget, options, data);
+    editor.init(data);
 
   Between the creation of the ``Editor`` object and the call to ``init``, there
   conceivably could be some calls to add event handlers or condition
   handlers. The ``widget`` parameter must be an element (preferably a ``div``)
   that wed will take over to install its GUI. The ``options`` parameter is
   either an anonymous JavaScript object that contains the options to pass to the
-  editor, or it can be a ``module:runtime~Runtime`` object. If the latter, the
-  options are passed to the ``Runtime`` and the runtime is passed to the
-  ``Editor`` instance. The ``data`` parameter is a string containing the
-  document to edit, in XML format.
+  editor, or it can be a ``Runtime`` object. If the latter, the options are
+  passed to the ``Runtime`` and the runtime is passed to the ``Editor``
+  instance. The ``data`` parameter is a string containing the document to edit,
+  in XML format.
 
 Options
 -------

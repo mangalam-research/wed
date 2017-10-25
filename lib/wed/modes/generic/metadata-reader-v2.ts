@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { EName } from "salve";
-import * as util from "wed/util";
+import { util } from "wed";
 
 import { compile, Context, DocPattern } from "./doc-pattern";
 import { Dochtml, Inline, Metadata } from "./metadata-as-json";

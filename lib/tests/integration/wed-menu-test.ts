@@ -5,7 +5,7 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { EditingMenuManager } from "wed/gui/editing-menu-manager";
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { delay } from "../util";
@@ -16,7 +16,7 @@ const assert = chai.assert;
 
 describe("wed menus:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;
@@ -51,7 +51,7 @@ describe("wed menus:", () => {
     (caretManager as any) = undefined;
   });
 
-  function contextMenuHasAttributeOption(myEditor: wed.Editor): void {
+  function contextMenuHasAttributeOption(myEditor: Editor): void {
     contextMenuHasOption(myEditor, /^Add @/);
   }
 

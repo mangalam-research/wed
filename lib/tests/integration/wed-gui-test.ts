@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup } from "../wed-test-util";
@@ -12,7 +12,7 @@ const assert = chai.assert;
 
 describe("wed gui:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
 
   before(() => {
     setup = new EditorSetup(

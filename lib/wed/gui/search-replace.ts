@@ -7,8 +7,8 @@
 import { CaretManager } from "../caret-manager";
 import { DLoc, DLocRange } from "../dloc";
 import { isWellFormedRange} from "../domutil";
+import { Editor, ReplaceRangeTransformationData } from "../editor";
 import { Context, Direction, Search } from "../search";
-import { Editor, ReplaceRangeTransformationData } from "../wed";
 import { Scroller } from "./scroller";
 
 export { Context, Direction };

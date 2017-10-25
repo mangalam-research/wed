@@ -6,10 +6,10 @@
 import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
 import { isAttr } from "wed/domtypeguards";
+import { Editor } from "wed/editor";
 import * as keyConstants from "wed/key-constants";
 import { TaskRunner } from "wed/task-runner";
 import { ValidationController } from "wed/validation-controller";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { makeFakePasteEvent, waitForSuccess } from "../util";
@@ -20,7 +20,7 @@ const _slice = Array.prototype.slice;
 
 describe("wed validation errors:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let controller: ValidationController;
   let processRunner: TaskRunner;
@@ -37,11 +37,12 @@ describe("wed validation errors:", () => {
       // tslint:disable-next-line:no-any
       (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
       // tslint:disable-next-line:no-any
-      processRunner = (editor.validationController as any).processErrorsRunner;
+      processRunner = (editor as any).validationController.processErrorsRunner;
       // tslint:disable-next-line:no-any
-      refreshRunner = (editor.validationController as any).refreshErrorsRunner;
+      refreshRunner = (editor as any).validationController.refreshErrorsRunner;
       caretManager = editor.caretManager;
-      controller = editor.validationController;
+      // tslint:disable-next-line:no-any
+      controller = (editor as any).validationController;
       guiRoot = editor.guiRoot;
     });
   });

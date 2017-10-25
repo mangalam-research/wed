@@ -14,8 +14,8 @@
 
 import { DLoc } from "./dloc";
 import { isElement, isText } from "./domtypeguards";
+import { Editor } from "./editor";
 import { AttributeNotFound } from "./guiroot";
-import { Editor } from "./wed";
 
 export interface BoundaryCoordinates {
   left: number;

@@ -10,9 +10,9 @@ import { DLoc } from "../dloc";
 import { isElement } from "../domtypeguards";
 import { closestByClass, htmlToElements, indexOf,
          isNotDisplayed } from "../domutil";
+import { Editor } from "../editor";
 import { ModeTree } from "../mode-tree";
 import { Transformation, TransformationData } from "../transformation";
-import { Editor } from "../wed";
 import { ActionContextMenu, Item } from "./action-context-menu";
 import { CompletionMenu } from "./completion-menu";
 import { ContextMenu } from "./context-menu";

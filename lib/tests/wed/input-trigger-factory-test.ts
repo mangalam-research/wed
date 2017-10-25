@@ -3,12 +3,12 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { Editor } from "wed/editor";
 import { GUISelector } from "wed/gui-selector";
 import * as inputTriggerFactory from "wed/input-trigger-factory";
 import * as key from "wed/key";
 import { BACKSPACE, DELETE, ENTER } from "wed/key-constants";
 import { Mode } from "wed/mode";
-import * as wed from "wed/wed";
 
 import { makeFakePasteEvent } from "../util";
 import { EditorSetup } from "../wed-test-util";
@@ -33,7 +33,7 @@ function cleanNamespace(str: string): string {
 
 describe("input_trigger_factory", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let mode: Mode;
   const dataDir = "/base/build/standalone/lib/tests/input_trigger_test_data";
 

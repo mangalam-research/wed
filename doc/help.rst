@@ -1218,18 +1218,16 @@ labeled "Complex name pattern". What's the deal?
 Brief Explanation
 -----------------
 
-In brief, this occurs if the Relax NG schema uses a wildcard (so to
-speak) that allows an unlimited number of possibilities for the name
-of an element or of an attribute. (Or a set of possibilities that
-cannot be expressed as a set of positive matches.)  Wed is capable to
-validate such documents. However its capability to edit them is
-currently limited. Wed will actually mark as **read only** elements
-and attributes that are allowed only due to a wildcard. These may not
-be modified in wed. The menu item that wed shows is a warning that the
-schema allows for more than what wed is able to do. If this is a
-problem for you, you should contact whoever provides you with
-technical support to discuss the problem. You may direct them to read
-the explanation that follows.
+In brief, this occurs if the Relax NG schema uses a wildcard (so to speak) that
+allows an unlimited number of possibilities for the name of an element or of an
+attribute. (Or a set of possibilities that cannot be expressed as a set of
+positive matches.)  Wed is able to validate such documents. However its
+capability to edit them is currently limited. Wed will actually mark as **read
+only** elements and attributes that are allowed only due to a wildcard. These
+may not be modified in wed. The menu item that wed shows is a warning that the
+schema allows for more than what wed is able to do. If this is a problem for
+you, you should contact whoever provides you with technical support to discuss
+the problem. You may direct them to read the explanation that follows.
 
 Long Technical Explanation
 --------------------------

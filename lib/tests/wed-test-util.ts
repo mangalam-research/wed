@@ -12,10 +12,11 @@ import { expect } from "chai";
 import qs = require("qs");
 import * as sinon from "sinon";
 
+import { makeEditor } from "wed";
+import { Editor } from "wed/editor";
 import { childByClass, childrenByClass } from "wed/domutil";
 import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
-import { Editor } from "wed/wed";
 
 import { DataProvider } from "./util";
 
@@ -260,7 +261,7 @@ export class EditorSetup {
 
     this.wedroot = makeWedRoot(document);
     doc.body.appendChild(this.wedroot);
-    this.editor = new Editor(this.wedroot, options);
+    this.editor = makeEditor(this.wedroot, options) as Editor;
   }
 
   async init(): Promise<Editor> {

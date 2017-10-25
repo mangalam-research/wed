@@ -8,11 +8,12 @@ import * as mergeOptions from "merge-options";
 
 import { Decorator } from "./decorator";
 import { contains, toGUISelector } from "./domutil";
+import { Editor } from "./editor";
 import { Mode } from "./mode";
+import { ModeTreeAPI } from "./mode-api";
 import { ModeLoader } from "./mode-loader";
 import { Mode as ModeOption } from "./options";
 import { ModeValidator } from "./validator";
-import { Editor } from "./wed";
 import { CleanedWedOptions, processWedOptions } from "./wed-options-validation";
 
 /**
@@ -153,7 +154,7 @@ class ModeNode {
 /**
  * A tree containing the modes configured for the current editing session.
  */
-export class ModeTree {
+export class ModeTree implements ModeTreeAPI {
   private root: ModeNode;
   private loader: ModeLoader;
   private cachedMaxLabelNode: ModeNode;
@@ -237,53 +238,23 @@ export class ModeTree {
     return new ModeNode(mode, this.editor, selector, submodes, cleanedOptions);
   }
 
-  /**
-   * Get the mode that governs a node.
-   *
-   * @param The node we want to check. This must be a done in the data tree or
-   * the GUI tree.
-   *
-   * @returns The mode that governs the node.
-   */
   getMode(node: Node): Mode {
     return this.getModeNode(node).mode;
   }
 
-  /**
-   * Get the decorator that governs a node.
-   */
   getDecorator(node: Node): Decorator {
     return this.getModeNode(node).decorator;
   }
 
-  /**
-   * Get the processed wed options that are in effect for a given node.
-   *
-   * @param The node we want to check. This must be a done in the data tree or
-   * the GUI tree.
-   *
-   * @returns The wed options that governs the node.
-   */
   getWedOptions(node: Node): CleanedWedOptions {
     const modeNode = this.getModeNode(node);
     return modeNode.wedOptions;
   }
 
-  /**
-   * Get the attribute handling that applies to a specific node.
-   */
   getAttributeHandling(node: Node): "show" | "hide" | "edit" {
     return this.getWedOptions(node).attributes.handling;
   }
 
-  /**
-   * Get the attribute hiding specs that apply to a specific node.
-   *
-   * @returns The specifications that apply to the node. These specifications
-   * have been preprocessed to convert the selectors from being appropriate for
-   * the data tree to selectors appropriate for the GUI tree. ``null`` is
-   * returned if there are no specs.
-   */
   getAttributeHidingSpecs(node: Node):  AttributeHidingSpecs | null {
     return this.getModeNode(node).attributeHidingSpecs;
   }
@@ -339,14 +310,6 @@ export class ModeTree {
     return undefined;
   }
 
-  /**
-   * Get the stylesheets that the modes define. It is up to the mode to use
-   * stylesheets that are written so as to avoid interfering with one another.
-   *
-   * @returns The list of sheets used by the modes. Straight duplicates are
-   * eliminated from the list. The paths must not require any further
-   * interpretation from wed.
-   */
   getStylesheets(): string[] {
     return Object.keys(this.root.reduceTopFirst(
       (accumulator: Record<string, boolean>, node) => {
@@ -357,23 +320,10 @@ export class ModeTree {
       }, Object.create(null)));
   }
 
-  /**
-   * Get the maximum label visibility level configured by the modes. This
-   * function looks at all modes in use and returns the highest number it finds.
-   *
-   * @returns The maximum label visibility level.
-   */
   getMaxLabelLevel(): number {
     return this.maxLabelLevelNode.wedOptions.label_levels.max;
   }
 
-  /**
-   * Get the initial label visibility level configured by the modes. This
-   * function looks at all modes in use and returns the number that is set by
-   * the same mode used to provide the value of [[getMaxLabelLevel]].
-   *
-   * @returns The initial label visibility level.
-   */
   getInitialLabelLevel(): number {
     return this.maxLabelLevelNode.wedOptions.label_levels.initial;
   }
@@ -399,9 +349,6 @@ export class ModeTree {
     return this.cachedMaxLabelNode;
   }
 
-  /**
-   * @returns The list of all mode validators defined by the modes.
-   */
   getValidators(): ModeValidator[] {
     return this.root.reduceTopFirst<ModeValidator[]>(
       (accumulator, node) => {

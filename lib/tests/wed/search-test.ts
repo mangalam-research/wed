@@ -5,8 +5,8 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { DLoc, DLocRange } from "wed/dloc";
+import { Editor } from "wed/editor";
 import { Context, Search } from "wed/search";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 
@@ -18,7 +18,7 @@ const expect = chai.expect;
 
 describe("search", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let guiRoot: HTMLElement;
   let dataRoot: Document;
   let docScope: DLocRange;

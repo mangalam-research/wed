@@ -5,7 +5,7 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { isElement } from "wed/domtypeguards";
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup, firstGUI, getAttributeNamesFor } from "../wed-test-util";
@@ -14,7 +14,7 @@ const assert = chai.assert;
 
 describe("wed decoration:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;

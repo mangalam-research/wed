@@ -4,7 +4,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { CaretManager } from "wed/caret-manager";
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup } from "../wed-test-util";
@@ -13,7 +13,7 @@ const assert = chai.assert;
 
 describe("wed location bar", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let locationBar: HTMLElement;
 

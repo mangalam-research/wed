@@ -6,8 +6,8 @@
  */
 import * as $ from "jquery";
 
+import { Editor, KeydownHandler } from "../editor";
 import * as keyConstants from "../key-constants";
-import { Editor, KeydownHandler } from "../wed";
 import { ContextMenu, DismissCallback } from "./context-menu";
 
 /**

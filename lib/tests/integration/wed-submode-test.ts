@@ -5,7 +5,7 @@
  */
 import { expect } from "chai";
 
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import { config } from "../submode-config";
 import { activateContextMenu, contextMenuHasOption, EditorSetup,
@@ -13,7 +13,7 @@ import { activateContextMenu, contextMenuHasOption, EditorSetup,
 
 describe("wed submodes", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
 
   before(() => {
     setup = new EditorSetup(

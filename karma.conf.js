@@ -1,5 +1,4 @@
-// Karma configuration
-// Generated on Fri Sep 08 2017 08:57:28 GMT-0400 (EDT)
+"use strict";
 
 // This is a middleware that just serves empty files for fake css files we use
 // in testing (/a.css, /b.css, etc.)
@@ -14,7 +13,7 @@ function makeServeMiddleware(/* config */) {
   };
 }
 
-module.exports = function(config) {
+module.exports = function configure(config) {
   config.set({
     basePath: "",
     middleware: ["serve-fake-css-files"],
@@ -48,6 +47,6 @@ module.exports = function(config) {
     autoWatch: false,
     browsers: ["ChromeHeadless"],
     singleRun: false,
-    concurrency: Infinity
+    concurrency: Infinity,
   });
 };

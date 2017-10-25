@@ -37,7 +37,7 @@ function create(args) {
   const configFilePath = args.config;
   const configFileText = fileAsString(configFilePath);
 
-  let bundleName = "wed/wed";
+  let bundleName = "wed";
   let modules = ["wed/log", "wed/onerror", "wed/savers/localforage",
                  "wed/browsers", "wed/runtime", "merge-options"];
   if (args.system) {

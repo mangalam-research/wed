@@ -11,8 +11,8 @@ import { GUISelector } from "./gui-selector";
 import { InputTrigger } from "./input-trigger";
 import { Key } from "./key";
 import { Mode } from "./mode";
+import { EditorAPI } from "./mode-api";
 import * as transformation from "./transformation";
-import { Editor } from "./wed";
 
 interface SplitData extends transformation.TransformationData {
   // node is no longer optional.
@@ -29,7 +29,7 @@ interface SplitData extends transformation.TransformationData {
  *
  * @throws {Error} If the data passed is incorrect.
  */
-function splitNodeOn(editor: Editor, data: SplitData): void {
+function splitNodeOn(editor: EditorAPI, data: SplitData): void {
   let node = data.node;
   const sep = data.sep;
   if (typeof sep !== "string" || sep.length !== 1) {
@@ -95,7 +95,7 @@ function splitNodeOn(editor: Editor, data: SplitData): void {
  *
  * @returns The input trigger.
  */
-export function makeSplitMergeInputTrigger(editor: Editor,
+export function makeSplitMergeInputTrigger(editor: EditorAPI,
                                            mode: Mode,
                                            selector: GUISelector,
                                            splitKey: Key,
