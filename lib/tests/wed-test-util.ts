@@ -13,8 +13,8 @@ import qs = require("qs");
 import * as sinon from "sinon";
 
 import { makeEditor } from "wed";
-import { Editor } from "wed/editor";
 import { childByClass, childrenByClass } from "wed/domutil";
+import { Editor } from "wed/editor";
 import * as onerror from "wed/onerror";
 import { Options } from "wed/options";
 
@@ -126,6 +126,10 @@ export interface Payload {
 // tslint:disable-next-line:completed-docs
 export class WedServer {
   private _saveRequests: Payload[] = [];
+  private readonly oldUseFilters: boolean;
+    // tslint:disable-next-line:no-any
+  private readonly oldFilters: any[];
+  private readonly xhr: sinon.SinonFakeXMLHttpRequest;
 
   emptyResponseOnSave: boolean = false;
   failOnSave: boolean = false;
@@ -134,7 +138,15 @@ export class WedServer {
 
   constructor(server: sinon.SinonFakeServer) {
     // tslint:disable-next-line:no-any
-    const xhr = (server as any).xhr;
+    const xhr = (server as any).xhr as sinon.SinonFakeXMLHttpRequest;
+    this.xhr = xhr;
+
+    // We must save and restore the filter state ourselves because Sinon does
+    // not do it. Fake servers don't restore it, nor do sandboxes.
+    this.oldUseFilters = xhr.useFilters;
+    // tslint:disable-next-line:no-any
+    this.oldFilters = (xhr as any).filters;
+
     xhr.useFilters = true;
     xhr.addFilter((method: string, url: string): boolean =>
                   !/^\/build\/ajax\//.test(url));
@@ -160,6 +172,13 @@ export class WedServer {
     this.failOnSave = false;
     this.preconditionFailOnSave = false;
     this.tooOldOnSave = false;
+  }
+
+  restore(): void {
+    const xhr = this.xhr;
+    xhr.useFilters = this.oldUseFilters;
+    // tslint:disable-next-line:no-any
+    (xhr as any).filters = this.oldFilters;
   }
 
   private decode(request: sinon.SinonFakeXMLHttpRequest): Payload {
@@ -221,10 +240,6 @@ export class WedServer {
   }
 }
 
-export function setupServer(server: sinon.SinonFakeServer): void {
-  new WedServer(server);
-}
-
 export function makeWedRoot(doc: Document): HTMLElement {
   const wedroot = document.createElement("div");
   wedroot.className = "wed-widget container";
@@ -283,6 +298,8 @@ export class EditorSetup {
     if (this.editor !== undefined) {
       this.editor.destroy();
     }
+
+    this.server.restore();
 
     errorCheck();
 

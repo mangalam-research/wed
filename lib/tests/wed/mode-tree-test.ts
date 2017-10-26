@@ -356,6 +356,10 @@ describe("ModeTree", () => {
     });
 
     afterEach(() => {
+      sandbox.reset();
+    });
+
+    after(() => {
       sandbox.restore();
     });
 
@@ -392,6 +396,10 @@ describe("ModeTree", () => {
     });
 
     afterEach(() => {
+      sandbox.reset();
+    });
+
+    after(() => {
       sandbox.restore();
     });
 
