@@ -7,6 +7,7 @@
 import * as Ajv from "ajv";
 import "bootstrap";
 import * as $ from "jquery";
+import { filter } from "rxjs/operators/filter";
 import * as salve from "salve";
 import { WorkingState, WorkingStateData } from "salve-dom";
 
@@ -1526,16 +1527,20 @@ wed's generic help. The link by default will open in a new tab.</p>`);
                                      this.dataRoot, saveOptions!);
           this.saver = saver;
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Saved"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Saved")))
             .subscribe(this.onSaverSaved.bind(this));
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Autosaved"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Autosaved")))
             .subscribe(this.onSaverAutosaved.bind(this));
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Failed"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Failed")))
             .subscribe(this.onSaverFailed.bind(this));
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Changed"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Changed")))
             .subscribe(this.onSaverChanged.bind(this));
 
           this.refreshSaveStatus();

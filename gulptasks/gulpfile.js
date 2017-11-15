@@ -307,8 +307,7 @@ function npmCopyTask(...args) {
   const completeSrc = [`node_modules/${src}`];
   const completeDest = `build/standalone/lib/${dest}`;
 
-  // We want to match everything except the package directory
-  // itself.
+  // We want to match everything except the package directory itself.
   const filter = gulpFilter(file => !/node_modules\/$/.test(file.base));
 
   //
@@ -347,7 +346,11 @@ function npmCopyTask(...args) {
       .pipe(filter);
 
     if (copyOptions.wrapAmd) {
-      stream = stream.pipe(wrapAmd({ exports: "module.exports" }));
+      // Wrapping makes sense only for .js files.
+      const jsFilter = gulpFilter("**/*.js", { restore: true });
+      stream = stream.pipe(jsFilter)
+        .pipe(wrapAmd({ exports: "module.exports" }))
+        .pipe(jsFilter.restore);
     }
 
     stream.pipe(gulp.dest(completeDest))
@@ -417,7 +420,7 @@ npmCopyTask("bluejax.try/index.js", { rename: "bluejax.try.js" });
 
 npmCopyTask("slug/slug-browser.js", { rename: "slug.js" });
 
-npmCopyTask("rxjs/bundles/Rx.js");
+npmCopyTask("rxjs/**", "external/rxjs", { wrapAmd: true });
 
 npmCopyTask("ajv/dist/ajv.min.js");
 

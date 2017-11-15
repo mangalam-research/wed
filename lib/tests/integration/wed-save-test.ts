@@ -3,6 +3,9 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { filter } from "rxjs/operators/filter";
+import { first } from "rxjs/operators/first";
+
 import { keyConstants, version } from "wed";
 import { Editor } from "wed/editor";
 
@@ -38,7 +41,7 @@ server_interaction_converted.xml",
 
   it("saves", () => {
     const prom =  editor.saver.events
-      .filter((ev) => ev.name === "Saved").first().toPromise()
+      .pipe(filter((ev) => ev.name === "Saved"), first()).toPromise()
       .then(() => {
         assert.deepEqual(server.lastSaveRequest, {
           command: "save",
@@ -56,7 +59,7 @@ server_interaction_converted.xml",
 
   it("serializes properly", () =>  {
     const prom = editor.saver.events
-      .filter((ev) => ev.name === "Saved").first().toPromise()
+      .pipe(filter((ev) => ev.name === "Saved"), first()).toPromise()
       .then(() => {
         assert.deepEqual(server.lastSaveRequest, {
           command: "save",
@@ -81,7 +84,7 @@ server_interaction_converted.xml",
     // tslint:disable-next-line:no-floating-promises
     editor.save().then(() => {
       const sub = editor.saver.events
-        .filter((ev) => ev.name === "Autosaved").subscribe((ev) => {
+        .pipe(filter((ev) => ev.name === "Autosaved")).subscribe((ev) => {
           throw new Error("autosaved!");
         });
       editor.saver.setAutosaveInterval(50);
@@ -95,7 +98,7 @@ server_interaction_converted.xml",
   it("autosaves when the document is modified", (done) => {
     // We're testing that autosave is not called again after the first time.
     let autosaved = false;
-    const sub = editor.saver.events.filter((x) => x.name === "Autosaved")
+    const sub = editor.saver.events.pipe(filter((x) => x.name === "Autosaved"))
       .subscribe(() => {
         if (autosaved) {
           throw new Error("autosaved more than once");
@@ -127,7 +130,8 @@ server_interaction_converted.xml",
          // time.
          let autosaved = false;
          const interval = 50;
-         const sub = editor.saver.events.filter((x) => x.name === "Autosaved")
+         const sub = editor.saver.events
+           .pipe(filter((x) => x.name === "Autosaved"))
            .subscribe(() => {
              if (autosaved) {
                throw new Error("autosaved more than once");

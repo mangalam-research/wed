@@ -105,7 +105,7 @@
     "require-dir": "^0.3.2",
     "requirejs": "^2.3.4",
     "requirejs-text": ">=2.0.12 <3",
-    "rxjs": "^5.1.0",
+    "rxjs": "^5.5.2",
     "salve-dom": "^1.2.1",
     "semver": ">=5 <6",
     "serve-static": ">=1.7.1 <2",

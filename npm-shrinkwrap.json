@@ -6857,9 +6857,9 @@
       "dev": true
     },
     "rxjs": {
-      "version": "5.1.1",
-      "from": "rxjs@>=5.1.0 <6.0.0",
-      "resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.1.1.tgz",
+      "version": "5.5.2",
+      "from": "rxjs@latest",
+      "resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.5.2.tgz",
       "dev": true
     },
     "safe-buffer": {

@@ -17,5 +17,10 @@ module.exports = function configure(config) {
     pattern: "build/standalone/lib/tests/{*,*_data/**/*,integration/wed-save-test}.@(js|map|xml|html|json)",
     included: false,
   });
+  // We need the Rxjs files from the dev build because the tests load them individually.
+  options.files.push({
+    pattern: "build/standalone/lib/external/rxjs/**/*.@(js|map|xml|html|json)",
+    included: false,
+  });
   config.set(options);
 };

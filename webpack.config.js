@@ -32,7 +32,6 @@ const externals = {};
  "bluejax",
  "bluejax.try",
  "slug",
- "rxjs",
  "ajv",
  // onerror must be loadable outside wed...
  "onerror",
@@ -66,8 +65,8 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       "wed/{glue,patches,polyfills,modes,savers}/**/*",
-      "{requirejs,external}/**/*", "../kitchen-sink.html",
-      "../requirejs-config.js", "kitchen-sink.js",
+      "{requirejs,external}/*", "{requirejs,external}/!(rxjs)/**/*",
+      "../kitchen-sink.html", "../requirejs-config.js", "kitchen-sink.js",
       "../doc/**/*", "global-config.js", "json.js", "wed/**/*.css",
       "wed/{onerror,log,mode-map}.*"].map(name => ({
         // Using an object with a "glob" field forces CopyWebpackPlugin to treat

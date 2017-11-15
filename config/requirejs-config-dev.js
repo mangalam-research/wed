@@ -32,7 +32,7 @@ require.config({
     bluejax: "external/bluejax",
     "bluejax.try": "external/bluejax.try",
     slug: "external/slug",
-    rxjs: "external/Rx",
+    rxjs: "external/rxjs",
     ajv: "external/ajv.min",
   },
   packages: [

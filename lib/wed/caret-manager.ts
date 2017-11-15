@@ -6,7 +6,8 @@
  */
 import * as $ from "jquery";
 import * as rangy from "rangy";
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
 
 import * as browsers from "./browsers";
 import { CaretMark } from "./caret-mark";

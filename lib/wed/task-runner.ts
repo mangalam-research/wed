@@ -5,7 +5,10 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import { Observable } from "rxjs/Observable";
+
+import { first } from "rxjs/operators/first";
 
 /**
  * The options accepted by a task runner.
@@ -107,7 +110,7 @@ export class TaskRunner {
   }
 
   onCompleted(): Promise<State> {
-    return this.state.first((state) => state.completed).toPromise();
+    return this.state.pipe(first((state) => state.completed)).toPromise();
   }
 
   private _stateFieldChange<T extends keyof State>(field: T,

@@ -3,6 +3,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { first } from "rxjs/operators/first";
+
 import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
 import { DLoc } from "wed/dloc";
@@ -561,7 +563,7 @@ describe("wed caret", () => {
 
     const initialScroll = scroller.scrollTop;
 
-    scroller.events.first().subscribe(() => {
+    scroller.events.pipe(first()).subscribe(() => {
       // We need to wait until the scroller has fired the scroll event.
       assert.isTrue(initialScroll < scroller.scrollTop);
       const caretRect = editor.caretManager.mark.getBoundingClientRect();

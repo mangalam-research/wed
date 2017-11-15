@@ -3,6 +3,9 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { filter } from "rxjs/operators/filter";
+import { first } from "rxjs/operators/first";
+
 import * as wed from "wed";
 import { Editor } from "wed/editor";
 import * as keyConstants from "wed/key-constants";
@@ -48,8 +51,9 @@ server_interaction_converted.xml",
     server.failOnSave = true;
     const $modal = editor.modals.getModal("disconnect").getTopLevel();
     $modal.on("shown.bs.modal", () => {
-      editor.saver.events.filter((ev) => ev.name === "Saved")
-        .first().subscribe((ev) => {
+      editor.saver.events.pipe(filter((ev) => ev.name === "Saved"),
+                               first())
+        .subscribe((ev) => {
           // Was saved on retry!
 
           // This allows us to let the whole save process run its course before
