@@ -19,14 +19,11 @@ const sourcemaps = require("gulp-sourcemaps");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
 const createOptimizedConfig = require("../misc/create_optimized_config").create;
-const cpp = require("child-process-promise");
 
 const config = require("./config");
-const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
-        cprpdir, spawn, sequence, mkdirpAsync, fs, stampPath } =
-      require("./util");
-
-const execFile = cpp.execFile;
+const { sameFiles, del, newer, exec, execFileAndReport, checkOutputFile,
+        touchAsync, cprp, cprpdir, spawn, sequence, mkdirpAsync, fs,
+        stampPath } = require("./util");
 
 const { test, seleniumTest } = require("./tests");
 
@@ -623,10 +620,8 @@ gulp.task("build-standalone-optimized", [
 ], Promise.coroutine(buildStandaloneOptimized));
 
 gulp.task("webpack", ["build-standalone"], () =>
-          execFile("./node_modules/.bin/webpack", ["--color"])
-          .then((result) => {
-            gutil.log(result.stdout);
-          }));
+          execFileAndReport("./node_modules/.bin/webpack", ["--color"],
+                            { maxBuffer: 300 * 1024 }));
 
 gulp.task("rst-doc", () =>
           gulp.src("*.rst", { read: false })
