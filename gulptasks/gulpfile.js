@@ -696,8 +696,8 @@ function *ghPages() {
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
           Promise.coroutine(ghPages));
 
-const distNoTest = {
-  name: "dist-notest",
+const packNoTest = {
+  name: "pack-notest",
   deps: ["build-standalone", "build-standalone-optimized", "webpack"],
   *func() {
     yield del("build/wed-*.tgz");
@@ -725,16 +725,16 @@ standalone-optimized/lib/tests/**
   },
 };
 
-sequence("dist", test, seleniumTest, distNoTest);
+sequence("pack", test, seleniumTest, packNoTest);
 
 function publish() {
   return spawn("npm", ["publish", "build/LATEST-DIST.tgz"],
                { stdio: "inherit" });
 }
 
-gulp.task("publish", ["dist"], publish);
+gulp.task("publish", ["pack"], publish);
 
-gulp.task("publish-notest", ["dist-notest"], publish);
+gulp.task("publish-notest", ["pack-notest"], publish);
 
 gulp.task("clean", () => del(["build", "gh-pages", "*.html"]));
 
