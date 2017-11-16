@@ -24,7 +24,7 @@ Known limitations:
   <https://github.com/mangalam-research/salve/>`_ package for details.
 
 * Wed does not currently support ordering attributes according to some
-  preference. (The order is whatever the DOM implementation does by default.)
+  preference. (The order is alphabetic.)
 
 * Wed does not currently support multiline values in attributes.
 
