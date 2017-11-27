@@ -1060,7 +1060,8 @@ resolving bugs happening with this browser.
 
 * IE 11.
 
-* Edge, but see `the section about it <Edge_>`_.
+* Edge, but see `the section about it <Edge_>`_. We expect wed probably works
+  fine on it.
 
 * Relatively recent versions of Chrome: older than the latest releases
   but not very old. (Yeah, this is vague. Sorry about that.)
@@ -1096,24 +1097,28 @@ unlikely to ever be supported:
 Firefox
 -------
 
-We're hoping that the lack of Firefox support is going to be
-temporary.
+We're hoping that the lack of Firefox support is going to be temporary. The
+paragraphs below give the state of Firefox support, in reverse chronological
+order (most recent on top):
+
+Update November 2017: Firefox support is still suspended. The Marionette driver
+has been released. However it is so buggy that there's no way we can run our
+tests with it. And yes, we do mean "buggy" with the full force of that word. For
+instance, the WebDriver specs specify that performing a click on an element
+should scroll the element into view. Our tests rely on this, but Marionette does
+not implement the scroll, which causes failures during testing.
 
 Update Summer 2016: things are looking up. The Firefox developers have
 been working on a driver named "Marionette" that *should* solve the
 support problems. Stay tuned.
 
-Update Fall 2017: Firefox support is still suspended. It may be easy to resume
-it but there's been no demand for it, so...
-
-For years, wed was supporting Firefox. Early on, Firefox was even
-better supported than Chrome. However, the people responsible for
-maintaining Selenium decided to stop supporting native events in
-Firefox and forced developers to use synthetic events instead. The
-problem is that Selenium's support for synthetic events on Firefox is
-unable to accurately reproduce what happens when a user is actually
-interacting with a browser, *which is the entire point of using
-Selenium in the first place*. The problem has been reported, at
+February 2016: For years, wed was supporting Firefox. Early on, Firefox was even
+better supported than Chrome. However, the people responsible for maintaining
+Selenium decided to stop supporting native events in Firefox and forced
+developers to use synthetic events instead. The problem is that Selenium's
+support for synthetic events on Firefox is unable to accurately reproduce what
+happens when a user is actually interacting with a browser, *which is the entire
+point of using Selenium in the first place*. The problem has been reported, at
 length:
 
 * In the `selenium-developers` group `here
