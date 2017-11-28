@@ -42,6 +42,13 @@ odd bug fix may not get mentioned here at all.
     F1 to bring up the help dialog and click the link in the dialog. If you get
     to the help page, then you are fine. If not, you need a custom value.
 
+  - New feature: The editor now has a ``transformations`` observer that can be
+    used to know when transformations start and end and to add changes to a
+    transformation.
+
+    More formally: wed allows subscribers acting on transformation events
+    to make further modifications to the data tree.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of

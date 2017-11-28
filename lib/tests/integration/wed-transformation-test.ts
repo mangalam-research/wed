@@ -266,4 +266,29 @@ describe("wed transformation:", () => {
 
     trs[0].execute({ node: undefined, name: "biblFull" });
   });
+
+  it("the editor emits transformation events", (done) => {
+    const p = ps[0];
+    const dataP = editor.toDataNode(p);
+    const elName = getElementNameFor(p)!;
+    const tr = editor.modeTree.getMode(elName).getContextualActions(
+      ["add-attribute"], "abbr", elName, 0)[0];
+
+    caretManager.setCaret(elName.firstChild, 0);
+    caretCheck(editor, elName.firstChild!, 0,
+               "the caret should be in the element name");
+    let first = true;
+    editor.transformations.subscribe((ev) => {
+      assert.equal(ev.transformation, tr);
+      if (first) {
+        assert.equal(ev.name, "StartTransformation");
+        first = false;
+      }
+      else {
+        assert.equal(ev.name, "EndTransformation");
+        done();
+      }
+    });
+    tr.execute({ node: dataP, name: "abbr" });
+  });
 });

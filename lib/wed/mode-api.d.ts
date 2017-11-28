@@ -5,6 +5,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { Observable } from "rxjs/Observable";
+
 import { Action } from "./action";
 import { CaretManager } from "./caret-manager";
 import { DLoc, DLocRange, DLocRoot } from "./dloc";
@@ -32,6 +34,29 @@ export interface ReplaceRangeTransformationData extends TransformationData {
   newText: string;
   caretAtEnd: boolean;
 }
+
+/**
+ * The editor emits this event just before calling the transformation's handler.
+ */
+export interface StartTransformationEvent {
+  name: "StartTransformation";
+
+  /** The transformation about to be executed. */
+  transformation: Transformation;
+}
+
+/**
+ * The editor emits this event just after calling the transformation's handler.
+ */
+export interface EndTransformationEvent {
+  name: "EndTransformation";
+
+  /** The transformation that was executed. */
+  transformation: Transformation;
+}
+
+export type TransformationEvents =
+  StartTransformationEvent | EndTransformationEvent;
 
 export interface DecoratorAPI {
   /**
@@ -204,6 +229,9 @@ export interface EditorAPI {
 
   /** The URL for the embedded documentation page. */
   readonly docURL: string;
+
+  /** The stream of transformation events for this editor. */
+  readonly transformations: Observable<TransformationEvents>;
 
   /** The root of the data tree. */
   dataRoot: Document;

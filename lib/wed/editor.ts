@@ -7,7 +7,9 @@
 import * as Ajv from "ajv";
 import "bootstrap";
 import * as $ from "jquery";
+import { Observable } from "rxjs/Observable";
 import { filter } from "rxjs/operators/filter";
+import { Subject } from "rxjs/Subject";
 import * as salve from "salve";
 import { WorkingState, WorkingStateData } from "salve-dom";
 
@@ -39,7 +41,8 @@ import * as keyConstants from "./key-constants";
 import * as log from "./log";
 import { Mode } from "./mode";
 import { EditorAPI , PasteTransformationData,
-         ReplaceRangeTransformationData } from "./mode-api";
+         ReplaceRangeTransformationData,
+         TransformationEvents } from "./mode-api";
 import { ModeTree } from "./mode-tree";
 import * as onbeforeunload from "./onbeforeunload";
 import * as onerror from "./onerror";
@@ -242,6 +245,8 @@ export class Editor implements EditorAPI {
   } | undefined;
   private currentTypeahead: TypeaheadPopup | undefined;
   private validationController: ValidationController;
+  private readonly _transformations: Subject<TransformationEvents> =
+    new Subject();
 
   readonly name: string = "";
   readonly firstValidationComplete: Promise<Editor>;
@@ -263,6 +268,8 @@ export class Editor implements EditorAPI {
   readonly replaceRangeTr: Transformation<ReplaceRangeTransformationData>;
   readonly minibuffer: Minibuffer;
   readonly docURL: string;
+  readonly transformations: Observable<TransformationEvents> =
+    this._transformations.asObservable();
   dataRoot: Document;
   $dataRoot: JQuery;
   maxLabelLevel: number;
@@ -559,7 +566,15 @@ export class Editor implements EditorAPI {
       throw new Error("transformation applied with undefined caret.");
     }
 
+    this._transformations.next({
+      name: "StartTransformation",
+      transformation: tr,
+    });
     tr.handler(this, data);
+    this._transformations.next({
+      name: "EndTransformation",
+      transformation: tr,
+    });
   }
 
   /**

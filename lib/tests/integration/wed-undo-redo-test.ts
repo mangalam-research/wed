@@ -5,6 +5,7 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { Editor } from "wed/editor";
+import { AbortTransformationException } from "wed/exceptions";
 import * as keyConstants from "wed/key-constants";
 
 import * as globalConfig from "../base-config";
@@ -203,5 +204,54 @@ describe("wed undo redo:", () => {
                  "the attribute should have its initial value");
     caretCheck(editor, attrValues[0].firstChild!, 0,
                "the caret should be in the first attribute value");
+  });
+
+  // The changes performed if the event listener raises
+  // AbortTransformationException then the whole transformation is aborted.
+  it("aborting in event listener undoes transformation", () => {
+    const p = ps[0];
+    const dataP = editor.toDataNode(p);
+    const elName = getElementNameFor(p)!;
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+    const trs = editor.modeTree.getMode(elName).getContextualActions(
+      ["add-attribute"], "abbr", elName, 0);
+
+    caretManager.setCaret(elName.firstChild, 0);
+    caretCheck(editor, elName.firstChild!, 0,
+               "the caret should be in the element name");
+    editor.transformations.subscribe((ev) => {
+      if (ev.name === "EndTransformation") {
+        throw new AbortTransformationException("moo");
+      }
+    });
+    trs[0].execute({ node: dataP, name: "abbr" });
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+  });
+
+  // The changes performed in the event listener listening to transformation
+  // events are part of the undo group for the transformation.
+  it("changes in event listener are part of the undo group", () => {
+    const p = ps[0];
+    const dataP = editor.toDataNode(p);
+    const elName = getElementNameFor(p)!;
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+    const trs = editor.modeTree.getMode(elName).getContextualActions(
+      ["add-attribute"], "abbr", elName, 0);
+
+    caretManager.setCaret(elName.firstChild, 0);
+    caretCheck(editor, elName.firstChild!, 0,
+               "the caret should be in the element name");
+    editor.transformations.subscribe((ev) => {
+      if (ev.name === "EndTransformation") {
+        assert.equal(getAttributeValuesFor(p).length, 1, "one attribute");
+        editor.dataUpdater.setAttribute(dataP as Element, "abbr", "moo");
+      }
+    });
+    trs[0].execute({ node: dataP, name: "abbr" });
+    const attrVals = getAttributeValuesFor(p);
+    assert.equal(attrVals.length, 1, "one attribute");
+    assert.equal(attrVals[0].textContent, "moo");
+    editor.undo();
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
   });
 });
