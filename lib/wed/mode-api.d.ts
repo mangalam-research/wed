@@ -22,6 +22,7 @@ import { Runtime } from "./runtime";
 import { StockModals } from "./stock-modals";
 import { Transformation, TransformationData } from "./transformation";
 import { TreeUpdater } from "./tree-updater";
+import { UndoEvents } from "./undo";
 import { ModeValidator, Validator } from "./validator";
 import { CleanedWedOptions } from "./wed-options-validation";
 
@@ -232,6 +233,9 @@ export interface EditorAPI {
 
   /** The stream of transformation events for this editor. */
   readonly transformations: Observable<TransformationEvents>;
+
+  /** The stream of undo/redo events for this editor. */
+  readonly undoEvents: Observable<UndoEvents>;
 
   /** The root of the data tree. */
   dataRoot: Document;

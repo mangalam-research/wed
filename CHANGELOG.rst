@@ -49,6 +49,20 @@ odd bug fix may not get mentioned here at all.
     More formally: wed allows subscribers acting on transformation events
     to make further modifications to the data tree.
 
+  - New feature: The editor now has an ``undoEvents`` field which is the stream
+    of undo/redo events. Modes can listen to undo/redo operations and act on
+    them if needed.
+
+    This may be used in tandem with the ``transformations`` stream. When a
+    transformation is undone or redone, the undoing or redoing is done by
+    playing the modifications of the data tree in reverse or replaying them
+    forward. The modifications are at a lower level of operation than
+    transformations so when undoing/redoing, wed does not execute
+    transformations. This is problematic for some use-case-scenarios where a
+    mode wants to know whether the undo/redo is undoing or redoing a specific
+    transformation. The mode can add a mark to the undo list and then use that
+    to know whether the undo/redo deals with a specific transformation.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of

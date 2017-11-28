@@ -58,7 +58,7 @@ import { insertElement, mergeWithNextHomogeneousSibling,
          TransformationData } from "./transformation";
 import { BeforeInsertNodeAtEvent, InsertNodeAtEvent,
          TreeUpdater } from "./tree-updater";
-import { Undo, UndoList } from "./undo";
+import { Undo, UndoEvents, UndoList } from "./undo";
 import { UndoRecorder } from "./undo-recorder";
 import * as util from "./util";
 import { ErrorItemHandler,
@@ -231,7 +231,7 @@ export class Editor implements EditorAPI {
   private readonly $excludedFromBlur: JQuery;
   private readonly errorItemHandlerBound: ErrorItemHandler;
   private readonly appender: log4javascript.AjaxAppender;
-  private _undo: UndoList;
+  private readonly _undo: UndoList;
   private undoRecorder: UndoRecorder;
   private saveStatusInterval: number | undefined;
   private readonly globalKeydownHandlers: KeydownHandler[] = [];
@@ -486,6 +486,10 @@ export class Editor implements EditorAPI {
         this.guiRoot.scrollTop = 0;
       }
     });
+  }
+
+  get undoEvents(): Observable<UndoEvents> {
+    return this._undo.events;
   }
 
   fireTransformation<T extends TransformationData>(tr: Transformation<T>,
@@ -1507,7 +1511,7 @@ export class Editor implements EditorAPI {
     }
     this.domlistener.processImmediately();
     // Flush whatever has happened earlier.
-    this._undo = new UndoList();
+    this._undo.reset();
 
     $guiRoot.focus();
 

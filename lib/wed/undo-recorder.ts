@@ -6,7 +6,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-
 import { indexOf } from "./domutil";
 import { Editor } from "./editor";
 import { BeforeDeleteNodeEvent, InsertNodeAtEvent, SetAttributeNSEvent,
@@ -48,7 +47,7 @@ class InsertNodeAtUndo extends undo.Undo {
     // undoing/redoing.
   }
 
-  undo(): void {
+  performUndo(): void {
     if (this.node !== undefined) {
       throw new Error("undo called twice in a row");
     }
@@ -57,7 +56,7 @@ class InsertNodeAtUndo extends undo.Undo {
     this.treeUpdater.deleteNode(parent.childNodes[this.index]);
   }
 
-  redo(): void {
+  performRedo(): void {
     if (this.node === undefined) {
       throw new Error("redo called twice in a row");
     }
@@ -93,13 +92,13 @@ class SetTextNodeValueUndo extends undo.Undo {
     this.nodePath = treeUpdater.nodeToPath(node);
   }
 
-  undo(): void {
+  performUndo(): void {
     // The node is necessarily a text node.
     const node = this.treeUpdater.pathToNode(this.nodePath) as Text;
     this.treeUpdater.setTextNodeValue(node, this.oldValue);
   }
 
-  redo(): void {
+  performRedo(): void {
     // The node is necessarily a text node.
     const node = this.treeUpdater.pathToNode(this.nodePath) as Text;
     this.treeUpdater.setTextNodeValue(node, this.value);
@@ -135,7 +134,7 @@ class DeleteNodeUndo extends undo.Undo {
     this.node = node.cloneNode(true);
   }
 
-  undo(): void {
+  performUndo(): void {
     if (this.node === undefined) {
       throw new Error("undo called twice in a row");
     }
@@ -144,7 +143,7 @@ class DeleteNodeUndo extends undo.Undo {
     this.node = undefined;
   }
 
-  redo(): void {
+  performRedo(): void {
     if (this.node !== undefined) {
       throw new Error("redo called twice in a row");
     }
@@ -182,13 +181,13 @@ class SetAttributeNSUndo extends undo.Undo {
     this.nodePath = treeUpdater.nodeToPath(node);
   }
 
-  undo(): void {
+  performUndo(): void {
     const node = this.treeUpdater.pathToNode(this.nodePath) as Element;
     this.treeUpdater.setAttributeNS(node, this.ns, this.attribute,
                                     this.oldValue);
   }
 
-  redo(): void {
+  performRedo(): void {
     const node = this.treeUpdater.pathToNode(this.nodePath) as Element;
     this.treeUpdater.setAttributeNS(node, this.ns, this.attribute,
                                     this.newValue);

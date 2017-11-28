@@ -32,13 +32,13 @@ export class UndoGroup extends undo.UndoGroup {
     this.caretAsPathBefore = this.getDataCaretAsPath();
   }
 
-  undo(): void {
-    super.undo();
+  performUndo(): void {
+    super.performUndo();
     this.setDataCaretAsPath(this.caretAsPathBefore);
   }
 
-  redo(): void {
-    super.redo();
+  performRedo(): void {
+    super.performRedo();
     if (this.caretAsPathAfter === undefined) {
       throw new Error(`caretAsPathAfter is undefined, this indicates a \
 corrupted state and thus an internal error`);
@@ -140,9 +140,9 @@ export class MarkerUndo extends undo.Undo {
   }
 
   // tslint:disable-next-line:no-empty
-  undo(): void {}
+  performUndo(): void {}
   // tslint:disable-next-line:no-empty
-  redo(): void {}
+  performRedo(): void {}
 }
 
 //  LocalWords:  pathToNode nodeToPath Dubeau MPL Mangalam param UndoGroup

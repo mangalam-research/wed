@@ -3,7 +3,10 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { assert } from "chai";
+import { elementAt } from "rxjs/operators/elementAt";
+import { first } from "rxjs/operators/first";
+
+import { assert, expect } from "chai";
 import { Undo, UndoGroup, UndoList } from "wed/undo";
 
 // tslint:disable:no-any
@@ -18,17 +21,212 @@ class MyUndo extends Undo {
     object[name] = true;
   }
 
-  undo(): void {
+  performUndo(): void {
     this.object[this.name] = false;
   }
 
-  redo(): void {
+  performRedo(): void {
     this.object[this.name] = true;
   }
 }
 
 // tslint:disable-next-line:completed-docs
 class MyGroup extends UndoGroup {}
+
+// tslint:disable-next-line:completed-docs
+class Tracker {
+  private flags: boolean[] = [];
+  private _ordered: boolean = true;
+
+  wrap<T>(real: (arg: T) => void): (arg: T) => void {
+
+    const index = this.flags.length;
+    this.flags.push(false);
+    return (arg: T) => {
+      if (index > 0) {
+        this._ordered = this.flags.slice(0, index).every((x) => x);
+      }
+      this.flags[index] = true;
+      real(arg);
+    };
+  }
+
+  /** True if all wrappers were called. */
+  get allCalled(): boolean {
+    return this.flags.every((x) => x);
+  }
+
+  /** True if the wrappers were called in the same order as created. */
+  get ordered(): boolean {
+    return this._ordered;
+  }
+}
+
+describe("Undo", () => {
+  let obj: any;
+  let undo: Undo;
+
+  beforeEach(() => {
+    obj = {};
+    undo = new MyUndo("foo", obj);
+  });
+
+  describe("undo", () => {
+    it("performs the undo", () => {
+      undo.undo();
+      expect(obj).to.have.property("foo").false;
+    });
+
+    it("emits an UndoEvent after the undo is done", () => {
+      const tracker = new Tracker();
+      undo.events.pipe(first()).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Undo",
+          undo,
+        });
+        expect(obj).to.have.property("foo").false;
+      }));
+      undo.undo();
+      expect(tracker).to.have.property("allCalled").true;
+    });
+  });
+
+  describe("redo", () => {
+    it("performs the redo", () => {
+      undo.redo();
+      expect(obj).to.have.property("foo").equal(true);
+    });
+
+    it("emits an RedoEvent after the redo is done", () => {
+      const tracker = new Tracker();
+      undo.events.pipe(first()).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Redo",
+          undo,
+        });
+        expect(obj).to.have.property("foo").true;
+      }));
+      undo.redo();
+      expect(tracker).to.have.property("allCalled").true;
+    });
+  });
+});
+
+describe("UndoGroup", () => {
+  let obj: any;
+  let group: UndoGroup;
+  let firstUndo: Undo;
+  let secondUndo: Undo;
+
+  beforeEach(() => {
+    obj = {
+      foo: null,
+      bar: null,
+    };
+
+    group = new UndoGroup("group");
+    firstUndo = new MyUndo("foo", obj);
+    group.record(firstUndo);
+
+    secondUndo = new MyUndo("bar", obj);
+    group.record(secondUndo);
+  });
+
+  describe("undo", () => {
+    it("undoes all", () => {
+      group.undo();
+      expect(obj).to.deep.equal({
+        foo: false,
+        bar: false,
+      });
+    });
+
+    it("emits UndoEvents for all undos", () => {
+      const tracker = new Tracker();
+      group.events.pipe(first()).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Undo",
+          undo: secondUndo,
+        });
+        expect(obj).to.deep.equal({
+          foo: true,
+          bar: false,
+        });
+      }));
+      group.events.pipe(elementAt(1)).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Undo",
+          undo: firstUndo,
+        });
+        expect(obj).to.deep.equal({
+          foo: false,
+          bar: false,
+        });
+      }));
+      group.events.pipe(elementAt(2)).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Undo",
+          undo: group,
+        });
+        expect(obj).to.deep.equal({
+          foo: false,
+          bar: false,
+        });
+      }));
+      group.undo();
+      expect(tracker).to.have.property("allCalled").true;
+      expect(tracker).to.have.property("ordered").true;
+    });
+  });
+
+  describe("redo", () => {
+    it("redoes all", () => {
+      group.redo();
+      expect(obj).to.deep.equal({
+        foo: true,
+        bar: true,
+      });
+    });
+
+    it("emits RedoEvents for all redos", () => {
+      group.undo();
+      const tracker = new Tracker();
+      group.events.pipe(first()).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Redo",
+          undo: firstUndo,
+        });
+        expect(obj).to.deep.equal({
+          foo: true,
+          bar: false,
+        });
+      }));
+      group.events.pipe(elementAt(1)).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Redo",
+          undo: secondUndo,
+        });
+        expect(obj).to.deep.equal({
+          foo: true,
+          bar: true,
+        });
+      }));
+      group.events.pipe(elementAt(2)).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Redo",
+          undo: group,
+        });
+        expect(obj).to.deep.equal({
+          foo: true,
+          bar: true,
+        });
+      }));
+      group.redo();
+      expect(tracker).to.have.property("allCalled").true;
+      expect(tracker).to.have.property("ordered").true;
+    });
+  });
+});
 
 describe("UndoList", () => {
   let obj: Record<string, boolean>;
@@ -114,7 +312,7 @@ describe("UndoList", () => {
       ul.startGroup(new MyGroup("group2"));
       ul.endGroup();
       ul.endGroup();
-      assert.equal((ul as any).list[0].desc, "group1");
+      assert.equal((ul as any).list[0].undo.desc, "group1");
       assert.equal((ul as any).list.length, 1);
     });
 
@@ -239,8 +437,8 @@ describe("UndoList", () => {
 
       // Peek in to make sure things are recorded.
       assert.equal((ul as any).list.length, 2);
-      assert.strictEqual((ul as any).list[0], undo1);
-      assert.strictEqual((ul as any).list[1], undo2);
+      assert.strictEqual((ul as any).list[0].undo, undo1);
+      assert.strictEqual((ul as any).list[1].undo, undo2);
     });
 
     it("overwrites old history", () => {
@@ -264,10 +462,10 @@ describe("UndoList", () => {
       const undo6 = new MyUndo("undo6", obj);
       ul.record(undo6);
       assert.equal((ul as any).list.length, 4);
-      assert.strictEqual((ul as any).list[0], undo1);
-      assert.strictEqual((ul as any).list[1], undo2);
-      assert.strictEqual((ul as any).list[2], undo5);
-      assert.strictEqual((ul as any).list[3], undo6);
+      assert.strictEqual((ul as any).list[0].undo, undo1);
+      assert.strictEqual((ul as any).list[1].undo, undo2);
+      assert.strictEqual((ul as any).list[2].undo, undo5);
+      assert.strictEqual((ul as any).list[3].undo, undo6);
     });
 
     it("records into the group when a group is in effect", () => {
@@ -285,9 +483,9 @@ describe("UndoList", () => {
       ul.record(undo4);
 
       assert.equal((ul as any).list.length, 3);
-      assert.strictEqual((ul as any).list[0], group1);
-      assert.strictEqual((ul as any).list[1], undo3);
-      assert.strictEqual((ul as any).list[2], undo4);
+      assert.strictEqual((ul as any).list[0].undo, group1);
+      assert.strictEqual((ul as any).list[1].undo, undo3);
+      assert.strictEqual((ul as any).list[2].undo, undo4);
       assert.equal((group1 as any).list.length, 2);
     });
   });
@@ -360,7 +558,62 @@ describe("UndoList", () => {
       assert.isFalse(obj.undo2);
       assert.isUndefined(ul.getGroup());
     });
-  });
+
+    it("emits UndoEvents", () => {
+      const group1 = new MyGroup("group1");
+      ul.startGroup(group1);
+      const undo1 = new MyUndo("undo1", obj);
+      ul.record(undo1);
+      const undo2 = new MyUndo("undo2", obj);
+      ul.record(undo2);
+      ul.endGroup();
+
+      const tracker = new Tracker();
+      ul.events.pipe(first()).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Undo",
+          undo: undo2,
+        });
+        expect(obj).to.deep.equal({
+          undo2: false,
+          undo1: true,
+        });
+      }));
+      ul.events.pipe(elementAt(1)).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Undo",
+          undo: undo1,
+        });
+        expect(obj).to.deep.equal({
+          undo2: false,
+          undo1: false,
+        });
+      }));
+      ul.events.pipe(elementAt(2)).subscribe(tracker.wrap((x) => {
+        expect(x).to.deep.equal({
+          name: "Undo",
+          undo: group1,
+        });
+        expect(obj).to.deep.equal({
+          undo2: false,
+          undo1: false,
+        });
+      }));
+
+      expect(obj).to.deep.equal({
+        undo1: true,
+        undo2: true,
+      });
+      ul.undo();
+      expect(obj).to.deep.equal({
+        undo1: false,
+        undo2: false,
+      });
+      expect(tracker).to.have.property("allCalled").true;
+      expect(tracker).to.have.property("ordered").true;
+    });
+
+});
 
   describe("redo", () => {
     it("actually redoes operations", () => {
@@ -417,6 +670,31 @@ describe("UndoList", () => {
       ul.redo();
       assert.isTrue(obj.undo1);
       assert.isTrue(obj.undo2);
+    });
+
+    it("emits RedoEvents", () => {
+      const group1 = new MyGroup("group1");
+      ul.startGroup(group1);
+      const undo1 = new MyUndo("undo1", obj);
+      ul.record(undo1);
+      const undo2 = new MyUndo("undo2", obj);
+      ul.record(undo2);
+      ul.endGroup();
+
+      expect(obj).to.deep.equal({
+        undo1: true,
+        undo2: true,
+      });
+      ul.undo();
+      expect(obj).to.deep.equal({
+        undo1: false,
+        undo2: false,
+      });
+      ul.redo();
+      expect(obj).to.deep.equal({
+        undo1: true,
+        undo2: true,
+      });
     });
   });
 });
