@@ -22,7 +22,7 @@ import { Runtime } from "./runtime";
 import { StockModals } from "./stock-modals";
 import { Transformation, TransformationData } from "./transformation";
 import { TreeUpdater } from "./tree-updater";
-import { UndoEvents } from "./undo";
+import { UndoEvents, UndoMarker } from "./undo";
 import { ModeValidator, Validator } from "./validator";
 import { CleanedWedOptions } from "./wed-options-validation";
 
@@ -283,6 +283,17 @@ export interface EditorAPI {
    */
   fireTransformation<T extends TransformationData>(tr: Transformation<T>,
                                                    data: T): void;
+
+  /**
+   * Record a marker into the list of undoable operations.
+   *
+   * We purposely restrict the objects that can be recored to
+   * [[UndoMarker]]. The editor does not support calling this method
+   * through the mode-api to record arbitrary [["undo".Undo]] objects.
+   *
+   * @param marker The marker to record.
+   */
+  recordUndo(marker: UndoMarker): void;
 
   /** Undo the last action recorded in the undo list. */
   undo(): void;

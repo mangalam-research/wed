@@ -346,4 +346,23 @@ export class UndoGroup extends Undo {
   }
 }
 
+/**
+ * This is an undo object which does nothing but only serves as a marker in the
+ * list of undo operations. It could be used for debugging or by modes to record
+ * information they need in the undo list.
+ */
+export class UndoMarker extends Undo {
+  /**
+   * @param msg A message to identify the marker.
+   */
+  constructor(msg: string) {
+    super(`*** MARKER *** ${msg}`);
+  }
+
+  // tslint:disable-next-line:no-empty
+  performUndo(): void {}
+  // tslint:disable-next-line:no-empty
+  performRedo(): void {}
+}
+
 //  LocalWords:  boolean Dubeau MPL Mangalam UndoList desc

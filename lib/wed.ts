@@ -57,6 +57,7 @@ export { tooltip } from "./wed/gui/tooltip";
 export { BaseMode, CommonModeOptions } from "./wed/mode";
 export { Mode } from "./wed/mode";
 export * from "./wed/mode-api";
+export { UndoMarker } from "./wed/undo";
 // We export Validator too because it is useful in some cases for utility code
 // to be able to perform validation of DOM trees with a bona-fide wed validator
 // that can take mode validators.

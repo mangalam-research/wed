@@ -644,6 +644,14 @@ export class Editor implements EditorAPI {
     }
   }
 
+  /**
+   * Record an undo object in the list of undoable operations.
+   *
+   * Note that this method also provides the implementation for the restricted
+   * method of the same name that allows only [["undo".UndoMarker]] objects.
+   *
+   * @param undo The object to record.
+   */
   recordUndo(undo: Undo): void {
     this._undo.record(undo);
   }
@@ -685,10 +693,6 @@ export class Editor implements EditorAPI {
   dumpUndo(): void {
     // tslint:disable-next-line:no-console
     console.log(this._undo.toString());
-  }
-
-  undoMarker(msg: string): void {
-    this.recordUndo(new wundo.MarkerUndo(msg));
   }
 
   undoingOrRedoing(): boolean {

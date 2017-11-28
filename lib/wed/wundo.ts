@@ -128,22 +128,5 @@ export class TextUndoGroup extends UndoGroup {
   }
 }
 
-/**
- * Serves as a marker for debugging.
- */
-export class MarkerUndo extends undo.Undo {
-  /**
-   * @param msg A message to identify the marker.
-   */
-  constructor(msg: string) {
-    super(`*** MARKER *** ${msg}`);
-  }
-
-  // tslint:disable-next-line:no-empty
-  performUndo(): void {}
-  // tslint:disable-next-line:no-empty
-  performRedo(): void {}
-}
-
 //  LocalWords:  pathToNode nodeToPath Dubeau MPL Mangalam param UndoGroup
 //  LocalWords:  TextUndoGroup caretAsPathAfter

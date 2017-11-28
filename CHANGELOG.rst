@@ -63,6 +63,10 @@ odd bug fix may not get mentioned here at all.
     transformation. The mode can add a mark to the undo list and then use that
     to know whether the undo/redo deals with a specific transformation.
 
+  - New feature: There is now an ``UndoMarker`` object which may be used to
+    insert markers into the list of undo operations. This may be useful for some
+    modes.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of
