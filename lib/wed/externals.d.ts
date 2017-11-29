@@ -38,10 +38,7 @@ declare var requirejs: RequireJSCall;
 declare var require: RequireJSCall;
 
 interface Window {
-  DOMParser: {
-    prototype: DOMParser;
-    new(): DOMParser;
-  }
+  DOMParser: typeof DOMParser;
 }
 
 declare var __WED_TESTING: any;
