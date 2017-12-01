@@ -17,6 +17,7 @@ import { ActionContextMenu, Item } from "./action-context-menu";
 import { CompletionMenu } from "./completion-menu";
 import { ContextMenu } from "./context-menu";
 import { makeHTML } from "./icon";
+import { ReplacementMenu } from "./replacement-menu";
 
 const atStartToTxt: Record<string, string> = {
   undefined: "",
@@ -306,91 +307,139 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
     return li;
   }
 
-  setupCompletionMenu(): void {
-    this.dismiss();
+  private getPossibleAttributeValues(): string[] {
     const sel = this.caretManager.sel;
 
     // We must not have an actual range in effect
     if (sel === undefined || !sel.collapsed) {
-      return;
+      return [];
     }
 
     // If we have a selection, we necessarily have a caret.
     const caret = this.caretManager.getNormalizedCaret()!;
     const node = caret.node;
     const attrVal = closestByClass(node, "_attribute_value", this.guiRoot);
-    if (attrVal !== null) {
-      if (isNotDisplayed(attrVal as HTMLElement, this.guiRoot)) {
-        return;
-      }
+    if (attrVal === null ||
+        isNotDisplayed(attrVal as HTMLElement, this.guiRoot)) {
+      return [];
+    }
 
-      const doc = node.ownerDocument;
-      // If we have a selection, we necessarily have a caret.
-      const dataCaret = this.caretManager.getDataCaret()!;
-      // The node is necessarily an attribute.
-      const dataNode = dataCaret.node as Attr;
-      // We complete only at the end of an attribute value.
-      if (dataCaret.offset !== dataNode.value.length) {
-        return;
-      }
+    // If we have a selection, we necessarily have a caret.
+    const dataCaret = this.caretManager.getDataCaret()!;
+    // The node is necessarily an attribute.
+    const dataNode = dataCaret.node as Attr;
 
-      // First see if the mode has something to say.
-      const mode = this.modeTree.getMode(dataNode);
-      const possible = mode.getAttributeCompletions(dataNode);
+    // First see if the mode has something to say.
+    const mode = this.modeTree.getMode(dataNode);
+    const possible = mode.getAttributeCompletions(dataNode);
 
-      if (possible.length === 0) {
-        // Nothing from the mode, use the validator.
-        this.editor.validator.possibleAt(dataCaret.node, 0)
-          .forEach((ev) => {
-            if (ev.params[0] !== "attributeValue") {
-              return;
-            }
-
-            const text = ev.params[1];
-            if (text instanceof RegExp) {
-              return;
-            }
-
-            possible.push(text);
-          });
-      }
-
-      // Nothing to complete.
-      if (possible.length === 0) {
-        return;
-      }
-
-      const narrowed = [];
-      for (const possibility of possible) {
-        if (possibility.lastIndexOf(dataNode.value, 0) === 0) {
-          narrowed.push(possibility);
-        }
-      }
-
-      // The current value in the attribute is not one that can be
-      // completed.
-      if (narrowed.length === 0 ||
-          (narrowed.length === 1 && narrowed[0] === dataNode.value)) {
-        return;
-      }
-
-      const pos = this.computeMenuPosition(undefined, true);
-
-      this.caretManager.pushSelection();
-      const menu = this.currentDropdown = new CompletionMenu(
-        this.editor, doc, pos.left, pos.top, dataNode.value, possible,
-        () => {
-          this.currentDropdown = undefined;
-          // If the focus moved from the document to the completion menu, we
-          // want to restore the caret. Otherwise, leave it as is.
-          if (menu.focused) {
-            this.caretManager.popSelection();
+    if (possible.length === 0) {
+      // Nothing from the mode, use the validator.
+      this.editor.validator.possibleAt(dataCaret.node, 0)
+        .forEach((ev) => {
+          if (ev.params[0] !== "attributeValue") {
+            return;
           }
-          else {
-            this.caretManager.popSelectionAndDiscard();
+
+          const text = ev.params[1];
+          if (text instanceof RegExp) {
+            return;
           }
+
+          possible.push(text);
         });
     }
+
+    return possible;
+  }
+
+  setupCompletionMenu(): void {
+    this.dismiss();
+    const possible = this.getPossibleAttributeValues();
+    // Nothing to complete.
+    if (possible.length === 0) {
+      return;
+    }
+
+    const dataCaret = this.caretManager.getDataCaret();
+    if (dataCaret === undefined) {
+      return;
+    }
+
+    // The node is necessarily an attribute, otherwise possible would have a
+    // length of 0.
+    const dataNode = dataCaret.node as Attr;
+
+    // We complete only at the end of an attribute value.
+    if (dataCaret.offset !== dataNode.value.length) {
+      return;
+    }
+
+    const narrowed = [];
+    for (const possibility of possible) {
+      if (possibility.lastIndexOf(dataNode.value, 0) === 0) {
+        narrowed.push(possibility);
+      }
+    }
+
+    // The current value in the attribute is not one that can be
+    // completed.
+    if (narrowed.length === 0 ||
+        (narrowed.length === 1 && narrowed[0] === dataNode.value)) {
+      return;
+    }
+
+    const pos = this.computeMenuPosition(undefined, true);
+
+    this.caretManager.pushSelection();
+    const menu = this.currentDropdown = new CompletionMenu(
+      this.editor, this.guiRoot.ownerDocument, pos.left, pos.top,
+      dataNode.value, possible,
+      () => {
+        this.currentDropdown = undefined;
+        // If the focus moved from the document to the completion menu, we
+        // want to restore the caret. Otherwise, leave it as is.
+        if (menu.focused) {
+          this.caretManager.popSelection();
+        }
+        else {
+          this.caretManager.popSelectionAndDiscard();
+        }
+      });
+  }
+
+  setupReplacementMenu(): void {
+    this.dismiss();
+    const possible = this.getPossibleAttributeValues();
+    // Nothing to complete.
+    if (possible.length === 0) {
+      return;
+    }
+
+    const dataCaret = this.caretManager.getDataCaret();
+    if (dataCaret === undefined) {
+      return;
+    }
+
+    const pos = this.computeMenuPosition(undefined, true);
+    this.caretManager.pushSelection();
+    this.currentDropdown = new ReplacementMenu(
+      this.editor, this.guiRoot.ownerDocument, pos.left, pos.top,
+      possible,
+      (selected) => {
+        this.currentDropdown = undefined;
+        this.caretManager.popSelection();
+
+        if (selected === undefined) {
+          return;
+        }
+        // The node is necessarily an attribute, otherwise possible would have a
+        // length of 0.
+        const dataNode = dataCaret.node as Attr;
+        const uri = dataNode.namespaceURI !== null ? dataNode.namespaceURI : "";
+        this.editor.dataUpdater.setAttributeNS(dataNode.ownerElement, uri,
+                                               dataNode.name, selected);
+      });
   }
 
   /**

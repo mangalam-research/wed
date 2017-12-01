@@ -49,7 +49,6 @@ describe("search", () => {
     guiRoot = editor.guiRoot;
     dataRoot = editor.dataRoot;
     caretManager = editor.caretManager;
-    caretManager.setCaret(editor.caretManager.minCaret);
     docScope = editor.caretManager.docDLocRange;
 
     ps = Array.from(editor.dataRoot.querySelectorAll("body p"));
@@ -97,6 +96,10 @@ describe("search", () => {
     secondABCAttribute = new DLocRange(
       caretManager.mustFromDataLocation(rend, 4),
       caretManager.mustFromDataLocation(rend, 7));
+  });
+
+  beforeEach(() => {
+    caretManager.setCaret(editor.caretManager.minCaret);
   });
 
   afterEach(() => {

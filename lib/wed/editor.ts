@@ -2148,6 +2148,10 @@ in a way not supported by this version of wed.";
         return terminate();
       }
     }
+    else if (keyConstants.CTRLEQ_QUESTION.matchesEvent(e)) {
+      this.editingMenuManager.setupReplacementMenu();
+      return terminate();
+    }
     else if (keyConstants.QUICKSEARCH_FORWARD.matchesEvent(e)) {
       if (this.caretManager.caret !== undefined) {
         // tslint:disable-next-line:no-unused-expression

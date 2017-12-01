@@ -75,6 +75,7 @@ contextual menu.</li>
   <li>Ctrl-z: Undo</li>
   <li>Ctrl-y: Redo</li>
   <li>Ctrl-/: Bring up a contextual menu.</li>
+  <li>Ctrl-?: Bring up a replacement menu.</li>
   <li>Ctrl-f: Quick search forward.</li>
   <li>Ctrl-b: Quick search backwards.</li>
   <li>Ctrl-Shift-f: Search forward.</li>

@@ -5,22 +5,24 @@ from nose.tools import assert_equal, assert_true
 step_matcher("re")
 
 
-@then("a completion menu is visible")
-def step_impl(context):
-    context.util.find_element((By.CLASS_NAME, "wed-completion-menu"))
+@then("a (?P<what>completion|replacement) menu is visible")
+def step_impl(context, what):
+    context.util.find_element((By.CLASS_NAME,
+                               "wed-{}-menu".format(what)))
 
 
-@then("a completion menu is not visible")
-def step_impl(context):
+@then("a (?P<what>completion|replacement) menu is not visible")
+def step_impl(context, what):
     context.util.wait_until_not(
         lambda driver: driver.find_element_by_class_name(
-            "wed-completion-menu"))
+            "wed-{}-menu".format(what)))
 
 
-@then("the first item of the completion menu is focused")
-def step_impl(context):
+@then("the first item of the (?P<what>completion|replacement) menu is "
+      "focused")
+def step_impl(context, what):
     context.util.find_element((By.CSS_SELECTOR,
-                               ".wed-completion-menu li a:focus"))
+                               ".wed-{}-menu li a:focus".format(what)))
 
 
 @then("the completion text is inserted")
@@ -33,6 +35,18 @@ def step_impl(context):
         "._attribute_value").textContent;
     """)
     assert_equal(text, "initial")
+
+
+@then("the text is replaced with the selected replacement menu item")
+def step_impl(context):
+    driver = context.driver
+
+    text = driver.execute_script("""
+    return document.querySelector(
+        ".body>.div:nth-of-type(11)>.__start_label._div_label "+
+        "._attribute_value").textContent;
+    """)
+    assert_equal(text, "medial")
 
 
 @then('the completion menu has only one option named "initial" and the '
@@ -52,3 +66,8 @@ def step_impl(context):
     return [true, undefined];
     """)
     assert_true(result[0], result[1])
+
+
+@when("the user brings up the replacement menu")
+def step_impl(context):
+    context.util.ctrl_equivalent_x("?")

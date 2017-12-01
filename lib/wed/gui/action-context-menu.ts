@@ -302,7 +302,7 @@ export class ActionContextMenu extends Base {
     this.actionFilterInput.focus();
   }
 
-  private actionKeydownHandler(ev: KeyboardEvent): boolean {
+  private actionKeydownHandler(ev: JQueryKeyEventObject): boolean {
     if (keyConstants.ESCAPE.matchesEvent(ev) &&
         (this.filters.kind !== null ||
          this.filters.type !== null ||
@@ -400,7 +400,7 @@ export class ActionContextMenu extends Base {
       // ``actionKeypressHandler`` does not handle it, then pass it on to the
       // toggle. We forward to the toggle because that's how Bootstrap normally
       // works.
-      if (this.actionKeypressHandler(fakeEv) !== false) {
+      if (this.actionKeydownHandler(fakeEv) !== false) {
         this.$toggle.trigger(fakeEv);
       }
       // We have to return `false` to make sure it is not mishandled.

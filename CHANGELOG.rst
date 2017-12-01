@@ -42,14 +42,19 @@ odd bug fix may not get mentioned here at all.
     F1 to bring up the help dialog and click the link in the dialog. If you get
     to the help page, then you are fine. If not, you need a custom value.
 
-  - New feature: The editor now has a ``transformations`` observer that can be
+  - New feature: wed now support ``Ctrl-?`` to bring up a replacement menu. In
+    brief, replacement menus are like completion menus but they can be brought
+    up after an attribute value has already been filled, to replace the value.
+    See the bundled documentation for details.
+
+  - New API: The editor now has a ``transformations`` observer that can be
     used to know when transformations start and end and to add changes to a
     transformation.
 
     More formally: wed allows subscribers acting on transformation events
     to make further modifications to the data tree.
 
-  - New feature: The editor now has an ``undoEvents`` field which is the stream
+  - New API: The editor now has an ``undoEvents`` field which is the stream
     of undo/redo events. Modes can listen to undo/redo operations and act on
     them if needed.
 
@@ -63,7 +68,7 @@ odd bug fix may not get mentioned here at all.
     transformation. The mode can add a mark to the undo list and then use that
     to know whether the undo/redo deals with a specific transformation.
 
-  - New feature: There is now an ``UndoMarker`` object which may be used to
+  - New API: There is now an ``UndoMarker`` object which may be used to
     insert markers into the list of undo operations. This may be useful for some
     modes.
 

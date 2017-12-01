@@ -290,6 +290,7 @@ export class EditorSetup {
     editor.undoAll();
     editor.resetLabelVisibilityLevel();
     editor.editingMenuManager.dismiss();
+    editor.caretManager.clearSelection(); // Yes, clear the caret.
     this.server.reset();
     errorCheck();
   }

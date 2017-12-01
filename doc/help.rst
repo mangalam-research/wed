@@ -669,6 +669,35 @@ the menu will close once the value is complete.
    The user types ``med`` into the completion menu and then hits
    :kbd:`ENTER` to complete the value.
 
+Replacement Menus
+~~~~~~~~~~~~~~~~~
+
+Replacement menus are similar to completion menus. Completion menus appear
+automatically but only *when the document contains a value that can be
+completed*. Given an attribute that has a limited set of possible values, if the
+attribute is already filled with a complete value, then the completion menu does
+not appear. Suppose an attribute ``height`` which can take the values ``high``,
+``medium``, ``low``, and it is already filled with the value ``medium``. If you
+want to change the value, you won't be able to use the completion menu, because
+there's nothing to complete since ``medium`` is already complete. So if you want
+to change the value with the help of the editor, you have to use a replacement
+menu by hitting :kbd:`Ctrl-?`.
+
+Replacement menus are available in the same places completion menus are
+available. The list of values they offer is the same as the list provided by a
+completion menu in the same location. Chosing an item from the list in a
+replacement menu replaces the entire attribute value with the item selected.
+
+Note that replacement menus, contrarily to completion menus, do not support
+changing the document while the menu is open. You need to exit the menu before
+you can continue editing the document. If you don't want to make a change, click
+outside the menu or hit :kbd:`ESCAPE`.
+
+.. figure:: help_images/replacement_menu.png
+   :align: center
+   :alt: A replacement menu.
+
+   The user just brought up the replacement menu in the ``sample`` attribute.
 
 Kinds of XML Operations
 =======================
@@ -1025,6 +1054,7 @@ stick with it.
 ====================  =====================================
  :kbd:`F1`            Bring up the help.
  :kbd:`Ctrl-/`        Bring up the `contextual menu <Contextual Menus_>`_.
+ :kbd:`Ctrl-?`        Bring up the `replacement menu <Replacement Menus_>`_.
  :kbd:`Ctrl-[`        Decrease the `label visibility level <Label Visibility_>`_.
  :kbd:`Ctrl-]`        Increase the `label visibility level <Label Visibility_>`_.
  :kbd:`Ctrl-z`        `Undo <Undo and Redo_>`_ an operation.

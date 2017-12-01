@@ -18,6 +18,7 @@ export const CTRLEQ_B = key.makeCtrlEqKey("B", false);
 export const CTRLEQ_SHIFT_F = key.makeCtrlEqKey("F", true);
 export const CTRLEQ_SHIFT_B = key.makeCtrlEqKey("B", true);
 export const CTRLEQ_FORWARD_SLASH = key.makeCtrlEqKey(191, false);
+export const CTRLEQ_QUESTION = key.makeCtrlEqKey(191, true);
 export const CTRLEQ_PERIOD = key.makeCtrlEqKey(190, false);
 export const CTRLEQ_BACKQUOTE = key.makeCtrlEqKey(192, false);
 export const CTRLEQ_OPEN_BRACKET = key.makeCtrlEqKey(219, false); // Ctrl-[
