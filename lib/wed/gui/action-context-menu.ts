@@ -330,7 +330,7 @@ export class ActionContextMenu extends Base {
     return true;
   }
 
-  private actionKeypressHandler(ev: KeyboardEvent): boolean {
+  private actionKeypressHandler(ev: JQueryKeyEventObject): boolean {
     // If the user has started filtering on text, we don't interpret
     // the key as setting a kind or type filter.
     if (this.actionTextFilter !== "") {
@@ -395,7 +395,14 @@ export class ActionContextMenu extends Base {
     if (matches !== undefined) {
       const fakeEv = new $.Event("keydown");
       matches.setEventToMatch(fakeEv);
-      this.$menu.trigger(fakeEv);
+      // We have to pass the event to ``actionKeypressHandler`` so that it can
+      // act in the same way as if the event had been directly on the menu. If
+      // ``actionKeypressHandler`` does not handle it, then pass it on to the
+      // toggle. We forward to the toggle because that's how Bootstrap normally
+      // works.
+      if (this.actionKeypressHandler(fakeEv) !== false) {
+        this.$toggle.trigger(fakeEv);
+      }
       // We have to return `false` to make sure it is not mishandled.
       return false;
     }
@@ -509,3 +516,4 @@ export class ActionContextMenu extends Base {
 
 //  LocalWords:  MPL li Dropdown nowrap sm keydown tooltips keypress btn xs
 //  LocalWords:  tooltip dropdown actionType actionFilterItem actionFilterInput
+//  LocalWords:  actionKeypressHandler
