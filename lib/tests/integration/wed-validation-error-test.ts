@@ -223,7 +223,7 @@ within 5 pixels of the bottom of the start label for the monogr");
     let orig = _slice.call(errorLayer.children);
 
     // Reduce the visibility level.
-    editor.type(keyConstants.CTRLEQ_OPEN_BRACKET);
+    editor.type(keyConstants.LOWER_LABEL_VISIBILITY);
     let after;
     await waitForSuccess(() => {
       after = _slice.call(errorLayer.children);
@@ -233,7 +233,7 @@ within 5 pixels of the bottom of the start label for the monogr");
     orig = after;
 
     // Increase visibility level
-    editor.type(keyConstants.CTRLEQ_CLOSE_BRACKET);
+    editor.type(keyConstants.INCREASE_LABEL_VISIBILITY);
     await waitForSuccess(() => {
       assertNewMarkers(orig, _slice.call(errorLayer.children),
                        "increasing the level");

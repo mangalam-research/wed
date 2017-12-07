@@ -84,7 +84,7 @@ describe("wed file state:", () => {
     editor.type(" ");
 
     assert.isTrue($modificationStatus.hasClass("label-warning"));
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
     return waitForSuccess(() => {
       assert.isTrue($modificationStatus.hasClass("label-success"));
     });
@@ -94,7 +94,7 @@ describe("wed file state:", () => {
     assert.isTrue($saveStatus.hasClass("label-default"));
     assert.equal($saveStatus.children("span").text(), "");
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
     return waitForSuccess(() => {
       assert.isTrue($saveStatus.hasClass("label-success"));
       assert.equal($saveStatus.children("span").text(), "moments ago");
@@ -136,7 +136,7 @@ describe("wed file state:", () => {
     });
 
     // Now perform a save.
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
 
     return waitForSuccess(() => {
       // We check the tooltip changed.

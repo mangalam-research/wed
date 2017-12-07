@@ -90,7 +90,7 @@ describe("wed undo redo:", () => {
     assert.equal(titleData.childNodes.length, 3);
 
     editor.undo();
-    editor.type(keyConstants.CTRLEQ_Z);
+    editor.type(keyConstants.UNDO);
   });
 
   it("redo redoes typed text as a group", () => {

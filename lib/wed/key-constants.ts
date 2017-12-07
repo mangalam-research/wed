@@ -5,24 +5,10 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
+import { OSX } from "./browsers";
 import * as key from "./key";
 
-export const CTRLEQ_S = key.makeCtrlEqKey("S", false);
-export const CTRLEQ_Z = key.makeCtrlEqKey("Z", false);
-export const CTRLEQ_Y = key.makeCtrlEqKey("Y", false);
-export const CTRLEQ_C = key.makeCtrlEqKey("C", false);
-export const CTRLEQ_X = key.makeCtrlEqKey("X", false);
-export const CTRLEQ_V = key.makeCtrlEqKey("V", false);
-export const CTRLEQ_F = key.makeCtrlEqKey("F", false);
-export const CTRLEQ_B = key.makeCtrlEqKey("B", false);
-export const CTRLEQ_SHIFT_F = key.makeCtrlEqKey("F", true);
-export const CTRLEQ_SHIFT_B = key.makeCtrlEqKey("B", true);
-export const CTRLEQ_FORWARD_SLASH = key.makeCtrlEqKey(191, false);
-export const CTRLEQ_QUESTION = key.makeCtrlEqKey(191, true);
-export const CTRLEQ_PERIOD = key.makeCtrlEqKey(190, false);
-export const CTRLEQ_BACKQUOTE = key.makeCtrlEqKey(192, false);
-export const CTRLEQ_OPEN_BRACKET = key.makeCtrlEqKey(219, false); // Ctrl-[
-export const CTRLEQ_CLOSE_BRACKET = key.makeCtrlEqKey(221, false); // Ctrl-]
+// A few constants are named by their key.
 export const LEFT_ARROW = key.makeKey(37, false);
 export const UP_ARROW = key.makeKey(38, false);
 export const RIGHT_ARROW = key.makeKey(39, false);
@@ -33,22 +19,23 @@ export const ENTER = key.makeKey(13, false);
 export const SPACE = key.makeKey(32, false);
 export const ESCAPE = key.makeKey(27, false);
 
-export const QUICKSEARCH_FORWARD = CTRLEQ_F;
-export const QUICKSEARCH_BACKWARDS = CTRLEQ_B;
-export const SEARCH_FORWARD = CTRLEQ_SHIFT_F;
-export const SEARCH_BACKWARDS = CTRLEQ_SHIFT_B;
-
-/**
- * These are the keys that appear to be regular text input keys because they do
- * not have any modifiers set, but which do not actually **insert**
- * text. Modifying this array will result in erratic code.
- */
-export const EDITING_KEYS: ReadonlyArray<key.Key> = [
-  LEFT_ARROW,
-  RIGHT_ARROW,
-  BACKSPACE,
-  DELETE,
-  ENTER,
-];
+// Others are named by the function they perform.
+export const SAVE = key.makeCtrlEqKey("S", false);
+export const UNDO = key.makeCtrlEqKey("Z", false);
+export const REDO = key.makeCtrlEqKey("Y", false);
+export const COPY = key.makeCtrlEqKey("C", false);
+export const CUT = key.makeCtrlEqKey("X", false);
+export const PASTE = key.makeCtrlEqKey("V", false);
+export const DEVELOPMENT = key.makeCtrlEqKey(192, false); // Cmd or Ctrl-`
+export const QUICKSEARCH_FORWARD = key.makeCtrlEqKey("F", false);
+export const QUICKSEARCH_BACKWARDS = key.makeCtrlEqKey("B", false);
+export const SEARCH_FORWARD = key.makeCtrlEqKey("F", true);
+export const SEARCH_BACKWARDS = key.makeCtrlEqKey("B", true);
+export const CONTEXTUAL_MENU = key.makeCtrlEqKey(191, false); // Cmd or Ctrl-/
+export const REPLACEMENT_MENU = key.makeCtrlEqKey(191, true); // Cmd or Ctrl-?
+export const LOWER_LABEL_VISIBILITY =
+  OSX ? key.NULL_KEY : key.makeCtrlKey(219, false); // Ctrl-[
+export const INCREASE_LABEL_VISIBILITY =
+  OSX ? key.NULL_KEY : key.makeCtrlKey(221, false); // Ctrl-]
 
 //  LocalWords:  Mangalam MPL Dubeau Ctrl

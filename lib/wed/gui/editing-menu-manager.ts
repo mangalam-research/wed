@@ -199,14 +199,8 @@ export class EditingMenuManager {
       const dataNode = treeCaret.node as Element;
       const tagName = dataNode.tagName;
       const mode = this.modeTree.getMode(dataNode);
-      if (tagName != null) {
-        const docURL = mode.documentationLinkFor(tagName);
 
-        if (docURL != null) {
-          const li = this.makeDocumentationMenuItem(docURL);
-          menuItems.push({ action: null, item: li, data: null });
-        }
-      }
+      menuItems.push(...this.makeCommonItems(dataNode));
 
       const trs = this.editor.getElementTransformationsAt(
         treeCaret, wrap ? "wrap" : "insert");
@@ -243,6 +237,29 @@ export class EditingMenuManager {
         $.data(transformationNode, "wed_mirror_node"), 0);
       for (const action of actions) {
         pushItem({ node: transformationNode, name: sepFor }, action);
+      }
+    }
+
+    return menuItems;
+  }
+
+  /**
+   * Make the menu items that should appear in all contextual menus.
+   *
+   * @param dataNode The element for which we are creating the menu.
+   *
+   * @returns Menu items.
+   */
+  makeCommonItems(dataNode: Node): Item[] {
+    const menuItems: Item[] = [];
+    if (isElement(dataNode)) {
+      const tagName = dataNode.tagName;
+      const mode = this.modeTree.getMode(dataNode);
+      const docURL = mode.documentationLinkFor(tagName);
+
+      if (docURL != null) {
+        const li = this.makeDocumentationMenuItem(docURL);
+        menuItems.push({ action: null, item: li, data: null });
       }
     }
 

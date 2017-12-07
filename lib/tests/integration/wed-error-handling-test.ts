@@ -44,7 +44,7 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("warn of disconnection when server returns a bad status", (done) => {
@@ -66,7 +66,7 @@ server_interaction_converted.xml",
       $modal.modal("hide");
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("bring up modal when document was edited by someone else", (done) => {
@@ -79,7 +79,7 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("bring up modal when there is a new version of editor", (done) => {
@@ -92,7 +92,7 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("no recovery when save fails hard", (done) => {
@@ -117,7 +117,7 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("recovery on uncaught exception", (done) => {

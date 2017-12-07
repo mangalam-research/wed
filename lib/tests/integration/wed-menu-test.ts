@@ -156,7 +156,7 @@ describe("wed menus:", () => {
       const menu = editor.window.document.
         getElementsByClassName("wed-context-menu")[0];
       assert.isUndefined(menu, "the menu should not exist");
-      editor.type(keyConstants.CTRLEQ_QUESTION);
+      editor.type(keyConstants.REPLACEMENT_MENU);
       contextMenuHasOption(editor, /^Y$/);
     });
 
@@ -171,7 +171,7 @@ describe("wed menus:", () => {
       const menu = editor.window.document.
         getElementsByClassName("wed-context-menu")[0];
       assert.isUndefined(menu, "the menu should not exist");
-      editor.type(keyConstants.CTRLEQ_QUESTION);
+      editor.type(keyConstants.REPLACEMENT_MENU);
       contextMenuHasOption(editor, /^completion1$/);
     });
   });
@@ -187,7 +187,7 @@ describe("wed menus:", () => {
            getElementsByClassName("wed-context-menu")[0];
          assert.isUndefined(menu, "the menu should not exist");
          // The menu won't come up with a the shortcut.
-         editor.type(keyConstants.CTRLEQ_QUESTION);
+         editor.type(keyConstants.REPLACEMENT_MENU);
          menu = editor.window.document.
            getElementsByClassName("wed-context-menu")[0];
          assert.isUndefined(menu, "the menu should not exist");

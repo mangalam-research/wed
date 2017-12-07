@@ -2134,25 +2134,25 @@ in a way not supported by this version of wed.";
       }
       return true;
     }
-    else if (keyConstants.CTRLEQ_S.matchesEvent(e)) {
+    else if (keyConstants.SAVE.matchesEvent(e)) {
       // tslint:disable-next-line:no-floating-promises
       this.save();
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_Z.matchesEvent(e)) {
+    else if (keyConstants.UNDO.matchesEvent(e)) {
       this.undo();
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_Y.matchesEvent(e)) {
+    else if (keyConstants.REDO.matchesEvent(e)) {
       this.redo();
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_C.matchesEvent(e) ||
-             keyConstants.CTRLEQ_X.matchesEvent(e) ||
-             keyConstants.CTRLEQ_V.matchesEvent(e)) {
+    else if (keyConstants.COPY.matchesEvent(e) ||
+             keyConstants.CUT.matchesEvent(e) ||
+             keyConstants.PASTE.matchesEvent(e)) {
       return true;
     }
-    else if (keyConstants.CTRLEQ_BACKQUOTE.matchesEvent(e)) {
+    else if (keyConstants.DEVELOPMENT.matchesEvent(e)) {
       this.developmentMode = !this.developmentMode;
       notify(this.developmentMode ? "Development mode on." :
              "Development mode off.");
@@ -2161,15 +2161,13 @@ in a way not supported by this version of wed.";
       }
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_OPEN_BRACKET.matchesEvent(e)) {
-      this.decreaseLabelVisiblityLevel();
-      return terminate();
+    else if (keyConstants.LOWER_LABEL_VISIBILITY.matchesEvent(e)) {
+      return this.decreaseLabelVisibilityLevelAction.terminalEventHandler(e);
     }
-    else if (keyConstants.CTRLEQ_CLOSE_BRACKET.matchesEvent(e)) {
-      this.increaseLabelVisibilityLevel();
-      return terminate();
+    else if (keyConstants.INCREASE_LABEL_VISIBILITY.matchesEvent(e)) {
+      return this.increaseLabelVisibilityLevelAction.terminalEventHandler(e);
     }
-    else if (keyConstants.CTRLEQ_FORWARD_SLASH.matchesEvent(e)) {
+    else if (keyConstants.CONTEXTUAL_MENU.matchesEvent(e)) {
       if (selFocus !== undefined) {
         let selFocusNode = selFocus.node;
         const gui = closestByClass(selFocusNode, "_gui", selFocus!.root);
@@ -2186,7 +2184,7 @@ in a way not supported by this version of wed.";
         return terminate();
       }
     }
-    else if (keyConstants.CTRLEQ_QUESTION.matchesEvent(e)) {
+    else if (keyConstants.REPLACEMENT_MENU.matchesEvent(e)) {
       this.editingMenuManager.setupReplacementMenu();
       return terminate();
     }

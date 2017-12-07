@@ -53,7 +53,7 @@ server_interaction_converted.xml",
 <p><term>blah</term></p></body></text></TEI>",
         });
     });
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
     return prom;
   });
 
@@ -86,7 +86,7 @@ server_interaction_converted.xml",
     const trs = editor.modeTree.getMode(p)
       .getContextualActions("insert", "abbr", p, 0);
     trs[0].execute({ name: "abbr" });
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
     return prom;
   });
 

@@ -330,6 +330,7 @@ ${domutil.textToHTML(attributes[name])}</span>"</span>`;
   protected contextMenuHandler(atStart: boolean, wedEv: JQueryMouseEventObject,
                                ev: JQueryEventObject): boolean {
     const editor = this.editor;
+    const editingMenuManager = editor.editingMenuManager;
     let node = wedEv.target as Element;
     const menuItems: Item[] = [];
     const mode = editor.modeTree.getMode(node);
@@ -337,8 +338,7 @@ ${domutil.textToHTML(attributes[name])}</span>"</span>`;
     function pushItem(data: TransformationData | null,
                       tr: Action<TransformationData>,
                       start?: boolean): void {
-      const li = editor.editingMenuManager.makeMenuItemForAction(tr, data,
-                                                                 start);
+      const li = editingMenuManager.makeMenuItemForAction(tr, data, start);
       menuItems.push({ action: tr, item: li, data: data });
     }
 
@@ -421,19 +421,14 @@ ${domutil.textToHTML(attributes[name])}</span>"</span>`;
       }
 
       node = candidate;
-
       const topNode = (node.parentNode === editor.guiRoot);
+
+      menuItems.push(
+        ...editingMenuManager.makeCommonItems(editor.toDataNode(node)!));
 
       // We first gather the transformations that pertain to the node to which
       // the label belongs.
       const orig = util.getOriginalName(node);
-
-      const docURL = mode.documentationLinkFor(orig);
-      if (docURL != null) {
-        const li =
-          this.editor.editingMenuManager.makeDocumentationMenuItem(docURL);
-        menuItems.push({ action: null, item: li, data: null });
-      }
 
       if (!topNode) {
         pushItems({ node: node, name: orig },
@@ -503,8 +498,8 @@ ${domutil.textToHTML(attributes[name])}</span>"</span>`;
       return true;
     }
 
-    const pos = editor.editingMenuManager.computeMenuPosition(ev);
-    editor.editingMenuManager
+    const pos = editingMenuManager.computeMenuPosition(ev);
+    editingMenuManager
       .displayContextMenu(ActionContextMenu, pos.left, pos.top, menuItems,
                           readonly);
     return false;
