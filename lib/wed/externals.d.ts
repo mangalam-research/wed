@@ -14,6 +14,7 @@ interface JQuery {
   on(events: string,
      handler: ((eventObject: JQueryEventObject, ...args: any[]) => any) | false):
   JQuery;
+  mousedown(events: false): JQuery;
 }
 
 declare module "bluejax" {

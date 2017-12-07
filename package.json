@@ -38,7 +38,7 @@
     "@types/bootstrap": "^3.3.32",
     "@types/bootstrap-notify": "^3.1.30",
     "@types/chai": "^3.4.35",
-    "@types/jquery": "^2.0.46",
+    "@types/jquery": "^2.0.48",
     "@types/js-yaml": "^3.5.31",
     "@types/jsdom": "^11.0.2",
     "@types/localforage": "0.0.33",

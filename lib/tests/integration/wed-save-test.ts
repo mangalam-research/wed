@@ -39,7 +39,7 @@ server_interaction_converted.xml",
     (editor as any) = undefined;
   });
 
-  it("saves", () => {
+  it("saves using the keyboard", () => {
     const prom =  editor.saver.events
       .pipe(filter((ev) => ev.name === "Saved"), first()).toPromise()
       .then(() => {
@@ -54,6 +54,16 @@ server_interaction_converted.xml",
         });
     });
     editor.type(keyConstants.CTRLEQ_S);
+    return prom;
+  });
+
+  it("saves using the toolbar", () => {
+    // We just check the event happened.
+    const prom =  editor.saver.events
+      .pipe(filter((ev) => ev.name === "Saved"), first()).toPromise();
+    const button = editor.widget
+      .querySelector("[data-original-title='Save']") as HTMLElement;
+    button.click();
     return prom;
   });
 

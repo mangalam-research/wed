@@ -7,7 +7,9 @@
 
 import { EditorAPI } from "./mode-api";
 
-export type EventWithData<Data> = Event & { data: Data };
+export interface EventWithData<Data> extends Event {
+  data: Data;
+}
 
 /**
  * Actions model "things the user can do." These can be contextual menu items,
@@ -66,7 +68,20 @@ export abstract class Action<Data> {
    * @param ev The DOM event.
    */
   eventHandler(ev: EventWithData<Data>): void {
-    this.execute(ev.data);
+    //
+    // Due to the way jQuery's typings are set, the event object passed when
+    // calling this method will essentially have a ``data`` field with type
+    // ``any``, and this will sastisfy the type checking done at compilation
+    // time. There does not appear to be a simple way to coerce ``data`` to not
+    // be null or undefined.
+    //
+    // We toyed with the idea of having it be an error to call this method with
+    // an event that does not have a ``data`` field set to some valid value, but
+    // that did not seem fruitful. Instead, we silently use an empty object if
+    // the field is missing.
+    //
+    const data = ev.data != null ? ev.data : ({} as Data);
+    this.execute(data);
     ev.preventDefault();
   }
 

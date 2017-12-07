@@ -31,6 +31,33 @@ Editing Controls
 
 Wed divides the screen into various areas.
 
+Toolbar
+-------
+
+Above the validation progress bar, wed presents a toolbar that allows to perform
+some operations through the mouse.
+
+.. note:: Wed does not include in the toolbar a button for every single
+          operation that may be performed through the keyboard. It includes only
+          some operations by default, and modes may add more custom operations
+          to the toolbar.
+
+.. figure:: help_images/toolbar.png
+   :align: center
+   :alt: This image shows the default toolbar.
+
+   The default toolbar.
+
+If you hover the mouse pointer over a button, you will get a prose description
+of what the button does. In the image above, from left to right the buttons
+perform the following actions:
+
+* Save the document.
+* Undo.
+* Redo.
+* Decrease the `label visibility level <Label Visibility_>`_.
+* Increase the `label visibility level <Label Visibility_>`_.
+
 The Validation Progress Bar
 ---------------------------
 
@@ -1049,28 +1076,25 @@ mentioned here are available only through the keyboard when using a
 minimal configuration of wed (i.e. using the generic mode), but we'll
 stick with it.
 
-====================  =====================================
- Key                  Function
-====================  =====================================
- :kbd:`F1`            Bring up the help.
- :kbd:`Ctrl-/`        Bring up the `contextual menu <Contextual Menus_>`_.
- :kbd:`Ctrl-?`        Bring up the `replacement menu <Replacement Menus_>`_.
- :kbd:`Ctrl-[`        Decrease the `label visibility level <Label Visibility_>`_.
- :kbd:`Ctrl-]`        Increase the `label visibility level <Label Visibility_>`_.
- :kbd:`Ctrl-z`        `Undo <Undo and Redo_>`_ an operation.
- :kbd:`Ctrl-y`        `Redo <Undo and Redo_>`_ an operation.
- :kbd:`Ctrl-x`        `Cut <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-c`        `Copy <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-v`        `Paste <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-s`        `Save <Saving_>`_ content.
- :kbd:`Ctrl-f`        `Quick search <Quick Search_>`_ forward.
- :kbd:`Ctrl-b`        `Quick search <Quick Search_>`_ backwards.
- :kbd:`Ctrl-Shift-f`  `Dialog search <Dialog Search_>`_ forward.
- :kbd:`Ctrl-Shift-b`  `Dialog search <Dialog Search_>`_ backwards.
-====================  =====================================
-
-Note that in **browsers running in OS X**, instead of :kbd:`Ctrl-` wed expects
-:kbd:`Command-`.
+==================== ==================== =====================================
+ PC Key               Mac Key             Function
+==================== ==================== =====================================
+ :kbd:`F1`            :kbd:`F1`           Bring up the help.
+ :kbd:`Ctrl-/`        :kbd:`Cmd-/`        Bring up the `contextual menu <Contextual Menus_>`_.
+ :kbd:`Ctrl-?`        :kbd:`Cmd-?`        Bring up the `replacement menu <Replacement Menus_>`_.
+ :kbd:`Ctrl-[`                            Decrease the `label visibility level <Label Visibility_>`_.
+ :kbd:`Ctrl-]`                            Increase the `label visibility level <Label Visibility_>`_.
+ :kbd:`Ctrl-z`        :kbd:`Cmd-z`        `Undo <Undo and Redo_>`_ an operation.
+ :kbd:`Ctrl-y`        :kbd:`Cmd-y`        `Redo <Undo and Redo_>`_ an operation.
+ :kbd:`Ctrl-x`        :kbd:`Cmd-x`        `Cut <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-c`        :kbd:`Cmd-c`        `Copy <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-v`        :kbd:`Cmd-v`        `Paste <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-s`        :kbd:`Cmd-s`        `Save <Saving_>`_ content.
+ :kbd:`Ctrl-f`        :kbd:`Cmd-f`        `Quick search <Quick Search_>`_ forward.
+ :kbd:`Ctrl-b`        :kbd:`Cmd-b`        `Quick search <Quick Search_>`_ backwards.
+ :kbd:`Ctrl-Shift-f`  :kbd:`Cmd-Shift-f`  `Dialog search <Dialog Search_>`_ forward.
+ :kbd:`Ctrl-Shift-b`  :kbd:`Cmd-Shift-b`  `Dialog search <Dialog Search_>`_ backwards.
+==================== ==================== =====================================
 
 .. _help_browser_requirements:
 

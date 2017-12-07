@@ -400,6 +400,10 @@ export class TestMode extends GenericMode<TestModeOptions> {
     return stylesheets !== undefined ? stylesheets : [];
   }
 
+  getToolbarActions(): Action<{}>[] {
+    return [this.typeaheadAction];
+  }
+
   getContextualActions(transformationType: string | string[],
                        tag: string,
                        container: Node,

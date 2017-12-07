@@ -429,4 +429,16 @@ export interface EditorAPI {
 
   /** Whether the editor is in the midst of redoing or undoing. */
   undoingOrRedoing(): boolean;
+
+  /**
+   * Decrease the label visibility level. It is a no-op if the level is already
+   * at the minimum.
+   */
+  decreaseLabelVisiblityLevel(): void;
+
+  /**
+   * Increase the label visibility level. It is a no-op if the level is already
+   * at the maximum.
+   */
+  increaseLabelVisibilityLevel(): void;
 }

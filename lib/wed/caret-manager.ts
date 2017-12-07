@@ -20,6 +20,7 @@ import { childByClass, closestByClass, contains, dumpRange,
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
+import { Mode } from "./mode";
 import { ModeTree } from "./mode-tree";
 import * as objectCheck from "./object-check";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
@@ -70,6 +71,12 @@ export interface CaretChange {
 
   /** The previous caret value before the change. */
   prevCaret: DLoc | undefined;
+
+  /** The mode at which the current caret is located. */
+  mode: Mode | undefined;
+
+  /** The previous mode in effect before the change. */
+  prevMode: Mode | undefined;
 
   /** The change options. */
   options: CaretChangeOptions;
@@ -123,6 +130,7 @@ export class CaretManager implements GUIToDataConverter {
   private readonly win: Window;
   private readonly selectionStack: (WedSelection | undefined)[] = [];
   private prevCaret: DLoc | undefined;
+  private prevMode: Mode | undefined;
 
   private readonly _events: Subject<CaretChange>;
 
@@ -989,14 +997,19 @@ export class CaretManager implements GUIToDataConverter {
   private _caretChange(options: CaretChangeOptions = {}): void {
     const prevCaret = this.prevCaret;
     const caret = this.caret;
+    const mode = caret !== undefined ?
+      this.modeTree.getMode(caret.node) : undefined;
     if (prevCaret === undefined || !prevCaret.equals(caret)) {
       this._events.next({
         manager: this,
         caret,
+        mode,
         prevCaret,
+        prevMode: this.prevMode,
         options,
       });
       this.prevCaret = caret;
+      this.prevMode = mode;
     }
   }
 

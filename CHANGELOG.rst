@@ -72,6 +72,25 @@ odd bug fix may not get mentioned here at all.
     insert markers into the list of undo operations. This may be useful for some
     modes.
 
+  - New GUI feature: wed now has a toolbar.
+
+  - New feature: wed now has a stock transformation for removing markup in
+    mixed-content. A button was added to the toolbar for this transformation.
+
+  - Potentially breaking GUI change: on OS X the keyboard shortcuts for
+    decreasing and increasing label visibility were ``Cmd-[`` and
+    ``Cmd-]``. However, OS X uses these combinations and thus they were never
+    available to wed. End result: the user could not change the label
+    visibility. We tried some alternative keyboard combinations, with
+    unsatisfying results. For now, OS X users will have to use the toolbar to
+    change visibility levels.
+
+    This is *potentially* breaking because it is likely that most people never
+    used the problematic combinations. Only users who bothered to change the OS
+    key combinations to avoid the conflict with wed could have worked around the
+    issue. For them this is a breaking change, but this is probably a tiny
+    minority of users.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of

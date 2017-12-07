@@ -21,6 +21,7 @@ import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import * as domutil from "./domutil";
 import { closest, closestByClass, htmlToElements, indexOf } from "./domutil";
+import * as editorActions from "./editor-actions";
 import { AbortTransformationException } from "./exceptions";
 import { GUIUpdater } from "./gui-updater";
 import { DialogSearchReplace } from "./gui/dialog-search-replace";
@@ -33,6 +34,7 @@ import { Modal, Options as ModalOptions } from "./gui/modal";
 import { notify } from "./gui/notify";
 import { Direction, QuickSearch } from "./gui/quick-search";
 import { Scroller } from "./gui/scroller";
+import { AddOptions, Toolbar } from "./gui/toolbar";
 import { tooltip } from "./gui/tooltip";
 import { TypeaheadPopup } from "./gui/typeahead-popup";
 import { AttributeNotFound, GUIRoot } from "./guiroot";
@@ -54,8 +56,8 @@ import { FailedEvent, SaveKind, Saver, SaverConstructor } from "./saver";
 import { StockModals } from "./stock-modals";
 import { Task, TaskRunner } from "./task-runner";
 import { insertElement, mergeWithNextHomogeneousSibling,
-         mergeWithPreviousHomogeneousSibling, splitNode, Transformation,
-         TransformationData } from "./transformation";
+         mergeWithPreviousHomogeneousSibling, removeMarkup, splitNode,
+         Transformation, TransformationData } from "./transformation";
 import { BeforeInsertNodeAtEvent, InsertNodeAtEvent,
          TreeUpdater } from "./tree-updater";
 import { Undo, UndoEvents, UndoList } from "./undo";
@@ -119,6 +121,7 @@ export enum WedEventTarget {
 
 const FRAMEWORK_TEMPLATE = "\
 <div class='row'>\
+ <div class='toolbar'></div>\
  <div class='wed-frame col-sm-push-2 col-lg-10 col-md-10 col-sm-10'>\
   <div class='row'>\
    <div class='progress'>\
@@ -266,10 +269,22 @@ export class Editor implements EditorAPI {
   readonly cutTr: Transformation<TransformationData>;
   readonly splitNodeTr: Transformation<TransformationData>;
   readonly replaceRangeTr: Transformation<ReplaceRangeTransformationData>;
+  readonly removeMarkupTr: Transformation<TransformationData>;
+  readonly saveAction: Action<{}> =
+    new editorActions.Save(this);
+  readonly decreaseLabelVisibilityLevelAction: Action<{}> =
+    new editorActions.DecreaseLabelVisibilityLevel(this);
+  readonly increaseLabelVisibilityLevelAction: Action<{}> =
+    new editorActions.IncreaseLabelVisibilityLevel(this);
+  readonly undoAction: Action<{}> =
+    new editorActions.Undo(this);
+  readonly redoAction: Action<{}> =
+    new editorActions.Redo(this);
   readonly minibuffer: Minibuffer;
   readonly docURL: string;
   readonly transformations: Observable<TransformationEvents> =
     this._transformations.asObservable();
+  readonly toolbar: Toolbar;
   dataRoot: Document;
   $dataRoot: JQuery;
   maxLabelLevel: number;
@@ -383,6 +398,12 @@ export class Editor implements EditorAPI {
       framework
       .getElementsByClassName("wed-document-constrainer")[0] as HTMLElement;
 
+    const toolbar = this.toolbar = new Toolbar();
+    const toolbarPlaceholder = framework.getElementsByClassName("toolbar")[0];
+    toolbarPlaceholder.parentNode!.insertBefore(toolbar.top,
+                                                toolbarPlaceholder);
+    toolbarPlaceholder.parentNode!.removeChild(toolbarPlaceholder);
+
     this.inputField =
       framework.getElementsByClassName("wed-comp-field")[0] as HTMLInputElement;
     this.$inputField = $(this.inputField);
@@ -475,6 +496,18 @@ export class Editor implements EditorAPI {
         (editor, data) => {
           mergeWithNextHomogeneousSibling(editor, data.node as Element);
         });
+
+    this.removeMarkupTr =
+      new Transformation(this, "delete", "Remove mixed-content markup",
+          "Remove mixed-content markup", "<i class='fa fa-eraser'></i>", true,
+          removeMarkup);
+
+    toolbar.addAction([this.saveAction,
+                       this.undoAction,
+                       this.redoAction,
+                       this.decreaseLabelVisibilityLevelAction,
+                       this.increaseLabelVisibilityLevelAction,
+                       this.removeMarkupTr]);
 
     // Setup the cleanup code.
     $(this.window).on("unload.wed", { editor: this }, (e) => {
@@ -1709,6 +1742,11 @@ in a way not supported by this version of wed.";
       });
     }
     return failure;
+  }
+
+  addToolbarAction(actionClass: editorActions.ActionCtor,
+                   options: AddOptions): void {
+    this.toolbar.addAction(new actionClass(this), options);
   }
 
   /**
@@ -3199,7 +3237,7 @@ in a way not supported by this version of wed.";
 
   // tslint:disable-next-line:cyclomatic-complexity
   private caretChange(ev: CaretChange): void {
-    const { options, caret, prevCaret, manager } = ev;
+    const { options, caret, prevCaret, mode, prevMode, manager } = ev;
     if (caret === undefined) {
       return;
     }
@@ -3249,6 +3287,11 @@ in a way not supported by this version of wed.";
     // state so don't do anything with it.
     if (!this.guiRoot.contains(node)) {
       return;
+    }
+
+    if (mode !== prevMode) {
+      this.toolbar.setModeActions(
+        mode !== undefined ? mode.getToolbarActions() : []);
     }
 
     const real = closestByClass(node, "_real", root);

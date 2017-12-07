@@ -3,6 +3,9 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { filter } from "rxjs/operators/filter";
+import { first } from "rxjs/operators/first";
+
 import { CaretManager } from "wed/caret-manager";
 import { Editor } from "wed/editor";
 import { AbortTransformationException } from "wed/exceptions";
@@ -253,5 +256,38 @@ describe("wed undo redo:", () => {
     assert.equal(attrVals[0].textContent, "moo");
     editor.undo();
     assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+  });
+
+  it("can undo using the toolbar", () => {
+    // Text node inside title.
+    const initial = titles[0].childNodes[1];
+    caretManager.setCaret(initial, 0);
+
+    editor.type("blah");
+    const prom =  editor.undoEvents
+      .pipe(filter((ev) => ev.name === "Undo"), first()).toPromise();
+    const button = editor.widget
+      .querySelector("[data-original-title='Undo']") as HTMLElement;
+    button.click();
+    return prom;
+  });
+
+  it("can redo using the toolbar", () => {
+    // Text node inside title.
+    const initial = titles[0].childNodes[1];
+    caretManager.setCaret(initial, 0);
+
+    editor.type("blah");
+
+    // Undo programmatically first...
+    editor.undo();
+
+    // ... then we can redo.
+    const prom =  editor.undoEvents
+      .pipe(filter((ev) => ev.name === "Redo"), first()).toPromise();
+    const button = editor.widget
+      .querySelector("[data-original-title='Redo']") as HTMLElement;
+    button.click();
+    return prom;
   });
 });

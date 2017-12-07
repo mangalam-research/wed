@@ -93,4 +93,27 @@ by the test mode",
     check(second as HTMLElement,
           "the second paragraph should not have the completions", false);
   });
+
+  it("adds mode-specific toolbar buttons", () => {
+    function check(el: HTMLElement | null, expected: number): void {
+      if (el !== null) {
+        editor.caretManager.setCaret(el, 0);
+      }
+      const span = editor.toolbar.top.lastElementChild!;
+      expect(span.children).to.have.lengthOf(expected);
+    }
+
+    // Initially we are out and so no mode-specific button.
+    check(null, 0);
+
+    // Move into the submode, and check again.
+    const inSubmode =
+      editor.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
+    check(inSubmode as HTMLElement, 1);
+
+    // Move out, and check again.
+    const outsideSubmode =
+      editor.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
+    check(outsideSubmode as HTMLElement, 0);
+  });
 });

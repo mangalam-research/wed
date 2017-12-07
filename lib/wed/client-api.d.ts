@@ -6,6 +6,10 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+
+import { AddOptions } from "./gui/toolbar";
+import { ActionCtor } from "./editor-actions";
+
 export interface EditorInstance {
   /** A name for this editor. */
   readonly name: string;
@@ -24,6 +28,17 @@ export interface EditorInstance {
    * @return A promise that resolves once the editor is initialized.
    */
   init(xmlData?: string): Promise<EditorInstance>;
+
+  /**
+   * Add an action to the toolbar. This is meant to be used to add "general"
+   * actions that are tied to the application in which wed is embedded rather
+   * than to the mode being used.
+   *
+   * @param actionClass The class to instantiate to provide the action.
+   *
+   * @param options The options to use for adding the action.
+   */
+  addToolbarAction(actionClass: ActionCtor, options: AddOptions): void;
 
   /**
    * Triggers the resizing algorithm.

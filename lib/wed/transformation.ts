@@ -12,6 +12,7 @@ import { DLoc } from "./dloc";
 import { isDocument, isText } from "./domtypeguards";
 import { Caret, firstDescendantOrSelf, indexOf,
          isWellFormedRange } from "./domutil";
+import { AbortTransformationException } from "./exceptions";
 import * as icon from "./gui/icon";
 import { EditorAPI } from "./mode-api";
 import { TreeUpdater } from "./tree-updater";
@@ -244,8 +245,6 @@ export class Transformation<Data extends TransformationData>
    * @param data The data object to pass.
    */
   execute(data: Data): void {
-    // Removed this during conversion to TypeScript. Did it ever make sense??
-    // data = data || {};
     this.editor.fireTransformation(this, data);
   }
 }
@@ -659,6 +658,40 @@ export function swapWithNextHomogeneousSibling(editor: EditorAPI,
   }
 
   swapWithPreviousHomogeneousSibling(editor, next);
+}
+
+/**
+ * Remove markup from the current selection. This turns mixed content into pure
+ * text. The selection must be well-formed, otherwise the transformation is
+ * aborted.
+ *
+ * @param editor The editor for which we are doing the transformation.
+ */
+export function removeMarkup(editor: EditorAPI): void {
+  const selection = editor.caretManager.sel;
+
+  // Do nothing if we don't have a selection.
+  if (selection === undefined || selection.collapsed) {
+    return;
+  }
+
+  if (!selection.wellFormed) {
+    editor.modals.getModal("straddling").modal();
+    throw new AbortTransformationException("selection is not well-formed");
+  }
+
+  const [start, end] = selection.asDataCarets()!;
+  const cutRet = editor.dataUpdater.cut(start, end);
+  let newText = "";
+  const cutNodes = cutRet[1];
+  for (const el of cutNodes) {
+    newText += el.textContent;
+  }
+
+  const insertRet = editor.dataUpdater.insertText(cutRet[0], newText);
+  editor.caretManager.setRange(
+    start.make(insertRet.node!, insertRet.isNew ? cutRet[0].offset : 0),
+    insertRet.caret);
 }
 
 //  LocalWords:  wasText endOffset prepend endContainer startOffset html DOM

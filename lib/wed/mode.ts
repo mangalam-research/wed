@@ -21,8 +21,8 @@ export interface CommonModeOptions {
   autoinsert?: boolean;
 }
 
-export interface Mode<ModeOptions extends CommonModeOptions =
-  CommonModeOptions> {
+export interface Mode<ModeOptions extends
+CommonModeOptions = CommonModeOptions> {
   /**
    * This is called by the editor when a mode is ready to be initialized. The
    * mode could use this to add a toolbar above the editor or add listeners to
@@ -84,6 +84,13 @@ export interface Mode<ModeOptions extends CommonModeOptions =
    * Make a decorator that this mode will use.
    */
   makeDecorator(): Decorator;
+
+  /**
+   * Get the toolbar actions that this mode wants the editor to present.
+   *
+   * @returns The toolbar actions for this mode.
+   */
+  getToolbarActions(): Action<{}>[];
 
   /**
    * Modes must implement this method to specify what transformations they allow
@@ -317,6 +324,13 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
    * The default implementation returns an empty array.
    */
   getAttributeCompletions(attribute: Attr): string[] {
+    return [];
+  }
+
+  /**
+   * The default implementaiton returns an empty array.
+   */
+  getToolbarActions(): Action<{}>[] {
     return [];
   }
 

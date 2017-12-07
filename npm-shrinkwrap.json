@@ -75,9 +75,9 @@
       "dev": true
     },
     "@types/jquery": {
-      "version": "2.0.46",
-      "from": "@types/jquery@>=2.0.46 <3.0.0",
-      "resolved": "https://registry.npmjs.org/@types/jquery/-/jquery-2.0.46.tgz",
+      "version": "2.0.48",
+      "from": "@types/jquery@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/@types/jquery/-/jquery-2.0.48.tgz",
       "dev": true
     },
     "@types/js-yaml": {

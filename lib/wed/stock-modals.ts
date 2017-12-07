@@ -5,6 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
+import { OSX } from "./browsers";
 import * as buildInfo from "./build-info";
 import { Modal } from "./gui/modal";
 
@@ -57,17 +58,9 @@ selecting smaller sections.<p>");
       break;
     case "help":
       const docURL = this.maker.docURL;
-      modal.setTitle("Help");
-      modal.setBody(`
-<p>Click <a href='${docURL}' target='_blank'>this link</a> to see
-wed's generic help. The link by default will open in a new tab.</p>
-<p>The key combinations with Ctrl below are done with Command in OS X.</p>
-<ul>
-  <li>Clicking the right mouse button on the document contents brings up a
-contextual menu.</li>
-  <li>F1: help</li>
-  <li>Ctrl-[: Decrease the label visibility level.</li>
-  <li>Ctrl-]: Increase the label visibility level.</li>
+      // These are different on browsers running in OSX. So we later edit the
+      // list as needed.
+      const otherKeys = `\
   <li>Ctrl-s: Save</li>
   <li>Ctrl-x: Cut</li>
   <li>Ctrl-v: Paste</li>
@@ -80,6 +73,21 @@ contextual menu.</li>
   <li>Ctrl-b: Quick search backwards.</li>
   <li>Ctrl-Shift-f: Search forward.</li>
   <li>Ctrl-Shift-b: Search backwards.</li>
+`;
+      // These combinations don't exist on OSX.
+      const visibility = `\
+  <li>Ctrl-[: Decrease the label visibility level.</li>
+  <li>Ctrl-]: Increase the label visibility level.</li>
+`;
+      modal.setTitle("Help");
+      modal.setBody(`
+<p>Click <a href='${docURL}' target='_blank'>this link</a> to see
+wed's generic help. The link by default will open in a new tab.</p>
+<ul>
+  <li>Clicking the right mouse button on the document contents brings up a
+contextual menu.</li>
+  <li>F1: help</li>
+  ${OSX ? otherKeys.replace(/Ctrl-/g, "Cmd-") : visibility + otherKeys}
 </ul>
 <p class='wed-build-info'>Build descriptor: ${buildInfo.desc}<br/>
 Build date: ${buildInfo.date}</p>`);
@@ -120,4 +128,4 @@ trying to edit further.");
 }
 
 //  LocalWords:  MPL editedByOther tooOld href docUrl wed's Ctrl ul li runtime
-//  LocalWords:  badName
+//  LocalWords:  badName Cmd OSX
