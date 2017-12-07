@@ -91,6 +91,11 @@ odd bug fix may not get mentioned here at all.
     issue. For them this is a breaking change, but this is probably a tiny
     minority of users.
 
+  - Bug fix: wed would crash on reporting spurious attributes. This is probably
+    a regression that came in a while back and went undetected because wed is
+    usually used to create documents from scratch and so does not usually run
+    into spurious attributes.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of

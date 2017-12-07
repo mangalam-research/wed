@@ -54,6 +54,7 @@ This paragraph and its content are designed to test how error markers \
 are shown for inline elements that end up spanning multiple lines.\
 </monogr></p><p n="">P</p>\
 <div type="a" subtype="b" rend="foo" rendition="bar"/>\
+<div xxx="x">This div has a bad attribute.</div>\
 </body></text></TEI>""",
     "serializes multiple top namespaces properly": """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0" \
