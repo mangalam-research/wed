@@ -21,6 +21,7 @@
     "skipLibCheck": true,
     "outDir": "build/standalone/lib",
     "sourceMap": true,
+    "inlineSources": true,
     "target": "es5",
     "lib": ["dom", "es2015"]
   },
