@@ -636,7 +636,7 @@ def step_impl(context, what=None, items=None, other=None):
                         link.startswith("Split "):
                     actual.add("element")
                 else:
-                    raise Element("can't analyse link: " + link)
+                    raise Exception("can't analyse link: " + link)
 
         return actual == expected
 
