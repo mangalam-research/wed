@@ -6869,28 +6869,34 @@
       "dev": true
     },
     "salve": {
-      "version": "4.1.2",
-      "from": "salve@4.1.2",
-      "resolved": "https://registry.npmjs.org/salve/-/salve-4.1.2.tgz",
-      "dependencies": {
-        "sax": {
-          "version": "1.2.4",
-          "from": "sax@>=1.2.1 <1.3.0",
-          "resolved": "https://registry.npmjs.org/sax/-/sax-1.2.4.tgz"
-        }
-      }
+      "version": "4.3.0",
+      "from": "salve@latest",
+      "resolved": "file:build/salve-4.3.0.tgz"
     },
     "salve-dom": {
-      "version": "1.2.1",
-      "from": "salve-dom@1.2.1",
-      "resolved": "https://registry.npmjs.org/salve-dom/-/salve-dom-1.2.1.tgz",
-      "dev": true
+      "version": "1.3.0",
+      "from": "../salve-dom/build/salve-dom-1.3.0.tgz",
+      "resolved": "file:../salve-dom/build/salve-dom-1.3.0.tgz",
+      "dev": true,
+      "dependencies": {
+        "salve": {
+          "version": "4.3.0",
+          "from": "salve@>=4.3.0 <5.0.0",
+          "resolved": "file:build/salve-4.3.0.tgz",
+          "dev": true
+        }
+      }
     },
     "samsam": {
       "version": "1.2.1",
       "from": "samsam@^1.1.3",
       "resolved": "https://registry.npmjs.org/samsam/-/samsam-1.2.1.tgz",
       "dev": true
+    },
+    "sax": {
+      "version": "1.2.4",
+      "from": "sax@>=1.2.1 <1.3.0",
+      "resolved": "https://registry.npmjs.org/sax/-/sax-1.2.4.tgz"
     },
     "semver": {
       "version": "5.1.0",
