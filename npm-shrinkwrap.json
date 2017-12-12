@@ -6874,18 +6874,10 @@
       "resolved": "file:build/salve-4.3.0.tgz"
     },
     "salve-dom": {
-      "version": "1.3.0",
-      "from": "../salve-dom/build/salve-dom-1.3.0.tgz",
-      "resolved": "file:../salve-dom/build/salve-dom-1.3.0.tgz",
-      "dev": true,
-      "dependencies": {
-        "salve": {
-          "version": "4.3.0",
-          "from": "salve@>=4.3.0 <5.0.0",
-          "resolved": "file:build/salve-4.3.0.tgz",
-          "dev": true
-        }
-      }
+      "version": "2.0.0",
+      "from": "salve-dom@latest",
+      "resolved": "file:build/salve-dom-2.0.0.tgz",
+      "dev": true
     },
     "samsam": {
       "version": "1.2.1",
