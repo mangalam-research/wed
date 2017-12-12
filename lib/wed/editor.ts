@@ -224,9 +224,9 @@ export class Editor implements EditorAPI {
   private readonly sidebar: HTMLElement;
   private readonly validationProgress: HTMLElement;
   private readonly validationMessage: HTMLElement;
-  private readonly caretOwners: NodeList;
-  private readonly clickedLabels: NodeList;
-  private readonly withCaret: NodeList;
+  private readonly caretOwners: NodeListOf<Element>;
+  private readonly clickedLabels: NodeListOf<Element>;
+  private readonly withCaret: NodeListOf<Element>;
   private readonly $modificationStatus: JQuery;
   private readonly $saveStatus: JQuery;
   private readonly $navigationPanel: JQuery;
@@ -3233,7 +3233,7 @@ in a way not supported by this version of wed.";
     return boundary;
   }
 
-  // tslint:disable-next-line:cyclomatic-complexity
+  // tslint:disable-next-line:max-func-body-length cyclomatic-complexity
   private caretChange(ev: CaretChange): void {
     const { options, caret, prevCaret, mode, prevMode, manager } = ev;
     if (caret === undefined) {
@@ -3255,18 +3255,24 @@ in a way not supported by this version of wed.";
 
     // The class owns_caret can be on more than one element. The classic case is
     // if the caret is at an element label.
-    let el;
-    // tslint:disable-next-line:no-conditional-assignment
-    while ((el = this.caretOwners[0] as HTMLElement) !== undefined) {
-      el.classList.remove("_owns_caret");
+    while (this.caretOwners[0] !== undefined) {
+      this.caretOwners[0].classList.remove("_owns_caret");
     }
-    // tslint:disable-next-line:no-conditional-assignment
-    while ((el = this.clickedLabels[0] as HTMLElement) !== undefined) {
-      el.classList.remove("_label_clicked");
+
+    // _label_clicked can also be on more than one element.
+    while (this.clickedLabels[0] !== undefined) {
+      this.clickedLabels[0].classList.remove("_label_clicked");
     }
-    // tslint:disable-next-line:no-conditional-assignment
-    while ((el = this.withCaret[0] as HTMLElement) !== undefined) {
-      el.classList.remove("_with_caret");
+
+    // _with_caret should not be on more than one element, but if a momentary
+    // issue happens, we fix it here.
+    let hadCaret: Element | undefined;
+    while (this.withCaret[0] !== undefined) {
+      // We record the element with the caret. If there is more than one, which
+      // should not happen except in transient cases, it does not matter as it
+      // only means that we'll have an unnecessary error recreation.
+      hadCaret = this.withCaret[0];
+      hadCaret.classList.remove("_with_caret");
     }
 
     if (prevCaret !== undefined) {
@@ -3277,7 +3283,7 @@ in a way not supported by this version of wed.";
       }
     }
 
-    let node = isElement(caret.node) ?
+    const node = isElement(caret.node) ?
       caret.node : caret.node.parentNode as HTMLElement;
     const root = caret.root;
 
@@ -3297,6 +3303,7 @@ in a way not supported by this version of wed.";
       real.classList.add("_owns_caret");
     }
 
+    let hasCaret: Element | undefined;
     const gui = closestByClass(node, "_gui", root);
     // Make sure that the caret is in view.
     if (gui !== null) {
@@ -3307,10 +3314,25 @@ in a way not supported by this version of wed.";
         }
 
         gui.classList.add("_with_caret");
+        hasCaret = gui;
       }
     }
     else {
       node.classList.add("_owns_caret");
+    }
+
+    // When the caret moves, it may move outside of, or into, a start label
+    // that has autohidden attributes. In such case, we must recreate the
+    // errors, so that any error associated with an attribute that may be
+    // shown or hidden is recreated to fix hyperlinking.
+    if ((hadCaret !== hasCaret) &&
+        ((hasCaret !== undefined &&
+          hasCaret.getElementsByClassName("_shown_when_caret_in_label")
+          .length !== 0) ||
+         (hadCaret !== undefined &&
+          hadCaret.getElementsByClassName("_shown_when_caret_in_label")
+          .length !== 0))) {
+      this.validationController.recreateErrors();
     }
 
     if (!gainingFocus) {
@@ -3321,19 +3343,27 @@ in a way not supported by this version of wed.";
     // to the CSS may have caused GUI items to appear or disappear and may have
     // mucked up the caret mark.
     this.caretManager.mark.refresh();
+    this.setLocationTo(node);
+  }
 
+  /**
+   * Set the location bar to a new location.
+   *
+   * @param el The element at which the location should point.
+   */
+  private setLocationTo(el: Element): void {
     const steps = [];
-    while (node !== this.guiRoot) {
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        throw new Error(`unexpected node type: ${node.nodeType}`);
+    while (el !== this.guiRoot) {
+      if (el.nodeType !== Node.ELEMENT_NODE) {
+        throw new Error(`unexpected node type: ${el.nodeType}`);
       }
 
-      if (!node.classList.contains("_placeholder") &&
-          closestByClass(node, "_phantom", root) === null) {
+      if (!el.classList.contains("_placeholder") &&
+          closestByClass(el, "_phantom", this.guiRoot) === null) {
         steps.unshift(`<span class='_gui _label'><span>&nbsp;\
-${util.getOriginalName(node)}&nbsp;</span></span>`);
+${util.getOriginalName(el)}&nbsp;</span></span>`);
       }
-      node = node.parentNode as HTMLElement;
+      el = el.parentNode as HTMLElement;
     }
     const span = this.wedLocationBar.getElementsByTagName("span")[0];
     // tslint:disable-next-line:no-inner-html

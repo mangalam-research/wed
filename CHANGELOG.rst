@@ -96,6 +96,11 @@ odd bug fix may not get mentioned here at all.
     usually used to create documents from scratch and so does not usually run
     into spurious attributes.
 
+  - Bug fix: if an attribute subject to autohiding had an error, wed would
+    produce an error item without a link. That's fine for when the attribute is
+    hidden, but it is a problem when the attribute is shown. Wed now recreates
+    errors when an autohidden attribute is shown or hidden.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of
