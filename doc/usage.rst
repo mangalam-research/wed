@@ -229,7 +229,7 @@ the mode.
 Using
 =====
 
-Starting with version 0.40, wed is much stricter as to what it exposes to
+Starting with version 0.31, wed is much stricter as to what it exposes to
 libraries. The only parts of the code base that are safe to access are those
 exported by the facade exposed as ``wed``. ``wed`` exports ``EditorInstance``
 for the sake of allowing the creation of editors. However, modes **must** access

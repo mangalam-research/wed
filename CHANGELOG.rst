@@ -5,7 +5,7 @@ work correctly when viewed there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
-* 0.40.0:
+* 0.31.0:
 
   - Breaking change: major reorganization of the code to present a facade and
     clarify what is public and what is not public. In particular:
@@ -24,7 +24,7 @@ odd bug fix may not get mentioned here at all.
       of trying to load the individual modules under ``wed/*``.
 
     See the section titled ``Using`` in the documentation, specifically the part
-    about the changes in ``0.40``.
+    about the changes in ``0.31``.
 
   - Breaking API change: ``util.decodeAttrName`` now returns a structure rather
     than a string. See that function for details.
