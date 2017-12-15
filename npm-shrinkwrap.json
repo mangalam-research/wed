@@ -50,6 +50,12 @@
       "resolved": "https://registry.npmjs.org/@types/chai/-/chai-3.4.35.tgz",
       "dev": true
     },
+    "@types/diff": {
+      "version": "3.2.2",
+      "from": "@types/diff@latest",
+      "resolved": "https://registry.npmjs.org/@types/diff/-/diff-3.2.2.tgz",
+      "dev": true
+    },
     "@types/fs-extra": {
       "version": "4.0.0",
       "from": "@types/fs-extra@>=4.0.0 <5.0.0",
@@ -1537,7 +1543,7 @@
     },
     "diff": {
       "version": "1.4.0",
-      "from": "diff@1.4.0",
+      "from": "https://registry.npmjs.org/diff/-/diff-1.4.0.tgz",
       "resolved": "https://registry.npmjs.org/diff/-/diff-1.4.0.tgz",
       "dev": true
     },

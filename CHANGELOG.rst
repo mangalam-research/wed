@@ -26,6 +26,24 @@ odd bug fix may not get mentioned here at all.
     See the section titled ``Using`` in the documentation, specifically the part
     about the changes in ``0.40``.
 
+  - Breaking API change: ``util.decodeAttrName`` now returns a structure rather
+    than a string. See that function for details.
+
+  - Breaking API change: ``util.encodeAttrName`` encodes names differently from
+    what it used to. This matters if you statically stored encoded names that
+    conform to the older algorithm. (e.g. if you have CSS tests that depend on
+    the old way of encoding attribute names). They will have to be modified to
+    conform to the new algorithm.
+
+  - Bug fix: The previous API change fixes an issue that has plagued wed since
+    day one: wed was not able to properly handle attributes with uppercase
+    letters. Uppercase in element names were never a problem, but due to the
+    fact that HTML (silently) converts attribute names to lowercase, it was not
+    possible for wed to handle an attribute with uppercase characters properly.
+
+    Wed had never been used to edit attributes with uppercase names, and so the
+    issue remained undiscovered until recently.
+
   - Possibly breaking change: wed has changed the way it looks for the embedded
     documentation. It previously was looking for a path relative to the main
     ``wed/wed`` module. That method depended on functions provided by

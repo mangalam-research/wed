@@ -34,6 +34,7 @@ require.config({
     slug: "external/slug",
     rxjs: "external/rxjs",
     ajv: "external/ajv.min",
+    diff: "external/diff",
   },
   packages: [
     {

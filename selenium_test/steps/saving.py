@@ -30,7 +30,8 @@ _SCENARIO_TO_EXPECTED_DATA = {
     u"""\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc>\
 <titleStmt><title>abcd</title></titleStmt><publicationStmt><p/>\
-</publicationStmt><sourceDesc><p/></sourceDesc></fileDesc></teiHeader>\
+</publicationStmt><sourceDesc><p MOO="a" moo="b"/>\
+</sourceDesc></fileDesc></teiHeader>\
 <text><body><p><hi/>Blah blah <term>blah</term> blah.</p>\
 <p><term>blah</term></p><p><ref/></p><p><hi>a</hi><hi>b</hi>c</p>\
 <p>abcdefghij</p><p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\

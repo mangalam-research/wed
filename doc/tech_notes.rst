@@ -631,18 +631,26 @@ Wed operates on an HTML structure constructed as follows:
 
 * The XML element's attributes are stored in attributes of the form:
 
- * ``data-wed-[name]="..."`` when the attribute name is without namespace prefix
+ * ``data-wed-[name]-[diff]="..."`` when the attribute name is without namespace prefix
 
- * ``data-wed-[prefix]---[name]="..."`` when the attribute name has a
+ * ``data-wed-[prefix]---[name]-[diff]="..."`` when the attribute name has a
    namespace prefix
 
 The ``[name]`` part is converted so that three dashes become four, four become
-five, etc. Here are examples of XML attributes and what they become in HTML:
+five, etc. The ``[diff]`` part records differences between the origninal XML
+name and the name in HTML. Here are examples of XML attributes and what they
+become in HTML:
 
-* ``foo`` -> ``data-wed-foo``
-* ``xml:lang`` -> ``data-wed-xml---lang``
-* ``xml:a-b`` -> ``data-wed-xml---a-b``
-* ``xml:a---b`` -> ``data-wed-xml---a----b``
+* ``foo`` -> ``data-wed-foo-``
+
+* ``xml:lang`` -> ``data-wed-xml---lang-``
+
+* ``xml:a-b`` -> ``data-wed-xml---a-b-``
+
+* ``xml:a---b`` -> ``data-wed-xml---a----b-``
+
+* ``Foo`` -> ``data-wed-foo-u1``. This one encodes the fact that the original
+  name had an uppercase first letter.
 
 * Wed may add attributes for its internal purposes. These do not correspond to
   any XML attributes. They are encoded as ``data-wed--[name]``. An XML attribute

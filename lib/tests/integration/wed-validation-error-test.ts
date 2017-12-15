@@ -197,7 +197,7 @@ within 5 pixels of the bottom of the start label for the monogr");
         "the item should have the right title");
       cases++;
     }
-    assert.equal(cases, 3);
+    assert.equal(cases, 5);
   });
 
   function assertNewMarkers(orig: Element[], after: Element[],

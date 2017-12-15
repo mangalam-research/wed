@@ -6,6 +6,7 @@
 import { expect } from "chai";
 
 import { Editor } from "wed/editor";
+import { encodeAttrName } from "wed/util";
 
 import { config } from "../submode-config";
 import { activateContextMenu, contextMenuHasOption, EditorSetup,
@@ -31,7 +32,8 @@ source_for_submodes_converted.xml",
 
   it("dispatch to proper decorators", () => {
     const wrapped =
-      editor.guiRoot.querySelectorAll("[data-wed-rend='wrap'].tei\\:p._real");
+      editor.guiRoot.querySelectorAll(
+        `[${encodeAttrName("rend")}='wrap'].tei\\:p._real`);
     expect(wrapped).to.have.length(2);
     function parentTest(el: HTMLElement, msg: string, expected: boolean): void {
       const parent = el.parentNode as HTMLElement;
