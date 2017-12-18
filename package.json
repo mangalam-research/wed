@@ -99,7 +99,7 @@
     "localforage": ">=1.2.4 <2",
     "lodash-amd": ">=4 <5",
     "merge-options": ">=0.0.42 <1",
-    "mocha": "^3.2.0",
+    "mocha": "^3.5.3",
     "morgan": ">=1.5.0 <2",
     "qs": "^6.5.1",
     "rangy": "git+https://github.com/lddubeau/rangy#feature/custom-is-collapsed-node",
