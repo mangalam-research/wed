@@ -12,7 +12,7 @@ import * as yaml from "js-yaml";
 import * as path from "path";
 
 import { compile } from "../modes/generic/doc-pattern";
-import { Metadata } from "../modes/generic/metadata-as-json";
+import { Elements, Metadata } from "../modes/generic/metadata-as-json";
 // tslint:disable-next-line:no-require-imports import-name
 import schema = require("../modes/generic/metadata-schema.json");
 import { fixPrototype } from "../util";
@@ -135,19 +135,16 @@ if (args.tei as boolean) {
     }
   }
 
+  const elements: Elements = [];
   for (const member of members) {
-    delete member.type;
-    delete member.module;
-    delete member.classes;
-    delete member.model;
-    delete member.attributes;
-    delete member.classattributes;
-    member.name = member.ident;
-    member.desc = member.desc;
-    delete member.ident;
+    elements.push({
+      name: member.ident,
+      desc: member.desc,
+      ns: member.ns,
+    });
   }
 
-  output.elements = members;
+  output.elements = elements;
 }
 else {
   if (args.merge === undefined) {

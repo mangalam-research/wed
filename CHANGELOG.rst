@@ -121,6 +121,10 @@ odd bug fix may not get mentioned here at all.
 
   - Bug fix: ``wed-metadata`` was badly packaged. This has been fixed.
 
+  - Bug fix: ``wed-metadat`` would produce invalid data if it ran on TEI JSON
+    files that were produced from customizations rather than on files that were
+    representing a stock TEI schema. This has been fixed.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of
