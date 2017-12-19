@@ -119,6 +119,8 @@ odd bug fix may not get mentioned here at all.
     hidden, but it is a problem when the attribute is shown. Wed now recreates
     errors when an autohidden attribute is shown or hidden.
 
+  - Bug fix: ``wed-metadata`` was badly packaged. This has been fixed.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of

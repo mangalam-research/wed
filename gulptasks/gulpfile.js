@@ -12,6 +12,7 @@ const gutil = require("gulp-util");
 const requireDir = require("require-dir");
 const rjs = require("requirejs");
 const wrapAmd = require("gulp-wrap-amd");
+const replace = require("gulp-replace");
 const argparse = require("argparse");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
@@ -234,7 +235,11 @@ gulp.task("build-standalone-wed-less",
               });
           });
 
-gulp.task("copy-bin", () => cprpdir("bin", "build/standalone"));
+gulp.task("copy-bin", () => gulp.src("bin/**/*")
+          // Update all paths that point into the build directory be relative
+          // to .. instead.
+          .pipe(replace("../build/", "../"))
+          .pipe(gulp.dest("build/bin")));
 
 gulp.task("npm", ["stamp-dir"], Promise.coroutine(function *task() {
   const stamp = stampPath("npm");
@@ -657,7 +662,7 @@ const packNoTest = {
     const dist = "build/dist";
     yield fs.emptyDirAsync(dist);
     yield cprpdir(["build/standalone", "build/standalone-optimized",
-                   "build/packed", "bin", "package.json",
+                   "build/packed", "build/bin", "package.json",
                    "npm-shrinkwrap.json"],
                   dist);
     yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
