@@ -49,6 +49,7 @@ export function makeEditor(widget: HTMLElement,
 export { Action } from "./wed/action";
 export { Decorator } from "./wed/decorator";
 export { DLoc, DLocRoot } from "./wed/dloc";
+export { DOMListener } from "./wed/domlistener";
 export { version } from "./wed/editor";
 export { GUISelector } from "./wed/gui-selector";
 export { ContextMenu } from "./wed/gui/context-menu";

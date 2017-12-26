@@ -30,6 +30,8 @@ odd bug fix may not get mentioned here at all.
     now called ``DOMListener``. The old name pretty much always required
     renaming the import, which was a pain.
 
+  - API change: ``wed`` now exports ``DOMListener``.
+
   - Breaking API change: ``util.decodeAttrName`` now returns a structure rather
     than a string. See that function for details.
 
