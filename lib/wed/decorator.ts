@@ -10,7 +10,7 @@ import * as salve from "salve";
 
 import { Action } from "./action";
 import { DLoc } from "./dloc";
-import { Listener } from "./domlistener";
+import { DOMListener } from "./domlistener";
 import { isAttr } from "./domtypeguards";
 import * as  domutil from "./domutil";
 import { GUIUpdater } from "./gui-updater";
@@ -42,7 +42,7 @@ function attributeSelectorMatch(selector: string, name: string): boolean {
  */
 export abstract class Decorator implements DecoratorAPI {
   protected readonly namespaces: Record<string, string>;
-  protected readonly domlistener: Listener;
+  protected readonly domlistener: DOMListener;
   protected readonly guiUpdater: GUIUpdater;
 
   /**

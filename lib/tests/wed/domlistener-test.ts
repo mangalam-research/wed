@@ -6,10 +6,9 @@
 import * as $ from "jquery";
 
 import * as dloc from "wed/dloc";
-import { AddedElementHandler, AttributeChangedHandler,
-         ChildrenChangedHandler, ChildrenChangingHandler,
-         ExcludedElementHandler, ExcludingElementHandler,
-         IncludedElementHandler, Listener, RemovedElementHandler,
+import { AddedElementHandler, AttributeChangedHandler, ChildrenChangedHandler,
+         ChildrenChangingHandler, DOMListener, ExcludedElementHandler,
+         ExcludingElementHandler, IncludedElementHandler, RemovedElementHandler,
          RemovingElementHandler, TextChangedHandler } from "wed/domlistener";
 import { indexOf } from "wed/domutil";
 import { TreeUpdater } from "wed/tree-updater";
@@ -23,7 +22,7 @@ class Mark {
 
   constructor(private readonly totalExpected: number,
               private readonly countsExpected: Record<string, number>,
-              readonly listener: Listener,
+              readonly listener: DOMListener,
               private readonly done: () => void) {}
 
   check(): void {
@@ -56,7 +55,7 @@ describe("domlistener", () => {
   let root: HTMLElement;
   let $root: JQuery;
   let fragmentToAdd: HTMLElement;
-  let listener: Listener;
+  let listener: DOMListener;
   let treeUpdater: TreeUpdater;
   let mark: Mark;
   let marker: HTMLElement;
@@ -87,7 +86,7 @@ describe("domlistener", () => {
     new dloc.DLocRoot(root);
     $root = $(root);
     treeUpdater = new TreeUpdater(root);
-    listener = new Listener(root, treeUpdater);
+    listener = new DOMListener(root, treeUpdater);
   });
 
   afterEach(() => {

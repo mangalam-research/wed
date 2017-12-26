@@ -16,7 +16,7 @@ export type SelectorHandlerPair<H> = [string, H];
 
 /**
  * Called when a **tree fragment** is added which contains the element matched
- * by the selector that was passed to [[Listener.addHandler]].
+ * by the selector that was passed to [[DOMListener.addHandler]].
  *
  * @param root The root of the tree being listened on.
  *
@@ -38,7 +38,7 @@ export type IncludedElementHandler = (root: Node, tree: Node, parent: Node,
 
 /**
  * Called when a **tree fragment** is removed which contains the element matched
- * by the selector that was passed to [[Listener.addHandler]].
+ * by the selector that was passed to [[DOMListener.addHandler]].
  *
  * @param root The root of the tree being listened on.
  *
@@ -60,7 +60,8 @@ export type ExcludedElementHandler = (root: Node, tree: Node, parent: null,
 
 /**
  * Called when a **tree fragment** is about to be removed and contains the
- * element matched by the selector that was passed to [[Listener.addHandler]].
+ * element matched by the selector that was passed to
+ * [[DOMListener.addHandler]].
  *
  * @param root The root of the tree being listened on.
  *
@@ -217,7 +218,7 @@ export type AttributeChangedHandler = (root: Node, element: Element, ns: string,
 /**
  * A ``trigger`` event with name ``[name]`` is fired when ``trigger([name])`` is
  * called. Trigger events are meant to be triggered by event handlers called by
- * the Listener, not by other code.
+ * the listener, not by other code.
  */
 export type TriggerHandler = (root: Node) => void;
 
@@ -279,7 +280,7 @@ interface CallSpec<T extends Events> {
  *
  * A ``trigger`` event with name ``[name]`` is fired when ``trigger([name])`` is
  * called. Trigger events are meant to be triggered by event handlers called by
- * the Listener, not by other code.
+ * the listener, not by other code.
  *
  * <h2>Example</h2>
  *
@@ -300,7 +301,7 @@ interface CallSpec<T extends Events> {
  * ``children-changing`` and ``children-changed`` event will be generated for
  * the parent of ``<ul>``.
  *
- * The order in which handlers are added matters. The Listener provides the
+ * The order in which handlers are added matters. The listener provides the
  * following guarantee: for any given type of event, the handlers will be called
  * in the order that they were added to the listener.
  *
@@ -321,7 +322,7 @@ interface CallSpec<T extends Events> {
  *   these elements when they are removed. Since it does not need anything more
  *   complex then ``excluded-element`` works perfectly.
  *
- * - A Listener does not verify whether the parameters passed to handlers are
+ * - A listener does not verify whether the parameters passed to handlers are
  *   part of the DOM tree. For instance, handler A could operate on element X so
  *   that it is removed from the DOM tree. If there is already another mutation
  *   on X in the pipeline by the time A is called and handler B is called to
@@ -349,8 +350,7 @@ interface CallSpec<T extends Events> {
  *   removed **should** result in a change to the DOM tree, and ignore those
  *   changes that are not relevant.
  */
-
-export class Listener {
+export class DOMListener {
   private readonly eventHandlers: EventHandlerMap = {
       "included-element": [],
       "added-element": [],

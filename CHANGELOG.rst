@@ -26,6 +26,10 @@ odd bug fix may not get mentioned here at all.
     See the section titled ``Using`` in the documentation, specifically the part
     about the changes in ``0.31``.
 
+  - Breaking API change: the ``Listener`` class in the ``domlistener`` module is
+    now called ``DOMListener``. The old name pretty much always required
+    renaming the import, which was a pain.
+
   - Breaking API change: ``util.decodeAttrName`` now returns a structure rather
     than a string. See that function for details.
 

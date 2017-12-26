@@ -292,7 +292,7 @@ export class Editor implements EditorAPI {
   dataDLocRoot: DLocRoot;
   dataUpdater: TreeUpdater;
   guiUpdater: GUIUpdater;
-  domlistener: domlistener.Listener;
+  domlistener: domlistener.DOMListener;
   modals: StockModals;
 
   mergeWithPreviousHomogeneousSiblingTr: Transformation<TransformationData>;
@@ -1189,7 +1189,8 @@ export class Editor implements EditorAPI {
       }
     });
 
-    this.domlistener = new domlistener.Listener(this.guiRoot, this.guiUpdater);
+    this.domlistener = new domlistener.DOMListener(this.guiRoot,
+                                                   this.guiUpdater);
 
     this.modeTree = new ModeTree(this, this.options.mode);
 

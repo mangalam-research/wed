@@ -259,7 +259,7 @@ export interface EditorAPI {
   guiUpdater: GUIUpdater;
 
   /** DOM listener on the GUI tree. */
-  domlistener: domlistener.Listener;
+  domlistener: domlistener.DOMListener;
 
   /** A collection of stock modals. */
   modals: StockModals;
