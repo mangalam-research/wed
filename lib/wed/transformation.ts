@@ -127,8 +127,8 @@ export interface NamedTransformationData extends TransformationData {
  *
  * @param data The data for the transformation.
  */
-export type TransformationHandler =
-  (editor: EditorAPI, data: TransformationData) => void;
+export type TransformationHandler<Data extends TransformationData> =
+  (editor: EditorAPI, data: Data) => void;
 
 function computeIconHtml(iconHtml: string | undefined,
                          transformationType: string): string | undefined {
@@ -147,9 +147,10 @@ function computeIconHtml(iconHtml: string | undefined,
 /**
  * An operation that transforms the data tree.
  */
-export class Transformation<Data extends TransformationData>
+export class Transformation<Data extends TransformationData,
+Handler extends TransformationHandler<Data> = TransformationHandler<Data>>
   extends Action<Data> {
-  public readonly handler: TransformationHandler;
+  public readonly handler: Handler;
   public readonly transformationType: string;
   public readonly kind: string;
   public readonly nodeType: string;
@@ -185,40 +186,56 @@ export class Transformation<Data extends TransformationData>
    * @param handler The handler to call when this transformation is executed.
    */
   constructor(editor: EditorAPI, transformationType: string, desc: string,
-              handler: TransformationHandler);
+              handler: Handler);
   constructor(editor: EditorAPI, transformationType: string, desc: string,
-              abbreviatedDesc: string | undefined,
-              handler: TransformationHandler);
-  constructor(editor: EditorAPI, transformationType: string, desc: string,
-              abbreviatedDesc: string | undefined,
-              iconHtml: string | undefined,
-              handler: TransformationHandler);
+              abbreviatedDesc: string | undefined, handler: Handler);
   constructor(editor: EditorAPI, transformationType: string, desc: string,
               abbreviatedDesc: string | undefined, iconHtml: string | undefined,
-              needsInput: boolean, handler: TransformationHandler);
+              handler: Handler);
   constructor(editor: EditorAPI, transformationType: string, desc: string,
-              abbreviatedDesc: string | TransformationHandler | undefined,
-              iconHtml?: string | TransformationHandler | undefined,
-              needsInput?: boolean | TransformationHandler,
-              handler?: TransformationHandler) {
+              abbreviatedDesc: string | undefined, iconHtml: string | undefined,
+              needsInput: boolean, handler: Handler);
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
+              abbreviatedDesc: string | Handler | undefined,
+              iconHtml?: string | Handler | undefined,
+              needsInput?: boolean | Handler, handler?: Handler) {
     if (typeof abbreviatedDesc === "function") {
       handler = abbreviatedDesc;
       super(editor, desc, undefined,
             computeIconHtml(undefined, transformationType), false);
     }
-    else if (typeof iconHtml === "function") {
-      handler = iconHtml;
-      super(editor, desc, abbreviatedDesc,
-            computeIconHtml(undefined, transformationType), false);
-    }
-    else if (typeof needsInput === "function") {
-      handler = needsInput;
-      super(editor, desc, abbreviatedDesc,
-            computeIconHtml(iconHtml, transformationType), false);
-    }
     else {
-      super(editor, desc, abbreviatedDesc,
-            computeIconHtml(iconHtml, transformationType), needsInput);
+      if (!(abbreviatedDesc === undefined ||
+            typeof abbreviatedDesc === "string")) {
+        throw new TypeError("abbreviatedDesc must be a string or undefined");
+      }
+
+      if (typeof iconHtml === "function") {
+        handler = iconHtml;
+        super(editor, desc, abbreviatedDesc,
+              computeIconHtml(undefined, transformationType), false);
+      }
+      else {
+        if (!(iconHtml === undefined || typeof iconHtml === "string")) {
+          throw new TypeError("iconHtml must be a string or undefined");
+        }
+
+        if (typeof needsInput === "function") {
+          handler = needsInput;
+
+          super(editor, desc, abbreviatedDesc,
+                computeIconHtml(iconHtml as (string | undefined),
+                                transformationType), false);
+        }
+        else {
+          if (!(needsInput === undefined || typeof needsInput === "boolean")) {
+            throw new TypeError("needsInput must be a boolean or undefined");
+          }
+
+          super(editor, desc, abbreviatedDesc,
+                computeIconHtml(iconHtml, transformationType), needsInput);
+        }
+      }
     }
 
     if (handler === undefined) {

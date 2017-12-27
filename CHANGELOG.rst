@@ -105,6 +105,9 @@ odd bug fix may not get mentioned here at all.
     appear inside the GUI tree must use the ``makeGUITreeTooltip`` method. This
     is "breaking" in the sense that the method did not exist before.
 
+  - Bug fix: ``TransformationHandler`` is now a generic. This fixes type
+    checking issues that could happen under the old code.
+
   - Potentially breaking GUI change: on OS X the keyboard shortcuts for
     decreasing and increasing label visibility were ``Cmd-[`` and
     ``Cmd-]``. However, OS X uses these combinations and thus they were never
