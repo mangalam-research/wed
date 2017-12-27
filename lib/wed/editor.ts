@@ -2778,15 +2778,6 @@ in a way not supported by this version of wed.";
       const origName = util.getOriginalName(real!);
       const options = {
         title: () => {
-          if (this.destroyed) {
-            return undefined;
-          }
-
-          // The check is here so that we can turn tooltips on and off
-          // dynamically.
-          if (!(this.preferences.get("tooltips") as boolean)) {
-            return undefined;
-          }
           const mode = this.modeTree.getMode(label);
           return mode.shortDescriptionFor(origName);
         },
@@ -2795,7 +2786,7 @@ in a way not supported by this version of wed.";
         placement: "auto top",
         trigger: "hover",
       };
-      tooltip($(label), options);
+      this.makeGUITreeTooltip($(label), options);
       const tt = $.data(label, "bs.tooltip");
       tt.enter(tt);
     }
@@ -2960,6 +2951,24 @@ in a way not supported by this version of wed.";
     });
     this.$widget.prepend($top);
     return ret;
+  }
+
+  makeGUITreeTooltip($for: JQuery, options: TooltipOptions): void {
+    const title = options.title;
+    if (title !== undefined) {
+      options = Object.assign({}, options);
+      options.title = () => {
+        // The check is here so that we can turn tooltips on and off
+        // dynamically.
+        if (this.destroyed || !(this.preferences.get("tooltips") as boolean)) {
+          return undefined;
+        }
+
+        return (typeof title === "function") ? title() : title;
+      };
+    }
+
+    tooltip($for, options);
   }
 
   /**

@@ -101,6 +101,10 @@ odd bug fix may not get mentioned here at all.
   - New feature: wed now has a stock transformation for removing markup in
     mixed-content. A button was added to the toolbar for this transformation.
 
+  - New API and potentially breaking change: all code that creates tooltips that
+    appear inside the GUI tree must use the ``makeGUITreeTooltip`` method. This
+    is "breaking" in the sense that the method did not exist before.
+
   - Potentially breaking GUI change: on OS X the keyboard shortcuts for
     decreasing and increasing label visibility were ``Cmd-[`` and
     ``Cmd-]``. However, OS X uses these combinations and thus they were never

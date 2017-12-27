@@ -412,6 +412,22 @@ export interface EditorAPI {
    */
   setNavigationList(items: Node | JQuery | Node[]): void;
 
+  /**
+   * Creates a tooltip for entities that are inside the GUI tree. All code that
+   * creates tooltips inside the GUI tree **must** use this method to create the
+   * tooltips. This accomplishes two goals:
+   *
+   * 1. The editor is able to perform cleanup operations on tooltips.
+   *
+   * 2. This method takes into account tooltips preferences. And thus will show
+   * or hide them depending on the preferences.
+   *
+   * @param $for The JQuery object for which we are creating a tooltip.
+   *
+   * @param options The tooltip options to use for this tooltip.
+   */
+  makeGUITreeTooltip($for: JQuery, options: TooltipOptions): void;
+
   makeModal(options?: ModalOptions): Modal;
 
   /**
