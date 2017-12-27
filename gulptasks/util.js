@@ -179,6 +179,14 @@ exports.spawn = function spawn(cmd, args, options) {
   });
 };
 
+exports.defineTask = function defineTask(task) {
+  let func = task.func;
+  if (func && func.constructor.name === "GeneratorFunction") {
+    func = Promise.coroutine(func);
+  }
+  gulp.task(task.name, task.deps, func);
+};
+
 exports.sequence = function sequence(name, ...tasks) {
   const allDeps = [];
   const funcs = [];
@@ -196,18 +204,23 @@ exports.sequence = function sequence(name, ...tasks) {
 
   for (const task of tasks) {
     let func = task.func;
-    // Ideally we'd use a instanceof test but apparently babel
-    // does not make a GeneratorFunction global available...
-    func = func.constructor.name === "GeneratorFunction" ?
-      Promise.coroutine(func) : func;
-    gulp.task(task.name, task.deps, func);
+    if (func) {
+      // Ideally we'd use a instanceof test but apparently babel
+      // does not make a GeneratorFunction global available...
+      if (func.constructor.name === "GeneratorFunction") {
+        func = Promise.coroutine(func);
+      }
+      funcs.push(func);
+    }
     allDeps.push(task.deps);
-    funcs.push(func);
   }
 
   const flattened = [].concat(...allDeps);
 
   if (final) {
+    if (final.constructor.name === "GeneratorFunction") {
+      final = Promise.coroutine(final);
+    }
     funcs.push(final);
   }
 

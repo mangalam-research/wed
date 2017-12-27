@@ -20,7 +20,7 @@ const createOptimizedConfig = require("../misc/create_optimized_config").create;
 
 const config = require("./config");
 const { sameFiles, del, newer, exec, execFileAndReport, checkOutputFile,
-        touchAsync, cprp, cprpdir, spawn, sequence, mkdirpAsync, fs,
+        touchAsync, cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
         stampPath } = require("./util");
 
 const { test, seleniumTest } = require("./tests");
@@ -682,6 +682,7 @@ standalone-optimized/lib/tests/**
     yield del("build/t");
   },
 };
+defineTask(packNoTest);
 
 sequence("pack", test, seleniumTest, packNoTest);
 

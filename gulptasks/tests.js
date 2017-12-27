@@ -8,7 +8,7 @@ const versync = require("versync");
 const Promise = require("bluebird");
 
 const { options } = require("./config");
-const { cprp, exec, existsInFile, mkdirpAsync, newer,
+const { cprp, defineTask, exec, existsInFile, mkdirpAsync, newer, sequence,
         spawn } = require("./util");
 
 const convertXMLDirs = glob.sync("lib/tests/*_test_data")
@@ -94,7 +94,11 @@ gulp.task("eslint", () =>
           .pipe(eslint.format())
           .pipe(eslint.failAfterError()));
 
-gulp.task("lint", ["eslint", "tslint"]);
+const lint = {
+  name: "lint",
+  deps: ["eslint", "tslint"],
+};
+defineTask(lint);
 
 function runKarma(localOptions) {
   // We cannot let it be set to ``null`` or ``undefined``.
@@ -104,25 +108,29 @@ function runKarma(localOptions) {
   return spawn("./node_modules/.bin/karma", localOptions, { stdio: "inherit" });
 }
 
-gulp.task("test-karma", ["build-standalone", "build-test-files"],
-          () => runKarma(["start", "--single-run"]));
-
-gulp.task("test-karma-webpack", ["webpack", "build-test-files"],
-          () => runKarma(["start", "karma-webpack.conf.js", "--single-run"]));
-
-const test = {
-  name: "test",
-  deps: ["lint", "test-karma", "test-karma-webpack"],
-  *func() {
-    if (!options.skip_semver) {
-      yield versync.run({
-        verify: true,
-        onMessage: gutil.log,
-      });
-    }
-  },
+const testKarma = {
+  name: "test-karma",
+  deps: ["build-standalone", "build-test-files"],
+  func: () => runKarma(["start", "--single-run"]),
 };
-exports.test = test;
+defineTask(testKarma);
+
+const testKarmaWebpack = {
+  name: "test-karma-webpack",
+  deps: ["webpack", "build-test-files"],
+  func: () => runKarma(["start", "karma-webpack.conf.js", "--single-run"]),
+};
+defineTask(testKarmaWebpack);
+
+exports.test = sequence("test", lint, testKarma, testKarmaWebpack,
+                        function *done() {
+                          if (!options.skip_semver) {
+                            yield versync.run({
+                              verify: true,
+                              onMessage: gutil.log,
+                            });
+                          }
+                        });
 
 // Features is an optional array of features to run instead of running all
 // features.
@@ -147,6 +155,7 @@ const seleniumTest = {
   deps: ["build", "build-test-files"],
   func: () => selenium(),
 };
+defineTask(seleniumTest);
 
 for (const feature of glob.sync("selenium_test/*.feature")) {
   gulp.task(feature, seleniumTest.deps, () => selenium([feature]));
