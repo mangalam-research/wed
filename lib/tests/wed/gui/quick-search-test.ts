@@ -132,8 +132,7 @@ describe("quick-search", () => {
     expect(highlights).to.have.property("length").greaterThan(0);
     let highlightRect = highlights[0].getBoundingClientRect();
     const rangeRect =
-      firstABCText.mustMakeDOMRange()
-      .nativeRange.getBoundingClientRect();
+      firstABCText.mustMakeDOMRange().getBoundingClientRect();
 
     // The highlights are built as a series of rectangles. Checking each and
     // every rectangle would be onerous. We check the start and end of the

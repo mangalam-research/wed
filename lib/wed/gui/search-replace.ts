@@ -130,7 +130,7 @@ export class SearchReplace {
       const domRange = range.mustMakeDOMRange();
       this.highlight = this.caretManager.highlightRange(range);
       const scRect = this.scroller.getBoundingClientRect();
-      const rect = domRange.nativeRange.getBoundingClientRect();
+      const rect = domRange.getBoundingClientRect();
       const leftOffset = this.scroller.scrollLeft - scRect.left;
       const topOffset = this.scroller.scrollTop - scRect.top;
 

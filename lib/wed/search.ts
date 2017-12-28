@@ -49,9 +49,8 @@ function directionToRangyDirection(direction: Direction): rangy.Direction {
   return ret;
 }
 
-function nodeInScope(doc: Document, node: Node,
-                     scope: rangy.RangyRange): boolean {
-  const vrange = rangy.createRange(doc);
+function nodeInScope(doc: Document, node: Node, scope: Range): boolean {
+  const vrange = doc.createRange();
   vrange.selectNode(node);
 
   // The range that encompasses the node, must be completely within scope.
@@ -276,7 +275,7 @@ export class Search {
     this.current = ret;
   }
 
-  private find(start: DLoc, direction: Direction): rangy.RangyRange | null {
+  private find(start: DLoc, direction: Direction): Range | null {
     if (this.context === Context.ATTRIBUTE_VALUES) {
       return this.findAttributeValue(start, direction);
     }
@@ -284,11 +283,10 @@ export class Search {
     return this.findText(start, directionToRangyDirection(direction));
   }
 
-  private findText(start: DLoc,
-                   direction: rangy.Direction): rangy.RangyRange | null {
+  private findText(start: DLoc, direction: rangy.Direction): Range | null {
     // tslint:disable-next-line:no-any
     const config = (rangy as any).config;
-    const range = start.makeRange()!;
+    const range = new rangy.WrappedRange(start.makeRange()!);
     if (this.context === Context.TEXT) {
       config.customIsCollapsedNode = (node: Node) => {
         return isElement(node) && node.closest("._phantom") !== null;
@@ -311,11 +309,10 @@ export class Search {
     }
 
     config.customIsCollapsedNode = undefined;
-    return found ? range : null;
+    return found ? range.nativeRange : null;
   }
 
-  private findAttributeValue(start: DLoc,
-                             direction: Direction): rangy.RangyRange | null {
+  private findAttributeValue(start: DLoc, direction: Direction): Range | null {
     // Implement our own logic instead of relying on rangy. We can just move
     // from attribute value to attribute value and checks the values.
     const guiRoot = this.guiRoot;

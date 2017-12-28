@@ -495,10 +495,6 @@ Data selection
   working with this selection have ``data`` in their name. Mode will typically
   want to work with this selection.
 
-Wed uses Rangy to help with selection manipulations. As of Rangy 1.3alpha.804,
-there is a bug in IE with handling control ranges. The workaround for now is to
-**clear** the range before setting a new range.
-
 Carets
 ------
 

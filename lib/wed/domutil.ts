@@ -6,7 +6,6 @@
  */
 
 import * as $ from "jquery";
-import * as rangy from "rangy";
 import { isAttr, isDocument, isDocumentFragment, isElement,
          isText } from "./domtypeguards";
 import * as util from "./util";
@@ -33,6 +32,92 @@ export function indexOf<T>(a: T[] | NodeList, target: T | Node): number {
 }
 
 /**
+ * Compare two locations that have already been determined to be in a
+ * parent-child relation. **Important: the relationship must have been formally
+ * tested *before* calling this function.**
+ *
+ * @returns -1 if ``parent`` is before ``child``, 1 otherwise.
+ */
+function parentChildCompare(parentNode: Node, parentOffset: number,
+                            childNode: Node): 1 | -1 {
+  // Find which child of parent is or contains the other node.
+  let curChild = parentNode.firstChild;
+  let ix = 0;
+  while (curChild !== null) {
+    if (curChild.contains(childNode)) {
+          break;
+    }
+    ix++;
+    curChild = curChild.nextSibling;
+  }
+
+  // This is ``<= 0`` and not just ``< 0`` because if our offset points exactly
+  // to the child we found, then parent location is necessarily before the child
+  // location.
+  return (parentOffset - ix) <= 0 ? -1 : 1;
+}
+
+/**
+ * Compare two positions in document order.
+ *
+ * This function relies on DOM's ``compareDocumentPosition`` function. Remember
+ * that calling that function with attributes can be problematic. (For instance,
+ * two attributes on the same element are not ordered.)
+ *
+ * @param firstNode Node of the first position.
+ *
+ * @param firstOffset Offset of the first position.
+ *
+ * @param secondNode Node of the second position.
+ *
+ * @param secondOffset Offset of the second position.
+ *
+ * @returns -1 if the first position comes before the second. 1 if the first
+ * position comes after the other. 0 if the two positions are equal.
+ */
+export function comparePositions(firstNode: Node,
+                                 firstOffset: number,
+                                 secondNode: Node,
+                                 secondOffset: number): 1 | 0 | -1 {
+  if (firstNode === secondNode) {
+    const d = firstOffset - secondOffset;
+    if (d === 0) {
+      return 0;
+    }
+
+    return d < 0 ? -1 : 1;
+  }
+
+  const comparison = firstNode.compareDocumentPosition(secondNode);
+  // tslint:disable:no-bitwise
+  if ((comparison & Node.DOCUMENT_POSITION_DISCONNECTED) !== 0) {
+    throw new Error("cannot compare disconnected nodes");
+  }
+
+  if ((comparison & Node.DOCUMENT_POSITION_CONTAINED_BY) !== 0) {
+    return parentChildCompare(firstNode, firstOffset, secondNode);
+  }
+
+  if ((comparison & Node.DOCUMENT_POSITION_CONTAINS) !== 0) {
+    // This raises a type error:
+    //
+    // return -parentChildCompare(secondNode, secondOffset, firstNode);
+    return parentChildCompare(secondNode, secondOffset, firstNode) < 0 ? 1 : -1;
+  }
+
+  if ((comparison & Node.DOCUMENT_POSITION_PRECEDING) !== 0) {
+    return 1;
+  }
+
+  if ((comparison & Node.DOCUMENT_POSITION_FOLLOWING) !== 0) {
+    return -1;
+  }
+  // tslint:enable:no-bitwise
+
+  throw new Error("neither preceding nor following: this should not happen");
+}
+
+/**
  * Gets the first range in the selection.
  *
  * @param win The window for which we want the selection.
@@ -40,8 +125,8 @@ export function indexOf<T>(a: T[] | NodeList, target: T | Node): number {
  * @returns The first range in the selection. Undefined if there is no selection
  * or no range.
  */
-export function getSelectionRange(win: Window): rangy.RangyRange | undefined {
-  const sel = rangy.getSelection(win);
+export function getSelectionRange(win: Window): Range | undefined {
+  const sel = window.getSelection();
 
   if (sel === undefined || sel.rangeCount < 1) {
     return undefined;
@@ -56,7 +141,7 @@ export function getSelectionRange(win: Window): rangy.RangyRange | undefined {
  * created from a starting point which is greater than the end point (in
  * document order), then the range is "reversed".
  */
-export type RangeInfo = {range: rangy.RangyRange, reversed: boolean};
+export type RangeInfo = {range: Range, reversed: boolean};
 
 /**
  * Creates a range from two points in a document.
@@ -67,10 +152,10 @@ export function rangeFromPoints(startContainer: Node,
                                 startOffset: number,
                                 endContainer: Node,
                                 endOffset: number): RangeInfo {
-  const range = rangy.createRange(startContainer.ownerDocument);
+  const range = startContainer.ownerDocument.createRange();
   let reversed = false;
-  if (rangy.dom.comparePoints(startContainer, startOffset,
-                              endContainer, endOffset) <= 0) {
+  if (comparePositions(startContainer, startOffset, endContainer,
+                       endOffset) <= 0) {
     range.setStart(startContainer, startOffset);
     range.setEnd(endContainer, endOffset);
   }
@@ -1678,4 +1763,5 @@ export { isAttr };
 //  LocalWords:  dom deleteNode mergeTextNodes jshint insertNodeAt noop treeA
 //  LocalWords:  validthis insertFragAt versa nextSibling Dubeau MPL nodeInA
 //  LocalWords:  Mangalam gui DOM unlinks startContainer startOffset childNodes
-//  LocalWords:  endContainer endOffset genericInsertIntoText
+//  LocalWords:  endContainer endOffset genericInsertIntoText secondNode
+//  LocalWords:  parentChildCompare secondOffset firstNode

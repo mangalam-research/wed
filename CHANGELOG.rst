@@ -115,7 +115,21 @@ odd bug fix may not get mentioned here at all.
     ``Editor`` to ``EditingMenuManager``.
 
   - New API: ``EditingMenuManager`` now has a ``setupTypeaheadPopup`` method
-    which combines ``computeMenuPosition`` and ``displayTypeaheadPopup``.x
+    which combines ``computeMenuPosition`` and ``displayTypeaheadPopup``.
+
+  - Breaking API change: none of wed's functions return ``RangyRange`` objects
+    anymore. They all return stock DOM ``Range`` objects. If you really need a
+    ``RangyRange``, you can create one yourself manually from the ``Range``
+    objects.
+
+    Except for Rangy's search facilities, wed was not generally using much of
+    Rangy. The compatibility layer that it offers for old browsers is no longer
+    crucial to wed. (Early on, wed had support for IE 9, for instance.)
+    Conversely, the TypeScript typings for Rangy are a mess and make supporting
+    it at the interface level difficult.
+
+    And Rangy itself appears to be rather moribund. We may drop it entirely in a
+    future release, if we find a good replacement for searching through HTML.
 
   - Potentially breaking GUI change: on OS X the keyboard shortcuts for
     decreasing and increasing label visibility were ``Cmd-[`` and

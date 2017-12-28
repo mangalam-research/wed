@@ -4,8 +4,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as rangy from "rangy";
-
 import { DLoc } from "./dloc";
 import { isWellFormedRange, RangeInfo } from "./domutil";
 
@@ -32,7 +30,7 @@ export class WedSelection {
     this.focus = (focus === undefined) ? anchor : focus;
   }
 
-  get range(): rangy.RangyRange | undefined {
+  get range(): Range | undefined {
     const rr = this.rangeInfo;
 
     if (rr === undefined) {

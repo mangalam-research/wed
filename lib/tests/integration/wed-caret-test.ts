@@ -641,7 +641,7 @@ necessary precondition");
     const event = new $.Event("mousedown");
     event.target = textLoc.node.parentNode as Element;
     const { range } = textLoc.makeRange(textLoc.make(textLoc.node, 3))!;
-    const { top, bottom, left } = range.nativeRange.getBoundingClientRect();
+    const { top, bottom, left } = range.getBoundingClientRect();
     event.clientX = left;
     event.clientY = (top + bottom) / 2;
     event.pageX = event.clientX + editor.window.document.body.scrollLeft;
