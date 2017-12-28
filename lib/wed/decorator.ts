@@ -498,10 +498,8 @@ ${domutil.textToHTML(attributes[name])}</span>"</span>`;
       return true;
     }
 
-    const pos = editingMenuManager.computeMenuPosition(ev);
-    editingMenuManager
-      .displayContextMenu(ActionContextMenu, pos.left, pos.top, menuItems,
-                          readonly);
+    editingMenuManager.setupContextMenu(ActionContextMenu, menuItems, readonly,
+                                        ev);
     return false;
   }
 }

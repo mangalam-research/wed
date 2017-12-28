@@ -387,24 +387,6 @@ export interface EditorAPI {
   { tr: Action<{}>, name?: string }[];
 
   /**
-   * Brings up a typeahead popup.
-   *
-   * @param x
-   * @param y
-   * @param width
-   * @param placeholder
-   * @param options
-   * @param dismissCallback
-   * @returns The popup that was created.
-   */
-  displayTypeaheadPopup(x: number, y: number, width: number,
-                        // tslint:disable-next-line:no-any
-                        placeholder: string, options: any,
-                        dismissCallback:
-                        // tslint:disable-next-line:no-any
-                        (obj?: { value: string }) => void): any;
-
-  /**
    * Sets the list of items to show in the navigation list. This will make the
    * list appear if it was not displayed previously.
    *

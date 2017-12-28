@@ -108,6 +108,15 @@ odd bug fix may not get mentioned here at all.
   - Bug fix: ``TransformationHandler`` is now a generic. This fixes type
     checking issues that could happen under the old code.
 
+  - New API: ``EditingMenuManager`` now has a ``setupContextMenu`` method which
+    combines ``computeMenuPosition`` and ``displayContextMenu``.
+
+  - Breaking API change: ``displayTypeaheadPopup`` has been moved from
+    ``Editor`` to ``EditingMenuManager``.
+
+  - New API: ``EditingMenuManager`` now has a ``setupTypeaheadPopup`` method
+    which combines ``computeMenuPosition`` and ``displayTypeaheadPopup``.x
+
   - Potentially breaking GUI change: on OS X the keyboard shortcuts for
     decreasing and increasing label visibility were ``Cmd-[`` and
     ``Cmd-]``. However, OS X uses these combinations and thus they were never

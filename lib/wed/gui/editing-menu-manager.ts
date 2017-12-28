@@ -18,6 +18,7 @@ import { CompletionMenu } from "./completion-menu";
 import { ContextMenu } from "./context-menu";
 import { makeHTML } from "./icon";
 import { ReplacementMenu } from "./replacement-menu";
+import { TypeaheadPopup } from "./typeahead-popup";
 
 const atStartToTxt: Record<string, string> = {
   undefined: "",
@@ -39,6 +40,7 @@ export class EditingMenuManager {
   private currentDropdown: ContextMenu | undefined;
   private readonly modeTree: ModeTree;
   private readonly doc: HTMLDocument;
+  private currentTypeahead: TypeaheadPopup | undefined;
 
   /**
    * @param editor The editor for which the manager is created.
@@ -100,9 +102,7 @@ export class EditingMenuManager {
       return true;
     }
 
-    const pos = this.computeMenuPosition(e);
-    this.displayContextMenu(ActionContextMenu, pos.left, pos.top, menuItems,
-                            readonly);
+    this.setupContextMenu(ActionContextMenu, menuItems, readonly, e);
     return false;
   }
 
@@ -115,8 +115,49 @@ export class EditingMenuManager {
     if (this.currentDropdown !== undefined) {
       this.currentDropdown.dismiss();
     }
+
+    if (this.currentTypeahead !== undefined) {
+      this.currentTypeahead.dismiss();
+    }
   }
 
+  /**
+   * Compute an appropriate position for a context menu, and display it. This is
+   * a convenience function that essentially combines [[computeMenuPosition]]
+   * and [[displayContextMenu]].
+   *
+   * @param cmClass See [[displayContextMenu]].
+   *
+   * @param items See [[displayContextMenu]].
+   *
+   * @param readonly See [[displayContextMenu]].
+   *
+   * @param e See [[computeMenuPosition]].
+   *
+   * @param bottom See [[computeMenuPosition]].
+   */
+  setupContextMenu(cmClass: typeof ActionContextMenu, items: Item[],
+                   readonly: boolean, e: JQueryEventObject | undefined,
+                   bottom?: boolean): void {
+    const pos = this.computeMenuPosition(e, bottom);
+    this.displayContextMenu(ActionContextMenu, pos.left, pos.top, items,
+                            readonly);
+  }
+
+  /**
+   * Display a context menu.
+   *
+   * @param cmClass The class to use to create the menu.
+   *
+   * @param x The position of the menu.
+   *
+   * @param y The position of the menu.
+   *
+   * @param items The menu items to show.
+   *
+   * @param readonly If true, don't include in the menu any operation that
+   *                 would trigger a ``Transformation``.
+   */
   displayContextMenu(cmClass: typeof ActionContextMenu, x: number, y: number,
                      items: Item[], readonly: boolean): void {
     // Eliminate duplicate items. We perform a check only in the description of
@@ -460,15 +501,86 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
   }
 
   /**
+   * Compute an appropriate position for a typeahead popup, and display it. This
+   * is a convenience function that essentially combines [[computeMenuPosition]]
+   * and [[displayTypeaheadPopup]].
+   *
+   * @param width See [[displayTypeaheadPopup]].
+   *
+   * @param placeholder See [[displayTypeaheadPopup]].
+   *
+   * @param options See [[displayTypeaheadPopup]].
+   *
+   * @param dismissCallback See [[displayTypeaheadPopup]].
+   *
+   * @param e See [[computeMenuPosition]].
+   *
+   * @param bottom See [[computeMenuPosition]].
+   *
+   * @returns The popup that was created.
+   */
+  setupTypeaheadPopup(width: number, placeholder: string,
+                      // tslint:disable-next-line:no-any
+                      options: any,
+                      // tslint:disable-next-line:no-any
+                      dismissCallback: (obj?: any) => void,
+                      e: JQueryEventObject | undefined,
+                      bottom?: boolean): TypeaheadPopup {
+    const pos = this.computeMenuPosition(e, bottom);
+    return this.displayTypeaheadPopup(pos.left, pos.top, width, placeholder,
+                                      options, dismissCallback);
+  }
+
+  /**
+   * Brings up a typeahead popup.
+   *
+   * @param x The position of the popup.
+   *
+   * @param y The position of the popup.
+   *
+   * @param width The width of the popup.
+   *
+   * @param placeholder Placeholder text to put in the input field.
+   *
+   * @param options Options for Twitter Typeahead.
+   *
+   * @param dismissCallback The callback to be called upon dismissal. It will be
+   * called with the object that was selected, if any.
+   *
+   * @returns The popup that was created.
+   */
+  displayTypeaheadPopup(x: number, y: number, width: number,
+                        placeholder: string,
+                        // tslint:disable-next-line:no-any
+                        options: any,
+                        // tslint:disable-next-line:no-any
+                        dismissCallback: (obj?: { value: string }) => void):
+  TypeaheadPopup {
+    this.dismiss();
+    this.caretManager.pushSelection();
+    this.currentTypeahead = new TypeaheadPopup(
+      this.doc, x, y, width, placeholder, options,
+      (obj) => {
+        this.currentTypeahead = undefined;
+        this.caretManager.popSelection();
+        if (dismissCallback !== undefined) {
+          dismissCallback(obj);
+        }
+      });
+    return this.currentTypeahead;
+  }
+
+  /**
    * Computes where a menu should show up, depending on the event that triggered
    * it.
    *
    * @param e The event that triggered the menu. If no event is passed, it is
    * assumed that the menu was not triggered by a mouse event.
    *
-   * @param bottom If the event was not triggered by a mouse event, then use the
-   * bottom of the DOM entity used to compute the position, rather than its
-   * middle to determine the ``y`` coordinate of the context menu.
+   * @param bottom Only used when the event was not triggered by a mouse event
+   * (``e === undefined``). If ``bottom`` is true, use the bottom of the DOM
+   * entity used to compute the ``left`` coordinate. Otherwise, use its middle
+   * to determine the ``left`` coordinate.
    *
    * @returns The top and left coordinates where the menu should appear.
    */
@@ -515,4 +627,5 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
 
 //  LocalWords:  MPL contextMenuHandler readonly actualNode treeCaret jQuery li
 //  LocalWords:  prepend tabindex href getDescriptionFor iconHtml mousedown
-//  LocalWords:  attributeValue mouseup contextmenu
+//  LocalWords:  attributeValue mouseup contextmenu computeMenuPosition
+//  LocalWords:  displayContextMenu

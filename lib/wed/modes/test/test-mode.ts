@@ -248,20 +248,18 @@ class TypeaheadAction extends Action<{}> {
       }],
     };
 
-    const pos = editor.editingMenuManager.computeMenuPosition(undefined, true);
     const typeahead =
-      editor.displayTypeaheadPopup(pos.left, pos.top, 300,
-                                   "Test", options,
-                                   (obj?: { value: string }) => {
-                                     if (obj != null) {
-                                       editor.insertText(obj.value);
-                                     }
-                                   });
+      editor.editingMenuManager.setupTypeaheadPopup(
+        300, "Test", options,
+        (obj?: { value: string }) => {
+          if (obj != null) {
+            editor.insertText(obj.value);
+          }
+        }, undefined, true);
     typeahead.hideSpinner();
     const range = editor.caretManager.range;
 
-    // This is purposely not as intelligent as what real mode would
-    // need.
+    // This is purposely not as intelligent as what real mode would need.
     if (range != null && !(range.collapsed as boolean)) {
       typeahead.setValue(range.toString());
     }

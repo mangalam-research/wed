@@ -36,7 +36,6 @@ import { Direction, QuickSearch } from "./gui/quick-search";
 import { Scroller } from "./gui/scroller";
 import { AddOptions, Toolbar } from "./gui/toolbar";
 import { tooltip } from "./gui/tooltip";
-import { TypeaheadPopup } from "./gui/typeahead-popup";
 import { AttributeNotFound, GUIRoot } from "./guiroot";
 import { Key, makeKey } from "./key";
 import * as keyConstants from "./key-constants";
@@ -246,7 +245,6 @@ export class Editor implements EditorAPI {
     data: any;
     startCaret: DLoc | undefined;
   } | undefined;
-  private currentTypeahead: TypeaheadPopup | undefined;
   private validationController: ValidationController;
   private readonly _transformations: Subject<TransformationEvents> =
     new Subject();
@@ -2802,26 +2800,6 @@ in a way not supported by this version of wed.";
     }
 
     return undefined;
-  }
-
-  displayTypeaheadPopup(x: number, y: number, width: number,
-                        // tslint:disable-next-line:no-any
-                        placeholder: string, options: any,
-                        dismissCallback:
-                        // tslint:disable-next-line:no-any
-                        (obj?: { value: string }) => void): any {
-    this.editingMenuManager.dismiss();
-    this.caretManager.pushSelection();
-    this.currentTypeahead = new TypeaheadPopup(
-      this.doc, x, y, width, placeholder, options,
-      (obj) => {
-        this.currentTypeahead = undefined;
-        this.caretManager.popSelection();
-        if (dismissCallback !== undefined) {
-          dismissCallback(obj);
-        }
-      });
-    return this.currentTypeahead;
   }
 
   private refreshSaveStatus(): void {
