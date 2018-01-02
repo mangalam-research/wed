@@ -4,9 +4,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-// tslint:disable-next-line:no-typeof-undefined strict-boolean-expressions
-const test = (typeof __WED_TESTING !== "undefined") && !!__WED_TESTING.testing;
-
 function defaultCheck(): boolean {
   return true;
 }
@@ -45,10 +42,6 @@ export function install(win: Window,
   (newHandler as any).installedByOnbeforeunload = true;
 
   win.onbeforeunload = newHandler;
-}
-
-if (!test) {
-  install(window);
 }
 
 //  LocalWords:  reregistering Mangalam MPL Dubeau onbeforeunload

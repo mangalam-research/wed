@@ -131,6 +131,16 @@ odd bug fix may not get mentioned here at all.
     And Rangy itself appears to be rather moribund. We may drop it entirely in a
     future release, if we find a good replacement for searching through HTML.
 
+  - Potentially breaking change: The ``onbeforeunload`` module no longer
+    automatically installs itself on a window. This did not play well with the
+    new Webpack build and would cause issues in cases where some parts of wed
+    were needed, but not a whole editor. If you did rely on the automatic
+    install, then this is a breaking change. If not, then it is not.
+
+    Note that a wed editor instance does use ``onbeforeunload`` to install a
+    handler, and *this has not changed*. It used to be that merely loading the
+    module would *also* install a default handler. Only *this* has changed.
+
   - Potentially breaking GUI change: on OS X the keyboard shortcuts for
     decreasing and increasing label visibility were ``Cmd-[`` and
     ``Cmd-]``. However, OS X uses these combinations and thus they were never
