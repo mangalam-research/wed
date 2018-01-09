@@ -4,7 +4,11 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
+
 import { Action } from "./action";
+import { Button, ToggleButton } from "./gui/button";
 import { makeHTML } from "./gui/icon";
 import { EditorAPI } from "./mode-api";
 
@@ -91,3 +95,55 @@ export const IncreaseLabelVisibilityLevel =
              (editor) => {
                editor.increaseLabelVisibilityLevel();
              });
+
+export interface PressedEvent {
+  name: "Pressed";
+  action: ToggleAttributeHiding;
+}
+
+/**
+ * An action that toggles the editors attribute hiding.
+ */
+export class ToggleAttributeHiding extends Action<boolean> {
+  protected pressed: boolean = true;
+
+  /**
+   * The object on which this class and subclasses may push new events.
+   */
+  protected readonly _events: Subject<PressedEvent> = new Subject();
+
+  /**
+   * The observable on which clients can listen for events.
+   */
+  readonly events: Observable<PressedEvent> = this._events.asObservable();
+
+  constructor(editor: EditorAPI) {
+    super(editor, "Toggle attribute hiding", "AH", undefined, false);
+  }
+
+  execute(data: boolean): void {
+    if (this.pressed !== data) {
+      this.pressed = data;
+      this.editor.toggleAttributeHiding();
+      this._events.next({ name: "Pressed", action: this });
+    }
+  }
+
+  makeButton(data?: boolean): Button {
+    const button = new ToggleButton(
+      this.pressed,
+      data !== undefined ? this.getDescriptionFor(data) : this.getDescription(),
+      this.getAbbreviatedDescription(),
+      this.getIcon());
+
+    button.events.subscribe(() => {
+      this.execute(button.pressed);
+    });
+
+    this.events.subscribe(() => {
+      button.pressed = this.pressed;
+    });
+
+    return button;
+  }
+}

@@ -112,8 +112,12 @@ export class CaretMark {
       return;
     }
 
+    const el = this.el;
     const caret = this.manager.caret;
     if (caret == null) {
+      // We do not remove the fake caret from the DOM here because seeing
+      // the caret position when the user is doing work outside the editing
+      // pane is useful.
       return;
     }
 
@@ -126,7 +130,6 @@ export class CaretMark {
     const heightNode = isElement(node) ? node : (node.parentNode as Element);
     const height = getComputedStyle(heightNode).lineHeight;
 
-    const el = this.el;
     const topStr = `${top}px`;
     const leftStr = `${left}px`;
     el.style.top = topStr;
@@ -135,7 +138,7 @@ export class CaretMark {
     el.style.maxHeight = height;
     el.style.minHeight = height;
 
-    // The fake caret is removed from the DOM when not in use, reinsert it.
+    // If the fake caret has been removed from the DOM, reinsert it.
     if (el.parentNode === null) {
       this.layer.append(this.el);
     }

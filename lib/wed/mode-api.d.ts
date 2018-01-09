@@ -439,4 +439,9 @@ export interface EditorAPI {
    * at the maximum.
    */
   increaseLabelVisibilityLevel(): void;
+
+  /**
+   * Toggle attribute hiding off and on.
+   */
+  toggleAttributeHiding(): void;
 }

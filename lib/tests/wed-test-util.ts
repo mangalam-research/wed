@@ -290,7 +290,12 @@ export class EditorSetup {
     editor.undoAll();
     editor.resetLabelVisibilityLevel();
     editor.editingMenuManager.dismiss();
-    editor.caretManager.clearSelection(); // Yes, clear the caret.
+    // We set the caret to a position that will trigger some display changes
+    // (e.g. hide attributes).
+    editor.caretManager.setCaret(editor.caretManager.minCaret);
+    // Then we clear the selection to reset the caret to undefined. The mark
+    // will still be visible, but that's not an issue.
+    editor.caretManager.clearSelection();
     this.server.reset();
     errorCheck();
   }

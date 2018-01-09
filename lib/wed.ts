@@ -52,6 +52,7 @@ export { DLoc, DLocRoot } from "./wed/dloc";
 export { DOMListener } from "./wed/domlistener";
 export { version } from "./wed/editor";
 export { GUISelector } from "./wed/gui-selector";
+export { Button, ToggleButton } from "./wed/gui/button";
 export { ContextMenu } from "./wed/gui/context-menu";
 export { Modal } from "./wed/gui/modal";
 export { tooltip } from "./wed/gui/tooltip";

@@ -5,6 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
+import { Button } from "./gui/button";
 import { EditorAPI } from "./mode-api";
 
 export interface EventWithData<Data> extends Event {
@@ -18,7 +19,6 @@ export interface EventWithData<Data> extends Event {
  * conditions they choose.
  */
 export abstract class Action<Data> {
-  protected _enabled: boolean = true;
   public readonly boundHandler: (this: Action<Data>, ev: Event) => void;
   public readonly boundTerminalHandler: (this: Action<Data>,
                                          ev: Event) => boolean;
@@ -169,11 +169,17 @@ export abstract class Action<Data> {
     return this.getDescription();
   }
 
-  /**
-   * Returns whether or not the action is currently enabled.
-   */
-  getEnabled(): boolean {
-    return this._enabled;
+  makeButton(data?: Data): Button {
+    const button = new Button(
+      data !== undefined ? this.getDescriptionFor(data) : this.getDescription(),
+      this.getAbbreviatedDescription(),
+      this.getIcon());
+
+    button.events.subscribe((event) => {
+      this.execute(data !== undefined ? data : {} as Data);
+    });
+
+    return button;
   }
 }
 

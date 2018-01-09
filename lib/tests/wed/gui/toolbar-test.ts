@@ -34,27 +34,32 @@ describe("Toolbar", () => {
     expect(toolbar.top.childNodes).to.have.lengthOf(num + 2);
   }
 
-  describe("#addAction", () => {
-    it("takes a single action", () => {
+  function checkModeButtons(num: number): void {
+    // tslint:disable-next-line:no-any
+    expect((toolbar as any).modeSpan.childNodes).to.have.lengthOf(num);
+  }
+
+  describe("#addButton", () => {
+    it("takes a single button", () => {
       checkCustomButtons(0);
-      const action = new editorActions.Undo(fakeEditor);
-      toolbar.addAction(action);
+      const button = new editorActions.Undo(fakeEditor).makeButton();
+      toolbar.addButton(button);
       checkCustomButtons(1);
     });
 
     it("takes an array", () => {
       checkCustomButtons(0);
-      const action = new editorActions.Undo(fakeEditor);
-      const action2 = new editorActions.Redo(fakeEditor);
-      toolbar.addAction([action, action2]);
+      const button = new editorActions.Undo(fakeEditor).makeButton();
+      const button2 = new editorActions.Redo(fakeEditor).makeButton();
+      toolbar.addButton([button, button2]);
       checkCustomButtons(2);
     });
 
     it("appends by default", () => {
-      const action = new editorActions.Undo(fakeEditor);
-      toolbar.addAction(action);
-      const action2 = new editorActions.Redo(fakeEditor);
-      toolbar.addAction(action2);
+      const button = new editorActions.Undo(fakeEditor).makeButton();
+      toolbar.addButton(button);
+      const button2 = new editorActions.Redo(fakeEditor).makeButton();
+      toolbar.addButton(button2);
 
       // Clicking the 2nd child executes the child that was added last.
       const spy = sandbox.spy(fakeEditor, "redo");
@@ -63,10 +68,10 @@ describe("Toolbar", () => {
     });
 
     it("can prepend", () => {
-      const action = new editorActions.Undo(fakeEditor);
-      toolbar.addAction(action);
-      const action2 = new editorActions.Redo(fakeEditor);
-      toolbar.addAction(action2, { prepend: true });
+      const button = new editorActions.Undo(fakeEditor).makeButton();
+      toolbar.addButton(button);
+      const button2 = new editorActions.Redo(fakeEditor).makeButton();
+      toolbar.addButton(button2, { prepend: true });
 
       // Clicking the 1st child executes the child that was added last.
       const spy = sandbox.spy(fakeEditor, "redo");
@@ -75,17 +80,42 @@ describe("Toolbar", () => {
     });
 
     it("refuses to allow right and prepend at the same time", () => {
-      const action = new editorActions.Undo(fakeEditor);
+      const button = new editorActions.Undo(fakeEditor).makeButton();
       expect(() => {
-        toolbar.addAction(action, { prepend: true, right: true });
+        toolbar.addButton(button, { prepend: true, right: true });
       }).to.throw(Error, /^cannot use prepend and right at the same time/);
     });
 
     it("allows pushing right", () => {
-      const action = new editorActions.Undo(fakeEditor);
-      toolbar.addAction(action, { right: true });
+      const button = new editorActions.Undo(fakeEditor).makeButton();
+      toolbar.addButton(button, { right: true });
       expect((toolbar.top.lastElementChild as HTMLElement).classList
              .contains("pull-right")).to.be.true;
+    });
+  });
+
+  describe("#setModeButtons", () => {
+    it("takes buttons", () => {
+      checkCustomButtons(0);
+      checkModeButtons(0);
+      const button = new editorActions.Undo(fakeEditor).makeButton();
+      const button2 = new editorActions.Undo(fakeEditor).makeButton();
+      toolbar.setModeButtons([button, button2]);
+      checkCustomButtons(0);
+      checkModeButtons(2);
+    });
+
+    it("replaces buttons", () => {
+      checkCustomButtons(0);
+      checkModeButtons(0);
+      const button = new editorActions.Undo(fakeEditor).makeButton();
+      const button2 = new editorActions.Undo(fakeEditor).makeButton();
+      toolbar.setModeButtons([button, button2]);
+      checkCustomButtons(0);
+      checkModeButtons(2);
+      toolbar.setModeButtons([]);
+      checkCustomButtons(0);
+      checkModeButtons(0);
     });
   });
 });

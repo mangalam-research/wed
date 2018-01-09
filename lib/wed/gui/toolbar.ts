@@ -5,19 +5,19 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { Action } from "../action";
+import { Button } from "./button";
 
 export interface AddOptions {
   /**
    * If true, push the options at the right end of the toolbar. Note that this
-   * is can only be used when appending actions. And this is something
+   * is can only be used when appending buttons. And this is something
    * independent from the mere fact of appending. When using this option, the
-   * appended action will be visually pushed away from the previous action,
+   * appended button will be visually pushed away from the previous button,
    * towards the right end of the toolbar.
    */
   right?: boolean;
 
-  /** If true, prepend the actions rather than append them. */
+  /** If true, prepend the buttons rather than append them. */
   prepend?: boolean;
 }
 
@@ -25,13 +25,13 @@ export interface AddOptions {
  * A toolbar is a horizontal element which contains a series of buttons from
  * which the user can initiate actions.
  *
- * The toolbar contains buttons for two types of actions:
+ * The toolbar contains buttons for two types of buttons:
  *
- * - Actions not associated with any specific mode. These are editor-wide
+ * - Buttons not associated with any specific mode. These are editor-wide
  *   actions that may be set by the application in which the editor instance is
  *   used.
  *
- * - Actions specific to a mode.
+ * - Buttons specific to a mode.
  */
 export class Toolbar {
   private readonly divider: Element;
@@ -51,16 +51,16 @@ export class Toolbar {
   }
 
   /**
-   * Add one or more actions to the toolbar.
+   * Add one or more buttons to the toolbar.
    *
-   * @param actions A single action or an array of actions to add.
+   * @param buttons A single button or an array of buttons to add.
    *
    * @param options Parameters affecting how the addition is made.
    */
-  addAction(actions: ReadonlyArray<Action<{}>> | Action<{}>,
-            options: AddOptions =  {}): void {
-    if ((actions instanceof Action)) {
-      actions = [actions] as ReadonlyArray<Action<{}>>;
+  addButton(buttons: ReadonlyArray<Button> | Button,
+            options: AddOptions = {}): void {
+    if ((buttons instanceof Button)) {
+      buttons = [buttons] as ReadonlyArray<Button>;
     }
 
     const prepend = options.prepend === true;
@@ -69,12 +69,18 @@ export class Toolbar {
       throw new Error("cannot use prepend and right at the same time.");
     }
 
-    const extraClass = right ? " pull-right" : "";
-
     const top = this.top;
     const frag = top.ownerDocument.createDocumentFragment();
-    for (const action of actions) {
-      frag.appendChild(this.makeButtonFor(action, extraClass));
+    for (const button of buttons) {
+      if (right) {
+        const wrap = top.ownerDocument.createElement("span");
+        wrap.className = right ? "pull-right" : "";
+        button.render(wrap);
+        frag.appendChild(wrap);
+      }
+      else {
+        button.render(frag);
+      }
     }
 
     if (right) {
@@ -85,51 +91,17 @@ export class Toolbar {
     }
   }
 
-  private makeButtonFor(action: Action<{}>, extraClass: string): HTMLElement {
-    const icon = action.getIcon();
-    const button = this.top.ownerDocument.createElement("button");
-    button.className = `btn btn-default${extraClass}`;
-    let abbrev = action.getAbbreviatedDescription();
-    const desc = action.getDescription();
-    // If we don't have an abbreviation, we get the regular description.
-    if (abbrev === undefined) {
-      abbrev = desc;
-    }
-
-    let needsTooltip = true;
-    if (icon !== "") {
-      // tslint:disable-next-line:no-inner-html
-      button.innerHTML = icon;
-    }
-    else {
-      button.textContent = abbrev;
-      needsTooltip = abbrev !== desc;
-    }
-    const $button = $(button);
-    if (needsTooltip) {
-      button.setAttribute("title", desc);
-      $button.tooltip({ title: desc,
-                        container: "body",
-                        placement: "auto",
-                        trigger: "hover" });
-    }
-    $button.click(action.boundTerminalHandler);
-    // Prevents acquiring the focus.
-    $button.mousedown(false);
-    return button;
-  }
-
   /**
-   * Set the mode related actions. This replaces any actions previously set by
+   * Set the mode related buttons. This replaces any buttons previously set by
    * this method.
    *
-   * @param actions The actions to add to the toolbar.
+   * @param buttons The buttons to add to the toolbar.
    */
-  setModeActions(actions: Action<{}>[]): void {
+  setModeButtons(buttons: Button[]): void {
     // tslint:disable-next-line:no-inner-html
     this.modeSpan.innerHTML = "";
-    for (const action of actions) {
-      this.modeSpan.appendChild(this.makeButtonFor(action, ""));
+    for (const button of buttons) {
+      button.render(this.modeSpan);
     }
   }
 }

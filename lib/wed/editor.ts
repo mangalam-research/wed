@@ -278,6 +278,8 @@ export class Editor implements EditorAPI {
     new editorActions.Undo(this);
   readonly redoAction: Action<{}> =
     new editorActions.Redo(this);
+  readonly toggleAttributeHidingAction: Action<{}> =
+    new editorActions.ToggleAttributeHiding(this);
   readonly minibuffer: Minibuffer;
   readonly docURL: string;
   readonly transformations: Observable<TransformationEvents> =
@@ -500,12 +502,13 @@ export class Editor implements EditorAPI {
           "Remove mixed-content markup", "<i class='fa fa-eraser'></i>", true,
           removeMarkup);
 
-    toolbar.addAction([this.saveAction,
-                       this.undoAction,
-                       this.redoAction,
-                       this.decreaseLabelVisibilityLevelAction,
-                       this.increaseLabelVisibilityLevelAction,
-                       this.removeMarkupTr]);
+    toolbar.addButton([this.saveAction.makeButton(),
+                       this.undoAction.makeButton(),
+                       this.redoAction.makeButton(),
+                       this.decreaseLabelVisibilityLevelAction.makeButton(),
+                       this.increaseLabelVisibilityLevelAction.makeButton(),
+                       this.removeMarkupTr.makeButton(),
+                       this.toggleAttributeHidingAction.makeButton()]);
 
     // Setup the cleanup code.
     $(this.window).on("unload.wed", { editor: this }, (e) => {
@@ -1745,7 +1748,7 @@ in a way not supported by this version of wed.";
 
   addToolbarAction(actionClass: editorActions.ActionCtor,
                    options: AddOptions): void {
-    this.toolbar.addAction(new actionClass(this), options);
+    this.toolbar.addButton( new actionClass(this).makeButton(), options);
   }
 
   /**
@@ -3016,6 +3019,10 @@ in a way not supported by this version of wed.";
     this.caretManager.mark.refresh();
   }
 
+  toggleAttributeHiding(): void {
+    this.guiRoot.classList.toggle("inhibit_attribute_hiding");
+  }
+
   private closeAllTooltips(): boolean {
     const tts = this.doc.querySelectorAll("div.tooltip");
     let closed = false;
@@ -3282,8 +3289,8 @@ in a way not supported by this version of wed.";
     }
 
     if (mode !== prevMode) {
-      this.toolbar.setModeActions(
-        mode !== undefined ? mode.getToolbarActions() : []);
+      this.toolbar.setModeButtons(
+        mode !== undefined ? mode.getToolbarButtons() : []);
     }
 
     const real = closestByClass(node, "_real", root);

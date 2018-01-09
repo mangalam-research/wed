@@ -57,6 +57,16 @@ perform the following actions:
 * Redo.
 * Decrease the `label visibility level <Label Visibility_>`_.
 * Increase the `label visibility level <Label Visibility_>`_.
+* Remove markup from mixed content.
+* Toggle attribute autohiding off and on.
+
+The last button is a toggle. When autohiding is on, the button is pressed down,
+as shown by shadows. When autohiding is off, the button is flat, as shown by the
+absence of shadows.
+
+Mode-specific buttons may appear to the right of the double bar. The buttons
+that appear there are those that correspond to the mode in effect at the caret
+location.
 
 The Validation Progress Bar
 ---------------------------

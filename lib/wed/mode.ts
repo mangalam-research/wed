@@ -9,8 +9,8 @@
 
 import { EName, NameResolver } from "salve";
 
-import { Action, Decorator, domtypeguards, domutil, EditorAPI, ModeValidator,
-         WedOptions } from "wed";
+import { Action, Button, Decorator, domtypeguards, domutil, EditorAPI,
+         ModeValidator, WedOptions } from "wed";
 
 /**
  * These are mode options that are supported by default by all modes. Wed is
@@ -90,7 +90,7 @@ CommonModeOptions = CommonModeOptions> {
    *
    * @returns The toolbar actions for this mode.
    */
-  getToolbarActions(): Action<{}>[];
+  getToolbarButtons(): Button[];
 
   /**
    * Modes must implement this method to specify what transformations they allow
@@ -330,7 +330,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   /**
    * The default implementaiton returns an empty array.
    */
-  getToolbarActions(): Action<{}>[] {
+  getToolbarButtons(): Button[] {
     return [];
   }
 

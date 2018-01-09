@@ -9,9 +9,9 @@ import * as mergeOptions from "merge-options";
 import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
-import { Action, ContextMenu, Decorator, domutil, EditorAPI, GUISelector,
-         inputTriggerFactory, key, keyConstants, Modal, ModeValidator,
-         objectCheck, transformation } from "wed";
+import { Action, Button, ContextMenu, Decorator, domutil, EditorAPI,
+         GUISelector, inputTriggerFactory, key, keyConstants, Modal,
+         ModeValidator, objectCheck, transformation } from "wed";
 import { GenericModeOptions,
          Mode as GenericMode } from "wed/modes/generic/generic";
 import { GenericDecorator } from "wed/modes/generic/generic-decorator";
@@ -398,8 +398,8 @@ export class TestMode extends GenericMode<TestModeOptions> {
     return stylesheets !== undefined ? stylesheets : [];
   }
 
-  getToolbarActions(): Action<{}>[] {
-    return [this.typeaheadAction];
+  getToolbarButtons(): Button[] {
+    return [this.typeaheadAction.makeButton()];
   }
 
   getContextualActions(transformationType: string | string[],

@@ -18,7 +18,7 @@ const options = {
   },
 };
 
-describe("wed hide attributes:", () => {
+describe("wed hides attributes:", () => {
   let setup: EditorSetup;
   let editor: Editor;
 

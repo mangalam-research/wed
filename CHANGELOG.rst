@@ -98,8 +98,13 @@ odd bug fix may not get mentioned here at all.
 
   - New GUI feature: wed now has a toolbar.
 
+  - New GUI feature: wed now has proper GUI button classes.
+
   - New feature: wed now has a stock transformation for removing markup in
     mixed-content. A button was added to the toolbar for this transformation.
+
+  - New feature: wed now has a button in the toolbar for turning off attribute
+    autohiding.
 
   - New API and potentially breaking change: all code that creates tooltips that
     appear inside the GUI tree must use the ``makeGUITreeTooltip`` method. This
@@ -167,9 +172,14 @@ odd bug fix may not get mentioned here at all.
 
   - Bug fix: ``wed-metadata`` was badly packaged. This has been fixed.
 
-  - Bug fix: ``wed-metadat`` would produce invalid data if it ran on TEI JSON
+  - Bug fix: ``wed-metadata`` would produce invalid data if it ran on TEI JSON
     files that were produced from customizations rather than on files that were
     representing a stock TEI schema. This has been fixed.
+
+  - Potentially breaking API change: ``Action`` no longer has any notion of
+    being enabled or not. It was never used in wed and just gave the wrong
+    impression that actions could be disabled somehow. We may reintroduce this
+    notion later, and do it properly when we do.
 
 * 0.30.0:
 
