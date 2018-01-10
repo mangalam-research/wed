@@ -1111,32 +1111,32 @@ stick with it.
 Browser Requirements
 ====================
 
-Wed is primarily developed using a recent version of Chrome (version
-59 now, earlier versions have also been used earlier). (But see a note
-about Chrome 34 below.)
+Wed is primarily developed using a recent version of Chrome (version 59 now,
+earlier versions have also been used earlier). (But see a note about Chrome 34
+below.)
 
-Here is the list of officially supported browsers, in order of
-decreasing priority. The higher a browser is in the list, the less
-likely you are to run into issues and the higher the priority for
-resolving bugs happening with this browser.
+Here is the list of officially supported browsers, in order of decreasing
+priority. The higher a browser is in the list, the less likely you are to run
+into issues and the higher the priority for resolving bugs happening with this
+browser.
 
-* Chrome 51 and higher.
-
-* IE 11.
+* Chrome 60 and higher.
 
 * Edge, but see `the section about it <Edge_>`_. We expect wed probably works
   fine on it.
 
+* IE 11, but see `the section about it <IE11>`_.
+
 * Relatively recent versions of Chrome: older than the latest releases
   but not very old. (Yeah, this is vague. Sorry about that.)
 
-File an issue on github if you find a problem with one of the
-supported browsers above.
+File an issue on github if you find a problem with one of the supported browsers
+above.
 
-We would like to support phone and tablet browsers but due to a lack
-of development resources, such support is unlikely to materialize
-soon. In decreasing order of likelihood, the following cases are
-unlikely to ever be supported:
+We would like to support phone and tablet browsers but due to a lack of
+development resources, such support is unlikely to materialize soon. In
+decreasing order of likelihood, the following cases are unlikely to ever be
+supported:
 
 * Versions of Chrome older than those mentioned above.
 
@@ -1146,17 +1146,16 @@ unlikely to ever be supported:
   supports it. Resuming support for IE 10 or 9 is extremely unlikely, because
   wed has accumulated features and methods that do not work on these browsers.
 
-* Chrome 34: the luminaries at Google decided to remove
-  ``Attr.ownerElement`` from Chrome 34. It was reintroduced in
-  Chrome 35. We'll probably never have support for Chrome 34.
+* Chrome 34: the luminaries at Google decided to remove ``Attr.ownerElement``
+  from Chrome 34. It was reintroduced in Chrome 35. We'll probably never have
+  support for Chrome 34.
 
 * Antique browsers.
 
-* Oddball browsers or other software or hardware systems that present
-  web pages. (E.g. gaming consoles, smart TVs.)
+* Oddball browsers or other software or hardware systems that present web
+  pages. (E.g. gaming consoles, smart TVs.)
 
-* Operating systems or browsers no longer supported by their own
-  vendors.
+* Operating systems or browsers no longer supported by their own vendors.
 
 Firefox
 -------
@@ -1203,15 +1202,25 @@ support in Firefox and so Firefox support has been temporarily pulled.
 Edge
 ----
 
-What's the deal with Edge being at a lower level of support than IE
-11? The problem is that whereas we can run test suites for IE 11, it
-is not *yet* possible to do so for Edge. Microsoft has not yet
-released a version of Edge which does support everything needed to run
-our suite. (See `this page
+It is not *yet* possible to run the suite for Edge. Microsoft has not yet
+released a version of Edge which does support everything needed to run our
+suite. (See `this page
 <https://dev.windows.com/en-us/microsoft-edge/platform/status/webdriver/details/>`__
-for the technical details.) Therefore we cannot systematically test
-wed with Edge and thus it is not as supported as IE 11. If you do find
-a problem with Edge, report it and we'll try to fix it.
+for the technical details.) Therefore we cannot systematically test wed with
+Edge. If you do find a problem with Edge, report it and we'll try to fix it.
+
+IE11
+----
+
+At some point in 2017 Selenium, IEDriver, or something else changed in such a
+way that makes the test suite run incredibly slowly on IE11. Wed itself runs at
+normal speed, as we can assess by running it manually in IE11. We've looked for
+a solution but could not find one. Tracking down what broke is more work than we
+can spend on this now. We accept bug reports due to issues on IE11 and accept
+patches that would resolve the slowdown on IE11.
+
+It is perhaps related to a bug whereby keystrokes are extremely slow in IE11,
+but we've tried the solutions outlined there and nothing worked.
 
 OS X
 ----
