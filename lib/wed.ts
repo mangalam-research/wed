@@ -56,6 +56,8 @@ export { Button, ToggleButton } from "./wed/gui/button";
 export { ContextMenu } from "./wed/gui/context-menu";
 export { Modal } from "./wed/gui/modal";
 export { tooltip } from "./wed/gui/tooltip";
+export { TypeaheadPopup,
+         TypeaheadPopupOptions } from "./wed/gui/typeahead-popup";
 export { BaseMode, CommonModeOptions } from "./wed/mode";
 export { Mode } from "./wed/mode";
 export * from "./wed/mode-api";
