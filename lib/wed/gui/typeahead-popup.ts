@@ -111,7 +111,7 @@ actualWidth))}px`;
     taWrapper.style.maxHeight = `${maxHeight}px`;
 
     const dropdown =
-      taWrapper.getElementsByClassName("tt-dropdown-menu")[0] as HTMLElement;
+      taWrapper.getElementsByClassName("tt-menu")[0] as HTMLElement;
     const $dropdown = $(dropdown);
 
     // Yep, we forcibly display it here because the next computations depend on

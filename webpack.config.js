@@ -16,6 +16,7 @@ const externals = {};
  "localforage",
  "bootbox",
  "typeahead",
+ "bloodhound",
  "urijs",
  "interactjs",
  "merge-options",

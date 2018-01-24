@@ -26,6 +26,12 @@ odd bug fix may not get mentioned here at all.
     See the section titled ``Using`` in the documentation, specifically the part
     about the changes in ``0.31``.
 
+  - Breaking API change: Upgraded from typeahead.js to corejs-typeahead. The
+    package typeahead.js had ceased to be maintained, and compatibility with
+    jQuery 3.x was dubious. corejs-typeahead has been tested with jQuery 3.x.
+
+    Modes that create ``TypeaheadPopup`` objects certainly need to be updated.
+
   - Breaking API change: the ``Listener`` class in the ``domlistener`` module is
     now called ``DOMListener``. The old name pretty much always required
     renaming the import, which was a pain.

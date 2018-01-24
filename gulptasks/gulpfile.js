@@ -377,7 +377,8 @@ npmCopyTask("requirejs/require.js", "requirejs");
 
 npmCopyTask("optional-plugin", "requirejs-optional/optional.js", "requirejs");
 
-npmCopyTask("typeahead", "typeahead.js/dist/typeahead.bundle.min.js");
+npmCopyTask("corejs-typeahead",
+            "corejs-typeahead/dist/{bloodhound,typeahead.jquery}.min.js");
 
 npmCopyTask("localforage/dist/localforage.js");
 

@@ -208,7 +208,7 @@ export interface TestModeOptions extends GenericModeOptions {
   stylesheets?: string[];
 }
 
-type MatchCallback = (matches: { value: string }[]) => void;
+type MatchCallback = (matches: string[]) => void;
 
 // tslint:disable-next-line:completed-docs
 class TypeaheadAction extends Action<{}> {
@@ -223,7 +223,7 @@ class TypeaheadAction extends Action<{}> {
         const matches = [];
         for (const str of strs) {
           if (re.test(str)) {
-            matches.push({ value: str });
+            matches.push(str);
           }
         }
 
@@ -245,15 +245,16 @@ class TypeaheadAction extends Action<{}> {
       },
       datasets: [{
         source: substringMatcher(testData),
+        limit: testData.length,
       }],
     };
 
     const typeahead =
       editor.editingMenuManager.setupTypeaheadPopup(
         300, "Test", options,
-        (obj?: { value: string }) => {
+        (obj?: string) => {
           if (obj != null) {
-            editor.insertText(obj.value);
+            editor.insertText(obj);
           }
         }, undefined, true);
     typeahead.hideSpinner();

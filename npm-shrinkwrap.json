@@ -1355,6 +1355,12 @@
       "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.2.tgz",
       "dev": true
     },
+    "corejs-typeahead": {
+      "version": "1.2.1",
+      "from": "corejs-typeahead@latest",
+      "resolved": "https://registry.npmjs.org/corejs-typeahead/-/corejs-typeahead-1.2.1.tgz",
+      "dev": true
+    },
     "create-ecdh": {
       "version": "4.0.0",
       "from": "create-ecdh@>=4.0.0 <5.0.0",
@@ -7854,16 +7860,10 @@
         }
       }
     },
-    "typeahead.js": {
-      "version": "0.10.5",
-      "from": "typeahead.js@>=0.10.5 <0.11.0",
-      "resolved": "https://registry.npmjs.org/typeahead.js/-/typeahead.js-0.10.5.tgz",
-      "dev": true
-    },
     "typeahead.js-bootstrap-css": {
-      "version": "1.0.1",
-      "from": "git+https://github.com/bassjobsen/typeahead.js-bootstrap-css.git#1.0.1",
-      "resolved": "git+https://github.com/bassjobsen/typeahead.js-bootstrap-css.git#70d73ff985a3b15804408d757ecd36cd1da2fb79",
+      "version": "1.2.1",
+      "from": "typeahead.js-bootstrap-css@latest",
+      "resolved": "https://registry.npmjs.org/typeahead.js-bootstrap-css/-/typeahead.js-bootstrap-css-1.2.1.tgz",
       "dev": true
     },
     "typedarray": {
