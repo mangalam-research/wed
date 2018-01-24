@@ -86,7 +86,7 @@
     "gulp-wrap-amd": ">=0.5.0 <1",
     "html-loader": "^0.4.4",
     "interactjs": "https://github.com/lddubeau/interact.js/tarball/fix/typescript-definitions.tgz",
-    "jquery": ">=2.0.0 <3",
+    "jquery": ">=2 <4",
     "jsdom": "^11.1.0",
     "json-schema-to-typescript": "^4.4.0",
     "karma": "^1.7.1",

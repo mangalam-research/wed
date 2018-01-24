@@ -107,6 +107,13 @@ Please see the :github:`package.json`, :github:`config/requirejs-config-dev.js`,
 and development dependencies. Running the test suite also requires that `saxon
 <http://saxon.sourceforge.net/>`_ be installed.
 
+Wed works with jQuery 3.x and 2.x. We strongly recommend using jQuery
+3.x. jQuery 2.x is no longer maintained by its development team and thus no
+longer receives security patches. There is no formal support for running wed
+with jQuery 1.x or earlier versions.
+
+The optimized builds of wed include jQuery 3.x.
+
 Building wed's documentation **additionally** requires the following packages:
 
 * rst2html

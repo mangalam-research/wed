@@ -4923,9 +4923,9 @@
       "optional": true
     },
     "jquery": {
-      "version": "2.2.4",
-      "from": "jquery@2.2.4",
-      "resolved": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
+      "version": "3.3.1",
+      "from": "jquery@latest",
+      "resolved": "https://registry.npmjs.org/jquery/-/jquery-3.3.1.tgz",
       "dev": true
     },
     "js-tokens": {
