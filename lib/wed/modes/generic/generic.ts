@@ -142,7 +142,7 @@ class GenericMode<Options extends GenericModeOptions>
     return this.resolver;
   }
 
-  makeDecorator(): GenericDecorator {
+  makeDecorator(): Decorator {
     return new GenericDecorator(this, this.editor, this.metadata, this.options);
   }
 
