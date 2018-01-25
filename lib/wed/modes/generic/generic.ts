@@ -8,7 +8,7 @@
 import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
-import { Action, BaseMode, CommonModeOptions, EditorAPI, objectCheck,
+import { Action, BaseMode, CommonModeOptions, Decorator, EditorAPI, objectCheck,
          transformation } from "wed";
 import { GenericDecorator } from "./generic-decorator";
 import { makeTagTr } from "./generic-tr";
@@ -111,25 +111,7 @@ class GenericMode<Options extends GenericModeOptions>
    * @param options The options to check.
    */
   checkOptions(options: GenericModeOptions): void {
-    // tslint:disable-next-line:no-any
-    const ret = objectCheck.check(this.optionTemplate, options as any);
-
-    const errors: string[] = [];
-    if (ret.missing !== undefined) {
-      for (const name of ret.missing) {
-        errors.push(`missing option: ${name}`);
-      }
-    }
-
-    if (ret.extra !== undefined) {
-      for (const name of ret.extra) {
-        errors.push(`extra option: ${name}`);
-      }
-    }
-
-    if (errors.length !== 0) {
-      throw new Error(`incorrect options: ${errors.join(", ")}`);
-    }
+    objectCheck.assertExtensively(this.optionTemplate, options);
   }
 
   /**

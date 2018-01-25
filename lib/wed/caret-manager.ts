@@ -753,18 +753,7 @@ export class CaretManager implements GUIToDataConverter {
     }
 
     if (options !== undefined) {
-      const result = objectCheck.check(
-        caretOptionTemplate, options as objectCheck.CheckedObject);
-      // We don't have mandatory options but have a minimal handling of this
-      // case.
-      if (result.missing !== undefined) {
-        throw new Error("there are missing options");
-      }
-
-      if (result.extra !== undefined) {
-        throw new Error(
-          `unknown options passed to setCaret: ${result.extra.join(",")}`);
-      }
+      objectCheck.assertSummarily(caretOptionTemplate, options);
     }
     else {
       options = {};

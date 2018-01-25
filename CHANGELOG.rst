@@ -187,6 +187,14 @@ odd bug fix may not get mentioned here at all.
     impression that actions could be disabled somehow. We may reintroduce this
     notion later, and do it properly when we do.
 
+  - New API: ``objectCheck`` has an ``assertSummarily`` function which allows
+    throwing on any check error. That's a common usage pattern for
+    ``objectCheck``.
+
+  - New API: ``objectCheck`` has an ``assertExtensively`` function which allows
+    throwing a detailed error on failing checks. That's also a common usage
+    pattern for ``objectCheck``.
+
 * 0.30.0:
 
   - This version contains a slew of changes that improve the handling of

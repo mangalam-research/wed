@@ -45,16 +45,16 @@ function _required(template: Template, name: string): boolean {
   return val;
 }
 
-function _check(template: Template, object: CheckedObject,
+function _check(template: Template, toCheck: {},
                 prefix: string | undefined, ret: _CheckResults): void {
   for (const name in template) {
     if (_required(template, name)) {
       const prefixed = prefix !== undefined ? [prefix, name].join(".") : name;
-      if (!(name in object)) {
+      if (!(name in toCheck)) {
         ret.missing.push(prefixed);
       }
       else {
-        const val = object[name];
+        const val = (toCheck as CheckedObject)[name];
         const templateVal = template[name];
         if (!(val instanceof Array) && typeof val === "object" &&
             typeof templateVal === "object") {
@@ -64,7 +64,7 @@ function _check(template: Template, object: CheckedObject,
     }
   }
 
-  for (const name in object) {
+  for (const name in toCheck) {
     if (!(name in template)) {
       const prefixed = prefix !== undefined ? [prefix, name].join(".") : name;
       ret.extra.push(prefixed);
@@ -112,13 +112,13 @@ function _check(template: Template, object: CheckedObject,
  *
  * @param template The template to use for the check.
  *
- * @param object The object to check
+ * @param toCheck The object to check
  *
  * @returns The results.
  */
-export function check(template: Template, object: CheckedObject): CheckResults {
+export function check(template: Template, toCheck: {}): CheckResults {
   const initial: _CheckResults = { missing: [], extra: [] };
-  _check(template, object, undefined, initial);
+  _check(template, toCheck, undefined, initial);
 
   // clean up
   // tslint:disable-next-line:no-any
@@ -131,6 +131,58 @@ export function check(template: Template, object: CheckedObject): CheckResults {
   return ret;
 }
 
-exports.check = check;
+/**
+ * Check whether the object fits the template, and throw at the first sign of
+ * trouble. The thrown object contains information about the first error
+ * encountered.
+ *
+ * @param template The template to use for the check.
+ *
+ * @param toCheck The object to check
+ *
+ * @throws {Error} If there is any error.
+ */
+export function assertSummarily(template: Template, toCheck: {}): void {
+  const result = check(template, toCheck);
+
+  if (result.missing !== undefined) {
+    throw new Error(`missing option: ${result.missing[0]}`);
+  }
+
+  if (result.extra !== undefined) {
+    throw new Error(`extra option: ${result.extra[0]}`);
+  }
+}
+
+/**
+ * Check whether the object fits the template, and throw an error that reports
+ * all issues.
+ *
+ * @param template The template to use for the check.
+ *
+ * @param toCheck The object to check
+ *
+ * @throws {Error} If there is any error.
+ */
+export function assertExtensively(template: Template, toCheck: {}): void {
+  const result = check(template, toCheck);
+
+  const errors: string[] = [];
+  if (result.missing !== undefined) {
+    for (const name of result.missing) {
+      errors.push(`missing option: ${name}`);
+    }
+  }
+
+  if (result.extra !== undefined) {
+    for (const name of result.extra) {
+      errors.push(`extra option: ${name}`);
+    }
+  }
+
+  if (errors.length !== 0) {
+    throw new Error(errors.join(", "));
+  }
+}
 
 //  LocalWords:  MPL baz bip

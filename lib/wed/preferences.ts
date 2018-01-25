@@ -6,7 +6,7 @@
  */
 import * as _ from "lodash";
 
-import { check, CheckedObject } from "./object-check";
+import { assertSummarily } from "./object-check";
 
 const template = {
   tooltips: false,
@@ -18,12 +18,12 @@ const template = {
  * be careful.
  */
 export class Preferences {
-  private readonly prefs: CheckedObject;
+  private readonly prefs: {};
   /**
-   * @param {Object} [initial={}] The initial preferences.
+   * @param initial initial preferences.
    * @throws {Error} If there is any error in the preferences.
    */
-  constructor(initial?: CheckedObject) {
+  constructor(initial?: {}) {
     if (initial === undefined) {
       // Custom code here to avoid a pointless call to ``._extend``.
       this.prefs = Object.create(null);
@@ -41,18 +41,8 @@ export class Preferences {
    * @param prefs The preferences to validate.
    * @throws {Error} If there is any error in the preferences.
    */
-  _validatePrefs(prefs: CheckedObject): void {
-    const result = check(template, prefs);
-
-    // This is not the place to provide diagnosis for the end user: fail hard if
-    // something is wrong.
-    if (result.missing !== undefined) {
-      throw new Error(`missing option: ${result.missing[0]}`);
-    }
-
-    if (result.extra !== undefined) {
-      throw new Error(`extra option: ${result.extra[0]}`);
-    }
+  _validatePrefs(prefs: {}): void {
+    assertSummarily(template, prefs);
   }
 
   /**
