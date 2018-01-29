@@ -41,16 +41,16 @@ def step_impl(context):
 # This was an attempt at turning on an input method in the browser. As
 # of 20130926, does not seem possible to do.
 #
-@when(u'the user turns on the input method')
-def step_impl(context):
-    driver = context.driver
-    ActionChains(driver)\
-        .key_down(Keys.CONTROL)\
-        .key_down(Keys.ALT)\
-        .send_keys(Keys.SPACE)\
-        .key_up(Keys.ALT)\
-        .key_up(Keys.CONTROL)\
-        .perform()
+# @when(u'the user turns on the input method')
+# def step_impl(context):
+#     driver = context.driver
+#     ActionChains(driver)\
+#         .key_down(Keys.CONTROL)\
+#         .key_down(Keys.ALT)\
+#         .send_keys(Keys.SPACE)\
+#         .key_up(Keys.ALT)\
+#         .key_up(Keys.CONTROL)\
+#         .perform()
 
 
 @when(u'the user types "{text}"')

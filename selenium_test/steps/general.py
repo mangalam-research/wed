@@ -47,11 +47,6 @@ def user_load(context):
     load_and_wait_for_editor(context)
 
 
-@when("waits for the editor")
-def step_impl(context):
-    wait_for_editor(context)
-
-
 @then("the editor shows a document")
 def doc_appears(context):
     driver = context.driver
@@ -60,7 +55,6 @@ def doc_appears(context):
 
 
 @given("an empty document")
-@given("an open document")
 def open_doc(context):
     load_and_wait_for_editor(context)
 
@@ -179,19 +173,6 @@ def step_impl(context):
 def step_impl(context):
     util = context.util
     wedutil.set_window_size(util, 683, 741)
-
-
-@when('the user resizes the window so that the last "term" element is no '
-      'longer visible')
-def step_impl(context):
-    util = context.util
-    term = util.find_elements((By.CLASS_NAME, "term"))[-1]
-
-    size = dict(context.initial_window_size)
-
-    while util.visible_to_user(term, ".wed-caret-layer"):
-        size["height"] -= 15
-        wedutil.set_window_size(util, size["width"], size["height"])
 
 
 @when('the user resizes the window so that the editor pane will be offscreen')
@@ -365,12 +346,6 @@ def step_impl(context):
     util.wait(cond)
 
 
-@given("the first validation is complete")
-@when("the first validation is complete")
-def step_impl(context):
-    wedutil.wait_for_first_validation_complete(context.util)
-
-
 @given(r"there is no (?P<what>.*)\.?")
 def step_impl(context, what):
     assert_equal(len(context.driver.find_elements_by_css_selector(
@@ -502,41 +477,6 @@ return [window.test_platform, window.test_browser, window.test_version];
         assert_true(result[u"result"], result[u"name"] + " should be true")
 
 
-@when(ur'the user reloads')
-def step_impl(context):
-    context.driver.refresh()
-
-
-@when(ur'the user cancels the alert')
-def step_imp(context):
-    context.driver.switch_to.alert.dismiss()
-    # This is a workaround for a Selenium bug:
-    # https://code.google.com/p/selenium/issues/detail?id=8208
-    if context.util.firefox:
-        try:
-            context.driver.switch_to.alert.dismiss()
-        except NoAlertPresentException:
-            pass
-
-
-@when(ur'(?:the user )?clicks the "(?P<text>.*?)" button')
-def step_impl(context, text):
-    driver = context.driver
-    button = driver.execute_script("""
-    var text = arguments[0];
-    var buttons = document.getElementsByTagName("button");
-    return Array.prototype.filter.call(buttons, function (b) {
-        return b.textContent === text;
-    })[0];
-    """, text)
-    button.click()
-
-
-@when(ur'(?:the user )?clicks the link "(?P<text>.*?)"')
-def step_impl(context, text):
-    context.util.find_element((By.LINK_TEXT, text)).click()
-
-
 @when('the input field is focused')
 def step_impl(context):
     context.driver.execute_script("""
@@ -567,12 +507,3 @@ def step_impl(context):
             len(context.handles_before_help_link_click) + 1
 
     context.util.wait(check)
-
-
-@when('the user dismisses the dialog warning that it is a demo')
-def step_impl(context):
-    util = context.util
-    header = util.find_element((By.CSS_SELECTOR, ".modal.in .modal-header h3"))
-    assert_equal(header.text.strip(), "Demo")
-    button = util.find_element((By.CSS_SELECTOR, ".modal.in .btn-primary"))
-    button.click()

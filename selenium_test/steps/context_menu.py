@@ -266,17 +266,6 @@ def context_choices_insert(context, exists, kind):
         assert_equal(count, 0, "there should not be options")
 
 
-@Then(r'the context menu contains a choice for creating a new '
-      r'(?P<what>.*) after this element\.?')
-def context_choices_insert(context, what):
-    util = context.util
-
-    search_for = '^Create new ' + what + ' after'
-    assert_not_equal(len(util.find_descendants_by_text_re(".wed-context-menu",
-                                                          search_for)),
-                     0, "Number of elements found")
-
-
 @Then(r'a choice for creating a new '
       r'note after this element is below the editor pane\.?')
 def context_choices_insert(context):

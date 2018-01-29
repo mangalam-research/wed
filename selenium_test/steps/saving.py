@@ -97,15 +97,3 @@ def step_impl(context):
     assert_equal.__self__.maxDiff = None
     if not result:
         assert_equal(result.payload[0], result.payload[1])
-
-
-@then(ur'the modification status shows the document is unmodified')
-def step_impl(context):
-    def check(driver):
-        return driver.execute_script("""
-        return wed_editor.$modificationStatus.hasClass("label-success");
-        """)
-
-    util = context.util
-    with util.local_timeout(10):
-        util.wait(check)
