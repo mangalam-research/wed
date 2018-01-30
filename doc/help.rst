@@ -1120,15 +1120,14 @@ priority. The higher a browser is in the list, the less likely you are to run
 into issues and the higher the priority for resolving bugs happening with this
 browser.
 
-* Chrome 60 and higher.
+* The latest stable version of Chrome.
 
-* Edge, but see `the section about it <Edge_>`_. We expect wed probably works
-  fine on it.
+* The latest stable version of Edge.
 
 * IE 11, but see `the section about it <IE11>`_.
 
-* Relatively recent versions of Chrome: older than the latest releases
-  but not very old. (Yeah, this is vague. Sorry about that.)
+* Versions of Chrome or Edge older than the latest stable version, but not very
+  old. (Yeah, this is vague. Sorry about that.)
 
 File an issue on github if you find a problem with one of the supported browsers
 above.
@@ -1138,7 +1137,7 @@ development resources, such support is unlikely to materialize soon. In
 decreasing order of likelihood, the following cases are unlikely to ever be
 supported:
 
-* Versions of Chrome older than those mentioned above.
+* Versions of Chrome or Edge older than those mentioned above.
 
 * Firefox. It deserves its own `discussion <Firefox_>`_.
 
@@ -1198,16 +1197,6 @@ length:
 It is taking forever for the problem to get resolved. In the meantime,
 we have no resources to devote to solving the issue of synthetic event
 support in Firefox and so Firefox support has been temporarily pulled.
-
-Edge
-----
-
-It is not *yet* possible to run the suite for Edge. Microsoft has not yet
-released a version of Edge which does support everything needed to run our
-suite. (See `this page
-<https://dev.windows.com/en-us/microsoft-edge/platform/status/webdriver/details/>`__
-for the technical details.) Therefore we cannot systematically test wed with
-Edge. If you do find a problem with Edge, report it and we'll try to fix it.
 
 IE11
 ----

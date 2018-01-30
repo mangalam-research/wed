@@ -157,6 +157,14 @@ def setup_screenshots(context):
     context.screenshots_dir_path = this_screenshots_dir_path
 
 
+class Top(object):
+    driver_meta = None
+    driver = None
+    util = None
+    initial_window_size = None
+    initial_window_handle = None
+
+
 def before_all(context):
     atexit.register(cleanup, context, True)
 
@@ -229,25 +237,6 @@ def before_all(context):
                      "-R", str(ssh_tunnel["ssh_port"]) + ":localhost:" +
                      context.server_port, "-N"])
 
-    driver = builder.get_driver()
-    context.driver = driver
-    context.util = selenic.util.Util(driver,
-                                     # Give more time if we are remote.
-                                     4 if builder.remote else 2)
-    # Without this, window sizes vary depending on the actual browser
-    # used.
-    context.initial_window_size = {"width": 1020, "height": 700}
-    context.initial_window_handle = driver.current_window_handle
-
-    # IE and Chrome must use nativeEvents. Firefox no longer supports
-    # them. It is unclear whether Edge will...
-    if context.util.ie or context.util.chrome:
-        assert_true(
-            driver.desired_capabilities["nativeEvents"],
-            "Wed's test suite require that native events be available; "
-            "you may have to use a different version of your browser, "
-            "one for which Selenium supports native events.")
-
     behave_wait = os.environ.get("BEHAVE_WAIT_BETWEEN_STEPS")
     context.behave_wait = behave_wait and float(behave_wait)
 
@@ -257,19 +246,8 @@ def before_all(context):
 
     server_thread.join()
 
-    # IE 10 has a problem with self-signed certificates. Selenium
-    # cannot tell IE 10 to ignore these problems. Here we work around
-    # the issue. This problem occurs only if we are using an SSH
-    # tunnel rather than sauce connect.
-    if ssh_tunnel and context.util.ie \
-       and builder.config.version == "10":
-        driver.get(builder.WED_SERVER + "/blank")
-        # Tried using, execute_script. Did not seem to work.
-        driver.get(
-            "javascript:((link = document.getElementById("
-            "'overridelink')) && link.click())")
-
     context.start_time = time.time()
+    context.top = Top()
 
 
 def dump_javascript_log(context):
@@ -290,9 +268,88 @@ def dump_javascript_log(context):
         print("")
 
 
+class DriverMeta(object):
+    __counter = 0
+
+    def __init__(self):
+        self.number = DriverMeta.__counter
+        DriverMeta.__counter += 1
+        self.failed = False
+        self.scenarios = 0
+
+
 def before_feature(context, feature):
     if "skip" in feature.tags:
         feature.skip("The feature was marked with @skip")
+
+    if context.top.driver is None:
+        builder = context.builder
+        driver_meta = context.top.driver_meta = DriverMeta()
+        driver = context.top.driver = builder.get_driver({
+            "name": "Wed Test ({})".format(driver_meta.number),
+        })
+        util = context.top.util = selenic.util.Util(driver,
+                                                    # Give more time if we are
+                                                    # remote.
+                                                    4 if builder.remote else 2)
+        # Without this, window sizes vary depending on the actual browser
+        # used.
+        context.top.initial_window_size = {"width": 1020, "height": 700}
+        context.top.initial_window_handle = driver.current_window_handle
+
+        # IE and Chrome must use nativeEvents. Firefox no longer supports
+        # them. It is unclear whether Edge will...
+        if util.chrome:
+            assert_true(
+                driver.desired_capabilities["nativeEvents"],
+                "Wed's test suite require that native events be available; "
+                "you may have to use a different version of your browser, "
+                "one for which Selenium supports native events.")
+
+    # Drop some values into the context object itself for ease of access.
+    context.util = context.top.util
+    context.driver = context.top.driver
+    context.initial_window_handle = context.top.initial_window_handle
+
+
+def after_feature(context, feature):
+    driver = context.top.driver
+    builder = context.builder
+    driver_meta = context.top.driver_meta
+
+    # Because we cycle drivers, we have to record that the driver has a failed
+    # test in order to mark the test as failed on the remote service side.
+    if feature.status == "failed":
+        driver_meta.failed = True
+
+    # We cycle drivers only if we are remote and we're dealing with a
+    # "problematic" brower. Firefox and Chrome don't need cycling the driver,
+    # but IE and Edge do.
+    if builder.remote and \
+       driver is not None and \
+       (context.util.ie or context.util.edge) and \
+       driver_meta.scenarios > 30:
+
+        failed = driver_meta.failed
+        builder.set_test_status(failed)
+
+        selenium_quit = context.selenium_quit
+        actually_quit = not ((selenium_quit == "on-enter") or
+                             (failed and selenium_quit == "on-success"))
+        if actually_quit:
+            # Yes, we trap every possible exception. There is not much
+            # we can do if the driver refuses to stop.
+            try:
+                driver.quit()
+            except:
+                pass
+        elif selenium_quit == "on-enter":
+            raw_input("Hit enter to quit")
+            try:
+                driver.quit()
+            except:
+                pass
+        context.top.driver = None
 
 
 def before_scenario(context, scenario):
@@ -310,9 +367,11 @@ def before_scenario(context, scenario):
         # We send a comment as a "script" so that we get something
         # in the record of Selenium commands.
         driver.execute_script("// SCENARIO: " + scenario.name + "\n")
-    driver.set_window_size(context.initial_window_size["width"],
-                           context.initial_window_size["height"])
+    driver.set_window_size(context.top.initial_window_size["width"],
+                           context.top.initial_window_size["height"])
     driver.set_window_position(0, 0)
+
+    context.top.driver_meta.scenarios += 1
 
 
 def after_scenario(context, _scenario):
@@ -322,10 +381,10 @@ def after_scenario(context, _scenario):
     handles = driver.window_handles
     if handles:
         for handle in handles:
-            if handle != context.initial_window_handle:
+            if handle != context.top.initial_window_handle:
                 driver.switch_to_window(handle)
                 driver.close()
-        driver.switch_to_window(context.initial_window_handle)
+        driver.switch_to_window(context.top.initial_window_handle)
 
     #
     # Make sure we did not trip a fatal error.

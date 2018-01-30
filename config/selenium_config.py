@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 import subprocess
 import json
@@ -55,8 +54,9 @@ class Config(selenic.Config):
     def make_selenium_desired_capabilities(self):
         ret = super(Config, self).make_selenium_desired_capabilities()
 
-        if self.browser == "INTERNETEXPLORER":
+        if self.browser in ("INTERNETEXPLORER", "EDGE"):
             ret["requireWindowFocus"] = True
+            ret["maxDuration"] = 40 * 60
 
         ret["tags"] = [self.browser]
         return ret
@@ -88,20 +88,23 @@ caps = {
     "build": "version: " + version + ", git describe: " + describe
 }
 
-selenium_version = "3.6.0"
-
 if REMOTE_SERVICE == "saucelabs":
+    # # As of 2017-12-19, it seems using Selenium greater than 3.6.0 causes
+    # # problems on IE.
+
+    # selenium_version = "2.53.1"
     caps.update({
         "selenium-version": selenium_version,
         "chromedriver-version": "2.32",
+        # "iedriverVersion": "3.4.0",
     })
 
     if not LOGS:
         caps.update({
-            "record-screenshots": "false",
-            "record-video": "false",
-            "record-logs": "false",
-            "sauce-advisor": "false"
+            "recordScreenshots": "false",
+            "recordVideo": "false",
+            "recordLogs": "false",
+            "sauceAdvisor": "false"
         })
 
 elif REMOTE_SERVICE == "browserstack":
@@ -219,9 +222,6 @@ def post_execution():
 
 if CONFIG.remote and not REMOTE_SERVICE:
     raise ValueError("you must pass a service argument to behave")
-
-# May be required to get native events.
-# FIREFOX_BINARY = FirefoxBinary("/home/ldd/src/firefox-24/firefox")
 
 #
 # Location of our server. Changing this use standalone rather than
