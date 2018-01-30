@@ -26,15 +26,24 @@
 // might happen when running in a tablet or phone.)
 //
 
+const agent = navigator.userAgent;
+
+/**
+ * True if the browser is Edge.
+ */
+export const EDGE = agent.indexOf(" Edge/") !== -1;
+
 /**
  * True if the browser is Chrome.
  */
-export const CHROME = navigator.userAgent.indexOf(" Chrome/") !== -1;
+// We have to test exclude Edge from the possibilities because Edge lies about
+// its identity.
+export const CHROME = !EDGE && agent.indexOf(" Chrome/") !== -1;
 
 /**
  * True if the browser is Internet Explorer up to version 10.
  */
-export const MSIE_TO_10 = navigator.userAgent.indexOf(" MSIE ") !== -1;
+export const MSIE_TO_10 = agent.indexOf(" MSIE ") !== -1;
 
 /**
  * True if the browser is Internet Explorer from version 11 and up.
@@ -45,7 +54,7 @@ export const MSIE_TO_10 = navigator.userAgent.indexOf(" MSIE ") !== -1;
 // that puts it at the end. We might want to refine this eventually.
 //
 const MSIE_11_MARK = " like Gecko";
-export const MSIE_11_AND_UP = navigator.userAgent.indexOf(
+export const MSIE_11_AND_UP = agent.indexOf(
   MSIE_11_MARK, navigator.userAgent.length - MSIE_11_MARK.length) !== -1;
 
 /**
@@ -56,17 +65,17 @@ export const MSIE = MSIE_11_AND_UP || MSIE_TO_10;
 /**
  * True if the browser is Firefox.
  */
-export const FIREFOX = navigator.userAgent.indexOf(" Firefox/") !== -1;
+export const FIREFOX = agent.indexOf(" Firefox/") !== -1;
 
 /**
  * True if the browser is Firefox 24. This is an ESR version.
  */
-export const FIREFOX_24 = navigator.userAgent.indexOf(" Firefox/24") !== -1;
+export const FIREFOX_24 = agent.indexOf(" Firefox/24") !== -1;
 
 /**
  * True if the browser is Gecko-based.
  */
-export const GECKO = navigator.userAgent.indexOf(" Gecko/") !== -1;
+export const GECKO = agent.indexOf(" Gecko/") !== -1;
 
 /**
  * True if running on a OS X system.

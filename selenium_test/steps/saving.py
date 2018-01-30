@@ -25,6 +25,8 @@ flip_xmlns_re = re.compile(ur'(xmlns:math=".*?") (xmlns=".*?")')
 flip_div_attrs_re = re.compile(
     ur'(type=".*?") (rend=".*?") (rendition=".*?") (subtype=".*?")')
 
+flip_moo_re = re.compile(ur'(moo=".*?") (MOO=".*?")')
+
 _SCENARIO_TO_EXPECTED_DATA = {
     "serializes namespaces properly":
     u"""\
@@ -83,13 +85,21 @@ def step_impl(context):
         actual = json.loads(text)
         # We don't care about the version here.
         del actual["version"]
-        if util.ie and u"data" in actual:
-            actual[u"data"] =  \
-                flip_rend_style_re.sub(ur'\2 \1', actual[u"data"])
-            actual[u"data"] = \
-                flip_xmlns_re.sub(ur'\2 \1', actual[u"data"])
-            actual[u"data"] = \
-                flip_div_attrs_re.sub(ur'\1 \4 \2 \3', actual[u"data"])
+        if u"data" in actual:
+            if util.ie:
+                actual[u"data"] =  \
+                    flip_rend_style_re.sub(ur'\2 \1', actual[u"data"])
+                actual[u"data"] = \
+                    flip_xmlns_re.sub(ur'\2 \1', actual[u"data"])
+                actual[u"data"] = \
+                    flip_div_attrs_re.sub(ur'\1 \4 \2 \3', actual[u"data"])
+            elif util.edge:
+                actual[u"data"] =  \
+                    flip_rend_style_re.sub(ur'\2 \1', actual[u"data"])
+                actual[u"data"] = \
+                    flip_div_attrs_re.sub(ur'\1 \4 \2 \3', actual[u"data"])
+                actual[u"data"] = flip_moo_re.sub(ur'\2 \1', actual[u"data"])
+
         return Result(actual == expected, [actual, expected])
 
     result = Condition(util, cond).wait()

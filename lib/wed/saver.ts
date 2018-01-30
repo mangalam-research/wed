@@ -256,7 +256,11 @@ export abstract class Saver {
       return serializer.serialize(child);
     }
 
-    return child.outerHTML;
+    const serialization = child.outerHTML;
+    // Edge has the bad habit of adding a space before the forward slash in
+    // self-closing tags. Remove it.
+    return browsers.EDGE ? serialization.replace(/<([^/<>]+) \/>/g, "<$1/>") :
+      serialization;
   }
 
   /**

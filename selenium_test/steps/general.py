@@ -392,6 +392,7 @@ _BROWSER_TO_VALUES = {
         u"MSIE": False,
         u"OSX": False,
         u"WINDOWS": False,
+        u"EDGE": False,
     },
     "FIREFOX": {
         u"CHROME": False,
@@ -403,6 +404,7 @@ _BROWSER_TO_VALUES = {
         u"MSIE": False,
         u"OSX": False,
         u"WINDOWS": False,
+        u"EDGE": False,
     },
     "INTERNETEXPLORER": {
         u"CHROME": False,
@@ -414,6 +416,19 @@ _BROWSER_TO_VALUES = {
         u"MSIE": True,
         u"OSX": False,
         u"WINDOWS": False,
+        u"EDGE": False,
+    },
+    "EDGE": {
+        u"CHROME": False,
+        u"FIREFOX": False,
+        u"FIREFOX_24": False,
+        u"GECKO": False,
+        u"MSIE_TO_10": False,
+        u"MSIE_11_AND_UP": False,
+        u"MSIE": False,
+        u"OSX": False,
+        u"WINDOWS": False,
+        u"EDGE": True,
     }
 }
 

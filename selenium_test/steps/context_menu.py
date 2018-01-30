@@ -513,6 +513,12 @@ def step_impl(context, choice, new=None, name=None):
             """, for_element)
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
+
+    # On Edge, the autoscrolling is crap. It brings the element only half into
+    # view.
+    if util.edge:
+        driver.execute_script("arguments[0].scrollIntoView();", link)
+
     link.click()
 
 
