@@ -20,12 +20,13 @@ def step_impl(context):
 
 last_obj_re = re.compile('.*}{')
 
-flip_rend_style_re = re.compile(ur'(style=".*?") (rend=".*?")')
-flip_xmlns_re = re.compile(ur'(xmlns:math=".*?") (xmlns=".*?")')
+flip_rend_style_re = re.compile(ur'(style="[^"]*?") (rend="[^"]*?")')
+flip_xmlns_re = re.compile(ur'(xmlns:math="[^"]*?") (xmlns="[^"]*?")')
 flip_div_attrs_re = re.compile(
-    ur'(type=".*?") (rend=".*?") (rendition=".*?") (subtype=".*?")')
+    ur'(type="[^"]*?") (rend="[^"]*?") (rendition="[^"]*?") '
+    ur'(subtype="[^"]*?")')
 
-flip_moo_re = re.compile(ur'(moo=".*?") (MOO=".*?")')
+flip_moo_re = re.compile(ur'(moo="[^"]*?") (MOO="[^"]*?")')
 
 _SCENARIO_TO_EXPECTED_DATA = {
     "serializes namespaces properly":
