@@ -55,7 +55,7 @@ export interface Metadata {
   /**
    * Returns a URL to the documentation for an element. The element should be
    * named according to the mappings reported by the resolve returned by
-   * [["mode".Mode.getAbsoluteResolver]].
+   * [["wed/mode".Mode.getAbsoluteResolver]].
    *
    * @param name The name of the element.
    *

@@ -61,7 +61,7 @@ export class InputTrigger {
    *
    * @param selector This is a CSS selector which must be fit to be used in the
    * GUI tree. (For instance by being the output of
-   * [["domutil".toGUISelector]].)
+   * [["wed/domutil".toGUISelector]].)
    */
   constructor(private readonly editor: EditorAPI,
               private readonly mode: Mode,

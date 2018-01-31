@@ -149,8 +149,8 @@ class GenericMode<Options extends GenericModeOptions>
   /**
    * Returns a short description for an element. The element should be named
    * according to the mappings reported by the resolve returned by
-   * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-   * the metadata.
+   * [["wed/mode".Mode.getAbsoluteResolver]]. The generic mode delegates the
+   * call to the metadata.
    *
    * @param name The name of the element.
    *
@@ -169,8 +169,8 @@ class GenericMode<Options extends GenericModeOptions>
   /**
    * Returns a URL to the documentation for an element. The element should be
    * named according to the mappings reported by the resolve returned by
-   * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-   * the metadata.
+   * [["wed/mode".Mode.getAbsoluteResolver]]. The generic mode delegates the
+   * call to the metadata.
    *
    * @param name The name of the element.
    *

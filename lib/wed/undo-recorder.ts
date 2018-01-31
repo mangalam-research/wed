@@ -17,7 +17,7 @@ function getOuterHTML(node: Node | undefined | null): string {
 }
 
 /**
- * Undo operation for [["tree-updater".InsertNodeAtEvent]].
+ * Undo operation for [["wed/tree-updater".InsertNodeAtEvent]].
  *
  * The parameters after ``tree_updater`` are the same as the properties on the
  * event corresponding to this class.
@@ -74,7 +74,7 @@ class InsertNodeAtUndo extends undo.Undo {
 }
 
 /**
- * Undo operation for [["tree-updater".SetTextNodeValueEvent]].
+ * Undo operation for [["wed/tree-updater".SetTextNodeValueEvent]].
  *
  * @private
  */
@@ -113,7 +113,7 @@ class SetTextNodeValueUndo extends undo.Undo {
 }
 
 /**
- * Undo operation for [["tree-updater".BeforeDeleteNodeEvent]].
+ * Undo operation for [["wed/tree-updater".BeforeDeleteNodeEvent]].
  *
  * @private
  */
@@ -161,7 +161,7 @@ class DeleteNodeUndo extends undo.Undo {
 }
 
 /**
- * Undo operation for [["tree-updater".SetAttributeNSEvent]].
+ * Undo operation for [["wed/tree-updater".SetAttributeNSEvent]].
  *
  * @private
  */

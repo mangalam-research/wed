@@ -1737,8 +1737,8 @@ export function isNotDisplayed(el: HTMLElement,
  * GUI tree because we do not address attributes in that tree. There is,
  * however, no harm in using it where it is not strictly needed. In the data
  * tree, however, we do address attributes. Code that works with either tree
- * (e.g. the [["dloc"]] module) should use this function as a general rule so
- * that it can work with either tree.
+ * (e.g. the [["wed/dloc"]] module) should use this function as a general rule
+ * so that it can work with either tree.
  *
  * @param container The thing which should contain in the test.
  *
