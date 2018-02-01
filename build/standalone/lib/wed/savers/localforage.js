@@ -16,7 +16,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "localforage", "../saver"], function (require, exports, module, localforage, saver) {
+define(["require", "exports", "localforage", "wed"], function (require, exports, localforage, wed_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -121,9 +121,8 @@ define(["require", "exports", "module", "localforage", "../saver"], function (re
                 .catch(function () { return false; });
         };
         return Saver;
-    }(saver.Saver));
+    }(wed_1.saver.Saver));
     exports.Saver = Saver;
 });
 //  LocalWords:  localforage MPL runtime
-
 //# sourceMappingURL=localforage.js.map

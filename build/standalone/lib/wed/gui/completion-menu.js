@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "jquery", "../key-constants", "./context-menu"], function (require, exports, module, $, keyConstants, context_menu_1) {
+define(["require", "exports", "jquery", "../key-constants", "./context-menu"], function (require, exports, $, keyConstants, context_menu_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -49,7 +49,9 @@ define(["require", "exports", "module", "jquery", "../key-constants", "./context
             // because completion menus are evanescent.
             _this.backdrop.parentNode.removeChild(_this.backdrop);
             // We need to install our own handler so that we can handle the few keys
-            // that ought to be transferred to the menu itself.
+            // that ought to be transferred to the menu itself. Remember that the focus
+            // remains in the editing pane. So the editing pane, rather than the menu,
+            // gets the key events.
             _this.boundCompletionKeydownHandler =
                 _this.globalKeydownHandler.bind(_this);
             editor.pushGlobalKeydownHandler(_this.boundCompletionKeydownHandler);
@@ -133,5 +135,4 @@ define(["require", "exports", "module", "jquery", "../key-constants", "./context
     exports.CompletionMenu = CompletionMenu;
 });
 //  LocalWords:  MPL li href
-
 //# sourceMappingURL=completion-menu.js.map

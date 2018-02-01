@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "chai", "merge-options", "wed/gui-selector", "wed/input-trigger", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, module, chai_1, mergeOptions, gui_selector_1, input_trigger_1, input_trigger_factory_1, key, key_constants_1, globalConfig, util_1, wed_test_util_1) {
+define(["require", "exports", "chai", "merge-options", "wed/gui-selector", "wed/input-trigger", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, chai_1, mergeOptions, gui_selector_1, input_trigger_1, input_trigger_factory_1, key, key_constants_1, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var options = {
@@ -168,5 +168,4 @@ source_converted.xml", mergeOptions(globalConfig.config, options), document);
 //  LocalWords:  requirejs wedroot wedframe metas js rng RequireJS cd
 //  LocalWords:  Mangalam MPL Dubeau jquery jQuery tei keypress chai
 //  LocalWords:  keydown InputTrigger
-
 //# sourceMappingURL=input-trigger-test.js.map

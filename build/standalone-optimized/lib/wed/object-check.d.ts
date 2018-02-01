@@ -55,8 +55,31 @@ export interface CheckedObject {
  *
  * @param template The template to use for the check.
  *
- * @param object The object to check
+ * @param toCheck The object to check
  *
  * @returns The results.
  */
-export declare function check(template: Template, object: CheckedObject): CheckResults;
+export declare function check(template: Template, toCheck: {}): CheckResults;
+/**
+ * Check whether the object fits the template, and throw at the first sign of
+ * trouble. The thrown object contains information about the first error
+ * encountered.
+ *
+ * @param template The template to use for the check.
+ *
+ * @param toCheck The object to check
+ *
+ * @throws {Error} If there is any error.
+ */
+export declare function assertSummarily(template: Template, toCheck: {}): void;
+/**
+ * Check whether the object fits the template, and throw an error that reports
+ * all issues.
+ *
+ * @param template The template to use for the check.
+ *
+ * @param toCheck The object to check
+ *
+ * @throws {Error} If there is any error.
+ */
+export declare function assertExtensively(template: Template, toCheck: {}): void;

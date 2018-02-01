@@ -4,7 +4,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as rangy from "rangy";
 import { DLoc } from "./dloc";
 import { RangeInfo } from "./domutil";
 export interface GUIToDataConverter {
@@ -26,7 +25,7 @@ export declare class WedSelection {
      * result in a collapsed selection.
      */
     constructor(converter: GUIToDataConverter, anchor: DLoc, focus?: DLoc | undefined);
-    readonly range: rangy.RangyRange | undefined;
+    readonly range: Range | undefined;
     readonly rangeInfo: RangeInfo | undefined;
     readonly collapsed: boolean;
     readonly wellFormed: boolean;

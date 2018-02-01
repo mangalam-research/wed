@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "jquery", "sinon", "wed/dloc", "wed/runtime", "wed/savers/ajax", "wed/tree-updater", "chai"], function (require, exports, module, $, sinon, dloc_1, runtime_1, ajax_1, tree_updater_1) {
+define(["require", "exports", "jquery", "sinon", "wed/dloc", "wed/runtime", "wed/savers/ajax", "wed/tree-updater", "chai"], function (require, exports, $, sinon, dloc_1, runtime_1, ajax_1, tree_updater_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -127,5 +127,4 @@ define(["require", "exports", "module", "jquery", "sinon", "wed/dloc", "wed/runt
         });
     });
 });
-
 //# sourceMappingURL=ajax-test.js.map

@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./domtypeguards", "./domutil", "./input-trigger", "./transformation"], function (require, exports, module, domtypeguards_1, domutil, input_trigger_1, transformation) {
+define(["require", "exports", "./domtypeguards", "./domutil", "./input-trigger", "./transformation"], function (require, exports, domtypeguards_1, domutil, input_trigger_1, transformation) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -140,5 +140,4 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./input
 });
 //  LocalWords:  InputTrigger keydown keypress domutil deleteText lastChild MPL
 //  LocalWords:  Dubeau Mangalam
-
 //# sourceMappingURL=input-trigger-factory.js.map

@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", "./util"], function (require, exports, module, $, rangy, domtypeguards_1, util) {
+define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (require, exports, $, domtypeguards_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAttr = domtypeguards_1.isAttr;
@@ -19,6 +19,79 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
     }
     exports.indexOf = indexOf;
     /**
+     * Compare two locations that have already been determined to be in a
+     * parent-child relation. **Important: the relationship must have been formally
+     * tested *before* calling this function.**
+     *
+     * @returns -1 if ``parent`` is before ``child``, 1 otherwise.
+     */
+    function parentChildCompare(parentNode, parentOffset, childNode) {
+        // Find which child of parent is or contains the other node.
+        var curChild = parentNode.firstChild;
+        var ix = 0;
+        while (curChild !== null) {
+            if (curChild.contains(childNode)) {
+                break;
+            }
+            ix++;
+            curChild = curChild.nextSibling;
+        }
+        // This is ``<= 0`` and not just ``< 0`` because if our offset points exactly
+        // to the child we found, then parent location is necessarily before the child
+        // location.
+        return (parentOffset - ix) <= 0 ? -1 : 1;
+    }
+    /**
+     * Compare two positions in document order.
+     *
+     * This function relies on DOM's ``compareDocumentPosition`` function. Remember
+     * that calling that function with attributes can be problematic. (For instance,
+     * two attributes on the same element are not ordered.)
+     *
+     * @param firstNode Node of the first position.
+     *
+     * @param firstOffset Offset of the first position.
+     *
+     * @param secondNode Node of the second position.
+     *
+     * @param secondOffset Offset of the second position.
+     *
+     * @returns -1 if the first position comes before the second. 1 if the first
+     * position comes after the other. 0 if the two positions are equal.
+     */
+    function comparePositions(firstNode, firstOffset, secondNode, secondOffset) {
+        if (firstNode === secondNode) {
+            var d = firstOffset - secondOffset;
+            if (d === 0) {
+                return 0;
+            }
+            return d < 0 ? -1 : 1;
+        }
+        var comparison = firstNode.compareDocumentPosition(secondNode);
+        // tslint:disable:no-bitwise
+        if ((comparison & Node.DOCUMENT_POSITION_DISCONNECTED) !== 0) {
+            throw new Error("cannot compare disconnected nodes");
+        }
+        if ((comparison & Node.DOCUMENT_POSITION_CONTAINED_BY) !== 0) {
+            return parentChildCompare(firstNode, firstOffset, secondNode);
+        }
+        if ((comparison & Node.DOCUMENT_POSITION_CONTAINS) !== 0) {
+            // This raises a type error:
+            //
+            // return -parentChildCompare(secondNode, secondOffset, firstNode);
+            return parentChildCompare(secondNode, secondOffset, firstNode) < 0 ? 1 : -1;
+        }
+        if ((comparison & Node.DOCUMENT_POSITION_PRECEDING) !== 0) {
+            return 1;
+        }
+        if ((comparison & Node.DOCUMENT_POSITION_FOLLOWING) !== 0) {
+            return -1;
+        }
+        // tslint:enable:no-bitwise
+        throw new Error("neither preceding nor following: this should not happen");
+    }
+    exports.comparePositions = comparePositions;
+    /**
      * Gets the first range in the selection.
      *
      * @param win The window for which we want the selection.
@@ -27,7 +100,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      * or no range.
      */
     function getSelectionRange(win) {
-        var sel = rangy.getSelection(win);
+        var sel = window.getSelection();
         if (sel === undefined || sel.rangeCount < 1) {
             return undefined;
         }
@@ -40,9 +113,9 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      * @returns The range information.
      */
     function rangeFromPoints(startContainer, startOffset, endContainer, endOffset) {
-        var range = rangy.createRange(startContainer.ownerDocument);
+        var range = startContainer.ownerDocument.createRange();
         var reversed = false;
-        if (rangy.dom.comparePoints(startContainer, startOffset, endContainer, endOffset) <= 0) {
+        if (comparePositions(startContainer, startOffset, endContainer, endOffset) <= 0) {
             range.setStart(startContainer, startOffset);
             range.setEnd(endContainer, endOffset);
         }
@@ -1427,8 +1500,8 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
      * GUI tree because we do not address attributes in that tree. There is,
      * however, no harm in using it where it is not strictly needed. In the data
      * tree, however, we do address attributes. Code that works with either tree
-     * (e.g. the [["dloc"]] module) should use this function as a general rule so
-     * that it can work with either tree.
+     * (e.g. the [["wed/dloc"]] module) should use this function as a general rule
+     * so that it can work with either tree.
      *
      * @param container The thing which should contain in the test.
      *
@@ -1450,6 +1523,6 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
 //  LocalWords:  dom deleteNode mergeTextNodes jshint insertNodeAt noop treeA
 //  LocalWords:  validthis insertFragAt versa nextSibling Dubeau MPL nodeInA
 //  LocalWords:  Mangalam gui DOM unlinks startContainer startOffset childNodes
-//  LocalWords:  endContainer endOffset genericInsertIntoText
-
+//  LocalWords:  endContainer endOffset genericInsertIntoText secondNode
+//  LocalWords:  parentChildCompare secondOffset firstNode
 //# sourceMappingURL=domutil.js.map

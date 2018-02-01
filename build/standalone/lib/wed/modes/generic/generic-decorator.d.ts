@@ -4,9 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { Decorator } from "wed/decorator";
-import { Mode } from "wed/mode";
-import { Editor } from "wed/wed";
+import { Decorator, EditorAPI, Mode } from "wed";
 import { Metadata } from "./metadata";
 /**
  * A decorator for the generic mode.
@@ -25,7 +23,7 @@ export declare class GenericDecorator extends Decorator {
      * decorator.
      *
      */
-    constructor(mode: Mode, editor: Editor, metadata: Metadata, options: any);
+    constructor(mode: Mode, editor: EditorAPI, metadata: Metadata, options: any);
     addHandlers(): void;
     elementDecorator(root: Element, el: Element): void;
     /**

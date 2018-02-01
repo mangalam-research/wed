@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "./layer"], function (require, exports, module, layer_1) {
+define(["require", "exports", "./layer"], function (require, exports, layer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -46,5 +46,4 @@ define(["require", "exports", "module", "./layer"], function (require, exports, 
     exports.ErrorLayer = ErrorLayer;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=error-layer.js.map

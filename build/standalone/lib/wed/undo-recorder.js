@@ -1,11 +1,3 @@
-/**
- * Listens to changes on a tree and records undo operations corresponding to
- * these changes.
- *
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16,14 +8,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "./domutil", "./undo"], function (require, exports, module, domutil_1, undo) {
+define(["require", "exports", "./domutil", "./undo"], function (require, exports, domutil_1, undo) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function getOuterHTML(node) {
         return (node == null) ? "undefined" : node.outerHTML;
     }
     /**
-     * Undo operation for [["tree-updater".InsertNodeAtEvent]].
+     * Undo operation for [["wed/tree-updater".InsertNodeAtEvent]].
      *
      * The parameters after ``tree_updater`` are the same as the properties on the
      * event corresponding to this class.
@@ -51,7 +43,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
             // the index. The ``node`` property will be filled as needed when
             // undoing/redoing.
         }
-        InsertNodeAtUndo.prototype.undo = function () {
+        InsertNodeAtUndo.prototype.performUndo = function () {
             if (this.node !== undefined) {
                 throw new Error("undo called twice in a row");
             }
@@ -59,7 +51,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
             this.node = parent.childNodes[this.index].cloneNode(true);
             this.treeUpdater.deleteNode(parent.childNodes[this.index]);
         };
-        InsertNodeAtUndo.prototype.redo = function () {
+        InsertNodeAtUndo.prototype.performRedo = function () {
             if (this.node === undefined) {
                 throw new Error("redo called twice in a row");
             }
@@ -76,7 +68,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
         return InsertNodeAtUndo;
     }(undo.Undo));
     /**
-     * Undo operation for [["tree-updater".SetTextNodeValueEvent]].
+     * Undo operation for [["wed/tree-updater".SetTextNodeValueEvent]].
      *
      * @private
      */
@@ -94,12 +86,12 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
             _this.nodePath = treeUpdater.nodeToPath(node);
             return _this;
         }
-        SetTextNodeValueUndo.prototype.undo = function () {
+        SetTextNodeValueUndo.prototype.performUndo = function () {
             // The node is necessarily a text node.
             var node = this.treeUpdater.pathToNode(this.nodePath);
             this.treeUpdater.setTextNodeValue(node, this.oldValue);
         };
-        SetTextNodeValueUndo.prototype.redo = function () {
+        SetTextNodeValueUndo.prototype.performRedo = function () {
             // The node is necessarily a text node.
             var node = this.treeUpdater.pathToNode(this.nodePath);
             this.treeUpdater.setTextNodeValue(node, this.value);
@@ -113,7 +105,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
         return SetTextNodeValueUndo;
     }(undo.Undo));
     /**
-     * Undo operation for [["tree-updater".BeforeDeleteNodeEvent]].
+     * Undo operation for [["wed/tree-updater".BeforeDeleteNodeEvent]].
      *
      * @private
      */
@@ -132,7 +124,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
             _this.node = node.cloneNode(true);
             return _this;
         }
-        DeleteNodeUndo.prototype.undo = function () {
+        DeleteNodeUndo.prototype.performUndo = function () {
             if (this.node === undefined) {
                 throw new Error("undo called twice in a row");
             }
@@ -140,7 +132,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
             this.treeUpdater.insertNodeAt(parent, this.index, this.node);
             this.node = undefined;
         };
-        DeleteNodeUndo.prototype.redo = function () {
+        DeleteNodeUndo.prototype.performRedo = function () {
             if (this.node !== undefined) {
                 throw new Error("redo called twice in a row");
             }
@@ -157,7 +149,7 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
         return DeleteNodeUndo;
     }(undo.Undo));
     /**
-     * Undo operation for [["tree-updater".SetAttributeNSEvent]].
+     * Undo operation for [["wed/tree-updater".SetAttributeNSEvent]].
      *
      * @private
      */
@@ -177,11 +169,11 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
             _this.nodePath = treeUpdater.nodeToPath(node);
             return _this;
         }
-        SetAttributeNSUndo.prototype.undo = function () {
+        SetAttributeNSUndo.prototype.performUndo = function () {
             var node = this.treeUpdater.pathToNode(this.nodePath);
             this.treeUpdater.setAttributeNS(node, this.ns, this.attribute, this.oldValue);
         };
-        SetAttributeNSUndo.prototype.redo = function () {
+        SetAttributeNSUndo.prototype.performRedo = function () {
             var node = this.treeUpdater.pathToNode(this.nodePath);
             this.treeUpdater.setAttributeNS(node, this.ns, this.attribute, this.newValue);
         };
@@ -274,5 +266,4 @@ define(["require", "exports", "module", "./domutil", "./undo"], function (requir
 //  LocalWords:  InsertNodeAtUndo SetTextNodeValueUndo DeleteNodeUndo Dubeau
 //  LocalWords:  pathToNode nodeToPath Mangalam SetAttributeNSUndo
 //  LocalWords:  BeforeDeleteNode SetAttributeNS suppressRecording
-
 //# sourceMappingURL=undo-recorder.js.map

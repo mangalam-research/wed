@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using Wed in an Application &mdash; Wed v0.30.0 documentation</title>
+  <title>Using Wed in an Application &mdash; Wed v1.0.0 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.30.0 documentation" href="index.html"/>
+    <link rel="top" title="Wed v1.0.0 documentation" href="index.html"/>
         <link rel="next" title="Creating a Mode" href="mode_design.html"/>
         <link rel="prev" title="Wed’s Help" href="help.html"/> 
 
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v0.30
+                v1.0
               </div>
             
           
@@ -178,7 +178,7 @@ irrelevant to the point being made here.)</p>
 <li><p class="first">Wed supports most of Relax NG, with a few limitations. See the <a class="reference external" href="https://github.com/mangalam-research/salve/">salve</a> package for details.</p>
 </li>
 <li><p class="first">Wed does not currently support ordering attributes according to some
-preference. (The order is whatever the DOM implementation does by default.)</p>
+preference. (The order is alphabetic.)</p>
 </li>
 <li><p class="first">Wed does not currently support multiline values in attributes.</p>
 </li>
@@ -188,16 +188,16 @@ and <code class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</sp
 fact that wed sees the document as a DOM tree, not as a serialization. In a
 DOM tree, <code class="docutils literal"><span class="pre">&lt;foo/&gt;</span></code> and <code class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></code> are the same.</p>
 </li>
-<li><p class="first">Elements that <em>must be empty</em> appear in the editor as if they could* contain
-<em>contents. Note that the validator raises an error if these elements are
-*filled with any contents but it would be nicer if they were displayed in a
-*way that distinguished them from the elements that *can</em> be filled with
-<em>contents. We worked on a prototype that would check whether an element *can</em>
-<a href="#id1"><span class="problematic" id="id2">*</span></a>contain anything and display it differently if it could not. However, this
-<a href="#id3"><span class="problematic" id="id4">*</span></a>required that the rendering engine query the validating engine during
-<a href="#id5"><span class="problematic" id="id6">*</span></a>rendering, which made rendering extremely slow. Since the editor will raise
-<a href="#id7"><span class="problematic" id="id8">*</span></a>an error if an element that should be empty is filled erroneously, we&#8217;ve
-<a href="#id9"><span class="problematic" id="id10">*</span></a>decided that a solution to this problem can wait.</p>
+<li><p class="first">Elements that <em>must be empty</em> appear in the editor as if they <em>could</em> contain
+contents. Note that the validator raises an error if these elements are filled
+with any contents but it would be nicer if they were displayed in a way that
+distinguished them from the elements that <em>can</em> be filled with contents. We
+worked on a prototype that would check whether an element <em>can</em> contain
+anything and display it differently if it could not. However, this required
+that the rendering engine query the validating engine during rendering, which
+made rendering extremely slow. Since the editor will raise an error if an
+element that should be empty is filled erroneously, we&#8217;ve decided that a
+solution to this problem can wait.</p>
 </li>
 <li><p class="first">Eventually the plan is to handle XML namespace changes completely, and there
 is incipient code to deal with this; for now the safe thing to do if you have
@@ -243,9 +243,9 @@ can use wed for your project.</p>
 </ul>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
-<p>Wed is packaged as a RequireJS module. To use it in a browser environment, you
-need to first load RequireJS and pass to it a configuration that will allow it
-to find wed&#8217;s code. An example of such configuration, which allows running the
+<p>Wed is packaged as an AMD module. To use it in a browser environment, you need
+to first load RequireJS and pass to it a configuration that will allow it to
+find wed&#8217;s code. An example of such configuration, which allows running the
 browser-dependent test suite, is located in
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>.</p>
 <div class="admonition warning">
@@ -259,14 +259,17 @@ git. This is true of all files that are stored in
 <p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/package.json">package.json</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>,
 <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/Makefile">Makefile</a> and <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> files for details regarding run-time
 and development dependencies. Running the test suite also requires that <a class="reference external" href="http://saxon.sourceforge.net/">saxon</a> be installed.</p>
+<p>Wed works with jQuery 3.x and 2.x. We strongly recommend using jQuery
+3.x. jQuery 2.x is no longer maintained by its development team and thus no
+longer receives security patches. There is no formal support for running wed
+with jQuery 1.x or earlier versions.</p>
+<p>The optimized builds of wed include jQuery 3.x.</p>
 <p>Building wed&#8217;s documentation <strong>additionally</strong> requires the following packages:</p>
 <ul class="simple">
-<li>jsdoc3</li>
 <li>rst2html</li>
-<li>perl (a stop-gap measure which we plan to get rid of eventually)</li>
 </ul>
 <p>Running wed&#8217;s selenium-based tests <strong>additionally</strong> requires Python 2.7 and the
-packages listed in <code class="docutils literal"><span class="pre">dev_requirements.txt</span></code>.</p>
+Python packages listed in <code class="docutils literal"><span class="pre">dev_requirements.txt</span></code>.</p>
 <p>If you want to contribute to wed, your code will have to pass the checks listed
 in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. So you either have to install glerbl to get
 those checks done for you or run the checks through other means. See
@@ -282,12 +285,12 @@ to record settings specific to your own build environment. Run <code class="docu
 to see what variables you can set. Note that the variable names when use on the
 command line have dashes where they would have underscore in
 <code class="docutils literal"><span class="pre">gulp.local.js</span></code>. For instance, on the command line you&#8217;d use
-<code class="docutils literal"><span class="pre">--jsdoc3-default-template</span></code> to set the path to the jsdoc3 default template but
-in <code class="docutils literal"><span class="pre">gulp.local.js</span></code> it would be <code class="docutils literal"><span class="pre">jsdoc3_default_template</span></code>. Also note that
-your <code class="docutils literal"><span class="pre">gulp.local.js</span></code> file should return a single anonymous object whose fields
-are the values you want to set. For instance:</p>
+<code class="docutils literal"><span class="pre">--behave-params</span></code> to set the parameters passed to <code class="docutils literal"><span class="pre">behave</span></code> but in
+<code class="docutils literal"><span class="pre">gulp.local.js</span></code> it would be <code class="docutils literal"><span class="pre">behave_params</span></code>. Also note that your
+<code class="docutils literal"><span class="pre">gulp.local.js</span></code> file should return a single anonymous object whose fields are
+the values you want to set. For instance:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">module</span><span class="o">.</span><span class="n">export</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">jsdoc3_default_template</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span>
+    <span class="n">behave_params</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span>
 <span class="p">};</span>
 </pre></div>
 </div>
@@ -354,7 +357,7 @@ one (generic) by passing a <code class="docutils literal"><span class="pre">mode
 sink to load the tei mode.</p>
 </div>
 <div class="section" id="label-visibility">
-<span id="id11"></span><h3>Label Visibility<a class="headerlink" href="#label-visibility" title="Permalink to this headline">¶</a></h3>
+<span id="id1"></span><h3>Label Visibility<a class="headerlink" href="#label-visibility" title="Permalink to this headline">¶</a></h3>
 <p>Wed allows the user to reduce or increase the number of element labeled on the
 screen. How this works is dependent in part on the specific mode that the user
 has selected. For instance, the default mode that comes with wed (the &#8220;generic&#8221;
@@ -367,14 +370,36 @@ the mode.</p>
 </div>
 <div class="section" id="using">
 <h2>Using<a class="headerlink" href="#using" title="Permalink to this headline">¶</a></h2>
+<p>Starting with version 0.31, wed is much stricter as to what it exposes to
+libraries. The only parts of the code base that are safe to access are those
+exported by the facade exposed as <code class="docutils literal"><span class="pre">wed</span></code>. <code class="docutils literal"><span class="pre">wed</span></code> exports <code class="docutils literal"><span class="pre">EditorInstance</span></code>
+for the sake of allowing the creation of editors. However, modes <strong>must</strong> access
+the editor through the interface defined in <code class="docutils literal"><span class="pre">wed/mode-api</span></code> (which is
+reexported by <code class="docutils literal"><span class="pre">wed</span></code>). It is <strong>not</strong> legal for a mode to cast an <code class="docutils literal"><span class="pre">EditorAPI</span></code>
+variable to anything that exposes members that are not exposed through
+<code class="docutils literal"><span class="pre">wed/mode-api</span></code>. Any access that bypasses the public API is liable to break
+without notice, no complaints, no recourse.</p>
+<p>Also note that under the new regime the only module that is generally legitimate
+to load is <code class="docutils literal"><span class="pre">wed</span></code>, and nothing else. You can probably still load individual
+modules from the <code class="docutils literal"><span class="pre">standalone</span></code> subdirectory as you used to, but this way of
+operating is deprecated and will most likely be gone by version 1.0. There are a
+few exceptions to the rule just given:</p>
+<ul class="simple">
+<li>You may load <code class="docutils literal"><span class="pre">wed/onerror</span></code> by itself to set an error handler.</li>
+<li>You may load <code class="docutils literal"><span class="pre">wed/log</span></code> by itself if you need to mess with logging.</li>
+<li>The files in <code class="docutils literal"><span class="pre">wed/glue</span></code>, <code class="docutils literal"><span class="pre">wed/patches</span></code> and <code class="docutils literal"><span class="pre">wed/polyfills</span></code> can (and
+sometimes <em>must</em>) be used indepdently of the main <code class="docutils literal"><span class="pre">wed</span></code> module.</li>
+<li>You may load any module from the bundled editing modes. This may be useful to
+build your own modes.</li>
+</ul>
 <p>To include wed in a web page you must:</p>
 <ul>
-<li><p class="first">Require <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/wed.js">lib/wed/wed.js</a></p>
+<li><p class="first">Require <code class="docutils literal"><span class="pre">wed</span></code></p>
 </li>
 <li><p class="first">Instantiate an <code class="docutils literal"><span class="pre">Editor</span></code> object of that module as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="n">editor</span> <span class="o">=</span> <span class="n">new</span> <span class="n">wed</span><span class="o">.</span><span class="n">Editor</span><span class="p">();</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="n">editor</span> <span class="o">=</span> <span class="n">wed</span><span class="o">.</span><span class="n">makeEditor</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
 <span class="p">[</span><span class="o">...</span><span class="p">]</span>
-<span class="n">editor</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+<span class="n">editor</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Between the creation of the <code class="docutils literal"><span class="pre">Editor</span></code> object and the call to <code class="docutils literal"><span class="pre">init</span></code>, there
@@ -382,10 +407,10 @@ conceivably could be some calls to add event handlers or condition
 handlers. The <code class="docutils literal"><span class="pre">widget</span></code> parameter must be an element (preferably a <code class="docutils literal"><span class="pre">div</span></code>)
 that wed will take over to install its GUI. The <code class="docutils literal"><span class="pre">options</span></code> parameter is
 either an anonymous JavaScript object that contains the options to pass to the
-editor, or it can be a <code class="docutils literal"><span class="pre">module:runtime~Runtime</span></code> object. If the latter, the
-options are passed to the <code class="docutils literal"><span class="pre">Runtime</span></code> and the runtime is passed to the
-<code class="docutils literal"><span class="pre">Editor</span></code> instance. The <code class="docutils literal"><span class="pre">data</span></code> parameter is a string containing the
-document to edit, in XML format.</p>
+editor, or it can be a <code class="docutils literal"><span class="pre">Runtime</span></code> object. If the latter, the options are
+passed to the <code class="docutils literal"><span class="pre">Runtime</span></code> and the runtime is passed to the <code class="docutils literal"><span class="pre">Editor</span></code>
+instance. The <code class="docutils literal"><span class="pre">data</span></code> parameter is a string containing the document to edit,
+in XML format.</p>
 </li>
 </ul>
 <div class="section" id="options">
@@ -594,7 +619,7 @@ will eventually make its way to the Python package repository so that <code clas
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.30.0',
+            VERSION:'v1.0.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

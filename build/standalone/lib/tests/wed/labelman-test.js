@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/labelman"], function (require, exports, module, labelman) {
+define(["require", "exports", "wed/labelman"], function (require, exports, labelman) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -38,5 +38,4 @@ define(["require", "exports", "module", "wed/labelman"], function (require, expo
 });
 //  LocalWords:  Dubeau MPL Mangalam allocateLabel nextNumber labelman
 //  LocalWords:  deallocateAll deallocate chai
-
 //# sourceMappingURL=labelman-test.js.map

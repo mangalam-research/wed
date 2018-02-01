@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", "./domutil"], function (require, exports, module, $, salve_1, domtypeguards_1, domutil_1) {
+define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"], function (require, exports, $, salve_1, domtypeguards_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:no-any
@@ -30,7 +30,7 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
          *
          * @param selector This is a CSS selector which must be fit to be used in the
          * GUI tree. (For instance by being the output of
-         * [["domutil".toGUISelector]].)
+         * [["wed/domutil".toGUISelector]].)
          */
         function InputTrigger(editor, mode, selector) {
             // This is a map of keys that are actually text keys to their handlers. This
@@ -227,5 +227,4 @@ define(["require", "exports", "module", "jquery", "salve", "./domtypeguards", ".
 });
 //  LocalWords:  InputTrigger keydown tabindex keypress submap jQuery focusable
 //  LocalWords:  Dubeau MPL Mangalam gui html DOM
-
 //# sourceMappingURL=input-trigger.js.map

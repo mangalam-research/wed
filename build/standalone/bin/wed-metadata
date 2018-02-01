@@ -1,7 +1,0 @@
-#!/usr/bin/env node
-/* eslint strict: "off" */
-"use strict";
-
-require("amd-loader");
-// eslint-disable-next-line import/no-unresolved
-require("../lib/wed/cli/wed-metadata");

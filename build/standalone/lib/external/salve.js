@@ -200,7 +200,7 @@ if (DEBUG) {
                 (" id " + me.id + nameOrPath(me)));
         };
         // tslint:disable-next-line:only-arrow-functions
-        possibleTracer = function possibleTracer(oldMethod, name, args) {
+        possibleTracer = function _possibleTracer(oldMethod, name, args) {
             buf += step;
             callDump("calling ", name, this);
             var ret = oldMethod.apply(this, args);
@@ -210,7 +210,7 @@ if (DEBUG) {
             return ret;
         };
         // tslint:disable-next-line:only-arrow-functions
-        fireEventTracer = function fireEventTracer(oldMethod, name, args) {
+        fireEventTracer = function _fireEventTracer(oldMethod, name, args) {
             buf += step;
             callDump("calling ", name, this);
             trace_1(buf + util.inspect(args[0]));
@@ -223,7 +223,7 @@ if (DEBUG) {
             return ret;
         };
         // tslint:disable-next-line:only-arrow-functions
-        plainTracer = function plainTracer(oldMethod, name, args) {
+        plainTracer = function _plainTracer(oldMethod, name, args) {
             buf += step;
             callDump("calling ", name, this);
             var ret = oldMethod.apply(this, args);
@@ -258,7 +258,7 @@ if (DEBUG) {
     /* tslint:enable */
 }
 /**
- * Sets up a newWalker method in a prototype.
+ * Sets up a ``newWalker`` method in a prototype.
  *
  * @private
  * @param elCls The class that will get the new method.
@@ -269,7 +269,6 @@ function addWalker(elCls, walkerCls) {
     // `resolver` is a NameResolver.
     // tslint:disable-next-line:only-arrow-functions
     elCls.prototype.newWalker = function newWalker(resolver) {
-        // eslint-disable-next-line new-cap
         return new walkerCls(this, resolver);
     };
 }
@@ -299,10 +298,10 @@ function hashHelper(o) {
 /**
  *
  * This is the base class for all patterns created from the file passed to
- * constructTree. These patterns form a JavaScript representation of the
- * simplified RNG tree. The base class implements a leaf in the RNG tree. In
- * other words, it does not itself refer to children Patterns. (To put it in
- * other words, it has no subpatterns.)
+ * [["validate".constructTree]]. These patterns form a JavaScript representation
+ * of the simplified RNG tree. The base class implements a leaf in the RNG
+ * tree. In other words, it does not itself refer to children Patterns. (To put
+ * it in other words, it has no subpatterns.)
  */
 var BasePattern = (function () {
     /**
@@ -391,13 +390,13 @@ var BasePattern = (function () {
     BasePattern.prototype.__newID = function () {
         return BasePattern.__id++;
     };
+    /**
+     * The next id to associate to the next Pattern object to be created. This is
+     * used so that [[hash]] can return unique values.
+     */
+    BasePattern.__id = 0; // tslint:disable-line:variable-name
     return BasePattern;
 }());
-/**
- * The next id to associate to the next Pattern object to be created. This is
- * used so that [[hash]] can return unique values.
- */
-BasePattern.__id = 0; // tslint:disable-line:variable-name
 exports.BasePattern = BasePattern;
 /**
  * This is the common class from which patterns are derived. Most patterns
@@ -485,7 +484,7 @@ var TwoSubpatterns = (function (_super) {
 }(Pattern));
 exports.TwoSubpatterns = TwoSubpatterns;
 /**
- * This class modelizes events occurring during parsing. Upon encountering the
+ * This class models events occurring during parsing. Upon encountering the
  * start of a start tag, an "enterStartTag" event is generated, etc. Event
  * objects are held to be immutable. No precautions have been made to enforce
  * this. Users of these objects simply must not modify them. Moreover, there is
@@ -560,28 +559,28 @@ var Event = (function () {
     Event.prototype.__newID = function () {
         return Event.__id++;
     };
+    /**
+     * The cache of Event objects. So that we create one and only one Event object
+     * per run.
+     */
+    // tslint:disable-next-line:variable-name
+    Event.__cache = Object.create(null);
+    /**
+     * The next id to associate to the next Event object to be created. This is
+     * used so that [[Event.hash]] can return unique values.
+     */
+    // tslint:disable-next-line:variable-name
+    Event.__id = 0;
     return Event;
 }());
-/**
- * The cache of Event objects. So that we create one and only one Event object
- * per run.
- */
-// tslint:disable-next-line:variable-name
-Event.__cache = Object.create(null);
-/**
- * The next id to associate to the next Event object to be created. This is
- * used so that [[Event.hash]] can return unique values.
- */
-// tslint:disable-next-line:variable-name
-Event.__id = 0;
 exports.Event = Event;
 /**
  * Utility function used mainly in testing to transform a [["set".NaiveSet]] of
  * events into a string containing a tree structure.  The principle is to
  * combine events of a same type together and among events of a same type
  * combine those which are in the same namespace. So for instance if there is a
- * set of events that are all attributeName events plus one leaveStartTag event,
- * the output could be:
+ * set of events that are all attributeName events plus one ``leaveStartTag``
+ * event, the output could be:
  *
  * <pre>``
  * attributeName:
@@ -662,13 +661,13 @@ function eventsToTreeString(evs) {
 }
 exports.eventsToTreeString = eventsToTreeString;
 /**
- * Special event to which only the EmptyWalker responds positively. This object
- * is meant to be used internally by salve.
+ * Special event to which only the [["empty".EmptyWalker]] responds
+ * positively. This object is meant to be used internally by salve.
  */
 exports.emptyEvent = new Event("<empty>");
 /**
  * Roughly speaking each [[Pattern]] object has a corresponding ``Walker`` class
- * that modelizes an object which is able to walk the pattern to which it
+ * that models an object which is able to walk the pattern to which it
  * belongs. So an ``Element`` has an ``ElementWalker`` and an ``Attribute`` has
  * an ``AttributeWalker``. A ``Walker`` object responds to parsing events and
  * reports whether the structure represented by these events is valid.
@@ -832,13 +831,13 @@ var Walker = (function () {
     Walker.prototype.__newID = function () {
         return Walker.__id++;
     };
+    /**
+     * The next id to associate to the next Walker object to be created. This is
+     * used so that [[hash]] can return unique values.
+     */
+    Walker.__id = 0; // tslint:disable-line:variable-name
     return Walker;
 }());
-/**
- * The next id to associate to the next Walker object to be created. This is
- * used so that [[hash]] can return unique values.
- */
-Walker.__id = 0; // tslint:disable-line:variable-name
 exports.Walker = Walker;
 function isHashMap(value, msg) {
     if (msg === void 0) { msg = ""; }
@@ -974,6 +973,12 @@ var DefineWalker = (function (_super) {
     return DefineWalker;
 }(SingleSubwalker));
 addWalker(Define, DefineWalker);
+//  LocalWords:  RNG MPL lookahead xmlns uri CodeMirror tokenizer enterStartTag
+//  LocalWords:  EOF attributeName el xmlPath buf nameOrPath util ret EventSet
+//  LocalWords:  NameResolver args unshift HashSet subpatterns newID NG vm pre
+//  LocalWords:  firstName lastName attributeValue leaveStartTag dumpTree const
+//  LocalWords:  dumpTreeBuf subwalker fireEvent suppressAttributes HashMap
+//  LocalWords:  ValidationError addWalker RefWalker DefineWalker
 
 //# sourceMappingURL=base.js.map
 
@@ -1002,8 +1007,19 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * The fireEvent methods return an array of objects of this class to
+ * The ``fireEvent`` methods return an array of objects of this class to
  * notify the caller of errors in the file being validated.
+ *
+ * Note that these error objects do not record what (element, attribute, text,
+ * etc.) in the XML document was responsible for the error. It is the
+ * responsibility of the code that uses salve to combine the error message with
+ * an object that points into the document being validated.
+ *
+ * This is particularly important when considering the equality of errors. Two
+ * errors are considered equal if their messages (with names) are the
+ * same. *They could still be associated with two different locations in the
+ * document being validated.* The code calling salve must distinguish such
+ * cases.
  */
 var ValidationError = (function () {
     /**
@@ -1016,10 +1032,13 @@ var ValidationError = (function () {
         // this.stack_trace = new Error().stack;
     }
     /**
+     * The default implementation is to return the value of calling
+     * ``this.toStringWithNames(this.getNames())``.
+     *
      * @returns The text representation of the error.
      */
     ValidationError.prototype.toString = function () {
-        return this.msg;
+        return this.toStringWithNames(this.getNames());
     };
     /**
      * This method provides the caller with the list of all names that are used in
@@ -1031,8 +1050,8 @@ var ValidationError = (function () {
         return [];
     };
     /**
-     * This method transforms the ValidationError object to a string but uses the
-     * names in the parameter passed to it to format the string.
+     * This method transforms this object to a string but uses the names in the
+     * parameter passed to it to format the string.
      *
      * Since salve does not work with namespace prefixes, someone using salve
      * would typically use this method so as to replace the name patterns passed
@@ -1041,13 +1060,24 @@ var ValidationError = (function () {
      * @param names The array of names to use. This should be an array of the same
      * length as that returned by [[getNames]] . Each element of the array
      * corresponds to each name in [[getNames]] and should be something that can
-     * be converted to a meanigful string.
+     * be converted to a meaningful string.
      *
      * @returns The object formatted as a string.
      */
     ValidationError.prototype.toStringWithNames = function (names) {
         // We do not have names in ValidationError
         return this.msg;
+    };
+    /**
+     * Two [[ValidationError]] objects are considered equal if the values returned
+     * by [[toString]] are equal.
+     *
+     * @param other The other validation error to compare against.
+     *
+     * @returns Whether ``this`` and ``other`` are equal.
+     */
+    ValidationError.prototype.equals = function (other) {
+        return (this === other) || (this.toString() === other.toString());
     };
     return ValidationError;
 }());
@@ -1068,14 +1098,11 @@ var SingleNameError = (function (_super) {
         _this.name = name;
         return _this;
     }
-    SingleNameError.prototype.toString = function () {
-        return this.toStringWithNames([this.name]);
-    };
     SingleNameError.prototype.getNames = function () {
         return [this.name];
     };
     SingleNameError.prototype.toStringWithNames = function (names) {
-        return this.msg + ": " + names[0];
+        return this.msg + ": " + names[0].toString();
     };
     return SingleNameError;
 }(ValidationError));
@@ -1129,9 +1156,6 @@ var ChoiceError = (function (_super) {
         _this.namesB = namesB;
         return _this;
     }
-    ChoiceError.prototype.toString = function () {
-        return this.toStringWithNames(this.namesA.concat(this.namesB));
-    };
     ChoiceError.prototype.getNames = function () {
         return this.namesA.concat(this.namesB);
     };
@@ -1143,6 +1167,7 @@ var ChoiceError = (function (_super) {
     return ChoiceError;
 }(ValidationError));
 exports.ChoiceError = ChoiceError;
+//  LocalWords:  MPL ValidationError toStringWithNames getNames toString
 
 //# sourceMappingURL=errors.js.map
 
@@ -1175,7 +1200,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Base = (function () {
     /**
      * @param path The XML path of the element that corresponds to this
-     * object in the Relax NG schema from which this object was contructed.
+     * object in the Relax NG schema from which this object was constructed.
      */
     function Base(path) {
         this.path = path;
@@ -1412,6 +1437,7 @@ var AnyName = (function (_super) {
     return AnyName;
 }(Base));
 exports.AnyName = AnyName;
+//  LocalWords:  MPL NG Stringify stringified AnyName
 
 //# sourceMappingURL=name_patterns.js.map
 
@@ -1683,17 +1709,17 @@ var NameResolver = (function () {
     NameResolver.prototype.__newID = function () {
         return NameResolver.__id++;
     };
+    /**
+     * The next id to associate to the next NameResolver object to be created.
+     * This is used so that [[NameResolver.hash]] can return unique values.
+     */
+    NameResolver.__id = 0; // tslint:disable-line: variable-name
     return NameResolver;
 }());
-/**
- * The next id to associate to the next NameResolver object to be created.
- * This is used so that [[NameResolver.hash]] can return unique values.
- */
-NameResolver.__id = 0; // tslint:disable-line: variable-name
 exports.NameResolver = NameResolver;
-// LocalWords:  namespace unresolving MPL xml resolveName Dubeau URI
-// LocalWords:  Mangalam LocalWords NameResolver lt html lang ename
-// LocalWords:  qname redeclarations Unresolves
+//  LocalWords:  unprefixed nameResolver pre definePrefix Unresolves qname vm
+//  LocalWords:  redeclarations newID ename lang html NameResolver Mangalam uri
+//  LocalWords:  xmlns URI Dubeau resolveName xml MPL unresolving namespace
 
 //# sourceMappingURL=name_resolver.js.map
 
@@ -1743,6 +1769,7 @@ var EName = (function () {
     return EName;
 }());
 exports.EName = EName;
+//  LocalWords:  MPL ns
 
 //# sourceMappingURL=ename.js.map
 
@@ -1867,6 +1894,7 @@ var ValueValidationError = (function (_super) {
     return ValueValidationError;
 }(Error));
 exports.ValueValidationError = ValueValidationError;
+//  LocalWords:  MPL ParamError ParameterParsingError ValueValidationError
 
 //# sourceMappingURL=errors.js.map
 
@@ -1936,6 +1964,7 @@ var NotAllowedWalker = (function (_super) {
 }(base_1.Walker));
 exports.NotAllowedWalker = NotAllowedWalker;
 base_1.addWalker(NotAllowed, NotAllowedWalker);
+//  LocalWords:  RNG's MPL possibleCached
 
 //# sourceMappingURL=not_allowed.js.map
 
@@ -2007,6 +2036,7 @@ function fixPrototype(obj, parent) {
     }
 }
 exports.fixPrototype = fixPrototype;
+//  LocalWords:  MPL jQuery Lodash
 
 //# sourceMappingURL=tools.js.map
 
@@ -2194,8 +2224,8 @@ var HashBase = (function () {
      * mapping from hash to value is unique. This method cannot be used to
      * **change** such mapping.
      *
-     * @param hash Hash to which to associate the value. Can be any type that can
-     * be used as an array index.
+     * @param hash The hash with which to associate the value. Can be any type
+     * that can be used as an array index.
      *
      * @param val The value to associate with the hash.
      *
@@ -2292,8 +2322,8 @@ var HashMap = (function (_super) {
     return HashMap;
 }(HashBase));
 exports.HashMap = HashMap;
-//  LocalWords:  hashstructs MPL oop HashBase noop HashSet HashMap
-//  LocalWords:  Dubeau Mangalam LocalWords truthy
+//  LocalWords:  truthy Mangalam Dubeau hashable HashMap HashSet noop HashBase
+//  LocalWords:  MPL
 
 //# sourceMappingURL=hashstructs.js.map
 
@@ -2374,23 +2404,8 @@ exports.__protected = {
     AnyName: namePatterns.AnyName,
 };
 /*  tslint:enable */
-//  LocalWords:  namespaces validator namespace xmlns validators EOF
-//  LocalWords:  lookahead enterStartTag attributeName newWalker URI
-//  LocalWords:  makeSingletonConstructor HashSet constructTree RNG
-//  LocalWords:  subpatterns hashstructs cleanAttrs fireEvent HashMap
-//  LocalWords:  EName ValidationError msg modelizes args uri RelaxNG
-//  LocalWords:  attributeValue leaveStartTag AttributeWalker API MPL
-//  LocalWords:  ElementWalker subwalkers NotAllowed RefWalker Mixin
-//  LocalWords:  DefineWalker oneOrMore ChoiceWalker subwalker Dubeau
-//  LocalWords:  ChoiceError GroupWalker unresolvable addWalker el lt
-//  LocalWords:  useNameResolver GrammarWalker formedness notAllowed
-//  LocalWords:  ElementNameError GrammarWalker's Mangalam util oop
-//  LocalWords:  CodeMirror tokenizer jshint newcap validthis canEnd
-//  LocalWords:  SingleNameError NoSubwalker SingleSubwalker ATTRS ev
-//  LocalWords:  endTag TwoSubpatterns GroupWalkers rng attr vm
-//  LocalWords:  OneSubpattern enterContext leaveContext NG ret
-//  LocalWords:  definePrefix firstName lastName ttt EventSet unshift
-//  LocalWords:  suppressAttributes
+//  LocalWords:  EName NotAllowed oneOrMore RNG MPL Dubeau GrammarWalker rng
+//  LocalWords:  notAllowed Mangalam EventSet
 
 //# sourceMappingURL=patterns.js.map
 
@@ -2470,6 +2485,7 @@ var errors_1 = __webpack_require__(5);
 exports.ParameterParsingError = errors_1.ParameterParsingError;
 exports.ValueValidationError = errors_1.ValueValidationError;
 exports.ValueError = errors_1.ValueError;
+//  LocalWords:  datatypes RNG MPL uri
 
 //# sourceMappingURL=datatypes.js.map
 
@@ -2499,7 +2515,7 @@ exports.xmlLetter = xmlBaseChar + xmlIdeographic;
 var xmlDigit = "\u0030-\u0039\u0660-\u0669\u06F0-\u06F9\u0966-\u096F\u09E6-\u09EF\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0BE7-\u0BEF\u0C66-\u0C6F\u0CE6-\u0CEF\u0D66-\u0D6F\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F29";
 var xmlCombiningChar = "\u0300-\u0345\u0360-\u0361\u0483-\u0486\u0591-\u05A1\u05A3-\u05B9\u05BB-\u05BD\u05BF\u05C1-\u05C2\u05C4\u064B-\u0652\u0670\u06D6-\u06DC\u06DD-\u06DF\u06E0-\u06E4\u06E7-\u06E8\u06EA-\u06ED\u0901-\u0903\u093C\u093E-\u094C\u094D\u0951-\u0954\u0962-\u0963\u0981-\u0983\u09BC\u09BE\u09BF\u09C0-\u09C4\u09C7-\u09C8\u09CB-\u09CD\u09D7\u09E2-\u09E3\u0A02\u0A3C\u0A3E\u0A3F\u0A40-\u0A42\u0A47-\u0A48\u0A4B-\u0A4D\u0A70-\u0A71\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0B01-\u0B03\u0B3C\u0B3E-\u0B43\u0B47-\u0B48\u0B4B-\u0B4D\u0B56-\u0B57\u0B82-\u0B83\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C01-\u0C03\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55-\u0C56\u0C82-\u0C83\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5-\u0CD6\u0D02-\u0D03\u0D3E-\u0D43\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EB9\u0EBB-\u0EBC\u0EC8-\u0ECD\u0F18-\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86-\u0F8B\u0F90-\u0F95\u0F97\u0F99-\u0FAD\u0FB1-\u0FB7\u0FB9\u20D0-\u20DC\u20E1\u302A-\u302F\u3099\u309A";
 var xmlExtender = "\u00B7\u02D0\u02D1\u0387\u0640\u0E46\u0EC6\u3005\u3031-\u3035\u309D-\u309E\u30FC-\u30FE";
-// It is improtant to have the dash first to avoid issues with ranges in
+// It is important to have the dash first to avoid issues with ranges in
 // regexps. Also, the following contain periods. However, they are doing to
 // appear inside square bracket in the regexps.
 exports.xmlNameChar = "-" + exports.xmlLetter + xmlDigit + "._:" + xmlCombiningChar + xmlExtender;
@@ -2508,6 +2524,7 @@ exports.xmlNameRe = new RegExp("^" + xmlName + "$");
 exports.xmlNcname = "[" + exports.xmlLetter + "_](?:[-" + exports.xmlLetter + xmlDigit + "._" + xmlCombiningChar +
     (xmlExtender + "])*");
 exports.xmlNcnameRe = new RegExp("^" + exports.xmlNcname + "$");
+//  LocalWords:  MPL
 
 //# sourceMappingURL=xmlcharacters.js.map
 
@@ -2570,7 +2587,7 @@ var RefError = (function (_super) {
 exports.RefError = RefError;
 /**
  * Grammar object. Users of this library normally do not create objects
- * of this class themselves but rely on constructTree().
+ * of this class themselves but rely on [["validate".constructTree]].
  */
 var Grammar = (function (_super) {
     __extends(Grammar, _super);
@@ -2618,10 +2635,10 @@ var Grammar = (function (_super) {
     /**
      * Populates a memo with a mapping of (element name, [list of patterns]).  In
      * a Relax NG schema, the same element name may appear in multiple contexts,
-     * with multiple contents. For instance an element named "name" could require
-     * the sequence of elements "firstName", "lastName" in a certain context and
-     * text in a different context. This method allows determining whether this
-     * happens or not within a pattern.
+     * with multiple contents. For instance an element named ``name`` could
+     * require the sequence of elements ``firstName, lastName`` in a certain
+     * context and text in a different context. This method allows determining
+     * whether this happens or not within a pattern.
      *
      * @param memo The memo in which to store the information.
      */
@@ -2784,8 +2801,8 @@ var GrammarWalker = (function (_super) {
         return this.nameResolver.unresolveName(uri, name);
     };
     /**
-     * On a GrammarWalker this method cannot return ``undefined``. An undefined
-     * value would mean nothing matched, which is a validation error.
+     * On a [[GrammarWalker]] this method cannot return ``undefined``. An
+     * undefined value would mean nothing matched, which is a validation error.
      *
      * @param ev The event to fire.
      *
@@ -2889,7 +2906,7 @@ var GrammarWalker = (function (_super) {
         if (this._misplacedElements.length > 0 &&
             this._misplacedElements[0] instanceof Array) {
             // We are in a misplaced element which is foreign to the schema (or
-            // which cannot be infered unambiguously.
+            // which cannot be inferred unambiguously.
             var mpe = this._misplacedElements[0];
             switch (ev.params[0]) {
                 case "enterStartTag":
@@ -2932,7 +2949,7 @@ var GrammarWalker = (function (_super) {
                         var newWalker = candidates[0].newWalker(this.nameResolver);
                         this._misplacedElements.unshift(newWalker);
                         if (newWalker.fireEvent(ev) !== false) {
-                            throw new Error("internal error: the infered element " +
+                            throw new Error("internal error: the inferred element " +
                                 "does not accept its initial event");
                         }
                     }
@@ -3001,6 +3018,11 @@ var GrammarWalker = (function (_super) {
 exports.GrammarWalker = GrammarWalker;
 // Nope, we're using a custom function.
 // addWalker(Grammar, GrammarWalker);
+//  LocalWords:  RNG's MPL unresolvable runtime RNG NG firstName enterContext
+//  LocalWords:  leaveContext definePrefix whitespace enterStartTag endTag
+//  LocalWords:  fireEvent attributeValue attributeName leaveStartTag addWalker
+//  LocalWords:  misplacedElements ElementNameError GrammarWalker's
+//  LocalWords:  suppressAttributes GrammarWalker
 
 //# sourceMappingURL=grammar.js.map
 
@@ -3175,8 +3197,7 @@ var NaiveSet = (function () {
     return NaiveSet;
 }());
 exports.NaiveSet = NaiveSet;
-// LocalWords:  hashstructs HashSet Dubeau MPL Mangalam LocalWords
-// LocalWords:  param truthy
+//  LocalWords:  param NaiveSet Mangalam MPL Dubeau HashSet hashstructs
 
 //# sourceMappingURL=set.js.map
 
@@ -3503,8 +3524,9 @@ exports.__protected = {
     nameToConstructor: nameToConstructor,
     OPTION_NO_PATHS: OPTION_NO_PATHS,
 };
-//  LocalWords:  MPL util oop rng js xsl JSON constructObjectV
-//  LocalWords:  JSONWalker RNG
+//  LocalWords:  deserialized PatternTwoPatterns PatternOnePattern OneOrMore js
+//  LocalWords:  codeToConstructor nameToConstructor RNG subpattern JSON xsl
+//  LocalWords:  rng MPL
 
 //# sourceMappingURL=formats.js.map
 
@@ -3621,6 +3643,7 @@ exports.builtin = {
         token: token,
     },
 };
+//  LocalWords:  NG MPL unparsed
 
 //# sourceMappingURL=builtin.js.map
 
@@ -4490,8 +4513,8 @@ var WhitespaceHandling;
      */
     WhitespaceHandling[WhitespaceHandling["REPLACE"] = 2] = "REPLACE";
     /**
-     * Replace all instances of whitespace by spaces and collapse consecutive
-     * spaces.
+     * Replace all instances of whitespace by spaces, collapse consecutive
+     * spaces, and remove leading and trailing spaces.
      */
     WhitespaceHandling[WhitespaceHandling["COLLAPSE"] = 3] = "COLLAPSE";
 })(WhitespaceHandling || (WhitespaceHandling = {}));
@@ -4549,6 +4572,41 @@ function failIfNotPositiveInteger(value, name) {
     }
     return new errors_1.ParamError(name + " must have a positive value");
 }
+/**
+ * Convert a number to an internal representation. This takes care of the
+ * differences between JavaScript and XML Schema (e.g. "Infinity" vs "INF").
+ *
+ * @param value The value as expressed in an XML file or schema.
+ *
+ * @returns The number, in its internal representation.
+ */
+function convertToInternalNumber(value) {
+    if (value === "INF") {
+        return Infinity;
+    }
+    if (value === "-INF") {
+        return -Infinity;
+    }
+    return Number(value);
+}
+/**
+ * Convert an internal representation of a number to a string. This takes care
+ * of the differences between JavaScript and XML Schema. For instance, a value
+ * of ``Infinity`` will be represented as the string ``"INF"``.
+ *
+ * @param number The internal representation.
+ *
+ * @returns The string representation.
+ */
+function convertInternalNumberToString(value) {
+    if (value === Infinity) {
+        return "INF";
+    }
+    if (value === -Infinity) {
+        return "-INF";
+    }
+    return value.toString();
+}
 //
 // The parameters
 //
@@ -4586,7 +4644,7 @@ var NumericParameter = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     NumericParameter.prototype.convert = function (value) {
-        return Number(value);
+        return convertToInternalNumber(value);
     };
     return NumericParameter;
 }(Parameter));
@@ -4661,7 +4719,7 @@ var maxLengthP = new MaxLengthP();
 // value in error messages to the user.)
 //
 /**
- * A mapping of raw schema values to the corresponding RegExp object.
+ * A mapping of raw schema values to the corresponding [[RegExp]] object.
  */
 var reCache = Object.create(null);
 var PatternP = (function (_super) {
@@ -4785,8 +4843,9 @@ var MaxInclusiveP = (function (_super) {
         return _this;
     }
     MaxInclusiveP.prototype.isInvalidValue = function (value, param) {
-        if (value > param) {
-            return new errors_1.ValueError("value must be less than or equal to " + param);
+        if ((isNaN(value) !== isNaN(param)) || value > param) {
+            var repr = convertInternalNumberToString(param);
+            return new errors_1.ValueError("value must be less than or equal to " + repr);
         }
         return false;
     };
@@ -4801,8 +4860,11 @@ var MaxExclusiveP = (function (_super) {
         return _this;
     }
     MaxExclusiveP.prototype.isInvalidValue = function (value, param) {
-        if (value >= param) {
-            return new errors_1.ValueError("value must be less than " + param);
+        // The negation of a less-than test allows handling a parameter value of NaN
+        // automatically.
+        if (!(value < param)) {
+            var repr = convertInternalNumberToString(param);
+            return new errors_1.ValueError("value must be less than " + repr);
         }
         return false;
     };
@@ -4817,8 +4879,9 @@ var MinInclusiveP = (function (_super) {
         return _this;
     }
     MinInclusiveP.prototype.isInvalidValue = function (value, param) {
-        if (value < param) {
-            return new errors_1.ValueError("value must be greater than or equal to " + param);
+        if ((isNaN(value) !== isNaN(param)) || value < param) {
+            var repr = convertInternalNumberToString(param);
+            return new errors_1.ValueError("value must be greater than or equal to " + repr);
         }
         return false;
     };
@@ -4833,8 +4896,11 @@ var MinExclusiveP = (function (_super) {
         return _this;
     }
     MinExclusiveP.prototype.isInvalidValue = function (value, param) {
-        if (value <= param) {
-            return new errors_1.ValueError("value must be greater than " + param);
+        // The negation of a greater-than test allows handling a parameter value of
+        // NaN automatically.
+        if (!(value > param)) {
+            var repr = convertInternalNumberToString(param);
+            return new errors_1.ValueError("value must be greater than " + repr);
         }
         return false;
     };
@@ -5099,6 +5165,12 @@ var Base = (function () {
                 return false;
             }
             throw ex;
+        }
+        // In the IEEE 754-1985 standard, which is what XMLSChema 1.0 follows, NaN
+        // is equal to NaN. In JavaScript NaN is equal to nothing, not even itself.
+        // So we need to handle this difference.
+        if (typeof converted === "number" && isNaN(converted)) {
+            return isNaN(schemaValue.value);
         }
         return converted === schemaValue.value;
     };
@@ -5630,7 +5702,7 @@ var float_ = (function (_super) {
         return _this;
     }
     float_.prototype.convertValue = function (value, context) {
-        return parseFloat(value);
+        return convertToInternalNumber(value);
     };
     return float_;
 }(Base));
@@ -5640,18 +5712,10 @@ var double_ = (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.name = "double";
         _this.typeErrorMsg = "not a valid double";
-        _this.regexp = doubleRe;
-        _this.needsContext = false;
-        _this.validParams = [
-            patternP, minInclusiveP, minExclusiveP, maxInclusiveP, maxExclusiveP,
-        ];
         return _this;
     }
-    double_.prototype.convertValue = function (value, context) {
-        return parseFloat(value);
-    };
     return double_;
-}(Base));
+}(float_));
 var QName = (function (_super) {
     __extends(QName, _super);
     function QName() {
@@ -6072,6 +6136,17 @@ for (var _i = 0, types_1 = types; _i < types_1.length; _i++) {
  * The XML Schema datatype library.
  */
 exports.xmlschema = library;
+//  LocalWords:  XMLSchema datatypes MPL whitespace param minLength maxLength
+//  LocalWords:  RNG rng failedOn totalDigits fractionDigits ValueError repr zA
+//  LocalWords:  ParamError maxInclusive maxExclusive NaN minInclusive params
+//  LocalWords:  minExclusive whitespaces parseParams unparsed XMLSChema NCName
+//  LocalWords:  normalizedString xmlNameChar NMTOKEN NMTOKENS IDREF xmlNcname
+//  LocalWords:  IDREFS decimalPattern integerPattern highestVal lowestVal AQgw
+//  LocalWords:  nonPositiveInteger negativeInteger nonNegativeInteger Za fA Ee
+//  LocalWords:  positiveInteger unsignedLong unsignedInt unsignedShort QName
+//  LocalWords:  unsignedByte AEIMQUYcgkosw hexBinary tzPattern yearPattern TZ
+//  LocalWords:  monthPattern domPattern timePattern dateTime gYearMonth gYear
+//  LocalWords:  gMonthDay gDay gMonth anyURI
 
 //# sourceMappingURL=xmlschema.js.map
 
@@ -6255,6 +6330,8 @@ var AttributeWalker = (function (_super) {
     return AttributeWalker;
 }(base_1.Walker));
 base_1.addWalker(Attribute, AttributeWalker);
+//  LocalWords:  RNG's MPL RNG attributeName attributeValue ev params
+//  LocalWords:  neutralizeAttribute
 
 //# sourceMappingURL=attribute.js.map
 
@@ -6466,6 +6543,8 @@ var ChoiceWalker = (function (_super) {
     return ChoiceWalker;
 }(base_1.Walker));
 base_1.addWalker(Choice, ChoiceWalker);
+//  LocalWords:  RNG's MPL retA ChoiceWalker enterStartTag notAChoiceError
+//  LocalWords:  tslint ChoiceError
 
 //# sourceMappingURL=choice.js.map
 
@@ -6524,7 +6603,7 @@ var Data = (function (_super) {
         _this.except = except;
         _this.datatype = datatypes_1.registry.get(_this.datatypeLibrary).types[_this.type];
         if (_this.datatype === undefined) {
-            throw new Error("unkown type: " + type);
+            throw new Error("unknown type: " + type);
         }
         _this.rngParams = params !== undefined ? params : [];
         return _this;
@@ -6640,6 +6719,7 @@ var DataWalker = (function (_super) {
     return DataWalker;
 }(base_1.Walker));
 base_1.addWalker(Data, DataWalker);
+//  LocalWords:  RNG's MPL RNG nd possibleCached
 
 //# sourceMappingURL=data.js.map
 
@@ -6912,9 +6992,12 @@ var ElementWalker = (function (_super) {
         }
         return false;
     };
+    ElementWalker._leaveStartTagEvent = new base_1.Event("leaveStartTag");
     return ElementWalker;
 }(base_1.Walker));
-ElementWalker._leaveStartTagEvent = new base_1.Event("leaveStartTag");
+//  LocalWords:  RNG's MPL RNG addWalker ElementWalker leaveStartTag valueEvs
+//  LocalWords:  enterStartTag attributeValue endTag errored subwalker
+//  LocalWords:  neutralizeAttribute boundName fireEvent suppressAttributes
 
 //# sourceMappingURL=element.js.map
 
@@ -6992,6 +7075,7 @@ var EmptyWalker = (function (_super) {
 }(base_1.Walker));
 exports.EmptyWalker = EmptyWalker;
 base_1.addWalker(Empty, EmptyWalker);
+//  LocalWords:  RNG's MPL possibleCached
 
 //# sourceMappingURL=empty.js.map
 
@@ -7260,6 +7344,7 @@ var GroupWalker = (function (_super) {
     return GroupWalker;
 }(base_1.Walker));
 base_1.addWalker(Group, GroupWalker);
+//  LocalWords:  RNG's MPL instantiateWalkers walkerA retB canEnd endedA
 
 //# sourceMappingURL=group.js.map
 
@@ -7478,6 +7563,7 @@ var InterleaveWalker = (function (_super) {
     return InterleaveWalker;
 }(base_1.Walker));
 base_1.addWalker(Interleave, InterleaveWalker);
+//  LocalWords:  RNG's MPL NG inA inB instantiateWalkers fireEvent retA retB
 
 //# sourceMappingURL=interleave.js.map
 
@@ -7593,6 +7679,7 @@ var ListWalker = (function (_super) {
     return ListWalker;
 }(base_1.SingleSubwalker));
 base_1.addWalker(List, ListWalker);
+//  LocalWords:  RNG's MPL nd
 
 //# sourceMappingURL=list.js.map
 
@@ -7772,6 +7859,8 @@ var OneOrMoreWalker = (function (_super) {
     return OneOrMoreWalker;
 }(base_1.Walker));
 base_1.addWalker(OneOrMore, OneOrMoreWalker);
+//  LocalWords:  RNG's MPL currentIteration nextIteration canEnd oneOrMore rng
+//  LocalWords:  anyName suppressAttributes instantiateCurrentIteration
 
 //# sourceMappingURL=one_or_more.js.map
 
@@ -7817,6 +7906,7 @@ var Param = (function (_super) {
     return Param;
 }(base_1.Pattern));
 exports.Param = Param;
+//  LocalWords:  RNG's MPL
 
 //# sourceMappingURL=param.js.map
 
@@ -7880,10 +7970,11 @@ var TextWalker = (function (_super) {
     TextWalker.prototype.fireEvent = function (ev) {
         return (ev.params[0] === "text") ? false : undefined;
     };
+    TextWalker._textEvent = new base_1.Event("text", /^.*$/);
     return TextWalker;
 }(base_1.Walker));
-TextWalker._textEvent = new base_1.Event("text", /^.*$/);
 base_1.addWalker(Text, TextWalker);
+//  LocalWords:  RNG's MPL possibleCached
 
 //# sourceMappingURL=text.js.map
 
@@ -7945,7 +8036,7 @@ var Value = (function (_super) {
         _this.ns = ns;
         _this.datatype = datatypes_1.registry.get(_this.datatypeLibrary).types[_this.type];
         if (_this.datatype === undefined) {
-            throw new Error("unkown type: " + type);
+            throw new Error("unknown type: " + type);
         }
         _this.rawValue = value;
         return _this;
@@ -8038,6 +8129,7 @@ var ValueWalker = (function (_super) {
     return ValueWalker;
 }(base_1.Walker));
 base_1.addWalker(Value, ValueWalker);
+//  LocalWords:  RNG's MPL RNG nd possibleCached
 
 //# sourceMappingURL=value.js.map
 
@@ -8070,7 +8162,7 @@ function inspect(x) {
     return x.toString();
 }
 exports.inspect = inspect;
-// LocalWords:  util Dubeau MPL Mangalam
+//  LocalWords:  Mangalam MPL Dubeau util
 
 //# sourceMappingURL=util.js.map
 
@@ -8089,7 +8181,7 @@ exports.inspect = inspect;
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.version = "4.1.2";
+exports.version = "4.3.0";
 var patterns_1 = __webpack_require__(9);
 exports.eventsToTreeString = patterns_1.eventsToTreeString;
 exports.Event = patterns_1.Event;
@@ -8125,7 +8217,7 @@ exports.AnyName = name_patterns_1.AnyName;
  */
 var hashstructs_1 = __webpack_require__(8);
 exports.HashMap = hashstructs_1.HashMap;
-//  LocalWords:  validator constructTree RNG MPL Dubeau Mangalam rng
+//  LocalWords:  rng Mangalam Dubeau MPL RNG constructTree validator
 
 //# sourceMappingURL=validate.js.map
 

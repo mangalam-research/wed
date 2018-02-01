@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports", "./gui/button"], function (require, exports, button_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -44,7 +44,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
             this.abbreviatedDesc = abbreviatedDesc;
             this.icon = icon;
             this.needsInput = needsInput;
-            this._enabled = true;
             this.needsInput = !!needsInput; // normalize value
             this.boundHandler = this.eventHandler.bind(this);
             this.boundTerminalHandler = this.terminalEventHandler.bind(this);
@@ -58,7 +57,20 @@ define(["require", "exports", "module"], function (require, exports, module) {
          * @param ev The DOM event.
          */
         Action.prototype.eventHandler = function (ev) {
-            this.execute(ev.data);
+            //
+            // Due to the way jQuery's typings are set, the event object passed when
+            // calling this method will essentially have a ``data`` field with type
+            // ``any``, and this will sastisfy the type checking done at compilation
+            // time. There does not appear to be a simple way to coerce ``data`` to not
+            // be null or undefined.
+            //
+            // We toyed with the idea of having it be an error to call this method with
+            // an event that does not have a ``data`` field set to some valid value, but
+            // that did not seem fruitful. Instead, we silently use an empty object if
+            // the field is missing.
+            //
+            var data = ev.data != null ? ev.data : {};
+            this.execute(data);
             ev.preventDefault();
         };
         /**
@@ -136,16 +148,17 @@ define(["require", "exports", "module"], function (require, exports, module) {
         Action.prototype.toString = function () {
             return this.getDescription();
         };
-        /**
-         * Returns whether or not the action is currently enabled.
-         */
-        Action.prototype.getEnabled = function () {
-            return this._enabled;
+        Action.prototype.makeButton = function (data) {
+            var _this = this;
+            var button = new button_1.Button(data !== undefined ? this.getDescriptionFor(data) : this.getDescription(), this.getAbbreviatedDescription(), this.getIcon());
+            button.events.subscribe(function (event) {
+                _this.execute(data !== undefined ? data : {});
+            });
+            return button;
         };
         return Action;
     }());
     exports.Action = Action;
 });
 //  LocalWords:  autoinsert Dubeau MPL Mangalam html keybindings
-
 //# sourceMappingURL=action.js.map

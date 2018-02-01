@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "chai", "merge-options", "sinon", "sinon-chai", "wed/mode-tree", "../base-config", "../util", "../wed-test-util"], function (require, exports, module, chai_1, mergeOptions, sinon, sinonChai, mode_tree_1, globalConfig, util_1, wed_test_util_1) {
+define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "wed/mode-tree", "../base-config", "../util", "../wed-test-util"], function (require, exports, chai_1, mergeOptions, sinon, sinonChai, mode_tree_1, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -419,6 +419,9 @@ define(["require", "exports", "module", "chai", "merge-options", "sinon", "sinon
                 });
             }); });
             afterEach(function () {
+                sandbox.reset();
+            });
+            after(function () {
                 sandbox.restore();
             });
             it("calls addHandlers on all decorators", function () {
@@ -460,6 +463,9 @@ define(["require", "exports", "module", "chai", "merge-options", "sinon", "sinon
                 });
             }); });
             afterEach(function () {
+                sandbox.reset();
+            });
+            after(function () {
                 sandbox.restore();
             });
             it("calls startListening on all decorators", function () {
@@ -484,5 +490,4 @@ define(["require", "exports", "module", "chai", "merge-options", "sinon", "sinon
         });
     });
 });
-
 //# sourceMappingURL=mode-tree-test.js.map

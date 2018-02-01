@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/browsers", "../base-config", "../util", "../wed-test-util"], function (require, exports, module, browsers, globalConfig, util_1, wed_test_util_1) {
+define(["require", "exports", "wed/browsers", "../base-config", "../util", "../wed-test-util"], function (require, exports, browsers, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -216,5 +216,4 @@ define(["require", "exports", "module", "wed/browsers", "../base-config", "../ut
         });
     });
 });
-
 //# sourceMappingURL=wed-paste-copy-cut-test.js.map

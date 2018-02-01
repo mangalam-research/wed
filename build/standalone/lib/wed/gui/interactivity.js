@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "interactjs", "../browsers"], function (require, exports, module, interact, browsers) {
+define(["require", "exports", "interactjs", "../browsers"], function (require, exports, interact, browsers) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -126,5 +126,4 @@ define(["require", "exports", "module", "interactjs", "../browsers"], function (
     }
     exports.makeDraggable = makeDraggable;
 });
-
 //# sourceMappingURL=interactivity.js.map

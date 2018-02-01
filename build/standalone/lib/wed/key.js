@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./browsers", "jquery"], function (require, exports, module, browsers) {
+define(["require", "exports", "./browsers", "jquery"], function (require, exports, browsers) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var id = 0;
@@ -173,6 +173,8 @@ define(["require", "exports", "module", "./browsers", "jquery"], function (requi
         return Key;
     }());
     exports.Key = Key;
+    /** This is a [[Key]] that cannot match anything. */
+    exports.NULL_KEY = new Key(-1, false, -1);
     /**
      * This function creates a key object.
      *
@@ -300,5 +302,4 @@ define(["require", "exports", "module", "./browsers", "jquery"], function (requi
 });
 //  LocalWords:  jQuery keydown keypress boolean Dubeau MPL Mangalam DOM Ctrl
 //  LocalWords:  keyup param keyCode charcode ctrlKey altKey metaKey shiftKey
-
 //# sourceMappingURL=key.js.map

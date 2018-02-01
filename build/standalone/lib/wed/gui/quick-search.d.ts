@@ -1,5 +1,11 @@
 /// <reference types="jquery" />
-import { Editor } from "../wed";
+/**
+ * Quick search GUI.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright Mangalam Research Center for Buddhist Languages
+ */
+import { Editor } from "../editor";
 import { ChangeEvent } from "./minibuffer";
 import { Scroller } from "./scroller";
 import { Direction } from "./search-replace";

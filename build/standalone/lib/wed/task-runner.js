@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-define(["require", "exports", "module", "rxjs"], function (require, exports, module, rxjs_1) {
+define(["require", "exports", "rxjs/BehaviorSubject", "rxjs/operators/first"], function (require, exports, BehaviorSubject_1, first_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -46,7 +46,7 @@ define(["require", "exports", "module", "rxjs"], function (require, exports, mod
                 // tslint:disable-next-line:no-any
                 this["_" + key] = options[key];
             }
-            this._state = new rxjs_1.BehaviorSubject({
+            this._state = new BehaviorSubject_1.BehaviorSubject({
                 running: false,
                 completed: false,
                 terminated: false,
@@ -75,7 +75,7 @@ define(["require", "exports", "module", "rxjs"], function (require, exports, mod
             configurable: true
         });
         TaskRunner.prototype.onCompleted = function () {
-            return this.state.first(function (state) { return state.completed; }).toPromise();
+            return this.state.pipe(first_1.first(function (state) { return state.completed; })).toPromise();
         };
         TaskRunner.prototype._stateFieldChange = function (field, value) {
             var latest = this._state.value;
@@ -177,5 +177,4 @@ define(["require", "exports", "module", "rxjs"], function (require, exports, mod
     exports.TaskRunner = TaskRunner;
 });
 //  LocalWords:  MPL maxTimespan workWrapper
-
 //# sourceMappingURL=task-runner.js.map

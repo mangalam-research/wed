@@ -1,7 +1,7 @@
 import { Modal } from "./gui/modal";
 export interface ModalMaker {
     makeModal(): Modal;
-    docLink: string;
+    docURL: string;
 }
 export declare type ModalNames = "limitation" | "paste" | "straddling" | "help" | "disconnect" | "editedByOther" | "tooOld";
 /**

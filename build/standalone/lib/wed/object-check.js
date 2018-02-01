@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -28,15 +28,15 @@ define(["require", "exports", "module"], function (require, exports, module) {
         }
         return val;
     }
-    function _check(template, object, prefix, ret) {
+    function _check(template, toCheck, prefix, ret) {
         for (var name_1 in template) {
             if (_required(template, name_1)) {
                 var prefixed = prefix !== undefined ? [prefix, name_1].join(".") : name_1;
-                if (!(name_1 in object)) {
+                if (!(name_1 in toCheck)) {
                     ret.missing.push(prefixed);
                 }
                 else {
-                    var val = object[name_1];
+                    var val = toCheck[name_1];
                     var templateVal = template[name_1];
                     if (!(val instanceof Array) && typeof val === "object" &&
                         typeof templateVal === "object") {
@@ -45,7 +45,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
                 }
             }
         }
-        for (var name_2 in object) {
+        for (var name_2 in toCheck) {
             if (!(name_2 in template)) {
                 var prefixed = prefix !== undefined ? [prefix, name_2].join(".") : name_2;
                 ret.extra.push(prefixed);
@@ -92,13 +92,13 @@ define(["require", "exports", "module"], function (require, exports, module) {
      *
      * @param template The template to use for the check.
      *
-     * @param object The object to check
+     * @param toCheck The object to check
      *
      * @returns The results.
      */
-    function check(template, object) {
+    function check(template, toCheck) {
         var initial = { missing: [], extra: [] };
-        _check(template, object, undefined, initial);
+        _check(template, toCheck, undefined, initial);
         // clean up
         // tslint:disable-next-line:no-any
         var ret = initial;
@@ -110,8 +110,57 @@ define(["require", "exports", "module"], function (require, exports, module) {
         return ret;
     }
     exports.check = check;
-    exports.check = check;
+    /**
+     * Check whether the object fits the template, and throw at the first sign of
+     * trouble. The thrown object contains information about the first error
+     * encountered.
+     *
+     * @param template The template to use for the check.
+     *
+     * @param toCheck The object to check
+     *
+     * @throws {Error} If there is any error.
+     */
+    function assertSummarily(template, toCheck) {
+        var result = check(template, toCheck);
+        if (result.missing !== undefined) {
+            throw new Error("missing option: " + result.missing[0]);
+        }
+        if (result.extra !== undefined) {
+            throw new Error("extra option: " + result.extra[0]);
+        }
+    }
+    exports.assertSummarily = assertSummarily;
+    /**
+     * Check whether the object fits the template, and throw an error that reports
+     * all issues.
+     *
+     * @param template The template to use for the check.
+     *
+     * @param toCheck The object to check
+     *
+     * @throws {Error} If there is any error.
+     */
+    function assertExtensively(template, toCheck) {
+        var result = check(template, toCheck);
+        var errors = [];
+        if (result.missing !== undefined) {
+            for (var _i = 0, _a = result.missing; _i < _a.length; _i++) {
+                var name_4 = _a[_i];
+                errors.push("missing option: " + name_4);
+            }
+        }
+        if (result.extra !== undefined) {
+            for (var _b = 0, _c = result.extra; _b < _c.length; _b++) {
+                var name_5 = _c[_b];
+                errors.push("extra option: " + name_5);
+            }
+        }
+        if (errors.length !== 0) {
+            throw new Error(errors.join(", "));
+        }
+    }
+    exports.assertExtensively = assertExtensively;
 });
 //  LocalWords:  MPL baz bip
-
 //# sourceMappingURL=object-check.js.map

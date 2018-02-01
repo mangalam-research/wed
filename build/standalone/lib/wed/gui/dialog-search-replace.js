@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "bootbox", "jquery", "./interactivity", "./search-replace"], function (require, exports, module, bootbox, $, interactivity_1, search_replace_1) {
+define(["require", "exports", "bootbox", "jquery", "./interactivity", "./search-replace"], function (require, exports, bootbox, $, interactivity_1, search_replace_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Direction = search_replace_1.Direction;
@@ -197,5 +197,4 @@ define(["require", "exports", "module", "bootbox", "jquery", "./interactivity", 
     }());
     exports.DialogSearchReplace = DialogSearchReplace;
 });
-
 //# sourceMappingURL=dialog-search-replace.js.map

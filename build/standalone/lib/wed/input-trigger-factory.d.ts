@@ -2,7 +2,7 @@ import { GUISelector } from "./gui-selector";
 import { InputTrigger } from "./input-trigger";
 import { Key } from "./key";
 import { Mode } from "./mode";
-import { Editor } from "./wed";
+import { EditorAPI } from "./mode-api";
 /**
  * Makes an input trigger that splits and merges consecutive elements.
  *
@@ -22,4 +22,4 @@ import { Editor } from "./wed";
  *
  * @returns The input trigger.
  */
-export declare function makeSplitMergeInputTrigger(editor: Editor, mode: Mode, selector: GUISelector, splitKey: Key, mergeWithPreviousKey: Key, mergeWithNextKey: Key): InputTrigger;
+export declare function makeSplitMergeInputTrigger(editor: EditorAPI, mode: Mode, selector: GUISelector, splitKey: Key, mergeWithPreviousKey: Key, mergeWithNextKey: Key): InputTrigger;

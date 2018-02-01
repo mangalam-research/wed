@@ -1,4 +1,21 @@
 /**
+ * Basic undo/redo framework.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright Mangalam Research Center for Buddhist Languages
+ */
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
+export interface UndoEvent {
+    name: "Undo";
+    undo: Undo;
+}
+export interface RedoEvent {
+    name: "Redo";
+    undo: Undo;
+}
+export declare type UndoEvents = UndoEvent | RedoEvent;
+/**
  * Records operations that may be undone or redone. It maintains a single list
  * of [[Undo]] objects in the order by which they are passed to the
  * [[UndoList.record]] method.
@@ -12,6 +29,13 @@ export declare class UndoList {
     private list;
     private index;
     private _undoingOrRedoing;
+    private readonly _events;
+    readonly events: Observable<UndoEvents>;
+    /**
+     * Reset the list to its initial state **without** undoing operations. The
+     * list effectively forgets old undo operations.
+     */
+    reset(): void;
     /**
      * This method makes the UndoList object record the object passed to it. Any
      * operations that had previously been undone are forgotten.
@@ -86,6 +110,8 @@ export declare class UndoList {
  */
 export declare abstract class Undo {
     readonly desc: string;
+    protected readonly _events: Subject<UndoEvents>;
+    readonly events: Observable<UndoEvents>;
     constructor(desc: string);
     /**
      * Called when the operation must be undone.
@@ -93,14 +119,24 @@ export declare abstract class Undo {
      * @throws {Error} If an undo is attempted when an undo or redo is already in
      * progress.
      */
-    abstract undo(): void;
+    undo(): void;
+    /**
+     * This is the function that performs the specific operations required by this
+     * undo object, when undoing.
+     */
+    protected abstract performUndo(): void;
     /**
      * Called when the operation must be redone.
      *
      * @throws {Error} If an undo is attempted when an undo or redo is already in
      * progress.
      */
-    abstract redo(): void;
+    redo(): void;
+    /**
+     * This is the function that performs the specific operations required by this
+     * undo object, when redoing.
+     */
+    protected abstract performRedo(): void;
     /**
      * @returns The description of this object.
      */
@@ -115,12 +151,12 @@ export declare class UndoGroup extends Undo {
      * Undoes this group, which means undoing all the operations that this group
      * has recorded.
      */
-    undo(): void;
+    performUndo(): void;
     /**
      * Redoes this group, which means redoing all the operations that this group
      * has recorded.
      */
-    redo(): void;
+    performRedo(): void;
     /**
      * Records an operation as part of this group.
      *
@@ -133,4 +169,17 @@ export declare class UndoGroup extends Undo {
      */
     end(): void;
     toString(): string;
+}
+/**
+ * This is an undo object which does nothing but only serves as a marker in the
+ * list of undo operations. It could be used for debugging or by modes to record
+ * information they need in the undo list.
+ */
+export declare class UndoMarker extends Undo {
+    /**
+     * @param msg A message to identify the marker.
+     */
+    constructor(msg: string);
+    performUndo(): void;
+    performRedo(): void;
 }

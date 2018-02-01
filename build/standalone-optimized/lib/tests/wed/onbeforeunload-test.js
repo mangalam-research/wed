@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "sinon"], function (require, exports, module, sinon) {
+define(["require", "exports", "sinon"], function (require, exports, sinon) {
     /**
      * @author Louis-Dominique Dubeau
      * @license MPL 2.0
@@ -35,15 +35,16 @@ define(["require", "exports", "module", "sinon"], function (require, exports, mo
         afterEach(function () {
             document.body.removeChild(frame);
         });
-        it("automatically installs itself on window", function () {
-            assert.isDefined(frameWindow.onbeforeunload);
-            assert.isTrue(frameWindow.onbeforeunload(undefined));
+        it("does not automatically install itself on window", function () {
+            assert.isNull(frameWindow.onbeforeunload);
         });
         describe("install", function () {
-            it("fails when force is not set", function () {
+            it("fails when already set and force is not set", function () {
+                onbeforeunload.install(frameWindow);
                 assert.throws(onbeforeunload.install.bind(undefined, frameWindow), frameWindow.Error, "reregistering window with `force` false");
             });
             it("works when force is set", function () {
+                onbeforeunload.install(frameWindow);
                 onbeforeunload.install(frameWindow, undefined, true);
                 assert.isTrue(frameWindow.onbeforeunload(undefined));
             });
@@ -67,5 +68,4 @@ define(["require", "exports", "module", "sinon"], function (require, exports, mo
 //  LocalWords:  RequireJS Ctrl Mangalam MPL Dubeau requirejs chai
 //  LocalWords:  makeKey makeCtrlKey anyModifier keyup matchesEvent
 //  LocalWords:  keydown keypress setEventToMatch ctrl
-
 //# sourceMappingURL=onbeforeunload-test.js.map

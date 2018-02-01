@@ -4,10 +4,11 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { Editor } from "./wed";
-export declare type EventWithData<Data> = Event & {
+import { Button } from "./gui/button";
+import { EditorAPI } from "./mode-api";
+export interface EventWithData<Data> extends Event {
     data: Data;
-};
+}
 /**
  * Actions model "things the user can do." These can be contextual menu items,
  * menu items, buttons, keybindings, etc. The base class is always enabled but
@@ -15,12 +16,11 @@ export declare type EventWithData<Data> = Event & {
  * conditions they choose.
  */
 export declare abstract class Action<Data> {
-    readonly editor: Editor;
+    readonly editor: EditorAPI;
     protected readonly desc: string;
     protected readonly abbreviatedDesc: string | undefined;
     protected readonly icon: string;
     readonly needsInput: boolean;
-    protected _enabled: boolean;
     readonly boundHandler: (this: Action<Data>, ev: Event) => void;
     readonly boundTerminalHandler: (this: Action<Data>, ev: Event) => boolean;
     /**
@@ -45,7 +45,7 @@ export declare abstract class Action<Data> {
      * ``needsInput`` set to ``true`` so that the ``autoinsert`` logic backs off
      * from trying to insert these elements.
      */
-    constructor(editor: Editor, desc: string, abbreviatedDesc: string | undefined, icon?: string, needsInput?: boolean);
+    constructor(editor: EditorAPI, desc: string, abbreviatedDesc: string | undefined, icon?: string, needsInput?: boolean);
     /**
      * @param data Arbitrary data. What data must be passed is
      * determined by the action.
@@ -110,8 +110,5 @@ export declare abstract class Action<Data> {
      * Converts this action to a string. By default calls [[getDescription]].
      */
     toString(): string;
-    /**
-     * Returns whether or not the action is currently enabled.
-     */
-    getEnabled(): boolean;
+    makeButton(data?: Data): Button;
 }

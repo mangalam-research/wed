@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "./util"], function (require, exports, module, util_1) {
+define(["require", "exports", "./util"], function (require, exports, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -34,5 +34,4 @@ define(["require", "exports", "module", "./util"], function (require, exports, m
     exports.AbortTransformationException = AbortTransformationException;
 });
 // LocalWords:  Dubeau MPL Mangalam classdesc
-
 //# sourceMappingURL=exceptions.js.map

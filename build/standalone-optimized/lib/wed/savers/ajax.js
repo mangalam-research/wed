@@ -15,7 +15,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "merge-options", "../saver"], function (require, exports, module, mergeOptions, saver) {
+define(["require", "exports", "merge-options", "wed"], function (require, exports, mergeOptions, wed_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -226,9 +226,8 @@ define(["require", "exports", "module", "merge-options", "../saver"], function (
             });
         };
         return AjaxSaver;
-    }(saver.Saver));
+    }(wed_1.saver.Saver));
     exports.Saver = AjaxSaver;
 });
 //  LocalWords:  MPL ETag runtime etag json url autosave
-
 //# sourceMappingURL=ajax.js.map

@@ -14,6 +14,7 @@ interface JQuery {
   on(events: string,
      handler: ((eventObject: JQueryEventObject, ...args: any[]) => any) | false):
   JQuery;
+  mousedown(events: false): JQuery;
 }
 
 declare module "bluejax" {
@@ -38,10 +39,7 @@ declare var requirejs: RequireJSCall;
 declare var require: RequireJSCall;
 
 interface Window {
-  DOMParser: {
-    prototype: DOMParser;
-    new(): DOMParser;
-  }
+  DOMParser: typeof DOMParser;
 }
 
 declare var __WED_TESTING: any;

@@ -1,0 +1,1294 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>DOMListener | wed</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">wed</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/_wed_domlistener_.html">&quot;wed/domlistener&quot;</a>
+				</li>
+				<li>
+					<a href="_wed_domlistener_.domlistener.html">DOMListener</a>
+				</li>
+			</ul>
+			<h1>Class DOMListener</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>This class models a listener designed to listen to changes to a DOM tree and
+						fire events on the basis of the changes that it detects.</p>
+					</div>
+					<p>An  <code>included-element</code>  event is  fired  when  an  element appears  in  the
+						observed tree  whether it is directly  added or added because  its parent was
+						added.     The    opposite     events    are     <code>excluding-element</code>    and
+						<code>excluded-element</code>.  The event  <code>excluding-element</code> is  generated <em>before
+					the tree fragment is removed, and <code>excluded-element</code> </em>after*.</p>
+					<p>An <code>added-element</code> event is fired when an element is directly added to the
+						observed tree. The opposite events are <code>excluding-element</code> and
+					<code>removed-element</code>.</p>
+					<p>A <code>children-changing</code> and <code>children-changed</code> event are fired when an
+					element&#39;s children are being changed.</p>
+					<p>A <code>text-changed</code> event is fired when a text node has changed.</p>
+					<p>An <code>attribute-changed</code> is fired when an attribute has changed.</p>
+					<p>A <code>trigger</code> event with name <code>[name]</code> is fired when <code>trigger([name])</code> is
+						called. Trigger events are meant to be triggered by event handlers called by
+					the listener, not by other code.</p>
+					<h2>Example</h2>
+					<p>Consider the following HTML fragment:</p>
+					<pre><code><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>foo<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+</code></pre><p>If the fragment is added to a <code>&lt;div&gt;</code> element, an <code>included-element</code>
+						event will be generated for <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code> but an <code>added-element</code>
+						event will be generated only for <code>&lt;ul&gt;</code>. A <code>changed-children</code> event will
+					be generated for the parent of <code>&lt;ul&gt;</code>.</p>
+					<p>If the fragment is removed, an <code>excluding-element</code> and <code>excluded-element</code>
+						event will be generated for <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code> but a <code>removing-element</code>
+						and <code>remove-element</code> event will be generated only for <code>&lt;ul&gt;</code>. A
+						<code>children-changing</code> and <code>children-changed</code> event will be generated for
+					the parent of <code>&lt;ul&gt;</code>.</p>
+					<p>The order in which handlers are added matters. The listener provides the
+						following guarantee: for any given type of event, the handlers will be called
+					in the order that they were added to the listener.</p>
+					<h2>Warnings:</h2>
+					<ul>
+						<li><p>Keep in mind that the <code>children-changed</code>, <code>excluded-element</code> and
+								<code>removed-element</code> events are generated <strong>after</strong> the DOM operation that
+								triggers them. This has some consequences. In particular, a selector that
+								will work perfectly with <code>removing-element</code> or <code>excluding-element</code> may
+								not work with <code>removed-element</code> and <code>excluded-element</code>. This would
+								happen if the selector tests for ancestors of the element removed or
+								excluded. By the time the <code>-ed</code> events are generated, the element is gone
+							from the DOM tree and such selectors will fail.</p>
+							<p>The <code>-ed</code> version of these events are still useful. For instance, a wed
+								mode in use for editing scholarly articles listens for <code>excluded-element</code>
+								with a selector that is a tag name so that it can remove references to
+								these elements when they are removed. Since it does not need anything more
+							complex then <code>excluded-element</code> works perfectly.</p>
+						</li>
+						<li><p>A listener does not verify whether the parameters passed to handlers are
+								part of the DOM tree. For instance, handler A could operate on element X so
+								that it is removed from the DOM tree. If there is already another mutation
+								on X in the pipeline by the time A is called and handler B is called to
+								deal with it, then by the time B is run X will no longer be part of the
+							tree.</p>
+							<p>To put it differently, even if when an event is generated element X was
+								part of the DOM tree, it is possible that by the time the handlers that
+							must be run for that mutation are run, X is no longer part of the DOM tree.</p>
+							<p>Handlers that care about whether they are operating on elements that are in
+								the DOM tree should perform a test themselves to check whether what is
+							passed to them is still in the tree.</p>
+							<p>The handlers fired on removed-elements events work on nodes that have been
+								removed from the DOM tree. To know what was before and after these nodes
+								<strong>before</strong> they were removed use events that have <code>previous_sibling</code> and
+								<code>next_sibling</code> parameters, because it is likely that the nodes themselves
+								will have both their <code>previousSibling</code> and <code>nextSibling</code> set to
+							<code>null</code>.</p>
+						</li>
+						<li><p>Handlers that are fired on children-changed events, <strong>and</strong> which modify
+								the DOM tree can easily result in infinite loops. Care should be taken
+								early in any such handler to verify that the kind of elements added or
+								removed <strong>should</strong> result in a change to the DOM tree, and ignore those
+							changes that are not relevant.</p>
+						</li>
+					</ul>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">DOMListener</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="_wed_domlistener_.domlistener.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#root" class="tsd-kind-icon">root</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#scheduledprocesstriggers" class="tsd-kind-icon">scheduled<wbr>Process<wbr>Triggers</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#stopped" class="tsd-kind-icon">stopped</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#triggerhandlers" class="tsd-kind-icon">trigger<wbr>Handlers</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#triggerstofire" class="tsd-kind-icon">triggers<wbr>ToFire</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#updater" class="tsd-kind-icon">updater</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_addremcalls" class="tsd-kind-icon">_add<wbr>Rem<wbr>Calls</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_beforedeletenodehandler" class="tsd-kind-icon">_before<wbr>Delete<wbr>Node<wbr>Handler</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="_wed_domlistener_.domlistener.html#_callhandler" class="tsd-kind-icon">_call<wbr>Handler</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_childrencalls" class="tsd-kind-icon">_children<wbr>Calls</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_deletenodehandler" class="tsd-kind-icon">_delete<wbr>Node<wbr>Handler</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_incexccalls" class="tsd-kind-icon">_inc<wbr>Exc<wbr>Calls</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_insertnodeathandler" class="tsd-kind-icon">_insert<wbr>Node<wbr>AtHandler</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="_wed_domlistener_.domlistener.html#_processtriggers" class="tsd-kind-icon">_process<wbr>Triggers</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_scheduleprocesstriggers" class="tsd-kind-icon">_schedule<wbr>Process<wbr>Triggers</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_setattributenshandler" class="tsd-kind-icon">_set<wbr>AttributeNSHandler</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#_settextnodevaluehandler" class="tsd-kind-icon">_set<wbr>Text<wbr>Node<wbr>Value<wbr>Handler</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="_wed_domlistener_.domlistener.html#addhandler" class="tsd-kind-icon">add<wbr>Handler</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_wed_domlistener_.domlistener.html#clearpending" class="tsd-kind-icon">clear<wbr>Pending</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_wed_domlistener_.domlistener.html#processimmediately" class="tsd-kind-icon">process<wbr>Immediately</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_wed_domlistener_.domlistener.html#startlistening" class="tsd-kind-icon">start<wbr>Listening</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_wed_domlistener_.domlistener.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_wed_domlistener_.domlistener.html#trigger" class="tsd-kind-icon">trigger</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
+							<h3>Object literals</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-parent-kind-class tsd-is-private"><a href="_wed_domlistener_.domlistener.html#eventhandlers" class="tsd-kind-icon">event<wbr>Handlers</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new DOMListener<span class="tsd-signature-symbol">(</span>root<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span>, updater<span class="tsd-signature-symbol">: </span><a href="_wed_tree_updater_.treeupdater.html" class="tsd-signature-type">TreeUpdater</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_wed_domlistener_.domlistener.html" class="tsd-signature-type">DOMListener</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L371">wed/domlistener.ts:371</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>root: <span class="tsd-signature-type">Node</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The root of the DOM tree about which the listener should listen
+											to changes.</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5>updater: <a href="_wed_tree_updater_.treeupdater.html" class="tsd-signature-type">TreeUpdater</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_wed_domlistener_.domlistener.html" class="tsd-signature-type">DOMListener</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="root" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> root</h3>
+					<div class="tsd-signature tsd-kind-icon">root<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Node</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L377">wed/domlistener.ts:377</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The root of the DOM tree about which the listener should listen
+							to changes.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="scheduledprocesstriggers" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> scheduled<wbr>Process<wbr>Triggers</h3>
+					<div class="tsd-signature tsd-kind-icon">scheduled<wbr>Process<wbr>Triggers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L371">wed/domlistener.ts:371</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="stopped" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> stopped</h3>
+					<div class="tsd-signature tsd-kind-icon">stopped<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;true</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L370">wed/domlistener.ts:370</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="triggerhandlers" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> trigger<wbr>Handlers</h3>
+					<div class="tsd-signature tsd-kind-icon">trigger<wbr>Handlers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.create(null)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L367">wed/domlistener.ts:367</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="../modules/_wed_domlistener_.html#triggerhandler" class="tsd-signature-type">TriggerHandler</a><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="triggerstofire" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> triggers<wbr>ToFire</h3>
+					<div class="tsd-signature tsd-kind-icon">triggers<wbr>ToFire<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;Object.create(null)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L369">wed/domlistener.ts:369</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">number</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="updater" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> updater</h3>
+					<div class="tsd-signature tsd-kind-icon">updater<span class="tsd-signature-symbol">:</span> <a href="_wed_tree_updater_.treeupdater.html" class="tsd-signature-type">TreeUpdater</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L378">wed/domlistener.ts:378</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+					<a name="_addremcalls" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _add<wbr>Rem<wbr>Calls</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_add<wbr>Rem<wbr>Calls&lt;T&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_domlistener_.callspec.html" class="tsd-signature-type">CallSpec</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L741">wed/domlistener.ts:741</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Produces the calls for the added/removed family of events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_wed_domlistener_.html#addremevents" class="tsd-signature-type">AddRemEvents</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event name.</p>
+									</div>
+								</li>
+								<li>
+									<h5>node: <span class="tsd-signature-type">Element</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The node added or removed.</p>
+									</div>
+								</li>
+								<li>
+									<h5>target: <span class="tsd-signature-type">Element</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The parent of this node.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_wed_domlistener_.callspec.html" class="tsd-signature-type">CallSpec</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>A list of call specs.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_beforedeletenodehandler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _before<wbr>Delete<wbr>Node<wbr>Handler</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_before<wbr>Delete<wbr>Node<wbr>Handler<span class="tsd-signature-symbol">(</span>ev<span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_tree_updater_.beforedeletenodeevent.html" class="tsd-signature-type">BeforeDeleteNodeEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L571">wed/domlistener.ts:571</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handles node deletions.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ev: <a href="../interfaces/_wed_tree_updater_.beforedeletenodeevent.html" class="tsd-signature-type">BeforeDeleteNodeEvent</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+					<a name="_callhandler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _call<wbr>Handler</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">_call<wbr>Handler<span class="tsd-signature-symbol">(</span>handler<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span>, <span class="tsd-signature-symbol">...</span>rest<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L530">wed/domlistener.ts:530</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Utility function for calling event handlers.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>handler: <span class="tsd-signature-type">Function</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The handler.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>rest: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The arguments to pass to the handler.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+					<a name="_childrencalls" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _children<wbr>Calls</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_children<wbr>Calls&lt;T&gt;<span class="tsd-signature-symbol">(</span>call<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, parent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, added<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">[]</span>, removed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">[]</span>, prev<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span>, next<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_domlistener_.callspec.html" class="tsd-signature-type">CallSpec</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L644">wed/domlistener.ts:644</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Produces the calls for <code>children-...</code> events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_wed_domlistener_.html#childevents" class="tsd-signature-type">ChildEvents</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>call: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The type of call to produce.</p>
+									</div>
+								</li>
+								<li>
+									<h5>parent: <span class="tsd-signature-type">Element</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The parent of the children that have changed.</p>
+									</div>
+								</li>
+								<li>
+									<h5>added: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The children that were added.</p>
+									</div>
+								</li>
+								<li>
+									<h5>removed: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The children that were removed.</p>
+									</div>
+								</li>
+								<li>
+									<h5>prev: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Node preceding the children.</p>
+									</div>
+								</li>
+								<li>
+									<h5>next: <span class="tsd-signature-type">Node</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Node following the children.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_wed_domlistener_.callspec.html" class="tsd-signature-type">CallSpec</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>A list of call specs.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_deletenodehandler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _delete<wbr>Node<wbr>Handler</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_delete<wbr>Node<wbr>Handler<span class="tsd-signature-symbol">(</span>ev<span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_tree_updater_.deletenodeevent.html" class="tsd-signature-type">DeleteNodeEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L602">wed/domlistener.ts:602</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handles node deletion events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ev: <a href="../interfaces/_wed_tree_updater_.deletenodeevent.html" class="tsd-signature-type">DeleteNodeEvent</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+					<a name="_incexccalls" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _inc<wbr>Exc<wbr>Calls</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_inc<wbr>Exc<wbr>Calls&lt;T&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_domlistener_.callspec.html" class="tsd-signature-type">CallSpec</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L770">wed/domlistener.ts:770</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Produces the calls for included/excluded family of events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_wed_domlistener_.html#includeexcludeevents" class="tsd-signature-type">IncludeExcludeEvents</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event name.</p>
+									</div>
+								</li>
+								<li>
+									<h5>node: <span class="tsd-signature-type">Element</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The node which was included or excluded and for which we must
+										issue the events.</p>
+									</div>
+								</li>
+								<li>
+									<h5>target: <span class="tsd-signature-type">Element</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The parent of this node.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_wed_domlistener_.callspec.html" class="tsd-signature-type">CallSpec</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>A list of call specs.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_insertnodeathandler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _insert<wbr>Node<wbr>AtHandler</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_insert<wbr>Node<wbr>AtHandler<span class="tsd-signature-symbol">(</span>ev<span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_tree_updater_.insertnodeatevent.html" class="tsd-signature-type">InsertNodeAtEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L540">wed/domlistener.ts:540</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handles node additions.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ev: <a href="../interfaces/_wed_tree_updater_.insertnodeatevent.html" class="tsd-signature-type">InsertNodeAtEvent</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+					<a name="_processtriggers" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _process<wbr>Triggers</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">_process<wbr>Triggers<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L500">wed/domlistener.ts:500</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Processes pending triggers.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_scheduleprocesstriggers" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _schedule<wbr>Process<wbr>Triggers</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_schedule<wbr>Process<wbr>Triggers<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L719">wed/domlistener.ts:719</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets a timeout to run the triggers that must be run.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_setattributenshandler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _set<wbr>AttributeNSHandler</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_set<wbr>AttributeNSHandler<span class="tsd-signature-symbol">(</span>ev<span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_tree_updater_.setattributensevent.html" class="tsd-signature-type">SetAttributeNSEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L698">wed/domlistener.ts:698</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handles attribute change events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ev: <a href="../interfaces/_wed_tree_updater_.setattributensevent.html" class="tsd-signature-type">SetAttributeNSEvent</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_settextnodevaluehandler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _set<wbr>Text<wbr>Node<wbr>Value<wbr>Handler</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_set<wbr>Text<wbr>Node<wbr>Value<wbr>Handler<span class="tsd-signature-symbol">(</span>ev<span class="tsd-signature-symbol">: </span><a href="../interfaces/_wed_tree_updater_.settextnodevalueevent.html" class="tsd-signature-type">SetTextNodeValueEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L673">wed/domlistener.ts:673</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Handles text node changes events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ev: <a href="../interfaces/_wed_tree_updater_.settextnodevalueevent.html" class="tsd-signature-type">SetTextNodeValueEvent</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="addhandler" class="tsd-anchor"></a>
+					<h3>add<wbr>Handler</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">add<wbr>Handler<span class="tsd-signature-symbol">(</span>eventType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"trigger"</span>, selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, handler<span class="tsd-signature-symbol">: </span><a href="../modules/_wed_domlistener_.html#triggerhandler" class="tsd-signature-type">TriggerHandler</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">add<wbr>Handler&lt;T&gt;<span class="tsd-signature-symbol">(</span>eventType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, handler<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">EventHandlers[T]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L461">wed/domlistener.ts:461</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Adds an event handler or a trigger handler. Note that if you want to add a
+										trigger handler, the first argument must be a single string, due to how the
+									2nd argument is interpreted.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{Error} If an event is unrecognized.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>eventType: <span class="tsd-signature-type">"trigger"</span></h5>
+								</li>
+								<li>
+									<h5>selector: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>When adding an event handler, this argument is a CSS
+										selector. When adding a trigger handler, this argument is a trigger name.</p>
+										<p>  Note that the meaning of the <code>selector</code> parameter for <code>text-changed</code>
+											events is different than the usual. Whereas for all other handlers, the
+											<code>selector</code> matches the <code>element</code> parameter passed to the handlers, in
+											the case of a <code>text-changed</code> event the <code>selector</code> matches the
+										<strong>parent</strong> of the <code>node</code> parameter.</p>
+									</div>
+								</li>
+								<li>
+									<h5>handler: <a href="../modules/_wed_domlistener_.html#triggerhandler" class="tsd-signature-type">TriggerHandler</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The handler to be called by this listener when the events
+										specified in <code>eventTypes</code> occur.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L463">wed/domlistener.ts:463</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/_wed_domlistener_.html#events" class="tsd-signature-type">Events</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>eventType: <span class="tsd-signature-type">T</span></h5>
+								</li>
+								<li>
+									<h5>selector: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>handler: <span class="tsd-signature-type">EventHandlers[T]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="clearpending" class="tsd-anchor"></a>
+					<h3>clear<wbr>Pending</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">clear<wbr>Pending<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L431">wed/domlistener.ts:431</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Clear anything that is pending. Some implementations may have triggers
+									delivered asynchronously.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="processimmediately" class="tsd-anchor"></a>
+					<h3>process<wbr>Immediately</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">process<wbr>Immediately<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L420">wed/domlistener.ts:420</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Process all changes immediately.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="startlistening" class="tsd-anchor"></a>
+					<h3>start<wbr>Listening</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">start<wbr>Listening<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L406">wed/domlistener.ts:406</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Start listening to changes on the root passed when the object was
+									constructed.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="stoplistening" class="tsd-anchor"></a>
+					<h3>stop<wbr>Listening</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">stop<wbr>Listening<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L413">wed/domlistener.ts:413</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Stops listening to DOM changes.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="trigger" class="tsd-anchor"></a>
+					<h3>trigger</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">trigger<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L493">wed/domlistener.ts:493</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Tells the listener to fire the named trigger as soon as possible.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The name of the trigger to fire.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-class tsd-is-private">
+					<a name="eventhandlers" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> event<wbr>Handlers</h3>
+					<div class="tsd-signature tsd-kind-icon">event<wbr>Handlers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L354">wed/domlistener.ts:354</a></li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.added_element" class="tsd-anchor"></a>
+						<h3>added-<wbr>element</h3>
+						<div class="tsd-signature tsd-kind-icon">added-<wbr>element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L356">wed/domlistener.ts:356</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.attribute_changed" class="tsd-anchor"></a>
+						<h3>attribute-<wbr>changed</h3>
+						<div class="tsd-signature tsd-kind-icon">attribute-<wbr>changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L364">wed/domlistener.ts:364</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.children_changed" class="tsd-anchor"></a>
+						<h3>children-<wbr>changed</h3>
+						<div class="tsd-signature tsd-kind-icon">children-<wbr>changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L361">wed/domlistener.ts:361</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.children_changing" class="tsd-anchor"></a>
+						<h3>children-<wbr>changing</h3>
+						<div class="tsd-signature tsd-kind-icon">children-<wbr>changing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L362">wed/domlistener.ts:362</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.excluded_element" class="tsd-anchor"></a>
+						<h3>excluded-<wbr>element</h3>
+						<div class="tsd-signature tsd-kind-icon">excluded-<wbr>element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L357">wed/domlistener.ts:357</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.excluding_element" class="tsd-anchor"></a>
+						<h3>excluding-<wbr>element</h3>
+						<div class="tsd-signature tsd-kind-icon">excluding-<wbr>element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L358">wed/domlistener.ts:358</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.included_element" class="tsd-anchor"></a>
+						<h3>included-<wbr>element</h3>
+						<div class="tsd-signature tsd-kind-icon">included-<wbr>element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L355">wed/domlistener.ts:355</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.removed_element" class="tsd-anchor"></a>
+						<h3>removed-<wbr>element</h3>
+						<div class="tsd-signature tsd-kind-icon">removed-<wbr>element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L359">wed/domlistener.ts:359</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.removing_element" class="tsd-anchor"></a>
+						<h3>removing-<wbr>element</h3>
+						<div class="tsd-signature tsd-kind-icon">removing-<wbr>element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L360">wed/domlistener.ts:360</a></li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="eventhandlers.text_changed" class="tsd-anchor"></a>
+						<h3>text-<wbr>changed</h3>
+						<div class="tsd-signature tsd-kind-icon">text-<wbr>changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/domlistener.ts#L363">wed/domlistener.ts:363</a></li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html">"wed/domlistener"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-external-module">
+						<a href="_wed_domlistener_.domlistener.html" class="tsd-kind-icon">DOMListener</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="_wed_domlistener_.domlistener.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#root" class="tsd-kind-icon">root</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#scheduledprocesstriggers" class="tsd-kind-icon">scheduled<wbr>Process<wbr>Triggers</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#stopped" class="tsd-kind-icon">stopped</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#triggerhandlers" class="tsd-kind-icon">trigger<wbr>Handlers</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#triggerstofire" class="tsd-kind-icon">triggers<wbr>ToFire</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#updater" class="tsd-kind-icon">updater</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_addremcalls" class="tsd-kind-icon">_add<wbr>Rem<wbr>Calls</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_beforedeletenodehandler" class="tsd-kind-icon">_before<wbr>Delete<wbr>Node<wbr>Handler</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="_wed_domlistener_.domlistener.html#_callhandler" class="tsd-kind-icon">_call<wbr>Handler</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_childrencalls" class="tsd-kind-icon">_children<wbr>Calls</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_deletenodehandler" class="tsd-kind-icon">_delete<wbr>Node<wbr>Handler</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_incexccalls" class="tsd-kind-icon">_inc<wbr>Exc<wbr>Calls</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_insertnodeathandler" class="tsd-kind-icon">_insert<wbr>Node<wbr>AtHandler</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="_wed_domlistener_.domlistener.html#_processtriggers" class="tsd-kind-icon">_process<wbr>Triggers</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_scheduleprocesstriggers" class="tsd-kind-icon">_schedule<wbr>Process<wbr>Triggers</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_setattributenshandler" class="tsd-kind-icon">_set<wbr>AttributeNSHandler</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#_settextnodevaluehandler" class="tsd-kind-icon">_set<wbr>Text<wbr>Node<wbr>Value<wbr>Handler</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="_wed_domlistener_.domlistener.html#addhandler" class="tsd-kind-icon">add<wbr>Handler</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_wed_domlistener_.domlistener.html#clearpending" class="tsd-kind-icon">clear<wbr>Pending</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_wed_domlistener_.domlistener.html#processimmediately" class="tsd-kind-icon">process<wbr>Immediately</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_wed_domlistener_.domlistener.html#startlistening" class="tsd-kind-icon">start<wbr>Listening</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_wed_domlistener_.domlistener.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_wed_domlistener_.domlistener.html#trigger" class="tsd-kind-icon">trigger</a>
+							</li>
+							<li class=" tsd-kind-object-literal tsd-parent-kind-class tsd-is-private">
+								<a href="_wed_domlistener_.domlistener.html#eventhandlers" class="tsd-kind-icon">event<wbr>Handlers</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-has-type-parameter tsd-is-not-exported">
+						<a href="../interfaces/_wed_domlistener_.callspec.html" class="tsd-kind-icon">Call<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_wed_domlistener_.eventhandlers.html" class="tsd-kind-icon">Event<wbr>Handlers</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_wed_domlistener_.handlers.html" class="tsd-kind-icon">Handlers</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_wed_domlistener_.html#addremevents" class="tsd-kind-icon">Add<wbr>Rem<wbr>Events</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#addedelementhandler" class="tsd-kind-icon">Added<wbr>Element<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#attributechangedhandler" class="tsd-kind-icon">Attribute<wbr>Changed<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_wed_domlistener_.html#childevents" class="tsd-kind-icon">Child<wbr>Events</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#childrenchangedhandler" class="tsd-kind-icon">Children<wbr>Changed<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#childrenchanginghandler" class="tsd-kind-icon">Children<wbr>Changing<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#eventhandlermap" class="tsd-kind-icon">Event<wbr>Handler<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#events" class="tsd-kind-icon">Events</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#eventsortrigger" class="tsd-kind-icon">Events<wbr>OrTrigger</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#excludedelementhandler" class="tsd-kind-icon">Excluded<wbr>Element<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#excludingelementhandler" class="tsd-kind-icon">Excluding<wbr>Element<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#handler" class="tsd-kind-icon">Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_wed_domlistener_.html#includeexcludeevents" class="tsd-kind-icon">Include<wbr>Exclude<wbr>Events</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#includedelementhandler" class="tsd-kind-icon">Included<wbr>Element<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#removedelementhandler" class="tsd-kind-icon">Removed<wbr>Element<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#removingelementhandler" class="tsd-kind-icon">Removing<wbr>Element<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-has-type-parameter">
+						<a href="../modules/_wed_domlistener_.html#selectorhandlerpair" class="tsd-kind-icon">Selector<wbr>Handler<wbr>Pair</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#textchangedhandler" class="tsd-kind-icon">Text<wbr>Changed<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_wed_domlistener_.html#triggerhandler" class="tsd-kind-icon">Trigger<wbr>Handler</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

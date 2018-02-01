@@ -1,6 +1,6 @@
 import { DLocRange } from "../dloc";
+import { Editor } from "../editor";
 import { Context, Direction } from "../search";
-import { Editor } from "../wed";
 import { Scroller } from "./scroller";
 export { Context, Direction };
 /**

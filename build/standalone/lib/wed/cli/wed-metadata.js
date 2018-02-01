@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "ajv", "argparse", "fs", "js-yaml", "path", "../modes/generic/doc-pattern", "../modes/generic/metadata-schema.json", "../util"], function (require, exports, module, Ajv, argparse_1, fs, yaml, path, doc_pattern_1, schema, util_1) {
+define(["require", "exports", "ajv", "argparse", "fs", "js-yaml", "path", "../modes/generic/doc-pattern", "../modes/generic/metadata-schema.json", "../util"], function (require, exports, Ajv, argparse_1, fs, yaml, path, doc_pattern_1, schema, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:completed-docs
@@ -115,19 +115,16 @@ define(["require", "exports", "module", "ajv", "argparse", "fs", "js-yaml", "pat
                 members.splice(i, 1);
             }
         }
+        var elements = [];
         for (var _i = 0, members_1 = members; _i < members_1.length; _i++) {
             var member = members_1[_i];
-            delete member.type;
-            delete member.module;
-            delete member.classes;
-            delete member.model;
-            delete member.attributes;
-            delete member.classattributes;
-            member.name = member.ident;
-            member.desc = member.desc;
-            delete member.ident;
+            elements.push({
+                name: member.ident,
+                desc: member.desc,
+                ns: member.ns,
+            });
         }
-        output.elements = members;
+        output.elements = elements;
     }
     else {
         if (args.merge === undefined) {
@@ -189,5 +186,4 @@ define(["require", "exports", "module", "ajv", "argparse", "fs", "js-yaml", "pat
 });
 //  LocalWords:  CLI MPL uncaughtException utf TEI's json xsl stdout tei
 //  LocalWords:  storeTrue elementSpec
-
 //# sourceMappingURL=wed-metadata.js.map

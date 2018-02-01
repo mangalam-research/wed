@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "../dloc_test_data/source_converted.xml"], function (require, exports, module, $, convert, dloc_1, domutil_1, sourceXML) {
+define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "wed/util", "../util"], function (require, exports, $, convert, dloc_1, domutil_1, util_1, util_2) {
     /**
      * @author Louis-Dominique Dubeau
      * @license MPL 2.0
@@ -17,15 +17,21 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
         var $root;
         var root;
         var rootObj;
+        var encodedType;
         before(function () {
-            root = document.createElement("div");
-            document.body.appendChild(root);
-            $root = $(root);
-            var parser = new window.DOMParser();
-            var xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-            var htmlTree = convert.toHTMLTree(window.document, xmlDoc.firstElementChild);
-            root.appendChild(htmlTree);
-            rootObj = new dloc_1.DLocRoot(root);
+            return new util_2.DataProvider("/base/build/standalone/lib/tests/dloc_test_data/")
+                .getText("source_converted.xml")
+                .then(function (sourceXML) {
+                root = document.createElement("div");
+                document.body.appendChild(root);
+                $root = $(root);
+                var parser = new window.DOMParser();
+                var xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+                var htmlTree = convert.toHTMLTree(window.document, xmlDoc.firstElementChild);
+                root.appendChild(htmlTree);
+                rootObj = new dloc_1.DLocRoot(root);
+                encodedType = util_1.encodeAttrName("type");
+            });
         });
         after(function () {
             document.body.removeChild(root);
@@ -36,7 +42,7 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
             $(".__test").remove();
         });
         function makeAttributeNodeCase() {
-            var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+            var a = defined($(".quote")[0].getAttributeNode(encodedType));
             var b = defined($(".body .p")[1]);
             var attrLoc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
             var loc = attrLoc.make(b, 1);
@@ -152,7 +158,7 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
                 assert.isTrue(loc.isValid());
             });
             it("returns a valid DLoc on an attribute node", function () {
-                var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+                var a = defined($(".quote")[0].getAttributeNode(encodedType));
                 var loc = dloc_1.DLoc.makeDLoc(root, a, 0);
                 assert.equal(loc.node, a);
                 assert.equal(loc.offset, 0);
@@ -202,7 +208,7 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
                 assert.throws(dloc_1.DLoc.makeDLoc.bind(undefined, root, c, 100), Error, /^offset greater than allowable value/);
             });
             it("throws an error when the offset is too large (attribute)", function () {
-                var c = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+                var c = defined($(".quote")[0].getAttributeNode(encodedType));
                 assert.isTrue(domutil_1.isAttr(c));
                 assert.throws(dloc_1.DLoc.makeDLoc.bind(undefined, root, c, 100), Error, /^offset greater than allowable value/);
             });
@@ -224,7 +230,7 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
                 assert.equal(loc.offset, c.data.length);
             });
             it("normalizes an offset that is too large (attribute)", function () {
-                var c = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+                var c = defined($(".quote")[0].getAttributeNode(encodedType));
                 assert.isTrue(domutil_1.isAttr(c));
                 var loc = dloc_1.DLoc.makeDLoc(root, c, 100, true);
                 assert.equal(loc.offset, c.value.length);
@@ -389,7 +395,7 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
                     assert.isTrue(loc.isValid());
                 });
                 it("returns true when the location is valid (attribute)", function () {
-                    var a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+                    var a = defined($(".quote")[0].getAttributeNode(encodedType));
                     assert.isTrue(domutil_1.isAttr(a));
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
                     assert.isTrue(loc.isValid());
@@ -542,7 +548,7 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
                     before(function () {
                         var quoteNode = root.querySelector(".quote");
                         quote = dloc_1.DLoc.mustMakeDLoc(root, quoteNode);
-                        attr = dloc_1.DLoc.mustMakeDLoc(root, quoteNode.getAttributeNode("data-wed-type"), 0);
+                        attr = dloc_1.DLoc.mustMakeDLoc(root, quoteNode.getAttributeNode(encodedType), 0);
                     });
                     it("returns -1 if other is an attribute of this", function () {
                         assert.equal(quote.compare(attr), -1);
@@ -601,7 +607,7 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
                 var attr;
                 before(function () {
                     quoteNode = root.querySelector(".quote");
-                    attributeNode = quoteNode.getAttributeNode("data-wed-type");
+                    attributeNode = quoteNode.getAttributeNode(encodedType);
                     quote = dloc_1.DLoc.mustMakeDLoc(root, quoteNode);
                     attr = dloc_1.DLoc.mustMakeDLoc(root, attributeNode, 0);
                 });
@@ -803,5 +809,4 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
         });
     });
 });
-
 //# sourceMappingURL=dloc-test.js.map

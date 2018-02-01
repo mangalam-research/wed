@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "./base-config"], function (require, exports, module, base_config_1) {
+define(["require", "exports", "./base-config"], function (require, exports, base_config_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.config = {
@@ -23,5 +23,4 @@ define(["require", "exports", "module", "./base-config"], function (require, exp
         save: base_config_1.config.save,
     };
 });
-
 //# sourceMappingURL=submode-config.js.map

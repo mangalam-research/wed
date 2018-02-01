@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "wed/browsers", "wed/domtypeguards", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, module, browsers, domtypeguards_1, keyConstants, globalConfig, util_1, wed_test_util_1) {
+define(["require", "exports", "wed/browsers", "wed/domtypeguards", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, browsers, domtypeguards_1, keyConstants, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -58,6 +58,7 @@ define(["require", "exports", "module", "wed/browsers", "wed/domtypeguards", "we
                 // tslint:disable-next-line:no-any
                 refreshRunner = editor.validationController.refreshErrorsRunner;
                 caretManager = editor.caretManager;
+                // tslint:disable-next-line:no-any
                 controller = editor.validationController;
                 guiRoot = editor.guiRoot;
             });
@@ -193,7 +194,7 @@ within 5 pixels of the bottom of the start label for the monogr");
                             assert.equal(item.title, "This error belongs to an attribute which is not currently displayed.", "the item should have the right title");
                             cases++;
                         }
-                        assert.equal(cases, 2);
+                        assert.equal(cases, 5);
                         return [2 /*return*/];
                 }
             });
@@ -208,42 +209,105 @@ within 5 pixels of the bottom of the start label for the monogr");
             // We do not compare the number of errors, because changing the label
             // visibility may change the number of errors shown to the user.
         }
-        it("recreates errors when changing label visibility level", function () { return __awaiter(_this, void 0, void 0, function () {
-            var errorLayer, orig, after;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // Changing label visibility does not merely refresh the errors but
-                    // recreates them because errors that were visible may become invisible or
-                    // errors that were invisible may become visible.
-                    return [4 /*yield*/, processRunner.onCompleted()];
-                    case 1:
+        describe("recreates errors when", function () {
+            it("changing label visibility level", function () { return __awaiter(_this, void 0, void 0, function () {
+                var errorLayer, orig, after;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: 
                         // Changing label visibility does not merely refresh the errors but
                         // recreates them because errors that were visible may become invisible or
                         // errors that were invisible may become visible.
-                        _a.sent();
-                        errorLayer = editor.errorLayer.el;
-                        orig = _slice.call(errorLayer.children);
-                        // Reduce the visibility level.
-                        editor.type(keyConstants.CTRLEQ_OPEN_BRACKET);
-                        return [4 /*yield*/, util_1.waitForSuccess(function () {
-                                after = _slice.call(errorLayer.children);
-                                assertNewMarkers(orig, after, "decreasing the level");
-                            })];
-                    case 2:
-                        _a.sent();
-                        orig = after;
-                        // Increase visibility level
-                        editor.type(keyConstants.CTRLEQ_CLOSE_BRACKET);
-                        return [4 /*yield*/, util_1.waitForSuccess(function () {
-                                assertNewMarkers(orig, _slice.call(errorLayer.children), "increasing the level");
-                            })];
-                    case 3:
-                        _a.sent();
-                        return [2 /*return*/];
+                        return [4 /*yield*/, processRunner.onCompleted()];
+                        case 1:
+                            // Changing label visibility does not merely refresh the errors but
+                            // recreates them because errors that were visible may become invisible or
+                            // errors that were invisible may become visible.
+                            _a.sent();
+                            errorLayer = editor.errorLayer.el;
+                            orig = _slice.call(errorLayer.children);
+                            // Reduce the visibility level.
+                            editor.type(keyConstants.LOWER_LABEL_VISIBILITY);
+                            return [4 /*yield*/, util_1.waitForSuccess(function () {
+                                    after = _slice.call(errorLayer.children);
+                                    assertNewMarkers(orig, after, "decreasing the level");
+                                })];
+                        case 2:
+                            _a.sent();
+                            orig = after;
+                            // Increase visibility level
+                            editor.type(keyConstants.INCREASE_LABEL_VISIBILITY);
+                            return [4 /*yield*/, util_1.waitForSuccess(function () {
+                                    assertNewMarkers(orig, _slice.call(errorLayer.children), "increasing the level");
+                                })];
+                        case 3:
+                            _a.sent();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+            it("moving into or out of a label with autohidden attributes", function () { return __awaiter(_this, void 0, void 0, function () {
+                // Moving into or ouot of a label with autohidden attributes does not
+                // merely refresh the errors but recreates them because errors that were
+                // visible may become invisible or errors that were invisible may become
+                // visible.
+                function getError() {
+                    var errors = controller.copyErrorList();
+                    var found;
+                    for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
+                        var error = errors_1[_i];
+                        if (error.item.textContent === "attribute not allowed here: xxx") {
+                            found = error;
+                        }
+                    }
+                    assert.isDefined(found);
+                    return found;
                 }
-            });
-        }); });
+                var errorLayer, orig, divs, div, after;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, processRunner.onCompleted()];
+                        case 1:
+                            _a.sent();
+                            errorLayer = editor.errorLayer.el;
+                            orig = _slice.call(errorLayer.children);
+                            divs = editor.dataRoot.querySelectorAll("body>div");
+                            div = divs[divs.length - 1];
+                            // We check that there is an error for the "xxx" attribute, which has no
+                            // link (=== no marker).
+                            assert.isUndefined(getError().marker);
+                            // Move into the label.
+                            editor.caretManager.setCaret(div, 0);
+                            editor.caretManager.move("left");
+                            return [4 /*yield*/, processRunner.onCompleted()];
+                        case 2:
+                            _a.sent();
+                            return [4 /*yield*/, util_1.waitForSuccess(function () {
+                                    after = _slice.call(errorLayer.children);
+                                    assertNewMarkers(orig, after, "moving into the label");
+                                    // Now it has a link (=== has a marker).
+                                    assert.isDefined(getError().marker);
+                                })];
+                        case 3:
+                            _a.sent();
+                            orig = after;
+                            // Move out of the label.
+                            editor.caretManager.move("right");
+                            return [4 /*yield*/, processRunner.onCompleted()];
+                        case 4:
+                            _a.sent();
+                            return [4 /*yield*/, util_1.waitForSuccess(function () {
+                                    assertNewMarkers(orig, _slice.call(errorLayer.children), "moving out of the label");
+                                    // No link again.
+                                    assert.isUndefined(getError().marker);
+                                })];
+                        case 5:
+                            _a.sent();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        });
         it("refreshes error positions when pasting", function () { return __awaiter(_this, void 0, void 0, function () {
             var initial, initialValue, event;
             return __generator(this, function (_a) {
@@ -329,5 +393,4 @@ within 5 pixels of the bottom of the start label for the monogr");
         }); });
     });
 });
-
 //# sourceMappingURL=wed-validation-error-test.js.map

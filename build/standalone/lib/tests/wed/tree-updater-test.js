@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil", "wed/tree-updater", "../tree_updater_test_data/source_converted.xml"], function (require, exports, module, convert, dloc_1, domutil_1, tree_updater_1, sourceXML) {
+define(["require", "exports", "rxjs/operators/filter", "wed/convert", "wed/dloc", "wed/domutil", "wed/tree-updater", "../util"], function (require, exports, filter_1, convert, dloc_1, domutil_1, tree_updater_1, util_1) {
     /**
      * @author Louis-Dominique Dubeau
      * @license MPL 2.0
@@ -26,12 +26,16 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
         var root;
         var htmlTree;
         before(function () {
-            root = document.createElement("div");
-            document.body.appendChild(root);
-            new dloc_1.DLocRoot(root);
-            var parser = new DOMParser();
-            var xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-            htmlTree = convert.toHTMLTree(document, xmlDoc.firstElementChild);
+            return new util_1.DataProvider("/base/build/standalone/lib/tests/tree_updater_test_data/")
+                .getText("source_converted.xml")
+                .then(function (sourceXML) {
+                root = document.createElement("div");
+                document.body.appendChild(root);
+                new dloc_1.DLocRoot(root);
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+                htmlTree = convert.toHTMLTree(document, xmlDoc.firstElementChild);
+            });
         });
         var tu;
         beforeEach(function () {
@@ -127,7 +131,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                     [parent, 1],
                 ];
                 var callsIx = 0;
-                tu.events.filter(filterInsertNodeAtAndBefore)
+                tu.events.pipe(filter_1.filter(filterInsertNodeAtAndBefore))
                     .subscribe(function (ev) {
                     var call = calls[callsIx];
                     assert.equal(ev.parent, call[0]);
@@ -139,12 +143,12 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                 listener.expected.InsertNodeAt = 2;
                 listener.expected.BeforeInsertNodeAt = 2;
                 var formerParent = node.parentNode;
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                     assert.equal(ev.formerParent, formerParent);
@@ -190,7 +194,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
             it("generates appropriate events when it modifies a text node", function () {
                 var node = root.querySelector(".title").firstChild;
                 var listener = new Listener(tu);
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.equal(ev.value, "abQcd");
                 });
@@ -209,7 +213,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                     it("generates appropriate events when it uses the next text node", function () {
                         var node = root.querySelector(".title");
                         var listener = new Listener(tu);
-                        tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                        tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                             assert.equal(ev.node, node.firstChild);
                             assert.equal(ev.value, "Qabcd");
                         });
@@ -226,7 +230,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                     it("generates appropriate events when it uses the previous text node", function () {
                         var node = root.querySelector(".title");
                         var listener = new Listener(tu);
-                        tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                        tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                             assert.equal(ev.node, node.firstChild);
                             assert.equal(ev.value, "abcdQ");
                         });
@@ -245,7 +249,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                         // tslint:disable-next-line:no-inner-html
                         node.innerHTML = "";
                         var listener = new Listener(tu);
-                        tu.events.filter(filterInsertNodeAtAndBefore)
+                        tu.events.pipe(filter_1.filter(filterInsertNodeAtAndBefore))
                             .subscribe(function (ev) {
                             assert.equal(ev.parent, node);
                             assert.equal(ev.index, 0);
@@ -294,7 +298,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
             it("generates appropriate events when it modifies a text node", function () {
                 var node = root.querySelector(".title").firstChild;
                 var listener = new Listener(tu);
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.equal(ev.value, "ab");
                 });
@@ -307,12 +311,12 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
             it("generates appropriate events when it deletes an empty text node", function () {
                 var node = root.querySelector(".title").firstChild;
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                 });
@@ -333,7 +337,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                 // Check that the attribute is not set yet.
                 assert.equal(node.getAttribute("q"), undefined);
                 var listener = new Listener(tu);
-                tu.events.filter(filterSetAttributeNS).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetAttributeNS)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.equal(ev.ns, "");
                     assert.equal(ev.attribute, "q");
@@ -351,7 +355,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                 // Set the attribute
                 node.setAttribute("q", "ab");
                 var listener = new Listener(tu);
-                tu.events.filter(filterSetAttributeNS).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetAttributeNS)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.equal(ev.ns, "");
                     assert.equal(ev.attribute, "q");
@@ -378,12 +382,12 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                 var node = parent.firstChild;
                 var el = document.createElement("span");
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                 });
@@ -394,7 +398,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                     [parent, 2],
                 ];
                 var inaCallIx = 0;
-                tu.events.filter(filterInsertNodeAtAndBefore)
+                tu.events.pipe(filter_1.filter(filterInsertNodeAtAndBefore))
                     .subscribe(function (ev) {
                     var call = inaCalls[inaCallIx];
                     assert.equal(ev.parent, call[0]);
@@ -423,12 +427,12 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                 var parent = node.parentNode;
                 var el = document.createElement("span");
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                 });
@@ -438,7 +442,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                     [parent, 1],
                 ];
                 var inaCallIx = 0;
-                tu.events.filter(filterInsertNodeAtAndBefore)
+                tu.events.pipe(filter_1.filter(filterInsertNodeAtAndBefore))
                     .subscribe(function (ev) {
                     var call = inaCalls[inaCallIx];
                     assert.equal(ev.parent, call[0]);
@@ -464,12 +468,12 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                 var parent = node.parentNode;
                 var el = document.createElement("span");
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                 });
@@ -479,7 +483,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                     [parent, 1],
                 ];
                 var inaCallIx = 0;
-                tu.events.filter(filterInsertNodeAtAndBefore)
+                tu.events.pipe(filter_1.filter(filterInsertNodeAtAndBefore))
                     .subscribe(function (ev) {
                     var call = inaCalls[inaCallIx];
                     assert.equal(ev.parent, call[0]);
@@ -509,7 +513,7 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
             it("generates appropriate events when setting text", function () {
                 var node = root.querySelector(".title").firstChild;
                 var listener = new Listener(tu);
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.equal(ev.value, node.nodeValue);
                 });
@@ -523,12 +527,12 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
             it("generates appropriate events when setting text to an empty string", function () {
                 var node = root.querySelector(".title").firstChild;
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                 });
@@ -547,12 +551,12 @@ define(["require", "exports", "module", "wed/convert", "wed/dloc", "wed/domutil"
                 var parent = node.parentNode;
                 assert.equal(parent.childNodes.length, 3);
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                 });
@@ -578,7 +582,7 @@ quoted3</div></div>"));
                 var listener = new Listener(tu);
                 var firstBefore = true;
                 var first = true;
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     // beforeDeleteNode will be emitted twice. Once to
                     // remove the node itself, and second to merge the
                     // text nodes.
@@ -592,7 +596,7 @@ quoted3</div></div>"));
                     firstBefore = false;
                 });
                 listener.expected.BeforeDeleteNode = 2;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     // deleteNode will be emitted twice. Once to
                     // remove the node itself, and second to merge the
                     // text nodes.
@@ -606,7 +610,7 @@ quoted3</div></div>"));
                     first = false;
                 });
                 listener.expected.DeleteNode = 2;
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, prev);
                     assert.equal(ev.value, "before  between ");
                 });
@@ -637,12 +641,12 @@ quoted2</div> after</div>");
                 var parent = node.parentNode;
                 assert.equal(parent.childNodes.length, 3);
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.isNull(ev.node.parentNode);
                 });
@@ -668,7 +672,7 @@ quoted3</div></div>");
                 var listener = new Listener(tu);
                 var firstBefore = true;
                 var first = true;
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     // beforeDeleteNode will be emitted twice. Once to
                     // remove the node itself, and second to merge the
                     // text nodes.
@@ -682,7 +686,7 @@ quoted3</div></div>");
                     firstBefore = false;
                 });
                 listener.expected.BeforeDeleteNode = 2;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     // deleteNode will be emitted twice. Once to
                     // remove the node itself, and second to merge the
                     // text nodes.
@@ -696,7 +700,7 @@ quoted3</div></div>");
                     first = false;
                 });
                 listener.expected.DeleteNode = 2;
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, prev);
                     assert.equal(ev.value, "before  between ");
                 });
@@ -759,20 +763,20 @@ quoted2</div> after</div>");
                 var listener = new Listener(tu);
                 var calls = nodes.concat([next]);
                 var callsIx = 0;
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     var call = calls[callsIx];
                     assert.equal(ev.node, call, "beforeDeleteNode call " + callsIx);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 4;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     var call = calls[callsIx];
                     assert.equal(ev.node, call, "beforeDeleteNode call " + callsIx);
                     assert.isNull(ev.node.parentNode);
                     callsIx++;
                 });
                 listener.expected.DeleteNode = 4;
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, prev, "setTextNodeValue node");
                     assert.equal(ev.value, "before  after", "setTextNodeValue value");
                 });
@@ -807,17 +811,17 @@ before  after</div>");
                 var next = node.nextSibling;
                 assert.equal(parent.childNodes.length, 4);
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, next);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, next);
                     assert.isNull(ev.node.parentNode);
                 });
                 listener.expected.DeleteNode = 1;
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.equal(ev.value, "before  between ");
                 });
@@ -901,17 +905,17 @@ quoted2</div> after</div>");
                 var next = node.nextSibling;
                 assert.equal(parent.childNodes.length, 4);
                 var listener = new Listener(tu);
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, next);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = 1;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     assert.equal(ev.node, next);
                     assert.isNull(ev.node.parentNode);
                 });
                 listener.expected.DeleteNode = 1;
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     assert.equal(ev.node, node);
                     assert.equal(ev.value, "before  between ");
                 });
@@ -1029,13 +1033,13 @@ quoted2</div> after</div>");
                 nodes = nodes.reverse();
                 var calls = nodes.concat([end.node]);
                 var callsIx = 0;
-                tu.events.filter(filterBeforeDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterBeforeDeleteNode)).subscribe(function (ev) {
                     var call = calls[callsIx];
                     assert.equal(ev.node, call, "beforeDeleteNode call " + callsIx);
                     assert.isNotNull(ev.node.parentNode);
                 });
                 listener.expected.BeforeDeleteNode = calls.length;
-                tu.events.filter(filterDeleteNode).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterDeleteNode)).subscribe(function (ev) {
                     var call = calls[callsIx];
                     assert.equal(ev.node, call, "beforeDeleteNode call " + callsIx);
                     assert.isNull(ev.node.parentNode);
@@ -1048,7 +1052,7 @@ quoted2</div> after</div>");
                     [start.node, "befoter"],
                 ];
                 var stnvCallsIx = 0;
-                tu.events.filter(filterSetTextNodeValue).subscribe(function (ev) {
+                tu.events.pipe(filter_1.filter(filterSetTextNodeValue)).subscribe(function (ev) {
                     var call = stnvCalls[stnvCallsIx];
                     assert.equal(ev.node, call[0], "setTextNodeValue node, call " + stnvCallsIx);
                     assert.equal(ev.value, call[1], "setTextNodeValue value, call " + stnvCallsIx);
@@ -1123,5 +1127,4 @@ befoter</div>");
 //  LocalWords:  insertIntoText deleteText setTextNodeValue onwards
 //  LocalWords:  insertText deleteNode denormalize splitAt jquery
 //  LocalWords:  insertNodeAt TreeUpdater
-
 //# sourceMappingURL=tree-updater-test.js.map

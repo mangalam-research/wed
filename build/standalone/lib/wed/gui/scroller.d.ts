@@ -1,10 +1,4 @@
-/**
- * Content scroller.
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
-import { Observable } from "rxjs";
+import { Observable } from "rxjs/Observable";
 /**
  * Event emitted when the scroller scrolls.
  */

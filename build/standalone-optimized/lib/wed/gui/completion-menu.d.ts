@@ -1,4 +1,4 @@
-import { Editor } from "../wed";
+import { Editor } from "../editor";
 import { ContextMenu, DismissCallback } from "./context-menu";
 /**
  * A menu for displaying completions.

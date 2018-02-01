@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "bluebird", "bluejax", "chai"], function (require, exports, module, Promise, bluejax_1, chai_1) {
+define(["require", "exports", "bluebird", "bluejax", "chai"], function (require, exports, Promise, bluejax_1, chai_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function delay(timeout) {
@@ -119,5 +119,4 @@ define(["require", "exports", "module", "bluebird", "bluejax", "chai"], function
     }
     exports.makeFakePasteEvent = makeFakePasteEvent;
 });
-
 //# sourceMappingURL=util.js.map

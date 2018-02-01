@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, module, keyConstants, globalConfig, util_1, wed_test_util_1) {
+define(["require", "exports", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, keyConstants, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -94,7 +94,7 @@ define(["require", "exports", "module", "wed/key-constants", "../base-config", "
             caretManager.setCaret(initial, 0);
             editor.type(" ");
             assert.isTrue($modificationStatus.hasClass("label-warning"));
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(keyConstants.SAVE);
             return util_1.waitForSuccess(function () {
                 assert.isTrue($modificationStatus.hasClass("label-success"));
             });
@@ -102,7 +102,7 @@ define(["require", "exports", "module", "wed/key-constants", "../base-config", "
         it("save status shows a saved document after a save", function () {
             assert.isTrue($saveStatus.hasClass("label-default"));
             assert.equal($saveStatus.children("span").text(), "");
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(keyConstants.SAVE);
             return util_1.waitForSuccess(function () {
                 assert.isTrue($saveStatus.hasClass("label-success"));
                 assert.equal($saveStatus.children("span").text(), "moments ago");
@@ -143,7 +143,7 @@ define(["require", "exports", "module", "wed/key-constants", "../base-config", "
                     case 1:
                         _a.sent();
                         // Now perform a save.
-                        editor.type(keyConstants.CTRLEQ_S);
+                        editor.type(keyConstants.SAVE);
                         return [2 /*return*/, util_1.waitForSuccess(function () {
                                 // We check the tooltip changed.
                                 var tooltip = $saveStatus.data("bs.tooltip");
@@ -155,5 +155,4 @@ define(["require", "exports", "module", "wed/key-constants", "../base-config", "
         }); });
     });
 });
-
 //# sourceMappingURL=wed-file-state-test.js.map

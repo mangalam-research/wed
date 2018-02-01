@@ -1,4 +1,4 @@
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -231,5 +231,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
 //  LocalWords:  RequireJS Ctrl Mangalam MPL Dubeau requirejs chai
 //  LocalWords:  makeKey makeCtrlKey anyModifier keyup matchesEvent
 //  LocalWords:  keydown keypress setEventToMatch ctrl
-
 //# sourceMappingURL=key-test.js.map

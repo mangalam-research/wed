@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "../base-config", "../wed-test-util"], function (require, exports, module, globalConfig, wed_test_util_1) {
+define(["require", "exports", "../base-config", "../wed-test-util"], function (require, exports, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -156,6 +156,17 @@ define(["require", "exports", "module", "../base-config", "../wed-test-util"], f
             assert.equal(initial.childNodes.length, 1, "length after wrap");
             assert.equal(initial.outerHTML, "<p xmlns=\"http://www.tei-c.org/ns/1.0\"><hi>abcdefghij</hi></p>");
         });
+        it("removes mixed content", function () {
+            var initial = editor.dataRoot.querySelectorAll("body>p")[3];
+            // Make sure we are looking at the right thing.
+            assert.equal(initial.outerHTML, "<p xmlns=\"http://www.tei-c.org/ns/1.0\"><hi>a</hi><hi>b</hi>c</p>");
+            var caret = caretManager.fromDataLocation(initial, 0);
+            caretManager.setRange(caret, caret.makeWithOffset(initial.childNodes.length));
+            var button = editor.toolbar.top.querySelector("[data-original-title='Remove mixed-content markup']");
+            button.click();
+            assert.equal(initial.childNodes.length, 1, "length after removal");
+            assert.equal(initial.outerHTML, "<p xmlns=\"http://www.tei-c.org/ns/1.0\">abc</p>");
+        });
         // This test only checks that the editor does not crash.
         it("autofills in the midst of text", function () {
             var p = editor.dataRoot.querySelector("body>p");
@@ -164,7 +175,27 @@ define(["require", "exports", "module", "../base-config", "../wed-test-util"], f
             var trs = editor.modeTree.getMode(p.firstChild).getContextualActions(["insert"], "biblFull", p.firstChild, 0);
             trs[0].execute({ node: undefined, name: "biblFull" });
         });
+        it("the editor emits transformation events", function (done) {
+            var p = ps[0];
+            var dataP = editor.toDataNode(p);
+            var elName = wed_test_util_1.getElementNameFor(p);
+            var tr = editor.modeTree.getMode(elName).getContextualActions(["add-attribute"], "abbr", elName, 0)[0];
+            caretManager.setCaret(elName.firstChild, 0);
+            wed_test_util_1.caretCheck(editor, elName.firstChild, 0, "the caret should be in the element name");
+            var first = true;
+            editor.transformations.subscribe(function (ev) {
+                assert.equal(ev.transformation, tr);
+                if (first) {
+                    assert.equal(ev.name, "StartTransformation");
+                    first = false;
+                }
+                else {
+                    assert.equal(ev.name, "EndTransformation");
+                    done();
+                }
+            });
+            tr.execute({ node: dataP, name: "abbr" });
+        });
     });
 });
-
 //# sourceMappingURL=wed-transformation-test.js.map

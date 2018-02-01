@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "chai", "sinon", "sinon-chai", "tests/util", "wed/mode-loader"], function (require, exports, module, chai_1, sinon, sinonChai, util_1, mode_loader_1) {
+define(["require", "exports", "chai", "sinon", "sinon-chai", "tests/util", "wed/mode-loader"], function (require, exports, chai_1, sinon, sinonChai, util_1, mode_loader_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -57,6 +57,8 @@ define(["require", "exports", "module", "chai", "sinon", "sinon-chai", "tests/ut
         var loader;
         // tslint:disable-next-line:no-any
         var runtime;
+        // Yes, we cheat with a typecast.
+        // tslint:disable-next-line:no-any mocha-no-side-effect-code
         var editor = { editor: true };
         var options = { options: true };
         beforeEach(function () {
@@ -106,11 +108,11 @@ define(["require", "exports", "module", "chai", "sinon", "sinon-chai", "tests/ut
                             chai_1.expect(runtime).to.have.property("resolveModules").to.have.callCount(4);
                             chai_1.expect(runtime.resolveModules.firstCall).to.have.been.calledWith("moo");
                             chai_1.expect(runtime.resolveModules.secondCall)
-                                .to.have.been.calledWith("./modes/moo/moo");
+                                .to.have.been.calledWith("wed/modes/moo/moo");
                             chai_1.expect(runtime.resolveModules.thirdCall)
-                                .to.have.been.calledWith("./modes/moo/moo-mode");
+                                .to.have.been.calledWith("wed/modes/moo/moo-mode");
                             chai_1.expect(runtime.resolveModules.lastCall)
-                                .to.have.been.calledWith("./modes/moo/moo_mode");
+                                .to.have.been.calledWith("wed/modes/moo/moo_mode");
                             return [2 /*return*/];
                     }
                 });
@@ -197,5 +199,4 @@ define(["require", "exports", "module", "chai", "sinon", "sinon-chai", "tests/ut
         });
     });
 });
-
 //# sourceMappingURL=mode-loader-test.js.map

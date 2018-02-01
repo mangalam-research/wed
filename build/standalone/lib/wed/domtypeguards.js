@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:no-any
@@ -75,5 +75,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.isDocument = isDocument;
 });
 //  LocalWords:  Typeguards MPL isAttribute attrNodeType
-
 //# sourceMappingURL=domtypeguards.js.map

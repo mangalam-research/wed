@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "../base-config", "../util", "../wed-test-util"], function (require, exports, module, globalConfig, util_1, wed_test_util_1) {
+define(["require", "exports", "wed/key-constants", "wed/util", "../base-config", "../util", "../wed-test-util"], function (require, exports, keyConstants, util_1, globalConfig, util_2, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -79,7 +79,7 @@ define(["require", "exports", "module", "../base-config", "../util", "../wed-tes
                             initial = guiRoot.getElementsByClassName("title")[0].childNodes[1];
                             assert.isUndefined(caretManager.getNormalizedCaret());
                             wed_test_util_1.activateContextMenu(editor, initial.parentNode);
-                            return [4 /*yield*/, util_1.delay(1)];
+                            return [4 /*yield*/, util_2.delay(1)];
                         case 1:
                             _a.sent();
                             // tslint:disable-next-line:no-any
@@ -97,7 +97,7 @@ define(["require", "exports", "module", "../base-config", "../util", "../wed-tes
                             caretManager.clearSelection(); // Also clears the caret.
                             assert.isUndefined(caretManager.getNormalizedCaret());
                             wed_test_util_1.activateContextMenu(editor, guiRoot.getElementsByClassName("title")[0]);
-                            return [4 /*yield*/, util_1.delay(1)];
+                            return [4 /*yield*/, util_2.delay(1)];
                         case 1:
                             _a.sent();
                             // tslint:disable-next-line:no-any
@@ -114,7 +114,7 @@ define(["require", "exports", "module", "../base-config", "../util", "../wed-tes
                             initial = guiRoot.getElementsByClassName("title")[0].childNodes[1];
                             caretManager.setCaret(initial, 0);
                             wed_test_util_1.activateContextMenu(editor, initial.parentNode);
-                            return [4 /*yield*/, util_1.delay(1)];
+                            return [4 /*yield*/, util_2.delay(1)];
                         case 1:
                             _a.sent();
                             // tslint:disable-next-line:no-any
@@ -132,7 +132,7 @@ define(["require", "exports", "module", "../base-config", "../util", "../wed-tes
                 contextMenuHasAttributeOption(editor);
             });
             it("on elements inside _phantom_wrap", function () {
-                var p = guiRoot.querySelector(".body .p[data-wed-rend='wrap']");
+                var p = guiRoot.querySelector(".body .p[" + util_1.encodeAttrName("rend") + "='wrap']");
                 var dataNode = $.data(p, "wed_mirror_node");
                 var rend = dataNode.getAttribute("rend");
                 // Make sure the paragraph has rend="wrap".
@@ -168,7 +168,52 @@ define(["require", "exports", "module", "../base-config", "../util", "../wed-tes
                 assert.isUndefined(menu, "the menu should not exist");
             });
         });
+        describe("has a replacement menu when the caret is in an attribute", function () {
+            it("that takes completions", function () {
+                var p = ps[9];
+                var attrVals = wed_test_util_1.getAttributeValuesFor(p);
+                caretManager.setCaret(attrVals[0].firstChild, 0);
+                wed_test_util_1.contextMenuHasOption(editor, /^Y$/);
+                editor.type("Y");
+                // The context menu should be gone.
+                var menu = editor.window.document.
+                    getElementsByClassName("wed-context-menu")[0];
+                assert.isUndefined(menu, "the menu should not exist");
+                editor.type(keyConstants.REPLACEMENT_MENU);
+                wed_test_util_1.contextMenuHasOption(editor, /^Y$/);
+            });
+            it("for which the mode provides completion", function () {
+                var p = ps[13];
+                var attrVals = wed_test_util_1.getAttributeValuesFor(p);
+                caretManager.setCaret(attrVals[0].firstChild, 0);
+                // This is an arbitrary menu item we check for.
+                wed_test_util_1.contextMenuHasOption(editor, /^completion1$/);
+                editor.type("completion1");
+                // The context menu should be gone.
+                var menu = editor.window.document.
+                    getElementsByClassName("wed-context-menu")[0];
+                assert.isUndefined(menu, "the menu should not exist");
+                editor.type(keyConstants.REPLACEMENT_MENU);
+                wed_test_util_1.contextMenuHasOption(editor, /^completion1$/);
+            });
+        });
+        describe("does not have a replacement menu", function () {
+            it("when the caret is in an attribute that takes completions but the " +
+                "attribute is not visible", function () {
+                // Reduce visibility to 0 so that no attribute is visible.
+                editor.setLabelVisibilityLevel(0);
+                var attrVals = wed_test_util_1.getAttributeValuesFor(ps[9]);
+                caretManager.setCaret(attrVals[0].firstChild, 0);
+                var menu = editor.window.document.
+                    getElementsByClassName("wed-context-menu")[0];
+                assert.isUndefined(menu, "the menu should not exist");
+                // The menu won't come up with a the shortcut.
+                editor.type(keyConstants.REPLACEMENT_MENU);
+                menu = editor.window.document.
+                    getElementsByClassName("wed-context-menu")[0];
+                assert.isUndefined(menu, "the menu should not exist");
+            });
+        });
     });
 });
-
 //# sourceMappingURL=wed-menu-test.js.map

@@ -1,4 +1,4 @@
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -34,5 +34,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.RefreshValidationErrors = RefreshValidationErrors;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=refresh-validation-errors.js.map

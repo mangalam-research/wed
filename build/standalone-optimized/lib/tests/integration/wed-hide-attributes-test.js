@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "merge-options", "../base-config", "../wed-test-util"], function (require, exports, module, mergeOptions, globalConfig, wed_test_util_1) {
+define(["require", "exports", "merge-options", "../base-config", "../wed-test-util"], function (require, exports, mergeOptions, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var options = {
@@ -8,7 +8,7 @@ define(["require", "exports", "module", "merge-options", "../base-config", "../w
             },
         },
     };
-    describe("wed hide attributes:", function () {
+    describe("wed hides attributes:", function () {
         var setup;
         var editor;
         before(function () {
@@ -34,5 +34,4 @@ define(["require", "exports", "module", "merge-options", "../base-config", "../w
         });
     });
 });
-
 //# sourceMappingURL=wed-hide-attributes-test.js.map

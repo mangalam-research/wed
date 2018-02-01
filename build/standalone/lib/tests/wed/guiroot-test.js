@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "wed/guiroot", "../guiroot_test_data/source_converted.xml"], function (require, exports, module, $, convert, dloc_1, domutil_1, guiroot, sourceXML) {
+define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "wed/guiroot", "../util"], function (require, exports, $, convert, dloc_1, domutil_1, guiroot, util_1) {
     /**
      * @author Louis-Dominique Dubeau
      * @license MPL 2.0
@@ -20,14 +20,18 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
         var htmlTree;
         var xmlDoc;
         before(function () {
-            root = document.createElement("div");
-            document.body.appendChild(root);
-            $root = $(root);
-            var parser = new window.DOMParser();
-            xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-            htmlTree = convert.toHTMLTree(window.document, xmlDoc.firstElementChild);
-            root.appendChild(htmlTree.cloneNode(true));
-            rootObj = new guiroot.GUIRoot(root);
+            return new util_1.DataProvider("/base/build/standalone/lib/tests/guiroot_test_data/")
+                .getText("source_converted.xml")
+                .then(function (sourceXML) {
+                root = document.createElement("div");
+                document.body.appendChild(root);
+                $root = $(root);
+                var parser = new window.DOMParser();
+                xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+                htmlTree = convert.toHTMLTree(window.document, xmlDoc.firstElementChild);
+                root.appendChild(htmlTree.cloneNode(true));
+                rootObj = new guiroot.GUIRoot(root);
+            });
         });
         after(function () {
             document.body.removeChild(root);
@@ -162,5 +166,4 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/dloc", "we
         });
     });
 });
-
 //# sourceMappingURL=guiroot-test.js.map

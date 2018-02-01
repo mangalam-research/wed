@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -41,5 +41,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.Layer = Layer;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=layer.js.map

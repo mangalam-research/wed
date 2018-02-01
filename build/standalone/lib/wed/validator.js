@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "salve-dom", "./dloc", "./domtypeguards"], function (require, exports, module, salve_dom_1, dloc, domtypeguards_1) {
+define(["require", "exports", "salve-dom", "./dloc", "./domtypeguards"], function (require, exports, salve_dom_1, dloc, domtypeguards_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.INCOMPLETE = salve_dom_1.WorkingState.INCOMPLETE;
@@ -117,5 +117,4 @@ define(["require", "exports", "module", "salve-dom", "./dloc", "./domtypeguards"
 });
 //  LocalWords:  boolean Dubeau Mangalam validator MPL RequireJS unclosed DOM
 //  LocalWords:  speculativelyValidate nd toParse
-
 //# sourceMappingURL=validator.js.map

@@ -1,5 +1,4 @@
-import * as rangy from "rangy";
-import { Observable } from "rxjs";
+import { Observable } from "rxjs/Observable";
 import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
 import { DLoc, DLocRange, DLocRoot } from "./dloc";
@@ -7,6 +6,7 @@ import { RangeInfo } from "./domutil";
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
+import { Mode } from "./mode";
 import { ModeTree } from "./mode-tree";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
 /** Options affecting how a caret gets set. */
@@ -40,6 +40,10 @@ export interface CaretChange {
     caret: DLoc | undefined;
     /** The previous caret value before the change. */
     prevCaret: DLoc | undefined;
+    /** The mode at which the current caret is located. */
+    mode: Mode | undefined;
+    /** The previous mode in effect before the change. */
+    prevMode: Mode | undefined;
     /** The change options. */
     options: CaretChangeOptions;
 }
@@ -73,6 +77,7 @@ export declare class CaretManager implements GUIToDataConverter {
     private readonly win;
     private readonly selectionStack;
     private prevCaret;
+    private prevMode;
     private readonly _events;
     /** This is where you can listen to caret change events. */
     readonly events: Observable<CaretChange>;
@@ -117,7 +122,7 @@ export declare class CaretManager implements GUIToDataConverter {
     /**
      * The range formed by the current selection.
      */
-    readonly range: rangy.RangyRange | undefined;
+    readonly range: Range | undefined;
     /**
      * A range info object describing the current selection.
      */
@@ -338,7 +343,7 @@ export declare class CaretManager implements GUIToDataConverter {
      * This function is meant to be used internally to manipulate the DOM
      * selection directly.
      */
-    private _setDOMSelectionRange(range, reverse);
+    private _setDOMSelectionRange(range);
     /**
      * Sets the caret position in the GUI tree.
      *

@@ -1,11 +1,8 @@
 import { EName, NameResolver } from "salve";
-import { Action } from "wed/action";
-import { BaseMode, CommonModeOptions } from "wed/mode";
-import * as objectCheck from "wed/object-check";
-import { Transformation, TransformationData } from "wed/transformation";
-import { Editor } from "wed/wed";
-import { GenericDecorator } from "./generic-decorator";
+import { Action, BaseMode, CommonModeOptions, Decorator, EditorAPI, objectCheck, transformation } from "wed";
 import { Metadata } from "./metadata";
+import Transformation = transformation.Transformation;
+import TransformationData = transformation.TransformationData;
 export interface GenericModeOptions extends CommonModeOptions {
     metadata: string;
 }
@@ -40,12 +37,7 @@ declare class GenericMode<Options extends GenericModeOptions> extends BaseMode<O
      * to this mode. Consider this object to be immutable.
      */
     readonly optionTemplate: objectCheck.Template;
-    /**
-     * @param editor The editor with which the mode is being associated.
-     *
-     * @param options The options for the mode.
-     */
-    constructor(editor: Editor, options: Options);
+    constructor(editor: EditorAPI, options: Options);
     init(): Promise<void>;
     /**
      * Check that the options are okay. This method will throw if there are any
@@ -64,12 +56,12 @@ declare class GenericMode<Options extends GenericModeOptions> extends BaseMode<O
     getAbsoluteNamespaceMappings(): Record<string, string>;
     unresolveName(name: EName): string | undefined;
     getAbsoluteResolver(): NameResolver;
-    makeDecorator(): GenericDecorator;
+    makeDecorator(): Decorator;
     /**
      * Returns a short description for an element. The element should be named
      * according to the mappings reported by the resolve returned by
-     * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-     * the metadata.
+     * [["wed/mode".Mode.getAbsoluteResolver]]. The generic mode delegates the
+     * call to the metadata.
      *
      * @param name The name of the element.
      *
@@ -81,8 +73,8 @@ declare class GenericMode<Options extends GenericModeOptions> extends BaseMode<O
     /**
      * Returns a URL to the documentation for an element. The element should be
      * named according to the mappings reported by the resolve returned by
-     * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-     * the metadata.
+     * [["wed/mode".Mode.getAbsoluteResolver]]. The generic mode delegates the
+     * call to the metadata.
      *
      * @param name The name of the element.
      *

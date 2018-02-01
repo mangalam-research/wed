@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "./domutil"], function (require, exports, module, domutil_1) {
+define(["require", "exports", "./domutil"], function (require, exports, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var cache = new WeakMap();
@@ -26,7 +26,7 @@ define(["require", "exports", "module", "./domutil"], function (require, exports
         };
         /**
          * Make a GUI selector from a data selector. The limitations on the selector
-         * are the same as for [["domutil".toGUISelector]].
+         * are the same as for [["wed/domutil".toGUISelector]].
          *
          * @param selector A selector fit for selecting in the data tree.
          *
@@ -43,5 +43,4 @@ define(["require", "exports", "module", "./domutil"], function (require, exports
     exports.GUISelector = GUISelector;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=gui-selector.js.map

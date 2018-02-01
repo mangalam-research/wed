@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "jquery", "./convert", "./dloc", "./domtypeguards", "./domutil", "./tree-updater", "./util"], function (require, exports, module, $, convert, dloc_1, domtypeguards_1, domutil_1, tree_updater_1, util) {
+define(["require", "exports", "jquery", "./convert", "./dloc", "./domtypeguards", "./domutil", "./tree-updater", "./util"], function (require, exports, $, convert, dloc_1, domtypeguards_1, domutil_1, tree_updater_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -172,5 +172,4 @@ define(["require", "exports", "module", "jquery", "./convert", "./dloc", "./domt
 //  LocalWords:  domutil jquery pathToNode nodeToPath jQuery deleteNode Dubeau
 //  LocalWords:  insertNodeAt MPL Mangalam gui setTextNodeValue TreeUpdater ev
 //  LocalWords:  BeforeDeleteNode SetAttributeNS
-
 //# sourceMappingURL=gui-updater.js.map

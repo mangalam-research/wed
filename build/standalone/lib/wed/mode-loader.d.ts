@@ -4,6 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { Editor } from "./editor";
 import { Mode } from "./mode";
 import { Runtime } from "./runtime";
 /**
@@ -15,7 +16,7 @@ export declare class ModeLoader {
     /**
      * @param runtime The runtime to use to load the mode module.
      */
-    constructor(editor: {}, runtime: Runtime);
+    constructor(editor: Editor, runtime: Runtime);
     /**
      * Load and initialize a mode.
      *

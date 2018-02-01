@@ -1,4 +1,4 @@
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -52,5 +52,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.ProcessValidationErrors = ProcessValidationErrors;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=process-validation-errors.js.map

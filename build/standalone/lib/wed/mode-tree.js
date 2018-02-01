@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "merge-options", "./domutil", "./mode-loader", "./wed-options-validation"], function (require, exports, module, mergeOptions, domutil_1, mode_loader_1, wed_options_validation_1) {
+define(["require", "exports", "merge-options", "./domutil", "./mode-loader", "./wed-options-validation"], function (require, exports, mergeOptions, domutil_1, mode_loader_1, wed_options_validation_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -245,49 +245,19 @@ define(["require", "exports", "module", "merge-options", "./domutil", "./mode-lo
                 });
             });
         };
-        /**
-         * Get the mode that governs a node.
-         *
-         * @param The node we want to check. This must be a done in the data tree or
-         * the GUI tree.
-         *
-         * @returns The mode that governs the node.
-         */
         ModeTree.prototype.getMode = function (node) {
             return this.getModeNode(node).mode;
         };
-        /**
-         * Get the decorator that governs a node.
-         */
         ModeTree.prototype.getDecorator = function (node) {
             return this.getModeNode(node).decorator;
         };
-        /**
-         * Get the processed wed options that are in effect for a given node.
-         *
-         * @param The node we want to check. This must be a done in the data tree or
-         * the GUI tree.
-         *
-         * @returns The wed options that governs the node.
-         */
         ModeTree.prototype.getWedOptions = function (node) {
             var modeNode = this.getModeNode(node);
             return modeNode.wedOptions;
         };
-        /**
-         * Get the attribute handling that applies to a specific node.
-         */
         ModeTree.prototype.getAttributeHandling = function (node) {
             return this.getWedOptions(node).attributes.handling;
         };
-        /**
-         * Get the attribute hiding specs that apply to a specific node.
-         *
-         * @returns The specifications that apply to the node. These specifications
-         * have been preprocessed to convert the selectors from being appropriate for
-         * the data tree to selectors appropriate for the GUI tree. ``null`` is
-         * returned if there are no specs.
-         */
         ModeTree.prototype.getAttributeHidingSpecs = function (node) {
             return this.getModeNode(node).attributeHidingSpecs;
         };
@@ -334,14 +304,6 @@ define(["require", "exports", "module", "merge-options", "./domutil", "./mode-lo
             }
             return undefined;
         };
-        /**
-         * Get the stylesheets that the modes define. It is up to the mode to use
-         * stylesheets that are written so as to avoid interfering with one another.
-         *
-         * @returns The list of sheets used by the modes. Straight duplicates are
-         * eliminated from the list. The paths must not require any further
-         * interpretation from wed.
-         */
         ModeTree.prototype.getStylesheets = function () {
             return Object.keys(this.root.reduceTopFirst(function (accumulator, node) {
                 for (var _i = 0, _a = node.mode.getStylesheets(); _i < _a.length; _i++) {
@@ -351,22 +313,9 @@ define(["require", "exports", "module", "merge-options", "./domutil", "./mode-lo
                 return accumulator;
             }, Object.create(null)));
         };
-        /**
-         * Get the maximum label visibility level configured by the modes. This
-         * function looks at all modes in use and returns the highest number it finds.
-         *
-         * @returns The maximum label visibility level.
-         */
         ModeTree.prototype.getMaxLabelLevel = function () {
             return this.maxLabelLevelNode.wedOptions.label_levels.max;
         };
-        /**
-         * Get the initial label visibility level configured by the modes. This
-         * function looks at all modes in use and returns the number that is set by
-         * the same mode used to provide the value of [[getMaxLabelLevel]].
-         *
-         * @returns The initial label visibility level.
-         */
         ModeTree.prototype.getInitialLabelLevel = function () {
             return this.maxLabelLevelNode.wedOptions.label_levels.initial;
         };
@@ -392,9 +341,6 @@ define(["require", "exports", "module", "merge-options", "./domutil", "./mode-lo
             enumerable: true,
             configurable: true
         });
-        /**
-         * @returns The list of all mode validators defined by the modes.
-         */
         ModeTree.prototype.getValidators = function () {
             return this.root.reduceTopFirst(function (accumulator, node) {
                 var validator = node.mode.getValidator();
@@ -424,5 +370,4 @@ define(["require", "exports", "module", "merge-options", "./domutil", "./mode-lo
 });
 //  LocalWords:  MPL submodes submode combinedErrors nd preprocessed
 //  LocalWords:  stylesheets
-
 //# sourceMappingURL=mode-tree.js.map

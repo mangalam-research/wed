@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "ajv", "./wed-options-schema.json"], function (require, exports, module, Ajv, wedOptionsSchema) {
+define(["require", "exports", "ajv", "./wed-options-schema.json"], function (require, exports, Ajv, wedOptionsSchema) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var _wedOptionsValidator;
@@ -55,5 +55,4 @@ define(["require", "exports", "module", "ajv", "./wed-options-schema.json"], fun
     exports.processWedOptions = processWedOptions;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=wed-options-validation.js.map

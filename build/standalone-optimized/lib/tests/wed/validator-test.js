@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "salve", "wed/dloc", "wed/validator", "../util"], function (require, exports, module, salve_1, dloc_1, validator, util_1) {
+define(["require", "exports", "salve", "wed/dloc", "wed/validator", "../util"], function (require, exports, salve_1, dloc_1, validator, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -120,5 +120,4 @@ define(["require", "exports", "module", "salve", "wed/dloc", "wed/validator", ".
 //  LocalWords:  enterStartTag html jQuery Dubeau MPL Mangalam config
 //  LocalWords:  RequireJS requirejs subdirectory validator jquery js
 //  LocalWords:  chai baseUrl rng
-
 //# sourceMappingURL=validator-test.js.map

@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "jquery", "merge-options", "bootstrap-notify"], function (require, exports, module, $, mergeOptions) {
+define(["require", "exports", "jquery", "merge-options", "bootstrap-notify"], function (require, exports, $, mergeOptions) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var defaultSettings = {
@@ -23,5 +23,4 @@ define(["require", "exports", "module", "jquery", "merge-options", "bootstrap-no
     exports.notify = notify;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=notify.js.map

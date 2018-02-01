@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "wed/browsers", "wed/convert", "../util"], function (require, exports, module, browsers, convert, util_1) {
+define(["require", "exports", "wed/browsers", "wed/convert", "../util"], function (require, exports, browsers, convert, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -51,5 +51,4 @@ define(["require", "exports", "module", "wed/browsers", "wed/convert", "../util"
         // tslint:enable:mocha-no-side-effect-code
     });
 });
-
 //# sourceMappingURL=convert-test.js.map

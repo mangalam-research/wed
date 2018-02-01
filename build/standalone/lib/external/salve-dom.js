@@ -7,7 +7,7 @@
 		exports["salve-dom"] = factory(require("salve"));
 	else
 		root["salve-dom"] = factory(root["salve"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -16,9 +16,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -42,9 +42,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
 /******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
@@ -73,193 +70,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/**
- * A listener class.
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * The ``Event`` parameter passed to the class must be an interface that maps
- * event names to the type of data that the event subscribers will get.
- *
- *     interface Events {
- *       "foo": FooData,
- *       "bar": BarData,
- *     }
- *
- * The code that wishes to emit an event calls ``_emit`` to emit events. For
- * instance, if ``_emit("foo", {beep: 3})`` is called, this will result in all
- * listeners on event ``"foo"`` being called and passed the object ``{beep:
- * 3}``. Any listener returning the value ``false`` ends the processing of the
- * event.
- *
- * This class also supports listening on events in a generic way, by listening
- * to the event named "\*". Listeners on such events have the signature
- * ``listener(name, ev)``. When the ``_emit`` call above is executed such
- * listener will be called with ``name`` set to ``"foo"`` and ``ev`` set to
- * ``{beep: 3}``. Listeners on "\*" are executed before the other
- * listeners. Therefore, if they return the value ``false``, they prevent the
- * other listeners from executing.
- */
-var EventEmitter = (function () {
-    function EventEmitter() {
-        this._eventListeners = Object.create(null);
-        this._generalListeners = [];
-        this._trace = false;
-    }
-    EventEmitter.prototype.addEventListener = function (eventName, listener) {
-        if (eventName === "*") {
-            this._generalListeners.push(listener);
-        }
-        else {
-            var listeners = this._eventListeners[eventName];
-            if (listeners === undefined) {
-                listeners = this._eventListeners[eventName] = [];
-            }
-            listeners.push(listener);
-        }
-    };
-    EventEmitter.prototype.addOneTimeEventListener = function (eventName, listener) {
-        var _this = this;
-        // We perform casts as any here to indicate to TypeScript that it is
-        // safe to pass this stub.
-        var me = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            _this.removeEventListener(eventName, me);
-            return listener.apply(_this, args);
-        };
-        this.addEventListener(eventName, me);
-        return me;
-    };
-    EventEmitter.prototype.removeEventListener = function (eventName, listener) {
-        var listeners = (eventName === "*") ?
-            this._generalListeners :
-            this._eventListeners[eventName];
-        if (listeners === undefined) {
-            return;
-        }
-        var index = listeners.lastIndexOf(listener);
-        if (index !== -1) {
-            listeners.splice(index, 1);
-        }
-    };
-    EventEmitter.prototype.removeAllListeners = function (eventName) {
-        if (eventName === "*") {
-            this._generalListeners = [];
-        }
-        else {
-            this._eventListeners[eventName] = [];
-        }
-    };
-    /**
-     * This is the function that the class using this mixin must call to
-     * indicate that an event has occurred.
-     *
-     * @param eventName The name of the event to emit.
-     *
-     * @param ev The event data to provide to handlers. The type can be
-     * anything.
-     */
-    EventEmitter.prototype._emit = function (eventName, ev) {
-        if (this._trace) {
-            // tslint:disable-next-line: no-console
-            console.log("simple_event_emitter emitting:", eventName, "with:", ev);
-        }
-        {
-            var listeners = this._generalListeners;
-            if (listeners.length > 0) {
-                // We take a copy so that if any of the handlers add or remove
-                // listeners, they don't disturb our work here.
-                listeners = listeners.slice();
-                for (var _i = 0, listeners_1 = listeners; _i < listeners_1.length; _i++) {
-                    var listener = listeners_1[_i];
-                    var ret = listener.call(undefined, eventName, ev);
-                    if (ret === false) {
-                        return;
-                    }
-                }
-            }
-        }
-        {
-            var listeners = this._eventListeners[eventName];
-            if (listeners !== undefined && listeners.length > 0) {
-                // We take a copy so that if any of the handlers add or remove
-                // listeners, they don't disturb our work here.
-                listeners = listeners.slice();
-                for (var _a = 0, listeners_2 = listeners; _a < listeners_2.length; _a++) {
-                    var listener = listeners_2[_a];
-                    var ret = listener.call(undefined, ev);
-                    if (ret === false) {
-                        return;
-                    }
-                }
-            }
-        }
-    };
-    return EventEmitter;
-}());
-exports.EventEmitter = EventEmitter;
-//  LocalWords:  Mangalam MPL Dubeau noop ev mixin
-
-//# sourceMappingURL=event_emitter.js.map
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * This is required to work around a problem when extending built-in classes
- * like ``Error``. Some of the constructors for these classes return a value
- * from the constructor, which is then picked up by the constructors generated
- * by TypeScript (same with ES6 code transpiled through Babel), and this messes
- * up the inheritance chain.
- *
- * See https://github.com/Microsoft/TypeScript/issues/12123.
- */
-function fixPrototype(obj, parent) {
-    var oldProto = Object.getPrototypeOf !== undefined ?
-        Object.getPrototypeOf(obj) :
-        obj.__proto__;
-    if (oldProto !== parent) {
-        if (Object.setPrototypeOf !== undefined) {
-            Object.setPrototypeOf(obj, parent.prototype);
-        }
-        else {
-            obj.__proto__ = parent.prototype;
-        }
-    }
-}
-exports.fixPrototype = fixPrototype;
-
-//# sourceMappingURL=tools.js.map
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -281,9 +96,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-var salve_1 = __webpack_require__(2);
-var event_emitter_1 = __webpack_require__(0);
-var tools_1 = __webpack_require__(1);
+var salve_1 = __webpack_require__(1);
+var event_emitter_1 = __webpack_require__(2);
+var tools_1 = __webpack_require__(3);
 function _indexOf(parent, needle) {
     return Array.prototype.indexOf.call(parent, needle);
 }
@@ -338,7 +153,7 @@ var WorkingState;
  * element. The element covers portion X of the total document. This parameter
  * should be X.
  */
-var ProgressState = (function () {
+var ProgressState = /** @class */ (function () {
     function ProgressState(partDone, portion) {
         this.partDone = partDone;
         this.portion = portion;
@@ -346,23 +161,21 @@ var ProgressState = (function () {
     return ProgressState;
 }());
 //
-// Note: the Validator class adds information to the Element nodes it
-// is working with by adding expando properties that start with
-// "wed_event_". This deemed acceptable here because:
+// Note: the Validator class adds information to the Element nodes it is working
+// with by adding expando properties that start with "wed_event_". This deemed
+// acceptable here because:
 //
-// * The tree on which a Validator object operates is not supposed to
-//   be open to third party software. Even if it were, the chance of a
-//   clash is small.
+// * The tree on which a Validator object operates is not supposed to be open to
+//   third party software. Even if it were, the chance of a clash is small.
 //
-// * The values of the expando properties are primitives (not objects
-//   or other elements).
+// * The values of the expando properties are primitives (not objects or other
+//   elements).
 //
-// * We don't care about browsers or situations where expando
-//   properties are not supported.
+// * We don't care about browsers or situations where expando properties are not
+//   supported.
 //
 //
-// These are constants. So create them once rather than over and over
-// again.
+// These are constants. So create them once rather than over and over again.
 //
 var ENTER_CONTEXT_EVENT = new salve_1.Event("enterContext");
 var LEAVE_START_TAG_EVENT = new salve_1.Event("leaveStartTag");
@@ -372,7 +185,7 @@ var LEAVE_CONTEXT_EVENT = new salve_1.Event("leaveContext");
  * only to be raised by code in this module but the documentation is left public
  * for diagnosis purposes.
  */
-var EventIndexException = (function (_super) {
+var EventIndexException = /** @class */ (function (_super) {
     __extends(EventIndexException, _super);
     function EventIndexException() {
         var _this = _super.call(this, "undefined event_index; _validateUpTo should have taken care of that") || this;
@@ -381,8 +194,8 @@ var EventIndexException = (function (_super) {
     }
     return EventIndexException;
 }(Error));
-// This private utility function checks whether an event is possible
-// only because there is a name_pattern wildcard that allows it.
+// This private utility function checks whether an event is possible only
+// because there is a name_pattern wildcard that allows it.
 function isPossibleDueToWildcard(walker, eventName, ns, name) {
     var evs = walker.possible().toArray();
     var matched = false;
@@ -395,8 +208,8 @@ function isPossibleDueToWildcard(walker, eventName, ns, name) {
         var matches = namePattern.match(ns, name);
         // Keep track of whether it ever matched anything.
         matched = matched || matches;
-        // We already know that it matches, and this is not merely due
-        // to a wildcard.
+        // We already know that it matches, and this is not merely due to a
+        // wildcard.
         if (matches && !namePattern.wildcardMatch(ns, name)) {
             return false;
         }
@@ -429,7 +242,7 @@ function isPossibleDueToWildcard(walker, eventName, ns, name) {
  *
  * @param options Some options driving how the validator works.
  */
-var Validator = (function () {
+var Validator = /** @class */ (function () {
     function Validator(schema, root, options) {
         if (options === void 0) { options = {}; }
         this.schema = schema;
@@ -439,6 +252,7 @@ var Validator = (function () {
         this._maxTimespan = 100;
         this._resetting = false;
         this._errors = [];
+        this._errorsSeen = Object.create(null);
         this._boundWrapper = this._workWrapper.bind(this);
         // Validation state
         this._validationEvents = [];
@@ -450,8 +264,8 @@ var Validator = (function () {
         this._walkerCache = Object.create(null);
         this._walkerCacheMax = -1;
         this._prefix = "salveDom";
-        // The distance between walkers under which we skip saving a
-        // walker in the cache.
+        // The distance between walkers under which we skip saving a walker in the
+        // cache.
         this._walkerCacheGap = 100;
         this._events = new event_emitter_1.EventEmitter();
         var keys = ["timeout", "maxTimespan",
@@ -471,8 +285,8 @@ var Validator = (function () {
             this._prefix = options.prefix;
         }
         this._curEl = this.root;
-        // This prevents an infinite loop when speculativelyValidate is
-        // called to validate a text node.
+        // This prevents an infinite loop when speculativelyValidate is called to
+        // validate a text node.
         this._setNodeProperty(this._curEl, "EventIndexAfterStart", this._validationEvents.length);
         this._setWorkingState(WorkingState.INCOMPLETE, 0);
         this._validationWalker = this.schema.newWalker();
@@ -502,6 +316,7 @@ var Validator = (function () {
             "EventIndexBeforeAttributes",
             "EventIndexAfterAttributes",
             "PossibleDueToWildcard",
+            "ErrorId",
         ];
         for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
             var key = keys_2[_i];
@@ -524,8 +339,7 @@ var Validator = (function () {
         this._timeoutId = setTimeout(this._boundWrapper, 0);
     };
     /**
-     * Get the namespaces defined in the schema passed to the
-     * Validator.
+     * Get the namespaces defined in the schema passed to the Validator.
      *
      * @returns The namespaces known to the schema.
      */
@@ -602,8 +416,8 @@ var Validator = (function () {
         }
     };
     /**
-     * Performs one cycle of validation. "One cycle" is an arbitrarily
-     * small unit of work.
+     * Performs one cycle of validation. "One cycle" is an arbitrarily small unit
+     * of work.
      *
      * @returns False if there is no more work to be done. True otherwise.
      *
@@ -673,8 +487,8 @@ var Validator = (function () {
                         // elements.
                         ename = new salve_1.EName("", tagName);
                     }
-                    // Check whether this element is going to be allowed only
-                    // due to a wildcard.
+                    // Check whether this element is going to be allowed only due to a
+                    // wildcard.
                     this_1._setPossibleDueToWildcard(curEl, walker, "enterStartTag", ename.ns, ename.name);
                     this_1._fireAndProcessEvent(walker, new salve_1.Event("enterStartTag", ename.ns, ename.name), parent_1, curElIndex);
                     this_1._setNodeProperty(curEl, "EventIndexBeforeAttributes", events.length);
@@ -899,6 +713,7 @@ var Validator = (function () {
         this._curEl = this.root;
         this._partDone = 0;
         this._errors = [];
+        this._errorsSeen = Object.create(null);
         this._walkerCache = Object.create(null);
         this._walkerCacheMax = -1;
         /**
@@ -912,8 +727,8 @@ var Validator = (function () {
         this._events._emit("reset-errors", { at: 0 });
     };
     /**
-     * Sets the working state of the validator. Emits a "state-update"
-     * event if the state has changed.
+     * Sets the working state of the validator. Emits a "state-update" event if
+     * the state has changed.
      *
      * @param newState The new state of the validator.
      *
@@ -988,17 +803,56 @@ var Validator = (function () {
      * @emits module:validator~Validator#error
      */
     Validator.prototype._processError = function (error) {
-        this._errors.push(error);
+        var _this = this;
         /**
-         * Tells the listener that an error has occurred.
+         * We don't make this a method because it should only be called from
+         * ``_processError``. The way we generate new ID values works **only**
+         * because we push a new error in the list when there's no ID already set.
          *
-         * @event module:validator~Validator#error
-         * @type {Object}
-         * @property {Object} error The validation error.
-         * @property {Node} node The node where the error occurred.
-         * @property {integer} index The index in this node.
+         * Ensure the node has an error ID and return it. The error ID is the number
+         * set on the ``ErrorId`` property. If the node has no ID set yet, we assign
+         * one and return the new value. Otherwise, the old value is returned.
+         *
+         * @param node The node of interest.
+         *
+         * @returns The error ID.
          */
-        this._events._emit("error", error);
+        var ensureErrorId = function (nodeGettingId) {
+            var oldId = _this.getNodeProperty(nodeGettingId, "ErrorId");
+            if (oldId === undefined) {
+                // The length of the error array at the time of first calling this
+                // function is good enough to serve as an ID.
+                oldId = _this._errors.length;
+                _this._setNodeProperty(nodeGettingId, "ErrorId", oldId);
+            }
+            return oldId;
+        };
+        // We must first check whether we've seen this error before, and avoid
+        // recording it again if we've seen it. This could happen when
+        // ``_getWalkerAt`` is used, because the validator may repeat firing events
+        // and processing the associated errors. We cannot just turn off error
+        // processing when ``_getWalkerAt`` is used because it may be used in cases
+        // where we are legitimately advancing the state of validation (rather than
+        // going over old stuff).
+        var node = error.node;
+        var errorId = node == null ? "" : String(ensureErrorId(node));
+        var key = errorId + "," + error.error.toString();
+        var alreadySeen = this._errorsSeen[key];
+        // We want to do a strict compare with true to handle ``undefined``.
+        if (alreadySeen !== true) {
+            this._errorsSeen[key] = true;
+            this._errors.push(error);
+            /**
+             * Tells the listener that an error has occurred.
+             *
+             * @event module:validator~Validator#error
+             * @type {Object}
+             * @property {Object} error The validation error.
+             * @property {Node} node The node where the error occurred.
+             * @property {integer} index The index in this node.
+             */
+            this._events._emit("error", error);
+        }
     };
     /**
      * Fires all the attribute events for a given element.
@@ -1099,15 +953,15 @@ var Validator = (function () {
                 "the end of the start tag on a " +
                 "node which is not an element node");
         }
-        // Set these to reasonable defaults. The rest of the code is
-        // dedicated to changing these values to those necessary depending
-        // on specifics of what is passed to the method.
+        // Set these to reasonable defaults. The rest of the code is dedicated to
+        // changing these values to those necessary depending on specifics of what
+        // is passed to the method.
         var toInspect = container;
         var dataKey = "EventIndexAfter";
-        // This function could be called with container === root if the
-        // document is empty or if the user has the caret before the start
-        // tag of the first element of the actual structure we want to
-        // validate or after the end tag of that element.
+        // This function could be called with container === root if the document is
+        // empty or if the user has the caret before the start tag of the first
+        // element of the actual structure we want to validate or after the end tag
+        // of that element.
         if (container === this.root && index <= 0) {
             if (attributes) {
                 dataKey = "EventIndexAfterAttributes";
@@ -1326,7 +1180,7 @@ var Validator = (function () {
         var cache = this._walkerCache;
         var max = this._walkerCacheMax;
         var walker = cache[eventIndex];
-        if (walker) {
+        if (walker !== undefined) {
             return walker;
         }
         //
@@ -1355,11 +1209,11 @@ var Validator = (function () {
             walker = cache[searchIx];
         }
         else {
-            while (!walker && --searchIx >= 0) {
+            while (walker === undefined && --searchIx >= 0) {
                 walker = cache[searchIx];
             }
         }
-        if (walker) {
+        if (walker !== undefined) {
             walker = walker.clone();
         }
         else {
@@ -1616,9 +1470,267 @@ var Validator = (function () {
     return Validator;
 }());
 exports.Validator = Validator;
-
+/**
+ * Exception to be raised if we cannot parse a string as an XML document.
+ */
+var ParsingError = /** @class */ (function (_super) {
+    __extends(ParsingError, _super);
+    /**
+     * @param xmlErrors A string that contains the errors reported. The library
+     * here simply serializes the error document produced by the parser.
+     */
+    function ParsingError(xmlErrors) {
+        var _this = _super.call(this) || this;
+        _this.xmlErrors = xmlErrors;
+        var err = new Error("cannot parse");
+        _this.name = "ParsingError";
+        _this.stack = err.stack;
+        _this.message = err.message;
+        tools_1.fixPrototype(_this, ParsingError);
+        return _this;
+    }
+    return ParsingError;
+}(Error));
+exports.ParsingError = ParsingError;
+// tslint:disable-next-line:no-http-string
+var XML_NAMESPACE = "http://www.w3.org/1999/xhtml";
+var MOZILLA_NAMESPACE = 
+// tslint:disable-next-line:no-http-string
+"http://www.mozilla.org/newlayout/xml/parsererror.xml";
+/**
+ * A utility function that detects whether the parsing fails and throws an error
+ * in such case.
+ *
+ * Note that if you pass a well-formed and correctly structured error document
+ * to this function, the result will look like an error, even though it was
+ * parsed properly. Given the way ``DOMParser`` reports errors, this cannot be
+ * helped.
+ *
+ * @param source The XML to parse.
+ *
+ * @param win The window from which to create a ``DOMParser``.
+ *
+ * @returns The parsed document.
+ *
+ * @throws {ParsingError} If the source cannot be parsed.
+ */
+function safeParse(source, win) {
+    if (win === void 0) { win = window; }
+    var parser = new win.DOMParser();
+    var doc;
+    try {
+        doc = parser.parseFromString(source, "text/xml");
+    }
+    catch (ex) {
+        // On IE10/11 bad source will cause a SyntaxError.
+        if (ex.name !== "SyntaxError" || ex.code !== 12) {
+            throw ex;
+        }
+        throw new ParsingError("no error information available");
+    }
+    var child = doc.firstChild;
+    while (child !== null && child.nodeType !== Node.ELEMENT_NODE) {
+        child = child.nextSibling;
+    }
+    var chromeTest = doc.querySelector("html>body>parsererror");
+    // A DOMParser will generate a document that contains a description of the
+    // error(s). Unfortunately, this document is not consistently generated across
+    // browsers.
+    //
+    // However, running the code through Browser Stack on Chrome, Firefox, IE
+    // 10-100, Edge, Opera, and Safari that they boil down either to the Chrome
+    // case or the Firefox case.
+    if (
+    // Firefox
+    (child !== null &&
+        child.tagName === "parsererror" &&
+        child.namespaceURI === MOZILLA_NAMESPACE) ||
+        // Chrome
+        (chromeTest !== null && chromeTest.namespaceURI === XML_NAMESPACE)) {
+        throw new ParsingError(doc.documentElement.outerHTML);
+    }
+    return doc;
+}
+exports.safeParse = safeParse;
 //# sourceMappingURL=main.js.map
 
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * A listener class.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright Mangalam Research Center for Buddhist Languages
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * The ``Event`` parameter passed to the class must be an interface that maps
+ * event names to the type of data that the event subscribers will get.
+ *
+ *     interface Events {
+ *       "foo": FooData,
+ *       "bar": BarData,
+ *     }
+ *
+ * The code that wishes to emit an event calls ``_emit`` to emit events. For
+ * instance, if ``_emit("foo", {beep: 3})`` is called, this will result in all
+ * listeners on event ``"foo"`` being called and passed the object ``{beep:
+ * 3}``. Any listener returning the value ``false`` ends the processing of the
+ * event.
+ *
+ * This class also supports listening on events in a generic way, by listening
+ * to the event named "\*". Listeners on such events have the signature
+ * ``listener(name, ev)``. When the ``_emit`` call above is executed such
+ * listener will be called with ``name`` set to ``"foo"`` and ``ev`` set to
+ * ``{beep: 3}``. Listeners on "\*" are executed before the other
+ * listeners. Therefore, if they return the value ``false``, they prevent the
+ * other listeners from executing.
+ */
+var EventEmitter = /** @class */ (function () {
+    function EventEmitter() {
+        this._eventListeners = Object.create(null);
+        this._generalListeners = [];
+        this._trace = false;
+    }
+    EventEmitter.prototype.addEventListener = function (eventName, listener) {
+        if (eventName === "*") {
+            this._generalListeners.push(listener);
+        }
+        else {
+            var listeners = this._eventListeners[eventName];
+            if (listeners === undefined) {
+                listeners = this._eventListeners[eventName] = [];
+            }
+            listeners.push(listener);
+        }
+    };
+    EventEmitter.prototype.addOneTimeEventListener = function (eventName, listener) {
+        var _this = this;
+        // We perform casts as any here to indicate to TypeScript that it is
+        // safe to pass this stub.
+        var me = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            _this.removeEventListener(eventName, me);
+            return listener.apply(_this, args);
+        };
+        this.addEventListener(eventName, me);
+        return me;
+    };
+    EventEmitter.prototype.removeEventListener = function (eventName, listener) {
+        var listeners = (eventName === "*") ?
+            this._generalListeners :
+            this._eventListeners[eventName];
+        if (listeners === undefined) {
+            return;
+        }
+        var index = listeners.lastIndexOf(listener);
+        if (index !== -1) {
+            listeners.splice(index, 1);
+        }
+    };
+    EventEmitter.prototype.removeAllListeners = function (eventName) {
+        if (eventName === "*") {
+            this._generalListeners = [];
+        }
+        else {
+            this._eventListeners[eventName] = [];
+        }
+    };
+    /**
+     * This is the function that the class using this mixin must call to
+     * indicate that an event has occurred.
+     *
+     * @param eventName The name of the event to emit.
+     *
+     * @param ev The event data to provide to handlers. The type can be
+     * anything.
+     */
+    EventEmitter.prototype._emit = function (eventName, ev) {
+        if (this._trace) {
+            // tslint:disable-next-line: no-console
+            console.log("simple_event_emitter emitting:", eventName, "with:", ev);
+        }
+        {
+            var listeners = this._generalListeners;
+            if (listeners.length > 0) {
+                // We take a copy so that if any of the handlers add or remove
+                // listeners, they don't disturb our work here.
+                listeners = listeners.slice();
+                for (var _i = 0, listeners_1 = listeners; _i < listeners_1.length; _i++) {
+                    var listener = listeners_1[_i];
+                    var ret = listener.call(undefined, eventName, ev);
+                    if (ret === false) {
+                        return;
+                    }
+                }
+            }
+        }
+        {
+            var listeners = this._eventListeners[eventName];
+            if (listeners !== undefined && listeners.length > 0) {
+                // We take a copy so that if any of the handlers add or remove
+                // listeners, they don't disturb our work here.
+                listeners = listeners.slice();
+                for (var _a = 0, listeners_2 = listeners; _a < listeners_2.length; _a++) {
+                    var listener = listeners_2[_a];
+                    var ret = listener.call(undefined, ev);
+                    if (ret === false) {
+                        return;
+                    }
+                }
+            }
+        }
+    };
+    return EventEmitter;
+}());
+exports.EventEmitter = EventEmitter;
+//  LocalWords:  Mangalam MPL Dubeau noop ev mixin
+//# sourceMappingURL=event_emitter.js.map
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * This is required to work around a problem when extending built-in classes
+ * like ``Error``. Some of the constructors for these classes return a value
+ * from the constructor, which is then picked up by the constructors generated
+ * by TypeScript (same with ES6 code transpiled through Babel), and this messes
+ * up the inheritance chain.
+ *
+ * See https://github.com/Microsoft/TypeScript/issues/12123.
+ */
+function fixPrototype(obj, parent) {
+    var oldProto = Object.getPrototypeOf !== undefined ?
+        Object.getPrototypeOf(obj) :
+        obj.__proto__;
+    if (oldProto !== parent) {
+        if (Object.setPrototypeOf !== undefined) {
+            Object.setPrototypeOf(obj, parent.prototype);
+        }
+        else {
+            obj.__proto__ = parent.prototype;
+        }
+    }
+}
+exports.fixPrototype = fixPrototype;
+//# sourceMappingURL=tools.js.map
 
 /***/ })
 /******/ ]);

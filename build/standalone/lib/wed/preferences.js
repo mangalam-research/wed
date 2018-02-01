@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "lodash", "./object-check"], function (require, exports, module, _, object_check_1) {
+define(["require", "exports", "lodash", "./object-check"], function (require, exports, _, object_check_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var template = {
@@ -11,7 +11,7 @@ define(["require", "exports", "module", "lodash", "./object-check"], function (r
      */
     var Preferences = /** @class */ (function () {
         /**
-         * @param {Object} [initial={}] The initial preferences.
+         * @param initial initial preferences.
          * @throws {Error} If there is any error in the preferences.
          */
         function Preferences(initial) {
@@ -31,15 +31,7 @@ define(["require", "exports", "module", "lodash", "./object-check"], function (r
          * @throws {Error} If there is any error in the preferences.
          */
         Preferences.prototype._validatePrefs = function (prefs) {
-            var result = object_check_1.check(template, prefs);
-            // This is not the place to provide diagnosis for the end user: fail hard if
-            // something is wrong.
-            if (result.missing !== undefined) {
-                throw new Error("missing option: " + result.missing[0]);
-            }
-            if (result.extra !== undefined) {
-                throw new Error("extra option: " + result.extra[0]);
-            }
+            object_check_1.assertSummarily(template, prefs);
         };
         /**
          * Gets a preference value.
@@ -110,5 +102,4 @@ define(["require", "exports", "module", "lodash", "./object-check"], function (r
     exports.Preferences = Preferences;
 });
 //  LocalWords:  wed's MPL
-
 //# sourceMappingURL=preferences.js.map

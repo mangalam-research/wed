@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "../key-constants", "./search-replace"], function (require, exports, module, key_constants_1, search_replace_1) {
+define(["require", "exports", "../key-constants", "./search-replace"], function (require, exports, key_constants_1, search_replace_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Direction = search_replace_1.Direction;
@@ -83,5 +83,4 @@ define(["require", "exports", "module", "../key-constants", "./search-replace"],
     }());
     exports.QuickSearch = QuickSearch;
 });
-
 //# sourceMappingURL=quick-search.js.map

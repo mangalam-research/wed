@@ -6,7 +6,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     //
@@ -27,14 +27,21 @@ define(["require", "exports", "module"], function (require, exports, module) {
     // run in tablets or phones. So the tests below don't take into account what
     // might happen when running in a tablet or phone.)
     //
+    var agent = navigator.userAgent;
+    /**
+     * True if the browser is Edge.
+     */
+    exports.EDGE = agent.indexOf(" Edge/") !== -1;
     /**
      * True if the browser is Chrome.
      */
-    exports.CHROME = navigator.userAgent.indexOf(" Chrome/") !== -1;
+    // We have to test exclude Edge from the possibilities because Edge lies about
+    // its identity.
+    exports.CHROME = !exports.EDGE && agent.indexOf(" Chrome/") !== -1;
     /**
      * True if the browser is Internet Explorer up to version 10.
      */
-    exports.MSIE_TO_10 = navigator.userAgent.indexOf(" MSIE ") !== -1;
+    exports.MSIE_TO_10 = agent.indexOf(" MSIE ") !== -1;
     /**
      * True if the browser is Internet Explorer from version 11 and up.
      */
@@ -44,7 +51,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
     // that puts it at the end. We might want to refine this eventually.
     //
     var MSIE_11_MARK = " like Gecko";
-    exports.MSIE_11_AND_UP = navigator.userAgent.indexOf(MSIE_11_MARK, navigator.userAgent.length - MSIE_11_MARK.length) !== -1;
+    exports.MSIE_11_AND_UP = agent.indexOf(MSIE_11_MARK, navigator.userAgent.length - MSIE_11_MARK.length) !== -1;
     /**
      * True if the browser is Internet Explorer, any version.
      */
@@ -52,15 +59,15 @@ define(["require", "exports", "module"], function (require, exports, module) {
     /**
      * True if the browser is Firefox.
      */
-    exports.FIREFOX = navigator.userAgent.indexOf(" Firefox/") !== -1;
+    exports.FIREFOX = agent.indexOf(" Firefox/") !== -1;
     /**
      * True if the browser is Firefox 24. This is an ESR version.
      */
-    exports.FIREFOX_24 = navigator.userAgent.indexOf(" Firefox/24") !== -1;
+    exports.FIREFOX_24 = agent.indexOf(" Firefox/24") !== -1;
     /**
      * True if the browser is Gecko-based.
      */
-    exports.GECKO = navigator.userAgent.indexOf(" Gecko/") !== -1;
+    exports.GECKO = agent.indexOf(" Gecko/") !== -1;
     /**
      * True if running on a OS X system.
      */
@@ -72,5 +79,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.WINDOWS = navigator.platform === "Win32";
 });
 //  LocalWords:  MPL wed's MSIE
-
 //# sourceMappingURL=browsers.js.map

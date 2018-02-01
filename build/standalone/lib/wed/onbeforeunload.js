@@ -1,4 +1,4 @@
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -7,8 +7,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
      * @license MPL 2.0
      * @copyright Mangalam Research Center for Buddhist Languages
      */
-    // tslint:disable-next-line:no-typeof-undefined strict-boolean-expressions
-    var test = (typeof __WED_TESTING !== "undefined") && !!__WED_TESTING.testing;
     function defaultCheck() {
         return true;
     }
@@ -44,10 +42,6 @@ define(["require", "exports", "module"], function (require, exports, module) {
         win.onbeforeunload = newHandler;
     }
     exports.install = install;
-    if (!test) {
-        install(window);
-    }
 });
 //  LocalWords:  reregistering Mangalam MPL Dubeau onbeforeunload
-
 //# sourceMappingURL=onbeforeunload.js.map

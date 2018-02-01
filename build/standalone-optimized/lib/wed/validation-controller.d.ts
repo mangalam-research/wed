@@ -6,11 +6,11 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { NameResolver } from "salve";
+import { Editor } from "./editor";
 import { GUIValidationError } from "./gui-validation-error";
 import { ErrorLayer } from "./gui/error-layer";
 import { Scroller } from "./gui/scroller";
 import { Validator } from "./validator";
-import { Editor } from "./wed";
 /**
  * The click event handler to use on list items created by the controller.
  */

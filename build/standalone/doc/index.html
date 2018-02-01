@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Wed’s Help &mdash; Wed v0.30.0-1-g9b8dc6e1-unclean documentation</title>
+  <title>Wed’s Help &mdash; Wed v1.0.0-1-g6c10f530 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.30.0-1-g9b8dc6e1-unclean documentation" href="#"/> 
+    <link rel="top" title="Wed v1.0.0-1-g6c10f530 documentation" href="#"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                v0.30
+                v1.0
               </div>
             
           
@@ -86,6 +86,7 @@
                 <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">Wed&#8217;s Help</a><ul>
 <li><a class="reference internal" href="#editing-controls">Editing Controls</a><ul>
+<li><a class="reference internal" href="#toolbar">Toolbar</a></li>
 <li><a class="reference internal" href="#the-validation-progress-bar">The Validation Progress Bar</a></li>
 <li><a class="reference internal" href="#modification-and-save-status">Modification and Save Status</a></li>
 <li><a class="reference internal" href="#the-error-pane">The Error Pane</a></li>
@@ -102,6 +103,7 @@
 <li><a class="reference internal" href="#error-markers">Error Markers</a></li>
 <li><a class="reference internal" href="#contextual-menus">Contextual Menus</a></li>
 <li><a class="reference internal" href="#completion-menus">Completion Menus</a></li>
+<li><a class="reference internal" href="#replacement-menus">Replacement Menus</a></li>
 </ul>
 </li>
 </ul>
@@ -118,7 +120,7 @@
 <li><a class="reference internal" href="#keyboard-shortcuts">Keyboard Shortcuts</a></li>
 <li><a class="reference internal" href="#browser-requirements">Browser Requirements</a><ul>
 <li><a class="reference internal" href="#firefox">Firefox</a></li>
-<li><a class="reference internal" href="#edge">Edge</a></li>
+<li><a class="reference internal" href="#ie11">IE11</a></li>
 <li><a class="reference internal" href="#os-x">OS X</a></li>
 <li><a class="reference internal" href="#safari">Safari</a></li>
 </ul>
@@ -198,6 +200,40 @@ Requirements</a>.</p>
 <div class="section" id="editing-controls">
 <h2>Editing Controls<a class="headerlink" href="#editing-controls" title="Permalink to this headline">¶</a></h2>
 <p>Wed divides the screen into various areas.</p>
+<div class="section" id="toolbar">
+<h3>Toolbar<a class="headerlink" href="#toolbar" title="Permalink to this headline">¶</a></h3>
+<p>Above the validation progress bar, wed presents a toolbar that allows to perform
+some operations through the mouse.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Wed does not include in the toolbar a button for every single
+operation that may be performed through the keyboard. It includes only
+some operations by default, and modes may add more custom operations
+to the toolbar.</p>
+</div>
+<div class="figure align-center" id="id5">
+<img alt="This image shows the default toolbar." src="_images/toolbar.png" />
+<p class="caption"><span class="caption-text">The default toolbar.</span></p>
+</div>
+<p>If you hover the mouse pointer over a button, you will get a prose description
+of what the button does. In the image above, from left to right the buttons
+perform the following actions:</p>
+<ul class="simple">
+<li>Save the document.</li>
+<li>Undo.</li>
+<li>Redo.</li>
+<li>Decrease the <a class="reference internal" href="#label-visibility">label visibility level</a>.</li>
+<li>Increase the <a class="reference internal" href="#label-visibility">label visibility level</a>.</li>
+<li>Remove markup from mixed content.</li>
+<li>Toggle attribute autohiding off and on.</li>
+</ul>
+<p>The last button is a toggle. When autohiding is on, the button is pressed down,
+as shown by shadows. When autohiding is off, the button is flat, as shown by the
+absence of shadows.</p>
+<p>Mode-specific buttons may appear to the right of the double bar. The buttons
+that appear there are those that correspond to the mode in effect at the caret
+location.</p>
+</div>
 <div class="section" id="the-validation-progress-bar">
 <h3>The Validation Progress Bar<a class="headerlink" href="#the-validation-progress-bar" title="Permalink to this headline">¶</a></h3>
 <p>As you edit your document, wed validates your document according to
@@ -216,7 +252,7 @@ a schema.</p>
 </div>
 <p>The validation progress bar is located above the editing pane. The
 image below shows the general location of the bar.</p>
-<div class="figure align-center" id="id5">
+<div class="figure align-center" id="id6">
 <a class="reference internal image-reference" href="_images/validation_bar.png"><img alt="This image shows the location of the validation bar, above the editing pane." src="_images/validation_bar.png" style="width: 634.0px; height: 144.0px;" /></a>
 <p class="caption"><span class="caption-text">The location of the validation bar.</span></p>
 </div>
@@ -229,21 +265,21 @@ center of the bar will vary depending on the results of validation.</p>
 <ul>
 <li><p class="first">The bar will be green and the status will be &#8220;valid&#8221; if validation
 is complete and the document is valid.</p>
-<div class="figure align-center" id="id6">
+<div class="figure align-center" id="id7">
 <img alt="The validation bar is green and shows the status &quot;valid&quot;." src="_images/validation_bar_valid.png" />
 <p class="caption"><span class="caption-text">A validation bar indicating a valid document.</span></p>
 </div>
 </li>
 <li><p class="first">The bar will be red and the status will be &#8220;invalid&#8221; if the document
 is not valid.</p>
-<div class="figure align-center" id="id7">
+<div class="figure align-center" id="id8">
 <img alt="The validation bar is red and shows the status &quot;invalid&quot;." src="_images/validation_bar_invalid.png" />
 <p class="caption"><span class="caption-text">A validation bar indicating an invalid document.</span></p>
 </div>
 </li>
 <li><p class="first">The bar will be blue and the status will be &#8220;working&#8221; as long as
 validation is not complete.</p>
-<div class="figure align-center" id="id8">
+<div class="figure align-center" id="id9">
 <img alt="The validation bar is blue and shows the status &quot;working&quot;." src="_images/validation_bar_working.png" />
 <p class="caption"><span class="caption-text">A validation bar indicating the validation is not complete.</span></p>
 </div>
@@ -256,7 +292,7 @@ validation is not complete.</p>
 <h3>Modification and Save Status<a class="headerlink" href="#modification-and-save-status" title="Permalink to this headline">¶</a></h3>
 <p>On the left side of the screen, at the top, wed shows you the
 modification and save status of the document being edited.</p>
-<div class="figure align-center" id="id9">
+<div class="figure align-center" id="id10">
 <a class="reference internal image-reference" href="_images/modification_and_save_status.png"><img alt="This image shows the location of the modification and save status, on the top left side of the screen." src="_images/modification_and_save_status.png" style="width: 634.0px; height: 144.0px;" /></a>
 <p class="caption"><span class="caption-text">The location of the modification and save status.</span></p>
 </div>
@@ -266,7 +302,7 @@ since it has last been loaded or last saved. To the right of the
 modification status is the save status. It starts gray to indicate
 that the document has never been saved <em>during the current editing
 session.</em></p>
-<div class="figure align-center" id="id10">
+<div class="figure align-center" id="id11">
 <img alt="An unmodified and unsaved status." src="_images/unmodified_unsaved.png" />
 <p class="caption"><span class="caption-text">The status shown for a document that has not been modified since
 last loaded and has not yet been saved in this editing session.</span></p>
@@ -274,7 +310,7 @@ last loaded and has not yet been saved in this editing session.</span></p>
 <p>When you modify the document, the modification status becomes orange
 and contains an asterisk to indicate that the document in the editor
 has modifications that have not been saved yet.</p>
-<div class="figure align-center" id="id11">
+<div class="figure align-center" id="id12">
 <img alt="A modified and unsaved status." src="_images/modified_unsaved.png" />
 <p class="caption"><span class="caption-text">The status shown for a document that has been modified since
 last loaded and has not yet been saved in this editing session.</span></p>
@@ -292,14 +328,14 @@ availability of autosaves and the delay between autosaves
 is determined by the application which makes use of wed for
 editing.</p>
 </div>
-<div class="figure align-center" id="id12">
+<div class="figure align-center" id="id13">
 <img alt="An unmodified and manually saved status, with tooltip." src="_images/unmodified_manual_save.png" />
 <p class="caption"><span class="caption-text">The status shown for a document that has been manually saved
 moments ago.</span></p>
 </div>
 <p>The save status will update periodically to show approximately how
 long ago the document was last saved.</p>
-<div class="figure align-center" id="id13">
+<div class="figure align-center" id="id14">
 <img alt="An unmodified and saved status, which occurred minutes ago." src="_images/unmodified_manual_save_minutes_ago.png" />
 <p class="caption"><span class="caption-text">The status shown for a document that has been saved almost five
 minutes ago.</span></p>
@@ -310,7 +346,7 @@ minutes ago.</span></p>
 <p>On the left of the screen, under the modification and save status, you
 can find the error pane. This is where XML validation errors are shown
 to the user.</p>
-<div class="figure align-center" id="id14">
+<div class="figure align-center" id="id15">
 <img alt="The location of the error pane." src="_images/error_pane.png" />
 <p class="caption"><span class="caption-text">The error pane.</span></p>
 </div>
@@ -320,7 +356,7 @@ an error description in the error pane will scroll the editing pane to
 the location of the error. It will also make the error &#8220;selected&#8221;. The
 selected error has its description blinking in the error page and has
 its error marker blinking in the editing pane.</p>
-<div class="figure align-center" id="id15">
+<div class="figure align-center" id="id16">
 <img alt="Shows what happens when the user clicks on an error description." src="_images/click_on_error_description.gif" />
 <p class="caption"><span class="caption-text">Clicking on an error description scrolls the editing pane to that
 error.</span></p>
@@ -338,7 +374,7 @@ you won&#8217;t see it.</p>
 <p>Custom modes that make use of the pane will show this pane under the
 <a class="reference internal" href="#modification-and-save-status">modification and save status</a>, above
 the error pane.</p>
-<div class="figure align-center" id="id16">
+<div class="figure align-center" id="id17">
 <img alt="Shows where the navigation pane is situated." src="_images/navigation_pane.png" />
 <p class="caption"><span class="caption-text">The navigation pane.</span></p>
 </div>
@@ -355,7 +391,7 @@ wed uses to quickly prompt for input <em>instead of</em> bringing up a dialog bo
 allows for quick operations like <a class="reference internal" href="#quick-search">quick searches</a>. When it is
 not in use, the minibuffer is empty. A prompt appears there when wed prompts the
 user.</p>
-<div class="figure align-center" id="id17">
+<div class="figure align-center" id="id18">
 <img alt="Shows the minibuffer just under the editing pane." src="_images/minibuffer.png" />
 <p class="caption"><span class="caption-text">The minibuffer.</span></p>
 </div>
@@ -367,7 +403,7 @@ forward in the document.</p>
 <p>The location bar appears right under the minibuffer. It indicates
 the hierarchy of elements that contain the caret. Each XML element in
 the hierarchy is separated from the next by a forward slash (<code class="docutils literal"><span class="pre">/</span></code>).</p>
-<div class="figure align-center" id="id18">
+<div class="figure align-center" id="id19">
 <img alt="Shows where the location bar is situated." src="_images/location_bar.png" />
 <p class="caption"><span class="caption-text">The location bar.</span></p>
 </div>
@@ -381,7 +417,7 @@ element contained by a <code class="docutils literal"><span class="pre">biblFull
 where most changes to a document are performed. It appears under the
 validation progress bar, above the location bar and to the right of
 the error pane.</p>
-<div class="figure align-center" id="id19">
+<div class="figure align-center" id="id20">
 <img alt="Shows where the editing pane is located." src="_images/editing_pane.png" />
 <p class="caption"><span class="caption-text">The editing pane.</span></p>
 </div>
@@ -395,7 +431,7 @@ document.</p>
 blinking vertical bar. It can be moved by left clicking. When the
 caret is already in the document, the arrow keys on your keyboard can
 be used to move the caret.</p>
-<div class="figure align-center" id="id20">
+<div class="figure align-center" id="id21">
 <img alt="Shows the caret." src="_images/caret.gif" />
 <p class="caption"><span class="caption-text">The caret can be moved with left clicks of the mouse or the arrow
 keys.</span></p>
@@ -417,7 +453,7 @@ is edited to contain text or other elements, it loses its
 placeholder. When an element is emptied it gains a placeholder.  When
 the caret is in a placeholder, the placeholder blinks to indicate that
 it contains the caret.</p>
-<div class="figure align-center" id="id21">
+<div class="figure align-center" id="id22">
 <img alt="Text editing add and removes placeholders." src="_images/placeholder.gif" />
 <p class="caption"><span class="caption-text">The <code class="docutils literal"><span class="pre">hi</span></code> element gains a placeholder when the text is removed,
 and loses the placeholder when text is added back.</span></p>
@@ -440,7 +476,7 @@ labels. For instance, a custom mode could distinguish
 &#8220;paragraph&#8221; elements through line breaks and indentation,
 and omit the start and end labels of these elements.</p>
 </div>
-<div class="figure align-center" id="id22">
+<div class="figure align-center" id="id23">
 <img alt="An example of start and end labels." src="_images/start_end_labels.png" />
 <p class="caption"><span class="caption-text">This figure contains a total of 8 labels: two start labels for two
 elements <code class="docutils literal"><span class="pre">p</span></code>, and the corresponding two end labels, two start
@@ -450,7 +486,7 @@ labels.</span></p>
 <p>Clicking on an element&#8217;s label selects the element and allows the user
 to perform actions on the element as a whole. When the element is
 selected, both the start and end labels are colored orange.</p>
-<div class="figure align-center" id="id23">
+<div class="figure align-center" id="id24">
 <img alt="An example of selected labels." src="_images/selected_labels.png" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">p</span></code> element which is selected. Its labels are
 orange.</span></p>
@@ -461,7 +497,7 @@ label belongs. For each attribute, the label first shows the
 attribute&#8217;s name, followed by the equal sign (<code class="docutils literal"><span class="pre">=</span></code>) and the attribute
 value in double quotes (<code class="docutils literal"><span class="pre">&quot;</span></code>). The attribute&#8217;s value appears in black
 on a white background.</p>
-<div class="figure align-center" id="id24">
+<div class="figure align-center" id="id25">
 <img alt="An example of attributes in a start label." src="_images/attributes.png" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">p</span></code> element with the attributes <code class="docutils literal"><span class="pre">rend</span></code> and
 <code class="docutils literal"><span class="pre">style</span></code>.</span></p>
@@ -470,14 +506,14 @@ on a white background.</p>
 a start label, but shown then the caret is moved inside the start label. Labels
 that have hidden attributes will show an ellipsis (<code class="docutils literal"><span class="pre">...</span></code>) before the right
 angle bracket (<code class="docutils literal"><span class="pre">&gt;</span></code>).</p>
-<div class="figure align-center" id="id25">
+<div class="figure align-center" id="id26">
 <img alt="An example of start label with hidden attributes." src="_images/attributes_ellipsis.png" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">div</span></code> element with the ellipsis that indicates some
 attributes have been hidden.</span></p>
 </div>
 <p>When the caret is moved inside the start label, the hidden attributes are shown,
 and they are hidden again as soon as the caret is moved out of the start label.</p>
-<div class="figure align-center" id="id26">
+<div class="figure align-center" id="id27">
 <img alt="An example of start label with hidden attributes that are shown." src="_images/attributes_shown.gif" />
 <p class="caption"><span class="caption-text">This figure shows a <code class="docutils literal"><span class="pre">div</span></code> element with its hidden attributes shown.</span></p>
 </div>
@@ -501,7 +537,7 @@ properly.</strong></p>
 <p>Whenever the mode being used has provided element documentation,
 hovering over a label will bring up a tooltip with the documentation
 of the element.</p>
-<div class="figure align-center" id="id27">
+<div class="figure align-center" id="id28">
 <img alt="An example of a start label with its tooltip open." src="_images/label_tooltip.png" />
 <p class="caption"><span class="caption-text">This figure shows a label for a <code class="docutils literal"><span class="pre">p</span></code> element whose tooltip is
 open. The tooltip contains documentation on the element.</span></p>
@@ -527,14 +563,14 @@ text by showing it in italics, and so on. For each element that is
 represented on screen using styling, it is usually not necessary to
 show the end and start labels of the element: the presence of the
 element and its extent is already visible through styling.</p>
-<div class="figure align-center" id="id28">
+<div class="figure align-center" id="id29">
 <img alt="A document shown at default label visibility. There is no element label visible in the picture." src="_images/default_label_visibility.png" />
 <p class="caption"><span class="caption-text">This is an example of the situation described above in the text.</span></p>
 </div>
 <p>It still may be useful sometimes for users to see the labels. Perhaps
 there is an operation they want to perform that is easier to do with
 labels. In such case, wed allows changing the label visibility level.</p>
-<div class="figure align-center" id="id29">
+<div class="figure align-center" id="id30">
 <img alt="A document shown at increased label visibility. Every single element gets labels." src="_images/increased_label_visibility.png" />
 <p class="caption"><span class="caption-text">This is an example of the same document shown earlier but with
 increased label visibility. You&#8217;ll notice that the word &#8220;prasāda&#8221;
@@ -548,7 +584,7 @@ the <code class="docutils literal"><span class="pre">p</span></code> element.</s
 <p>Error markers indicate where in the document there is a validation
 error. They appear as red rectangles at the location of the errors
 they mark.</p>
-<div class="figure align-center" id="id30">
+<div class="figure align-center" id="id31">
 <img alt="An error marker." src="_images/error_marker.png" />
 <p class="caption"><span class="caption-text">An error marker appearing in an attribute value.</span></p>
 </div>
@@ -557,7 +593,7 @@ and will scroll the pane to show the error message corresponding to
 the error marker. Both the marker and the error message will become
 selected. Selected markers and their message blink slowly to indicate
 that they are selected.</p>
-<div class="figure align-center" id="id31">
+<div class="figure align-center" id="id32">
 <img alt="Clicking an error marker." src="_images/error_marker_click.gif" />
 <p class="caption"><span class="caption-text">When an error marker is clicked, the marker and the error&#8217;s
 description become selected.</span></p>
@@ -577,7 +613,7 @@ present on the element, then the contextual menu that you get when
 right-clicking on the start label of the element will show only an
 option to add the <code class="docutils literal"><span class="pre">a</span></code> attribute, because adding a <code class="docutils literal"><span class="pre">b</span></code> attribute
 again would not be valid.</p>
-<div class="figure align-center" id="id32">
+<div class="figure align-center" id="id33">
 <img alt="A contextual menu." src="_images/contextual_menu.png" />
 <p class="caption"><span class="caption-text">This is a contextual menu brought up on the start label of the
 <code class="docutils literal"><span class="pre">title</span></code> element.</span></p>
@@ -593,7 +629,7 @@ other options on the basis of the name of the option shown in the
 menu. When you bring up the contextual menu, the input field is
 focused automatically, so you can type in it right away, without
 having to focus it with the mouse.</p>
-<div class="figure align-center" id="id33">
+<div class="figure align-center" id="id34">
 <img alt="Using the input field to filter entries in the contextual menu." src="_images/contextual_menu_text_filter.gif" />
 <p class="caption"><span class="caption-text">The user brings up a contextual menu and filters options to those
 that contain the text <code class="docutils literal"><span class="pre">xml</span></code>.</span></p>
@@ -691,7 +727,7 @@ of possible values, wed will present the user with a completion
 menu. A common case is for attributes that may take only a limited set
 of values. Upon first placing the caret in a location that can be
 auto-completed, wed will present the whole list of possible values.</p>
-<div class="figure align-center" id="id34">
+<div class="figure align-center" id="id35">
 <img alt="A completion menu in its initial state." src="_images/completion_initial.png" />
 <p class="caption"><span class="caption-text">The user just clicked into the <code class="docutils literal"><span class="pre">sample</span></code> attribute. Wed presents
 the list of possible values.</span></p>
@@ -708,10 +744,35 @@ arrows and <code class="kbd docutils literal"><span class="pre">ENTER</span></co
 possible also to just type the whole value at the keyboard (which may
 be faster, in some cases, than fiddling with a menu), in which case
 the menu will close once the value is complete.</p>
-<div class="figure align-center" id="id35">
+<div class="figure align-center" id="id36">
 <img alt="A completion menu as the user types in." src="_images/completion_typing.gif" />
 <p class="caption"><span class="caption-text">The user types <code class="docutils literal"><span class="pre">med</span></code> into the completion menu and then hits
 <code class="kbd docutils literal"><span class="pre">ENTER</span></code> to complete the value.</span></p>
+</div>
+</div>
+<div class="section" id="replacement-menus">
+<h4>Replacement Menus<a class="headerlink" href="#replacement-menus" title="Permalink to this headline">¶</a></h4>
+<p>Replacement menus are similar to completion menus. Completion menus appear
+automatically but only <em>when the document contains a value that can be
+completed</em>. Given an attribute that has a limited set of possible values, if the
+attribute is already filled with a complete value, then the completion menu does
+not appear. Suppose an attribute <code class="docutils literal"><span class="pre">height</span></code> which can take the values <code class="docutils literal"><span class="pre">high</span></code>,
+<code class="docutils literal"><span class="pre">medium</span></code>, <code class="docutils literal"><span class="pre">low</span></code>, and it is already filled with the value <code class="docutils literal"><span class="pre">medium</span></code>. If you
+want to change the value, you won&#8217;t be able to use the completion menu, because
+there&#8217;s nothing to complete since <code class="docutils literal"><span class="pre">medium</span></code> is already complete. So if you want
+to change the value with the help of the editor, you have to use a replacement
+menu by hitting <code class="kbd docutils literal"><span class="pre">Ctrl-?</span></code>.</p>
+<p>Replacement menus are available in the same places completion menus are
+available. The list of values they offer is the same as the list provided by a
+completion menu in the same location. Chosing an item from the list in a
+replacement menu replaces the entire attribute value with the item selected.</p>
+<p>Note that replacement menus, contrarily to completion menus, do not support
+changing the document while the menu is open. You need to exit the menu before
+you can continue editing the document. If you don&#8217;t want to make a change, click
+outside the menu or hit <code class="kbd docutils literal"><span class="pre">ESCAPE</span></code>.</p>
+<div class="figure align-center" id="id37">
+<img alt="A replacement menu." src="_images/replacement_menu.png" />
+<p class="caption"><span class="caption-text">The user just brought up the replacement menu in the <code class="docutils literal"><span class="pre">sample</span></code> attribute.</span></p>
 </div>
 </div>
 </div>
@@ -725,7 +786,7 @@ symbol. These are operations that add entirely new elements or
 attributes to the document. They normally do not operate on
 selections.</li>
 </ul>
-<div class="figure align-center" id="id36">
+<div class="figure align-center" id="id38">
 <img alt="A user adds an element." src="_images/adding.gif" />
 <p class="caption"><span class="caption-text">The user adds an <code class="docutils literal"><span class="pre">abbr</span></code> element to the document.</span></p>
 </div>
@@ -735,7 +796,7 @@ symbol. These are operations that remove whole elements or
 attributes from the document. They normally do not operate on
 selections.</li>
 </ul>
-<div class="figure align-center" id="id37">
+<div class="figure align-center" id="id39">
 <img alt="A user deletes an element." src="_images/deleting.gif" />
 <p class="caption"><span class="caption-text">The user deletes an <code class="docutils literal"><span class="pre">abbr</span></code> element from the document.</span></p>
 </div>
@@ -747,7 +808,7 @@ dragging with the mouse to select a part of the document. Therefore,
 wrapping operations appear in the contextual menu only if a
 selection is in effect. They &#8220;wrap&#8221; the selection in a new element.</li>
 </ul>
-<div class="figure align-center" id="id38">
+<div class="figure align-center" id="id40">
 <img alt="A user wraps an element." src="_images/wrapping.gif" />
 <p class="caption"><span class="caption-text">The user wraps text in an <code class="docutils literal"><span class="pre">abbr</span></code> element.</span></p>
 </div>
@@ -758,7 +819,7 @@ an element so as to remove the element but put the element&#8217;s
 original content in place of the element being removed. They
 normally do not operate on selections.</li>
 </ul>
-<div class="figure align-center" id="id39">
+<div class="figure align-center" id="id41">
 <img alt="A user unwraps the content of an element." src="_images/unwrapping.gif" />
 <p class="caption"><span class="caption-text">The user unwraps the content of an element.</span></p>
 </div>
@@ -832,7 +893,7 @@ scoped to that selection. That is, the search will only search between the start
 and end of the selection. (The selection disappears while you are searching:
 this is normal and a current limitation of wed.) If you have no selection in
 effect when you start the search, then the whole document will be searched.</p>
-<div class="figure align-center" id="id40">
+<div class="figure align-center" id="id42">
 <img alt="Shows the minibuffer just under the editing pane." src="_images/minibuffer.png" />
 <p class="caption"><span class="caption-text">The minibuffer.</span></p>
 </div>
@@ -855,7 +916,7 @@ only search between the start and end of the selection. (The selection
 disappears while you are searching: this is normal and a current limitation of
 wed.) If you have no selection in effect when you start the search, then the
 whole document will be searched.</p>
-<div class="figure align-center" id="id41">
+<div class="figure align-center" id="id43">
 <img alt="Shows the dialog that is brought up by dialog searches." src="_images/dialog_search.png" />
 <p class="caption"><span class="caption-text">A dialog search.</span></p>
 </div>
@@ -907,7 +968,7 @@ application that uses wed. Possible outcomes:</p>
 <li><p class="first">The data is saved. You will see a message telling you that the data
 was saved, and the <a class="reference external" href="ModificationandSaveStatus">save status</a>
 will indicate the data was saved.</p>
-<div class="figure align-center" id="id42">
+<div class="figure align-center" id="id44">
 <img alt="A green message saying &quot;Saved&quot;." src="_images/saved_message.png" />
 <p class="caption"><span class="caption-text">This is the message that a user gets when a document was saved.</span></p>
 </div>
@@ -977,12 +1038,12 @@ because it edits XML, there are some limitations to what you can do:</p>
 <li><p class="first">Cutting will work only if the selection being cut starts and ends
 inside the same XML element. The selection can span over XML
 elements, provided that it completely contains these elements.</p>
-<div class="figure align-center" id="id43">
+<div class="figure align-center" id="id45">
 <img alt="A selection which cannot be cut." src="_images/invalid_selection_cut.png" />
 <p class="caption"><span class="caption-text">This selection cannot be cut from the document because it begins
 in one <code class="docutils literal"><span class="pre">p</span></code> element but ends in the subsequent <code class="docutils literal"><span class="pre">p</span></code> element.</span></p>
 </div>
-<div class="figure align-center" id="id44">
+<div class="figure align-center" id="id46">
 <img alt="A selection which can be cut." src="_images/valid_selection_cut.png" />
 <p class="caption"><span class="caption-text">This selection can be cut from the document because it begins and
 ends in the same <code class="docutils literal"><span class="pre">p</span></code> element. There is a <code class="docutils literal"><span class="pre">lb</span></code> element inside
@@ -1039,116 +1100,137 @@ minimal configuration of wed (i.e. using the generic mode), but we&#8217;ll
 stick with it.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="25%" />
-<col width="75%" />
+<col width="20%" />
+<col width="20%" />
+<col width="60%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Key</th>
+<tr class="row-odd"><th class="head">PC Key</th>
+<th class="head">Mac Key</th>
 <th class="head">Function</th>
 </tr>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">F1</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">F1</span></code></td>
 <td>Bring up the help.</td>
 </tr>
 <tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-/</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-/</span></code></td>
 <td>Bring up the <a class="reference internal" href="#contextual-menus">contextual menu</a>.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-[</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-?</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-?</span></code></td>
+<td>Bring up the <a class="reference internal" href="#replacement-menus">replacement menu</a>.</td>
+</tr>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-[</span></code></td>
+<td>&nbsp;</td>
 <td>Decrease the <a class="reference internal" href="#label-visibility">label visibility level</a>.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-]</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-]</span></code></td>
+<td>&nbsp;</td>
 <td>Increase the <a class="reference internal" href="#label-visibility">label visibility level</a>.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-z</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-z</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-z</span></code></td>
 <td><a class="reference internal" href="#undo-and-redo">Undo</a> an operation.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-y</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-y</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-y</span></code></td>
 <td><a class="reference internal" href="#undo-and-redo">Redo</a> an operation.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-x</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-x</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-x</span></code></td>
 <td><a class="reference internal" href="#cut-copy-and-paste">Cut</a> content.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-c</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-c</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-c</span></code></td>
 <td><a class="reference internal" href="#cut-copy-and-paste">Copy</a> content.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-v</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-v</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-v</span></code></td>
 <td><a class="reference internal" href="#cut-copy-and-paste">Paste</a> content.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-s</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-s</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-s</span></code></td>
 <td><a class="reference internal" href="#saving">Save</a> content.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-f</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-f</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-f</span></code></td>
 <td><a class="reference internal" href="#quick-search">Quick search</a> forward.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-b</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-b</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-b</span></code></td>
 <td><a class="reference internal" href="#quick-search">Quick search</a> backwards.</td>
 </tr>
-<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Shift-f</span></code></td>
+<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Shift-f</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-Shift-f</span></code></td>
 <td><a class="reference internal" href="#dialog-search">Dialog search</a> forward.</td>
 </tr>
-<tr class="row-odd"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Shift-b</span></code></td>
+<tr class="row-even"><td><code class="kbd docutils literal"><span class="pre">Ctrl-Shift-b</span></code></td>
+<td><code class="kbd docutils literal"><span class="pre">Cmd-Shift-b</span></code></td>
 <td><a class="reference internal" href="#dialog-search">Dialog search</a> backwards.</td>
 </tr>
 </tbody>
 </table>
-<p>Note that in <strong>browsers running in OS X</strong>, instead of <code class="kbd docutils literal"><span class="pre">Ctrl-</span></code> wed expects
-<code class="kbd docutils literal"><span class="pre">Command-</span></code>.</p>
 </div>
 <div class="section" id="browser-requirements">
 <span id="help-browser-requirements"></span><h2>Browser Requirements<a class="headerlink" href="#browser-requirements" title="Permalink to this headline">¶</a></h2>
-<p>Wed is primarily developed using a recent version of Chrome (version
-59 now, earlier versions have also been used earlier). (But see a note
-about Chrome 34 below.)</p>
-<p>Here is the list of officially supported browsers, in order of
-decreasing priority. The higher a browser is in the list, the less
-likely you are to run into issues and the higher the priority for
-resolving bugs happening with this browser.</p>
+<p>Wed is primarily developed using a recent version of Chrome (version 59 now,
+earlier versions have also been used earlier). (But see a note about Chrome 34
+below.)</p>
+<p>Here is the list of officially supported browsers, in order of decreasing
+priority. The higher a browser is in the list, the less likely you are to run
+into issues and the higher the priority for resolving bugs happening with this
+browser.</p>
 <ul class="simple">
-<li>Chrome 51 and higher.</li>
-<li>IE 11.</li>
-<li>Edge, but see <a class="reference internal" href="#edge">the section about it</a>.</li>
-<li>Relatively recent versions of Chrome: older than the latest releases
-but not very old. (Yeah, this is vague. Sorry about that.)</li>
+<li>The latest stable version of Chrome.</li>
+<li>The latest stable version of Edge.</li>
+<li>IE 11, but see <a class="reference external" href="IE11">the section about it</a>.</li>
+<li>Versions of Chrome or Edge older than the latest stable version, but not very
+old. (Yeah, this is vague. Sorry about that.)</li>
 </ul>
-<p>File an issue on github if you find a problem with one of the
-supported browsers above.</p>
-<p>We would like to support phone and tablet browsers but due to a lack
-of development resources, such support is unlikely to materialize
-soon. In decreasing order of likelihood, the following cases are
-unlikely to ever be supported:</p>
+<p>File an issue on github if you find a problem with one of the supported browsers
+above.</p>
+<p>We would like to support phone and tablet browsers but due to a lack of
+development resources, such support is unlikely to materialize soon. In
+decreasing order of likelihood, the following cases are unlikely to ever be
+supported:</p>
 <ul class="simple">
-<li>Versions of Chrome older than those mentioned above.</li>
+<li>Versions of Chrome or Edge older than those mentioned above.</li>
 <li>Firefox. It deserves its own <a class="reference internal" href="#firefox">discussion</a>.</li>
 <li>IE 10 and 9. Wed used to be routinely tested on IE 10, but Microsoft no longer
 supports it. Resuming support for IE 10 or 9 is extremely unlikely, because
 wed has accumulated features and methods that do not work on these browsers.</li>
-<li>Chrome 34: the luminaries at Google decided to remove
-<code class="docutils literal"><span class="pre">Attr.ownerElement</span></code> from Chrome 34. It was reintroduced in
-Chrome 35. We&#8217;ll probably never have support for Chrome 34.</li>
+<li>Chrome 34: the luminaries at Google decided to remove <code class="docutils literal"><span class="pre">Attr.ownerElement</span></code>
+from Chrome 34. It was reintroduced in Chrome 35. We&#8217;ll probably never have
+support for Chrome 34.</li>
 <li>Antique browsers.</li>
-<li>Oddball browsers or other software or hardware systems that present
-web pages. (E.g. gaming consoles, smart TVs.)</li>
-<li>Operating systems or browsers no longer supported by their own
-vendors.</li>
+<li>Oddball browsers or other software or hardware systems that present web
+pages. (E.g. gaming consoles, smart TVs.)</li>
+<li>Operating systems or browsers no longer supported by their own vendors.</li>
 </ul>
 <div class="section" id="firefox">
 <h3>Firefox<a class="headerlink" href="#firefox" title="Permalink to this headline">¶</a></h3>
-<p>We&#8217;re hoping that the lack of Firefox support is going to be
-temporary.</p>
+<p>We&#8217;re hoping that the lack of Firefox support is going to be temporary. The
+paragraphs below give the state of Firefox support, in reverse chronological
+order (most recent on top):</p>
+<p>Update November 2017: Firefox support is still suspended. The Marionette driver
+has been released. However it is so buggy that there&#8217;s no way we can run our
+tests with it. And yes, we do mean &#8220;buggy&#8221; with the full force of that word. For
+instance, the WebDriver specs specify that performing a click on an element
+should scroll the element into view. Our tests rely on this, but Marionette does
+not implement the scroll, which causes failures during testing.</p>
 <p>Update Summer 2016: things are looking up. The Firefox developers have
 been working on a driver named &#8220;Marionette&#8221; that <em>should</em> solve the
 support problems. Stay tuned.</p>
-<p>Update Fall 2017: Firefox support is still suspended. It may be easy to resume
-it but there&#8217;s been no demand for it, so...</p>
-<p>For years, wed was supporting Firefox. Early on, Firefox was even
-better supported than Chrome. However, the people responsible for
-maintaining Selenium decided to stop supporting native events in
-Firefox and forced developers to use synthetic events instead. The
-problem is that Selenium&#8217;s support for synthetic events on Firefox is
-unable to accurately reproduce what happens when a user is actually
-interacting with a browser, <em>which is the entire point of using
-Selenium in the first place</em>. The problem has been reported, at
+<p>February 2016: For years, wed was supporting Firefox. Early on, Firefox was even
+better supported than Chrome. However, the people responsible for maintaining
+Selenium decided to stop supporting native events in Firefox and forced
+developers to use synthetic events instead. The problem is that Selenium&#8217;s
+support for synthetic events on Firefox is unable to accurately reproduce what
+happens when a user is actually interacting with a browser, <em>which is the entire
+point of using Selenium in the first place</em>. The problem has been reported, at
 length:</p>
 <ul class="simple">
 <li>In the <cite>selenium-developers</cite> group <a class="reference external" href="https://groups.google.com/d/msg/selenium-developers/DKnG2lA-KxM/EMLiT87ykZYJ">here</a> and in following replies.</li>
@@ -1159,16 +1241,16 @@ length:</p>
 we have no resources to devote to solving the issue of synthetic event
 support in Firefox and so Firefox support has been temporarily pulled.</p>
 </div>
-<div class="section" id="edge">
-<h3>Edge<a class="headerlink" href="#edge" title="Permalink to this headline">¶</a></h3>
-<p>What&#8217;s the deal with Edge being at a lower level of support than IE
-11? The problem is that whereas we can run test suites for IE 11, it
-is not <em>yet</em> possible to do so for Edge. Microsoft has not yet
-released a version of Edge which does support everything needed to run
-our suite. (See <a class="reference external" href="https://dev.windows.com/en-us/microsoft-edge/platform/status/webdriver/details/">this page</a>
-for the technical details.) Therefore we cannot systematically test
-wed with Edge and thus it is not as supported as IE 11. If you do find
-a problem with Edge, report it and we&#8217;ll try to fix it.</p>
+<div class="section" id="ie11">
+<h3>IE11<a class="headerlink" href="#ie11" title="Permalink to this headline">¶</a></h3>
+<p>At some point in 2017 Selenium, IEDriver, or something else changed in such a
+way that makes the test suite run incredibly slowly on IE11. Wed itself runs at
+normal speed, as we can assess by running it manually in IE11. We&#8217;ve looked for
+a solution but could not find one. Tracking down what broke is more work than we
+can spend on this now. We accept bug reports due to issues on IE11 and accept
+patches that would resolve the slowdown on IE11.</p>
+<p>It is perhaps related to a bug whereby keystrokes are extremely slow in IE11,
+but we&#8217;ve tried the solutions outlined there and nothing worked.</p>
 </div>
 <div class="section" id="os-x">
 <h3>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h3>
@@ -1232,18 +1314,16 @@ insert in a document you may see a menu item with an exclamation mark,
 labeled &#8220;Complex name pattern&#8221;. What&#8217;s the deal?</p>
 <div class="section" id="brief-explanation">
 <h3>Brief Explanation<a class="headerlink" href="#brief-explanation" title="Permalink to this headline">¶</a></h3>
-<p>In brief, this occurs if the Relax NG schema uses a wildcard (so to
-speak) that allows an unlimited number of possibilities for the name
-of an element or of an attribute. (Or a set of possibilities that
-cannot be expressed as a set of positive matches.)  Wed is capable to
-validate such documents. However its capability to edit them is
-currently limited. Wed will actually mark as <strong>read only</strong> elements
-and attributes that are allowed only due to a wildcard. These may not
-be modified in wed. The menu item that wed shows is a warning that the
-schema allows for more than what wed is able to do. If this is a
-problem for you, you should contact whoever provides you with
-technical support to discuss the problem. You may direct them to read
-the explanation that follows.</p>
+<p>In brief, this occurs if the Relax NG schema uses a wildcard (so to speak) that
+allows an unlimited number of possibilities for the name of an element or of an
+attribute. (Or a set of possibilities that cannot be expressed as a set of
+positive matches.)  Wed is able to validate such documents. However its
+capability to edit them is currently limited. Wed will actually mark as <strong>read
+only</strong> elements and attributes that are allowed only due to a wildcard. These
+may not be modified in wed. The menu item that wed shows is a warning that the
+schema allows for more than what wed is able to do. If this is a problem for
+you, you should contact whoever provides you with technical support to discuss
+the problem. You may direct them to read the explanation that follows.</p>
 </div>
 <div class="section" id="long-technical-explanation">
 <h3>Long Technical Explanation<a class="headerlink" href="#long-technical-explanation" title="Permalink to this headline">¶</a></h3>
@@ -1338,7 +1418,7 @@ problems mentioned above.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.30.0-1-g9b8dc6e1-unclean',
+            VERSION:'v1.0.0-1-g6c10f530',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

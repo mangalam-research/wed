@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "rxjs", "../key-constants"], function (require, exports, module, $, rxjs_1, key_constants_1) {
+define(["require", "exports", "jquery", "rxjs/Subject", "../key-constants"], function (require, exports, $, Subject_1, key_constants_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -11,7 +11,7 @@ define(["require", "exports", "module", "jquery", "rxjs", "../key-constants"], f
             /**
              * The object on which this class and subclasses may push new events.
              */
-            this._events = new rxjs_1.Subject();
+            this._events = new Subject_1.Subject();
             /**
              * The observable on which clients can listen for events.
              */
@@ -111,5 +111,4 @@ define(["require", "exports", "module", "jquery", "rxjs", "../key-constants"], f
     }());
     exports.Minibuffer = Minibuffer;
 });
-
 //# sourceMappingURL=minibuffer.js.map

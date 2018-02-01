@@ -1,9 +1,8 @@
-import { Action } from "wed/action";
+import { Action, EditorAPI, gui, ModeValidator, objectCheck } from "wed";
 import { GenericModeOptions, Mode as GenericMode } from "wed/modes/generic/generic";
 import { GenericDecorator } from "wed/modes/generic/generic-decorator";
-import { Template } from "wed/object-check";
-import { ModeValidator } from "wed/validator";
-import { Editor } from "wed/wed";
+import Template = objectCheck.Template;
+import Button = gui.button.Button;
 export declare class TestDecorator extends GenericDecorator {
     private readonly elementLevel;
     protected readonly mode: TestMode;
@@ -28,9 +27,10 @@ export declare class TestMode extends GenericMode<TestModeOptions> {
     private resizableAction;
     private draggableResizableAction;
     readonly optionTemplate: Template;
-    constructor(editor: Editor, options: TestModeOptions);
+    constructor(editor: EditorAPI, options: TestModeOptions);
     init(): Promise<void>;
     getStylesheets(): string[];
+    getToolbarButtons(): Button[];
     getContextualActions(transformationType: string | string[], tag: string, container: Node, offset: number): Action<{}>[];
     makeDecorator(): GenericDecorator;
     getAttributeCompletions(attr: Attr): string[];

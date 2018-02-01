@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "../base-config", "../wed-test-util"], function (require, exports, module, globalConfig, wed_test_util_1) {
+define(["require", "exports", "../base-config", "../wed-test-util"], function (require, exports, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -32,5 +32,4 @@ define(["require", "exports", "module", "../base-config", "../wed-test-util"], f
         });
     });
 });
-
 //# sourceMappingURL=wed-gui-test.js.map

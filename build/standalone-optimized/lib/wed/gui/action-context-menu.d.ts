@@ -8,12 +8,13 @@ export interface Item {
 }
 /**
  * A context menu for displaying actions. This class is designed to know how to
- * sort [["action".Action]] objects and [["transformation".Transformation]]
- * objects and how to filter them. Even though the names used here suggest that
- * ``Action`` objects are the focus of this class, the fact is that it is really
- * performing its work on ``Transformation`` objects. It does accept ``Action``
- * as a kind of lame ``Transformation``. So the following description will focus
- * on ``Transformation`` objects rather than ``Action`` objects.
+ * sort [["wed/action".Action]] objects and
+ * [["wed/transformation".Transformation]] objects and how to filter them. Even
+ * though the names used here suggest that ``Action`` objects are the focus of
+ * this class, the fact is that it is really performing its work on
+ * ``Transformation`` objects. It does accept ``Action`` as a kind of lame
+ * ``Transformation``. So the following description will focus on
+ * ``Transformation`` objects rather than ``Action`` objects.
  *
  * Sorting is performed first by the ``kind`` of the ``Transformation`` and then
  * by the text associated with the ``Transformation``. The kinds, in order, are:

@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "wed/convert", "wed/domutil", "../util"], function (require, exports, module, $, convert, domutil, util_1) {
+define(["require", "exports", "jquery", "wed/convert", "wed/domutil", "../util"], function (require, exports, $, convert, domutil, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -6,6 +6,12 @@ define(["require", "exports", "module", "jquery", "wed/convert", "wed/domutil", 
     function empty(el) {
         // tslint:disable-next-line:no-inner-html
         el.innerHTML = "";
+    }
+    function defined(x) {
+        assert.isDefined(x);
+        // The assertion above already excludes null and undefined, but TypeScript
+        // does not know this.
+        return x;
     }
     var commonMap = {
         // tslint:disable-next-line:no-http-string
@@ -887,6 +893,55 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real \
                 assert.isFalse(domutil.contains(classAttr, ul));
             });
         });
+        describe("comparePositions", function () {
+            var p;
+            before(function () {
+                p = defined(sourceDoc.querySelector("body p"));
+                assert.equal(p.nodeType, Node.ELEMENT_NODE);
+            });
+            it("returns 0 if the two locations are equal", function () {
+                assert.equal(domutil.comparePositions(p, 0, p, 0), 0);
+            });
+            it("returns -1 if the 1st location is before the 2nd", function () {
+                assert.equal(domutil.comparePositions(p, 0, p, 1), -1);
+            });
+            it("returns 1 if the 1st location is after the 2nd", function () {
+                assert.equal(domutil.comparePositions(p, 1, p, 0), 1);
+            });
+            describe("(siblings)", function () {
+                var next;
+                before(function () {
+                    next = defined(p.nextSibling);
+                });
+                it("returns -1 if 1st location precedes 2nd", function () {
+                    assert.equal(domutil.comparePositions(p, 0, next, 0), -1);
+                });
+                it("returns 1 if 1st location follows 2nd", function () {
+                    assert.equal(domutil.comparePositions(next, 0, p, 0), 1);
+                });
+            });
+            describe("(parent - child positions)", function () {
+                var parent;
+                before(function () {
+                    parent = defined(p.parentNode);
+                    // We want to check that we are looking at the p element we think
+                    // we are looking at.
+                    assert.equal(parent.childNodes[0], p);
+                });
+                it("returns -1 if 1st position is a parent position before 2nd", function () {
+                    assert.equal(domutil.comparePositions(parent, 0, p, 0), -1);
+                });
+                it("returns 1 if 1st position is a parent position after 2nd", function () {
+                    assert.equal(domutil.comparePositions(parent, 1, p, 0), 1);
+                });
+                it("returns 1 if 1st position is a child position after 2nd", function () {
+                    assert.equal(domutil.comparePositions(p, 0, parent, 0), 1);
+                });
+                it("returns -1 if 1st position is a child position before 2nd", function () {
+                    assert.equal(domutil.comparePositions(p, 0, parent, 1), -1);
+                });
+            });
+        });
     });
 });
 //  LocalWords:  RequireJS Mangalam MPL Dubeau previousSibling jQuery
@@ -896,5 +951,4 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real \
 //  LocalWords:  firstabcd lastabcd insertIntoText requirejs abcd pre
 //  LocalWords:  splitTextNode prevCaretPosition html isNotNull chai
 //  LocalWords:  domroot nextCaretPosition domutil jquery
-
 //# sourceMappingURL=domutil-test.js.map

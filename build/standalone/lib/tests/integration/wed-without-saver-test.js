@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "../wed-test-util"], function (require, exports, module, wed_test_util_1) {
+define(["require", "exports", "../wed-test-util"], function (require, exports, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var options = {
@@ -36,5 +36,4 @@ define(["require", "exports", "module", "../wed-test-util"], function (require, 
         it("is able to start", function () { });
     });
 });
-
 //# sourceMappingURL=wed-without-saver-test.js.map

@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/dloc", "wed/search", "../base-config", "../wed-test-util"], function (require, exports, module, dloc_1, search_1, globalConfig, wed_test_util_1) {
+define(["require", "exports", "wed/dloc", "wed/search", "../base-config", "../wed-test-util"], function (require, exports, dloc_1, search_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expect = chai.expect;
@@ -30,7 +30,6 @@ define(["require", "exports", "module", "wed/dloc", "wed/search", "../base-confi
             guiRoot = editor.guiRoot;
             dataRoot = editor.dataRoot;
             caretManager = editor.caretManager;
-            caretManager.setCaret(editor.caretManager.minCaret);
             docScope = editor.caretManager.docDLocRange;
             ps = Array.from(editor.dataRoot.querySelectorAll("body p"));
             firstBodyP = ps[0];
@@ -52,6 +51,9 @@ define(["require", "exports", "module", "wed/dloc", "wed/search", "../base-confi
             firstABCAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 0), caretManager.mustFromDataLocation(rend, 3));
             firstABCDAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 0), caretManager.mustFromDataLocation(rend, 4));
             secondABCAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 4), caretManager.mustFromDataLocation(rend, 7));
+        });
+        beforeEach(function () {
+            caretManager.setCaret(editor.caretManager.minCaret);
         });
         afterEach(function () {
             setup.reset();
@@ -458,5 +460,4 @@ define(["require", "exports", "module", "wed/dloc", "wed/search", "../base-confi
         });
     });
 });
-
 //# sourceMappingURL=search-test.js.map

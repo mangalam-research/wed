@@ -1,17 +1,17 @@
 /// <reference types="jquery" />
-import { Listener } from "./domlistener";
+import { DOMListener } from "./domlistener";
 import { GUIUpdater } from "./gui-updater";
 import { Mode } from "./mode";
-import { Editor } from "./wed";
+import { DecoratorAPI, EditorAPI } from "./mode-api";
 /**
  * A decorator is responsible for adding decorations to a tree of DOM
  * elements. Decorations are GUI elements.
  */
-export declare abstract class Decorator {
+export declare abstract class Decorator implements DecoratorAPI {
     protected readonly mode: Mode;
-    protected readonly editor: Editor;
+    protected readonly editor: EditorAPI;
     protected readonly namespaces: Record<string, string>;
-    protected readonly domlistener: Listener;
+    protected readonly domlistener: DOMListener;
     protected readonly guiUpdater: GUIUpdater;
     /**
      * @param domlistener The listener that the decorator must use to know when
@@ -22,7 +22,7 @@ export declare abstract class Decorator {
      * @param guiUpdater The updater to use to modify the GUI tree. All
      * modifications to the GUI must go through this updater.
      */
-    constructor(mode: Mode, editor: Editor);
+    constructor(mode: Mode, editor: EditorAPI);
     /**
      * Request that the decorator add its event handlers to its listener.
      */
@@ -31,30 +31,7 @@ export declare abstract class Decorator {
      * Start listening to changes to the DOM tree.
      */
     startListening(): void;
-    /**
-     * This function adds a separator between each child element of the element
-     * passed as ``el``. The function only considers ``._real`` elements.
-     *
-     * @param el The element to decorate.
-     *
-     * @param sep A separator.
-     */
     listDecorator(el: Element, sep: string | Element): void;
-    /**
-     * Add a start label at the start of an element and an end label at the end.
-     *
-     * @param root The root of the decorated tree.
-     *
-     * @param el The element to decorate.
-     *
-     * @param level The level of the labels for this element.
-     *
-     * @param preContextHandler An event handler to run when the user invokes a
-     * context menu on the start label.
-     *
-     * @param postContextHandler An event handler to run when the user invokes a
-     * context menu on the end label.
-     */
     elementDecorator(root: Element, el: Element, level: number, preContextHandler: ((wedEv: JQueryMouseEventObject, ev: Event) => boolean) | undefined, postContextHandler: ((wedEv: JQueryMouseEventObject, ev: Event) => boolean) | undefined): void;
     /**
      * Determine whether an attribute must be hidden. The default implementation

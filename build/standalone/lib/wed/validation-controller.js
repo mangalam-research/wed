@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domtypeguards", "./domutil", "./guiroot", "./task-runner", "./tasks/process-validation-errors", "./tasks/refresh-validation-errors", "./util", "./wed-util"], function (require, exports, module, salve_1, salve_dom_1, dloc_1, domtypeguards_1, domutil_1, guiroot_1, task_runner_1, process_validation_errors_1, refresh_validation_errors_1, util_1, wed_util_1) {
+define(["require", "exports", "salve", "salve-dom", "./dloc", "./domtypeguards", "./domutil", "./guiroot", "./task-runner", "./tasks/process-validation-errors", "./tasks/refresh-validation-errors", "./util", "./wed-util"], function (require, exports, salve_1, salve_dom_1, dloc_1, domtypeguards_1, domutil_1, guiroot_1, task_runner_1, process_validation_errors_1, refresh_validation_errors_1, util_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var stateToStr = {};
@@ -264,11 +264,24 @@ define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domty
                 if (guiNode === undefined) {
                     return undefined;
                 }
-                if (!domtypeguards_1.isElement(guiNode)) {
-                    throw new Error("attribute name errors should be associated with " +
-                        "elements");
+                // Attribute name errors can have two causes: the attribute is not
+                // allowed, or an attribute is missing. In the former case, the error
+                // points to the attribute node. In the latter case, it points to the
+                // element that's missing the attribute.
+                var insertionNode = void 0;
+                if (domtypeguards_1.isAttr(dataNode)) {
+                    // Spurious attribute.
+                    insertionNode = guiNode;
                 }
-                var insertionNode = guiNode.querySelector("._gui.__start_label ._greater_than");
+                else {
+                    // Missing attribute.
+                    if (!domtypeguards_1.isElement(guiNode)) {
+                        throw new Error("attribute name errors should be associated with " +
+                            "elements");
+                    }
+                    insertionNode =
+                        guiNode.querySelector("._gui.__start_label ._greater_than");
+                }
                 insertAt = dloc_1.DLoc.mustMakeDLoc(this.guiRoot, insertionNode, 0);
             }
             else {
@@ -447,5 +460,4 @@ define(["require", "exports", "module", "salve", "salve-dom", "./dloc", "./domty
 });
 //  LocalWords:  MPL scroller processErrors li markerId loc scrollerPos px
 //  LocalWords:  scrollTop scrollLeft
-
 //# sourceMappingURL=validation-controller.js.map

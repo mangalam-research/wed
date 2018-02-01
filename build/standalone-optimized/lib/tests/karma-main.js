@@ -1,15 +1,27 @@
-/* global Mocha */
+/* global Mocha karmaTestType */
+var baseUrlMap = {
+  unit: "/base/build/standalone/lib/",
+  webpack: "/base/build/packed/lib/",
+};
+var karmaBaseUrl = baseUrlMap[karmaTestType];
+
+if (karmaBaseUrl === undefined) {
+  throw new Error("cannot determine karmaBaseUrl from test type: " +
+                  karmaTestType);
+}
+
 var allTestFiles = [];
 var TEST_REGEXP = /tests(?:\/.*)?\/.*[-_]test\.js$/i;
 // We need to exclude wed_test.js.
 var WED_REGEXP = /\/wed_test\.js$/i;
+var REPLACE_REGEXP = new RegExp("^" + karmaBaseUrl.replace(/\//g, "\\/") +
+                                "|\\.js$", "g");
 
 // Get a list of all the test files to include.
 Object.keys(window.__karma__.files).forEach(function each(file) {
   "use strict";
   if (TEST_REGEXP.test(file) && !WED_REGEXP.test(file)) {
-    var normalizedTestModule =
-        file.replace(/^\/base\/build\/standalone\/lib\/|\.js$/g, "");
+    var normalizedTestModule = file.replace(REPLACE_REGEXP, "");
     allTestFiles.push(normalizedTestModule);
   }
 });
@@ -26,7 +38,7 @@ window.__WED_TESTING = {
 };
 
 require.config({
-  baseUrl: "/base/build/standalone/lib/",
+  baseUrl: karmaBaseUrl,
   paths: {
     sinon: "../../../node_modules/sinon/pkg/sinon",
     "sinon-chai": "../../../node_modules/sinon-chai/lib/sinon-chai",
@@ -35,12 +47,20 @@ require.config({
   },
   map: {
     "*": {
-      "tests/dloc_test_data/source_converted.xml": "text!tests/dloc_test_data/source_converted.xml",
-      "tests/guiroot_test_data/source_converted.xml": "text!tests/guiroot_test_data/source_converted.xml",
       "tests/tree_updater_test_data/source_converted.xml": "text!tests/tree_updater_test_data/source_converted.xml",
     },
   },
 });
+
+if (karmaTestType === "webpack") {
+  // Webpack packs the rxjs files wed uses inside its bundle. So we do not have
+  // rxjs in the external files.
+  require.config({
+    paths: {
+      rxjs: baseUrlMap.unit + "external/rxjs",
+    },
+  });
+}
 
 require(
   ["require", "last-resort", "wed/onerror", "jquery", "bootstrap"],

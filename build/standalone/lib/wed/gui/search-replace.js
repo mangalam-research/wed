@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "../dloc", "../domutil", "../search"], function (require, exports, module, dloc_1, domutil_1, search_1) {
+define(["require", "exports", "../dloc", "../domutil", "../search"], function (require, exports, dloc_1, domutil_1, search_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Context = search_1.Context;
@@ -106,7 +106,7 @@ define(["require", "exports", "module", "../dloc", "../domutil", "../search"], f
                 var domRange = range.mustMakeDOMRange();
                 this.highlight = this.caretManager.highlightRange(range);
                 var scRect = this.scroller.getBoundingClientRect();
-                var rect = domRange.nativeRange.getBoundingClientRect();
+                var rect = domRange.getBoundingClientRect();
                 var leftOffset = this.scroller.scrollLeft - scRect.left;
                 var topOffset = this.scroller.scrollTop - scRect.top;
                 this.scroller.scrollIntoView(rect.left + leftOffset, rect.top + topOffset, rect.right + leftOffset, rect.bottom + topOffset);
@@ -188,5 +188,4 @@ define(["require", "exports", "module", "../dloc", "../domutil", "../search"], f
     }());
     exports.SearchReplace = SearchReplace;
 });
-
 //# sourceMappingURL=search-replace.js.map

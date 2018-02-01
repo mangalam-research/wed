@@ -1,6 +1,5 @@
-import { Runtime } from "../runtime";
-import * as saver from "../saver";
-import { TreeUpdater } from "../tree-updater";
+import { Runtime, saver, treeUpdater } from "wed";
+import TreeUpdater = treeUpdater.TreeUpdater;
 export interface Options extends saver.SaverOptions {
     /** The URL location to POST save requests. */
     url: string;

@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "rxjs", "./browsers", "./serializer"], function (require, exports, module, rxjs_1, browsers, serializer) {
+define(["require", "exports", "rxjs/Subject", "./browsers", "./serializer"], function (require, exports, Subject_1, browsers, serializer) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var SaveKind;
@@ -87,7 +87,7 @@ define(["require", "exports", "module", "rxjs", "./browsers", "./serializer"], f
              * @private
              */
             this._boundAutosave = this._autosave.bind(this);
-            this._events = new rxjs_1.Subject();
+            this._events = new Subject_1.Subject();
             this.events = this._events.asObservable();
             if (options.autosave !== undefined) {
                 this.setAutosaveInterval(options.autosave * 1000);
@@ -111,7 +111,11 @@ define(["require", "exports", "module", "rxjs", "./browsers", "./serializer"], f
             if (browsers.MSIE) {
                 return serializer.serialize(child);
             }
-            return child.outerHTML;
+            var serialization = child.outerHTML;
+            // Edge has the bad habit of adding a space before the forward slash in
+            // self-closing tags. Remove it.
+            return browsers.EDGE ? serialization.replace(/<([^/<>]+) \/>/g, "<$1/>") :
+                serialization;
         };
         /**
          * Must be called by derived class upon a successful save.
@@ -248,5 +252,4 @@ define(["require", "exports", "module", "rxjs", "./browsers", "./serializer"], f
 });
 //  LocalWords:  param unintialized Mangalam MPL Dubeau autosaved autosaves pre
 //  LocalWords:  autosave runtime autosaving setAutosaveInterval setTimeout
-
 //# sourceMappingURL=saver.js.map

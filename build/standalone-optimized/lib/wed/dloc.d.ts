@@ -1,4 +1,3 @@
-import * as rangy from "rangy";
 import { Caret, RangeInfo } from "./domutil";
 export declare type ValidRoots = Document | Element;
 /**
@@ -177,7 +176,7 @@ export declare class DLoc {
      * @throws {Error} If trying to make a range from an attribute node. DOM
      * ranges can only point into elements or text nodes.
      */
-    makeRange(): rangy.RangyRange | undefined;
+    makeRange(): Range | undefined;
     makeRange(other: DLoc): RangeInfo | undefined;
     /**
      * Make a range from this location. If ``other`` is not specified, the range
@@ -278,11 +277,11 @@ export declare class DLocRange {
      * @throws {Error} If trying to make a range from an attribute node. DOM
      * ranges can only point into elements or text nodes.
      */
-    makeDOMRange(): rangy.RangyRange | undefined;
+    makeDOMRange(): Range | undefined;
     /**
      * Same as [[makeDOMRange]] but throws instead of returning ``undefined``.
      */
-    mustMakeDOMRange(): rangy.RangyRange;
+    mustMakeDOMRange(): Range;
     /**
      * @returns Whether ``this`` and ``other`` are equal. They are equal if they
      * are the same object or if they have equal start and ends.

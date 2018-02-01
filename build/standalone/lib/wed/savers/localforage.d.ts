@@ -1,7 +1,6 @@
 /// <reference types="localforage" />
-import { Runtime } from "../runtime";
-import * as saver from "../saver";
-import { TreeUpdater } from "../tree-updater";
+import { Runtime, saver, treeUpdater } from "wed";
+import TreeUpdater = treeUpdater.TreeUpdater;
 /**
  * Create a localforage store instance. If you have code that needs to
  * access the store that this saver uses. You need to call this

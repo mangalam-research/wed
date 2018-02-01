@@ -39,9 +39,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "blueimp-md5", "chai", "qs", "sinon", "wed/domutil", "wed/onerror", "wed/wed", "./util"], function (require, exports, module, md5, chai_1, qs, sinon, domutil_1, onerror, wed_1, util_1) {
+define(["require", "exports", "blueimp-md5", "chai", "qs", "sinon", "wed", "wed/onerror", "./util"], function (require, exports, md5, chai_1, qs, sinon, wed_1, onerror, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var childByClass = wed_1.domutil.childByClass, childrenByClass = wed_1.domutil.childrenByClass;
     function activateContextMenu(editor, el) {
         // tslint:disable-next-line:no-any
         function computeValues() {
@@ -88,11 +89,11 @@ equal to the expected count");
     }
     exports.contextMenuHasOption = contextMenuHasOption;
     function firstGUI(container) {
-        return domutil_1.childByClass(container, "_gui");
+        return childByClass(container, "_gui");
     }
     exports.firstGUI = firstGUI;
     function lastGUI(container) {
-        var children = domutil_1.childrenByClass(container, "_gui");
+        var children = childrenByClass(container, "_gui");
         var last = children[children.length - 1];
         return last !== undefined ? last : null;
     }
@@ -140,6 +141,12 @@ equal to the expected count");
             this.tooOldOnSave = false;
             // tslint:disable-next-line:no-any
             var xhr = server.xhr;
+            this.xhr = xhr;
+            // We must save and restore the filter state ourselves because Sinon does
+            // not do it. Fake servers don't restore it, nor do sandboxes.
+            this.oldUseFilters = xhr.useFilters;
+            // tslint:disable-next-line:no-any
+            this.oldFilters = xhr.filters;
             xhr.useFilters = true;
             xhr.addFilter(function (method, url) {
                 return !/^\/build\/ajax\//.test(url);
@@ -169,6 +176,12 @@ equal to the expected count");
             this.failOnSave = false;
             this.preconditionFailOnSave = false;
             this.tooOldOnSave = false;
+        };
+        WedServer.prototype.restore = function () {
+            var xhr = this.xhr;
+            xhr.useFilters = this.oldUseFilters;
+            // tslint:disable-next-line:no-any
+            xhr.filters = this.oldFilters;
         };
         WedServer.prototype.decode = function (request) {
             var contentType = request.requestHeaders["Content-Type"];
@@ -224,10 +237,6 @@ equal to the expected count");
         return WedServer;
     }());
     exports.WedServer = WedServer;
-    function setupServer(server) {
-        new WedServer(server);
-    }
-    exports.setupServer = setupServer;
     function makeWedRoot(doc) {
         var wedroot = document.createElement("div");
         wedroot.className = "wed-widget container";
@@ -254,7 +263,7 @@ equal to the expected count");
             this.server = new WedServer(this.sandbox.server);
             this.wedroot = makeWedRoot(document);
             doc.body.appendChild(this.wedroot);
-            this.editor = new wed_1.Editor(this.wedroot, options);
+            this.editor = wed_1.makeEditor(this.wedroot, options);
         }
         EditorSetup.prototype.init = function () {
             return __awaiter(this, void 0, void 0, function () {
@@ -276,6 +285,12 @@ equal to the expected count");
             editor.undoAll();
             editor.resetLabelVisibilityLevel();
             editor.editingMenuManager.dismiss();
+            // We set the caret to a position that will trigger some display changes
+            // (e.g. hide attributes).
+            editor.caretManager.setCaret(editor.caretManager.minCaret);
+            // Then we clear the selection to reset the caret to undefined. The mark
+            // will still be visible, but that's not an issue.
+            editor.caretManager.clearSelection();
             this.server.reset();
             errorCheck();
         };
@@ -283,6 +298,7 @@ equal to the expected count");
             if (this.editor !== undefined) {
                 this.editor.destroy();
             }
+            this.server.restore();
             errorCheck();
             if (this.wedroot !== undefined) {
                 document.body.removeChild(this.wedroot);
@@ -299,5 +315,4 @@ equal to the expected count");
     }());
     exports.EditorSetup = EditorSetup;
 });
-
 //# sourceMappingURL=wed-test-util.js.map

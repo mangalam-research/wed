@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "jquery", "../domutil", "bootstrap"], function (require, exports, module, $, domutil) {
+define(["require", "exports", "jquery", "../domutil", "bootstrap"], function (require, exports, $, domutil) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -31,14 +31,13 @@ define(["require", "exports", "module", "jquery", "../domutil", "bootstrap"], fu
             if (immediateDisplay === void 0) { immediateDisplay = true; }
             this.dismissCallback = dismissCallback;
             this.dismissed = false;
-            var dropdown = document.createElement("div");
+            var dropdown = this.dropdown = document.createElement("div");
             dropdown.className = "dropdown wed-context-menu";
             // tslint:disable-next-line:no-inner-html
             dropdown.innerHTML =
                 // This fake toggle is required for bootstrap to do its work.
                 "<a href='#' data-toggle='dropdown'></a>" +
                     "<ul class='dropdown-menu' role='menu'></ul>";
-            var menu = dropdown.lastElementChild;
             // We move the top and left so that we appear under the mouse cursor.
             // Hackish, but it works. If we don't do this, then the mousedown that
             // brought the menu up also registers as a click on the body element and the
@@ -50,21 +49,23 @@ define(["require", "exports", "module", "jquery", "../domutil", "bootstrap"], fu
             dropdown.style.left = x + "px";
             this.x = x;
             this.y = y;
-            var $menu = $(menu);
-            this.menu = menu;
-            this.$menu = $menu;
-            this.dropdown = dropdown;
-            this.backdrop = document.createElement("div");
-            this.backdrop.className = "wed-context-menu-backdrop";
-            $(this.backdrop).click(this.backdropClickHandler.bind(this));
+            var menu = this.menu = dropdown.lastElementChild;
+            var $menu = this.$menu = $(menu);
+            var toggle = this.toggle = dropdown.firstElementChild;
+            var $toggle = this.$toggle = $(toggle);
+            var backdrop = this.backdrop = document.createElement("div");
+            backdrop.className = "wed-context-menu-backdrop";
+            $(backdrop).click(this.backdropClickHandler.bind(this));
             $menu.on("click", this.contentsClickHandler.bind(this));
+            // Bootstrap may dispatch clicks onto the toggle. We must catch them.
+            $toggle.on("click", this.contentsClickHandler.bind(this));
             $menu.on("mousedown", function (ev) {
                 ev.stopPropagation();
             });
             $(dropdown).on("contextmenu mouseup", false);
             var body = document.body;
             body.insertBefore(dropdown, body.firstChild);
-            body.insertBefore(this.backdrop, body.firstChild);
+            body.insertBefore(backdrop, body.firstChild);
             if (immediateDisplay) {
                 this.display(items);
             }
@@ -181,5 +182,4 @@ define(["require", "exports", "module", "jquery", "../domutil", "bootstrap"], fu
 //  LocalWords:  contextmenu mousedown dropdown tabindex href gui MPL px
 //  LocalWords:  Mangalam Dubeau ul jQuery Prepend util jquery mouseup winWidth
 //  LocalWords:  dropdowns
-
 //# sourceMappingURL=context-menu.js.map

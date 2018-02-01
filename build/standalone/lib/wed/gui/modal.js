@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "./interactivity", "bootstrap"], function (require, exports, module, $, interactivity_1) {
+define(["require", "exports", "jquery", "./interactivity", "bootstrap"], function (require, exports, $, interactivity_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -209,5 +209,4 @@ define(["require", "exports", "module", "jquery", "./interactivity", "bootstrap"
 //  LocalWords:  getTopLevel btn param jQuery bs resizestart href jquery px pre
 //  LocalWords:  mymodal setTitle setBody addYesNo rect getClickedAsText Dubeau
 //  LocalWords:  MPL Mangalam DOM Ok
-
 //# sourceMappingURL=modal.js.map

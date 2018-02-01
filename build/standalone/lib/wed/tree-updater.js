@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, module, rxjs_1, dloc_1, domtypeguards_1, domutil) {
+define(["require", "exports", "rxjs/Subject", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, Subject_1, dloc_1, domtypeguards_1, domutil) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var indexOf = domutil.indexOf;
@@ -64,7 +64,7 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
                 throw new Error("the tree must have a DLocRoot");
             }
             this.dlocRoot = root;
-            this._events = new rxjs_1.Subject();
+            this._events = new Subject_1.Subject();
             this.events = this._events.asObservable();
         }
         TreeUpdater.prototype._emit = function (event) {
@@ -640,5 +640,4 @@ define(["require", "exports", "module", "rxjs", "./dloc", "./domtypeguards", "./
 //  LocalWords:  Dubeau Mangalam BeforeInsertNodeAt BeforeDeleteNode DLocRoot
 //  LocalWords:  SetAttributeNS NodeList nodeType beforeThis nd setAttribute
 //  LocalWords:  caretAtEnd
-
 //# sourceMappingURL=tree-updater.js.map

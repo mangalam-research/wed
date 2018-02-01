@@ -1,4 +1,3 @@
-import { CheckedObject } from "./object-check";
 /**
  * A model for preferences. The preferences stored in this object must be
  * serializable as JSON. The class itself does not enforce this, so callers must
@@ -7,17 +6,17 @@ import { CheckedObject } from "./object-check";
 export declare class Preferences {
     private readonly prefs;
     /**
-     * @param {Object} [initial={}] The initial preferences.
+     * @param initial initial preferences.
      * @throws {Error} If there is any error in the preferences.
      */
-    constructor(initial?: CheckedObject);
+    constructor(initial?: {});
     /**
      * Validates a set of preferences.
      *
      * @param prefs The preferences to validate.
      * @throws {Error} If there is any error in the preferences.
      */
-    _validatePrefs(prefs: CheckedObject): void;
+    _validatePrefs(prefs: {}): void;
     /**
      * Gets a preference value.
      *

@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "sinon", "wed/gui/typeahead-popup"], function (require, exports, module, sinon, typeahead_popup_1) {
+define(["require", "exports", "sinon", "wed/gui/typeahead-popup"], function (require, exports, sinon, typeahead_popup_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -78,5 +78,4 @@ define(["require", "exports", "module", "sinon", "wed/gui/typeahead-popup"], fun
         });
     });
 });
-
 //# sourceMappingURL=typeahead-popup-test.js.map

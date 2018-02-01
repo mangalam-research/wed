@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "wed/gui/modal", "../../wed-test-util"], function (require, exports, module, $, modal_1, wed_test_util_1) {
+define(["require", "exports", "jquery", "wed/gui/modal", "../../wed-test-util"], function (require, exports, $, modal_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -197,5 +197,4 @@ define(["require", "exports", "module", "jquery", "wed/gui/modal", "../../wed-te
 //  LocalWords:  gui jQuery jquery Dubeau MPL Mangalam btn getClicked
 //  LocalWords:  getClickedAsText Ok getPrimary addButton setFooter
 //  LocalWords:  setBody setTitle chai wedframe wedroot
-
 //# sourceMappingURL=modal-test.js.map

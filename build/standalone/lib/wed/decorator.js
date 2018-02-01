@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "jquery", "./dloc", "./domtypeguards", "./domutil", "./gui/action-context-menu", "./util"], function (require, exports, module, $, dloc_1, domtypeguards_1, domutil, action_context_menu_1, util) {
+define(["require", "exports", "jquery", "./dloc", "./domtypeguards", "./domutil", "./gui/action-context-menu", "./util"], function (require, exports, $, dloc_1, domtypeguards_1, domutil, action_context_menu_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var indexOf = domutil.indexOf;
@@ -47,14 +47,6 @@ define(["require", "exports", "module", "jquery", "./dloc", "./domtypeguards", "
         Decorator.prototype.startListening = function () {
             this.domlistener.startListening();
         };
-        /**
-         * This function adds a separator between each child element of the element
-         * passed as ``el``. The function only considers ``._real`` elements.
-         *
-         * @param el The element to decorate.
-         *
-         * @param sep A separator.
-         */
         Decorator.prototype.listDecorator = function (el, sep) {
             if (this.editor.modeTree.getMode(el) !== this.mode) {
                 // The element is not governed by this mode.
@@ -114,21 +106,6 @@ define(["require", "exports", "module", "jquery", "./dloc", "./domtypeguards", "
                 child = child.nextElementSibling;
             }
         };
-        /**
-         * Add a start label at the start of an element and an end label at the end.
-         *
-         * @param root The root of the decorated tree.
-         *
-         * @param el The element to decorate.
-         *
-         * @param level The level of the labels for this element.
-         *
-         * @param preContextHandler An event handler to run when the user invokes a
-         * context menu on the start label.
-         *
-         * @param postContextHandler An event handler to run when the user invokes a
-         * context menu on the end label.
-         */
         Decorator.prototype.elementDecorator = function (root, el, level, preContextHandler, postContextHandler) {
             if (this.editor.modeTree.getMode(el) !== this.mode) {
                 // The element is not governed by this mode.
@@ -284,11 +261,12 @@ define(["require", "exports", "module", "jquery", "./dloc", "./domtypeguards", "
         // tslint:disable-next-line:max-func-body-length
         Decorator.prototype.contextMenuHandler = function (atStart, wedEv, ev) {
             var editor = this.editor;
+            var editingMenuManager = editor.editingMenuManager;
             var node = wedEv.target;
             var menuItems = [];
             var mode = editor.modeTree.getMode(node);
             function pushItem(data, tr, start) {
-                var li = editor.editingMenuManager.makeMenuItemForAction(tr, data, start);
+                var li = editingMenuManager.makeMenuItemForAction(tr, data, start);
                 menuItems.push({ action: tr, item: li, data: data });
             }
             function pushItems(data, trs, start) {
@@ -357,14 +335,10 @@ define(["require", "exports", "module", "jquery", "./dloc", "./domtypeguards", "
                 }
                 node = candidate;
                 var topNode = (node.parentNode === editor.guiRoot);
+                menuItems.push.apply(menuItems, editingMenuManager.makeCommonItems(editor.toDataNode(node)));
                 // We first gather the transformations that pertain to the node to which
                 // the label belongs.
                 var orig = util.getOriginalName(node);
-                var docURL = mode.documentationLinkFor(orig);
-                if (docURL != null) {
-                    var li = this.editor.editingMenuManager.makeDocumentationMenuItem(docURL);
-                    menuItems.push({ action: null, item: li, data: null });
-                }
                 if (!topNode) {
                     pushItems({ node: node, name: orig }, mode.getContextualActions(["unwrap", "delete-element"], orig, $.data(node, "wed_mirror_node"), 0));
                 }
@@ -421,9 +395,7 @@ define(["require", "exports", "module", "jquery", "./dloc", "./domtypeguards", "
             if (menuItems.length === 0) {
                 return true;
             }
-            var pos = editor.editingMenuManager.computeMenuPosition(ev);
-            editor.editingMenuManager
-                .displayContextMenu(action_context_menu_1.ActionContextMenu, pos.left, pos.top, menuItems, readonly);
+            editingMenuManager.setupContextMenu(action_context_menu_1.ActionContextMenu, menuItems, readonly, ev);
             return false;
         };
         return Decorator;
@@ -434,5 +406,4 @@ define(["require", "exports", "module", "jquery", "./dloc", "./domtypeguards", "
 //  LocalWords:  PossibleDueToWildcard Dubeau MPL Mangalam attributesHTML util
 //  LocalWords:  jquery validator domutil domlistener gui autohidden jQuery cls
 //  LocalWords:  listDecorator origName li nbsp lt el sep
-
 //# sourceMappingURL=decorator.js.map

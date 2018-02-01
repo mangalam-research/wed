@@ -3,31 +3,106 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "salve", "wed/util"], function (require, exports, module, salve_1, util) {
+define(["require", "exports", "salve", "wed/util"], function (require, exports, salve_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
+    var expect = chai.expect;
     describe("util", function () {
-        describe("decode attribute name", function () {
-            it("no prefix", function () {
-                assert.equal(util.decodeAttrName("data-wed-blah"), "blah");
-            });
-            it("prefix", function () {
-                assert.equal(util.decodeAttrName("data-wed-btw---blah"), "btw:blah");
-            });
-            it("prefix dashes", function () {
-                assert.equal(util.decodeAttrName("data-wed-btw---blah-one--two----three-----four"), "btw:blah-one--two---three----four");
+        describe("stringToCodeSequence", function () {
+            it("converts a string", function () {
+                expect(util.stringToCodeSequence("abc")).to.equal("x61x62x63");
             });
         });
-        describe("encode attribute name", function () {
-            it("no prefix", function () {
-                assert.equal(util.encodeAttrName("blah"), "data-wed-blah");
+        describe("codeSequenceToString", function () {
+            it("converts back a sequence", function () {
+                expect(util.codeSequenceToString("x61x62x63")).to.equal("abc");
             });
-            it("prefix", function () {
-                assert.equal(util.encodeAttrName("btw:blah"), "data-wed-btw---blah");
+            it("throws an error on incorrect strings", function () {
+                expect(function () { return util.codeSequenceToString("x"); }).to.throw(Error);
+                expect(function () { return util.codeSequenceToString("x61x"); }).to.throw(Error);
+                expect(function () { return util.codeSequenceToString("x61q"); }).to.throw(Error);
+                // We allow only lowercase hex.
+                expect(function () { return util.codeSequenceToString("x6F"); }).to.throw(Error);
             });
-            it("prefix dashes", function () {
-                assert.equal(util.encodeAttrName("btw:blah-one--two---three----four"), "data-wed-btw---blah-one--two----three-----four");
+        });
+        describe("encodeDiff", function () {
+            it("produces an empty diff for as-is cases", function () {
+                expect(util.encodeDiff("abc", "abc")).to.equal("");
+            });
+            it("produces a diff for cases that are not as-is", function () {
+                expect(util.encodeDiff("Abc", "abc")).to.equal("u1");
+                expect(util.encodeDiff("abC", "abc")).to.equal("g2u1");
+                expect(util.encodeDiff("abCdexFGh", "abcdexfgh"))
+                    .to.equal("g2u1g3u2");
+                // The treatment of "C" cannot be handled with the u operation because the
+                // diff removes "abc" and then adds "C", and "abc" in uppercase is not
+                // "C". The algorithm *could* be modified to handle this, but this is an a
+                // case that won't actually happen with "real" data, and the few rare
+                // cases that happens in languages other than English are not worth the
+                // development expense.
+                expect(util.encodeDiff("CdexFGh", "abcdexfgh"))
+                    .to.equal("m3px43g3u2");
+            });
+        });
+        describe("decodeDiff", function () {
+            it("returns name unchanged for empty diff", function () {
+                expect(util.decodeDiff("abc", "")).to.equal("abc");
+            });
+            it("decodes diffs properly", function () {
+                expect(util.decodeDiff("abc", "u1")).to.equal("Abc");
+                expect(util.decodeDiff("abc", "g2u1")).to.equal("abC");
+                expect(util.decodeDiff("abCdexFGh", "g2u1g3u2")).to.equal("abCdexFGh");
+            });
+            it("throws on bad input", function () {
+                expect(function () { return util.decodeDiff("abc", "q1"); }).to.throw(Error);
+                expect(function () { return util.decodeDiff("abc", "g2uz"); }).to.throw(Error);
+            });
+        });
+        describe("decodeAttrName", function () {
+            it("without namespace prefix", function () {
+                expect(util.decodeAttrName("data-wed-blah-"))
+                    .to.deep.equal({ name: "blah", qualifier: undefined });
+            });
+            it("with a namespace prefix", function () {
+                expect(util.decodeAttrName("data-wed-btw---blah-"))
+                    .to.deep.equal({ name: "btw:blah", qualifier: undefined });
+            });
+            it("with dashes in the name", function () {
+                expect(util.decodeAttrName("data-wed-btw---blah-one--two----three-----four-"))
+                    .to.deep.equal({ name: "btw:blah-one--two---three----four",
+                    qualifier: undefined });
+            });
+            it("with qualifier", function () {
+                expect(util.decodeAttrName("data-wed--ns-blah-"))
+                    .to.deep.equal({ name: "blah", qualifier: "ns" });
+            });
+            it("with a name that cannot be represented as-is", function () {
+                expect(util.decodeAttrName("data-wed-moo---abc----def-u3g2u1"))
+                    .to.deep.equal({ name: "MOO:aBc---def", qualifier: undefined });
+            });
+            it("throws on bad input", function () {
+                expect(function () { return util.decodeAttrName("data-moo--ns-blah-"); }).to.throw(Error);
+                expect(function () { return util.decodeAttrName("data-wed--ns-blah"); }).to.throw(Error);
+                expect(function () { return util.decodeAttrName("data-wed--ns-blah-x1"); })
+                    .to.throw(Error);
+            });
+        });
+        describe("encodeAttrName", function () {
+            it("without namespace prefix", function () {
+                assert.equal(util.encodeAttrName("blah"), "data-wed-blah-");
+            });
+            it("with a namespace prefix", function () {
+                assert.equal(util.encodeAttrName("btw:blah"), "data-wed-btw---blah-");
+            });
+            it("with dashes in the name", function () {
+                assert.equal(util.encodeAttrName("btw:blah-one--two---three----four"), "data-wed-btw---blah-one--two----three-----four-");
+            });
+            it("with a name that cannot be represented as-is", function () {
+                assert.equal(util.encodeAttrName("MOO:aBc---def"), "data-wed-moo---abc----def-u3g2u1");
+            });
+            it("with qualifier", function () {
+                assert.equal(util.encodeAttrName("blah", "ns"), "data-wed--ns-blah-");
             });
         });
         describe("classFromOriginalName", function () {
@@ -137,5 +212,4 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real");
 //  LocalWords:  requirejs util chai classFromOriginalName namespace
 //  LocalWords:  distFromDeltas btw distFromRect li Dubeau MPL
 //  LocalWords:  Mangalam RequireJS
-
 //# sourceMappingURL=util-test.js.map

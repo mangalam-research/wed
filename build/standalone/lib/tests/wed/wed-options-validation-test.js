@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "chai", "wed/wed-options-validation"], function (require, exports, module, chai_1, wed_options_validation_1) {
+define(["require", "exports", "chai", "wed/wed-options-validation"], function (require, exports, chai_1, wed_options_validation_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:missing-jsdoc
@@ -111,5 +111,4 @@ define(["require", "exports", "module", "chai", "wed/wed-options-validation"], f
         });
     });
 });
-
 //# sourceMappingURL=wed-options-validation-test.js.map

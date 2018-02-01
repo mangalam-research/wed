@@ -1,4 +1,3 @@
-import * as rangy from "rangy";
 import { isAttr } from "./domtypeguards";
 /**
  * Search an array.
@@ -12,6 +11,25 @@ import { isAttr } from "./domtypeguards";
 export declare function indexOf(a: NodeList, target: Node): number;
 export declare function indexOf<T>(a: T[], target: T): number;
 /**
+ * Compare two positions in document order.
+ *
+ * This function relies on DOM's ``compareDocumentPosition`` function. Remember
+ * that calling that function with attributes can be problematic. (For instance,
+ * two attributes on the same element are not ordered.)
+ *
+ * @param firstNode Node of the first position.
+ *
+ * @param firstOffset Offset of the first position.
+ *
+ * @param secondNode Node of the second position.
+ *
+ * @param secondOffset Offset of the second position.
+ *
+ * @returns -1 if the first position comes before the second. 1 if the first
+ * position comes after the other. 0 if the two positions are equal.
+ */
+export declare function comparePositions(firstNode: Node, firstOffset: number, secondNode: Node, secondOffset: number): 1 | 0 | -1;
+/**
  * Gets the first range in the selection.
  *
  * @param win The window for which we want the selection.
@@ -19,7 +37,7 @@ export declare function indexOf<T>(a: T[], target: T): number;
  * @returns The first range in the selection. Undefined if there is no selection
  * or no range.
  */
-export declare function getSelectionRange(win: Window): rangy.RangyRange | undefined;
+export declare function getSelectionRange(win: Window): Range | undefined;
 /**
  * A range and a flag indicating whether it is a reversed range or not. Range
  * objects themselves do not record how they were created. If the range was
@@ -27,7 +45,7 @@ export declare function getSelectionRange(win: Window): rangy.RangyRange | undef
  * document order), then the range is "reversed".
  */
 export declare type RangeInfo = {
-    range: rangy.RangyRange;
+    range: Range;
     reversed: boolean;
 };
 /**
@@ -587,8 +605,8 @@ export declare function isNotDisplayed(el: HTMLElement, root: HTMLElement | HTML
  * GUI tree because we do not address attributes in that tree. There is,
  * however, no harm in using it where it is not strictly needed. In the data
  * tree, however, we do address attributes. Code that works with either tree
- * (e.g. the [["dloc"]] module) should use this function as a general rule so
- * that it can work with either tree.
+ * (e.g. the [["wed/dloc"]] module) should use this function as a general rule
+ * so that it can work with either tree.
  *
  * @param container The thing which should contain in the test.
  *

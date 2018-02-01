@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "chai", "wed/undo"], function (require, exports, module, chai_1, undo_1) {
+define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first", "chai", "wed/undo"], function (require, exports, elementAt_1, first_1, chai_1, undo_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable:no-any
@@ -24,10 +24,10 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
             object[name] = true;
             return _this;
         }
-        MyUndo.prototype.undo = function () {
+        MyUndo.prototype.performUndo = function () {
             this.object[this.name] = false;
         };
-        MyUndo.prototype.redo = function () {
+        MyUndo.prototype.performRedo = function () {
             this.object[this.name] = true;
         };
         return MyUndo;
@@ -40,6 +40,194 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
         }
         return MyGroup;
     }(undo_1.UndoGroup));
+    // tslint:disable-next-line:completed-docs
+    var Tracker = /** @class */ (function () {
+        function Tracker() {
+            this.flags = [];
+            this._ordered = true;
+        }
+        Tracker.prototype.wrap = function (real) {
+            var _this = this;
+            var index = this.flags.length;
+            this.flags.push(false);
+            return function (arg) {
+                if (index > 0) {
+                    _this._ordered = _this.flags.slice(0, index).every(function (x) { return x; });
+                }
+                _this.flags[index] = true;
+                real(arg);
+            };
+        };
+        Object.defineProperty(Tracker.prototype, "allCalled", {
+            /** True if all wrappers were called. */
+            get: function () {
+                return this.flags.every(function (x) { return x; });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Tracker.prototype, "ordered", {
+            /** True if the wrappers were called in the same order as created. */
+            get: function () {
+                return this._ordered;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Tracker;
+    }());
+    describe("Undo", function () {
+        var obj;
+        var undo;
+        beforeEach(function () {
+            obj = {};
+            undo = new MyUndo("foo", obj);
+        });
+        describe("undo", function () {
+            it("performs the undo", function () {
+                undo.undo();
+                chai_1.expect(obj).to.have.property("foo").false;
+            });
+            it("emits an UndoEvent after the undo is done", function () {
+                var tracker = new Tracker();
+                undo.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Undo",
+                        undo: undo,
+                    });
+                    chai_1.expect(obj).to.have.property("foo").false;
+                }));
+                undo.undo();
+                chai_1.expect(tracker).to.have.property("allCalled").true;
+            });
+        });
+        describe("redo", function () {
+            it("performs the redo", function () {
+                undo.redo();
+                chai_1.expect(obj).to.have.property("foo").equal(true);
+            });
+            it("emits an RedoEvent after the redo is done", function () {
+                var tracker = new Tracker();
+                undo.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Redo",
+                        undo: undo,
+                    });
+                    chai_1.expect(obj).to.have.property("foo").true;
+                }));
+                undo.redo();
+                chai_1.expect(tracker).to.have.property("allCalled").true;
+            });
+        });
+    });
+    describe("UndoGroup", function () {
+        var obj;
+        var group;
+        var firstUndo;
+        var secondUndo;
+        beforeEach(function () {
+            obj = {
+                foo: null,
+                bar: null,
+            };
+            group = new undo_1.UndoGroup("group");
+            firstUndo = new MyUndo("foo", obj);
+            group.record(firstUndo);
+            secondUndo = new MyUndo("bar", obj);
+            group.record(secondUndo);
+        });
+        describe("undo", function () {
+            it("undoes all", function () {
+                group.undo();
+                chai_1.expect(obj).to.deep.equal({
+                    foo: false,
+                    bar: false,
+                });
+            });
+            it("emits UndoEvents for all undos", function () {
+                var tracker = new Tracker();
+                group.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Undo",
+                        undo: secondUndo,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        foo: true,
+                        bar: false,
+                    });
+                }));
+                group.events.pipe(elementAt_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Undo",
+                        undo: firstUndo,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        foo: false,
+                        bar: false,
+                    });
+                }));
+                group.events.pipe(elementAt_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Undo",
+                        undo: group,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        foo: false,
+                        bar: false,
+                    });
+                }));
+                group.undo();
+                chai_1.expect(tracker).to.have.property("allCalled").true;
+                chai_1.expect(tracker).to.have.property("ordered").true;
+            });
+        });
+        describe("redo", function () {
+            it("redoes all", function () {
+                group.redo();
+                chai_1.expect(obj).to.deep.equal({
+                    foo: true,
+                    bar: true,
+                });
+            });
+            it("emits RedoEvents for all redos", function () {
+                group.undo();
+                var tracker = new Tracker();
+                group.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Redo",
+                        undo: firstUndo,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        foo: true,
+                        bar: false,
+                    });
+                }));
+                group.events.pipe(elementAt_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Redo",
+                        undo: secondUndo,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        foo: true,
+                        bar: true,
+                    });
+                }));
+                group.events.pipe(elementAt_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Redo",
+                        undo: group,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        foo: true,
+                        bar: true,
+                    });
+                }));
+                group.redo();
+                chai_1.expect(tracker).to.have.property("allCalled").true;
+                chai_1.expect(tracker).to.have.property("ordered").true;
+            });
+        });
+    });
     describe("UndoList", function () {
         var obj;
         var ul;
@@ -110,7 +298,7 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
                 ul.startGroup(new MyGroup("group2"));
                 ul.endGroup();
                 ul.endGroup();
-                chai_1.assert.equal(ul.list[0].desc, "group1");
+                chai_1.assert.equal(ul.list[0].undo.desc, "group1");
                 chai_1.assert.equal(ul.list.length, 1);
             });
             it("triggers the end() method on a group", function () {
@@ -221,8 +409,8 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
                 ul.record(undo2);
                 // Peek in to make sure things are recorded.
                 chai_1.assert.equal(ul.list.length, 2);
-                chai_1.assert.strictEqual(ul.list[0], undo1);
-                chai_1.assert.strictEqual(ul.list[1], undo2);
+                chai_1.assert.strictEqual(ul.list[0].undo, undo1);
+                chai_1.assert.strictEqual(ul.list[1].undo, undo2);
             });
             it("overwrites old history", function () {
                 var undo1 = new MyUndo("undo1", obj);
@@ -242,10 +430,10 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
                 var undo6 = new MyUndo("undo6", obj);
                 ul.record(undo6);
                 chai_1.assert.equal(ul.list.length, 4);
-                chai_1.assert.strictEqual(ul.list[0], undo1);
-                chai_1.assert.strictEqual(ul.list[1], undo2);
-                chai_1.assert.strictEqual(ul.list[2], undo5);
-                chai_1.assert.strictEqual(ul.list[3], undo6);
+                chai_1.assert.strictEqual(ul.list[0].undo, undo1);
+                chai_1.assert.strictEqual(ul.list[1].undo, undo2);
+                chai_1.assert.strictEqual(ul.list[2].undo, undo5);
+                chai_1.assert.strictEqual(ul.list[3].undo, undo6);
             });
             it("records into the group when a group is in effect", function () {
                 var group1 = new MyGroup("group1");
@@ -260,9 +448,9 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
                 var undo4 = new MyUndo("undo4", obj);
                 ul.record(undo4);
                 chai_1.assert.equal(ul.list.length, 3);
-                chai_1.assert.strictEqual(ul.list[0], group1);
-                chai_1.assert.strictEqual(ul.list[1], undo3);
-                chai_1.assert.strictEqual(ul.list[2], undo4);
+                chai_1.assert.strictEqual(ul.list[0].undo, group1);
+                chai_1.assert.strictEqual(ul.list[1].undo, undo3);
+                chai_1.assert.strictEqual(ul.list[2].undo, undo4);
                 chai_1.assert.equal(group1.list.length, 2);
             });
         });
@@ -325,6 +513,57 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
                 chai_1.assert.isFalse(obj.undo2);
                 chai_1.assert.isUndefined(ul.getGroup());
             });
+            it("emits UndoEvents", function () {
+                var group1 = new MyGroup("group1");
+                ul.startGroup(group1);
+                var undo1 = new MyUndo("undo1", obj);
+                ul.record(undo1);
+                var undo2 = new MyUndo("undo2", obj);
+                ul.record(undo2);
+                ul.endGroup();
+                var tracker = new Tracker();
+                ul.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Undo",
+                        undo: undo2,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        undo2: false,
+                        undo1: true,
+                    });
+                }));
+                ul.events.pipe(elementAt_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Undo",
+                        undo: undo1,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        undo2: false,
+                        undo1: false,
+                    });
+                }));
+                ul.events.pipe(elementAt_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
+                    chai_1.expect(x).to.deep.equal({
+                        name: "Undo",
+                        undo: group1,
+                    });
+                    chai_1.expect(obj).to.deep.equal({
+                        undo2: false,
+                        undo1: false,
+                    });
+                }));
+                chai_1.expect(obj).to.deep.equal({
+                    undo1: true,
+                    undo2: true,
+                });
+                ul.undo();
+                chai_1.expect(obj).to.deep.equal({
+                    undo1: false,
+                    undo2: false,
+                });
+                chai_1.expect(tracker).to.have.property("allCalled").true;
+                chai_1.expect(tracker).to.have.property("ordered").true;
+            });
         });
         describe("redo", function () {
             it("actually redoes operations", function () {
@@ -377,10 +616,32 @@ define(["require", "exports", "module", "chai", "wed/undo"], function (require, 
                 chai_1.assert.isTrue(obj.undo1);
                 chai_1.assert.isTrue(obj.undo2);
             });
+            it("emits RedoEvents", function () {
+                var group1 = new MyGroup("group1");
+                ul.startGroup(group1);
+                var undo1 = new MyUndo("undo1", obj);
+                ul.record(undo1);
+                var undo2 = new MyUndo("undo2", obj);
+                ul.record(undo2);
+                ul.endGroup();
+                chai_1.expect(obj).to.deep.equal({
+                    undo1: true,
+                    undo2: true,
+                });
+                ul.undo();
+                chai_1.expect(obj).to.deep.equal({
+                    undo1: false,
+                    undo2: false,
+                });
+                ul.redo();
+                chai_1.expect(obj).to.deep.equal({
+                    undo1: true,
+                    undo2: true,
+                });
+            });
         });
     });
 });
 //  LocalWords:  UndoList canUndo canRedo endGroup endAllGroups chai getGroup
 //  LocalWords:  undoingOrRedoing noop ul Dubeau MPL Mangalam
-
 //# sourceMappingURL=undo-test.js.map

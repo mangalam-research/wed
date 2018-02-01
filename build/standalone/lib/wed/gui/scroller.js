@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "rxjs", "../domutil"], function (require, exports, module, rxjs_1, domutil_1) {
+define(["require", "exports", "jquery", "rxjs/Subject", "../domutil"], function (require, exports, $, Subject_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -17,7 +17,7 @@ define(["require", "exports", "module", "rxjs", "../domutil"], function (require
         function Scroller(el) {
             var _this = this;
             this.el = el;
-            this._events = new rxjs_1.Subject();
+            this._events = new Subject_1.Subject();
             /** This is where you can listen to scrolling events. */
             this.events = this._events.asObservable();
             $(el).on("scroll", function () {
@@ -107,5 +107,4 @@ define(["require", "exports", "module", "rxjs", "../domutil"], function (require
     exports.Scroller = Scroller;
 });
 //  LocalWords:  scroller MPL px
-
 //# sourceMappingURL=scroller.js.map

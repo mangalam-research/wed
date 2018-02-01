@@ -8,9 +8,11 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed/action", "wed/decorator", "wed/domutil", "wed/gui-selector", "wed/gui/context-menu", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "wed/modes/generic/generic", "wed/modes/generic/generic-decorator", "wed/transformation"], function (require, exports, module, $, mergeOptions, salve_1, action_1, decorator_1, domutil_1, gui_selector_1, context_menu, input_trigger_factory, key, key_constants, generic_1, generic_decorator_1, transformation) {
+define(["require", "exports", "jquery", "merge-options", "salve", "wed", "wed/modes/generic/generic", "wed/modes/generic/generic-decorator"], function (require, exports, $, mergeOptions, salve_1, wed_1, generic_1, generic_decorator_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var ContextMenu = wed_1.gui.contextMenu.ContextMenu;
+    var childrenByClass = wed_1.domutil.childrenByClass, closestByClass = wed_1.domutil.closestByClass, indexOf = wed_1.domutil.indexOf;
     // tslint:disable-next-line:completed-docs
     var Validator = /** @class */ (function () {
         function Validator(dataRoot) {
@@ -39,7 +41,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
         }
         TestDecorator.prototype.addHandlers = function () {
             _super.prototype.addHandlers.call(this);
-            input_trigger_factory.makeSplitMergeInputTrigger(this.editor, this.mode, gui_selector_1.GUISelector.fromDataSelector("hi", this.mode.getAbsoluteNamespaceMappings()), key.makeKey(";"), key_constants.BACKSPACE, key_constants.DELETE);
+            wed_1.inputTriggerFactory.makeSplitMergeInputTrigger(this.editor, this.mode, wed_1.GUISelector.fromDataSelector("hi", this.mode.getAbsoluteNamespaceMappings()), wed_1.key.makeKey(";"), wed_1.keyConstants.BACKSPACE, wed_1.keyConstants.DELETE);
         };
         // tslint:disable:no-jquery-raw-elements
         TestDecorator.prototype.elementDecorator = function (root, el) {
@@ -60,7 +62,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
             // We don't run the default when we wrap p.
             if (!(isP && rend === "wrap")) {
                 // There's no super.super syntax we can use here.
-                decorator_1.Decorator.prototype.elementDecorator.call(this, root, el, level, this.contextMenuHandler.bind(this, true), this.contextMenuHandler.bind(this, false));
+                wed_1.Decorator.prototype.elementDecorator.call(this, root, el, level, this.contextMenuHandler.bind(this, true), this.contextMenuHandler.bind(this, false));
             }
             if (isRef) {
                 $(el).children("._text._phantom").remove();
@@ -95,10 +97,10 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
                         }
                         break;
                     case "wrap":
-                        if (domutil_1.closestByClass(el, "_gui_test") !== null) {
+                        if (closestByClass(el, "_gui_test") !== null) {
                             break;
                         }
-                        var toRemove = domutil_1.childrenByClass(el, "_gui");
+                        var toRemove = childrenByClass(el, "_gui");
                         for (var _i = 0, toRemove_1 = toRemove; _i < toRemove_1.length; _i++) {
                             var remove = toRemove_1[_i];
                             el.removeChild(remove);
@@ -125,7 +127,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
             }
             // container, offset: location of the node in its parent.
             var container = node.parentNode;
-            var offset = domutil_1.indexOf(container.childNodes, node);
+            var offset = indexOf(container.childNodes, node);
             // Create "insert" transformations for siblings that could be inserted
             // before this node.
             var actions = this.mode.getContextualActions("insert", prefixedName, container, offset);
@@ -143,7 +145,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
                 items.push($("<li></li>").append($a)[0]);
             }
             // tslint:disable-next-line:no-unused-expression
-            new context_menu.ContextMenu(this.editor.doc, ev.clientX, ev.clientY, items);
+            new ContextMenu(this.editor.doc, ev.clientX, ev.clientY, items);
             return false;
         };
         return TestDecorator;
@@ -164,7 +166,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
                     for (var _i = 0, strs_1 = strs; _i < strs_1.length; _i++) {
                         var str = strs_1[_i];
                         if (re.test(str)) {
-                            matches.push({ value: str });
+                            matches.push(str);
                         }
                     }
                     cb(matches);
@@ -183,24 +185,23 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
                 },
                 datasets: [{
                         source: substringMatcher(testData),
+                        limit: testData.length,
                     }],
             };
-            var pos = editor.editingMenuManager.computeMenuPosition(undefined, true);
-            var typeahead = editor.displayTypeaheadPopup(pos.left, pos.top, 300, "Test", options, function (obj) {
+            var typeahead = editor.editingMenuManager.setupTypeaheadPopup(300, "Test", options, function (obj) {
                 if (obj != null) {
-                    editor.type(obj.value);
+                    editor.insertText(obj);
                 }
-            });
+            }, undefined, true);
             typeahead.hideSpinner();
             var range = editor.caretManager.range;
-            // This is purposely not as intelligent as what real mode would
-            // need.
+            // This is purposely not as intelligent as what real mode would need.
             if (range != null && !range.collapsed) {
                 typeahead.setValue(range.toString());
             }
         };
         return TypeaheadAction;
-    }(action_1.Action));
+    }(wed_1.Action));
     // tslint:disable-next-line:completed-docs
     var DraggableModalAction = /** @class */ (function (_super) {
         __extends(DraggableModalAction, _super);
@@ -221,7 +222,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
             this.modal.modal();
         };
         return DraggableModalAction;
-    }(action_1.Action));
+    }(wed_1.Action));
     // tslint:disable-next-line:completed-docs
     var DraggableResizableModalAction = /** @class */ (function (_super) {
         __extends(DraggableResizableModalAction, _super);
@@ -245,7 +246,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
             this.modal.modal();
         };
         return DraggableResizableModalAction;
-    }(action_1.Action));
+    }(wed_1.Action));
     // tslint:disable-next-line:completed-docs
     var ResizableModalAction = /** @class */ (function (_super) {
         __extends(ResizableModalAction, _super);
@@ -266,7 +267,7 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
             this.modal.modal();
         };
         return ResizableModalAction;
-    }(action_1.Action));
+    }(wed_1.Action));
     /**
      * This mode is purely designed to help test wed, and nothing
      * else. Don't derive anything from it and don't use it for editing.
@@ -332,10 +333,13 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
             var stylesheets = this.options.stylesheets;
             return stylesheets !== undefined ? stylesheets : [];
         };
+        TestMode.prototype.getToolbarButtons = function () {
+            return [this.typeaheadAction.makeButton()];
+        };
         TestMode.prototype.getContextualActions = function (transformationType, tag, container, offset) {
             if (this.options.fileDesc_insert_needs_input &&
                 tag === "fileDesc" && transformationType === "insert") {
-                return [new transformation.Transformation(this.editor, "insert", "foo", undefined, undefined, true, 
+                return [new wed_1.transformation.Transformation(this.editor, "insert", "foo", undefined, undefined, true, 
                     // We don't need a real handler because it will not be called.
                     // tslint:disable-next-line:no-empty
                     function () { })];
@@ -373,5 +377,4 @@ define(["require", "exports", "module", "jquery", "merge-options", "salve", "wed
 });
 //  LocalWords:  Dubeau MPL Mangalam tei domutil btn getLabelFor tabindex href
 //  LocalWords:  li nameSuffix subtype typeahead fw draggable resizable
-
 //# sourceMappingURL=test-mode.js.map

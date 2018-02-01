@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "bluejax", "jquery", "./util", "bootstrap"], function (require, exports, module, bluejax, $, util_1) {
+define(["require", "exports", "bluejax", "jquery", "./util", "bootstrap"], function (require, exports, bluejax, $, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:no-jquery-raw-elements
@@ -74,5 +74,4 @@ aria-hidden='true'>&times;</button>\
     exports.make = make;
 });
 //  LocalWords:  btw tabindex href btn MPL
-
 //# sourceMappingURL=ajax.js.map

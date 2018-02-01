@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/gui-selector", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "../util", "../wed-test-util"], function (require, exports, module, gui_selector_1, inputTriggerFactory, key, key_constants_1, util_1, wed_test_util_1) {
+define(["require", "exports", "wed/gui-selector", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "../util", "../wed-test-util"], function (require, exports, gui_selector_1, inputTriggerFactory, key, key_constants_1, util_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -175,5 +175,4 @@ define(["require", "exports", "module", "wed/gui-selector", "wed/input-trigger-f
     });
 });
 // LocalWords:  chai jquery tei InputTrigger
-
 //# sourceMappingURL=input-trigger-factory-test.js.map

@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/key-constants", "../base-config", "../wed-test-util"], function (require, exports, module, keyConstants, globalConfig, wed_test_util_1) {
+define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "wed/exceptions", "wed/key-constants", "../base-config", "../wed-test-util"], function (require, exports, filter_1, first_1, exceptions_1, keyConstants, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -59,7 +59,7 @@ define(["require", "exports", "module", "wed/key-constants", "../base-config", "
             assert.equal(hiText.textContent, "a", "text after edit");
             assert.equal(titleData.childNodes.length, 3);
             editor.undo();
-            editor.type(keyConstants.CTRLEQ_Z);
+            editor.type(keyConstants.UNDO);
         });
         it("redo redoes typed text as a group", function () {
             // Text node inside title.
@@ -146,7 +146,74 @@ define(["require", "exports", "module", "wed/key-constants", "../base-config", "
             assert.equal(attrValues[0].textContent, initialValue, "the attribute should have its initial value");
             wed_test_util_1.caretCheck(editor, attrValues[0].firstChild, 0, "the caret should be in the first attribute value");
         });
+        // The changes performed if the event listener raises
+        // AbortTransformationException then the whole transformation is aborted.
+        it("aborting in event listener undoes transformation", function () {
+            var p = ps[0];
+            var dataP = editor.toDataNode(p);
+            var elName = wed_test_util_1.getElementNameFor(p);
+            assert.equal(wed_test_util_1.getAttributeValuesFor(p).length, 0, "no attributes");
+            var trs = editor.modeTree.getMode(elName).getContextualActions(["add-attribute"], "abbr", elName, 0);
+            caretManager.setCaret(elName.firstChild, 0);
+            wed_test_util_1.caretCheck(editor, elName.firstChild, 0, "the caret should be in the element name");
+            editor.transformations.subscribe(function (ev) {
+                if (ev.name === "EndTransformation") {
+                    throw new exceptions_1.AbortTransformationException("moo");
+                }
+            });
+            trs[0].execute({ node: dataP, name: "abbr" });
+            assert.equal(wed_test_util_1.getAttributeValuesFor(p).length, 0, "no attributes");
+        });
+        // The changes performed in the event listener listening to transformation
+        // events are part of the undo group for the transformation.
+        it("changes in event listener are part of the undo group", function () {
+            var p = ps[0];
+            var dataP = editor.toDataNode(p);
+            var elName = wed_test_util_1.getElementNameFor(p);
+            assert.equal(wed_test_util_1.getAttributeValuesFor(p).length, 0, "no attributes");
+            var trs = editor.modeTree.getMode(elName).getContextualActions(["add-attribute"], "abbr", elName, 0);
+            caretManager.setCaret(elName.firstChild, 0);
+            wed_test_util_1.caretCheck(editor, elName.firstChild, 0, "the caret should be in the element name");
+            editor.transformations.subscribe(function (ev) {
+                if (ev.name === "EndTransformation") {
+                    assert.equal(wed_test_util_1.getAttributeValuesFor(p).length, 1, "one attribute");
+                    editor.dataUpdater.setAttribute(dataP, "abbr", "moo");
+                }
+            });
+            trs[0].execute({ node: dataP, name: "abbr" });
+            var attrVals = wed_test_util_1.getAttributeValuesFor(p);
+            assert.equal(attrVals.length, 1, "one attribute");
+            assert.equal(attrVals[0].textContent, "moo");
+            editor.undo();
+            assert.equal(wed_test_util_1.getAttributeValuesFor(p).length, 0, "no attributes");
+        });
+        it("can undo using the toolbar", function () {
+            // Text node inside title.
+            var initial = titles[0].childNodes[1];
+            caretManager.setCaret(initial, 0);
+            editor.type("blah");
+            var prom = editor.undoEvents
+                .pipe(filter_1.filter(function (ev) { return ev.name === "Undo"; }), first_1.first()).toPromise();
+            var button = editor.widget
+                .querySelector("[data-original-title='Undo']");
+            button.click();
+            return prom;
+        });
+        it("can redo using the toolbar", function () {
+            // Text node inside title.
+            var initial = titles[0].childNodes[1];
+            caretManager.setCaret(initial, 0);
+            editor.type("blah");
+            // Undo programmatically first...
+            editor.undo();
+            // ... then we can redo.
+            var prom = editor.undoEvents
+                .pipe(filter_1.filter(function (ev) { return ev.name === "Redo"; }), first_1.first()).toPromise();
+            var button = editor.widget
+                .querySelector("[data-original-title='Redo']");
+            button.click();
+            return prom;
+        });
     });
 });
-
 //# sourceMappingURL=wed-undo-redo-test.js.map

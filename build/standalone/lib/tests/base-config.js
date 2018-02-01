@@ -1,4 +1,4 @@
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.config = {
@@ -22,5 +22,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
         },
     };
 });
-
 //# sourceMappingURL=base-config.js.map

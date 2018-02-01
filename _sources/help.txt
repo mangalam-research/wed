@@ -31,6 +31,43 @@ Editing Controls
 
 Wed divides the screen into various areas.
 
+Toolbar
+-------
+
+Above the validation progress bar, wed presents a toolbar that allows to perform
+some operations through the mouse.
+
+.. note:: Wed does not include in the toolbar a button for every single
+          operation that may be performed through the keyboard. It includes only
+          some operations by default, and modes may add more custom operations
+          to the toolbar.
+
+.. figure:: help_images/toolbar.png
+   :align: center
+   :alt: This image shows the default toolbar.
+
+   The default toolbar.
+
+If you hover the mouse pointer over a button, you will get a prose description
+of what the button does. In the image above, from left to right the buttons
+perform the following actions:
+
+* Save the document.
+* Undo.
+* Redo.
+* Decrease the `label visibility level <Label Visibility_>`_.
+* Increase the `label visibility level <Label Visibility_>`_.
+* Remove markup from mixed content.
+* Toggle attribute autohiding off and on.
+
+The last button is a toggle. When autohiding is on, the button is pressed down,
+as shown by shadows. When autohiding is off, the button is flat, as shown by the
+absence of shadows.
+
+Mode-specific buttons may appear to the right of the double bar. The buttons
+that appear there are those that correspond to the mode in effect at the caret
+location.
+
 The Validation Progress Bar
 ---------------------------
 
@@ -669,6 +706,35 @@ the menu will close once the value is complete.
    The user types ``med`` into the completion menu and then hits
    :kbd:`ENTER` to complete the value.
 
+Replacement Menus
+~~~~~~~~~~~~~~~~~
+
+Replacement menus are similar to completion menus. Completion menus appear
+automatically but only *when the document contains a value that can be
+completed*. Given an attribute that has a limited set of possible values, if the
+attribute is already filled with a complete value, then the completion menu does
+not appear. Suppose an attribute ``height`` which can take the values ``high``,
+``medium``, ``low``, and it is already filled with the value ``medium``. If you
+want to change the value, you won't be able to use the completion menu, because
+there's nothing to complete since ``medium`` is already complete. So if you want
+to change the value with the help of the editor, you have to use a replacement
+menu by hitting :kbd:`Ctrl-?`.
+
+Replacement menus are available in the same places completion menus are
+available. The list of values they offer is the same as the list provided by a
+completion menu in the same location. Chosing an item from the list in a
+replacement menu replaces the entire attribute value with the item selected.
+
+Note that replacement menus, contrarily to completion menus, do not support
+changing the document while the menu is open. You need to exit the menu before
+you can continue editing the document. If you don't want to make a change, click
+outside the menu or hit :kbd:`ESCAPE`.
+
+.. figure:: help_images/replacement_menu.png
+   :align: center
+   :alt: A replacement menu.
+
+   The user just brought up the replacement menu in the ``sample`` attribute.
 
 Kinds of XML Operations
 =======================
@@ -1020,60 +1086,58 @@ mentioned here are available only through the keyboard when using a
 minimal configuration of wed (i.e. using the generic mode), but we'll
 stick with it.
 
-====================  =====================================
- Key                  Function
-====================  =====================================
- :kbd:`F1`            Bring up the help.
- :kbd:`Ctrl-/`        Bring up the `contextual menu <Contextual Menus_>`_.
- :kbd:`Ctrl-[`        Decrease the `label visibility level <Label Visibility_>`_.
- :kbd:`Ctrl-]`        Increase the `label visibility level <Label Visibility_>`_.
- :kbd:`Ctrl-z`        `Undo <Undo and Redo_>`_ an operation.
- :kbd:`Ctrl-y`        `Redo <Undo and Redo_>`_ an operation.
- :kbd:`Ctrl-x`        `Cut <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-c`        `Copy <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-v`        `Paste <Cut, Copy and Paste_>`_ content.
- :kbd:`Ctrl-s`        `Save <Saving_>`_ content.
- :kbd:`Ctrl-f`        `Quick search <Quick Search_>`_ forward.
- :kbd:`Ctrl-b`        `Quick search <Quick Search_>`_ backwards.
- :kbd:`Ctrl-Shift-f`  `Dialog search <Dialog Search_>`_ forward.
- :kbd:`Ctrl-Shift-b`  `Dialog search <Dialog Search_>`_ backwards.
-====================  =====================================
-
-Note that in **browsers running in OS X**, instead of :kbd:`Ctrl-` wed expects
-:kbd:`Command-`.
+==================== ==================== =====================================
+ PC Key               Mac Key             Function
+==================== ==================== =====================================
+ :kbd:`F1`            :kbd:`F1`           Bring up the help.
+ :kbd:`Ctrl-/`        :kbd:`Cmd-/`        Bring up the `contextual menu <Contextual Menus_>`_.
+ :kbd:`Ctrl-?`        :kbd:`Cmd-?`        Bring up the `replacement menu <Replacement Menus_>`_.
+ :kbd:`Ctrl-[`                            Decrease the `label visibility level <Label Visibility_>`_.
+ :kbd:`Ctrl-]`                            Increase the `label visibility level <Label Visibility_>`_.
+ :kbd:`Ctrl-z`        :kbd:`Cmd-z`        `Undo <Undo and Redo_>`_ an operation.
+ :kbd:`Ctrl-y`        :kbd:`Cmd-y`        `Redo <Undo and Redo_>`_ an operation.
+ :kbd:`Ctrl-x`        :kbd:`Cmd-x`        `Cut <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-c`        :kbd:`Cmd-c`        `Copy <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-v`        :kbd:`Cmd-v`        `Paste <Cut, Copy and Paste_>`_ content.
+ :kbd:`Ctrl-s`        :kbd:`Cmd-s`        `Save <Saving_>`_ content.
+ :kbd:`Ctrl-f`        :kbd:`Cmd-f`        `Quick search <Quick Search_>`_ forward.
+ :kbd:`Ctrl-b`        :kbd:`Cmd-b`        `Quick search <Quick Search_>`_ backwards.
+ :kbd:`Ctrl-Shift-f`  :kbd:`Cmd-Shift-f`  `Dialog search <Dialog Search_>`_ forward.
+ :kbd:`Ctrl-Shift-b`  :kbd:`Cmd-Shift-b`  `Dialog search <Dialog Search_>`_ backwards.
+==================== ==================== =====================================
 
 .. _help_browser_requirements:
 
 Browser Requirements
 ====================
 
-Wed is primarily developed using a recent version of Chrome (version
-59 now, earlier versions have also been used earlier). (But see a note
-about Chrome 34 below.)
+Wed is primarily developed using a recent version of Chrome (version 59 now,
+earlier versions have also been used earlier). (But see a note about Chrome 34
+below.)
 
-Here is the list of officially supported browsers, in order of
-decreasing priority. The higher a browser is in the list, the less
-likely you are to run into issues and the higher the priority for
-resolving bugs happening with this browser.
+Here is the list of officially supported browsers, in order of decreasing
+priority. The higher a browser is in the list, the less likely you are to run
+into issues and the higher the priority for resolving bugs happening with this
+browser.
 
-* Chrome 51 and higher.
+* The latest stable version of Chrome.
 
-* IE 11.
+* The latest stable version of Edge.
 
-* Edge, but see `the section about it <Edge_>`_.
+* IE 11, but see `the section about it <IE11>`_.
 
-* Relatively recent versions of Chrome: older than the latest releases
-  but not very old. (Yeah, this is vague. Sorry about that.)
+* Versions of Chrome or Edge older than the latest stable version, but not very
+  old. (Yeah, this is vague. Sorry about that.)
 
-File an issue on github if you find a problem with one of the
-supported browsers above.
+File an issue on github if you find a problem with one of the supported browsers
+above.
 
-We would like to support phone and tablet browsers but due to a lack
-of development resources, such support is unlikely to materialize
-soon. In decreasing order of likelihood, the following cases are
-unlikely to ever be supported:
+We would like to support phone and tablet browsers but due to a lack of
+development resources, such support is unlikely to materialize soon. In
+decreasing order of likelihood, the following cases are unlikely to ever be
+supported:
 
-* Versions of Chrome older than those mentioned above.
+* Versions of Chrome or Edge older than those mentioned above.
 
 * Firefox. It deserves its own `discussion <Firefox_>`_.
 
@@ -1081,39 +1145,42 @@ unlikely to ever be supported:
   supports it. Resuming support for IE 10 or 9 is extremely unlikely, because
   wed has accumulated features and methods that do not work on these browsers.
 
-* Chrome 34: the luminaries at Google decided to remove
-  ``Attr.ownerElement`` from Chrome 34. It was reintroduced in
-  Chrome 35. We'll probably never have support for Chrome 34.
+* Chrome 34: the luminaries at Google decided to remove ``Attr.ownerElement``
+  from Chrome 34. It was reintroduced in Chrome 35. We'll probably never have
+  support for Chrome 34.
 
 * Antique browsers.
 
-* Oddball browsers or other software or hardware systems that present
-  web pages. (E.g. gaming consoles, smart TVs.)
+* Oddball browsers or other software or hardware systems that present web
+  pages. (E.g. gaming consoles, smart TVs.)
 
-* Operating systems or browsers no longer supported by their own
-  vendors.
+* Operating systems or browsers no longer supported by their own vendors.
 
 Firefox
 -------
 
-We're hoping that the lack of Firefox support is going to be
-temporary.
+We're hoping that the lack of Firefox support is going to be temporary. The
+paragraphs below give the state of Firefox support, in reverse chronological
+order (most recent on top):
+
+Update November 2017: Firefox support is still suspended. The Marionette driver
+has been released. However it is so buggy that there's no way we can run our
+tests with it. And yes, we do mean "buggy" with the full force of that word. For
+instance, the WebDriver specs specify that performing a click on an element
+should scroll the element into view. Our tests rely on this, but Marionette does
+not implement the scroll, which causes failures during testing.
 
 Update Summer 2016: things are looking up. The Firefox developers have
 been working on a driver named "Marionette" that *should* solve the
 support problems. Stay tuned.
 
-Update Fall 2017: Firefox support is still suspended. It may be easy to resume
-it but there's been no demand for it, so...
-
-For years, wed was supporting Firefox. Early on, Firefox was even
-better supported than Chrome. However, the people responsible for
-maintaining Selenium decided to stop supporting native events in
-Firefox and forced developers to use synthetic events instead. The
-problem is that Selenium's support for synthetic events on Firefox is
-unable to accurately reproduce what happens when a user is actually
-interacting with a browser, *which is the entire point of using
-Selenium in the first place*. The problem has been reported, at
+February 2016: For years, wed was supporting Firefox. Early on, Firefox was even
+better supported than Chrome. However, the people responsible for maintaining
+Selenium decided to stop supporting native events in Firefox and forced
+developers to use synthetic events instead. The problem is that Selenium's
+support for synthetic events on Firefox is unable to accurately reproduce what
+happens when a user is actually interacting with a browser, *which is the entire
+point of using Selenium in the first place*. The problem has been reported, at
 length:
 
 * In the `selenium-developers` group `here
@@ -1131,18 +1198,18 @@ It is taking forever for the problem to get resolved. In the meantime,
 we have no resources to devote to solving the issue of synthetic event
 support in Firefox and so Firefox support has been temporarily pulled.
 
-Edge
+IE11
 ----
 
-What's the deal with Edge being at a lower level of support than IE
-11? The problem is that whereas we can run test suites for IE 11, it
-is not *yet* possible to do so for Edge. Microsoft has not yet
-released a version of Edge which does support everything needed to run
-our suite. (See `this page
-<https://dev.windows.com/en-us/microsoft-edge/platform/status/webdriver/details/>`__
-for the technical details.) Therefore we cannot systematically test
-wed with Edge and thus it is not as supported as IE 11. If you do find
-a problem with Edge, report it and we'll try to fix it.
+At some point in 2017 Selenium, IEDriver, or something else changed in such a
+way that makes the test suite run incredibly slowly on IE11. Wed itself runs at
+normal speed, as we can assess by running it manually in IE11. We've looked for
+a solution but could not find one. Tracking down what broke is more work than we
+can spend on this now. We accept bug reports due to issues on IE11 and accept
+patches that would resolve the slowdown on IE11.
+
+It is perhaps related to a bug whereby keystrokes are extremely slow in IE11,
+but we've tried the solutions outlined there and nothing worked.
 
 OS X
 ----
@@ -1218,18 +1285,16 @@ labeled "Complex name pattern". What's the deal?
 Brief Explanation
 -----------------
 
-In brief, this occurs if the Relax NG schema uses a wildcard (so to
-speak) that allows an unlimited number of possibilities for the name
-of an element or of an attribute. (Or a set of possibilities that
-cannot be expressed as a set of positive matches.)  Wed is capable to
-validate such documents. However its capability to edit them is
-currently limited. Wed will actually mark as **read only** elements
-and attributes that are allowed only due to a wildcard. These may not
-be modified in wed. The menu item that wed shows is a warning that the
-schema allows for more than what wed is able to do. If this is a
-problem for you, you should contact whoever provides you with
-technical support to discuss the problem. You may direct them to read
-the explanation that follows.
+In brief, this occurs if the Relax NG schema uses a wildcard (so to speak) that
+allows an unlimited number of possibilities for the name of an element or of an
+attribute. (Or a set of possibilities that cannot be expressed as a set of
+positive matches.)  Wed is able to validate such documents. However its
+capability to edit them is currently limited. Wed will actually mark as **read
+only** elements and attributes that are allowed only due to a wildcard. These
+may not be modified in wed. The menu item that wed shows is a warning that the
+schema allows for more than what wed is able to do. If this is a problem for
+you, you should contact whoever provides you with technical support to discuss
+the problem. You may direct them to read the explanation that follows.
 
 Long Technical Explanation
 --------------------------

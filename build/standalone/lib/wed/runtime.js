@@ -4,9 +4,15 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "dexie", "merge-options", "./ajax", "./util"], function (require, exports, module, dexie_1, mergeOptions, ajax_1, util) {
+define(["require", "exports", "dexie", "merge-options", "./ajax", "./util"], function (require, exports, dexie_1, mergeOptions, ajax_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    // We "hide" the require call under a different name. It prevents Webpack from
+    // choking on the dynamic require call we use in this file. (It is up to *us* to
+    // set the environment so that the dynamic calls can work, not up to Webpack to
+    // convert it to something sensible.)
+    // tslint:disable-next-line:no-any no-string-literal
+    var req = window["require"];
     /**
      * An object representing the runtime environment in which an editor is
      * running. In particular it allows loading external resources.
@@ -129,8 +135,7 @@ define(["require", "exports", "module", "dexie", "merge-options", "./ajax", "./u
                     resources = [resources];
                 }
                 return new Promise(function (resolve, reject) {
-                    // tslint:disable-next-line:no-require-imports non-literal-require
-                    require(resources, function success() {
+                    req(resources, function success() {
                         resolve(Array.prototype.slice.call(arguments));
                     }, reject);
                 });
@@ -141,5 +146,4 @@ define(["require", "exports", "module", "dexie", "merge-options", "./ajax", "./u
     exports.Runtime = Runtime;
 });
 //  LocalWords:  runtime MPL serverURL IndexedDB indexeddb keyType
-
 //# sourceMappingURL=runtime.js.map

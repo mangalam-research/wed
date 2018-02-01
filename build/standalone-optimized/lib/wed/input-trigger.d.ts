@@ -2,7 +2,7 @@
 import { GUISelector } from "./gui-selector";
 import { Key } from "./key";
 import { Mode } from "./mode";
-import { Editor } from "./wed";
+import { EditorAPI } from "./mode-api";
 /**
  * @param eventType The type of event being processed.
  *
@@ -42,9 +42,9 @@ export declare class InputTrigger {
      *
      * @param selector This is a CSS selector which must be fit to be used in the
      * GUI tree. (For instance by being the output of
-     * [["domutil".toGUISelector]].)
+     * [["wed/domutil".toGUISelector]].)
      */
-    constructor(editor: Editor, mode: Mode, selector: GUISelector);
+    constructor(editor: EditorAPI, mode: Mode, selector: GUISelector);
     /**
      * Adds a key handler to the object.
      *

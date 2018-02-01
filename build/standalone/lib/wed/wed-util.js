@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./dloc", "./domtypeguards", "./guiroot"], function (require, exports, module, dloc_1, domtypeguards_1, guiroot_1) {
+define(["require", "exports", "./dloc", "./domtypeguards", "./guiroot"], function (require, exports, dloc_1, domtypeguards_1, guiroot_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // Utility function for boundaryXY.
@@ -152,5 +152,4 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./guiroot"
 });
 //  LocalWords:  MPL domutil util boundaryXY nodeType getClientRects rect
 //  LocalWords:  getAttrValueNode
-
 //# sourceMappingURL=wed-util.js.map

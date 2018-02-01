@@ -8,13 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module"], function (require, exports, module) {
-    /**
-     * Basic undo/redo framework.
-     * @author Louis-Dominique Dubeau
-     * @license MPL 2.0
-     * @copyright Mangalam Research Center for Buddhist Languages
-     */
+define(["require", "exports", "rxjs/Subject"], function (require, exports, Subject_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -32,7 +26,26 @@ define(["require", "exports", "module"], function (require, exports, module) {
             this.list = [];
             this.index = -1;
             this._undoingOrRedoing = false;
+            this._events = new Subject_1.Subject();
+            this.events = this._events.asObservable();
         }
+        /**
+         * Reset the list to its initial state **without** undoing operations. The
+         * list effectively forgets old undo operations.
+         */
+        UndoList.prototype.reset = function () {
+            if (this._undoingOrRedoing) {
+                throw new Error("may not reset while undoing or redoing");
+            }
+            this.stack.length = 0; // Yes, this works and clears the stack.
+            this.index = -1;
+            // We need to cleanup the old subscriptions.
+            for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+                var subscription = _a[_i].subscription;
+                subscription.unsubscribe();
+            }
+            this.list = [];
+        };
         /**
          * This method makes the UndoList object record the object passed to it. Any
          * operations that had previously been undone are forgotten.
@@ -44,8 +57,24 @@ define(["require", "exports", "module"], function (require, exports, module) {
                 this.stack[0].record(obj);
             }
             else {
+                // We do things in reverse here. We save the original list. Then the call
+                // to splice mutates the original list to contain elements we do *not*
+                // want. The return value are those elements we do want.
+                var oldList = this.list;
                 this.list = this.list.splice(0, this.index + 1);
-                this.list.push(obj);
+                // We need to cleanup the old subscriptions.
+                for (var _i = 0, oldList_1 = oldList; _i < oldList_1.length; _i++) {
+                    var subscription = oldList_1[_i].subscription;
+                    subscription.unsubscribe();
+                }
+                // This is the only place we need to subscribe. We do not need to
+                // subscribe to individual object that are in undo groups because the
+                // groups forward events that happen on their inner objects. Also, a group
+                // need not be subscribed to until ``record`` is called for it.
+                this.list.push({
+                    undo: obj,
+                    subscription: obj.events.subscribe(this._events),
+                });
                 this.index++;
             }
         };
@@ -68,7 +97,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
                 this.endGroup();
             }
             if (this.index >= 0) {
-                this.list[this.index--].undo();
+                this.list[this.index--].undo.undo();
             }
             this._undoingOrRedoing = false;
         };
@@ -86,7 +115,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
             }
             this._undoingOrRedoing = true;
             if (this.index < this.list.length - 1) {
-                this.list[++this.index].redo();
+                this.list[++this.index].undo.redo();
             }
             this._undoingOrRedoing = false;
         };
@@ -180,7 +209,35 @@ define(["require", "exports", "module"], function (require, exports, module) {
     var Undo = /** @class */ (function () {
         function Undo(desc) {
             this.desc = desc;
+            this._events = new Subject_1.Subject();
+            this.events = this._events.asObservable();
         }
+        /**
+         * Called when the operation must be undone.
+         *
+         * @throws {Error} If an undo is attempted when an undo or redo is already in
+         * progress.
+         */
+        Undo.prototype.undo = function () {
+            this.performUndo();
+            this._events.next({
+                name: "Undo",
+                undo: this,
+            });
+        };
+        /**
+         * Called when the operation must be redone.
+         *
+         * @throws {Error} If an undo is attempted when an undo or redo is already in
+         * progress.
+         */
+        Undo.prototype.redo = function () {
+            this.performRedo();
+            this._events.next({
+                name: "Redo",
+                undo: this,
+            });
+        };
         /**
          * @returns The description of this object.
          */
@@ -204,7 +261,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
          * Undoes this group, which means undoing all the operations that this group
          * has recorded.
          */
-        UndoGroup.prototype.undo = function () {
+        UndoGroup.prototype.performUndo = function () {
             for (var i = this.list.length - 1; i >= 0; --i) {
                 this.list[i].undo();
             }
@@ -213,7 +270,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
          * Redoes this group, which means redoing all the operations that this group
          * has recorded.
          */
-        UndoGroup.prototype.redo = function () {
+        UndoGroup.prototype.performRedo = function () {
             for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
                 var it_3 = _a[_i];
                 it_3.redo();
@@ -226,6 +283,8 @@ define(["require", "exports", "module"], function (require, exports, module) {
          */
         UndoGroup.prototype.record = function (obj) {
             this.list.push(obj);
+            // We need to forward the events onto this object.
+            obj.events.subscribe(this._events);
         };
         /**
          * This method is called by [[UndoList.endGroup]] when it ends a group. The
@@ -247,7 +306,26 @@ define(["require", "exports", "module"], function (require, exports, module) {
         return UndoGroup;
     }(Undo));
     exports.UndoGroup = UndoGroup;
+    /**
+     * This is an undo object which does nothing but only serves as a marker in the
+     * list of undo operations. It could be used for debugging or by modes to record
+     * information they need in the undo list.
+     */
+    var UndoMarker = /** @class */ (function (_super) {
+        __extends(UndoMarker, _super);
+        /**
+         * @param msg A message to identify the marker.
+         */
+        function UndoMarker(msg) {
+            return _super.call(this, "*** MARKER *** " + msg) || this;
+        }
+        // tslint:disable-next-line:no-empty
+        UndoMarker.prototype.performUndo = function () { };
+        // tslint:disable-next-line:no-empty
+        UndoMarker.prototype.performRedo = function () { };
+        return UndoMarker;
+    }(Undo));
+    exports.UndoMarker = UndoMarker;
 });
 //  LocalWords:  boolean Dubeau MPL Mangalam UndoList desc
-
 //# sourceMappingURL=undo.js.map

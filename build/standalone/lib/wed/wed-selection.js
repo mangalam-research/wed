@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "./domutil"], function (require, exports, module, domutil_1) {
+define(["require", "exports", "./domutil"], function (require, exports, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -88,5 +88,4 @@ define(["require", "exports", "module", "./domutil"], function (require, exports
     exports.WedSelection = WedSelection;
 });
 //  LocalWords:  MPL foci
-
 //# sourceMappingURL=wed-selection.js.map

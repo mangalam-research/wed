@@ -1,7 +1,7 @@
 /// <reference types="sinon" />
 import * as sinon from "sinon";
-import { Options } from "wed/options";
-import { Editor } from "wed/wed";
+import { Options } from "wed";
+import { Editor } from "wed/editor";
 export declare function activateContextMenu(editor: Editor, el: Element): void;
 export declare function contextMenuHasOption(editor: Editor, pattern: RegExp, expectedCount?: number): void;
 export declare function firstGUI(container: Element): Element | null;
@@ -18,6 +18,9 @@ export interface Payload {
 }
 export declare class WedServer {
     private _saveRequests;
+    private readonly oldUseFilters;
+    private readonly oldFilters;
+    private readonly xhr;
     emptyResponseOnSave: boolean;
     failOnSave: boolean;
     preconditionFailOnSave: boolean;
@@ -26,10 +29,10 @@ export declare class WedServer {
     readonly saveRequests: ReadonlyArray<Payload>;
     readonly lastSaveRequest: Payload;
     reset(): void;
+    restore(): void;
     private decode(request);
     private handleSave(request);
 }
-export declare function setupServer(server: sinon.SinonFakeServer): void;
 export declare function makeWedRoot(doc: Document): HTMLElement;
 export declare function errorCheck(): void;
 export declare class EditorSetup {

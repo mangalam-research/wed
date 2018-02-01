@@ -18,10 +18,15 @@ export declare class ContextMenu {
      * method should populate.
      */
     protected readonly menu: HTMLElement;
-    /**
-     * The jQuery equivalent of [[ContextMenu.menu]].
-     */
+    /** The jQuery equivalent of [[menu]]. */
     protected readonly $menu: JQuery;
+    /**
+     * The toggle element of the dropdown menu. Even though it is not shown for
+     * our menus, it is necessary, and plays a role in how the menu works.
+     */
+    protected readonly toggle: HTMLElement;
+    /** The jQuery equivalent of [[toggle]]. */
+    protected readonly $toggle: JQuery;
     protected dismissed: boolean;
     protected dropdown: HTMLElement;
     protected backdrop: Element;

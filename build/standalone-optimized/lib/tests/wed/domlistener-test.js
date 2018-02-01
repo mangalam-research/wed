@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "wed/dloc", "wed/domlistener", "wed/domutil", "wed/tree-updater"], function (require, exports, module, $, dloc, domlistener_1, domutil_1, tree_updater_1) {
+define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domutil", "wed/tree-updater"], function (require, exports, $, dloc, domlistener_1, domutil_1, tree_updater_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -66,7 +66,7 @@ define(["require", "exports", "module", "jquery", "wed/dloc", "wed/domlistener",
             new dloc.DLocRoot(root);
             $root = $(root);
             treeUpdater = new tree_updater_1.TreeUpdater(root);
-            listener = new domlistener_1.Listener(root, treeUpdater);
+            listener = new domlistener_1.DOMListener(root, treeUpdater);
         });
         afterEach(function () {
             listener.stopListening();
@@ -518,5 +518,4 @@ define(["require", "exports", "module", "jquery", "wed/dloc", "wed/domlistener",
 });
 //  LocalWords:  domlistener Dubeau MPL Mangalam jsdom TreeUpdater
 //  LocalWords:  MutationObserver
-
 //# sourceMappingURL=domlistener-test.js.map

@@ -1,10 +1,4 @@
 /**
- * Various utilities for wed.
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
-/**
  * Calculates the distance on the basis of two deltas. This would typically be
  * called with the difference of X coordinates and the difference of Y
  * coordinates.
@@ -91,19 +85,103 @@ export declare function getOriginalName(el: Element): string;
  */
 export declare function classFromOriginalName(name: string, namespaces: Record<string, string>): string;
 /**
+ * Convert a string to a sequence of char codes. Each char code will be preceded
+ * by the character ``x``. The char codes are converted to hexadecimal.
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param str The string to encode.
+ *
+ * @returns The encoded string.
+ */
+export declare function stringToCodeSequence(str: string): string;
+/**
+ * Convert a code sequence created with [[stringToCodeSequence]] to a string.
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param str The sequence to decode.
+ *
+ * @returns The decoded string.
+ */
+export declare function codeSequenceToString(str: string): string;
+/**
+ * Encode the difference between an original string, and a modified string. This
+ * is a specialized function designed to handle the difference between the name
+ * we want to set for an attribute, and the name that HTML actually records.
+ *
+ * This function records the difference as a series of steps to recover the
+ * original string:
+ *
+ * - ``g[number]`` means take ``[number]`` characters from the modified string
+ *   as they are.
+ *
+ * - ``m[number]`` means remove ``[number]`` characters from the modified
+ *   string.
+ *
+ * - ``p[codes]`` means add the codes ``[codes]`` to the modified string.
+ *
+ * - ``u[number]`` means convert ``[number]`` characters from the modified
+ *   string to uppercase.
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param orig The original.
+ *
+ * @param modified The modified string.
+ *
+ * @returns The difference, encoded as a string.
+ */
+export declare function encodeDiff(orig: string, modified: string): string;
+/**
+ * Decode the diff produced with [[encodeDiff]].
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param name The name, after encoding.
+ *
+ * @param diff The diff.
+ *
+ * @returns The decoded attribute name.
+ */
+export declare function decodeDiff(name: string, diff: string): string;
+/**
  * Transforms an attribute name from wed's data tree to the original attribute
  * name before the data was transformed for use with wed. This reverses the
  * transformation done with [[encodeAttrName]].
  *
- * @param name The encoded name.
+ * @param encoded The encoded name.
  *
- * @returns The decoded name.
+ * @returns A structure containing the decoded name the optional qualifier.
  */
-export declare function decodeAttrName(name: string): string;
+export declare function decodeAttrName(encoded: string): {
+    name: string;
+    qualifier: string | undefined;
+};
 /**
- * Transforms an attribute name from its unencoded form in the
- * original XML data (before transformation for use with wed) to its
- * encoded name.
+ * Transforms an attribute name from its unencoded form in the original XML data
+ * (before transformation for use with wed) to its encoded name.
+ *
+ * The first thing this algorithm does is compute a difference between the
+ * original XML name and how HTML will record it. The issue here is that XML
+ * allows more characters in a name than what HTML allows and doing
+ * ``setAttribute(name, value)`` will silently convert ``name`` to something
+ * HTML likes. The issue most frequently encountered is that uppercase letters
+ * are encoded as lowercase. This is especially vexing seeing as XML allows the
+ * attribute names ``x`` and ``X`` to exist as different attributes, whereas
+ * HTML does not. For HTML ``x`` and ``X`` are the same attribute. This function
+ * records any differences between the original name and the way HTML records it
+ * with a diff string that is appended to the final name after a dash. If
+ * nothing appears after the final dash, then the HTML name and the XML name are
+ * the same.
  *
  * A sequence of three dashes or more is converted by adding another dash. (So
  * sequences of single dash, or a pair of dashes remain unchanged. But all
@@ -111,15 +189,25 @@ export declare function decodeAttrName(name: string): string;
  *
  * A colon (``:``) is converted to three dashes ``---``.
  *
- * After transformation above the name is prepended with ``data-wed-``.
+ * After transformation above the name is prepended with ``data-wed-`` and it is
+ * appended with the diff described above.
  *
- * So ``foo:bar`` would become ``data-wed-foo---bar``.
+ * Examples:
+ *
+ * - ``foo:bar`` becomes ``data-wed-foo---bar-``. Note how the diff is
+ *    empty, because ``foo:bar`` can be represented as-is in HTML.
+ *
+ * - ``MOO:aBc---def`` becomes ``data-wed-moo---abc----def-u3g2u1``. Note the
+ *   diff suffix, which allows restoring the orignal case.
  *
  * When ``qualifier`` is used, the qualifier is added just after ``data-wed-``
  * and is prepended and appended with a dash. So ``foo:bar`` with the qualifier
- * ``ns`` would become ``data-wed--ns-foo---bar``.
+ * ``ns`` would become ``data-wed--ns-foo---bar-``. The addition of a dash in
+ * front of the qualifier makes it impossible to confuse an encoding that has a
+ * qualifier from one that does not, as XML attribute names are not allowed to
+ * start with a dash.
  *
- * @param name The unencoded name.
+ * @param name The unencoded name (i.e. the attribute name as it is in XML).
  *
  * @param qualifier An optional qualifier.
  *

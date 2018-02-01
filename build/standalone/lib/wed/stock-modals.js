@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./build-info"], function (require, exports, module, buildInfo) {
+define(["require", "exports", "./browsers", "./build-info"], function (require, exports, browsers_1, buildInfo) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -45,9 +45,14 @@ selecting smaller sections.<p>");
                     modal.addButton("Ok", true);
                     break;
                 case "help":
-                    var docLink = this.maker.docLink;
+                    var docURL = this.maker.docURL;
+                    // These are different on browsers running in OSX. So we later edit the
+                    // list as needed.
+                    var otherKeys = "  <li>Ctrl-s: Save</li>\n  <li>Ctrl-x: Cut</li>\n  <li>Ctrl-v: Paste</li>\n  <li>Ctrl-c: Copy</li>\n  <li>Ctrl-z: Undo</li>\n  <li>Ctrl-y: Redo</li>\n  <li>Ctrl-/: Bring up a contextual menu.</li>\n  <li>Ctrl-?: Bring up a replacement menu.</li>\n  <li>Ctrl-f: Quick search forward.</li>\n  <li>Ctrl-b: Quick search backwards.</li>\n  <li>Ctrl-Shift-f: Search forward.</li>\n  <li>Ctrl-Shift-b: Search backwards.</li>\n";
+                    // These combinations don't exist on OSX.
+                    var visibility = "  <li>Ctrl-[: Decrease the label visibility level.</li>\n  <li>Ctrl-]: Increase the label visibility level.</li>\n";
                     modal.setTitle("Help");
-                    modal.setBody("\n<p>Click <a href='" + docLink + "' target='_blank'>this link</a> to see\nwed's generic help. The link by default will open in a new tab.</p>\n<p>The key combinations with Ctrl below are done with Command in OS X.</p>\n<ul>\n  <li>Clicking the right mouse button on the document contents brings up a\ncontextual menu.</li>\n  <li>F1: help</li>\n  <li>Ctrl-[: Decrease the label visibility level.</li>\n  <li>Ctrl-]: Increase the label visibility level.</li>\n  <li>Ctrl-s: Save</li>\n  <li>Ctrl-x: Cut</li>\n  <li>Ctrl-v: Paste</li>\n  <li>Ctrl-c: Copy</li>\n  <li>Ctrl-z: Undo</li>\n  <li>Ctrl-y: Redo</li>\n  <li>Ctrl-/: Bring up a contextual menu.</li>\n  <li>Ctrl-f: Quick search forward.</li>\n  <li>Ctrl-b: Quick search backwards.</li>\n  <li>Ctrl-Shift-f: Search forward.</li>\n  <li>Ctrl-Shift-b: Search backwards.</li>\n</ul>\n<p class='wed-build-info'>Build descriptor: " + buildInfo.desc + "<br/>\nBuild date: " + buildInfo.date + "</p>");
+                    modal.setBody("\n<p>Click <a href='" + docURL + "' target='_blank'>this link</a> to see\nwed's generic help. The link by default will open in a new tab.</p>\n<ul>\n  <li>Clicking the right mouse button on the document contents brings up a\ncontextual menu.</li>\n  <li>F1: help</li>\n  " + (browsers_1.OSX ? otherKeys.replace(/Ctrl-/g, "Cmd-") : visibility + otherKeys) + "\n</ul>\n<p class='wed-build-info'>Build descriptor: " + buildInfo.desc + "<br/>\nBuild date: " + buildInfo.date + "</p>");
                     modal.addButton("Close", true);
                     break;
                 case "disconnect":
@@ -82,7 +87,6 @@ trying to edit further.");
     }());
     exports.StockModals = StockModals;
 });
-//  LocalWords:  MPL editedByOther tooOld href docLink wed's Ctrl ul li runtime
-//  LocalWords:  badName
-
+//  LocalWords:  MPL editedByOther tooOld href docUrl wed's Ctrl ul li runtime
+//  LocalWords:  badName Cmd OSX
 //# sourceMappingURL=stock-modals.js.map

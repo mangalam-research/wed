@@ -1,11 +1,7 @@
 /**
- * Browser detection. Extremely ad hoc and meant for wed's internal purposes
- * only.
- *
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
+ * True if the browser is Edge.
  */
+export declare const EDGE: boolean;
 /**
  * True if the browser is Chrome.
  */

@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/key-constants", "wed/wed", "../base-config", "../wed-test-util"], function (require, exports, module, keyConstants, wed, globalConfig, wed_test_util_1) {
+define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "wed", "../base-config", "../wed-test-util"], function (require, exports, filter_1, first_1, wed_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -20,13 +20,13 @@ server_interaction_converted.xml", globalConfig.config, document);
             // tslint:disable-next-line:no-any
             editor = undefined;
         });
-        it("saves", function () {
+        it("saves using the keyboard", function () {
             var prom = editor.saver.events
-                .filter(function (ev) { return ev.name === "Saved"; }).first().toPromise()
+                .pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first()).toPromise()
                 .then(function () {
                 assert.deepEqual(server.lastSaveRequest, {
                     command: "save",
-                    version: wed.version,
+                    version: wed_1.version,
                     data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
@@ -34,16 +34,25 @@ server_interaction_converted.xml", globalConfig.config, document);
 <p><term>blah</term></p></body></text></TEI>",
                 });
             });
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(wed_1.keyConstants.SAVE);
+            return prom;
+        });
+        it("saves using the toolbar", function () {
+            // We just check the event happened.
+            var prom = editor.saver.events
+                .pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first()).toPromise();
+            var button = editor.widget
+                .querySelector("[data-original-title='Save']");
+            button.click();
             return prom;
         });
         it("serializes properly", function () {
             var prom = editor.saver.events
-                .filter(function (ev) { return ev.name === "Saved"; }).first().toPromise()
+                .pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first()).toPromise()
                 .then(function () {
                 assert.deepEqual(server.lastSaveRequest, {
                     command: "save",
-                    version: wed.version,
+                    version: wed_1.version,
                     data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt><p><abbr/></p></publicationStmt><sourceDesc><p/></sourceDesc>\
@@ -56,14 +65,14 @@ server_interaction_converted.xml", globalConfig.config, document);
             var trs = editor.modeTree.getMode(p)
                 .getContextualActions("insert", "abbr", p, 0);
             trs[0].execute({ name: "abbr" });
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(wed_1.keyConstants.SAVE);
             return prom;
         });
         it("does not autosave if not modified", function (done) {
             // tslint:disable-next-line:no-floating-promises
             editor.save().then(function () {
                 var sub = editor.saver.events
-                    .filter(function (ev) { return ev.name === "Autosaved"; }).subscribe(function (ev) {
+                    .pipe(filter_1.filter(function (ev) { return ev.name === "Autosaved"; })).subscribe(function (ev) {
                     throw new Error("autosaved!");
                 });
                 editor.saver.setAutosaveInterval(50);
@@ -76,7 +85,7 @@ server_interaction_converted.xml", globalConfig.config, document);
         it("autosaves when the document is modified", function (done) {
             // We're testing that autosave is not called again after the first time.
             var autosaved = false;
-            var sub = editor.saver.events.filter(function (x) { return x.name === "Autosaved"; })
+            var sub = editor.saver.events.pipe(filter_1.filter(function (x) { return x.name === "Autosaved"; }))
                 .subscribe(function () {
                 if (autosaved) {
                     throw new Error("autosaved more than once");
@@ -84,7 +93,7 @@ server_interaction_converted.xml", globalConfig.config, document);
                 autosaved = true;
                 assert.deepEqual(server.lastSaveRequest, {
                     command: "autosave",
-                    version: wed.version,
+                    version: wed_1.version,
                     data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt/><sourceDesc><p/></sourceDesc>\
@@ -107,7 +116,8 @@ server_interaction_converted.xml", globalConfig.config, document);
                 // time.
                 var autosaved = false;
                 var interval = 50;
-                var sub = editor.saver.events.filter(function (x) { return x.name === "Autosaved"; })
+                var sub = editor.saver.events
+                    .pipe(filter_1.filter(function (x) { return x.name === "Autosaved"; }))
                     .subscribe(function () {
                     if (autosaved) {
                         throw new Error("autosaved more than once");
@@ -115,7 +125,7 @@ server_interaction_converted.xml", globalConfig.config, document);
                     autosaved = true;
                     assert.deepEqual(server.lastSaveRequest, {
                         command: "autosave",
-                        version: wed.version,
+                        version: wed_1.version,
                         data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt/><sourceDesc><p/></sourceDesc>\
@@ -136,5 +146,4 @@ server_interaction_converted.xml", globalConfig.config, document);
         });
     });
 });
-
 //# sourceMappingURL=wed-save-test.js.map

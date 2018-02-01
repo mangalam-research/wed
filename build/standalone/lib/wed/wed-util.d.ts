@@ -4,7 +4,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { DLoc } from "./dloc";
-import { Editor } from "./wed";
+import { Editor } from "./editor";
 export interface BoundaryCoordinates {
     left: number;
     top: number;

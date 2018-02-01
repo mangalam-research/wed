@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/domtypeguards", "../base-config", "../wed-test-util"], function (require, exports, module, domtypeguards_1, globalConfig, wed_test_util_1) {
+define(["require", "exports", "wed/domtypeguards", "../base-config", "../wed-test-util"], function (require, exports, domtypeguards_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -70,8 +70,7 @@ define(["require", "exports", "module", "wed/domtypeguards", "../base-config", "
                 el.getClientRects().length !== 0);
         }
         describe("autohidden attributes", function () {
-            it("are hidden when the caret is not in the element", function () {
-                var div = editor.guiRoot.querySelectorAll(".body .div")[1];
+            function checkHidden(div) {
                 for (var _i = 0, _a = Array.from(wed_test_util_1.getAttributeNamesFor(div)); _i < _a.length; _i++) {
                     var name_1 = _a[_i];
                     var text = name_1.textContent;
@@ -85,11 +84,8 @@ define(["require", "exports", "module", "wed/domtypeguards", "../base-config", "
                         assert.isFalse(isVisible(name_1), "should be hidden");
                     }
                 }
-            });
-            it("are shown when the caret is in the element", function () {
-                var div = editor.guiRoot.querySelectorAll(".body .div")[1];
-                var label = wed_test_util_1.firstGUI(div);
-                caretManager.setCaret(label, 0);
+            }
+            function checkVisible(div) {
                 for (var _i = 0, _a = Array.from(wed_test_util_1.getAttributeNamesFor(div)); _i < _a.length; _i++) {
                     var name_2 = _a[_i];
                     var text = name_2.textContent;
@@ -102,9 +98,31 @@ define(["require", "exports", "module", "wed/domtypeguards", "../base-config", "
                         assert.isTrue(autohidden);
                     }
                 }
+            }
+            it("are hidden when the caret is not in the element", function () {
+                checkHidden(editor.guiRoot.querySelectorAll(".body .div")[1]);
+            });
+            it("are shown when the caret is in the element", function () {
+                var div = editor.guiRoot.querySelectorAll(".body .div")[1];
+                var label = wed_test_util_1.firstGUI(div);
+                caretManager.setCaret(label, 0);
+                checkVisible(div);
+            });
+            it("are shown and hidden using the toolbar", function () {
+                var div = editor.guiRoot.querySelectorAll(".body .div")[1];
+                // Initially hidden when the caret it outside the element.
+                checkHidden(div);
+                var button = editor.widget
+                    .querySelector("[data-original-title='Toggle attribute hiding']");
+                button.click();
+                checkVisible(div);
+                // Toggle again, and they should be all be invisible.
+                button = editor.widget
+                    .querySelector("[data-original-title='Toggle attribute hiding']");
+                button.click();
+                checkHidden(div);
             });
         });
     });
 });
-
 //# sourceMappingURL=wed-decoration-test.js.map

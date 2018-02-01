@@ -1,7 +1,7 @@
 import { Action } from "./action";
 import { DLoc } from "./dloc";
+import { EditorAPI } from "./mode-api";
 import { TreeUpdater } from "./tree-updater";
-import { Editor } from "./wed";
 /**
  * Data passed to the transformation handler. The transformation types expect
  * the following values for the parameters passed to a handler.
@@ -54,12 +54,12 @@ export interface NamedTransformationData extends TransformationData {
  *
  * @param data The data for the transformation.
  */
-export declare type TransformationHandler = (editor: Editor, data: TransformationData) => void;
+export declare type TransformationHandler<Data extends TransformationData> = (editor: EditorAPI, data: Data) => void;
 /**
  * An operation that transforms the data tree.
  */
-export declare class Transformation<Data extends TransformationData> extends Action<Data> {
-    readonly handler: TransformationHandler;
+export declare class Transformation<Data extends TransformationData, Handler extends TransformationHandler<Data> = TransformationHandler<Data>> extends Action<Data> {
+    readonly handler: Handler;
     readonly transformationType: string;
     readonly kind: string;
     readonly nodeType: string;
@@ -93,10 +93,10 @@ export declare class Transformation<Data extends TransformationData> extends Act
      *
      * @param handler The handler to call when this transformation is executed.
      */
-    constructor(editor: Editor, transformationType: string, desc: string, handler: TransformationHandler);
-    constructor(editor: Editor, transformationType: string, desc: string, abbreviatedDesc: string | undefined, handler: TransformationHandler);
-    constructor(editor: Editor, transformationType: string, desc: string, abbreviatedDesc: string | undefined, iconHtml: string | undefined, handler: TransformationHandler);
-    constructor(editor: Editor, transformationType: string, desc: string, abbreviatedDesc: string | undefined, iconHtml: string | undefined, needsInput: boolean, handler: TransformationHandler);
+    constructor(editor: EditorAPI, transformationType: string, desc: string, handler: Handler);
+    constructor(editor: EditorAPI, transformationType: string, desc: string, abbreviatedDesc: string | undefined, handler: Handler);
+    constructor(editor: EditorAPI, transformationType: string, desc: string, abbreviatedDesc: string | undefined, iconHtml: string | undefined, handler: Handler);
+    constructor(editor: EditorAPI, transformationType: string, desc: string, abbreviatedDesc: string | undefined, iconHtml: string | undefined, needsInput: boolean, handler: Handler);
     getDescriptionFor(data: Data): string;
     /**
      * Calls the ``fireTransformation`` method on this transformation's editor.
@@ -209,7 +209,7 @@ export declare function unwrap(dataUpdater: TreeUpdater, node: Element): Node[];
  *
  * @throws {Error} If the caret is not inside the node or its descendants.
  */
-export declare function splitNode(editor: Editor, node: Node): void;
+export declare function splitNode(editor: EditorAPI, node: Node): void;
 /**
  * This function merges an element with a previous element of the same name. For
  * the operation to go forward, the element must have a previous sibling and
@@ -219,7 +219,7 @@ export declare function splitNode(editor: Editor, node: Node): void;
  *
  * @param node The element to merge with previous.
  */
-export declare function mergeWithPreviousHomogeneousSibling(editor: Editor, node: Element): void;
+export declare function mergeWithPreviousHomogeneousSibling(editor: EditorAPI, node: Element): void;
 /**
  * This function merges an element with a next element of the same name. For the
  * operation to go forward, the element must have a next sibling and this
@@ -229,7 +229,7 @@ export declare function mergeWithPreviousHomogeneousSibling(editor: Editor, node
  *
  * @param node The element to merge with next.
  */
-export declare function mergeWithNextHomogeneousSibling(editor: Editor, node: Element): void;
+export declare function mergeWithNextHomogeneousSibling(editor: EditorAPI, node: Element): void;
 /**
  * This function swaps an element with a previous element of the same name. For
  * the operation to go forward, the element must have a previous sibling and
@@ -239,7 +239,7 @@ export declare function mergeWithNextHomogeneousSibling(editor: Editor, node: El
  *
  * @param node The element to swap with previous.
  */
-export declare function swapWithPreviousHomogeneousSibling(editor: Editor, node: Element): void;
+export declare function swapWithPreviousHomogeneousSibling(editor: EditorAPI, node: Element): void;
 /**
  * This function swaps an element with a next element of the same name. For the
  * operation to go forward, the element must have a next sibling and this
@@ -249,4 +249,12 @@ export declare function swapWithPreviousHomogeneousSibling(editor: Editor, node:
  *
  * @param node The element to swap with next.
  */
-export declare function swapWithNextHomogeneousSibling(editor: Editor, node: Element): void;
+export declare function swapWithNextHomogeneousSibling(editor: EditorAPI, node: Element): void;
+/**
+ * Remove markup from the current selection. This turns mixed content into pure
+ * text. The selection must be well-formed, otherwise the transformation is
+ * aborted.
+ *
+ * @param editor The editor for which we are doing the transformation.
+ */
+export declare function removeMarkup(editor: EditorAPI): void;

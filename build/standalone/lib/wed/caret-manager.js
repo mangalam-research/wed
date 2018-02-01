@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers", "./caret-mark", "./caret-movement", "./dloc", "./domtypeguards", "./domutil", "./object-check", "./wed-selection", "./wed-util"], function (require, exports, module, $, rangy, rxjs_1, browsers, caret_mark_1, caretMovement, dloc_1, domtypeguards_1, domutil_1, objectCheck, wed_selection_1, wed_util_1) {
+define(["require", "exports", "jquery", "rxjs/Subject", "./browsers", "./caret-mark", "./caret-movement", "./dloc", "./domtypeguards", "./domutil", "./object-check", "./wed-selection", "./wed-util"], function (require, exports, $, Subject_1, browsers, caret_mark_1, caretMovement, dloc_1, domtypeguards_1, domutil_1, objectCheck, wed_selection_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -78,7 +78,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             this.doc = guiRootEl.ownerDocument;
             this.win = this.doc.defaultView;
             this.$inputField = $(this.inputField);
-            this._events = new rxjs_1.Subject();
+            this._events = new Subject_1.Subject();
             this.events = this._events.asObservable();
             $(this.guiRootEl).on("focus", function (ev) {
                 _this.focusInputField();
@@ -461,11 +461,11 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             // straightforwardly selecting one character.
             if (this.prevCaret === undefined || !this.prevCaret.equals(focus)) {
                 this.mark.refresh();
-                var rr = sel.rangeInfo;
-                if (rr === undefined) {
+                var range = sel.range;
+                if (range === undefined) {
                     throw new Error("unable to make a range");
                 }
-                this._setDOMSelectionRange(rr.range, rr.reversed);
+                this._setDOMSelectionRange(range);
             }
             this._caretChange();
         };
@@ -542,15 +542,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
                 loc = newLoc;
             }
             if (options !== undefined) {
-                var result = objectCheck.check(caretOptionTemplate, options);
-                // We don't have mandatory options but have a minimal handling of this
-                // case.
-                if (result.missing !== undefined) {
-                    throw new Error("there are missing options");
-                }
-                if (result.extra !== undefined) {
-                    throw new Error("unknown options passed to setCaret: " + result.extra.join(","));
-                }
+                objectCheck.assertSummarily(caretOptionTemplate, options);
             }
             else {
                 options = {};
@@ -602,11 +594,6 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
          */
         CaretManager.prototype.pushSelection = function () {
             this.selectionStack.push(this._sel);
-            // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
-            // ``tech_notes.rst``.
-            if (browsers.MSIE_TO_10) {
-                this._clearDOMSelection();
-            }
         };
         /**
          * Pop the last selection that was pushed with ``pushSelection`` and restore
@@ -636,13 +623,13 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
                 // It is possible that the anchor has been removed after focus was lost
                 // so check for it.
                 this.guiRootEl.contains(this.anchor.node)) {
-                var rr = this.rangeInfo;
-                if (rr === undefined) {
+                var range = this.range;
+                if (range === undefined) {
                     throw new Error("could not make a range");
                 }
-                this._setDOMSelectionRange(rr.range, rr.reversed);
+                this._setDOMSelectionRange(range);
                 // We're not selecting anything...
-                if (rr.range.collapsed) {
+                if (range.collapsed) {
                     this.focusInputField();
                 }
                 this.mark.refresh();
@@ -683,7 +670,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
          * This function is meant to be used internally to manipulate the DOM
          * selection directly.
          */
-        CaretManager.prototype._setDOMSelectionRange = function (range, reverse) {
+        CaretManager.prototype._setDOMSelectionRange = function (range) {
             if (range.collapsed) {
                 this._clearDOMSelection();
                 return;
@@ -694,13 +681,9 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             if (browsers.FIREFOX) {
                 domutil_1.focusNode(range.endContainer);
             }
-            // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
-            // ``tech_notes.rst``.
-            if (browsers.MSIE_TO_10) {
-                this._clearDOMSelection();
-            }
             var sel = this._getDOMSelection();
-            sel.setSingleRange(range, reverse);
+            sel.removeAllRanges();
+            sel.addRange(range);
         };
         /**
          * Sets the caret position in the GUI tree.
@@ -758,14 +741,19 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             if (options === void 0) { options = {}; }
             var prevCaret = this.prevCaret;
             var caret = this.caret;
+            var mode = caret !== undefined ?
+                this.modeTree.getMode(caret.node) : undefined;
             if (prevCaret === undefined || !prevCaret.equals(caret)) {
                 this._events.next({
                     manager: this,
                     caret: caret,
+                    mode: mode,
                     prevCaret: prevCaret,
+                    prevMode: this.prevMode,
                     options: options,
                 });
                 this.prevCaret = caret;
+                this.prevMode = mode;
             }
         };
         CaretManager.prototype._clearDOMSelection = function (dontFocus) {
@@ -777,7 +765,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             }
         };
         CaretManager.prototype._getDOMSelection = function () {
-            return rangy.getSelection(this.win);
+            return this.win.getSelection();
         };
         /**
          * Focus the field use for input events.  It is used by wed on some occasions
@@ -822,7 +810,7 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
             var topOffset = this.scroller.scrollTop - grPosition.top;
             var leftOffset = this.scroller.scrollLeft - grPosition.left;
             var highlight = this.doc.createElement("div");
-            for (var _i = 0, _a = Array.from(domRange.nativeRange.getClientRects()); _i < _a.length; _i++) {
+            for (var _i = 0, _a = Array.from(domRange.getClientRects()); _i < _a.length; _i++) {
                 var rect = _a[_i];
                 var highlightPart = this.doc.createElement("div");
                 highlightPart.className = "_wed_highlight";
@@ -883,5 +871,4 @@ define(["require", "exports", "module", "jquery", "rangy", "rxjs", "./browsers",
 //  LocalWords:  MPL wed's DLoc sel setCaret clearDOMSelection rst focusTheNode
 //  LocalWords:  bugzilla nd noop activeElement px rect grPosition topOffset
 //  LocalWords:  leftOffset
-
 //# sourceMappingURL=caret-manager.js.map

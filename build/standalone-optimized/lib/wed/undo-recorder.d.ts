@@ -1,5 +1,5 @@
+import { Editor } from "./editor";
 import { TreeUpdater } from "./tree-updater";
-import { Editor } from "./wed";
 /**
  * Records undo operations.
  */

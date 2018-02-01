@@ -1,4 +1,4 @@
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -19,6 +19,11 @@ define(["require", "exports", "module"], function (require, exports, module) {
     ICON_NAMES.attribute = "fa-at";
     ICON_NAMES.other = "fa-circle-thin";
     ICON_NAMES.exclamation = "fa-exclamation";
+    ICON_NAMES["arrow-up"] = "fa-arrow-up";
+    ICON_NAMES["arrow-down"] = "fa-arrow-down";
+    ICON_NAMES.upload = "fa-cloud-upload";
+    ICON_NAMES.undo = "fa-undo";
+    ICON_NAMES.redo = "fa-repeat";
     /**
      * Generates the HTML for an icon. The icon name can be any of:
      *
@@ -47,5 +52,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.makeHTML = makeHTML;
 });
 //  LocalWords:  MPL fw
-
 //# sourceMappingURL=icon.js.map

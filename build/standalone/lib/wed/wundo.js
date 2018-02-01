@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "./undo"], function (require, exports, module, undo) {
+define(["require", "exports", "./undo"], function (require, exports, undo) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -36,12 +36,12 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
             _this.caretAsPathBefore = _this.getDataCaretAsPath();
             return _this;
         }
-        UndoGroup.prototype.undo = function () {
-            _super.prototype.undo.call(this);
+        UndoGroup.prototype.performUndo = function () {
+            _super.prototype.performUndo.call(this);
             this.setDataCaretAsPath(this.caretAsPathBefore);
         };
-        UndoGroup.prototype.redo = function () {
-            _super.prototype.redo.call(this);
+        UndoGroup.prototype.performRedo = function () {
+            _super.prototype.performRedo.call(this);
             if (this.caretAsPathAfter === undefined) {
                 throw new Error("caretAsPathAfter is undefined, this indicates a corrupted state and thus an internal error");
             }
@@ -128,26 +128,7 @@ define(["require", "exports", "module", "./undo"], function (require, exports, m
         return TextUndoGroup;
     }(UndoGroup));
     exports.TextUndoGroup = TextUndoGroup;
-    /**
-     * Serves as a marker for debugging.
-     */
-    var MarkerUndo = /** @class */ (function (_super) {
-        __extends(MarkerUndo, _super);
-        /**
-         * @param msg A message to identify the marker.
-         */
-        function MarkerUndo(msg) {
-            return _super.call(this, "*** MARKER *** " + msg) || this;
-        }
-        // tslint:disable-next-line:no-empty
-        MarkerUndo.prototype.undo = function () { };
-        // tslint:disable-next-line:no-empty
-        MarkerUndo.prototype.redo = function () { };
-        return MarkerUndo;
-    }(undo.Undo));
-    exports.MarkerUndo = MarkerUndo;
 });
 //  LocalWords:  pathToNode nodeToPath Dubeau MPL Mangalam param UndoGroup
 //  LocalWords:  TextUndoGroup caretAsPathAfter
-
 //# sourceMappingURL=wundo.js.map

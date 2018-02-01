@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil", "./util"], function (require, exports, module, dloc_1, domtypeguards_1, domutil_1, util_1) {
+define(["require", "exports", "./dloc", "./domtypeguards", "./domutil", "./util"], function (require, exports, dloc_1, domtypeguards_1, domutil_1, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -119,8 +119,8 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
         }
         /**
          * Converts a node to a path suitable to be used by the
-         * [["dloc".DLocRoot.pathToNode]] method so long as the root used is the one
-         * for the data tree corresponding to the GUI tree to which this object
+         * [["wed/dloc".DLocRoot.pathToNode]] method so long as the root used is the
+         * one for the data tree corresponding to the GUI tree to which this object
          * belongs.
          *
          * @param node The node for which to construct a path.
@@ -187,7 +187,7 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
         };
         /**
          * This function recovers a DOM node on the basis of a path previously created
-         * by [["dloc".DLocRoot.nodeToPath]] provided that the root from which the
+         * by [["wed/dloc".DLocRoot.nodeToPath]] provided that the root from which the
          * path was obtained is on the data tree which corresponds to the GUI tree
          * that this root was created for.
          *
@@ -268,5 +268,4 @@ define(["require", "exports", "module", "./dloc", "./domtypeguards", "./domutil"
     exports.GUIRoot = GUIRoot;
 });
 //  LocalWords:  MPL
-
 //# sourceMappingURL=guiroot.js.map

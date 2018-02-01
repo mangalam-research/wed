@@ -4,8 +4,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { Editor } from "./editor";
 import * as undo from "./undo";
-import { Editor } from "./wed";
 export declare type Caret = [string | undefined, number | undefined];
 /**
  * This class extends the vanilla UndoGroup class by recording the
@@ -23,8 +23,8 @@ export declare class UndoGroup extends undo.UndoGroup {
      * @param editor The editor for which this undo group is created.
      */
     constructor(desc: string, editor: Editor);
-    undo(): void;
-    redo(): void;
+    performUndo(): void;
+    performRedo(): void;
     /**
      * Get the current data caret position as a path.
      *
@@ -69,15 +69,4 @@ export declare class TextUndoGroup extends UndoGroup {
      */
     constructor(desc: string, editor: Editor, undoList: undo.UndoList, limit: number);
     record(undoToRecord: undo.Undo): void;
-}
-/**
- * Serves as a marker for debugging.
- */
-export declare class MarkerUndo extends undo.Undo {
-    /**
-     * @param msg A message to identify the marker.
-     */
-    constructor(msg: string);
-    undo(): void;
-    redo(): void;
 }

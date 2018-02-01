@@ -33,7 +33,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module", "merge-options", "../base-config", "../util", "../wed-test-util"], function (require, exports, module, mergeOptions, globalConfig, util_1, wed_test_util_1) {
+define(["require", "exports", "merge-options", "../base-config", "../util", "../wed-test-util"], function (require, exports, mergeOptions, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -205,5 +205,4 @@ define(["require", "exports", "module", "merge-options", "../base-config", "../u
         });
     });
 });
-
 //# sourceMappingURL=wed-wildcard-test.js.map

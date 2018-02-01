@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage Notes &mdash; Wed v0.30.0 documentation</title>
+  <title>Advanced Usage Notes &mdash; Wed v1.0.0 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v0.30.0 documentation" href="index.html"/>
+    <link rel="top" title="Wed v1.0.0 documentation" href="index.html"/>
         <link rel="prev" title="Creating a Mode" href="mode_design.html"/> 
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                v0.30
+                v1.0
               </div>
             
           
@@ -236,10 +236,10 @@ individual module mappings. In this scenario, it is <strong>not</strong> possibl
 external to wed to load parts of wed in an arbitrary order. The <code class="docutils literal"><span class="pre">wed.js</span></code> file
 has to be loaded first, and then wed&#8217;s modules become accessible. Note that this
 way of operating should work for the vast majority of cases because the typical
-usage scenario for wed is to first create a <code class="docutils literal"><span class="pre">wed.Editor</span></code> instance which
-dynamically loads a mode. Since the mode is loaded after <code class="docutils literal"><span class="pre">wed.Editor</span></code> is
-created, it is guaranteed that by the time the mode runs, all of wed&#8217;s modules
-are available.</p>
+usage scenario for wed is to first create a an <code class="docutils literal"><span class="pre">Editor</span></code> instance which
+dynamically loads a mode. Since the mode is loaded after <code class="docutils literal"><span class="pre">Editor</span></code> is created,
+it is guaranteed that by the time the mode runs, all of wed&#8217;s modules are
+available.</p>
 </div>
 <div class="section" id="schema-and-structure-considerations">
 <h2>Schema and Structure Considerations<a class="headerlink" href="#schema-and-structure-considerations" title="Permalink to this headline">¶</a></h2>
@@ -639,9 +639,6 @@ special qualifier.</dd>
 working with this selection have <code class="docutils literal"><span class="pre">data</span></code> in their name. Mode will typically
 want to work with this selection.</dd>
 </dl>
-<p>Wed uses Rangy to help with selection manipulations. As of Rangy 1.3alpha.804,
-there is a bug in IE with handling control ranges. The workaround for now is to
-<strong>clear</strong> the range before setting a new range.</p>
 </div>
 <div class="section" id="carets">
 <h3>Carets<a class="headerlink" href="#carets" title="Permalink to this headline">¶</a></h3>
@@ -764,18 +761,22 @@ or <code class="docutils literal"><span class="pre">_phantom_wrap</span></code> 
 </ul>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">data-wed-[name]=&quot;...&quot;</span></code> when the attribute name is without namespace prefix</li>
-<li><code class="docutils literal"><span class="pre">data-wed-[prefix]---[name]=&quot;...&quot;</span></code> when the attribute name has a
+<li><code class="docutils literal"><span class="pre">data-wed-[name]-[diff]=&quot;...&quot;</span></code> when the attribute name is without namespace prefix</li>
+<li><code class="docutils literal"><span class="pre">data-wed-[prefix]---[name]-[diff]=&quot;...&quot;</span></code> when the attribute name has a
 namespace prefix</li>
 </ul>
 </div></blockquote>
 <p>The <code class="docutils literal"><span class="pre">[name]</span></code> part is converted so that three dashes become four, four become
-five, etc. Here are examples of XML attributes and what they become in HTML:</p>
+five, etc. The <code class="docutils literal"><span class="pre">[diff]</span></code> part records differences between the origninal XML
+name and the name in HTML. Here are examples of XML attributes and what they
+become in HTML:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">foo</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-foo</span></code></li>
-<li><code class="docutils literal"><span class="pre">xml:lang</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---lang</span></code></li>
-<li><code class="docutils literal"><span class="pre">xml:a-b</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---a-b</span></code></li>
-<li><code class="docutils literal"><span class="pre">xml:a---b</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---a----b</span></code></li>
+<li><code class="docutils literal"><span class="pre">foo</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-foo-</span></code></li>
+<li><code class="docutils literal"><span class="pre">xml:lang</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---lang-</span></code></li>
+<li><code class="docutils literal"><span class="pre">xml:a-b</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---a-b-</span></code></li>
+<li><code class="docutils literal"><span class="pre">xml:a---b</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-xml---a----b-</span></code></li>
+<li><code class="docutils literal"><span class="pre">Foo</span></code> -&gt; <code class="docutils literal"><span class="pre">data-wed-foo-u1</span></code>. This one encodes the fact that the original
+name had an uppercase first letter.</li>
 <li>Wed may add attributes for its internal purposes. These do not correspond to
 any XML attributes. They are encoded as <code class="docutils literal"><span class="pre">data-wed--[name]</span></code>. An XML attribute
 name or prefix may not begin with a dash, so there cannot be a clash.</li>
@@ -1072,7 +1073,7 @@ obsolete code may still remain.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.30.0',
+            VERSION:'v1.0.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

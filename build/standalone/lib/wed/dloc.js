@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", "./domutil"], function (require, exports, module, $, rangy, domtypeguards_1, domutil_1) {
+define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], function (require, exports, $, domtypeguards_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -137,29 +137,6 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
             }
         }
         return testLength;
-    }
-    /**
-     * Compare two locations that have already been determined to be in a
-     * parent-child relation. **Important: the relationship must have been formally
-     * tested *before* calling this function.**
-     *
-     * @returns -1 if ``parent`` is before ``child``, 1 otherwise.
-     */
-    function parentChildCompare(parentNode, parentOffset, childNode) {
-        // Find which child of parent is or contains the other node.
-        var curChild = parentNode.firstChild;
-        var ix = 0;
-        while (curChild !== null) {
-            if (curChild.contains(childNode)) {
-                break;
-            }
-            ix++;
-            curChild = curChild.nextSibling;
-        }
-        // This is ``<= 0`` and not just ``< 0`` because if our offset points exactly
-        // to the child we found, then parent location is necessarily before the child
-        // location.
-        return (parentOffset - ix) <= 0 ? -1 : 1;
     }
     /**
      * ``DLoc`` objects model locations in a DOM tree. Although the current
@@ -353,7 +330,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
                 return undefined;
             }
             if (other === undefined) {
-                var range = rangy.createRange(this.node.ownerDocument);
+                var range = this.node.ownerDocument.createRange();
                 range.setStart(this.node, this.offset);
                 return range;
             }
@@ -503,32 +480,7 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
                 otherNode = owner.parentNode;
                 otherOffset = domutil_1.indexOf(otherNode.childNodes, owner);
             }
-            if (thisNode === otherNode) {
-                var d = thisOffset - otherOffset;
-                if (d === 0) {
-                    return 0;
-                }
-                return d < 0 ? -1 : 1;
-            }
-            var comparison = thisNode.compareDocumentPosition(otherNode);
-            // tslint:disable:no-bitwise
-            if ((comparison & Node.DOCUMENT_POSITION_DISCONNECTED) !== 0) {
-                throw new Error("cannot compare disconnected nodes");
-            }
-            if ((comparison & Node.DOCUMENT_POSITION_CONTAINED_BY) !== 0) {
-                return parentChildCompare(thisNode, thisOffset, otherNode);
-            }
-            if ((comparison & Node.DOCUMENT_POSITION_CONTAINS) !== 0) {
-                return parentChildCompare(otherNode, otherOffset, thisNode) < 0 ? 1 : -1;
-            }
-            if ((comparison & Node.DOCUMENT_POSITION_PRECEDING) !== 0) {
-                return 1;
-            }
-            if ((comparison & Node.DOCUMENT_POSITION_FOLLOWING) !== 0) {
-                return -1;
-            }
-            // tslint:enable:no-bitwise
-            throw new Error("neither preceding nor following: this should not happen");
+            return domutil_1.comparePositions(thisNode, thisOffset, otherNode, otherOffset);
         };
         return DLoc;
     }());
@@ -667,5 +619,4 @@ define(["require", "exports", "module", "jquery", "rangy", "./domtypeguards", ".
 });
 //  LocalWords:  makeDLoc DLoc domutil jquery MPL dloc mustMakeDLoc nd thisNode
 //  LocalWords:  otherNode compareDocumentPosition makeDOMRange
-
 //# sourceMappingURL=dloc.js.map

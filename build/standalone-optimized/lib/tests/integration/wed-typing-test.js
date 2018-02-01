@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/domtypeguards", "wed/domutil", "wed/key", "wed/key-constants", "../base-config", "../wed-test-util"], function (require, exports, module, domtypeguards_1, domutil_1, key, keyConstants, globalConfig, wed_test_util_1) {
+define(["require", "exports", "wed/domtypeguards", "wed/domutil", "wed/key", "wed/key-constants", "../base-config", "../wed-test-util"], function (require, exports, domtypeguards_1, domutil_1, key, keyConstants, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -430,5 +430,4 @@ define(["require", "exports", "module", "wed/domtypeguards", "wed/domutil", "wed
         });
     });
 });
-
 //# sourceMappingURL=wed-typing-test.js.map

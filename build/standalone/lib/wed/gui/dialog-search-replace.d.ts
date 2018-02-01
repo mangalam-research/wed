@@ -1,4 +1,4 @@
-import { Editor } from "../wed";
+import { Editor } from "../editor";
 import { Scroller } from "./scroller";
 import { Direction } from "./search-replace";
 export { Direction };

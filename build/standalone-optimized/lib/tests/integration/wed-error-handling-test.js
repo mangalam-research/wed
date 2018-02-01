@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/key-constants", "wed/onerror", "wed/wed", "../base-config", "../wed-test-util"], function (require, exports, module, keyConstants, onerror, wed, globalConfig, wed_test_util_1) {
+define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "wed", "wed/key-constants", "wed/onerror", "../base-config", "../wed-test-util"], function (require, exports, filter_1, first_1, wed, keyConstants, onerror, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -23,14 +23,14 @@ server_interaction_converted.xml", globalConfig.config, document);
                 onerror.__test.reset();
                 done();
             });
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(keyConstants.SAVE);
         });
         it("warn of disconnection when server returns a bad status", function (done) {
             server.failOnSave = true;
             var $modal = editor.modals.getModal("disconnect").getTopLevel();
             $modal.on("shown.bs.modal", function () {
-                editor.saver.events.filter(function (ev) { return ev.name === "Saved"; })
-                    .first().subscribe(function (ev) {
+                editor.saver.events.pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first())
+                    .subscribe(function (ev) {
                     // Was saved on retry!
                     // This allows us to let the whole save process run its course before
                     // we declare it done.
@@ -40,7 +40,7 @@ server_interaction_converted.xml", globalConfig.config, document);
                 // This triggers a retry.
                 $modal.modal("hide");
             });
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(keyConstants.SAVE);
         });
         it("bring up modal when document was edited by someone else", function (done) {
             server.preconditionFailOnSave = true;
@@ -51,7 +51,7 @@ server_interaction_converted.xml", globalConfig.config, document);
                 $modal.modal("hide");
                 done();
             });
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(keyConstants.SAVE);
         });
         it("bring up modal when there is a new version of editor", function (done) {
             server.tooOldOnSave = true;
@@ -62,7 +62,7 @@ server_interaction_converted.xml", globalConfig.config, document);
                 $modal.modal("hide");
                 done();
             });
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(keyConstants.SAVE);
         });
         it("no recovery when save fails hard", function (done) {
             server.emptyResponseOnSave = true;
@@ -83,7 +83,7 @@ server_interaction_converted.xml", globalConfig.config, document);
                 });
                 done();
             });
-            editor.type(keyConstants.CTRLEQ_S);
+            editor.type(keyConstants.SAVE);
         });
         it("recovery on uncaught exception", function (done) {
             // We can't just raise an exception because mocha will intercept it and it
@@ -109,5 +109,4 @@ server_interaction_converted.xml", globalConfig.config, document);
         });
     });
 });
-
 //# sourceMappingURL=wed-error-handling-test.js.map

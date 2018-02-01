@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "lodash", "./action", "./domtypeguards", "./domutil", "./gui/icon"], function (require, exports, module, _, action_1, domtypeguards_1, domutil_1, icon) {
+define(["require", "exports", "lodash", "./action", "./domtypeguards", "./domutil", "./exceptions", "./gui/icon"], function (require, exports, _, action_1, domtypeguards_1, domutil_1, exceptions_1, icon) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var TYPE_TO_KIND = _.extend(Object.create(null), {
@@ -87,16 +87,30 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
                 handler = abbreviatedDesc;
                 _this = _super.call(this, editor, desc, undefined, computeIconHtml(undefined, transformationType), false) || this;
             }
-            else if (typeof iconHtml === "function") {
-                handler = iconHtml;
-                _this = _super.call(this, editor, desc, abbreviatedDesc, computeIconHtml(undefined, transformationType), false) || this;
-            }
-            else if (typeof needsInput === "function") {
-                handler = needsInput;
-                _this = _super.call(this, editor, desc, abbreviatedDesc, computeIconHtml(iconHtml, transformationType), false) || this;
-            }
             else {
-                _this = _super.call(this, editor, desc, abbreviatedDesc, computeIconHtml(iconHtml, transformationType), needsInput) || this;
+                if (!(abbreviatedDesc === undefined ||
+                    typeof abbreviatedDesc === "string")) {
+                    throw new TypeError("abbreviatedDesc must be a string or undefined");
+                }
+                if (typeof iconHtml === "function") {
+                    handler = iconHtml;
+                    _this = _super.call(this, editor, desc, abbreviatedDesc, computeIconHtml(undefined, transformationType), false) || this;
+                }
+                else {
+                    if (!(iconHtml === undefined || typeof iconHtml === "string")) {
+                        throw new TypeError("iconHtml must be a string or undefined");
+                    }
+                    if (typeof needsInput === "function") {
+                        handler = needsInput;
+                        _this = _super.call(this, editor, desc, abbreviatedDesc, computeIconHtml(iconHtml, transformationType), false) || this;
+                    }
+                    else {
+                        if (!(needsInput === undefined || typeof needsInput === "boolean")) {
+                            throw new TypeError("needsInput must be a boolean or undefined");
+                        }
+                        _this = _super.call(this, editor, desc, abbreviatedDesc, computeIconHtml(iconHtml, transformationType), needsInput) || this;
+                    }
+                }
             }
             if (handler === undefined) {
                 throw new Error("did not specify a handler");
@@ -119,8 +133,6 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
          * @param data The data object to pass.
          */
         Transformation.prototype.execute = function (data) {
-            // Removed this during conversion to TypeScript. Did it ever make sense??
-            // data = data || {};
             this.editor.fireTransformation(this, data);
         };
         return Transformation;
@@ -482,10 +494,38 @@ define(["require", "exports", "module", "lodash", "./action", "./domtypeguards",
         swapWithPreviousHomogeneousSibling(editor, next);
     }
     exports.swapWithNextHomogeneousSibling = swapWithNextHomogeneousSibling;
+    /**
+     * Remove markup from the current selection. This turns mixed content into pure
+     * text. The selection must be well-formed, otherwise the transformation is
+     * aborted.
+     *
+     * @param editor The editor for which we are doing the transformation.
+     */
+    function removeMarkup(editor) {
+        var selection = editor.caretManager.sel;
+        // Do nothing if we don't have a selection.
+        if (selection === undefined || selection.collapsed) {
+            return;
+        }
+        if (!selection.wellFormed) {
+            editor.modals.getModal("straddling").modal();
+            throw new exceptions_1.AbortTransformationException("selection is not well-formed");
+        }
+        var _a = selection.asDataCarets(), start = _a[0], end = _a[1];
+        var cutRet = editor.dataUpdater.cut(start, end);
+        var newText = "";
+        var cutNodes = cutRet[1];
+        for (var _i = 0, cutNodes_1 = cutNodes; _i < cutNodes_1.length; _i++) {
+            var el = cutNodes_1[_i];
+            newText += el.textContent;
+        }
+        var insertRet = editor.dataUpdater.insertText(cutRet[0], newText);
+        editor.caretManager.setRange(start.make(insertRet.node, insertRet.isNew ? cutRet[0].offset : 0), insertRet.caret);
+    }
+    exports.removeMarkup = removeMarkup;
 });
 //  LocalWords:  wasText endOffset prepend endContainer startOffset html DOM
 //  LocalWords:  startContainer Mangalam Dubeau previousSibling nextSibling MPL
 //  LocalWords:  insertNodeAt deleteNode mergeTextNodes lastChild prev Prepend
 //  LocalWords:  deleteText domutil
-
 //# sourceMappingURL=transformation.js.map

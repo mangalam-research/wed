@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "jquery", "../browsers", "../key", "../key-constants", "../transformation", "./context-menu", "./icon"], function (require, exports, module, $, browsers, keyMod, keyConstants, transformation_1, context_menu_1, icon) {
+define(["require", "exports", "jquery", "../browsers", "../key", "../key-constants", "../transformation", "./context-menu", "./icon"], function (require, exports, $, browsers, keyMod, keyConstants, transformation_1, context_menu_1, icon) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var KINDS = ["transform", "add", "delete", "wrap", "unwrap"];
@@ -59,12 +59,13 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
     }
     /**
      * A context menu for displaying actions. This class is designed to know how to
-     * sort [["action".Action]] objects and [["transformation".Transformation]]
-     * objects and how to filter them. Even though the names used here suggest that
-     * ``Action`` objects are the focus of this class, the fact is that it is really
-     * performing its work on ``Transformation`` objects. It does accept ``Action``
-     * as a kind of lame ``Transformation``. So the following description will focus
-     * on ``Transformation`` objects rather than ``Action`` objects.
+     * sort [["wed/action".Action]] objects and
+     * [["wed/transformation".Transformation]] objects and how to filter them. Even
+     * though the names used here suggest that ``Action`` objects are the focus of
+     * this class, the fact is that it is really performing its work on
+     * ``Transformation`` objects. It does accept ``Action`` as a kind of lame
+     * ``Transformation``. So the following description will focus on
+     * ``Transformation`` objects rather than ``Action`` objects.
      *
      * Sorting is performed first by the ``kind`` of the ``Transformation`` and then
      * by the text associated with the ``Transformation``. The kinds, in order, are:
@@ -341,7 +342,14 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
             if (matches !== undefined) {
                 var fakeEv = new $.Event("keydown");
                 matches.setEventToMatch(fakeEv);
-                this.$menu.trigger(fakeEv);
+                // We have to pass the event to ``actionKeypressHandler`` so that it can
+                // act in the same way as if the event had been directly on the menu. If
+                // ``actionKeypressHandler`` does not handle it, then pass it on to the
+                // toggle. We forward to the toggle because that's how Bootstrap normally
+                // works.
+                if (this.actionKeydownHandler(fakeEv) !== false) {
+                    this.$toggle.trigger(fakeEv);
+                }
                 // We have to return `false` to make sure it is not mishandled.
                 return false;
             }
@@ -449,5 +457,5 @@ define(["require", "exports", "module", "jquery", "../browsers", "../key", "../k
 });
 //  LocalWords:  MPL li Dropdown nowrap sm keydown tooltips keypress btn xs
 //  LocalWords:  tooltip dropdown actionType actionFilterItem actionFilterInput
-
+//  LocalWords:  actionKeypressHandler
 //# sourceMappingURL=action-context-menu.js.map

@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "jquery", "bootstrap"], function (require, exports, module, $) {
+define(["require", "exports", "jquery", "bootstrap"], function (require, exports, $) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function _showHandler(ev) {
@@ -41,5 +41,4 @@ define(["require", "exports", "module", "jquery", "bootstrap"], function (requir
     exports.tooltip = tooltip;
 });
 //  LocalWords:  MPL tooltips bs Tooltips tooltip
-
 //# sourceMappingURL=tooltip.js.map

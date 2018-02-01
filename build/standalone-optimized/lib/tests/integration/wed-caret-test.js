@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/browsers", "wed/domutil", "wed/key-constants", "wed/util", "../base-config", "../wed-test-util"], function (require, exports, module, browsers, domutil_1, keyConstants, util_1, globalConfig, wed_test_util_1) {
+define(["require", "exports", "rxjs/operators/first", "wed/browsers", "wed/domutil", "wed/key-constants", "wed/util", "../base-config", "../wed-test-util"], function (require, exports, first_1, browsers, domutil_1, keyConstants, util_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -441,7 +441,7 @@ define(["require", "exports", "module", "wed/browsers", "wed/domutil", "wed/key-
             // tslint:disable-next-line:no-any
             var scroller = editor.scroller;
             var initialScroll = scroller.scrollTop;
-            scroller.events.first().subscribe(function () {
+            scroller.events.pipe(first_1.first()).subscribe(function () {
                 // We need to wait until the scroller has fired the scroll event.
                 assert.isTrue(initialScroll < scroller.scrollTop);
                 var caretRect = editor.caretManager.mark.getBoundingClientRect();
@@ -503,7 +503,7 @@ necessary precondition");
             var event = new $.Event("mousedown");
             event.target = textLoc.node.parentNode;
             var range = textLoc.makeRange(textLoc.make(textLoc.node, 3)).range;
-            var _a = range.nativeRange.getBoundingClientRect(), top = _a.top, bottom = _a.bottom, left = _a.left;
+            var _a = range.getBoundingClientRect(), top = _a.top, bottom = _a.bottom, left = _a.left;
             event.clientX = left;
             event.clientY = (top + bottom) / 2;
             event.pageX = event.clientX + editor.window.document.body.scrollLeft;
@@ -514,5 +514,4 @@ necessary precondition");
         });
     });
 });
-
 //# sourceMappingURL=wed-caret-test.js.map

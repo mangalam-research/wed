@@ -5,7 +5,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./domtypeguards"], function (require, exports, module, domtypeguards_1) {
+define(["require", "exports", "./domtypeguards"], function (require, exports, domtypeguards_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -31,7 +31,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
      *
      * A ``trigger`` event with name ``[name]`` is fired when ``trigger([name])`` is
      * called. Trigger events are meant to be triggered by event handlers called by
-     * the Listener, not by other code.
+     * the listener, not by other code.
      *
      * <h2>Example</h2>
      *
@@ -52,7 +52,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
      * ``children-changing`` and ``children-changed`` event will be generated for
      * the parent of ``<ul>``.
      *
-     * The order in which handlers are added matters. The Listener provides the
+     * The order in which handlers are added matters. The listener provides the
      * following guarantee: for any given type of event, the handlers will be called
      * in the order that they were added to the listener.
      *
@@ -73,7 +73,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
      *   these elements when they are removed. Since it does not need anything more
      *   complex then ``excluded-element`` works perfectly.
      *
-     * - A Listener does not verify whether the parameters passed to handlers are
+     * - A listener does not verify whether the parameters passed to handlers are
      *   part of the DOM tree. For instance, handler A could operate on element X so
      *   that it is removed from the DOM tree. If there is already another mutation
      *   on X in the pipeline by the time A is called and handler B is called to
@@ -101,12 +101,12 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
      *   removed **should** result in a change to the DOM tree, and ignore those
      *   changes that are not relevant.
      */
-    var Listener = /** @class */ (function () {
+    var DOMListener = /** @class */ (function () {
         /**
          * @param root The root of the DOM tree about which the listener should listen
          * to changes.
          */
-        function Listener(root, updater) {
+        function DOMListener(root, updater) {
             var _this = this;
             this.root = root;
             this.updater = updater;
@@ -150,19 +150,19 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          * Start listening to changes on the root passed when the object was
          * constructed.
          */
-        Listener.prototype.startListening = function () {
+        DOMListener.prototype.startListening = function () {
             this.stopped = false;
         };
         /**
          * Stops listening to DOM changes.
          */
-        Listener.prototype.stopListening = function () {
+        DOMListener.prototype.stopListening = function () {
             this.stopped = true;
         };
         /**
          * Process all changes immediately.
          */
-        Listener.prototype.processImmediately = function () {
+        DOMListener.prototype.processImmediately = function () {
             if (this.scheduledProcessTriggers !== undefined) {
                 this.clearPending();
                 this._processTriggers();
@@ -172,13 +172,13 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          * Clear anything that is pending. Some implementations may have triggers
          * delivered asynchronously.
          */
-        Listener.prototype.clearPending = function () {
+        DOMListener.prototype.clearPending = function () {
             if (this.scheduledProcessTriggers !== undefined) {
                 window.clearTimeout(this.scheduledProcessTriggers);
                 this.scheduledProcessTriggers = undefined;
             }
         };
-        Listener.prototype.addHandler = function (eventType, selector, handler) {
+        DOMListener.prototype.addHandler = function (eventType, selector, handler) {
             if (eventType === "trigger") {
                 var handlers = this.triggerHandlers[selector];
                 if (handlers === undefined) {
@@ -200,13 +200,13 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @param {string} name The name of the trigger to fire.
          */
-        Listener.prototype.trigger = function (name) {
+        DOMListener.prototype.trigger = function (name) {
             this.triggersToFire[name] = 1;
         };
         /**
          * Processes pending triggers.
          */
-        Listener.prototype._processTriggers = function () {
+        DOMListener.prototype._processTriggers = function () {
             var keys = Object.keys(this.triggersToFire);
             while (keys.length > 0) {
                 // We flush the map because the triggers could trigger
@@ -235,7 +235,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          * @param rest The arguments to pass to the handler.
          */
         // tslint:disable-next-line:no-any
-        Listener.prototype._callHandler = function (handler) {
+        DOMListener.prototype._callHandler = function (handler) {
             var rest = [];
             for (var _i = 1; _i < arguments.length; _i++) {
                 rest[_i - 1] = arguments[_i];
@@ -248,7 +248,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @param ev The event.
          */
-        Listener.prototype._insertNodeAtHandler = function (ev) {
+        DOMListener.prototype._insertNodeAtHandler = function (ev) {
             if (this.stopped) {
                 return;
             }
@@ -274,7 +274,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @param ev The event.
          */
-        Listener.prototype._beforeDeleteNodeHandler = function (ev) {
+        DOMListener.prototype._beforeDeleteNodeHandler = function (ev) {
             if (this.stopped) {
                 return;
             }
@@ -300,7 +300,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @param ev The event.
          */
-        Listener.prototype._deleteNodeHandler = function (ev) {
+        DOMListener.prototype._deleteNodeHandler = function (ev) {
             if (this.stopped) {
                 return;
             }
@@ -338,7 +338,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @returns A list of call specs.
          */
-        Listener.prototype._childrenCalls = function (call, parent, added, removed, prev, next) {
+        DOMListener.prototype._childrenCalls = function (call, parent, added, removed, prev, next) {
             if (added.length !== 0 && removed.length !== 0) {
                 throw new Error("we do not support having nodes added " +
                     "and removed in the same event");
@@ -359,7 +359,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @param ev The event.
          */
-        Listener.prototype._setTextNodeValueHandler = function (ev) {
+        DOMListener.prototype._setTextNodeValueHandler = function (ev) {
             if (this.stopped) {
                 return;
             }
@@ -381,7 +381,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @param ev The event.
          */
-        Listener.prototype._setAttributeNSHandler = function (ev) {
+        DOMListener.prototype._setAttributeNSHandler = function (ev) {
             if (this.stopped) {
                 return;
             }
@@ -399,7 +399,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
         /**
          * Sets a timeout to run the triggers that must be run.
          */
-        Listener.prototype._scheduleProcessTriggers = function () {
+        DOMListener.prototype._scheduleProcessTriggers = function () {
             var _this = this;
             if (this.scheduledProcessTriggers !== undefined) {
                 return;
@@ -420,7 +420,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @returns A list of call specs.
          */
-        Listener.prototype._addRemCalls = function (name, node, target) {
+        DOMListener.prototype._addRemCalls = function (name, node, target) {
             var pairs = this.eventHandlers[name];
             var ret = [];
             var prev = node.previousSibling;
@@ -446,7 +446,7 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
          *
          * @returns A list of call specs.
          */
-        Listener.prototype._incExcCalls = function (name, node, target) {
+        DOMListener.prototype._incExcCalls = function (name, node, target) {
             var pairs = this.eventHandlers[name];
             var prev = node.previousSibling;
             var next = node.nextSibling;
@@ -465,12 +465,11 @@ define(["require", "exports", "module", "./domtypeguards"], function (require, e
             }
             return ret;
         };
-        return Listener;
+        return DOMListener;
     }());
-    exports.Listener = Listener;
+    exports.DOMListener = DOMListener;
 });
 //  LocalWords:  eventType SetAttributeNS DeleteNode BeforeDeleteNode ul li MPL
 //  LocalWords:  SetTextNodeValue nextSibling InsertNodeAt previousSibling DOM
 //  LocalWords:  Dubeau Mangalam
-
 //# sourceMappingURL=domlistener.js.map

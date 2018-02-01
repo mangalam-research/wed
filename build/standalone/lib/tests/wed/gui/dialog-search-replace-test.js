@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/dloc", "wed/gui/dialog-search-replace", "wed/key-constants", "../../base-config", "../../wed-test-util"], function (require, exports, module, dloc_1, dialog_search_replace_1, key_constants_1, globalConfig, wed_test_util_1) {
+define(["require", "exports", "wed/dloc", "wed/gui/dialog-search-replace", "wed/key-constants", "../../base-config", "../../wed-test-util"], function (require, exports, dloc_1, dialog_search_replace_1, key_constants_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expect = chai.expect;
@@ -75,7 +75,7 @@ define(["require", "exports", "module", "wed/dloc", "wed/gui/dialog-search-repla
             var highlights = document.querySelectorAll("._wed_highlight");
             expect(highlights).to.have.property("length").greaterThan(0);
             var highlightRect = highlights[0].getBoundingClientRect();
-            var rangeRect = range.mustMakeDOMRange().nativeRange.getBoundingClientRect();
+            var rangeRect = range.mustMakeDOMRange().getBoundingClientRect();
             // The highlights are built as a series of rectangles. Checking each and
             // every rectangle would be onerous. We check the start and end of the
             // range.
@@ -293,5 +293,4 @@ define(["require", "exports", "module", "wed/dloc", "wed/gui/dialog-search-repla
         });
     });
 });
-
 //# sourceMappingURL=dialog-search-replace-test.js.map

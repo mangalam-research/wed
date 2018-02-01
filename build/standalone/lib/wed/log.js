@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "log4javascript"], function (require, exports, module, log4javascript) {
+define(["require", "exports", "log4javascript"], function (require, exports, log4javascript) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     log4javascript.setShowStackTraces(true);
@@ -145,5 +145,4 @@ define(["require", "exports", "module", "log4javascript"], function (require, ex
 });
 //  LocalWords:  Dubeau MPL Mangalam popup appender unhandled rethrown Django
 //  LocalWords:  CSRFToken param
-
 //# sourceMappingURL=log.js.map

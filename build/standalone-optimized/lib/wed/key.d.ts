@@ -107,6 +107,8 @@ export declare class Key {
      */
     anyModifier(): boolean;
 }
+/** This is a [[Key]] that cannot match anything. */
+export declare const NULL_KEY: Key;
 /**
  * This function creates a key object.
  *

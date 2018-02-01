@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/transformation", "../base-config", "../wed-test-util"], function (require, exports, module, transformation, globalConfig, wed_test_util_1) {
+define(["require", "exports", "wed/transformation", "../base-config", "../wed-test-util"], function (require, exports, transformation, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var assert = chai.assert;
@@ -69,5 +69,4 @@ define(["require", "exports", "module", "wed/transformation", "../base-config", 
 //  LocalWords:  innerHTML nodeValue seekCaret nodeToPath pathToNode
 //  LocalWords:  mouseup mousedown unhandled requirejs btn gui metas
 //  LocalWords:  wedroot tei domutil onerror jquery chai
-
 //# sourceMappingURL=transformation-test.js.map

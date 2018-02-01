@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "rangy", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, module, rangy, dloc_1, domtypeguards_1, domutil_1) {
+define(["require", "exports", "rangy", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, rangy, dloc_1, domtypeguards_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /** The direction of searches. */
@@ -35,7 +35,7 @@ define(["require", "exports", "module", "rangy", "./dloc", "./domtypeguards", ".
         var _a;
     }
     function nodeInScope(doc, node, scope) {
-        var vrange = rangy.createRange(doc);
+        var vrange = doc.createRange();
         vrange.selectNode(node);
         // The range that encompasses the node, must be completely within scope.
         return (vrange.compareBoundaryPoints(Range.START_TO_START, scope) >= 0) &&
@@ -242,7 +242,7 @@ define(["require", "exports", "module", "rangy", "./dloc", "./domtypeguards", ".
         Search.prototype.findText = function (start, direction) {
             // tslint:disable-next-line:no-any
             var config = rangy.config;
-            var range = start.makeRange();
+            var range = new rangy.WrappedRange(start.makeRange());
             if (this.context === Context.TEXT) {
                 config.customIsCollapsedNode = function (node) {
                     return domtypeguards_1.isElement(node) && node.closest("._phantom") !== null;
@@ -261,7 +261,7 @@ define(["require", "exports", "module", "rangy", "./dloc", "./domtypeguards", ".
                 }
             }
             config.customIsCollapsedNode = undefined;
-            return found ? range : null;
+            return found ? range.nativeRange : null;
         };
         Search.prototype.findAttributeValue = function (start, direction) {
             // Implement our own logic instead of relying on rangy. We can just move
@@ -372,5 +372,4 @@ define(["require", "exports", "module", "rangy", "./dloc", "./domtypeguards", ".
     }());
     exports.Search = Search;
 });
-
 //# sourceMappingURL=search.js.map

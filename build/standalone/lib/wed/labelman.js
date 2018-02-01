@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -106,5 +106,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.AlphabeticLabelManager = AlphabeticLabelManager;
 });
 //  LocalWords:  LabelManager MPL allocateLabel Mangalam Dubeau
-
 //# sourceMappingURL=labelman.js.map

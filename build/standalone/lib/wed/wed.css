@@ -62,16 +62,16 @@
 .wed-typeahead-popup .twitter-typeahead .form-control {
   font-size: 18px;
 }
-.wed-typeahead-popup .twitter-typeahead .tt-dropdown-menu {
+.wed-typeahead-popup .twitter-typeahead .tt-menu {
   background-color: white;
   width: 100%;
   overflow: auto;
   font-size: 18px;
 }
-.wed-typeahead-popup .twitter-typeahead .tt-dropdown-menu > div {
+.wed-typeahead-popup .twitter-typeahead .tt-menu > div {
   padding-left: 3px;
 }
-.wed-typeahead-popup .twitter-typeahead .tt-dropdown-menu .tt-suggestions p {
+.wed-typeahead-popup .twitter-typeahead .tt-menu .tt-suggestion {
   margin: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
@@ -133,6 +133,13 @@
 }
 .wed-widget .fa-plus {
   color: green;
+}
+.wed-widget .wed-toolbar .wed-toolbar-divider {
+  height: 1em;
+  margin: 0 0.1em;
+  padding: 0 0.05em;
+  border-left: 2px solid black;
+  border-right: 2px solid black;
 }
 div.wed-document-constrainer {
   position: relative;
@@ -204,30 +211,36 @@ div.wed-frame ._gui._label {
   border-radius: .25em;
   border-style: none;
 }
-div.wed-frame ._gui._label._autohidden_attributes ._greater_than::before {
+div.wed-frame ._gui._invisible {
+  display: none;
+}
+div.wed-frame div.wed-document.inhibit_attribute_hiding ._gui._label ._attribute._shown_when_caret_in_label {
+  display: initial;
+}
+div.wed-frame div.wed-document.inhibit_attribute_hiding ._gui._label._autohidden_attributes ._greater_than::before {
+  display: none;
+}
+div.wed-frame div.wed-document ._gui._label._autohidden_attributes ._greater_than::before {
   content: "\00a0...\00a0";
   font-weight: bold;
 }
-div.wed-frame ._gui._label ._attribute_value {
+div.wed-frame div.wed-document ._gui._label ._attribute_value {
   color: black;
   background-color: white;
 }
-div.wed-frame ._gui._label ._attribute._readonly ._attribute_value {
+div.wed-frame div.wed-document ._gui._label ._attribute._readonly ._attribute_value {
   background-color: #ff8566;
 }
-div.wed-frame ._gui._label ._attribute._shown_when_caret_in_label {
+div.wed-frame div.wed-document ._gui._label ._attribute._shown_when_caret_in_label {
   display: none;
 }
-div.wed-frame ._gui._label._label_clicked {
+div.wed-frame div.wed-document ._gui._label._label_clicked {
   background-color: #f0ad4e;
 }
-div.wed-frame ._gui._label._with_caret ._attribute._shown_when_caret_in_label {
+div.wed-frame div.wed-document ._gui._label._with_caret ._attribute._shown_when_caret_in_label {
   display: initial;
 }
-div.wed-frame ._gui._label._with_caret._autohidden_attributes ._greater_than::before {
-  display: none;
-}
-div.wed-frame ._gui._invisible {
+div.wed-frame div.wed-document ._gui._label._with_caret._autohidden_attributes ._greater_than::before {
   display: none;
 }
 div.wed-frame div.wed-document div {

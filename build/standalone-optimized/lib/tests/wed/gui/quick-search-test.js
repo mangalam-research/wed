@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/dloc", "wed/gui/quick-search", "wed/key-constants", "wed/wed", "../../base-config", "../../wed-test-util"], function (require, exports, module, dloc_1, quick_search_1, key_constants_1, wed_1, globalConfig, wed_test_util_1) {
+define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", "wed/key-constants", "../../base-config", "../../wed-test-util"], function (require, exports, dloc_1, editor_1, quick_search_1, key_constants_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expect = chai.expect;
@@ -75,8 +75,7 @@ define(["require", "exports", "module", "wed/dloc", "wed/gui/quick-search", "wed
             var highlights = document.querySelectorAll("._wed_highlight");
             expect(highlights).to.have.property("length").greaterThan(0);
             var highlightRect = highlights[0].getBoundingClientRect();
-            var rangeRect = firstABCText.mustMakeDOMRange()
-                .nativeRange.getBoundingClientRect();
+            var rangeRect = firstABCText.mustMakeDOMRange().getBoundingClientRect();
             // The highlights are built as a series of rectangles. Checking each and
             // every rectangle would be onerous. We check the start and end of the
             // range.
@@ -106,61 +105,61 @@ define(["require", "exports", "module", "wed/dloc", "wed/gui/quick-search", "wed
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
                 expect(editor).to.have.deep.property("minibuffer.prompt")
                     .equal("Search forward:");
-                editor.type(key_constants_1.ESCAPE, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
             it("prompts backwards", function () {
                 editor.type(key_constants_1.QUICKSEARCH_BACKWARDS);
                 expect(editor).to.have.deep.property("minibuffer.prompt")
                     .equal("Search backwards:");
-                editor.type(key_constants_1.ESCAPE, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
             it("updates the highlight when the user types", function () {
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
-                editor.type("abc", wed_1.WedEventTarget.MINIBUFFER);
+                editor.type("abc", editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(firstABCText);
-                editor.type(key_constants_1.ESCAPE, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
             it("searches forward", function () {
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
-                editor.type("abc", wed_1.WedEventTarget.MINIBUFFER);
+                editor.type("abc", editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(firstABCText);
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
                 checkHighlightRanges(pFiveFirstThree);
-                editor.type(key_constants_1.ESCAPE, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
             it("searches backwards", function () {
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
-                editor.type("abc", wed_1.WedEventTarget.MINIBUFFER);
+                editor.type("abc", editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(firstABCText);
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
                 checkHighlightRanges(pFiveFirstThree);
                 editor.type(key_constants_1.QUICKSEARCH_BACKWARDS);
                 checkHighlightRanges(firstABCText);
-                editor.type(key_constants_1.ESCAPE, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
             it("removes the highlight when there is no match", function () {
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
-                editor.type("abcNO MATCH", wed_1.WedEventTarget.MINIBUFFER);
+                editor.type("abcNO MATCH", editor_1.WedEventTarget.MINIBUFFER);
                 checkNoHighlight();
-                editor.type(key_constants_1.ESCAPE, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
             function rollTest(key) {
                 editor.type(key);
-                editor.type("abc", wed_1.WedEventTarget.MINIBUFFER);
+                editor.type("abc", editor_1.WedEventTarget.MINIBUFFER);
                 var count = 0;
                 while (document.querySelector("._wed_highlight") !== null) {
                     count++;
-                    editor.type(key, wed_1.WedEventTarget.MINIBUFFER);
+                    editor.type(key, editor_1.WedEventTarget.MINIBUFFER);
                 }
                 expect(count).to.be.greaterThan(0);
                 var count2 = 0;
-                editor.type(key, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key, editor_1.WedEventTarget.MINIBUFFER);
                 while (document.querySelector("._wed_highlight") !== null) {
                     count2++;
-                    editor.type(key, wed_1.WedEventTarget.MINIBUFFER);
+                    editor.type(key, editor_1.WedEventTarget.MINIBUFFER);
                 }
                 expect(count2).to.equal(count);
-                editor.type(key_constants_1.ESCAPE, wed_1.WedEventTarget.MINIBUFFER);
+                editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             }
             it("rolls over forward", function () {
                 editor.caretManager.setCaret(editor.caretManager.minCaret);
@@ -173,5 +172,4 @@ define(["require", "exports", "module", "wed/dloc", "wed/gui/quick-search", "wed
         });
     });
 });
-
 //# sourceMappingURL=quick-search-test.js.map

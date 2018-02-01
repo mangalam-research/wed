@@ -1,9 +1,6 @@
 import { EName, NameResolver } from "salve";
-import { Action } from "./action";
-import { Decorator } from "./decorator";
-import { ModeValidator } from "./validator";
-import { Editor } from "./wed";
-import { WedOptions } from "./wed-options";
+import { Action, Decorator, EditorAPI, gui, ModeValidator, WedOptions } from "wed";
+import Button = gui.button.Button;
 /**
  * These are mode options that are supported by default by all modes. Wed is
  * responsible for providing support for them.
@@ -68,6 +65,12 @@ export interface Mode<ModeOptions extends CommonModeOptions = CommonModeOptions>
      * Make a decorator that this mode will use.
      */
     makeDecorator(): Decorator;
+    /**
+     * Get the toolbar actions that this mode wants the editor to present.
+     *
+     * @returns The toolbar actions for this mode.
+     */
+    getToolbarButtons(): Button[];
     /**
      * Modes must implement this method to specify what transformations they allow
      * based on state. The implementation should rely on the ``container`` and
@@ -165,20 +168,18 @@ export interface Mode<ModeOptions extends CommonModeOptions = CommonModeOptions>
 /**
  * A mode for wed should be implemented as a module which exports a
  * class derived from this class.
- *
- *
  */
 export declare abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
-    protected readonly editor: Editor;
+    protected readonly editor: EditorAPI;
     protected options: ModeOptions;
     protected wedOptions: WedOptions;
     /**
-     * @param editor The editor with which the mode is being associated.
+     * @param editor The editor for which this mode is created.
      *
      * @param options The options for the mode. Each mode defines
      * what fields this object contains.
      */
-    constructor(editor: Editor, options: ModeOptions);
+    constructor(editor: EditorAPI, options: ModeOptions);
     /**
      * Gets the mode options. The returned object should be considered frozen. You
      * may inspect it, not modify it.
@@ -221,6 +222,10 @@ export declare abstract class BaseMode<ModeOptions> implements Mode<ModeOptions>
      * The default implementation returns an empty array.
      */
     getAttributeCompletions(attribute: Attr): string[];
+    /**
+     * The default implementaiton returns an empty array.
+     */
+    getToolbarButtons(): Button[];
     abstract init(): Promise<void>;
     abstract getAbsoluteNamespaceMappings(): Record<string, string>;
     abstract unresolveName(name: EName): string | undefined;

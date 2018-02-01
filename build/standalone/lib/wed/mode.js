@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "./domtypeguards", "./domutil"], function (require, exports, module, domtypeguards_1, domutil) {
+define(["require", "exports", "wed"], function (require, exports, wed_1) {
     /**
      * The base types for modes.
      *
@@ -11,12 +11,10 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil"], functio
     /**
      * A mode for wed should be implemented as a module which exports a
      * class derived from this class.
-     *
-     *
      */
     var BaseMode = /** @class */ (function () {
         /**
-         * @param editor The editor with which the mode is being associated.
+         * @param editor The editor for which this mode is created.
          *
          * @param options The options for the mode. Each mode defines
          * what fields this object contains.
@@ -67,7 +65,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil"], functio
             var child = element.firstChild;
             var childIx = 0;
             while (child !== null) {
-                if (domtypeguards_1.isElement(child)) {
+                if (wed_1.domtypeguards.isElement(child)) {
                     if (child.classList.contains("_start_wrapper")) {
                         startIx = childIx;
                         start = child;
@@ -90,7 +88,7 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil"], functio
             return [start, end];
         };
         BaseMode.prototype.makePlaceholderFor = function (element) {
-            return domutil.makePlaceholder();
+            return wed_1.domutil.makePlaceholder();
         };
         /**
          * While this API provides for the case where descriptions have not been
@@ -125,11 +123,16 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil"], functio
         BaseMode.prototype.getAttributeCompletions = function (attribute) {
             return [];
         };
+        /**
+         * The default implementaiton returns an empty array.
+         */
+        BaseMode.prototype.getToolbarButtons = function () {
+            return [];
+        };
         return BaseMode;
     }());
     exports.BaseMode = BaseMode;
 });
 //  LocalWords:  autoinsertion domutil Dubeau Mangalam MPL html overriden
 //  LocalWords:  stylesheets
-
 //# sourceMappingURL=mode.js.map

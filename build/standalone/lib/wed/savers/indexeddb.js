@@ -1,11 +1,3 @@
-/**
- * Data saving functionality, using IndexedDB. Note that this saver is mainly
- * designed for demonstration purposes.
- *
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -16,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "../saver"], function (require, exports, module, saver) {
+define(["require", "exports", "wed"], function (require, exports, wed_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -87,9 +79,8 @@ define(["require", "exports", "module", "../saver"], function (require, exports,
                 .catch(function () { return false; });
         };
         return Saver;
-    }(saver.Saver));
+    }(wed_1.saver.Saver));
     exports.Saver = Saver;
 });
 //  LocalWords:  IndexedDB MPL runtime
-
 //# sourceMappingURL=indexeddb.js.map

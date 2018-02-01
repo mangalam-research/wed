@@ -5,7 +5,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util"], function (require, exports, module, $, domtypeguards_1, wed_util_1) {
+define(["require", "exports", "jquery", "./domtypeguards", "./wed-util"], function (require, exports, $, domtypeguards_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -81,8 +81,12 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
                 this.pendingRefresh = true;
                 return;
             }
+            var el = this.el;
             var caret = this.manager.caret;
             if (caret == null) {
+                // We do not remove the fake caret from the DOM here because seeing
+                // the caret position when the user is doing work outside the editing
+                // pane is useful.
                 return;
             }
             var boundary = wed_util_1.boundaryXY(caret);
@@ -92,7 +96,6 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
             var node = caret.node;
             var heightNode = domtypeguards_1.isElement(node) ? node : node.parentNode;
             var height = getComputedStyle(heightNode).lineHeight;
-            var el = this.el;
             var topStr = top + "px";
             var leftStr = left + "px";
             el.style.top = topStr;
@@ -100,7 +103,7 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
             el.style.height = height;
             el.style.maxHeight = height;
             el.style.minHeight = height;
-            // The fake caret is removed from the DOM when not in use, reinsert it.
+            // If the fake caret has been removed from the DOM, reinsert it.
             if (el.parentNode === null) {
                 this.layer.append(this.el);
             }
@@ -161,5 +164,4 @@ define(["require", "exports", "module", "jquery", "./domtypeguards", "./wed-util
     exports.CaretMark = CaretMark;
 });
 //  LocalWords:  MPL scroller contenteditable px
-
 //# sourceMappingURL=caret-mark.js.map

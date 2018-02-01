@@ -39,7 +39,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "module"], function (require, exports, module) {
+define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -107,7 +107,7 @@ define(["require", "exports", "module"], function (require, exports, module) {
                                 // It is an actual path so don't try any further loading.
                                 throw new Error("can't load mode " + path);
                             }
-                            path = "./modes/" + path + "/" + path;
+                            path = "wed/modes/" + path + "/" + path;
                             _a.label = 5;
                         case 5:
                             _a.trys.push([5, 7, , 8]);
@@ -134,5 +134,4 @@ define(["require", "exports", "module"], function (require, exports, module) {
     exports.ModeLoader = ModeLoader;
 });
 //  LocalWords:  MPL runtime
-
 //# sourceMappingURL=mode-loader.js.map

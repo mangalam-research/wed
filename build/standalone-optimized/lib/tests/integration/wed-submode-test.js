@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "chai", "../submode-config", "../wed-test-util"], function (require, exports, module, chai_1, submode_config_1, wed_test_util_1) {
+define(["require", "exports", "chai", "wed/util", "../submode-config", "../wed-test-util"], function (require, exports, chai_1, util_1, submode_config_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     describe("wed submodes", function () {
@@ -14,7 +14,7 @@ source_for_submodes_converted.xml", submode_config_1.config, document);
             setup.restore();
         });
         it("dispatch to proper decorators", function () {
-            var wrapped = editor.guiRoot.querySelectorAll("[data-wed-rend='wrap'].tei\\:p._real");
+            var wrapped = editor.guiRoot.querySelectorAll("[" + util_1.encodeAttrName("rend") + "='wrap'].tei\\:p._real");
             chai_1.expect(wrapped).to.have.length(2);
             function parentTest(el, msg, expected) {
                 var parent = el.parentNode;
@@ -57,7 +57,23 @@ by the test mode", false);
             var second = editor.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
             check(second, "the second paragraph should not have the completions", false);
         });
+        it("adds mode-specific toolbar buttons", function () {
+            function check(el, expected) {
+                if (el !== null) {
+                    editor.caretManager.setCaret(el, 0);
+                }
+                var span = editor.toolbar.top.lastElementChild;
+                chai_1.expect(span.children).to.have.lengthOf(expected);
+            }
+            // Initially we are out and so no mode-specific button.
+            check(null, 0);
+            // Move into the submode, and check again.
+            var inSubmode = editor.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
+            check(inSubmode, 1);
+            // Move out, and check again.
+            var outsideSubmode = editor.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
+            check(outsideSubmode, 0);
+        });
     });
 });
-
 //# sourceMappingURL=wed-submode-test.js.map

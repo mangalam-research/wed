@@ -6,9 +6,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { Runtime } from "../runtime";
-import * as saver from "../saver";
-import { TreeUpdater } from "../tree-updater";
+import { Runtime, saver, treeUpdater } from "wed";
+import TreeUpdater = treeUpdater.TreeUpdater;
 export interface Store {
     put(name: string, data: string): Promise<void>;
 }

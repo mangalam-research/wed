@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "jquery", "../domutil", "../key-constants", "bootstrap", "typeahead"], function (require, exports, module, $, domutil, keyConstants) {
+define(["require", "exports", "jquery", "../domutil", "../key-constants", "bootstrap", "typeahead"], function (require, exports, $, domutil, keyConstants) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -70,7 +70,7 @@ define(["require", "exports", "module", "jquery", "../domutil", "../key-constant
             var winHeight = doc.defaultView.innerHeight;
             var maxHeight = winHeight - y;
             taWrapper.style.maxHeight = maxHeight + "px";
-            var dropdown = taWrapper.getElementsByClassName("tt-dropdown-menu")[0];
+            var dropdown = taWrapper.getElementsByClassName("tt-menu")[0];
             var $dropdown = $(dropdown);
             // Yep, we forcibly display it here because the next computations depend on
             // the dropdown being visible.
@@ -192,5 +192,4 @@ define(["require", "exports", "module", "jquery", "../domutil", "../key-constant
 });
 //  LocalWords:  typeahead MPL px keydown actualWidth winWidth tt dropdown
 //  LocalWords:  dropdownMaxHeight mouseenter mouseleave ttTypeahead
-
 //# sourceMappingURL=typeahead-popup.js.map

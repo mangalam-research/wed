@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "module", "wed/modes/test/test-mode"], function (require, exports, module, test_mode_1) {
+define(["require", "exports", "wed/modes/test/test-mode"], function (require, exports, test_mode_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line:completed-docs
@@ -24,5 +24,4 @@ define(["require", "exports", "module", "wed/modes/test/test-mode"], function (r
     }(test_mode_1.Mode));
     exports.Mode = FakeMode;
 });
-
 //# sourceMappingURL=failing-init.js.map

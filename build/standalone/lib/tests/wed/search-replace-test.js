@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "wed/dloc", "wed/gui/search-replace", "../base-config", "../wed-test-util"], function (require, exports, module, dloc_1, search_replace_1, globalConfig, wed_test_util_1) {
+define(["require", "exports", "wed/dloc", "wed/gui/search-replace", "../base-config", "../wed-test-util"], function (require, exports, dloc_1, search_replace_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expect = chai.expect;
@@ -413,5 +413,4 @@ define(["require", "exports", "module", "wed/dloc", "wed/gui/search-replace", ".
         });
     });
 });
-
 //# sourceMappingURL=search-replace-test.js.map

@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./domtypeguards", "./util"], function (require, exports, module, domtypeguards_1, util_1) {
+define(["require", "exports", "./domtypeguards", "./util"], function (require, exports, domtypeguards_1, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable-next-line: no-http-string
@@ -90,5 +90,4 @@ define(["require", "exports", "module", "./domtypeguards", "./util"], function (
 });
 //  LocalWords:  MPL subtree tagName localName xmlns normalizeNS namespaceURI
 //  LocalWords:  ns nodeType
-
 //# sourceMappingURL=convert.js.map

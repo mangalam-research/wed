@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-util"], function (require, exports, module, domtypeguards_1, domutil_1, wed_util_1) {
+define(["require", "exports", "./domtypeguards", "./domutil", "./wed-util"], function (require, exports, domtypeguards_1, domutil_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function moveInAttributes(node, modeTree) {
@@ -512,5 +512,4 @@ define(["require", "exports", "module", "./domtypeguards", "./domutil", "./wed-u
     exports.positionUp = positionUp;
 });
 //  LocalWords:  docRoot firstChild pos
-
 //# sourceMappingURL=caret-movement.js.map
