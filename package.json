@@ -131,7 +131,7 @@
     "zone.js": "^0.8.10"
   },
   "bin": {
-    "wed-metadata": "./standalone/bin/wed-metadata"
+    "wed-metadata": "./bin/wed-metadata"
   },
   "scripts": {
     "test": "make test"
