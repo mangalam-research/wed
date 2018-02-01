@@ -8,6 +8,7 @@ const _del = require("del");
 const touch = require("touch");
 const path = require("path");
 const { internals } = require("./config");
+const { execFile } = require("child-process-promise");
 
 const fs = Promise.promisifyAll(_fs);
 exports.fs = fs;
@@ -178,6 +179,14 @@ exports.spawn = function spawn(cmd, args, options) {
   });
 };
 
+exports.defineTask = function defineTask(task) {
+  let func = task.func;
+  if (func && func.constructor.name === "GeneratorFunction") {
+    func = Promise.coroutine(func);
+  }
+  gulp.task(task.name, task.deps, func);
+};
+
 exports.sequence = function sequence(name, ...tasks) {
   const allDeps = [];
   const funcs = [];
@@ -195,18 +204,23 @@ exports.sequence = function sequence(name, ...tasks) {
 
   for (const task of tasks) {
     let func = task.func;
-    // Ideally we'd use a instanceof test but apparently babel
-    // does not make a GeneratorFunction global available...
-    func = func.constructor.name === "GeneratorFunction" ?
-      Promise.coroutine(func) : func;
-    gulp.task(task.name, task.deps, func);
+    if (func) {
+      // Ideally we'd use a instanceof test but apparently babel
+      // does not make a GeneratorFunction global available...
+      if (func.constructor.name === "GeneratorFunction") {
+        func = Promise.coroutine(func);
+      }
+      funcs.push(func);
+    }
     allDeps.push(task.deps);
-    funcs.push(func);
   }
 
   const flattened = [].concat(...allDeps);
 
   if (final) {
+    if (final.constructor.name === "GeneratorFunction") {
+      final = Promise.coroutine(final);
+    }
     funcs.push(final);
   }
 
@@ -223,4 +237,27 @@ exports.sequence = function sequence(name, ...tasks) {
     deps: flattened,
     func: routine,
   };
+};
+
+/**
+ * Why use this over spawn with { stdio: "inherit" }? If you use this function,
+ * the results will be shown in one shot, after the process exits, which may
+ * make things tidier.
+ *
+ * However, not all processes are amenable to this. When running Karma, for
+ * instance, it is desirable to see the progress "live" and so using spawn is
+ * better.
+ */
+exports.execFileAndReport = function execFileAndReport(...args) {
+  return execFile(...args)
+    .then((result) => {
+      if (result.stdout) {
+        gutil.log(result.stdout);
+      }
+    }, (err) => {
+      if (err.stdout) {
+        gutil.log(err.stdout);
+      }
+      throw err;
+    });
 };

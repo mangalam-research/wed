@@ -43,10 +43,6 @@ exports.optionDefinitions = {
     type: toBoolean,
     defaultValue: false,
   },
-  mocha_params: {
-    help: "Parameters to pass to Mocha.",
-    defaultValue: "",
-  },
   behave_params: {
     help: "Parameters to pass to behave.",
     defaultValue: undefined,

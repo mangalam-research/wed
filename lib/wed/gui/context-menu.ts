@@ -24,10 +24,17 @@ export class ContextMenu {
    */
   protected readonly menu: HTMLElement;
 
-  /**
-   * The jQuery equivalent of [[ContextMenu.menu]].
-   */
+  /** The jQuery equivalent of [[menu]]. */
   protected readonly $menu: JQuery;
+
+  /**
+   * The toggle element of the dropdown menu. Even though it is not shown for
+   * our menus, it is necessary, and plays a role in how the menu works.
+   */
+  protected readonly toggle: HTMLElement;
+
+  /** The jQuery equivalent of [[toggle]]. */
+  protected readonly $toggle: JQuery;
 
   protected dismissed: boolean;
   protected dropdown: HTMLElement;
@@ -58,14 +65,13 @@ export class ContextMenu {
     this.dismissCallback = dismissCallback;
     this.dismissed = false;
 
-    const dropdown = document.createElement("div");
+    const dropdown = this.dropdown = document.createElement("div");
     dropdown.className = "dropdown wed-context-menu";
     // tslint:disable-next-line:no-inner-html
     dropdown.innerHTML =
       // This fake toggle is required for bootstrap to do its work.
       "<a href='#' data-toggle='dropdown'></a>" +
       "<ul class='dropdown-menu' role='menu'></ul>";
-    const menu = dropdown.lastElementChild! as HTMLElement;
     // We move the top and left so that we appear under the mouse cursor.
     // Hackish, but it works. If we don't do this, then the mousedown that
     // brought the menu up also registers as a click on the body element and the
@@ -78,18 +84,19 @@ export class ContextMenu {
     this.x = x;
     this.y = y;
 
-    const $menu = $(menu);
+    const menu = this.menu = dropdown.lastElementChild as HTMLElement;
+    const $menu = this.$menu = $(menu);
+    const toggle = this.toggle = dropdown.firstElementChild as HTMLElement;
+    const $toggle = this.$toggle = $(toggle);
 
-    this.menu = menu;
-    this.$menu = $menu;
+    const backdrop = this.backdrop = document.createElement("div");
+    backdrop.className = "wed-context-menu-backdrop";
 
-    this.dropdown = dropdown;
-    this.backdrop = document.createElement("div");
-    this.backdrop.className = "wed-context-menu-backdrop";
-
-    $(this.backdrop).click(this.backdropClickHandler.bind(this));
+    $(backdrop).click(this.backdropClickHandler.bind(this));
 
     $menu.on("click", this.contentsClickHandler.bind(this));
+    // Bootstrap may dispatch clicks onto the toggle. We must catch them.
+    $toggle.on("click", this.contentsClickHandler.bind(this));
 
     $menu.on("mousedown", (ev) => {
       ev.stopPropagation();
@@ -99,7 +106,7 @@ export class ContextMenu {
 
     const body = document.body;
     body.insertBefore(dropdown, body.firstChild);
-    body.insertBefore(this.backdrop, body.firstChild);
+    body.insertBefore(backdrop, body.firstChild);
 
     if (immediateDisplay) {
       this.display(items);

@@ -1,9 +1,201 @@
-Please note that Github currently does not implement all
-reStructuredText directives, so some links in this document may not
-work correctly when viewed there.
+Please note that Github currently does not implement all reStructuredText
+directives, so some links in this document may not work correctly when viewed
+there.
 
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
+
+* 1.0.0:
+
+  - Release 1.0.0. Woohoo!
+
+  - Breaking change: major reorganization of the code to present a facade and
+    clarify what is public and what is not public. In particular:
+
+    * You may only load the ``wed`` module, ``wed/onerror``, ``wed/log`` and the
+      modules that make up the bundled modes. You may load polyfills, glue and
+      patches as needed. Note that the entry point to wed is no longer the
+      module ``wed/wed`` but the module ``wed``.
+
+    * You must use ``makeEditor`` to create a new editor instance. Code that
+      creates editors access them through the ``EditorInstance``
+      interface. Whereas modes use the ``EditorAPI`` interface.
+
+    * You may not use anything not exposed by the ``wed`` module. So if you are
+      a mode author, you must get everything your mode uses from ``wed`` instead
+      of trying to load the individual modules under ``wed/*``.
+
+    See the section titled ``Using`` in the documentation, specifically the part
+    about the changes in ``0.31``.
+
+  - Breaking API change: Upgraded from typeahead.js to corejs-typeahead. The
+    package typeahead.js had ceased to be maintained, and compatibility with
+    jQuery 3.x was dubious. corejs-typeahead has been tested with jQuery 3.x.
+
+    Modes that create ``TypeaheadPopup`` objects certainly need to be updated.
+
+  - Breaking API change: the ``Listener`` class in the ``domlistener`` module is
+    now called ``DOMListener``. The old name pretty much always required
+    renaming the import, which was a pain.
+
+  - API change: ``wed`` now exports ``DOMListener``.
+
+  - Breaking API change: ``util.decodeAttrName`` now returns a structure rather
+    than a string. See that function for details.
+
+  - Breaking API change: ``util.encodeAttrName`` encodes names differently from
+    what it used to. This matters if you statically stored encoded names that
+    conform to the older algorithm. (e.g. if you have CSS tests that depend on
+    the old way of encoding attribute names). They will have to be modified to
+    conform to the new algorithm.
+
+  - Bug fix: The previous API change fixes an issue that has plagued wed since
+    day one: wed was not able to properly handle attributes with uppercase
+    letters. Uppercase in element names were never a problem, but due to the
+    fact that HTML (silently) converts attribute names to lowercase, it was not
+    possible for wed to handle an attribute with uppercase characters properly.
+
+    Wed had never been used to edit attributes with uppercase names, and so the
+    issue remained undiscovered until recently.
+
+  - Possibly breaking change: wed has changed the way it looks for the embedded
+    documentation. It previously was looking for a path relative to the main
+    ``wed/wed`` module. That method depended on functions provided by
+    RequireJS. In order to eliminate dependencies on RequireJS, wed now look for
+    the embedded documentation relatively to the page where it is
+    loaded. Whether or not you need to act depends on how you use wed.
+
+    A new initialization option named ``docURL`` was added. It is optional. If
+    wed cannot find its embedded documentation, you may set the URL to the path
+    of the embedded documentation page. If the path is relative, remember that
+    it is interpreted relative to the *page* where wed is loaded.
+
+    To ascertain whether you need a custom value, open your wed instance, press
+    F1 to bring up the help dialog and click the link in the dialog. If you get
+    to the help page, then you are fine. If not, you need a custom value.
+
+  - New feature: wed now support ``Ctrl-?`` to bring up a replacement menu. In
+    brief, replacement menus are like completion menus but they can be brought
+    up after an attribute value has already been filled, to replace the value.
+    See the bundled documentation for details.
+
+  - New API: The editor now has a ``transformations`` observer that can be
+    used to know when transformations start and end and to add changes to a
+    transformation.
+
+    More formally: wed allows subscribers acting on transformation events
+    to make further modifications to the data tree.
+
+  - New API: The editor now has an ``undoEvents`` field which is the stream
+    of undo/redo events. Modes can listen to undo/redo operations and act on
+    them if needed.
+
+    This may be used in tandem with the ``transformations`` stream. When a
+    transformation is undone or redone, the undoing or redoing is done by
+    playing the modifications of the data tree in reverse or replaying them
+    forward. The modifications are at a lower level of operation than
+    transformations so when undoing/redoing, wed does not execute
+    transformations. This is problematic for some use-case-scenarios where a
+    mode wants to know whether the undo/redo is undoing or redoing a specific
+    transformation. The mode can add a mark to the undo list and then use that
+    to know whether the undo/redo deals with a specific transformation.
+
+  - New API: There is now an ``UndoMarker`` object which may be used to
+    insert markers into the list of undo operations. This may be useful for some
+    modes.
+
+  - New GUI feature: wed now has a toolbar.
+
+  - New GUI feature: wed now has proper GUI button classes.
+
+  - New feature: wed now has a stock transformation for removing markup in
+    mixed-content. A button was added to the toolbar for this transformation.
+
+  - New feature: wed now has a button in the toolbar for turning off attribute
+    autohiding.
+
+  - New API and potentially breaking change: all code that creates tooltips that
+    appear inside the GUI tree must use the ``makeGUITreeTooltip`` method. This
+    is "breaking" in the sense that the method did not exist before.
+
+  - Bug fix: ``TransformationHandler`` is now a generic. This fixes type
+    checking issues that could happen under the old code.
+
+  - New API: ``EditingMenuManager`` now has a ``setupContextMenu`` method which
+    combines ``computeMenuPosition`` and ``displayContextMenu``.
+
+  - Breaking API change: ``displayTypeaheadPopup`` has been moved from
+    ``Editor`` to ``EditingMenuManager``.
+
+  - New API: ``EditingMenuManager`` now has a ``setupTypeaheadPopup`` method
+    which combines ``computeMenuPosition`` and ``displayTypeaheadPopup``.
+
+  - Breaking API change: none of wed's functions return ``RangyRange`` objects
+    anymore. They all return stock DOM ``Range`` objects. If you really need a
+    ``RangyRange``, you can create one yourself manually from the ``Range``
+    objects.
+
+    Except for Rangy's search facilities, wed was not generally using much of
+    Rangy. The compatibility layer that it offers for old browsers is no longer
+    crucial to wed. (Early on, wed had support for IE 9, for instance.)
+    Conversely, the TypeScript typings for Rangy are a mess and make supporting
+    it at the interface level difficult.
+
+    And Rangy itself appears to be rather moribund. We may drop it entirely in a
+    future release, if we find a good replacement for searching through HTML.
+
+  - Potentially breaking change: The ``onbeforeunload`` module no longer
+    automatically installs itself on a window. This did not play well with the
+    new Webpack build and would cause issues in cases where some parts of wed
+    were needed, but not a whole editor. If you did rely on the automatic
+    install, then this is a breaking change. If not, then it is not.
+
+    Note that a wed editor instance does use ``onbeforeunload`` to install a
+    handler, and *this has not changed*. It used to be that merely loading the
+    module would *also* install a default handler. Only *this* has changed.
+
+  - Potentially breaking GUI change: on OS X the keyboard shortcuts for
+    decreasing and increasing label visibility were ``Cmd-[`` and
+    ``Cmd-]``. However, OS X uses these combinations and thus they were never
+    available to wed. End result: the user could not change the label
+    visibility. We tried some alternative keyboard combinations, with
+    unsatisfying results. For now, OS X users will have to use the toolbar to
+    change visibility levels.
+
+    This is *potentially* breaking because it is likely that most people never
+    used the problematic combinations. Only users who bothered to change the OS
+    key combinations to avoid the conflict with wed could have worked around the
+    issue. For them this is a breaking change, but this is probably a tiny
+    minority of users.
+
+  - Bug fix: wed would crash on reporting spurious attributes. This is probably
+    a regression that came in a while back and went undetected because wed is
+    usually used to create documents from scratch and so does not usually run
+    into spurious attributes.
+
+  - Bug fix: if an attribute subject to autohiding had an error, wed would
+    produce an error item without a link. That's fine for when the attribute is
+    hidden, but it is a problem when the attribute is shown. Wed now recreates
+    errors when an autohidden attribute is shown or hidden.
+
+  - Bug fix: ``wed-metadata`` was badly packaged. This has been fixed.
+
+  - Bug fix: ``wed-metadata`` would produce invalid data if it ran on TEI JSON
+    files that were produced from customizations rather than on files that were
+    representing a stock TEI schema. This has been fixed.
+
+  - Potentially breaking API change: ``Action`` no longer has any notion of
+    being enabled or not. It was never used in wed and just gave the wrong
+    impression that actions could be disabled somehow. We may reintroduce this
+    notion later, and do it properly when we do.
+
+  - New API: ``objectCheck`` has an ``assertSummarily`` function which allows
+    throwing on any check error. That's a common usage pattern for
+    ``objectCheck``.
+
+  - New API: ``objectCheck`` has an ``assertExtensively`` function which allows
+    throwing a detailed error on failing checks. That's also a common usage
+    pattern for ``objectCheck``.
 
 * 0.30.0:
 

@@ -59,6 +59,10 @@ declare namespace rangy {
         inspect():string;
     }
 
+    interface RangyRangeConstructor {
+      new (native: Range): RangyRange;
+    }
+
     interface RangyStatic {
         createNativeRange(doc?:Document|Window|HTMLIFrameElement):Range;
         createRange(doc?:Document|Window|HTMLIFrameElement):RangyRange;
@@ -72,11 +76,13 @@ declare namespace rangy {
         supported:boolean;
         dom:DomUtils;
         init(): void;
+        WrappedRange: RangyRangeConstructor;
     }
 
     interface DomUtils {
         comparePoints(nodeA:Node, offsetA:number, nodeB:Node, offsetB:number):number;
     }
+
 }
 
 declare var rangy:rangy.RangyStatic;

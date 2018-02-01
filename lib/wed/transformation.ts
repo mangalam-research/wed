@@ -12,9 +12,10 @@ import { DLoc } from "./dloc";
 import { isDocument, isText } from "./domtypeguards";
 import { Caret, firstDescendantOrSelf, indexOf,
          isWellFormedRange } from "./domutil";
+import { AbortTransformationException } from "./exceptions";
 import * as icon from "./gui/icon";
+import { EditorAPI } from "./mode-api";
 import { TreeUpdater } from "./tree-updater";
-import { Editor } from "./wed";
 
 const TYPE_TO_KIND = _.extend(Object.create(null), {
   // These are not actually type names. It is possible to use a kind name as a
@@ -126,8 +127,8 @@ export interface NamedTransformationData extends TransformationData {
  *
  * @param data The data for the transformation.
  */
-export type TransformationHandler =
-  (editor: Editor, data: TransformationData) => void;
+export type TransformationHandler<Data extends TransformationData> =
+  (editor: EditorAPI, data: Data) => void;
 
 function computeIconHtml(iconHtml: string | undefined,
                          transformationType: string): string | undefined {
@@ -146,9 +147,10 @@ function computeIconHtml(iconHtml: string | undefined,
 /**
  * An operation that transforms the data tree.
  */
-export class Transformation<Data extends TransformationData>
+export class Transformation<Data extends TransformationData,
+Handler extends TransformationHandler<Data> = TransformationHandler<Data>>
   extends Action<Data> {
-  public readonly handler: TransformationHandler;
+  public readonly handler: Handler;
   public readonly transformationType: string;
   public readonly kind: string;
   public readonly nodeType: string;
@@ -183,41 +185,57 @@ export class Transformation<Data extends TransformationData>
    *
    * @param handler The handler to call when this transformation is executed.
    */
-  constructor(editor: Editor, transformationType: string, desc: string,
-              handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
-              abbreviatedDesc: string | undefined,
-              handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
-              abbreviatedDesc: string | undefined,
-              iconHtml: string | undefined,
-              handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
+              handler: Handler);
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
+              abbreviatedDesc: string | undefined, handler: Handler);
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
               abbreviatedDesc: string | undefined, iconHtml: string | undefined,
-              needsInput: boolean, handler: TransformationHandler);
-  constructor(editor: Editor, transformationType: string, desc: string,
-              abbreviatedDesc: string | TransformationHandler | undefined,
-              iconHtml?: string | TransformationHandler | undefined,
-              needsInput?: boolean | TransformationHandler,
-              handler?: TransformationHandler) {
+              handler: Handler);
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
+              abbreviatedDesc: string | undefined, iconHtml: string | undefined,
+              needsInput: boolean, handler: Handler);
+  constructor(editor: EditorAPI, transformationType: string, desc: string,
+              abbreviatedDesc: string | Handler | undefined,
+              iconHtml?: string | Handler | undefined,
+              needsInput?: boolean | Handler, handler?: Handler) {
     if (typeof abbreviatedDesc === "function") {
       handler = abbreviatedDesc;
       super(editor, desc, undefined,
             computeIconHtml(undefined, transformationType), false);
     }
-    else if (typeof iconHtml === "function") {
-      handler = iconHtml;
-      super(editor, desc, abbreviatedDesc,
-            computeIconHtml(undefined, transformationType), false);
-    }
-    else if (typeof needsInput === "function") {
-      handler = needsInput;
-      super(editor, desc, abbreviatedDesc,
-            computeIconHtml(iconHtml, transformationType), false);
-    }
     else {
-      super(editor, desc, abbreviatedDesc,
-            computeIconHtml(iconHtml, transformationType), needsInput);
+      if (!(abbreviatedDesc === undefined ||
+            typeof abbreviatedDesc === "string")) {
+        throw new TypeError("abbreviatedDesc must be a string or undefined");
+      }
+
+      if (typeof iconHtml === "function") {
+        handler = iconHtml;
+        super(editor, desc, abbreviatedDesc,
+              computeIconHtml(undefined, transformationType), false);
+      }
+      else {
+        if (!(iconHtml === undefined || typeof iconHtml === "string")) {
+          throw new TypeError("iconHtml must be a string or undefined");
+        }
+
+        if (typeof needsInput === "function") {
+          handler = needsInput;
+
+          super(editor, desc, abbreviatedDesc,
+                computeIconHtml(iconHtml as (string | undefined),
+                                transformationType), false);
+        }
+        else {
+          if (!(needsInput === undefined || typeof needsInput === "boolean")) {
+            throw new TypeError("needsInput must be a boolean or undefined");
+          }
+
+          super(editor, desc, abbreviatedDesc,
+                computeIconHtml(iconHtml, transformationType), needsInput);
+        }
+      }
     }
 
     if (handler === undefined) {
@@ -244,8 +262,6 @@ export class Transformation<Data extends TransformationData>
    * @param data The data object to pass.
    */
   execute(data: Data): void {
-    // Removed this during conversion to TypeScript. Did it ever make sense??
-    // data = data || {};
     this.editor.fireTransformation(this, data);
   }
 }
@@ -528,7 +544,7 @@ export function unwrap(dataUpdater: TreeUpdater, node: Element): Node[] {
  *
  * @throws {Error} If the caret is not inside the node or its descendants.
  */
-export function splitNode(editor: Editor, node: Node): void {
+export function splitNode(editor: EditorAPI, node: Node): void {
   const caret = editor.caretManager.getDataCaret();
 
   if (caret === undefined) {
@@ -553,7 +569,7 @@ export function splitNode(editor: Editor, node: Node): void {
  *
  * @param node The element to merge with previous.
  */
-export function mergeWithPreviousHomogeneousSibling(editor: Editor,
+export function mergeWithPreviousHomogeneousSibling(editor: EditorAPI,
                                                     node: Element): void {
   const prev = node.previousElementSibling;
   if (prev === null) {
@@ -601,7 +617,7 @@ export function mergeWithPreviousHomogeneousSibling(editor: Editor,
  *
  * @param node The element to merge with next.
  */
-export function mergeWithNextHomogeneousSibling(editor: Editor,
+export function mergeWithNextHomogeneousSibling(editor: EditorAPI,
                                                 node: Element): void {
   const next = node.nextElementSibling;
   if (next === null) {
@@ -620,7 +636,7 @@ export function mergeWithNextHomogeneousSibling(editor: Editor,
  *
  * @param node The element to swap with previous.
  */
-export function swapWithPreviousHomogeneousSibling(editor: Editor,
+export function swapWithPreviousHomogeneousSibling(editor: EditorAPI,
                                                    node: Element): void {
   const prev = node.previousElementSibling;
   if (prev === null) {
@@ -651,7 +667,7 @@ export function swapWithPreviousHomogeneousSibling(editor: Editor,
  *
  * @param node The element to swap with next.
  */
-export function swapWithNextHomogeneousSibling(editor: Editor,
+export function swapWithNextHomogeneousSibling(editor: EditorAPI,
                                                node: Element): void {
   const next = node.nextElementSibling;
   if (next === null) {
@@ -659,6 +675,40 @@ export function swapWithNextHomogeneousSibling(editor: Editor,
   }
 
   swapWithPreviousHomogeneousSibling(editor, next);
+}
+
+/**
+ * Remove markup from the current selection. This turns mixed content into pure
+ * text. The selection must be well-formed, otherwise the transformation is
+ * aborted.
+ *
+ * @param editor The editor for which we are doing the transformation.
+ */
+export function removeMarkup(editor: EditorAPI): void {
+  const selection = editor.caretManager.sel;
+
+  // Do nothing if we don't have a selection.
+  if (selection === undefined || selection.collapsed) {
+    return;
+  }
+
+  if (!selection.wellFormed) {
+    editor.modals.getModal("straddling").modal();
+    throw new AbortTransformationException("selection is not well-formed");
+  }
+
+  const [start, end] = selection.asDataCarets()!;
+  const cutRet = editor.dataUpdater.cut(start, end);
+  let newText = "";
+  const cutNodes = cutRet[1];
+  for (const el of cutNodes) {
+    newText += el.textContent;
+  }
+
+  const insertRet = editor.dataUpdater.insertText(cutRet[0], newText);
+  editor.caretManager.setRange(
+    start.make(insertRet.node!, insertRet.isNew ? cutRet[0].offset : 0),
+    insertRet.caret);
 }
 
 //  LocalWords:  wasText endOffset prepend endContainer startOffset html DOM

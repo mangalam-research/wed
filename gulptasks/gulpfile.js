@@ -14,15 +14,14 @@ const rjs = require("requirejs");
 const wrapAmd = require("gulp-wrap-amd");
 const replace = require("gulp-replace");
 const argparse = require("argparse");
-const gulpTs = require("gulp-typescript");
-const sourcemaps = require("gulp-sourcemaps");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
+const createOptimizedConfig = require("../misc/create_optimized_config").create;
 
 const config = require("./config");
-const { sameFiles, del, newer, exec, checkOutputFile, touchAsync, cprp,
-        cprpdir, spawn, sequence, mkdirpAsync, fs, stampPath } =
-      require("./util");
+const { sameFiles, del, newer, exec, execFileAndReport, checkOutputFile,
+        touchAsync, cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
+        stampPath } = require("./util");
 
 const { test, seleniumTest } = require("./tests");
 
@@ -92,7 +91,7 @@ gulp.task("config", () => {
 
 const buildDeps = ["build-standalone", "build-bundled-doc"];
 if (options.optimize) {
-  buildDeps.push("build-standalone-optimized");
+  buildDeps.push("build-standalone-optimized", "webpack");
 }
 gulp.task("build", buildDeps);
 
@@ -127,50 +126,9 @@ gulp.task("convert-wed-yaml", () => {
     .pipe(gulp.dest(dest));
 });
 
-const moduleFix = /^(define\(\["require", "exports")(.*?\], function \(require, exports)(.*)$/m;
-function tsc(project, dest, done) {
-  // The .once nonsense is to work around a gulp-typescript bug
-  //
-  // See: https://github.com/ivogabe/gulp-typescript/issues/295
-  //
-  // The fix is inspired by these comments:
-  // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-197299175
-  // https://github.com/ivogabe/gulp-typescript/issues/295#issuecomment-284483600
-  //
-  const result = project.src()
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(project())
-        .once("error", function finish() {
-          // We need to use "finish" rather than "end" due to a bug in
-          // gulp-typescript:
-          //
-          // https://github.com/ivogabe/gulp-typescript/issues/540
-          //
-          this.once("finish", () => {
-            const err = new Error("TypeScript compilation failed");
-            err.showStack = false;
-            done(err);
-          });
-        });
-
-  es.merge(result.js
-           //
-           // This ``replace`` to work around the problem that ``module``
-           // is not defined when compiling to "amd". See:
-           //
-           // https://github.com/Microsoft/TypeScript/issues/13591
-           //
-           // We need to compile to "amd" for now.
-           //
-           .pipe(replace(moduleFix, "$1, \"module\"$2, module$3"))
-           .pipe(sourcemaps.write("."))
-           .pipe(gulp.dest(dest)),
-           result.dts.pipe(gulp.dest(dest)))
-  // The stream that es.merge returns is only readable, not writable. So there's
-  // no finish event for it, only "end".
-    .on("end", () => {
-      done();
-    });
+function tsc(tsconfigPath, dest) {
+  return execFileAndReport("./node_modules/.bin/tsc", ["-p", tsconfigPath,
+                                                       "--outDir", dest]);
 }
 
 function parseFile(name, data) {
@@ -230,11 +188,8 @@ gulp.task("generate-ts", () =>
               "lib/wed/options-schema.yml", "options.d.ts"),
           ]));
 
-const wedProject = gulpTs.createProject("lib/tsconfig.json");
 gulp.task("tsc-wed", ["generate-ts"],
-          (done) => {
-            tsc(wedProject, "build/standalone/lib", done);
-          });
+          () => tsc("lib/tsconfig.json", "build/standalone/lib"));
 
 gulp.task("copy-js-web",
           () => gulp.src("web/**/*.{js,html,css}")
@@ -280,7 +235,11 @@ gulp.task("build-standalone-wed-less",
               });
           });
 
-gulp.task("copy-bin", () => cprpdir("bin", "build/standalone"));
+gulp.task("copy-bin", () => gulp.src("bin/**/*")
+          // Update all paths that point into the build directory be relative
+          // to .. instead.
+          .pipe(replace("../build/", "../"))
+          .pipe(gulp.dest("build/bin")));
 
 gulp.task("npm", ["stamp-dir"], Promise.coroutine(function *task() {
   const stamp = stampPath("npm");
@@ -353,8 +312,7 @@ function npmCopyTask(...args) {
   const completeSrc = [`node_modules/${src}`];
   const completeDest = `build/standalone/lib/${dest}`;
 
-  // We want to match everything except the package directory
-  // itself.
+  // We want to match everything except the package directory itself.
   const filter = gulpFilter(file => !/node_modules\/$/.test(file.base));
 
   //
@@ -393,7 +351,11 @@ function npmCopyTask(...args) {
       .pipe(filter);
 
     if (copyOptions.wrapAmd) {
-      stream = stream.pipe(wrapAmd({ exports: "module.exports" }));
+      // Wrapping makes sense only for .js files.
+      const jsFilter = gulpFilter("**/*.js", { restore: true });
+      stream = stream.pipe(jsFilter)
+        .pipe(wrapAmd({ exports: "module.exports" }))
+        .pipe(jsFilter.restore);
     }
 
     stream.pipe(gulp.dest(completeDest))
@@ -415,7 +377,8 @@ npmCopyTask("requirejs/require.js", "requirejs");
 
 npmCopyTask("optional-plugin", "requirejs-optional/optional.js", "requirejs");
 
-npmCopyTask("typeahead", "typeahead.js/dist/typeahead.bundle.min.js");
+npmCopyTask("corejs-typeahead",
+            "corejs-typeahead/dist/{bloodhound,typeahead.jquery}.min.js");
 
 npmCopyTask("localforage/dist/localforage.js");
 
@@ -463,9 +426,11 @@ npmCopyTask("bluejax.try/index.js", { rename: "bluejax.try.js" });
 
 npmCopyTask("slug/slug-browser.js", { rename: "slug.js" });
 
-npmCopyTask("rxjs/bundles/Rx.js");
+npmCopyTask("rxjs/**", "external/rxjs", { wrapAmd: true });
 
 npmCopyTask("ajv/dist/ajv.min.js");
+
+npmCopyTask("diff/diff.js");
 
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
@@ -574,19 +539,20 @@ gulp.task("build-bundled-doc", ["build-standalone"],
 gulp.task(
   "build-optimized-config", ["config"],
   Promise.coroutine(function *task() {
-    const script = "misc/create_optimized_config.js";
     const origConfig = "build/config/requirejs-config-dev.js";
     const buildConfig = "requirejs.build.js";
     const optimizedConfig = "build/standalone-optimized/requirejs-config.js";
 
-    const isNewer = yield newer([script, origConfig, buildConfig],
-                                optimizedConfig);
+    const isNewer = yield newer([origConfig, buildConfig], optimizedConfig);
     if (!isNewer) {
       return;
     }
 
     yield mkdirpAsync(path.dirname(optimizedConfig));
-    yield exec(`node ${script} ${origConfig} > ${optimizedConfig}`);
+
+    yield fs.writeFileAsync(optimizedConfig, createOptimizedConfig({
+      config: origConfig,
+    }));
   }));
 
 function *buildStandaloneOptimized() {
@@ -616,6 +582,10 @@ gulp.task("build-standalone-optimized", [
   "build-optimized-config",
   "build-test-files",
 ], Promise.coroutine(buildStandaloneOptimized));
+
+gulp.task("webpack", ["build-standalone"], () =>
+          execFileAndReport("./node_modules/.bin/webpack", ["--color"],
+                            { maxBuffer: 300 * 1024 }));
 
 gulp.task("rst-doc", () =>
           gulp.src("*.rst", { read: false })
@@ -685,21 +655,23 @@ function *ghPages() {
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
           Promise.coroutine(ghPages));
 
-const distNoTest = {
-  name: "dist-notest",
-  deps: ["build"],
+const packNoTest = {
+  name: "pack-notest",
+  deps: ["build-standalone", "build-standalone-optimized", "webpack"],
   *func() {
     yield del("build/wed-*.tgz");
     const dist = "build/dist";
     yield fs.emptyDirAsync(dist);
     yield cprpdir(["build/standalone", "build/standalone-optimized",
-                   "bin", "package.json", "npm-shrinkwrap.json"],
+                   "build/packed", "build/bin", "package.json",
+                   "npm-shrinkwrap.json"],
                   dist);
     yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
 *
 !standalone/**
 !standalone-optimized/**
 !bin/**
+!packed/**
 standalone/lib/tests/**
 standalone-optimized/lib/tests/**
 `);
@@ -711,17 +683,18 @@ standalone-optimized/lib/tests/**
     yield del("build/t");
   },
 };
+defineTask(packNoTest);
 
-sequence("dist", test, seleniumTest, distNoTest);
+sequence("pack", test, seleniumTest, packNoTest);
 
 function publish() {
   return spawn("npm", ["publish", "build/LATEST-DIST.tgz"],
                { stdio: "inherit" });
 }
 
-gulp.task("publish", ["dist"], publish);
+gulp.task("publish", ["pack"], publish);
 
-gulp.task("publish-notest", ["dist-notest"], publish);
+gulp.task("publish-notest", ["pack-notest"], publish);
 
 gulp.task("clean", () => del(["build", "gh-pages", "*.html"]));
 

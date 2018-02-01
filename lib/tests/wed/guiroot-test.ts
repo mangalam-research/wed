@@ -12,7 +12,7 @@ import { DLocRoot, findRoot } from "wed/dloc";
 import { linkTrees } from "wed/domutil";
 import * as guiroot from "wed/guiroot";
 
-import * as sourceXML from "../guiroot_test_data/source_converted.xml";
+import { DataProvider } from "../util";
 
 const assert = chai.assert;
 
@@ -30,17 +30,20 @@ describe("guiroot", () => {
   let htmlTree: Node;
   let xmlDoc: Document;
 
-  before(() => {
-    root = document.createElement("div");
-    document.body.appendChild(root);
-    $root = $(root);
-    const parser = new window.DOMParser();
-    xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-    htmlTree = convert.toHTMLTree(window.document,
-                                  xmlDoc.firstElementChild!);
-    root.appendChild(htmlTree.cloneNode(true));
-    rootObj = new guiroot.GUIRoot(root);
-  });
+  before(() =>
+         new DataProvider("/base/build/standalone/lib/tests/guiroot_test_data/")
+         .getText("source_converted.xml")
+         .then((sourceXML) => {
+           root = document.createElement("div");
+           document.body.appendChild(root);
+           $root = $(root);
+           const parser = new window.DOMParser();
+           xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+           htmlTree = convert.toHTMLTree(window.document,
+                                         xmlDoc.firstElementChild!);
+           root.appendChild(htmlTree.cloneNode(true));
+           rootObj = new guiroot.GUIRoot(root);
+         }));
 
   after(() => {
     document.body.removeChild(root);

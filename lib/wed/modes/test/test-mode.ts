@@ -9,22 +9,19 @@ import * as mergeOptions from "merge-options";
 import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
-import { Action } from "wed/action";
-import { Decorator } from "wed/decorator";
-import { childrenByClass, closestByClass, indexOf } from "wed/domutil";
-import { GUISelector } from "wed/gui-selector";
-import * as context_menu from "wed/gui/context-menu";
-import { Modal } from "wed/gui/modal";
-import * as input_trigger_factory from "wed/input-trigger-factory";
-import * as key from "wed/key";
-import * as key_constants from "wed/key-constants";
+import { Action, Decorator, domutil, EditorAPI, gui, GUISelector,
+         inputTriggerFactory, key, keyConstants, ModeValidator, objectCheck,
+         transformation } from "wed";
 import { GenericModeOptions,
          Mode as GenericMode } from "wed/modes/generic/generic";
 import { GenericDecorator } from "wed/modes/generic/generic-decorator";
-import { Template } from "wed/object-check";
-import * as transformation from "wed/transformation";
-import { ModeValidator } from "wed/validator";
-import { Editor } from "wed/wed";
+
+import Template = objectCheck.Template;
+import Button = gui.button.Button;
+import ContextMenu = gui.contextMenu.ContextMenu;
+import Modal = gui.modal.Modal;
+
+const { childrenByClass, closestByClass, indexOf } = domutil;
 
 // tslint:disable-next-line:completed-docs
 class Validator implements ModeValidator {
@@ -51,14 +48,14 @@ export class TestDecorator extends GenericDecorator {
 
   addHandlers(): void {
     super.addHandlers();
-    input_trigger_factory.makeSplitMergeInputTrigger(
+    inputTriggerFactory.makeSplitMergeInputTrigger(
       this.editor,
       this.mode,
       GUISelector.fromDataSelector("hi",
                                    this.mode.getAbsoluteNamespaceMappings()),
       key.makeKey(";"),
-      key_constants.BACKSPACE,
-      key_constants.DELETE);
+      keyConstants.BACKSPACE,
+      keyConstants.DELETE);
   }
 
   // tslint:disable:no-jquery-raw-elements
@@ -200,8 +197,7 @@ export class TestDecorator extends GenericDecorator {
     }
 
     // tslint:disable-next-line:no-unused-expression
-    new context_menu.ContextMenu(this.editor.doc,
-                                 ev.clientX, ev.clientY, items);
+    new ContextMenu(this.editor.doc, ev.clientX, ev.clientY, items);
 
     return false;
   }
@@ -215,7 +211,7 @@ export interface TestModeOptions extends GenericModeOptions {
   stylesheets?: string[];
 }
 
-type MatchCallback = (matches: { value: string }[]) => void;
+type MatchCallback = (matches: string[]) => void;
 
 // tslint:disable-next-line:completed-docs
 class TypeaheadAction extends Action<{}> {
@@ -230,7 +226,7 @@ class TypeaheadAction extends Action<{}> {
         const matches = [];
         for (const str of strs) {
           if (re.test(str)) {
-            matches.push({ value: str });
+            matches.push(str);
           }
         }
 
@@ -252,23 +248,22 @@ class TypeaheadAction extends Action<{}> {
       },
       datasets: [{
         source: substringMatcher(testData),
+        limit: testData.length,
       }],
     };
 
-    const pos = editor.editingMenuManager.computeMenuPosition(undefined, true);
     const typeahead =
-      editor.displayTypeaheadPopup(pos.left, pos.top, 300,
-                                   "Test", options,
-                                   (obj?: { value: string }) => {
-                                     if (obj != null) {
-                                       editor.type(obj.value);
-                                     }
-                                   });
+      editor.editingMenuManager.setupTypeaheadPopup(
+        300, "Test", options,
+        (obj?: string) => {
+          if (obj != null) {
+            editor.insertText(obj);
+          }
+        }, undefined, true);
     typeahead.hideSpinner();
     const range = editor.caretManager.range;
 
-    // This is purposely not as intelligent as what real mode would
-    // need.
+    // This is purposely not as intelligent as what real mode would need.
     if (range != null && !(range.collapsed as boolean)) {
       typeahead.setValue(range.toString());
     }
@@ -350,7 +345,7 @@ export class TestMode extends GenericMode<TestModeOptions> {
     stylesheets: false,
   };
 
-  constructor(editor: Editor, options: TestModeOptions) {
+  constructor(editor: EditorAPI, options: TestModeOptions) {
     super(editor, options);
     this.wedOptions = mergeOptions({}, this.wedOptions);
     const suffix = options.nameSuffix != null ? options.nameSuffix : "";
@@ -405,6 +400,10 @@ export class TestMode extends GenericMode<TestModeOptions> {
   getStylesheets(): string[] {
     const stylesheets = this.options.stylesheets;
     return stylesheets !== undefined ? stylesheets : [];
+  }
+
+  getToolbarButtons(): Button[] {
+    return [this.typeaheadAction.makeButton()];
   }
 
   getContextualActions(transformationType: string | string[],

@@ -9,21 +9,17 @@ Linux,CH,60
 
 
 #
-# Perform these next because IE compatibility is a major
-# issue. Finding problems early pays.
+# Perform these next because MS browsers compatibility is a major issue. Finding
+# problems early pays.
 #
-Windows 8.1,IE,11,Remote
-#
-# This won't run because Edge does not yet support webdriver to any
-# meaningful level. See:
-#
-# https://dev.windows.com/en-us/microsoft-edge/platform/status/webdriver/details/
-#
-# Windows 10,Edge,13.10586,Remote
+# Windows 8.1,IE,11,Remote
+Windows 10,Edge,15,Remote
+# Edge 16 does not seem to pass yet...
+# Windows 10,Edge,16,Remote
 
 #
-# Perform these next because OS X compatibility is an issue. Again, we
-# want to find problems early.
+# Perform these next because OS X compatibility is an issue. Again, we want to
+# find problems early.
 #
 OS X 10.12,CH,60,Remote
 
@@ -32,17 +28,7 @@ OS X 10.12,CH,60,Remote
 #
 Windows 8.1,CH,60,Remote
 
+# FF support is still suspended.
 # ESR
 # Windows 8.1,FF,38,Remote
-
-#
-# FAILING COMBINATIONS
-#
-# Fails due to a resizing bug in Selenium:
-#
-# Windows 8.1,FF,26,Remote
-
-#
-# FF does not support native events in OS X.
-#
 # OS X 10.6,FF,..,Remote

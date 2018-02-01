@@ -4,8 +4,10 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { CaretManager } from "wed/caret-manager";
+import { Editor } from "wed/editor";
 import { EditingMenuManager } from "wed/gui/editing-menu-manager";
-import * as wed from "wed/wed";
+import * as keyConstants from "wed/key-constants";
+import { encodeAttrName } from "wed/util";
 
 import * as globalConfig from "../base-config";
 import { delay } from "../util";
@@ -16,7 +18,7 @@ const assert = chai.assert;
 
 describe("wed menus:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;
@@ -51,7 +53,7 @@ describe("wed menus:", () => {
     (caretManager as any) = undefined;
   });
 
-  function contextMenuHasAttributeOption(myEditor: wed.Editor): void {
+  function contextMenuHasAttributeOption(myEditor: Editor): void {
     contextMenuHasOption(myEditor, /^Add @/);
   }
 
@@ -104,7 +106,8 @@ describe("wed menus:", () => {
     });
 
     it("on elements inside _phantom_wrap", () => {
-      const p = guiRoot.querySelector(".body .p[data-wed-rend='wrap']")!;
+      const p =
+        guiRoot.querySelector(`.body .p[${encodeAttrName("rend")}='wrap']`)!;
       const dataNode = $.data(p, "wed_mirror_node") as Element;
       const rend = dataNode.getAttribute("rend");
       // Make sure the paragraph has rend="wrap".
@@ -139,6 +142,55 @@ describe("wed menus:", () => {
          const attrVals = getAttributeValuesFor(ps[9]);
          caretManager.setCaret(attrVals[0].firstChild, 0);
          const menu = editor.window.document.
+           getElementsByClassName("wed-context-menu")[0];
+         assert.isUndefined(menu, "the menu should not exist");
+       });
+  });
+
+  describe("has a replacement menu when the caret is in an attribute", () => {
+    it("that takes completions", () => {
+      const p = ps[9];
+      const attrVals = getAttributeValuesFor(p);
+      caretManager.setCaret(attrVals[0].firstChild, 0);
+      contextMenuHasOption(editor, /^Y$/);
+      editor.type("Y");
+      // The context menu should be gone.
+      const menu = editor.window.document.
+        getElementsByClassName("wed-context-menu")[0];
+      assert.isUndefined(menu, "the menu should not exist");
+      editor.type(keyConstants.REPLACEMENT_MENU);
+      contextMenuHasOption(editor, /^Y$/);
+    });
+
+    it("for which the mode provides completion", () => {
+      const p = ps[13];
+      const attrVals = getAttributeValuesFor(p);
+      caretManager.setCaret(attrVals[0].firstChild, 0);
+      // This is an arbitrary menu item we check for.
+      contextMenuHasOption(editor, /^completion1$/);
+      editor.type("completion1");
+      // The context menu should be gone.
+      const menu = editor.window.document.
+        getElementsByClassName("wed-context-menu")[0];
+      assert.isUndefined(menu, "the menu should not exist");
+      editor.type(keyConstants.REPLACEMENT_MENU);
+      contextMenuHasOption(editor, /^completion1$/);
+    });
+  });
+
+  describe("does not have a replacement menu", () => {
+    it("when the caret is in an attribute that takes completions but the " +
+       "attribute is not visible", () => {
+         // Reduce visibility to 0 so that no attribute is visible.
+         editor.setLabelVisibilityLevel(0);
+         const attrVals = getAttributeValuesFor(ps[9]);
+         caretManager.setCaret(attrVals[0].firstChild, 0);
+         let menu = editor.window.document.
+           getElementsByClassName("wed-context-menu")[0];
+         assert.isUndefined(menu, "the menu should not exist");
+         // The menu won't come up with a the shortcut.
+         editor.type(keyConstants.REPLACEMENT_MENU);
+         menu = editor.window.document.
            getElementsByClassName("wed-context-menu")[0];
          assert.isUndefined(menu, "the menu should not exist");
        });

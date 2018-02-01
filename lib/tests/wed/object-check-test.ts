@@ -3,26 +3,36 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { check } from "wed/object-check";
+import { assertExtensively, assertSummarily, check } from "wed/object-check";
 
 const assert = chai.assert;
 
 describe("object-check", () => {
-  describe("check", () => {
-    const template = {
-      foo: false,
-      bar: {
-        baz: true,
-        bin: false,
-      },
-      bip: {
-        baz: false,
-        bin: false,
-        toto: true,
-      },
+  const template = {
+    foo: false,
+    bar: {
+      baz: true,
+      bin: false,
+    },
+    bip: {
+      baz: false,
+      bin: false,
       toto: true,
-    };
+    },
+    toto: true,
+  };
 
+  const correct = {
+    bar: {
+      baz: 1,
+    },
+    bip: {
+      toto: 1,
+    },
+    toto: { blah: "blah" },
+  };
+
+  describe("check", () => {
     it("reports extraneous fields", () => {
       const ret = check(template, {
         unknown1: "blah",
@@ -64,16 +74,57 @@ describe("object-check", () => {
     });
 
     it("reports no error", () => {
-      const ret = check(template, {
-        bar: {
-          baz: 1,
-        },
-        bip: {
-          toto: 1,
-        },
-        toto: { blah: "blah" },
-      });
-      assert.deepEqual(ret, {});
+      assert.deepEqual(check(template, correct), {});
+    });
+  });
+
+  describe("assertSummarily", () => {
+    it("does not throw on correct input", () => {
+      assertSummarily(template, correct);
+    });
+
+    it("throws on missing fields", () => {
+      assert.throws(() => {
+        assertSummarily(template, {
+          bip: {
+            toto: 1,
+          },
+          toto: { blah: "blah" },
+        });
+      }, Error, "missing option: bar");
+    });
+
+    it("throws on extra fields", () => {
+      assert.throws(() => {
+        assertSummarily(template, {
+          bar: {
+            baz: 1,
+            unknown: 1,
+          },
+          bip: {
+            toto: 1,
+          },
+          toto: { blah: "blah" },
+        });
+      }, Error, "extra option: bar.unknown");
+    });
+  });
+
+  describe("assertExtensively", () => {
+    it("does not throw on correct input", () => {
+      assertExtensively(template, correct);
+    });
+
+    it("throws on errors", () => {
+      assert.throws(() => {
+        assertExtensively(template, {
+          bip: {
+            toto: 1,
+            unknown: 2,
+          },
+          toto: { blah: "blah" },
+        });
+      }, Error, "missing option: bar, extra option: bip.unknown");
     });
   });
 });

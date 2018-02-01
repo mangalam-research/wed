@@ -5,10 +5,10 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { DLoc, DLocRange } from "wed/dloc";
+import { Editor } from "wed/editor";
 import { DialogSearchReplace, Direction } from "wed/gui/dialog-search-replace";
 import { Key } from "wed/key";
 import { SEARCH_BACKWARDS, SEARCH_FORWARD } from "wed/key-constants";
-import { Editor } from "wed/wed";
 
 import * as globalConfig from "../../base-config";
 
@@ -131,7 +131,7 @@ describe("dialog-search-replace", () => {
     expect(highlights).to.have.property("length").greaterThan(0);
     let highlightRect = highlights[0].getBoundingClientRect();
     const rangeRect =
-      range.mustMakeDOMRange().nativeRange.getBoundingClientRect();
+      range.mustMakeDOMRange().getBoundingClientRect();
 
     // The highlights are built as a series of rectangles. Checking each and
     // every rectangle would be onerous. We check the start and end of the

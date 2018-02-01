@@ -5,9 +5,12 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { Editor } from "./wed";
+import { Button } from "./gui/button";
+import { EditorAPI } from "./mode-api";
 
-export type EventWithData<Data> = Event & { data: Data };
+export interface EventWithData<Data> extends Event {
+  data: Data;
+}
 
 /**
  * Actions model "things the user can do." These can be contextual menu items,
@@ -16,7 +19,6 @@ export type EventWithData<Data> = Event & { data: Data };
  * conditions they choose.
  */
 export abstract class Action<Data> {
-  protected _enabled: boolean = true;
   public readonly boundHandler: (this: Action<Data>, ev: Event) => void;
   public readonly boundTerminalHandler: (this: Action<Data>,
                                          ev: Event) => boolean;
@@ -42,7 +44,7 @@ export abstract class Action<Data> {
    * ``needsInput`` set to ``true`` so that the ``autoinsert`` logic backs off
    * from trying to insert these elements.
    */
-  constructor(readonly editor: Editor, protected readonly desc: string,
+  constructor(readonly editor: EditorAPI, protected readonly desc: string,
               protected readonly abbreviatedDesc: string | undefined,
               protected readonly icon: string = "",
               readonly needsInput: boolean = false) {
@@ -66,7 +68,20 @@ export abstract class Action<Data> {
    * @param ev The DOM event.
    */
   eventHandler(ev: EventWithData<Data>): void {
-    this.execute(ev.data);
+    //
+    // Due to the way jQuery's typings are set, the event object passed when
+    // calling this method will essentially have a ``data`` field with type
+    // ``any``, and this will sastisfy the type checking done at compilation
+    // time. There does not appear to be a simple way to coerce ``data`` to not
+    // be null or undefined.
+    //
+    // We toyed with the idea of having it be an error to call this method with
+    // an event that does not have a ``data`` field set to some valid value, but
+    // that did not seem fruitful. Instead, we silently use an empty object if
+    // the field is missing.
+    //
+    const data = ev.data != null ? ev.data : ({} as Data);
+    this.execute(data);
     ev.preventDefault();
   }
 
@@ -154,11 +169,17 @@ export abstract class Action<Data> {
     return this.getDescription();
   }
 
-  /**
-   * Returns whether or not the action is currently enabled.
-   */
-  getEnabled(): boolean {
-    return this._enabled;
+  makeButton(data?: Data): Button {
+    const button = new Button(
+      data !== undefined ? this.getDescriptionFor(data) : this.getDescription(),
+      this.getAbbreviatedDescription(),
+      this.getIcon());
+
+    button.events.subscribe((event) => {
+      this.execute(data !== undefined ? data : {} as Data);
+    });
+
+    return button;
   }
 }
 

@@ -5,7 +5,9 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { Observable, Subject } from "rxjs";
+import * as $ from "jquery";
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
 
 import { pointInContents } from "../domutil";
 

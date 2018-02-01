@@ -82,8 +82,7 @@ def step_impl(context):
     util = context.util
 
     element = util.find_element(
-        (By.CSS_SELECTOR,
-         ".wed-typeahead-popup .tt-dropdown-menu .tt-suggestion"))
+        (By.CSS_SELECTOR, ".wed-typeahead-popup .tt-menu .tt-suggestion"))
     element.click()
 
 
@@ -101,7 +100,7 @@ def step_impl(context):
 def step_impl(context):
     def check(driver):
         return driver.execute_script("""
-        var menu = document.getElementsByClassName("tt-dropdown-menu")[0];
+        var menu = document.getElementsByClassName("tt-menu")[0];
         var menu_style = window.getComputedStyle(menu);
         var left_border =
           Number(menu_style.getPropertyValue("border-left-width")
@@ -130,8 +129,7 @@ def step_impl(context):
     driver = context.driver
 
     assert_true(driver.execute_script("""
-    var dropdown = document.querySelector(
-        ".wed-typeahead-popup .tt-dropdown-menu");
+    var dropdown = document.querySelector(".wed-typeahead-popup .tt-menu");
     var scroller = document.getElementsByClassName("wed-scroller")[0];
     var rect = dropdown.getBoundingClientRect();
     var scroller_rect = scroller.getBoundingClientRect();
@@ -144,8 +142,7 @@ def step_impl(context):
     driver = context.driver
 
     x, y = driver.execute_script("""
-    var dropdown = document.querySelector(
-        ".wed-typeahead-popup .tt-dropdown-menu");
+    var dropdown = document.querySelector(".wed-typeahead-popup .tt-menu");
     var rect = dropdown.getBoundingClientRect();
     return [rect.left + rect.width / 2, rect.bottom - 5];
     """)
@@ -172,5 +169,4 @@ def step_impl(context):
     util = context.util
 
     assert_true(len(util.find_elements(
-        (By.CSS_SELECTOR,
-         ".wed-typeahead-popup .tt-dropdown-menu .tt-suggestion"))))
+        (By.CSS_SELECTOR, ".wed-typeahead-popup .tt-menu .tt-suggestion"))))

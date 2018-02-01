@@ -6,10 +6,10 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+// Everything from wed must be loaded from "wed".
+import { Runtime, saver, treeUpdater } from "wed";
 
-import { Runtime } from "../runtime";
-import * as saver from "../saver";
-import { TreeUpdater } from "../tree-updater";
+import TreeUpdater = treeUpdater.TreeUpdater;
 
 export interface Store {
   put(name: string, data: string): Promise<void>;

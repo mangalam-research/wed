@@ -10,8 +10,9 @@ import * as $ from "jquery";
 import * as convert from "wed/convert";
 import { DLoc, DLocRange, DLocRoot, findRoot, getRoot } from "wed/dloc";
 import { isAttr } from "wed/domutil";
+import { encodeAttrName } from "wed/util";
 
-import * as sourceXML from "../dloc_test_data/source_converted.xml";
+import { DataProvider } from "../util";
 
 const assert = chai.assert;
 
@@ -26,18 +27,23 @@ describe("dloc", () => {
   let $root: JQuery;
   let root: HTMLElement;
   let rootObj: DLocRoot;
+  let encodedType: string;
 
-  before(() => {
-    root = document.createElement("div");
-    document.body.appendChild(root);
-    $root = $(root);
-    const parser = new window.DOMParser();
-    const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-    const htmlTree = convert.toHTMLTree(window.document,
-                                        xmlDoc.firstElementChild!);
-    root.appendChild(htmlTree);
-    rootObj = new DLocRoot(root);
-  });
+  before(() =>
+         new DataProvider("/base/build/standalone/lib/tests/dloc_test_data/")
+         .getText("source_converted.xml")
+         .then((sourceXML) => {
+           root = document.createElement("div");
+           document.body.appendChild(root);
+           $root = $(root);
+           const parser = new window.DOMParser();
+           const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+           const htmlTree = convert.toHTMLTree(window.document,
+                                               xmlDoc.firstElementChild!);
+           root.appendChild(htmlTree);
+           rootObj = new DLocRoot(root);
+           encodedType = encodeAttrName("type");
+         }));
 
   after(() => {
     document.body.removeChild(root);
@@ -50,7 +56,7 @@ describe("dloc", () => {
   });
 
   function makeAttributeNodeCase(): { attrLoc: DLoc, loc: DLoc } {
-    const a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+    const a = defined($(".quote")[0].getAttributeNode(encodedType));
     const b = defined($(".body .p")[1]);
     const attrLoc = defined(DLoc.makeDLoc(root, a, 0));
     const loc = attrLoc.make(b, 1);
@@ -200,7 +206,7 @@ describe("dloc", () => {
     });
 
     it("returns a valid DLoc on an attribute node", () => {
-      const a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+      const a = defined($(".quote")[0].getAttributeNode(encodedType));
       const loc = DLoc.makeDLoc(root, a, 0)!;
       assert.equal(loc.node, a);
       assert.equal(loc.offset, 0);
@@ -264,7 +270,7 @@ describe("dloc", () => {
     });
 
     it("throws an error when the offset is too large (attribute)", () => {
-      const c = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+      const c = defined($(".quote")[0].getAttributeNode(encodedType));
       assert.isTrue(isAttr(c));
       assert.throws(DLoc.makeDLoc.bind(undefined, root, c, 100), Error,
                     /^offset greater than allowable value/);
@@ -291,7 +297,7 @@ describe("dloc", () => {
     });
 
     it("normalizes an offset that is too large (attribute)", () => {
-      const c = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+      const c = defined($(".quote")[0].getAttributeNode(encodedType));
       assert.isTrue(isAttr(c));
       const loc = DLoc.makeDLoc(root, c, 100, true)!;
       assert.equal(loc.offset, c.value.length);
@@ -491,7 +497,7 @@ describe("dloc", () => {
       });
 
       it("returns true when the location is valid (attribute)", () => {
-        const a = defined($(".quote")[0].getAttributeNode("data-wed-type"));
+        const a = defined($(".quote")[0].getAttributeNode(encodedType));
         assert.isTrue(isAttr(a));
         const loc = defined(DLoc.makeDLoc(root, a, 0));
         assert.isTrue(loc.isValid());
@@ -673,7 +679,7 @@ describe("dloc", () => {
           quote = DLoc.mustMakeDLoc(root, quoteNode);
           attr = DLoc.mustMakeDLoc(
             root,
-            quoteNode.getAttributeNode("data-wed-type"), 0);
+            quoteNode.getAttributeNode(encodedType), 0);
         });
 
         it("returns -1 if other is an attribute of this", () => {
@@ -744,7 +750,7 @@ describe("dloc", () => {
       let attr: DLoc;
       before(() => {
         quoteNode = root.querySelector(".quote")!;
-        attributeNode = quoteNode.getAttributeNode("data-wed-type");
+        attributeNode = quoteNode.getAttributeNode(encodedType);
         quote = DLoc.mustMakeDLoc(root, quoteNode);
         attr = DLoc.mustMakeDLoc(root, attributeNode, 0);
       });

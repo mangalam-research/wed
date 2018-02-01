@@ -6,10 +6,11 @@
 import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";
 import { isAttr } from "wed/domtypeguards";
+import { Editor } from "wed/editor";
+import { GUIValidationError } from "wed/gui-validation-error";
 import * as keyConstants from "wed/key-constants";
 import { TaskRunner } from "wed/task-runner";
 import { ValidationController } from "wed/validation-controller";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { makeFakePasteEvent, waitForSuccess } from "../util";
@@ -20,7 +21,7 @@ const _slice = Array.prototype.slice;
 
 describe("wed validation errors:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let controller: ValidationController;
   let processRunner: TaskRunner;
@@ -37,11 +38,12 @@ describe("wed validation errors:", () => {
       // tslint:disable-next-line:no-any
       (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
       // tslint:disable-next-line:no-any
-      processRunner = (editor.validationController as any).processErrorsRunner;
+      processRunner = (editor as any).validationController.processErrorsRunner;
       // tslint:disable-next-line:no-any
-      refreshRunner = (editor.validationController as any).refreshErrorsRunner;
+      refreshRunner = (editor as any).validationController.refreshErrorsRunner;
       caretManager = editor.caretManager;
-      controller = editor.validationController;
+      // tslint:disable-next-line:no-any
+      controller = (editor as any).validationController;
       guiRoot = editor.guiRoot;
     });
   });
@@ -195,7 +197,7 @@ within 5 pixels of the bottom of the start label for the monogr");
         "the item should have the right title");
       cases++;
     }
-    assert.equal(cases, 2);
+    assert.equal(cases, 5);
   });
 
   function assertNewMarkers(orig: Element[], after: Element[],
@@ -211,31 +213,90 @@ within 5 pixels of the bottom of the start label for the monogr");
     // visibility may change the number of errors shown to the user.
   }
 
-  it("recreates errors when changing label visibility level", async () => {
-    // Changing label visibility does not merely refresh the errors but
-    // recreates them because errors that were visible may become invisible or
-    // errors that were invisible may become visible.
+  describe("recreates errors when", () => {
+    it("changing label visibility level", async () => {
+      // Changing label visibility does not merely refresh the errors but
+      // recreates them because errors that were visible may become invisible or
+      // errors that were invisible may become visible.
 
-    await processRunner.onCompleted();
-    // tslint:disable-next-line:no-any
-    const errorLayer = (editor as any).errorLayer.el as Element;
-    let orig = _slice.call(errorLayer.children);
+      await processRunner.onCompleted();
+      // tslint:disable-next-line:no-any
+      const errorLayer = (editor as any).errorLayer.el as Element;
+      let orig = _slice.call(errorLayer.children);
 
-    // Reduce the visibility level.
-    editor.type(keyConstants.CTRLEQ_OPEN_BRACKET);
-    let after;
-    await waitForSuccess(() => {
-      after = _slice.call(errorLayer.children);
-      assertNewMarkers(orig, after, "decreasing the level");
+      // Reduce the visibility level.
+      editor.type(keyConstants.LOWER_LABEL_VISIBILITY);
+      let after;
+      await waitForSuccess(() => {
+        after = _slice.call(errorLayer.children);
+        assertNewMarkers(orig, after, "decreasing the level");
+      });
+
+      orig = after;
+
+      // Increase visibility level
+      editor.type(keyConstants.INCREASE_LABEL_VISIBILITY);
+      await waitForSuccess(() => {
+        assertNewMarkers(orig, _slice.call(errorLayer.children),
+                         "increasing the level");
+      });
     });
 
-    orig = after;
+    it("moving into or out of a label with autohidden attributes", async () => {
+      // Moving into or ouot of a label with autohidden attributes does not
+      // merely refresh the errors but recreates them because errors that were
+      // visible may become invisible or errors that were invisible may become
+      // visible.
 
-    // Increase visibility level
-    editor.type(keyConstants.CTRLEQ_CLOSE_BRACKET);
-    await waitForSuccess(() => {
-      assertNewMarkers(orig, _slice.call(errorLayer.children),
-                       "increasing the level");
+      function getError(): GUIValidationError {
+        const errors = controller.copyErrorList();
+        let found: GUIValidationError | undefined;
+        for (const error of errors) {
+          if (error.item!.textContent === "attribute not allowed here: xxx") {
+            found = error;
+          }
+        }
+
+        assert.isDefined(found);
+
+        return found!;
+      }
+
+      await processRunner.onCompleted();
+      // tslint:disable-next-line:no-any
+      const errorLayer = (editor as any).errorLayer.el as Element;
+      let orig = _slice.call(errorLayer.children);
+
+      const divs = editor.dataRoot.querySelectorAll("body>div");
+      const div = divs[divs.length - 1];
+
+      // We check that there is an error for the "xxx" attribute, which has no
+      // link (=== no marker).
+      assert.isUndefined(getError().marker);
+
+      // Move into the label.
+      editor.caretManager.setCaret(div, 0);
+      editor.caretManager.move("left");
+      let after;
+      await processRunner.onCompleted();
+      await waitForSuccess(() => {
+        after = _slice.call(errorLayer.children);
+        assertNewMarkers(orig, after, "moving into the label");
+        // Now it has a link (=== has a marker).
+        assert.isDefined(getError().marker);
+      });
+
+      orig = after;
+
+      // Move out of the label.
+      editor.caretManager.move("right");
+      await processRunner.onCompleted();
+      await waitForSuccess(() => {
+        assertNewMarkers(orig, _slice.call(errorLayer.children),
+                         "moving out of the label");
+        // No link again.
+        assert.isUndefined(getError().marker);
+      });
     });
   });
 

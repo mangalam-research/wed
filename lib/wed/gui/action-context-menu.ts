@@ -90,12 +90,13 @@ interface Filters {
 
 /**
  * A context menu for displaying actions. This class is designed to know how to
- * sort [["action".Action]] objects and [["transformation".Transformation]]
- * objects and how to filter them. Even though the names used here suggest that
- * ``Action`` objects are the focus of this class, the fact is that it is really
- * performing its work on ``Transformation`` objects. It does accept ``Action``
- * as a kind of lame ``Transformation``. So the following description will focus
- * on ``Transformation`` objects rather than ``Action`` objects.
+ * sort [["wed/action".Action]] objects and
+ * [["wed/transformation".Transformation]] objects and how to filter them. Even
+ * though the names used here suggest that ``Action`` objects are the focus of
+ * this class, the fact is that it is really performing its work on
+ * ``Transformation`` objects. It does accept ``Action`` as a kind of lame
+ * ``Transformation``. So the following description will focus on
+ * ``Transformation`` objects rather than ``Action`` objects.
  *
  * Sorting is performed first by the ``kind`` of the ``Transformation`` and then
  * by the text associated with the ``Transformation``. The kinds, in order, are:
@@ -302,7 +303,7 @@ export class ActionContextMenu extends Base {
     this.actionFilterInput.focus();
   }
 
-  private actionKeydownHandler(ev: KeyboardEvent): boolean {
+  private actionKeydownHandler(ev: JQueryKeyEventObject): boolean {
     if (keyConstants.ESCAPE.matchesEvent(ev) &&
         (this.filters.kind !== null ||
          this.filters.type !== null ||
@@ -330,7 +331,7 @@ export class ActionContextMenu extends Base {
     return true;
   }
 
-  private actionKeypressHandler(ev: KeyboardEvent): boolean {
+  private actionKeypressHandler(ev: JQueryKeyEventObject): boolean {
     // If the user has started filtering on text, we don't interpret
     // the key as setting a kind or type filter.
     if (this.actionTextFilter !== "") {
@@ -395,7 +396,14 @@ export class ActionContextMenu extends Base {
     if (matches !== undefined) {
       const fakeEv = new $.Event("keydown");
       matches.setEventToMatch(fakeEv);
-      this.$menu.trigger(fakeEv);
+      // We have to pass the event to ``actionKeypressHandler`` so that it can
+      // act in the same way as if the event had been directly on the menu. If
+      // ``actionKeypressHandler`` does not handle it, then pass it on to the
+      // toggle. We forward to the toggle because that's how Bootstrap normally
+      // works.
+      if (this.actionKeydownHandler(fakeEv) !== false) {
+        this.$toggle.trigger(fakeEv);
+      }
       // We have to return `false` to make sure it is not mishandled.
       return false;
     }
@@ -509,3 +517,4 @@ export class ActionContextMenu extends Base {
 
 //  LocalWords:  MPL li Dropdown nowrap sm keydown tooltips keypress btn xs
 //  LocalWords:  tooltip dropdown actionType actionFilterItem actionFilterInput
+//  LocalWords:  actionKeypressHandler

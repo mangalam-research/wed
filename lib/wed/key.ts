@@ -195,6 +195,9 @@ export class Key {
   }
 }
 
+/** This is a [[Key]] that cannot match anything. */
+export const NULL_KEY = new Key(-1, false, -1);
+
 /**
  * This function creates a key object.
  *

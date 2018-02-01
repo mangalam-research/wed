@@ -13,6 +13,14 @@ import { Options } from "./options";
 import { make as ajax } from "./ajax";
 import * as util from "./util";
 
+// We "hide" the require call under a different name. It prevents Webpack from
+// choking on the dynamic require call we use in this file. (It is up to *us* to
+// set the environment so that the dynamic calls can work, not up to Webpack to
+// convert it to something sensible.)
+
+// tslint:disable-next-line:no-any no-string-literal
+const req = (window as any)["require"] as RequireJSCall;
+
 /**
  * An object representing the runtime environment in which an editor is
  * running. In particular it allows loading external resources.
@@ -161,8 +169,7 @@ export class Runtime {
       }
 
       return new Promise((resolve, reject) => {
-        // tslint:disable-next-line:no-require-imports non-literal-require
-        require(resources as string[], function success(): void {
+        req(resources as string[], function success(): void {
           resolve(Array.prototype.slice.call(arguments));
         }, reject);
       }) as Promise<{}[]>;

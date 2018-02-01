@@ -3,9 +3,13 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { filter } from "rxjs/operators/filter";
+import { first } from "rxjs/operators/first";
+
+import * as wed from "wed";
+import { Editor } from "wed/editor";
 import * as keyConstants from "wed/key-constants";
 import * as onerror from "wed/onerror";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup, WedServer } from "../wed-test-util";
@@ -14,7 +18,7 @@ const assert = chai.assert;
 
 describe("wed error handling:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let server: WedServer;
 
   beforeEach(() => {
@@ -40,15 +44,16 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("warn of disconnection when server returns a bad status", (done) => {
     server.failOnSave = true;
     const $modal = editor.modals.getModal("disconnect").getTopLevel();
     $modal.on("shown.bs.modal", () => {
-      editor.saver.events.filter((ev) => ev.name === "Saved")
-        .first().subscribe((ev) => {
+      editor.saver.events.pipe(filter((ev) => ev.name === "Saved"),
+                               first())
+        .subscribe((ev) => {
           // Was saved on retry!
 
           // This allows us to let the whole save process run its course before
@@ -61,7 +66,7 @@ server_interaction_converted.xml",
       $modal.modal("hide");
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("bring up modal when document was edited by someone else", (done) => {
@@ -74,7 +79,7 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("bring up modal when there is a new version of editor", (done) => {
@@ -87,7 +92,7 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("no recovery when save fails hard", (done) => {
@@ -112,7 +117,7 @@ server_interaction_converted.xml",
       done();
     });
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
   });
 
   it("recovery on uncaught exception", (done) => {

@@ -39,18 +39,9 @@ def step_impl(context, choice):
     driver = context.driver
     util = context.util
 
-    if choice == "decreases":
-        key = "["
-    elif choice == "increases":
-        key = "]"
-    else:
-        raise ValueError("unexpected choice: " + choice)
-
     initial_level = wedutil.get_label_visibility_level(util)
     context.caret_position_before_label_visibility_change = \
         wedutil.caret_screen_pos(driver)
-
-    util.ctrl_equivalent_x(key)
 
     # We don't allow the increase or decrease to do nothing.
     if choice == "decreases":
@@ -59,6 +50,21 @@ def step_impl(context, choice):
         expected = initial_level + 1
     else:
         raise ValueError("unexpected choice: " + choice)
+
+    if not util.osx:
+        util.ctrl_x({
+            "decreases": "[",
+            "increases": "]",
+        }[choice])
+
+    else:
+        # On OSX, we have to use the toolbar.
+        context.execute_steps(u"""\
+When the user clicks the toolbar button "{}"
+        """.format({
+            "decreases": "Decrease label visibility level",
+            "increases": "Increase label visibility level",
+        }[choice]))
 
     util.wait(lambda *_: wedutil.get_label_visibility_level(util) == expected)
 

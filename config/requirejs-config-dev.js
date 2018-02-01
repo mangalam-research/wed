@@ -16,7 +16,8 @@ require.config({
     localforage: "external/localforage",
     angular: "external/angular",
     bootbox: "external/bootbox",
-    typeahead: "external/typeahead.bundle.min",
+    typeahead: "external/typeahead.jquery.min",
+    bloodhound: "external/bloodhound.min",
     urijs: "external/urijs",
     interact: "external/interact.min",
     "merge-options": "external/merge-options",
@@ -32,8 +33,9 @@ require.config({
     bluejax: "external/bluejax",
     "bluejax.try": "external/bluejax.try",
     slug: "external/slug",
-    rxjs: "external/Rx",
+    rxjs: "external/rxjs",
     ajv: "external/ajv.min",
+    diff: "external/diff",
   },
   packages: [
     {
@@ -83,10 +85,6 @@ require.config({
        // we MUST have jQuery loaded and available for Angular to use it.
       deps: ["jquery"],
       exports: "angular",
-    },
-    typeahead: {
-      deps: ["jquery"],
-      exports: "Bloodhound",
     },
   },
   waitSeconds: 12,

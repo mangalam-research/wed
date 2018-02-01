@@ -53,19 +53,20 @@ describe("onbeforeunload", () => {
     document.body.removeChild(frame);
   });
 
-  it("automatically installs itself on window", () => {
-    assert.isDefined(frameWindow.onbeforeunload);
-    assert.isTrue(frameWindow.onbeforeunload(undefined as any));
+  it("does not automatically install itself on window", () => {
+    assert.isNull(frameWindow.onbeforeunload);
   });
 
   describe("install", () => {
-    it("fails when force is not set", () => {
+    it("fails when already set and force is not set", () => {
+      onbeforeunload.install(frameWindow);
       assert.throws(onbeforeunload.install.bind(undefined, frameWindow),
                     (frameWindow as any).Error,
                     "reregistering window with `force` false");
     });
 
     it("works when force is set", () => {
+      onbeforeunload.install(frameWindow);
       onbeforeunload.install(frameWindow, undefined, true);
       assert.isTrue(frameWindow.onbeforeunload(undefined as any));
     });

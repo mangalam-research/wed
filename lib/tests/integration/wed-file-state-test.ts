@@ -4,8 +4,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { CaretManager } from "wed/caret-manager";
+import { Editor } from "wed/editor";
 import * as keyConstants from "wed/key-constants";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { waitForSuccess } from "../util";
@@ -15,7 +15,7 @@ const assert = chai.assert;
 
 describe("wed file state:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let $modificationStatus: JQuery;
   let $saveStatus: JQuery;
@@ -84,7 +84,7 @@ describe("wed file state:", () => {
     editor.type(" ");
 
     assert.isTrue($modificationStatus.hasClass("label-warning"));
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
     return waitForSuccess(() => {
       assert.isTrue($modificationStatus.hasClass("label-success"));
     });
@@ -94,7 +94,7 @@ describe("wed file state:", () => {
     assert.isTrue($saveStatus.hasClass("label-default"));
     assert.equal($saveStatus.children("span").text(), "");
 
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
     return waitForSuccess(() => {
       assert.isTrue($saveStatus.hasClass("label-success"));
       assert.equal($saveStatus.children("span").text(), "moments ago");
@@ -136,7 +136,7 @@ describe("wed file state:", () => {
     });
 
     // Now perform a save.
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
 
     return waitForSuccess(() => {
       // We check the tooltip changed.

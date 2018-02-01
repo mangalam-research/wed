@@ -22,7 +22,7 @@ the Selenium tests beforehand and that they passed.
 
 6. ``$ gulp test``
 
-7. ``$ gulp dist-notest`` This will test packaging wed and installing
+7. ``$ gulp pack-notest`` This will test packaging wed and installing
    in a temporary directory. The ``notest`` bit prevents Selenium
    tests from running.
 

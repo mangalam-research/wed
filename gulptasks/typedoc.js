@@ -36,7 +36,12 @@ gulp.task("typedoc", ["generate-ts", "stamp-dir", "lint"],
               "--listInvalidSymbolLinks",
             ];
 
-            if (!options.doc_private) {
+            // For now we require that private entities be included in the
+            // documentation due to an issue in typedoc whereby public object
+            // properties defined in a private constructor won't be included in
+            // the documentation.
+            // eslint-disable-next-line no-constant-condition
+            if (false && !options.doc_private) {
               tsoptions.push("--excludePrivate");
             }
 

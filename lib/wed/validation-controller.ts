@@ -12,6 +12,7 @@ import { ErrorData, ResetData, WorkingState,
 import { DLoc } from "./dloc";
 import { isAttr, isElement } from "./domtypeguards";
 import { isNotDisplayed } from "./domutil";
+import { Editor } from "./editor";
 import { GUIValidationError } from "./gui-validation-error";
 import { ErrorLayer } from "./gui/error-layer";
 import { Scroller } from "./gui/scroller";
@@ -21,7 +22,6 @@ import { ProcessValidationErrors } from "./tasks/process-validation-errors";
 import { RefreshValidationErrors } from "./tasks/refresh-validation-errors";
 import { convertPatternObj, newGenericID } from "./util";
 import { Validator } from "./validator";
-import { Editor } from "./wed";
 import { boundaryXY, getGUINodeIfExists } from "./wed-util";
 
 const stateToStr: Record<string, string> = {};
@@ -318,20 +318,32 @@ export class ValidationController {
     const isAttributeNameError = error instanceof AttributeNameError;
 
     let insertAt: DLoc | undefined;
-
     if (isAttributeNameError) {
       const guiNode = getGUINodeIfExists(this.editor, dataNode);
       if (guiNode === undefined) {
         return undefined;
       }
 
-      if (!isElement(guiNode)) {
-        throw new Error("attribute name errors should be associated with " +
-                        "elements");
+      // Attribute name errors can have two causes: the attribute is not
+      // allowed, or an attribute is missing. In the former case, the error
+      // points to the attribute node. In the latter case, it points to the
+      // element that's missing the attribute.
+      let insertionNode: Node | null;
+      if (isAttr(dataNode)) {
+        // Spurious attribute.
+        insertionNode = guiNode;
+      }
+      else {
+        // Missing attribute.
+        if (!isElement(guiNode)) {
+          throw new Error("attribute name errors should be associated with " +
+                          "elements");
+        }
+
+        insertionNode =
+          guiNode.querySelector("._gui.__start_label ._greater_than");
       }
 
-      const insertionNode = guiNode.querySelector(
-        "._gui.__start_label ._greater_than");
       insertAt = DLoc.mustMakeDLoc(this.guiRoot, insertionNode, 0);
     }
     else {

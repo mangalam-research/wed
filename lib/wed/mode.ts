@@ -9,13 +9,10 @@
 
 import { EName, NameResolver } from "salve";
 
-import { Action } from "./action";
-import { Decorator } from "./decorator";
-import { isElement } from "./domtypeguards";
-import * as domutil from "./domutil";
-import { ModeValidator } from "./validator";
-import { Editor } from "./wed";
-import { WedOptions } from "./wed-options";
+import { Action, Decorator, domtypeguards, domutil, EditorAPI, gui,
+         ModeValidator, WedOptions } from "wed";
+
+import Button = gui.button.Button;
 
 /**
  * These are mode options that are supported by default by all modes. Wed is
@@ -26,8 +23,8 @@ export interface CommonModeOptions {
   autoinsert?: boolean;
 }
 
-export interface Mode<ModeOptions extends CommonModeOptions =
-  CommonModeOptions> {
+export interface Mode<ModeOptions extends
+CommonModeOptions = CommonModeOptions> {
   /**
    * This is called by the editor when a mode is ready to be initialized. The
    * mode could use this to add a toolbar above the editor or add listeners to
@@ -89,6 +86,13 @@ export interface Mode<ModeOptions extends CommonModeOptions =
    * Make a decorator that this mode will use.
    */
   makeDecorator(): Decorator;
+
+  /**
+   * Get the toolbar actions that this mode wants the editor to present.
+   *
+   * @returns The toolbar actions for this mode.
+   */
+  getToolbarButtons(): Button[];
 
   /**
    * Modes must implement this method to specify what transformations they allow
@@ -198,8 +202,6 @@ export interface Mode<ModeOptions extends CommonModeOptions =
 /**
  * A mode for wed should be implemented as a module which exports a
  * class derived from this class.
- *
- *
  */
 export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   protected wedOptions: WedOptions = {
@@ -217,12 +219,12 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   };
 
   /**
-   * @param editor The editor with which the mode is being associated.
+   * @param editor The editor for which this mode is created.
    *
    * @param options The options for the mode. Each mode defines
    * what fields this object contains.
    */
-  constructor(protected readonly editor: Editor,
+  constructor(protected readonly editor: EditorAPI,
               protected options: ModeOptions) {}
 
   /**
@@ -258,7 +260,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
     let child = element.firstChild;
     let childIx = 0;
     while (child !== null) {
-      if (isElement(child)) {
+      if (domtypeguards.isElement(child)) {
         if (child.classList.contains("_start_wrapper")) {
           startIx = childIx;
           start = child;
@@ -324,6 +326,13 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
    * The default implementation returns an empty array.
    */
   getAttributeCompletions(attribute: Attr): string[] {
+    return [];
+  }
+
+  /**
+   * The default implementaiton returns an empty array.
+   */
+  getToolbarButtons(): Button[] {
     return [];
   }
 

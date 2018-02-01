@@ -1,5 +1,5 @@
 /**
- * The main module of wed.
+ * The editor.
  * @author Louis-Dominique Dubeau
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
@@ -7,17 +7,21 @@
 import * as Ajv from "ajv";
 import "bootstrap";
 import * as $ from "jquery";
+import { Observable } from "rxjs/Observable";
+import { filter } from "rxjs/operators/filter";
+import { Subject } from "rxjs/Subject";
 import * as salve from "salve";
 import { WorkingState, WorkingStateData } from "salve-dom";
 
 import { Action } from "./action";
 import { CaretChange, CaretManager } from "./caret-manager";
 import * as caretMovement from "./caret-movement";
-import { DLoc, DLocRange, DLocRoot } from "./dloc";
+import { DLoc, DLocRoot } from "./dloc";
 import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import * as domutil from "./domutil";
 import { closest, closestByClass, htmlToElements, indexOf } from "./domutil";
+import * as editorActions from "./editor-actions";
 import { AbortTransformationException } from "./exceptions";
 import { GUIUpdater } from "./gui-updater";
 import { DialogSearchReplace } from "./gui/dialog-search-replace";
@@ -30,13 +34,16 @@ import { Modal, Options as ModalOptions } from "./gui/modal";
 import { notify } from "./gui/notify";
 import { Direction, QuickSearch } from "./gui/quick-search";
 import { Scroller } from "./gui/scroller";
+import { AddOptions, Toolbar } from "./gui/toolbar";
 import { tooltip } from "./gui/tooltip";
-import { TypeaheadPopup } from "./gui/typeahead-popup";
 import { AttributeNotFound, GUIRoot } from "./guiroot";
 import { Key, makeKey } from "./key";
 import * as keyConstants from "./key-constants";
 import * as log from "./log";
 import { Mode } from "./mode";
+import { EditorAPI , PasteTransformationData,
+         ReplaceRangeTransformationData,
+         TransformationEvents } from "./mode-api";
 import { ModeTree } from "./mode-tree";
 import * as onbeforeunload from "./onbeforeunload";
 import * as onerror from "./onerror";
@@ -48,11 +55,11 @@ import { FailedEvent, SaveKind, Saver, SaverConstructor } from "./saver";
 import { StockModals } from "./stock-modals";
 import { Task, TaskRunner } from "./task-runner";
 import { insertElement, mergeWithNextHomogeneousSibling,
-         mergeWithPreviousHomogeneousSibling, splitNode, Transformation,
-         TransformationData } from "./transformation";
+         mergeWithPreviousHomogeneousSibling, removeMarkup, splitNode,
+         Transformation, TransformationData } from "./transformation";
 import { BeforeInsertNodeAtEvent, InsertNodeAtEvent,
          TreeUpdater } from "./tree-updater";
-import { Undo, UndoList } from "./undo";
+import { Undo, UndoEvents, UndoList } from "./undo";
 import { UndoRecorder } from "./undo-recorder";
 import * as util from "./util";
 import { ErrorItemHandler,
@@ -61,7 +68,7 @@ import { Validator } from "./validator";
 import { boundaryXY, getGUINodeIfExists } from "./wed-util";
 import * as wundo from "./wundo";
 
-export const version = "0.30.0";
+export const version = "1.0.0";
 
 export type KeydownHandler = (wedEv: JQueryEventObject,
                               ev: JQueryKeyEventObject) => boolean;
@@ -100,16 +107,6 @@ provided by the complex pattern here.</p>");
   }
 }
 
-export interface PasteTransformationData extends TransformationData {
-  to_paste: Element;
-}
-
-export interface ReplaceRangeTransformationData extends TransformationData {
-  range: DLocRange;
-  newText: string;
-  caretAtEnd: boolean;
-}
-
 /**
  * The possible targets for some wed operations that generate events. It is
  * currently used to determine where to type keys when calling [[Editor.type]].
@@ -123,6 +120,7 @@ export enum WedEventTarget {
 
 const FRAMEWORK_TEMPLATE = "\
 <div class='row'>\
+ <div class='toolbar'></div>\
  <div class='wed-frame col-sm-push-2 col-lg-10 col-md-10 col-sm-10'>\
   <div class='row'>\
    <div class='progress'>\
@@ -194,7 +192,7 @@ const FRAMEWORK_TEMPLATE = "\
 /**
  * This is the class to instantiate for editing.
  */
-export class Editor {
+export class Editor implements EditorAPI {
   private _firstValidationComplete: boolean = false;
   private firstValidationCompleteResolve: (value: Editor) => void;
   private initializedResolve: (value: Editor) => void;
@@ -225,9 +223,9 @@ export class Editor {
   private readonly sidebar: HTMLElement;
   private readonly validationProgress: HTMLElement;
   private readonly validationMessage: HTMLElement;
-  private readonly caretOwners: NodeList;
-  private readonly clickedLabels: NodeList;
-  private readonly withCaret: NodeList;
+  private readonly caretOwners: NodeListOf<Element>;
+  private readonly clickedLabels: NodeListOf<Element>;
+  private readonly withCaret: NodeListOf<Element>;
   private readonly $modificationStatus: JQuery;
   private readonly $saveStatus: JQuery;
   private readonly $navigationPanel: JQuery;
@@ -235,7 +233,7 @@ export class Editor {
   private readonly $excludedFromBlur: JQuery;
   private readonly errorItemHandlerBound: ErrorItemHandler;
   private readonly appender: log4javascript.AjaxAppender;
-  private _undo: UndoList;
+  private readonly _undo: UndoList;
   private undoRecorder: UndoRecorder;
   private saveStatusInterval: number | undefined;
   private readonly globalKeydownHandlers: KeydownHandler[] = [];
@@ -247,96 +245,54 @@ export class Editor {
     data: any;
     startCaret: DLoc | undefined;
   } | undefined;
-  private currentTypeahead: TypeaheadPopup | undefined;
+  private validationController: ValidationController;
+  private readonly _transformations: Subject<TransformationEvents> =
+    new Subject();
 
-  /** A name for this editor. */
-  name: string = "";
-
-  /** A promise that resolves once the first validation is complete. */
+  readonly name: string = "";
   readonly firstValidationComplete: Promise<Editor>;
-
-  /** A promise that resolves once the editor is initialized. */
   readonly initialized: Promise<Editor>;
-
-  /** The HTMLElement controlled by this editor */
   readonly widget: HTMLElement;
-
-  /** Same as [[widget]] but as a jQuery object. */
   readonly $widget: JQuery;
-
-  /** The &lt;html> element that holds the widget. */
   readonly $frame: JQuery;
-
-  /** The window which holds the widget. */
   readonly window: Window;
-
-  /** The document which holds the widget. */
   readonly doc: Document;
-
-  /** The runtime associated with this editor. */
   readonly runtime: Runtime;
-
-  /** The options used by this editor. */
   readonly options: Options;
-
-  /** The root of the GUI tree. */
   readonly guiRoot: HTMLElement;
-
-  /** Same as [[guiRoot]] but as a jQuery object. */
   readonly $guiRoot: JQuery;
-
-  /** The list of errors in the sidebar. */
   readonly $errorList: JQuery;
-
-  /**
-   * The action to perform is a user is trying to do something with a complex
-   * pattern.
-   */
   readonly complexPatternAction: Action<{}>;
-
-  /** Paste transformation. */
   readonly pasteTr: Transformation<PasteTransformationData>;
-
-  /** Cut transformation. */
   readonly cutTr: Transformation<TransformationData>;
-
-  /** Transformation for splitting nodes. */
   readonly splitNodeTr: Transformation<TransformationData>;
-
-  /** Replace a range with text. */
   readonly replaceRangeTr: Transformation<ReplaceRangeTransformationData>;
-
-  /** The minibuffer for this editor instance. */
+  readonly removeMarkupTr: Transformation<TransformationData>;
+  readonly saveAction: Action<{}> =
+    new editorActions.Save(this);
+  readonly decreaseLabelVisibilityLevelAction: Action<{}> =
+    new editorActions.DecreaseLabelVisibilityLevel(this);
+  readonly increaseLabelVisibilityLevelAction: Action<{}> =
+    new editorActions.IncreaseLabelVisibilityLevel(this);
+  readonly undoAction: Action<{}> =
+    new editorActions.Undo(this);
+  readonly redoAction: Action<{}> =
+    new editorActions.Redo(this);
+  readonly toggleAttributeHidingAction: Action<{}> =
+    new editorActions.ToggleAttributeHiding(this);
   readonly minibuffer: Minibuffer;
-
-  /** The root of the data tree. */
+  readonly docURL: string;
+  readonly transformations: Observable<TransformationEvents> =
+    this._transformations.asObservable();
+  readonly toolbar: Toolbar;
   dataRoot: Document;
-
-  /** Same as [[dataRoot]] but as a jQuery object. */
   $dataRoot: JQuery;
-
-  /** The maximum label level that labels may have. */
   maxLabelLevel: number;
-
-  /** The [[DLocRoot]] object marking the root of the GUI tree. */
   guiDLocRoot: DLocRoot;
-
-  /** The [[DLocRoot]] object marking the root of the data tree. */
   dataDLocRoot: DLocRoot;
-
-  /** The updater through which all data tree manipulations must be made. */
   dataUpdater: TreeUpdater;
-
-  /** The updater through which all GUI tree manipulations must be made. */
   guiUpdater: GUIUpdater;
-
-  /** DOM listener on the GUI tree. */
-  domlistener: domlistener.Listener;
-
-  /** The link for the embedded documentation page. */
-  docLink: string;
-
-  /** A collection of stock modals. */
+  domlistener: domlistener.DOMListener;
   modals: StockModals;
 
   mergeWithPreviousHomogeneousSiblingTr: Transformation<TransformationData>;
@@ -348,8 +304,6 @@ export class Editor {
   caretManager: CaretManager;
 
   validator: Validator;
-
-  validationController: ValidationController;
 
   editingMenuManager: EditingMenuManager;
 
@@ -413,6 +367,9 @@ export class Editor {
     this.name = options.name !== undefined ? options.name : "";
     this.options = options;
 
+    const docURL = this.options.docURL;
+    this.docURL = docURL == null ? "./doc/index.html" : docURL;
+
     this.preferences = new preferences.Preferences({
       tooltips: true,
     });
@@ -440,6 +397,12 @@ export class Editor {
     this.constrainer =
       framework
       .getElementsByClassName("wed-document-constrainer")[0] as HTMLElement;
+
+    const toolbar = this.toolbar = new Toolbar();
+    const toolbarPlaceholder = framework.getElementsByClassName("toolbar")[0];
+    toolbarPlaceholder.parentNode!.insertBefore(toolbar.top,
+                                                toolbarPlaceholder);
+    toolbarPlaceholder.parentNode!.removeChild(toolbarPlaceholder);
 
     this.inputField =
       framework.getElementsByClassName("wed-comp-field")[0] as HTMLInputElement;
@@ -534,6 +497,19 @@ export class Editor {
           mergeWithNextHomogeneousSibling(editor, data.node as Element);
         });
 
+    this.removeMarkupTr =
+      new Transformation(this, "delete", "Remove mixed-content markup",
+          "Remove mixed-content markup", "<i class='fa fa-eraser'></i>", true,
+          removeMarkup);
+
+    toolbar.addButton([this.saveAction.makeButton(),
+                       this.undoAction.makeButton(),
+                       this.redoAction.makeButton(),
+                       this.decreaseLabelVisibilityLevelAction.makeButton(),
+                       this.increaseLabelVisibilityLevelAction.makeButton(),
+                       this.removeMarkupTr.makeButton(),
+                       this.toggleAttributeHidingAction.makeButton()]);
+
     // Setup the cleanup code.
     $(this.window).on("unload.wed", { editor: this }, (e) => {
       e.data.editor.destroy();
@@ -546,11 +522,10 @@ export class Editor {
     });
   }
 
-  /**
-   * @param tr The transformation to fire.
-   *
-   * @param data Arbitrary data to be passed to the transformation.
-   */
+  get undoEvents(): Observable<UndoEvents> {
+    return this._undo.events;
+  }
+
   fireTransformation<T extends TransformationData>(tr: Transformation<T>,
                                                    data: T): void {
     // This is necessary because our context menu saves/restores the selection
@@ -629,7 +604,15 @@ export class Editor {
       throw new Error("transformation applied with undefined caret.");
     }
 
+    this._transformations.next({
+      name: "StartTransformation",
+      transformation: tr,
+    });
     tr.handler(this, data);
+    this._transformations.next({
+      name: "EndTransformation",
+      transformation: tr,
+    });
   }
 
   /**
@@ -695,6 +678,14 @@ export class Editor {
     }
   }
 
+  /**
+   * Record an undo object in the list of undoable operations.
+   *
+   * Note that this method also provides the implementation for the restricted
+   * method of the same name that allows only [["wed/undo".UndoMarker]] objects.
+   *
+   * @param undo The object to record.
+   */
   recordUndo(undo: Undo): void {
     this._undo.record(undo);
   }
@@ -738,28 +729,10 @@ export class Editor {
     console.log(this._undo.toString());
   }
 
-  undoMarker(msg: string): void {
-    this.recordUndo(new wundo.MarkerUndo(msg));
-  }
-
   undoingOrRedoing(): boolean {
     return this._undo.undoingOrRedoing();
   }
 
-  /**
-   * Determines whether an attribute is protected. A protected attribute cannot
-   * be deleted, added or edited by the user directly.
-   *
-   * @param attr The attribute to check. If it is an ``Element``, then it must
-   * be an ``_attribute_value`` element from the GUI tree. If it is an ``Attr``
-   * then it must be an attribute node from the data tree. If a string, then it
-   * must be the attribute name as it would appear in the data tree.
-   *
-   * @param parent If ``attr`` is a string, then ``parent`` must be set to the
-   * element for which the attribute would apply.
-   *
-   * @returns ``true`` if the attribute is protected.
-   */
   isAttrProtected(attr: string, parent: Element): boolean;
   isAttrProtected(attr: Attr | Element): boolean;
   isAttrProtected(attr: Attr | Element | string, parent?: Element): boolean {
@@ -783,11 +756,6 @@ export class Editor {
     return (name === "xmlns" || name.lastIndexOf("xmlns:", 0) === 0);
   }
 
-  /**
-   * Saves the document.
-   *
-   * @returns A promise that resolves when the save operation is done.
-   */
   save(): Promise<void> {
     return this.saver.save();
   }
@@ -844,7 +812,7 @@ export class Editor {
     return text;
   }
 
-  private insertText(text: string): void {
+  insertText(text: string): void {
     // We remove zero-width spaces.
     this.closeAllTooltips();
 
@@ -966,11 +934,6 @@ export class Editor {
     textUndo.recordCaretAfter();
   }
 
-  /**
-   * @param loc Location where to insert.
-   *
-   * @returns The placeholder.
-   */
   insertTransientPlaceholderAt(loc: DLoc): Element {
     const ph =
       // tslint:disable-next-line:no-jquery-raw-elements
@@ -1227,11 +1190,8 @@ export class Editor {
       }
     });
 
-    this.docLink =
-      // tslint:disable-next-line:no-any
-      (require as any).toUrl("../../doc/index.html") as string;
-
-    this.domlistener = new domlistener.Listener(this.guiRoot, this.guiUpdater);
+    this.domlistener = new domlistener.DOMListener(this.guiRoot,
+                                                   this.guiUpdater);
 
     this.modeTree = new ModeTree(this, this.options.mode);
 
@@ -1239,7 +1199,7 @@ export class Editor {
     return this.onModeChange(this.modeTree.getMode(this.guiRoot));
   }
 
-  async onModeChange(mode: Mode): Promise<Editor> {
+  private async onModeChange(mode: Mode): Promise<Editor> {
     // We purposely do not raise an error here so that calls to destroy can be
     // done as early as possible. It aborts the initialization sequence without
     // causing an error.
@@ -1590,7 +1550,7 @@ export class Editor {
     }
     this.domlistener.processImmediately();
     // Flush whatever has happened earlier.
-    this._undo = new UndoList();
+    this._undo.reset();
 
     $guiRoot.focus();
 
@@ -1605,7 +1565,7 @@ export class Editor {
       const demoModal = this.makeModal();
       demoModal.setTitle("Demo");
       demoModal.setBody(`<p>This is a demo of wed. ${demo}</p> \
-<p>Click <a href='${this.docLink}' target='_blank'>this link</a> to see \
+<p>Click <a href='${this.docURL}' target='_blank'>this link</a> to see \
 wed's generic help. The link by default will open in a new tab.</p>`);
       demoModal.addButton("Ok", true);
       demoModal.modal();
@@ -1625,16 +1585,20 @@ wed's generic help. The link by default will open in a new tab.</p>`);
                                      this.dataRoot, saveOptions!);
           this.saver = saver;
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Saved"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Saved")))
             .subscribe(this.onSaverSaved.bind(this));
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Autosaved"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Autosaved")))
             .subscribe(this.onSaverAutosaved.bind(this));
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Failed"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Failed")))
             .subscribe(this.onSaverFailed.bind(this));
 
-          saver.events.filter(filterSaveEvents.bind(undefined, "Changed"))
+          saver.events
+            .pipe(filter(filterSaveEvents.bind(undefined, "Changed")))
             .subscribe(this.onSaverChanged.bind(this));
 
           this.refreshSaveStatus();
@@ -1782,6 +1746,11 @@ in a way not supported by this version of wed.";
     return failure;
   }
 
+  addToolbarAction(actionClass: editorActions.ActionCtor,
+                   options: AddOptions): void {
+    this.toolbar.addButton( new actionClass(this).makeButton(), options);
+  }
+
   /**
    * Creates a new task runner and registers it with the editor so that it is
    * started and stopped by the methods that stop/start all tasks.
@@ -1796,6 +1765,9 @@ in a way not supported by this version of wed.";
     return runner;
   }
 
+  /**
+   * Triggers the resizing algorithm.
+   */
   resize(): void {
     this.resizeHandler();
   }
@@ -2164,25 +2136,25 @@ in a way not supported by this version of wed.";
       }
       return true;
     }
-    else if (keyConstants.CTRLEQ_S.matchesEvent(e)) {
+    else if (keyConstants.SAVE.matchesEvent(e)) {
       // tslint:disable-next-line:no-floating-promises
       this.save();
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_Z.matchesEvent(e)) {
+    else if (keyConstants.UNDO.matchesEvent(e)) {
       this.undo();
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_Y.matchesEvent(e)) {
+    else if (keyConstants.REDO.matchesEvent(e)) {
       this.redo();
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_C.matchesEvent(e) ||
-             keyConstants.CTRLEQ_X.matchesEvent(e) ||
-             keyConstants.CTRLEQ_V.matchesEvent(e)) {
+    else if (keyConstants.COPY.matchesEvent(e) ||
+             keyConstants.CUT.matchesEvent(e) ||
+             keyConstants.PASTE.matchesEvent(e)) {
       return true;
     }
-    else if (keyConstants.CTRLEQ_BACKQUOTE.matchesEvent(e)) {
+    else if (keyConstants.DEVELOPMENT.matchesEvent(e)) {
       this.developmentMode = !this.developmentMode;
       notify(this.developmentMode ? "Development mode on." :
              "Development mode off.");
@@ -2191,15 +2163,13 @@ in a way not supported by this version of wed.";
       }
       return terminate();
     }
-    else if (keyConstants.CTRLEQ_OPEN_BRACKET.matchesEvent(e)) {
-      this.decreaseLabelVisiblityLevel();
-      return terminate();
+    else if (keyConstants.LOWER_LABEL_VISIBILITY.matchesEvent(e)) {
+      return this.decreaseLabelVisibilityLevelAction.terminalEventHandler(e);
     }
-    else if (keyConstants.CTRLEQ_CLOSE_BRACKET.matchesEvent(e)) {
-      this.increaseLabelVisibilityLevel();
-      return terminate();
+    else if (keyConstants.INCREASE_LABEL_VISIBILITY.matchesEvent(e)) {
+      return this.increaseLabelVisibilityLevelAction.terminalEventHandler(e);
     }
-    else if (keyConstants.CTRLEQ_FORWARD_SLASH.matchesEvent(e)) {
+    else if (keyConstants.CONTEXTUAL_MENU.matchesEvent(e)) {
       if (selFocus !== undefined) {
         let selFocusNode = selFocus.node;
         const gui = closestByClass(selFocusNode, "_gui", selFocus!.root);
@@ -2215,6 +2185,10 @@ in a way not supported by this version of wed.";
       if (this.editingMenuManager.contextMenuHandler(e) === false) {
         return terminate();
       }
+    }
+    else if (keyConstants.REPLACEMENT_MENU.matchesEvent(e)) {
+      this.editingMenuManager.setupReplacementMenu();
+      return terminate();
     }
     else if (keyConstants.QUICKSEARCH_FORWARD.matchesEvent(e)) {
       if (this.caretManager.caret !== undefined) {
@@ -2805,15 +2779,6 @@ in a way not supported by this version of wed.";
       const origName = util.getOriginalName(real!);
       const options = {
         title: () => {
-          if (this.destroyed) {
-            return undefined;
-          }
-
-          // The check is here so that we can turn tooltips on and off
-          // dynamically.
-          if (!(this.preferences.get("tooltips") as boolean)) {
-            return undefined;
-          }
           const mode = this.modeTree.getMode(label);
           return mode.shortDescriptionFor(origName);
         },
@@ -2822,7 +2787,7 @@ in a way not supported by this version of wed.";
         placement: "auto top",
         trigger: "hover",
       };
-      tooltip($(label), options);
+      this.makeGUITreeTooltip($(label), options);
       const tt = $.data(label, "bs.tooltip");
       tt.enter(tt);
     }
@@ -2838,37 +2803,6 @@ in a way not supported by this version of wed.";
     }
 
     return undefined;
-  }
-
-  /**
-   * Brings up a typeahead popup.
-   *
-   * @param x
-   * @param y
-   * @param width
-   * @param placeholder
-   * @param options
-   * @param dismissCallback
-   * @returns The popup that was created.
-   */
-  displayTypeaheadPopup(x: number, y: number, width: number,
-                        // tslint:disable-next-line:no-any
-                        placeholder: string, options: any,
-                        dismissCallback:
-                        // tslint:disable-next-line:no-any
-                        (obj?: { value: string }) => void): any {
-    this.editingMenuManager.dismiss();
-    this.caretManager.pushSelection();
-    this.currentTypeahead = new TypeaheadPopup(
-      this.doc, x, y, width, placeholder, options,
-      (obj) => {
-        this.currentTypeahead = undefined;
-        this.caretManager.popSelection();
-        if (dismissCallback !== undefined) {
-          dismissCallback(obj);
-        }
-      });
-    return this.currentTypeahead;
   }
 
   private refreshSaveStatus(): void {
@@ -2977,12 +2911,6 @@ in a way not supported by this version of wed.";
     $parent.addClass("selected");
   }
 
-  /**
-   * Sets the list of items to show in the navigation list. This will make the
-   * list appear if it was not displayed previously.
-   *
-   * @param {Node|jQuery|Array.<Node>} items The items to show.
-   */
   setNavigationList(items: Node | JQuery | Node[]): void {
     this.$navigationList.empty();
     // tslint:disable-next-line:no-any
@@ -3004,6 +2932,24 @@ in a way not supported by this version of wed.";
     });
     this.$widget.prepend($top);
     return ret;
+  }
+
+  makeGUITreeTooltip($for: JQuery, options: TooltipOptions): void {
+    const title = options.title;
+    if (title !== undefined) {
+      options = Object.assign({}, options);
+      options.title = () => {
+        // The check is here so that we can turn tooltips on and off
+        // dynamically.
+        if (this.destroyed || !(this.preferences.get("tooltips") as boolean)) {
+          return undefined;
+        }
+
+        return (typeof title === "function") ? title() : title;
+      };
+    }
+
+    tooltip($for, options);
   }
 
   /**
@@ -3073,6 +3019,10 @@ in a way not supported by this version of wed.";
     this.caretManager.mark.refresh();
   }
 
+  toggleAttributeHiding(): void {
+    this.guiRoot.classList.toggle("inhibit_attribute_hiding");
+  }
+
   private closeAllTooltips(): boolean {
     const tts = this.doc.querySelectorAll("div.tooltip");
     let closed = false;
@@ -3087,14 +3037,6 @@ in a way not supported by this version of wed.";
     return closed;
   }
 
-  /**
-   * Registers elements that are outside wed's editing pane but should be
-   * considered to be part of the editor. These would typically be menus or
-   * toolbars that a larger application that uses wed for editing adds around
-   * the editing pane.
-   *
-   * @param elements The elements to register.
-   */
   excludeFromBlur(elements: JQuery | Element): void {
     // tslint:disable-next-line:no-any
     this.$excludedFromBlur.add(elements as any);
@@ -3286,9 +3228,9 @@ in a way not supported by this version of wed.";
     return boundary;
   }
 
-  // tslint:disable-next-line:cyclomatic-complexity
+  // tslint:disable-next-line:max-func-body-length cyclomatic-complexity
   private caretChange(ev: CaretChange): void {
-    const { options, caret, prevCaret, manager } = ev;
+    const { options, caret, prevCaret, mode, prevMode, manager } = ev;
     if (caret === undefined) {
       return;
     }
@@ -3308,18 +3250,24 @@ in a way not supported by this version of wed.";
 
     // The class owns_caret can be on more than one element. The classic case is
     // if the caret is at an element label.
-    let el;
-    // tslint:disable-next-line:no-conditional-assignment
-    while ((el = this.caretOwners[0] as HTMLElement) !== undefined) {
-      el.classList.remove("_owns_caret");
+    while (this.caretOwners[0] !== undefined) {
+      this.caretOwners[0].classList.remove("_owns_caret");
     }
-    // tslint:disable-next-line:no-conditional-assignment
-    while ((el = this.clickedLabels[0] as HTMLElement) !== undefined) {
-      el.classList.remove("_label_clicked");
+
+    // _label_clicked can also be on more than one element.
+    while (this.clickedLabels[0] !== undefined) {
+      this.clickedLabels[0].classList.remove("_label_clicked");
     }
-    // tslint:disable-next-line:no-conditional-assignment
-    while ((el = this.withCaret[0] as HTMLElement) !== undefined) {
-      el.classList.remove("_with_caret");
+
+    // _with_caret should not be on more than one element, but if a momentary
+    // issue happens, we fix it here.
+    let hadCaret: Element | undefined;
+    while (this.withCaret[0] !== undefined) {
+      // We record the element with the caret. If there is more than one, which
+      // should not happen except in transient cases, it does not matter as it
+      // only means that we'll have an unnecessary error recreation.
+      hadCaret = this.withCaret[0];
+      hadCaret.classList.remove("_with_caret");
     }
 
     if (prevCaret !== undefined) {
@@ -3330,7 +3278,7 @@ in a way not supported by this version of wed.";
       }
     }
 
-    let node = isElement(caret.node) ?
+    const node = isElement(caret.node) ?
       caret.node : caret.node.parentNode as HTMLElement;
     const root = caret.root;
 
@@ -3340,11 +3288,17 @@ in a way not supported by this version of wed.";
       return;
     }
 
+    if (mode !== prevMode) {
+      this.toolbar.setModeButtons(
+        mode !== undefined ? mode.getToolbarButtons() : []);
+    }
+
     const real = closestByClass(node, "_real", root);
     if (real !== null) {
       real.classList.add("_owns_caret");
     }
 
+    let hasCaret: Element | undefined;
     const gui = closestByClass(node, "_gui", root);
     // Make sure that the caret is in view.
     if (gui !== null) {
@@ -3355,10 +3309,25 @@ in a way not supported by this version of wed.";
         }
 
         gui.classList.add("_with_caret");
+        hasCaret = gui;
       }
     }
     else {
       node.classList.add("_owns_caret");
+    }
+
+    // When the caret moves, it may move outside of, or into, a start label
+    // that has autohidden attributes. In such case, we must recreate the
+    // errors, so that any error associated with an attribute that may be
+    // shown or hidden is recreated to fix hyperlinking.
+    if ((hadCaret !== hasCaret) &&
+        ((hasCaret !== undefined &&
+          hasCaret.getElementsByClassName("_shown_when_caret_in_label")
+          .length !== 0) ||
+         (hadCaret !== undefined &&
+          hadCaret.getElementsByClassName("_shown_when_caret_in_label")
+          .length !== 0))) {
+      this.validationController.recreateErrors();
     }
 
     if (!gainingFocus) {
@@ -3369,19 +3338,27 @@ in a way not supported by this version of wed.";
     // to the CSS may have caused GUI items to appear or disappear and may have
     // mucked up the caret mark.
     this.caretManager.mark.refresh();
+    this.setLocationTo(node);
+  }
 
+  /**
+   * Set the location bar to a new location.
+   *
+   * @param el The element at which the location should point.
+   */
+  private setLocationTo(el: Element): void {
     const steps = [];
-    while (node !== this.guiRoot) {
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        throw new Error(`unexpected node type: ${node.nodeType}`);
+    while (el !== this.guiRoot) {
+      if (el.nodeType !== Node.ELEMENT_NODE) {
+        throw new Error(`unexpected node type: ${el.nodeType}`);
       }
 
-      if (!node.classList.contains("_placeholder") &&
-          closestByClass(node, "_phantom", root) === null) {
+      if (!el.classList.contains("_placeholder") &&
+          closestByClass(el, "_phantom", this.guiRoot) === null) {
         steps.unshift(`<span class='_gui _label'><span>&nbsp;\
-${util.getOriginalName(node)}&nbsp;</span></span>`);
+${util.getOriginalName(el)}&nbsp;</span></span>`);
       }
-      node = node.parentNode as HTMLElement;
+      el = el.parentNode as HTMLElement;
     }
     const span = this.wedLocationBar.getElementsByTagName("span")[0];
     // tslint:disable-next-line:no-inner-html
@@ -3447,7 +3424,7 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
     }, 0);
   }
 
-  private paste(editor: Editor, data: PasteTransformationData): void {
+  private paste(editor: EditorAPI, data: PasteTransformationData): void {
     const toPaste = data.to_paste;
     const dataClone = toPaste.cloneNode(true);
     let caret = this.caretManager.getDataCaret();
@@ -3501,7 +3478,7 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
     this.$guiRoot.trigger("wed-post-paste", [data.e, caret, dataClone]);
   }
 
-  public replaceRange(editor: Editor,
+  public replaceRange(editor: EditorAPI,
                       data: ReplaceRangeTransformationData): void {
     const caretManager = editor.caretManager;
     const { range, newText, caretAtEnd } = data;
@@ -3534,6 +3511,11 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
   }
 }
 
+export {
+  PasteTransformationData,
+  ReplaceRangeTransformationData,
+};
+
 //  LocalWords:  MPL keyConstants KEYPRESS sm md contenteditable constrainer sb
 //  LocalWords:  scroller nbsp href nav ul li errorlist HTMLElement jQuery lt
 //  LocalWords:  html runtime DLocRoot config navlist popstate attr xmlns xml
@@ -3544,7 +3526,7 @@ ${util.getOriginalName(node)}&nbsp;</span></span>`);
 //  LocalWords:  revalidate dragenter dragstart dragover keydown keypress pageX
 //  LocalWords:  compositionstart compositionupdate compositionend mousedown px
 //  LocalWords:  mouseover mouseout contextmenu mousemove mouseup pageY screenX
-//  LocalWords:  screenY docLink wed's enterStartTag pheight maxPanelHeight cd
+//  LocalWords:  screenY docUrl wed's enterStartTag pheight maxPanelHeight cd
 //  LocalWords:  domutil childByClass outerHeight clipboardData parsererror Yay
 //  LocalWords:  Ctrl CapsLock activeElement querySelector getCaret dataNode nd
 //  LocalWords:  noop keyup mousedownHandler caretManager mouseoutHandler rect

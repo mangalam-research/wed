@@ -4,4 +4,4 @@
 
 require("amd-loader");
 // eslint-disable-next-line import/no-unresolved
-require("../lib/wed/cli/wed-metadata");
+require("../build/standalone/lib/wed/cli/wed-metadata");

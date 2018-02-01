@@ -37,7 +37,7 @@ export class GUISelector {
 
   /**
    * Make a GUI selector from a data selector. The limitations on the selector
-   * are the same as for [["domutil".toGUISelector]].
+   * are the same as for [["wed/domutil".toGUISelector]].
    *
    * @param selector A selector fit for selecting in the data tree.
    *

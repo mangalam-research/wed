@@ -18,6 +18,13 @@ function empty(el: Element): void {
   el.innerHTML = "";
 }
 
+function defined<T>(x: T | null | undefined): T {
+  assert.isDefined(x);
+  // The assertion above already excludes null and undefined, but TypeScript
+  // does not know this.
+  return x as T;
+}
+
 const commonMap = {
   // tslint:disable-next-line:no-http-string
   btw: "http://mangalamresearch.org/ns/btw-storage",
@@ -1099,6 +1106,69 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real \
       // ul
       assert.isTrue(domutil.contains(ul, classAttr));
       assert.isFalse(domutil.contains(classAttr, ul));
+    });
+  });
+
+  describe("comparePositions", () => {
+    let p: Node;
+    before(() => {
+      p = defined(sourceDoc.querySelector("body p"));
+      assert.equal(p.nodeType, Node.ELEMENT_NODE);
+    });
+
+    it("returns 0 if the two locations are equal", () => {
+      assert.equal(domutil.comparePositions(p, 0, p, 0), 0);
+    });
+
+    it("returns -1 if the 1st location is before the 2nd", () => {
+      assert.equal(domutil.comparePositions(p, 0, p, 1), -1);
+    });
+
+    it("returns 1 if the 1st location is after the 2nd", () => {
+      assert.equal(domutil.comparePositions(p, 1, p, 0), 1);
+    });
+
+    describe("(siblings)", () => {
+      let next: Node;
+
+      before(() => {
+        next = defined(p.nextSibling);
+      });
+
+      it("returns -1 if 1st location precedes 2nd", () => {
+        assert.equal(domutil.comparePositions(p, 0, next, 0), -1);
+      });
+
+      it("returns 1 if 1st location follows 2nd", () => {
+        assert.equal(domutil.comparePositions(next, 0, p, 0), 1);
+      });
+    });
+
+    describe("(parent - child positions)", () => {
+      let parent: Node;
+
+      before(() => {
+        parent = defined(p.parentNode);
+        // We want to check that we are looking at the p element we think
+        // we are looking at.
+        assert.equal(parent.childNodes[0], p);
+      });
+
+      it("returns -1 if 1st position is a parent position before 2nd", () => {
+        assert.equal(domutil.comparePositions(parent, 0, p, 0), -1);
+      });
+
+      it("returns 1 if 1st position is a parent position after 2nd", () => {
+        assert.equal(domutil.comparePositions(parent, 1, p, 0), 1);
+      });
+
+      it("returns 1 if 1st position is a child position after 2nd", () => {
+        assert.equal(domutil.comparePositions(p, 0, parent, 0), 1);
+      });
+
+      it("returns -1 if 1st position is a child position before 2nd", () => {
+        assert.equal(domutil.comparePositions(p, 0, parent, 1), -1);
+      });
     });
   });
 });

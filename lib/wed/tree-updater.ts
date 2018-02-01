@@ -5,7 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
 
 import { DLoc, DLocRoot, findRoot } from "./dloc";
 import { isDocumentFragment, isElement, isNode, isText } from "./domtypeguards";

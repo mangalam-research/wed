@@ -5,8 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
+import { Editor } from "./editor";
 import * as undo from "./undo";
-import { Editor } from "./wed";
 
 export type Caret = [string | undefined, number | undefined];
 
@@ -32,13 +32,13 @@ export class UndoGroup extends undo.UndoGroup {
     this.caretAsPathBefore = this.getDataCaretAsPath();
   }
 
-  undo(): void {
-    super.undo();
+  performUndo(): void {
+    super.performUndo();
     this.setDataCaretAsPath(this.caretAsPathBefore);
   }
 
-  redo(): void {
-    super.redo();
+  performRedo(): void {
+    super.performRedo();
     if (this.caretAsPathAfter === undefined) {
       throw new Error(`caretAsPathAfter is undefined, this indicates a \
 corrupted state and thus an internal error`);
@@ -126,23 +126,6 @@ export class TextUndoGroup extends UndoGroup {
       this.undoList.endGroup();
     }
   }
-}
-
-/**
- * Serves as a marker for debugging.
- */
-export class MarkerUndo extends undo.Undo {
-  /**
-   * @param msg A message to identify the marker.
-   */
-  constructor(msg: string) {
-    super(`*** MARKER *** ${msg}`);
-  }
-
-  // tslint:disable-next-line:no-empty
-  undo(): void {}
-  // tslint:disable-next-line:no-empty
-  redo(): void {}
 }
 
 //  LocalWords:  pathToNode nodeToPath Dubeau MPL Mangalam param UndoGroup

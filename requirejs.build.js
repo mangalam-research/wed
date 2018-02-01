@@ -1,4 +1,4 @@
-({ // eslint-disable-line no-unused-expressions
+({ // eslint-disable-line no-unused-expressions, strict
   baseUrl: "build/standalone/lib",
   mainConfigFile: "build/config/requirejs-config-dev.js",
   dir: "build/standalone-optimized/lib",
@@ -17,10 +17,7 @@
       name: "jquery",
     },
     {
-      name: "wed/wed",
-      include: [
-        "wed/modes/generic/generic",
-      ],
+      name: "wed",
       exclude: [
         "jquery",
         "interact",

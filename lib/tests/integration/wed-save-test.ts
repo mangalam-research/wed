@@ -3,8 +3,11 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as keyConstants from "wed/key-constants";
-import * as wed from "wed/wed";
+import { filter } from "rxjs/operators/filter";
+import { first } from "rxjs/operators/first";
+
+import { keyConstants, version } from "wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup, WedServer } from "../wed-test-util";
@@ -13,7 +16,7 @@ const assert = chai.assert;
 
 describe("wed save:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let server: WedServer;
 
   before(() => {
@@ -36,13 +39,13 @@ server_interaction_converted.xml",
     (editor as any) = undefined;
   });
 
-  it("saves", () => {
+  it("saves using the keyboard", () => {
     const prom =  editor.saver.events
-      .filter((ev) => ev.name === "Saved").first().toPromise()
+      .pipe(filter((ev) => ev.name === "Saved"), first()).toPromise()
       .then(() => {
         assert.deepEqual(server.lastSaveRequest, {
           command: "save",
-          version: wed.version,
+          version: version,
           data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc>\
@@ -50,17 +53,27 @@ server_interaction_converted.xml",
 <p><term>blah</term></p></body></text></TEI>",
         });
     });
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
+    return prom;
+  });
+
+  it("saves using the toolbar", () => {
+    // We just check the event happened.
+    const prom =  editor.saver.events
+      .pipe(filter((ev) => ev.name === "Saved"), first()).toPromise();
+    const button = editor.widget
+      .querySelector("[data-original-title='Save']") as HTMLElement;
+    button.click();
     return prom;
   });
 
   it("serializes properly", () =>  {
     const prom = editor.saver.events
-      .filter((ev) => ev.name === "Saved").first().toPromise()
+      .pipe(filter((ev) => ev.name === "Saved"), first()).toPromise()
       .then(() => {
         assert.deepEqual(server.lastSaveRequest, {
           command: "save",
-          version: wed.version,
+          version: version,
           data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt><p><abbr/></p></publicationStmt><sourceDesc><p/></sourceDesc>\
@@ -73,7 +86,7 @@ server_interaction_converted.xml",
     const trs = editor.modeTree.getMode(p)
       .getContextualActions("insert", "abbr", p, 0);
     trs[0].execute({ name: "abbr" });
-    editor.type(keyConstants.CTRLEQ_S);
+    editor.type(keyConstants.SAVE);
     return prom;
   });
 
@@ -81,7 +94,7 @@ server_interaction_converted.xml",
     // tslint:disable-next-line:no-floating-promises
     editor.save().then(() => {
       const sub = editor.saver.events
-        .filter((ev) => ev.name === "Autosaved").subscribe((ev) => {
+        .pipe(filter((ev) => ev.name === "Autosaved")).subscribe((ev) => {
           throw new Error("autosaved!");
         });
       editor.saver.setAutosaveInterval(50);
@@ -95,7 +108,7 @@ server_interaction_converted.xml",
   it("autosaves when the document is modified", (done) => {
     // We're testing that autosave is not called again after the first time.
     let autosaved = false;
-    const sub = editor.saver.events.filter((x) => x.name === "Autosaved")
+    const sub = editor.saver.events.pipe(filter((x) => x.name === "Autosaved"))
       .subscribe(() => {
         if (autosaved) {
           throw new Error("autosaved more than once");
@@ -103,7 +116,7 @@ server_interaction_converted.xml",
         autosaved = true;
         assert.deepEqual(server.lastSaveRequest, {
           command: "autosave",
-          version: wed.version,
+          version: version,
           data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt/><sourceDesc><p/></sourceDesc>\
@@ -127,7 +140,8 @@ server_interaction_converted.xml",
          // time.
          let autosaved = false;
          const interval = 50;
-         const sub = editor.saver.events.filter((x) => x.name === "Autosaved")
+         const sub = editor.saver.events
+           .pipe(filter((x) => x.name === "Autosaved"))
            .subscribe(() => {
              if (autosaved) {
                throw new Error("autosaved more than once");
@@ -135,7 +149,7 @@ server_interaction_converted.xml",
              autosaved = true;
              assert.deepEqual(server.lastSaveRequest, {
                command: "autosave",
-               version: wed.version,
+               version: version,
                data: "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\
 <teiHeader><fileDesc><titleStmt><title>abcd</title></titleStmt>\
 <publicationStmt/><sourceDesc><p/></sourceDesc>\

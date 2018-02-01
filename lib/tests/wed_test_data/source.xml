@@ -8,7 +8,7 @@
         <p></p>
       </publicationStmt>
       <sourceDesc>
-        <p></p>
+        <p MOO="a" moo="b"></p>
       </sourceDesc>
     </fileDesc>
   </teiHeader>
@@ -31,6 +31,7 @@
       <p><monogr>This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines. This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines. This paragraph and its content are designed to test how error markers are shown for inline elements that end up spanning multiple lines.</monogr></p>
       <p n="">P</p>
       <div type="a" subtype="b" rend="foo" rendition="bar"></div>
+      <div xxx="x">This div has a bad attribute.</div>
     </body>
   </text>
 </TEI>

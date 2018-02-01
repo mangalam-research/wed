@@ -5,8 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import * as $ from "jquery";
-import * as rangy from "rangy";
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
 
 import * as browsers from "./browsers";
 import { CaretMark } from "./caret-mark";
@@ -19,6 +19,7 @@ import { childByClass, closestByClass, contains, dumpRange,
 import { GUIUpdater } from "./gui-updater";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
+import { Mode } from "./mode";
 import { ModeTree } from "./mode-tree";
 import * as objectCheck from "./object-check";
 import { GUIToDataConverter, WedSelection } from "./wed-selection";
@@ -69,6 +70,12 @@ export interface CaretChange {
 
   /** The previous caret value before the change. */
   prevCaret: DLoc | undefined;
+
+  /** The mode at which the current caret is located. */
+  mode: Mode | undefined;
+
+  /** The previous mode in effect before the change. */
+  prevMode: Mode | undefined;
 
   /** The change options. */
   options: CaretChangeOptions;
@@ -122,6 +129,7 @@ export class CaretManager implements GUIToDataConverter {
   private readonly win: Window;
   private readonly selectionStack: (WedSelection | undefined)[] = [];
   private prevCaret: DLoc | undefined;
+  private prevMode: Mode | undefined;
 
   private readonly _events: Subject<CaretChange>;
 
@@ -216,7 +224,7 @@ export class CaretManager implements GUIToDataConverter {
   /**
    * The range formed by the current selection.
    */
-  get range(): rangy.RangyRange | undefined {
+  get range(): Range | undefined {
     const info = this.rangeInfo;
     return info !== undefined ? info.range : undefined;
   }
@@ -634,12 +642,12 @@ export class CaretManager implements GUIToDataConverter {
     // straightforwardly selecting one character.
     if (this.prevCaret === undefined || !this.prevCaret.equals(focus)) {
       this.mark.refresh();
-      const rr = sel.rangeInfo;
-      if (rr === undefined) {
+      const range = sel.range;
+      if (range === undefined) {
         throw new Error("unable to make a range");
       }
 
-      this._setDOMSelectionRange(rr.range, rr.reversed);
+      this._setDOMSelectionRange(range);
     }
 
     this._caretChange();
@@ -745,18 +753,7 @@ export class CaretManager implements GUIToDataConverter {
     }
 
     if (options !== undefined) {
-      const result = objectCheck.check(
-        caretOptionTemplate, options as objectCheck.CheckedObject);
-      // We don't have mandatory options but have a minimal handling of this
-      // case.
-      if (result.missing !== undefined) {
-        throw new Error("there are missing options");
-      }
-
-      if (result.extra !== undefined) {
-        throw new Error(
-          `unknown options passed to setCaret: ${result.extra.join(",")}`);
-      }
+      objectCheck.assertSummarily(caretOptionTemplate, options);
     }
     else {
       options = {};
@@ -813,11 +810,6 @@ export class CaretManager implements GUIToDataConverter {
    */
   pushSelection(): void {
     this.selectionStack.push(this._sel);
-    // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
-    // ``tech_notes.rst``.
-    if (browsers.MSIE_TO_10) {
-      this._clearDOMSelection();
-    }
   }
 
   /**
@@ -851,15 +843,15 @@ export class CaretManager implements GUIToDataConverter {
         // It is possible that the anchor has been removed after focus was lost
         // so check for it.
         this.guiRootEl.contains(this.anchor.node)) {
-      const rr = this.rangeInfo;
-      if (rr === undefined) {
+      const range = this.range;
+      if (range === undefined) {
         throw new Error("could not make a range");
       }
 
-      this._setDOMSelectionRange(rr.range, rr.reversed);
+      this._setDOMSelectionRange(range);
 
       // We're not selecting anything...
-      if (rr.range.collapsed) {
+      if (range.collapsed) {
         this.focusInputField();
       }
       this.mark.refresh();
@@ -906,7 +898,7 @@ export class CaretManager implements GUIToDataConverter {
    * This function is meant to be used internally to manipulate the DOM
    * selection directly.
    */
-  private _setDOMSelectionRange(range: Range, reverse: boolean): void {
+  private _setDOMSelectionRange(range: Range): void {
     if (range.collapsed) {
       this._clearDOMSelection();
       return;
@@ -919,13 +911,9 @@ export class CaretManager implements GUIToDataConverter {
       focusTheNode(range.endContainer);
     }
 
-    // _clearDOMSelection is to work around a problem in Rangy 1.3alpha.804. See
-    // ``tech_notes.rst``.
-    if (browsers.MSIE_TO_10) {
-      this._clearDOMSelection();
-    }
     const sel = this._getDOMSelection();
-    sel.setSingleRange(range, reverse);
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
 
   /**
@@ -988,14 +976,19 @@ export class CaretManager implements GUIToDataConverter {
   private _caretChange(options: CaretChangeOptions = {}): void {
     const prevCaret = this.prevCaret;
     const caret = this.caret;
+    const mode = caret !== undefined ?
+      this.modeTree.getMode(caret.node) : undefined;
     if (prevCaret === undefined || !prevCaret.equals(caret)) {
       this._events.next({
         manager: this,
         caret,
+        mode,
         prevCaret,
+        prevMode: this.prevMode,
         options,
       });
       this.prevCaret = caret;
+      this.prevMode = mode;
     }
   }
 
@@ -1007,8 +1000,8 @@ export class CaretManager implements GUIToDataConverter {
     }
   }
 
-  private _getDOMSelection(): rangy.RangySelection {
-    return rangy.getSelection(this.win);
+  private _getDOMSelection(): Selection {
+    return this.win.getSelection();
   }
 
   /**
@@ -1060,7 +1053,7 @@ export class CaretManager implements GUIToDataConverter {
     const leftOffset = this.scroller.scrollLeft - grPosition.left;
 
     const highlight = this.doc.createElement("div");
-    for (const rect of Array.from(domRange.nativeRange.getClientRects())) {
+    for (const rect of Array.from(domRange.getClientRects())) {
       const highlightPart = this.doc.createElement("div");
       highlightPart.className = "_wed_highlight";
       highlightPart.style.top = `${rect.top + topOffset}px`;

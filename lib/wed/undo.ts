@@ -4,7 +4,29 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-"use strict";
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
+import { Subscription } from "rxjs/Subscription";
+
+export interface UndoEvent {
+  name: "Undo";
+
+  undo: Undo;
+}
+
+export interface RedoEvent {
+  name: "Redo";
+
+  undo: Undo;
+}
+
+export type UndoEvents = UndoEvent | RedoEvent;
+
+interface ListItem {
+  undo: Undo;
+
+  subscription: Subscription;
+}
 
 /**
  * Records operations that may be undone or redone. It maintains a single list
@@ -17,9 +39,32 @@
  */
 export class UndoList {
   private readonly stack: UndoGroup[] = [];
-  private list: Undo[] = [];
+  private list: ListItem[] = [];
   private index: number = -1;
   private _undoingOrRedoing: boolean = false;
+
+  private readonly _events: Subject<UndoEvents> = new Subject();
+
+  readonly events: Observable<UndoEvents> = this._events.asObservable();
+
+  /**
+   * Reset the list to its initial state **without** undoing operations. The
+   * list effectively forgets old undo operations.
+   */
+  reset(): void {
+    if (this._undoingOrRedoing) {
+      throw new Error("may not reset while undoing or redoing");
+    }
+
+    this.stack.length = 0; // Yes, this works and clears the stack.
+    this.index = -1;
+
+    // We need to cleanup the old subscriptions.
+    for (const { subscription } of this.list) {
+      subscription.unsubscribe();
+    }
+    this.list = [];
+  }
 
   /**
    * This method makes the UndoList object record the object passed to it. Any
@@ -32,8 +77,25 @@ export class UndoList {
       this.stack[0].record(obj);
     }
     else {
+      // We do things in reverse here. We save the original list. Then the call
+      // to splice mutates the original list to contain elements we do *not*
+      // want. The return value are those elements we do want.
+      const oldList = this.list;
       this.list = this.list.splice(0, this.index + 1);
-      this.list.push(obj);
+
+      // We need to cleanup the old subscriptions.
+      for (const { subscription } of oldList) {
+        subscription.unsubscribe();
+      }
+
+      // This is the only place we need to subscribe. We do not need to
+      // subscribe to individual object that are in undo groups because the
+      // groups forward events that happen on their inner objects. Also, a group
+      // need not be subscribed to until ``record`` is called for it.
+      this.list.push({
+        undo: obj,
+        subscription: obj.events.subscribe(this._events),
+      });
       this.index++;
     }
   }
@@ -57,7 +119,7 @@ export class UndoList {
       this.endGroup();
     }
     if (this.index >= 0) {
-      this.list[this.index--].undo();
+      this.list[this.index--].undo.undo();
     }
     this._undoingOrRedoing = false;
   }
@@ -76,7 +138,7 @@ export class UndoList {
     }
     this._undoingOrRedoing = true;
     if (this.index < this.list.length - 1) {
-      this.list[++this.index].redo();
+      this.list[++this.index].undo.redo();
     }
     this._undoingOrRedoing = false;
   }
@@ -174,6 +236,10 @@ export class UndoList {
  * @param {string} desc The description of this undo operation.
  */
 export abstract class Undo {
+  protected readonly _events: Subject<UndoEvents> = new Subject();
+
+  readonly events: Observable<UndoEvents> = this._events.asObservable();
+
   constructor(public readonly desc: string) {}
 
   /**
@@ -182,7 +248,19 @@ export abstract class Undo {
    * @throws {Error} If an undo is attempted when an undo or redo is already in
    * progress.
    */
-  abstract undo(): void;
+  undo(): void {
+    this.performUndo();
+    this._events.next({
+      name: "Undo",
+      undo: this,
+    });
+  }
+
+  /**
+   * This is the function that performs the specific operations required by this
+   * undo object, when undoing.
+   */
+  protected abstract performUndo(): void;
 
   /**
    * Called when the operation must be redone.
@@ -190,7 +268,19 @@ export abstract class Undo {
    * @throws {Error} If an undo is attempted when an undo or redo is already in
    * progress.
    */
-  abstract redo(): void;
+  redo(): void {
+    this.performRedo();
+    this._events.next({
+      name: "Redo",
+      undo: this,
+    });
+  }
+
+  /**
+   * This is the function that performs the specific operations required by this
+   * undo object, when redoing.
+   */
+  protected abstract performRedo(): void;
 
   /**
    * @returns The description of this object.
@@ -210,7 +300,7 @@ export class UndoGroup extends Undo {
    * Undoes this group, which means undoing all the operations that this group
    * has recorded.
    */
-  undo(): void {
+  performUndo(): void {
     for (let i = this.list.length - 1; i >= 0; --i) {
       this.list[i].undo();
     }
@@ -220,7 +310,7 @@ export class UndoGroup extends Undo {
    * Redoes this group, which means redoing all the operations that this group
    * has recorded.
    */
-  redo(): void {
+  performRedo(): void {
     for (const it of this.list) {
       it.redo();
     }
@@ -233,6 +323,8 @@ export class UndoGroup extends Undo {
    */
   record(obj: Undo): void {
     this.list.push(obj);
+    // We need to forward the events onto this object.
+    obj.events.subscribe(this._events);
   }
 
   /**
@@ -252,6 +344,25 @@ export class UndoGroup extends Undo {
     ret.push(`End of ${this.desc}\n`);
     return ret.join("");
   }
+}
+
+/**
+ * This is an undo object which does nothing but only serves as a marker in the
+ * list of undo operations. It could be used for debugging or by modes to record
+ * information they need in the undo list.
+ */
+export class UndoMarker extends Undo {
+  /**
+   * @param msg A message to identify the marker.
+   */
+  constructor(msg: string) {
+    super(`*** MARKER *** ${msg}`);
+  }
+
+  // tslint:disable-next-line:no-empty
+  performUndo(): void {}
+  // tslint:disable-next-line:no-empty
+  performRedo(): void {}
 }
 
 //  LocalWords:  boolean Dubeau MPL Mangalam UndoList desc

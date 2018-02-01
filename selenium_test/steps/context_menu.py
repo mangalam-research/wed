@@ -266,17 +266,6 @@ def context_choices_insert(context, exists, kind):
         assert_equal(count, 0, "there should not be options")
 
 
-@Then(r'the context menu contains a choice for creating a new '
-      r'(?P<what>.*) after this element\.?')
-def context_choices_insert(context, what):
-    util = context.util
-
-    search_for = '^Create new ' + what + ' after'
-    assert_not_equal(len(util.find_descendants_by_text_re(".wed-context-menu",
-                                                          search_for)),
-                     0, "Number of elements found")
-
-
 @Then(r'a choice for creating a new '
       r'note after this element is below the editor pane\.?')
 def context_choices_insert(context):
@@ -524,6 +513,12 @@ def step_impl(context, choice, new=None, name=None):
             """, for_element)
     context.clicked_context_menu_item = \
         util.get_text_excluding_children(link).strip()
+
+    # On Edge, the autoscrolling is crap. It brings the element only half into
+    # view.
+    if util.edge:
+        driver.execute_script("arguments[0].scrollIntoView();", link)
+
     link.click()
 
 
@@ -636,7 +631,7 @@ def step_impl(context, what=None, items=None, other=None):
                         link.startswith("Split "):
                     actual.add("element")
                 else:
-                    raise Element("can't analyse link: " + link)
+                    raise Exception("can't analyse link: " + link)
 
         return actual == expected
 

@@ -5,7 +5,7 @@
  */
 import { CaretManager } from "wed/caret-manager";
 import { isElement } from "wed/domtypeguards";
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup, firstGUI, getAttributeNamesFor } from "../wed-test-util";
@@ -14,7 +14,7 @@ const assert = chai.assert;
 
 describe("wed decoration:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;
@@ -97,8 +97,7 @@ describe("wed decoration:", () => {
   }
 
   describe("autohidden attributes", () => {
-    it("are hidden when the caret is not in the element", () => {
-      const div = editor.guiRoot.querySelectorAll(".body .div")[1];
+    function checkHidden(div: Element): void {
       for (const name of Array.from(getAttributeNamesFor(div))) {
         const text = name.textContent;
         const autohidden = name.closest("._shown_when_caret_in_label") !== null;
@@ -111,12 +110,9 @@ describe("wed decoration:", () => {
           assert.isFalse(isVisible(name as HTMLElement), "should be hidden");
         }
       }
-    });
+    }
 
-    it("are shown when the caret is in the element", () => {
-      const div = editor.guiRoot.querySelectorAll(".body .div")[1];
-      const label = firstGUI(div);
-      caretManager.setCaret(label, 0);
+    function checkVisible(div: Element): void {
       for (const name of Array.from(getAttributeNamesFor(div))) {
         const text = name.textContent;
         const autohidden = name.closest("._shown_when_caret_in_label") !== null;
@@ -129,6 +125,37 @@ describe("wed decoration:", () => {
           assert.isTrue(autohidden);
         }
       }
+    }
+
+    it("are hidden when the caret is not in the element", () => {
+      checkHidden(editor.guiRoot.querySelectorAll(".body .div")[1]);
+    });
+
+    it("are shown when the caret is in the element", () => {
+      const div = editor.guiRoot.querySelectorAll(".body .div")[1];
+      const label = firstGUI(div);
+      caretManager.setCaret(label, 0);
+      checkVisible(div);
+    });
+
+    it("are shown and hidden using the toolbar", () => {
+      const div = editor.guiRoot.querySelectorAll(".body .div")[1];
+      // Initially hidden when the caret it outside the element.
+      checkHidden(div);
+
+      let button = editor.widget
+        .querySelector(
+          "[data-original-title='Toggle attribute hiding']") as HTMLElement;
+      button.click();
+
+      checkVisible(div);
+
+      // Toggle again, and they should be all be invisible.
+      button = editor.widget
+        .querySelector(
+          "[data-original-title='Toggle attribute hiding']") as HTMLElement;
+      button.click();
+      checkHidden(div);
     });
   });
 });

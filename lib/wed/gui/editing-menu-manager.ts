@@ -10,13 +10,15 @@ import { DLoc } from "../dloc";
 import { isElement } from "../domtypeguards";
 import { closestByClass, htmlToElements, indexOf,
          isNotDisplayed } from "../domutil";
+import { Editor } from "../editor";
 import { ModeTree } from "../mode-tree";
 import { Transformation, TransformationData } from "../transformation";
-import { Editor } from "../wed";
 import { ActionContextMenu, Item } from "./action-context-menu";
 import { CompletionMenu } from "./completion-menu";
 import { ContextMenu } from "./context-menu";
 import { makeHTML } from "./icon";
+import { ReplacementMenu } from "./replacement-menu";
+import { TypeaheadPopup } from "./typeahead-popup";
 
 const atStartToTxt: Record<string, string> = {
   undefined: "",
@@ -38,6 +40,7 @@ export class EditingMenuManager {
   private currentDropdown: ContextMenu | undefined;
   private readonly modeTree: ModeTree;
   private readonly doc: HTMLDocument;
+  private currentTypeahead: TypeaheadPopup | undefined;
 
   /**
    * @param editor The editor for which the manager is created.
@@ -99,9 +102,7 @@ export class EditingMenuManager {
       return true;
     }
 
-    const pos = this.computeMenuPosition(e);
-    this.displayContextMenu(ActionContextMenu, pos.left, pos.top, menuItems,
-                            readonly);
+    this.setupContextMenu(ActionContextMenu, menuItems, readonly, e);
     return false;
   }
 
@@ -114,8 +115,49 @@ export class EditingMenuManager {
     if (this.currentDropdown !== undefined) {
       this.currentDropdown.dismiss();
     }
+
+    if (this.currentTypeahead !== undefined) {
+      this.currentTypeahead.dismiss();
+    }
   }
 
+  /**
+   * Compute an appropriate position for a context menu, and display it. This is
+   * a convenience function that essentially combines [[computeMenuPosition]]
+   * and [[displayContextMenu]].
+   *
+   * @param cmClass See [[displayContextMenu]].
+   *
+   * @param items See [[displayContextMenu]].
+   *
+   * @param readonly See [[displayContextMenu]].
+   *
+   * @param e See [[computeMenuPosition]].
+   *
+   * @param bottom See [[computeMenuPosition]].
+   */
+  setupContextMenu(cmClass: typeof ActionContextMenu, items: Item[],
+                   readonly: boolean, e: JQueryEventObject | undefined,
+                   bottom?: boolean): void {
+    const pos = this.computeMenuPosition(e, bottom);
+    this.displayContextMenu(ActionContextMenu, pos.left, pos.top, items,
+                            readonly);
+  }
+
+  /**
+   * Display a context menu.
+   *
+   * @param cmClass The class to use to create the menu.
+   *
+   * @param x The position of the menu.
+   *
+   * @param y The position of the menu.
+   *
+   * @param items The menu items to show.
+   *
+   * @param readonly If true, don't include in the menu any operation that
+   *                 would trigger a ``Transformation``.
+   */
   displayContextMenu(cmClass: typeof ActionContextMenu, x: number, y: number,
                      items: Item[], readonly: boolean): void {
     // Eliminate duplicate items. We perform a check only in the description of
@@ -198,14 +240,8 @@ export class EditingMenuManager {
       const dataNode = treeCaret.node as Element;
       const tagName = dataNode.tagName;
       const mode = this.modeTree.getMode(dataNode);
-      if (tagName != null) {
-        const docURL = mode.documentationLinkFor(tagName);
 
-        if (docURL != null) {
-          const li = this.makeDocumentationMenuItem(docURL);
-          menuItems.push({ action: null, item: li, data: null });
-        }
-      }
+      menuItems.push(...this.makeCommonItems(dataNode));
 
       const trs = this.editor.getElementTransformationsAt(
         treeCaret, wrap ? "wrap" : "insert");
@@ -242,6 +278,29 @@ export class EditingMenuManager {
         $.data(transformationNode, "wed_mirror_node"), 0);
       for (const action of actions) {
         pushItem({ node: transformationNode, name: sepFor }, action);
+      }
+    }
+
+    return menuItems;
+  }
+
+  /**
+   * Make the menu items that should appear in all contextual menus.
+   *
+   * @param dataNode The element for which we are creating the menu.
+   *
+   * @returns Menu items.
+   */
+  makeCommonItems(dataNode: Node): Item[] {
+    const menuItems: Item[] = [];
+    if (isElement(dataNode)) {
+      const tagName = dataNode.tagName;
+      const mode = this.modeTree.getMode(dataNode);
+      const docURL = mode.documentationLinkFor(tagName);
+
+      if (docURL != null) {
+        const li = this.makeDocumentationMenuItem(docURL);
+        menuItems.push({ action: null, item: li, data: null });
       }
     }
 
@@ -306,91 +365,209 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
     return li;
   }
 
-  setupCompletionMenu(): void {
-    this.dismiss();
+  private getPossibleAttributeValues(): string[] {
     const sel = this.caretManager.sel;
 
     // We must not have an actual range in effect
     if (sel === undefined || !sel.collapsed) {
-      return;
+      return [];
     }
 
     // If we have a selection, we necessarily have a caret.
     const caret = this.caretManager.getNormalizedCaret()!;
     const node = caret.node;
     const attrVal = closestByClass(node, "_attribute_value", this.guiRoot);
-    if (attrVal !== null) {
-      if (isNotDisplayed(attrVal as HTMLElement, this.guiRoot)) {
-        return;
-      }
+    if (attrVal === null ||
+        isNotDisplayed(attrVal as HTMLElement, this.guiRoot)) {
+      return [];
+    }
 
-      const doc = node.ownerDocument;
-      // If we have a selection, we necessarily have a caret.
-      const dataCaret = this.caretManager.getDataCaret()!;
-      // The node is necessarily an attribute.
-      const dataNode = dataCaret.node as Attr;
-      // We complete only at the end of an attribute value.
-      if (dataCaret.offset !== dataNode.value.length) {
-        return;
-      }
+    // If we have a selection, we necessarily have a caret.
+    const dataCaret = this.caretManager.getDataCaret()!;
+    // The node is necessarily an attribute.
+    const dataNode = dataCaret.node as Attr;
 
-      // First see if the mode has something to say.
-      const mode = this.modeTree.getMode(dataNode);
-      const possible = mode.getAttributeCompletions(dataNode);
+    // First see if the mode has something to say.
+    const mode = this.modeTree.getMode(dataNode);
+    const possible = mode.getAttributeCompletions(dataNode);
 
-      if (possible.length === 0) {
-        // Nothing from the mode, use the validator.
-        this.editor.validator.possibleAt(dataCaret.node, 0)
-          .forEach((ev) => {
-            if (ev.params[0] !== "attributeValue") {
-              return;
-            }
-
-            const text = ev.params[1];
-            if (text instanceof RegExp) {
-              return;
-            }
-
-            possible.push(text);
-          });
-      }
-
-      // Nothing to complete.
-      if (possible.length === 0) {
-        return;
-      }
-
-      const narrowed = [];
-      for (const possibility of possible) {
-        if (possibility.lastIndexOf(dataNode.value, 0) === 0) {
-          narrowed.push(possibility);
-        }
-      }
-
-      // The current value in the attribute is not one that can be
-      // completed.
-      if (narrowed.length === 0 ||
-          (narrowed.length === 1 && narrowed[0] === dataNode.value)) {
-        return;
-      }
-
-      const pos = this.computeMenuPosition(undefined, true);
-
-      this.caretManager.pushSelection();
-      const menu = this.currentDropdown = new CompletionMenu(
-        this.editor, doc, pos.left, pos.top, dataNode.value, possible,
-        () => {
-          this.currentDropdown = undefined;
-          // If the focus moved from the document to the completion menu, we
-          // want to restore the caret. Otherwise, leave it as is.
-          if (menu.focused) {
-            this.caretManager.popSelection();
+    if (possible.length === 0) {
+      // Nothing from the mode, use the validator.
+      this.editor.validator.possibleAt(dataCaret.node, 0)
+        .forEach((ev) => {
+          if (ev.params[0] !== "attributeValue") {
+            return;
           }
-          else {
-            this.caretManager.popSelectionAndDiscard();
+
+          const text = ev.params[1];
+          if (text instanceof RegExp) {
+            return;
           }
+
+          possible.push(text);
         });
     }
+
+    return possible;
+  }
+
+  setupCompletionMenu(): void {
+    this.dismiss();
+    const possible = this.getPossibleAttributeValues();
+    // Nothing to complete.
+    if (possible.length === 0) {
+      return;
+    }
+
+    const dataCaret = this.caretManager.getDataCaret();
+    if (dataCaret === undefined) {
+      return;
+    }
+
+    // The node is necessarily an attribute, otherwise possible would have a
+    // length of 0.
+    const dataNode = dataCaret.node as Attr;
+
+    // We complete only at the end of an attribute value.
+    if (dataCaret.offset !== dataNode.value.length) {
+      return;
+    }
+
+    const narrowed = [];
+    for (const possibility of possible) {
+      if (possibility.lastIndexOf(dataNode.value, 0) === 0) {
+        narrowed.push(possibility);
+      }
+    }
+
+    // The current value in the attribute is not one that can be
+    // completed.
+    if (narrowed.length === 0 ||
+        (narrowed.length === 1 && narrowed[0] === dataNode.value)) {
+      return;
+    }
+
+    const pos = this.computeMenuPosition(undefined, true);
+
+    this.caretManager.pushSelection();
+    const menu = this.currentDropdown = new CompletionMenu(
+      this.editor, this.guiRoot.ownerDocument, pos.left, pos.top,
+      dataNode.value, possible,
+      () => {
+        this.currentDropdown = undefined;
+        // If the focus moved from the document to the completion menu, we
+        // want to restore the caret. Otherwise, leave it as is.
+        if (menu.focused) {
+          this.caretManager.popSelection();
+        }
+        else {
+          this.caretManager.popSelectionAndDiscard();
+        }
+      });
+  }
+
+  setupReplacementMenu(): void {
+    this.dismiss();
+    const possible = this.getPossibleAttributeValues();
+    // Nothing to complete.
+    if (possible.length === 0) {
+      return;
+    }
+
+    const dataCaret = this.caretManager.getDataCaret();
+    if (dataCaret === undefined) {
+      return;
+    }
+
+    const pos = this.computeMenuPosition(undefined, true);
+    this.caretManager.pushSelection();
+    this.currentDropdown = new ReplacementMenu(
+      this.editor, this.guiRoot.ownerDocument, pos.left, pos.top,
+      possible,
+      (selected) => {
+        this.currentDropdown = undefined;
+        this.caretManager.popSelection();
+
+        if (selected === undefined) {
+          return;
+        }
+        // The node is necessarily an attribute, otherwise possible would have a
+        // length of 0.
+        const dataNode = dataCaret.node as Attr;
+        const uri = dataNode.namespaceURI !== null ? dataNode.namespaceURI : "";
+        this.editor.dataUpdater.setAttributeNS(dataNode.ownerElement, uri,
+                                               dataNode.name, selected);
+      });
+  }
+
+  /**
+   * Compute an appropriate position for a typeahead popup, and display it. This
+   * is a convenience function that essentially combines [[computeMenuPosition]]
+   * and [[displayTypeaheadPopup]].
+   *
+   * @param width See [[displayTypeaheadPopup]].
+   *
+   * @param placeholder See [[displayTypeaheadPopup]].
+   *
+   * @param options See [[displayTypeaheadPopup]].
+   *
+   * @param dismissCallback See [[displayTypeaheadPopup]].
+   *
+   * @param e See [[computeMenuPosition]].
+   *
+   * @param bottom See [[computeMenuPosition]].
+   *
+   * @returns The popup that was created.
+   */
+  setupTypeaheadPopup(width: number, placeholder: string,
+                      // tslint:disable-next-line:no-any
+                      options: any,
+                      // tslint:disable-next-line:no-any
+                      dismissCallback: (obj?: any) => void,
+                      e: JQueryEventObject | undefined,
+                      bottom?: boolean): TypeaheadPopup {
+    const pos = this.computeMenuPosition(e, bottom);
+    return this.displayTypeaheadPopup(pos.left, pos.top, width, placeholder,
+                                      options, dismissCallback);
+  }
+
+  /**
+   * Brings up a typeahead popup.
+   *
+   * @param x The position of the popup.
+   *
+   * @param y The position of the popup.
+   *
+   * @param width The width of the popup.
+   *
+   * @param placeholder Placeholder text to put in the input field.
+   *
+   * @param options Options for Twitter Typeahead.
+   *
+   * @param dismissCallback The callback to be called upon dismissal. It will be
+   * called with the object that was selected, if any.
+   *
+   * @returns The popup that was created.
+   */
+  displayTypeaheadPopup(x: number, y: number, width: number,
+                        placeholder: string,
+                        // tslint:disable-next-line:no-any
+                        options: any,
+                        // tslint:disable-next-line:no-any
+                        dismissCallback: (obj?: { value: string }) => void):
+  TypeaheadPopup {
+    this.dismiss();
+    this.caretManager.pushSelection();
+    this.currentTypeahead = new TypeaheadPopup(
+      this.doc, x, y, width, placeholder, options,
+      (obj) => {
+        this.currentTypeahead = undefined;
+        this.caretManager.popSelection();
+        if (dismissCallback !== undefined) {
+          dismissCallback(obj);
+        }
+      });
+    return this.currentTypeahead;
   }
 
   /**
@@ -400,9 +577,10 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
    * @param e The event that triggered the menu. If no event is passed, it is
    * assumed that the menu was not triggered by a mouse event.
    *
-   * @param bottom If the event was not triggered by a mouse event, then use the
-   * bottom of the DOM entity used to compute the position, rather than its
-   * middle to determine the ``y`` coordinate of the context menu.
+   * @param bottom Only used when the event was not triggered by a mouse event
+   * (``e === undefined``). If ``bottom`` is true, use the bottom of the DOM
+   * entity used to compute the ``left`` coordinate. Otherwise, use its middle
+   * to determine the ``left`` coordinate.
    *
    * @returns The top and left coordinates where the menu should appear.
    */
@@ -449,4 +627,5 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
 
 //  LocalWords:  MPL contextMenuHandler readonly actualNode treeCaret jQuery li
 //  LocalWords:  prepend tabindex href getDescriptionFor iconHtml mousedown
-//  LocalWords:  attributeValue mouseup contextmenu
+//  LocalWords:  attributeValue mouseup contextmenu computeMenuPosition
+//  LocalWords:  displayContextMenu

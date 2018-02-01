@@ -8,9 +8,10 @@
 
 import * as mergeOptions from "merge-options";
 
-import { Runtime } from "../runtime";
-import * as saver from "../saver";
-import { TreeUpdater } from "../tree-updater";
+// Everything from wed must be loaded from "wed".
+import { Runtime, saver, treeUpdater } from "wed";
+
+import TreeUpdater = treeUpdater.TreeUpdater;
 
 interface Message {
   command: string;

@@ -8,15 +8,15 @@
 import * as mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
-import { Action } from "wed/action";
-import { BaseMode, CommonModeOptions } from "wed/mode";
-import * as objectCheck from "wed/object-check";
-import { Transformation, TransformationData } from "wed/transformation";
-import { Editor } from "wed/wed";
+import { Action, BaseMode, CommonModeOptions, Decorator, EditorAPI, objectCheck,
+         transformation } from "wed";
 import { GenericDecorator } from "./generic-decorator";
 import { makeTagTr } from "./generic-tr";
 import { Metadata } from "./metadata";
 import { MetadataMultiversionReader } from "./metadata-multiversion-reader";
+
+import Transformation = transformation.Transformation;
+import TransformationData = transformation.TransformationData;
 
 export interface GenericModeOptions extends CommonModeOptions {
   metadata: string;
@@ -59,13 +59,8 @@ class GenericMode<Options extends GenericModeOptions>
     autoinsert: false,
   };
 
-  /**
-   * @param editor The editor with which the mode is being associated.
-   *
-   * @param options The options for the mode.
-   */
   // tslint:disable-next-line:no-any
-  constructor(editor: Editor, options: Options) {
+  constructor(editor: EditorAPI, options: Options) {
     super(editor, options);
 
     if (this.constructor === GenericMode) {
@@ -116,25 +111,7 @@ class GenericMode<Options extends GenericModeOptions>
    * @param options The options to check.
    */
   checkOptions(options: GenericModeOptions): void {
-    // tslint:disable-next-line:no-any
-    const ret = objectCheck.check(this.optionTemplate, options as any);
-
-    const errors: string[] = [];
-    if (ret.missing !== undefined) {
-      for (const name of ret.missing) {
-        errors.push(`missing option: ${name}`);
-      }
-    }
-
-    if (ret.extra !== undefined) {
-      for (const name of ret.extra) {
-        errors.push(`extra option: ${name}`);
-      }
-    }
-
-    if (errors.length !== 0) {
-      throw new Error(`incorrect options: ${errors.join(", ")}`);
-    }
+    objectCheck.assertExtensively(this.optionTemplate, options);
   }
 
   /**
@@ -165,15 +142,15 @@ class GenericMode<Options extends GenericModeOptions>
     return this.resolver;
   }
 
-  makeDecorator(): GenericDecorator {
+  makeDecorator(): Decorator {
     return new GenericDecorator(this, this.editor, this.metadata, this.options);
   }
 
   /**
    * Returns a short description for an element. The element should be named
    * according to the mappings reported by the resolve returned by
-   * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-   * the metadata.
+   * [["wed/mode".Mode.getAbsoluteResolver]]. The generic mode delegates the
+   * call to the metadata.
    *
    * @param name The name of the element.
    *
@@ -192,8 +169,8 @@ class GenericMode<Options extends GenericModeOptions>
   /**
    * Returns a URL to the documentation for an element. The element should be
    * named according to the mappings reported by the resolve returned by
-   * [["mode".Mode.getAbsoluteResolver]]. The generic mode delegates the call to
-   * the metadata.
+   * [["wed/mode".Mode.getAbsoluteResolver]]. The generic mode delegates the
+   * call to the metadata.
    *
    * @param name The name of the element.
    *

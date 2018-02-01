@@ -9,12 +9,16 @@
 import * as salve from "salve";
 import { ErrorData } from "salve-dom";
 
-import { DLoc } from "wed/dloc";
-import { isAttr, isElement } from "wed/domtypeguards";
-import { childByClass, indexOf } from "wed/domutil";
-import { insertElement, NamedTransformationData, Transformation,
-         TransformationData, unwrap, wrapInElement } from "wed/transformation";
-import { Editor } from "wed/wed";
+import { DLoc, domtypeguards, domutil, EditorAPI,
+         transformation } from "wed";
+
+const { insertElement, unwrap, wrapInElement } = transformation;
+import Transformation = transformation.Transformation;
+import TransformationData = transformation.TransformationData;
+import NamedTransformationData = transformation.NamedTransformationData;
+
+const { childByClass, indexOf } = domutil;
+const { isAttr, isElement } = domtypeguards;
 
 function errFilter(err: ErrorData): boolean {
   const errMsg = err.error.toString();
@@ -28,7 +32,7 @@ function errFilter(err: ErrorData): boolean {
  *
  * @param editor The editor which owns the element.
  */
-function _autoinsert(el: Element, editor: Editor): void {
+function _autoinsert(el: Element, editor: EditorAPI): void {
   // tslint:disable-next-line:no-constant-condition strict-boolean-expressions
   while (true) {
     let errors = editor.validator.getErrorsFor(el);
@@ -84,7 +88,7 @@ function _autoinsert(el: Element, editor: Editor): void {
   }
 }
 
-function executeInsert(editor: Editor, data: NamedTransformationData): void {
+function executeInsert(editor: EditorAPI, data: NamedTransformationData): void {
   const caret = editor.caretManager.getDataCaret();
   if (caret === undefined) {
     throw new Error("inserting without a defined caret!");
@@ -128,7 +132,7 @@ function executeInsert(editor: Editor, data: NamedTransformationData): void {
   editor.caretManager.setCaret(caretNode, 0);
 }
 
-function executeUnwrap(editor: Editor, data: TransformationData): void {
+function executeUnwrap(editor: EditorAPI, data: TransformationData): void {
   const node = data.node;
   if (!isElement(node)) {
     throw new Error("node must be an element");
@@ -139,7 +143,7 @@ function executeUnwrap(editor: Editor, data: TransformationData): void {
   editor.caretManager.setCaret(parent, index);
 }
 
-function executeWrap(editor: Editor, data: NamedTransformationData): void {
+function executeWrap(editor: EditorAPI, data: NamedTransformationData): void {
   const sel = editor.caretManager.sel;
   if (sel == null) {
     throw new Error("wrap transformation called with undefined range");
@@ -162,7 +166,7 @@ function executeWrap(editor: Editor, data: NamedTransformationData): void {
                                   indexOf(parent.childNodes, el) + 1));
 }
 
-function executeWrapContent(editor: Editor,
+function executeWrapContent(editor: EditorAPI,
                             data: NamedTransformationData): void {
   const toWrap = data.node;
 
@@ -179,7 +183,8 @@ function executeWrapContent(editor: Editor,
                 toWrap.childNodes.length, ename.ns, data.name);
 }
 
-function executeDeleteElement(editor: Editor, data: TransformationData): void {
+function executeDeleteElement(editor: EditorAPI,
+                              data: TransformationData): void {
   const node = data.node;
 
   if (!isElement(node)) {
@@ -197,7 +202,8 @@ function executeDeleteElement(editor: Editor, data: TransformationData): void {
   }
 }
 
-function executeDeleteParent(editor: Editor, data: TransformationData): void {
+function executeDeleteParent(editor: EditorAPI,
+                             data: TransformationData): void {
   const node = data.node;
 
   if (!isElement(node)) {
@@ -215,7 +221,7 @@ function executeDeleteParent(editor: Editor, data: TransformationData): void {
   }
 }
 
-function executeAddAttribute(editor: Editor,
+function executeAddAttribute(editor: EditorAPI,
                              data: NamedTransformationData): void {
   const node = data.node;
 
@@ -233,7 +239,7 @@ function executeAddAttribute(editor: Editor,
   }
 }
 
-function executeDeleteAttribute(editor: Editor,
+function executeDeleteAttribute(editor: EditorAPI,
                                 data: TransformationData): void {
   const node = data.node;
 
@@ -281,9 +287,9 @@ function executeDeleteAttribute(editor: Editor,
 }
 
 /**
- * @param forEditor The editor for which to create transformations.
+ * @param forEditorAPI The editor for which to create transformations.
  */
-export function makeTagTr(forEditor: Editor):
+export function makeTagTr(forEditor: EditorAPI):
 Record<string, Transformation<TransformationData>> {
   const ret: Record<string, Transformation<TransformationData>> =
     Object.create(null);
@@ -311,10 +317,10 @@ Record<string, Transformation<TransformationData>> {
                                                undefined,
                                                executeDeleteAttribute);
   ret["insert-text"] = new Transformation(
-    forEditor, "insert-text",
-    "Insert \"<name>\"", undefined,
-    (editor: Editor, data: NamedTransformationData) => {
-      editor.type(data.name);
+       forEditor, "insert-text",
+     "Insert \"<name>\"", undefined,
+    (editor: EditorAPI, data: NamedTransformationData) => {
+      editor.insertText(data.name);
     });
   ret.split = forEditor.splitNodeTr;
 

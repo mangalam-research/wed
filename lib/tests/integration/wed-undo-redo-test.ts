@@ -3,9 +3,13 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { filter } from "rxjs/operators/filter";
+import { first } from "rxjs/operators/first";
+
 import { CaretManager } from "wed/caret-manager";
+import { Editor } from "wed/editor";
+import { AbortTransformationException } from "wed/exceptions";
 import * as keyConstants from "wed/key-constants";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { caretCheck, EditorSetup, getAttributeNamesFor,
@@ -15,7 +19,7 @@ const assert = chai.assert;
 
 describe("wed undo redo:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let titles: NodeListOf<Element>;
@@ -86,7 +90,7 @@ describe("wed undo redo:", () => {
     assert.equal(titleData.childNodes.length, 3);
 
     editor.undo();
-    editor.type(keyConstants.CTRLEQ_Z);
+    editor.type(keyConstants.UNDO);
   });
 
   it("redo redoes typed text as a group", () => {
@@ -203,5 +207,87 @@ describe("wed undo redo:", () => {
                  "the attribute should have its initial value");
     caretCheck(editor, attrValues[0].firstChild!, 0,
                "the caret should be in the first attribute value");
+  });
+
+  // The changes performed if the event listener raises
+  // AbortTransformationException then the whole transformation is aborted.
+  it("aborting in event listener undoes transformation", () => {
+    const p = ps[0];
+    const dataP = editor.toDataNode(p);
+    const elName = getElementNameFor(p)!;
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+    const trs = editor.modeTree.getMode(elName).getContextualActions(
+      ["add-attribute"], "abbr", elName, 0);
+
+    caretManager.setCaret(elName.firstChild, 0);
+    caretCheck(editor, elName.firstChild!, 0,
+               "the caret should be in the element name");
+    editor.transformations.subscribe((ev) => {
+      if (ev.name === "EndTransformation") {
+        throw new AbortTransformationException("moo");
+      }
+    });
+    trs[0].execute({ node: dataP, name: "abbr" });
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+  });
+
+  // The changes performed in the event listener listening to transformation
+  // events are part of the undo group for the transformation.
+  it("changes in event listener are part of the undo group", () => {
+    const p = ps[0];
+    const dataP = editor.toDataNode(p);
+    const elName = getElementNameFor(p)!;
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+    const trs = editor.modeTree.getMode(elName).getContextualActions(
+      ["add-attribute"], "abbr", elName, 0);
+
+    caretManager.setCaret(elName.firstChild, 0);
+    caretCheck(editor, elName.firstChild!, 0,
+               "the caret should be in the element name");
+    editor.transformations.subscribe((ev) => {
+      if (ev.name === "EndTransformation") {
+        assert.equal(getAttributeValuesFor(p).length, 1, "one attribute");
+        editor.dataUpdater.setAttribute(dataP as Element, "abbr", "moo");
+      }
+    });
+    trs[0].execute({ node: dataP, name: "abbr" });
+    const attrVals = getAttributeValuesFor(p);
+    assert.equal(attrVals.length, 1, "one attribute");
+    assert.equal(attrVals[0].textContent, "moo");
+    editor.undo();
+    assert.equal(getAttributeValuesFor(p).length, 0, "no attributes");
+  });
+
+  it("can undo using the toolbar", () => {
+    // Text node inside title.
+    const initial = titles[0].childNodes[1];
+    caretManager.setCaret(initial, 0);
+
+    editor.type("blah");
+    const prom =  editor.undoEvents
+      .pipe(filter((ev) => ev.name === "Undo"), first()).toPromise();
+    const button = editor.widget
+      .querySelector("[data-original-title='Undo']") as HTMLElement;
+    button.click();
+    return prom;
+  });
+
+  it("can redo using the toolbar", () => {
+    // Text node inside title.
+    const initial = titles[0].childNodes[1];
+    caretManager.setCaret(initial, 0);
+
+    editor.type("blah");
+
+    // Undo programmatically first...
+    editor.undo();
+
+    // ... then we can redo.
+    const prom =  editor.undoEvents
+      .pipe(filter((ev) => ev.name === "Redo"), first()).toPromise();
+    const button = editor.widget
+      .querySelector("[data-original-title='Redo']") as HTMLElement;
+    button.click();
+    return prom;
   });
 });

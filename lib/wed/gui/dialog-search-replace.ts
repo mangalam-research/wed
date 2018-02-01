@@ -7,7 +7,7 @@
 import * as bootbox from "bootbox";
 import * as $ from "jquery";
 
-import { Editor } from "../wed";
+import { Editor } from "../editor";
 import { makeDraggable, makeResizable } from "./interactivity";
 import { Scroller } from "./scroller";
 import { Context, Direction, SearchOptions,

@@ -31,7 +31,7 @@ Scenario: hitting enter when the completion menu is up inserts the text
   When the user types ENTER
   Then the completion text is inserted
 
-Scenario: escape when the completion menu is up inserts the text
+Scenario: escape when the completion menu is up hides the menu
   When the user clicks on an attribute value that takes completions
   Then a completion menu is visible
   When the user types ESCAPE
@@ -48,7 +48,7 @@ Scenario: exiting the completion menu restores focus to the document
   Then a completion menu is visible
   When the user hits the down arrow
   Then the first item of the completion menu is focused
-  # We need one escape to delect the item and another to leave the menu.
+  # We need one escape to deselect the item and another to leave the menu.
   When the user types ESCAPE
   And the user types ESCAPE
   Then a completion menu is not visible

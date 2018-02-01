@@ -6,8 +6,8 @@
  */
 import * as $ from "jquery";
 
+import { Editor, KeydownHandler } from "../editor";
 import * as keyConstants from "../key-constants";
-import { Editor, KeydownHandler } from "../wed";
 import { ContextMenu, DismissCallback } from "./context-menu";
 
 /**
@@ -56,7 +56,9 @@ export class CompletionMenu extends ContextMenu {
     this.backdrop.parentNode!.removeChild(this.backdrop);
 
     // We need to install our own handler so that we can handle the few keys
-    // that ought to be transferred to the menu itself.
+    // that ought to be transferred to the menu itself. Remember that the focus
+    // remains in the editing pane. So the editing pane, rather than the menu,
+    // gets the key events.
     this.boundCompletionKeydownHandler =
       this.globalKeydownHandler.bind(this);
     editor.pushGlobalKeydownHandler(this.boundCompletionKeydownHandler);

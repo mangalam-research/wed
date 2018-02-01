@@ -9,8 +9,7 @@
 define(function f(require) {
   "use strict";
 
-  var wed = require("wed/wed");
-  var runtime = require("wed/runtime");
+  var wed = require("wed");
   var $ = require("jquery");
   var URI = require("urijs/URI");
   var lr = require("last-resort");
@@ -77,7 +76,7 @@ define(function f(require) {
       options.mode.options = { hide_attributes: true };
     }
 
-    var r = new runtime.Runtime(options);
+    var r = new wed.Runtime(options);
 
     var deps = [];
     if (file) {
@@ -102,7 +101,7 @@ define(function f(require) {
         $(function ready() {
           var widget = document.getElementById("widget");
           var finalOptions = mergeOptions({}, globalConfig.config, options);
-          window.wed_editor = new wed.Editor(widget, finalOptions);
+          window.wed_editor = wed.makeEditor(widget, finalOptions);
           window.wed_editor.init(text);
         });
       });

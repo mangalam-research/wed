@@ -5,6 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
+import { diffChars } from "diff";
+
 /**
  * Calculates the distance on the basis of two deltas. This would typically be
  * called with the difference of X coordinates and the difference of Y
@@ -163,23 +165,233 @@ string {
 }
 
 /**
+ * Convert a string to a sequence of char codes. Each char code will be preceded
+ * by the character ``x``. The char codes are converted to hexadecimal.
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param str The string to encode.
+ *
+ * @returns The encoded string.
+ */
+export function stringToCodeSequence(str: string):  string {
+  let encoded = "";
+  for (const char of str) {
+    encoded += `x${char.charCodeAt(0).toString(16)}`;
+  }
+  return encoded;
+}
+
+const ENCODED_RE = /^(?:x[a-f0-9]+)+$/;
+
+/**
+ * Convert a code sequence created with [[stringToCodeSequence]] to a string.
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param str The sequence to decode.
+ *
+ * @returns The decoded string.
+ */
+export function codeSequenceToString(str: string):  string {
+  if (!ENCODED_RE.test(str)) {
+    throw new Error("badly encoded string");
+  }
+
+  let decoded = "";
+  // We slice to skip the initial x, and not get a first part which is "".
+  for (const code of str.slice(1).split("x")) {
+    decoded += String.fromCharCode(parseInt(code, 16));
+  }
+  return decoded;
+}
+
+/**
+ * Encode the difference between an original string, and a modified string. This
+ * is a specialized function designed to handle the difference between the name
+ * we want to set for an attribute, and the name that HTML actually records.
+ *
+ * This function records the difference as a series of steps to recover the
+ * original string:
+ *
+ * - ``g[number]`` means take ``[number]`` characters from the modified string
+ *   as they are.
+ *
+ * - ``m[number]`` means remove ``[number]`` characters from the modified
+ *   string.
+ *
+ * - ``p[codes]`` means add the codes ``[codes]`` to the modified string.
+ *
+ * - ``u[number]`` means convert ``[number]`` characters from the modified
+ *   string to uppercase.
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param orig The original.
+ *
+ * @param modified The modified string.
+ *
+ * @returns The difference, encoded as a string.
+ */
+export function encodeDiff(orig: string, modified: string): string {
+  let diff = "";
+  if (orig !== modified) {
+    const results = diffChars(modified, orig);
+    const last = results[results.length - 1];
+    for (let ix = 0; ix < results.length; ++ix) {
+      const result = results[ix];
+      if (result.added === true) {
+        diff += `p${stringToCodeSequence(result.value)}`;
+      }
+      else if (result.removed ===  true) {
+        const next = results[ix + 1];
+        if ((next !== undefined && next.added === true) &&
+            (result.value.toUpperCase() === next.value)) {
+          diff += `u${result.value.length}`;
+          ix++;
+        }
+        else {
+          diff += `m${result.value.length}`;
+        }
+      }
+      else {
+        // We don't output this if it is last, as it is implied.
+        if (result !== last) {
+          diff += `g${result.value.length}`;
+        }
+      }
+    }
+  }
+
+  return diff;
+}
+
+const OP_RE =  /^(?:p([xa-f0-9]+))|(?:[gmu](\d+))/;
+
+/**
+ * Decode the diff produced with [[encodeDiff]].
+ *
+ * This is meant to be used by wed's internal code.
+ *
+ * @private
+ *
+ * @param name The name, after encoding.
+ *
+ * @param diff The diff.
+ *
+ * @returns The decoded attribute name.
+ */
+export function decodeDiff(name: string, diff: string): string {
+  if (diff === "") {
+    return name;
+  }
+
+  let nameIndex = 0;
+  let result = "";
+  while (diff.length > 0) {
+    const match = diff.match(OP_RE);
+    if (match !== null) {
+      diff = diff.slice(match[0].length);
+      const op = match[0][0];
+      switch (op) {
+      case "g":
+      case "m":
+      case "u":
+        const length = parseInt(match[2]);
+        switch (op) {
+        case "g":
+          result += name.slice(nameIndex, nameIndex + length);
+          break;
+        case "u":
+          result += name.slice(nameIndex, nameIndex + length).toUpperCase();
+          break;
+        case "m":
+          break;
+        default:
+          throw new Error(`internal error: unexpected op ${op}`);
+        }
+        nameIndex += length;
+        break;
+      case "p":
+        result += codeSequenceToString(match[1]);
+        break;
+      default:
+        throw new Error(`unexpected operator ${op}`);
+      }
+    }
+
+    // Nothing matched
+    if (match === null) {
+      throw new Error(`cannot parse diff: ${diff}`);
+    }
+  }
+
+  // It is implied that the rest of the name is added.
+  result += name.slice(nameIndex);
+
+  return result;
+}
+
+/**
  * Transforms an attribute name from wed's data tree to the original attribute
  * name before the data was transformed for use with wed. This reverses the
  * transformation done with [[encodeAttrName]].
  *
- * @param name The encoded name.
+ * @param encoded The encoded name.
  *
- * @returns The decoded name.
+ * @returns A structure containing the decoded name the optional qualifier.
  */
-export function decodeAttrName(name: string): string {
-  // The slice skips "data-wed-"
-  return name.slice(9).replace(/---/, ":").replace(/---(-+)/g, "--$1");
+export function decodeAttrName(encoded: string):
+{ name: string, qualifier: string | undefined } {
+  const match = /^data-wed-(.+)-([^-]*?)$/.exec(encoded);
+  if (match === null) {
+    throw new Error("malformed name");
+  }
+
+  // tslint:disable-next-line:prefer-const
+  let [, name, diff] = match;
+
+  let qualifier: string | undefined;
+  // qualifier
+  if (name[0] === "-") {
+    const parts = /^-(.+?)-(.+)$/.exec(name);
+    if (parts === null) {
+      throw new Error("malformed name");
+    }
+    [, qualifier, name] = parts;
+  }
+
+  name = name.replace(/---/, ":").replace(/---(-+)/g, "--$1");
+
+  if (diff !== "") {
+    name = decodeDiff(name, diff);
+  }
+
+  return { name, qualifier };
 }
 
 /**
- * Transforms an attribute name from its unencoded form in the
- * original XML data (before transformation for use with wed) to its
- * encoded name.
+ * Transforms an attribute name from its unencoded form in the original XML data
+ * (before transformation for use with wed) to its encoded name.
+ *
+ * The first thing this algorithm does is compute a difference between the
+ * original XML name and how HTML will record it. The issue here is that XML
+ * allows more characters in a name than what HTML allows and doing
+ * ``setAttribute(name, value)`` will silently convert ``name`` to something
+ * HTML likes. The issue most frequently encountered is that uppercase letters
+ * are encoded as lowercase. This is especially vexing seeing as XML allows the
+ * attribute names ``x`` and ``X`` to exist as different attributes, whereas
+ * HTML does not. For HTML ``x`` and ``X`` are the same attribute. This function
+ * records any differences between the original name and the way HTML records it
+ * with a diff string that is appended to the final name after a dash. If
+ * nothing appears after the final dash, then the HTML name and the XML name are
+ * the same.
  *
  * A sequence of three dashes or more is converted by adding another dash. (So
  * sequences of single dash, or a pair of dashes remain unchanged. But all
@@ -187,24 +399,43 @@ export function decodeAttrName(name: string): string {
  *
  * A colon (``:``) is converted to three dashes ``---``.
  *
- * After transformation above the name is prepended with ``data-wed-``.
+ * After transformation above the name is prepended with ``data-wed-`` and it is
+ * appended with the diff described above.
  *
- * So ``foo:bar`` would become ``data-wed-foo---bar``.
+ * Examples:
+ *
+ * - ``foo:bar`` becomes ``data-wed-foo---bar-``. Note how the diff is
+ *    empty, because ``foo:bar`` can be represented as-is in HTML.
+ *
+ * - ``MOO:aBc---def`` becomes ``data-wed-moo---abc----def-u3g2u1``. Note the
+ *   diff suffix, which allows restoring the orignal case.
  *
  * When ``qualifier`` is used, the qualifier is added just after ``data-wed-``
  * and is prepended and appended with a dash. So ``foo:bar`` with the qualifier
- * ``ns`` would become ``data-wed--ns-foo---bar``.
+ * ``ns`` would become ``data-wed--ns-foo---bar-``. The addition of a dash in
+ * front of the qualifier makes it impossible to confuse an encoding that has a
+ * qualifier from one that does not, as XML attribute names are not allowed to
+ * start with a dash.
  *
- * @param name The unencoded name.
+ * @param name The unencoded name (i.e. the attribute name as it is in XML).
  *
  * @param qualifier An optional qualifier.
  *
  * @returns The encoded name.
  */
 export function encodeAttrName(name: string, qualifier?: string): string {
-  const sanitized = name.replace(/--(-+)/g, "---$1").replace(/:/, "---");
+  const el = document.createElement("div");
+  // We havve to add the "data-" prefix to guard against some problems. IE11,
+  // for instance, will choke if we set an attribute with the name "style". It
+  // simply does not generally allow ``setAttribute("style", ...)``. Adding the
+  // prefix, works around the problem. And we know "data-" will not be mangled,
+  // so we can just strip it afterwards.
+  el.setAttribute(`data-${name}`, "");
+  // Slice it to remove the "data-" prefix.
+  const attrName = el.attributes[0].name.slice(5);
+  const sanitized = attrName.replace(/--(-+)/g, "---$1").replace(/:/, "---");
   qualifier = qualifier === undefined ? "" : `-${qualifier}-`;
-  return `data-wed-${qualifier}${sanitized}`;
+  return `data-wed-${qualifier}${sanitized}-${encodeDiff(name, attrName)}`;
 }
 
 /**
@@ -232,7 +463,7 @@ export function getOriginalAttributes(node: Element): Record<string, string> {
     const attr = attributes[i];
     const localName = attr.localName!;
     if (isXMLAttrName(localName)) {
-      original[decodeAttrName(localName)] = attr.value;
+      original[decodeAttrName(localName).name] = attr.value;
     }
   }
   return original;

@@ -3,8 +3,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+import { Editor } from "wed/editor";
 import * as transformation from "wed/transformation";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 
@@ -14,7 +14,7 @@ const assert = chai.assert;
 
 describe("transformation", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
 
   before(() => {
     setup = new EditorSetup(

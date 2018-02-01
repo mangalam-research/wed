@@ -7,8 +7,8 @@
 import { CaretManager } from "../caret-manager";
 import { DLoc, DLocRange } from "../dloc";
 import { isWellFormedRange} from "../domutil";
+import { Editor, ReplaceRangeTransformationData } from "../editor";
 import { Context, Direction, Search } from "../search";
-import { Editor, ReplaceRangeTransformationData } from "../wed";
 import { Scroller } from "./scroller";
 
 export { Context, Direction };
@@ -130,7 +130,7 @@ export class SearchReplace {
       const domRange = range.mustMakeDOMRange();
       this.highlight = this.caretManager.highlightRange(range);
       const scRect = this.scroller.getBoundingClientRect();
-      const rect = domRange.nativeRange.getBoundingClientRect();
+      const rect = domRange.getBoundingClientRect();
       const leftOffset = this.scroller.scrollLeft - scRect.left;
       const topOffset = this.scroller.scrollTop - scRect.top;
 

@@ -5,7 +5,8 @@
  */
 import { expect } from "chai";
 
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
+import { encodeAttrName } from "wed/util";
 
 import { config } from "../submode-config";
 import { activateContextMenu, contextMenuHasOption, EditorSetup,
@@ -13,7 +14,7 @@ import { activateContextMenu, contextMenuHasOption, EditorSetup,
 
 describe("wed submodes", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
 
   before(() => {
     setup = new EditorSetup(
@@ -31,7 +32,8 @@ source_for_submodes_converted.xml",
 
   it("dispatch to proper decorators", () => {
     const wrapped =
-      editor.guiRoot.querySelectorAll("[data-wed-rend='wrap'].tei\\:p._real");
+      editor.guiRoot.querySelectorAll(
+        `[${encodeAttrName("rend")}='wrap'].tei\\:p._real`);
     expect(wrapped).to.have.length(2);
     function parentTest(el: HTMLElement, msg: string, expected: boolean): void {
       const parent = el.parentNode as HTMLElement;
@@ -92,5 +94,28 @@ by the test mode",
       editor.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
     check(second as HTMLElement,
           "the second paragraph should not have the completions", false);
+  });
+
+  it("adds mode-specific toolbar buttons", () => {
+    function check(el: HTMLElement | null, expected: number): void {
+      if (el !== null) {
+        editor.caretManager.setCaret(el, 0);
+      }
+      const span = editor.toolbar.top.lastElementChild!;
+      expect(span.children).to.have.lengthOf(expected);
+    }
+
+    // Initially we are out and so no mode-specific button.
+    check(null, 0);
+
+    // Move into the submode, and check again.
+    const inSubmode =
+      editor.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
+    check(inSubmode as HTMLElement, 1);
+
+    // Move out, and check again.
+    const outsideSubmode =
+      editor.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
+    check(outsideSubmode as HTMLElement, 0);
   });
 });

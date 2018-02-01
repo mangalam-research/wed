@@ -17,6 +17,11 @@ ICON_NAMES.element = "fa-angle-left";
 ICON_NAMES.attribute = "fa-at";
 ICON_NAMES.other = "fa-circle-thin";
 ICON_NAMES.exclamation = "fa-exclamation";
+ICON_NAMES["arrow-up"] = "fa-arrow-up";
+ICON_NAMES["arrow-down"] = "fa-arrow-down";
+ICON_NAMES.upload = "fa-cloud-upload";
+ICON_NAMES.undo = "fa-undo";
+ICON_NAMES.redo = "fa-repeat";
 
 /**
  * Generates the HTML for an icon. The icon name can be any of:

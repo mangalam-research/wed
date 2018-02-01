@@ -5,7 +5,7 @@
  */
 import * as mergeOptions from "merge-options";
 
-import * as wed from "wed/wed";
+import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
 import { EditorSetup } from "../wed-test-util";
@@ -18,9 +18,9 @@ const options = {
   },
 };
 
-describe("wed hide attributes:", () => {
+describe("wed hides attributes:", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
 
   before(() => {
     setup = new EditorSetup(

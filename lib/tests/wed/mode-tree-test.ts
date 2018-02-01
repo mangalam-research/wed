@@ -9,9 +9,9 @@ import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 use(sinonChai);
 
+import { Editor } from "wed/editor";
 import { ModeTree } from "wed/mode-tree";
 import { Options } from "wed/options";
-import * as wed from "wed/wed";
 
 import * as globalConfig from "../base-config";
 import { expectError } from "../util";
@@ -56,7 +56,7 @@ const options: Options = {
 
 describe("ModeTree", () => {
   let setup: EditorSetup;
-  let editor: wed.Editor;
+  let editor: Editor;
 
   before(() => {
     setup = new EditorSetup(
@@ -356,6 +356,10 @@ describe("ModeTree", () => {
     });
 
     afterEach(() => {
+      sandbox.reset();
+    });
+
+    after(() => {
       sandbox.restore();
     });
 
@@ -392,6 +396,10 @@ describe("ModeTree", () => {
     });
 
     afterEach(() => {
+      sandbox.reset();
+    });
+
+    after(() => {
       sandbox.restore();
     });
 

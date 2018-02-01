@@ -5,6 +5,8 @@
  */
 "use strict";
 
+import { filter } from "rxjs/operators/filter";
+
 import * as convert from "wed/convert";
 import { DLoc, DLocRoot } from "wed/dloc";
 import { childByClass, childrenByClass, indexOf } from "wed/domutil";
@@ -13,7 +15,7 @@ import { BeforeDeleteNodeEvent, BeforeInsertNodeAtEvent, DeleteNodeEvent,
          TextInsertionResult, TreeUpdater,
          TreeUpdaterEvents } from "wed/tree-updater";
 
-import * as sourceXML from "../tree_updater_test_data/source_converted.xml";
+import { DataProvider } from "../util";
 
 const assert = chai.assert;
 
@@ -45,15 +47,19 @@ describe("TreeUpdater", () => {
   let root: HTMLElement;
   let htmlTree: Node;
 
-  before(() => {
-    root = document.createElement("div");
-    document.body.appendChild(root);
-    new DLocRoot(root);
+  before(() =>
+         new DataProvider(
+           "/base/build/standalone/lib/tests/tree_updater_test_data/")
+         .getText("source_converted.xml")
+         .then((sourceXML) => {
+           root = document.createElement("div");
+           document.body.appendChild(root);
+           new DLocRoot(root);
 
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
-    htmlTree = convert.toHTMLTree(document, xmlDoc.firstElementChild!);
-  });
+           const parser = new DOMParser();
+           const xmlDoc = parser.parseFromString(sourceXML, "text/xml");
+           htmlTree = convert.toHTMLTree(document, xmlDoc.firstElementChild!);
+         }));
 
   let tu: TreeUpdater;
 
@@ -164,7 +170,7 @@ describe("TreeUpdater", () => {
            [parent, 1],
          ];
          let callsIx = 0;
-         tu.events.filter(filterInsertNodeAtAndBefore)
+         tu.events.pipe(filter(filterInsertNodeAtAndBefore))
            .subscribe((ev) => {
              const call = calls[callsIx];
              assert.equal(ev.parent, call[0]);
@@ -177,13 +183,13 @@ describe("TreeUpdater", () => {
          listener.expected.BeforeInsertNodeAt = 2;
 
          const formerParent = node.parentNode;
-         tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+         tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
            assert.equal(ev.node, node);
            assert.isNotNull(ev.node.parentNode);
          });
          listener.expected.BeforeDeleteNode = 1;
 
-         tu.events.filter(filterDeleteNode).subscribe((ev) => {
+         tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
            assert.equal(ev.node, node);
            assert.isNull(ev.node.parentNode);
            assert.equal(ev.formerParent, formerParent);
@@ -266,7 +272,7 @@ quoted3</div></div>\
     it("generates appropriate events when it modifies a text node", () => {
       const node = root.querySelector(".title")!.firstChild!;
       const listener = new Listener(tu);
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.equal(ev.value, "abQcd");
       });
@@ -293,7 +299,7 @@ quoted3</div></div>\
            () => {
              const node = root.querySelector(".title")!;
              const listener = new Listener(tu);
-             tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+             tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
                assert.equal(ev.node, node.firstChild);
                assert.equal(ev.value, "Qabcd");
              });
@@ -316,7 +322,7 @@ quoted3</div></div>\
              const node = root.querySelector(".title")!;
 
              const listener = new Listener(tu);
-             tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+             tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
                assert.equal(ev.node, node.firstChild);
                assert.equal(ev.value, "abcdQ");
              });
@@ -340,7 +346,7 @@ quoted3</div></div>\
           node.innerHTML = "";
 
           const listener = new Listener(tu);
-          tu.events.filter(filterInsertNodeAtAndBefore)
+          tu.events.pipe(filter(filterInsertNodeAtAndBefore))
             .subscribe((ev) => {
               assert.equal(ev.parent, node);
               assert.equal(ev.index, 0);
@@ -405,7 +411,7 @@ quoted3</div></div>\
     it("generates appropriate events when it modifies a text node", () => {
       const node = root.querySelector(".title")!.firstChild as Text;
       const listener = new Listener(tu);
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.equal(ev.value, "ab");
       });
@@ -423,13 +429,13 @@ quoted3</div></div>\
          const node = root.querySelector(".title")!.firstChild as Text;
          const listener = new Listener(tu);
 
-         tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+         tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
            assert.equal(ev.node, node);
            assert.isNotNull(ev.node.parentNode);
          });
          listener.expected.BeforeDeleteNode = 1;
 
-         tu.events.filter(filterDeleteNode).subscribe((ev) => {
+         tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
            assert.equal(ev.node, node);
            assert.isNull(ev.node.parentNode);
          });
@@ -456,7 +462,7 @@ quoted3</div></div>\
       assert.equal(node.getAttribute("q"), undefined);
 
       const listener = new Listener(tu);
-      tu.events.filter(filterSetAttributeNS).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetAttributeNS)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.equal(ev.ns, "");
         assert.equal(ev.attribute, "q");
@@ -479,7 +485,7 @@ quoted3</div></div>\
       node.setAttribute("q", "ab");
 
       const listener = new Listener(tu);
-      tu.events.filter(filterSetAttributeNS).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetAttributeNS)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.equal(ev.ns, "");
         assert.equal(ev.attribute, "q");
@@ -514,13 +520,13 @@ quoted3</div></div>\
       const el = document.createElement("span");
       const listener = new Listener(tu);
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 1;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
@@ -532,7 +538,7 @@ quoted3</div></div>\
         [parent, 2],
       ];
       let inaCallIx = 0;
-      tu.events.filter(filterInsertNodeAtAndBefore)
+      tu.events.pipe(filter(filterInsertNodeAtAndBefore))
         .subscribe((ev) => {
           const call = inaCalls[inaCallIx];
           assert.equal(ev.parent, call[0]);
@@ -567,13 +573,13 @@ quoted3</div></div>\
 
       const listener = new Listener(tu);
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 1;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
@@ -584,7 +590,7 @@ quoted3</div></div>\
         [parent, 1],
       ];
       let inaCallIx = 0;
-      tu.events.filter(filterInsertNodeAtAndBefore)
+      tu.events.pipe(filter(filterInsertNodeAtAndBefore))
         .subscribe((ev) => {
           const call = inaCalls[inaCallIx];
           assert.equal(ev.parent, call[0]);
@@ -616,13 +622,13 @@ quoted3</div></div>\
 
       const listener = new Listener(tu);
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 1;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
@@ -633,7 +639,7 @@ quoted3</div></div>\
         [parent, 1],
       ];
       let inaCallIx = 0;
-      tu.events.filter(filterInsertNodeAtAndBefore)
+      tu.events.pipe(filter(filterInsertNodeAtAndBefore))
         .subscribe((ev) => {
           const call = inaCalls[inaCallIx];
           assert.equal(ev.parent, call[0]);
@@ -668,7 +674,7 @@ quoted3</div></div>\
     it("generates appropriate events when setting text", () => {
       const node = root.querySelector(".title")!.firstChild as Text;
       const listener = new Listener(tu);
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.equal(ev.value, node.nodeValue);
       });
@@ -687,13 +693,13 @@ quoted3</div></div>\
          const node = root.querySelector(".title")!.firstChild as Text;
          const listener = new Listener(tu);
 
-         tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+         tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
            assert.equal(ev.node, node);
            assert.isNotNull(ev.node.parentNode);
          });
          listener.expected.BeforeDeleteNode = 1;
 
-         tu.events.filter(filterDeleteNode).subscribe((ev) => {
+         tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
            assert.equal(ev.node, node);
            assert.isNull(ev.node.parentNode);
          });
@@ -715,13 +721,13 @@ quoted3</div></div>\
       const parent = node.parentNode as HTMLElement;
       assert.equal(parent.childNodes.length, 3);
       const listener = new Listener(tu);
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 1;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
@@ -752,7 +758,7 @@ quoted3</div></div>"));
       const listener = new Listener(tu);
       let firstBefore = true;
       let first = true;
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         // beforeDeleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -767,7 +773,7 @@ quoted3</div></div>"));
       });
       listener.expected.BeforeDeleteNode = 2;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         // deleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -782,7 +788,7 @@ quoted3</div></div>"));
       });
       listener.expected.DeleteNode = 2;
 
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, prev);
         assert.equal(ev.value, "before  between ");
       });
@@ -819,13 +825,13 @@ quoted2</div> after</div>");
       assert.equal(parent.childNodes.length, 3);
       const listener = new Listener(tu);
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 1;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.isNull(ev.node.parentNode);
       });
@@ -857,7 +863,7 @@ quoted3</div></div>");
       let firstBefore = true;
       let first = true;
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         // beforeDeleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -872,7 +878,7 @@ quoted3</div></div>");
       });
       listener.expected.BeforeDeleteNode = 2;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         // deleteNode will be emitted twice. Once to
         // remove the node itself, and second to merge the
         // text nodes.
@@ -887,7 +893,7 @@ quoted3</div></div>");
       });
       listener.expected.DeleteNode = 2;
 
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, prev);
         assert.equal(ev.value, "before  between ");
       });
@@ -967,14 +973,14 @@ quoted2</div> after</div>");
       const listener = new Listener(tu);
       const calls = nodes.concat([next]);
       let callsIx = 0;
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         const call = calls[callsIx];
         assert.equal(ev.node, call, `beforeDeleteNode call ${callsIx}`);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 4;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         const call = calls[callsIx];
         assert.equal(ev.node, call, `beforeDeleteNode call ${callsIx}`);
         assert.isNull(ev.node.parentNode);
@@ -982,7 +988,7 @@ quoted2</div> after</div>");
       });
       listener.expected.DeleteNode = 4;
 
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, prev, "setTextNodeValue node");
         assert.equal(ev.value, "before  after", "setTextNodeValue value");
       });
@@ -1022,19 +1028,19 @@ before  after</div>");
       assert.equal(parent.childNodes.length, 4);
       const listener = new Listener(tu);
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, next);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 1;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, next);
         assert.isNull(ev.node.parentNode);
       });
       listener.expected.DeleteNode = 1;
 
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.equal(ev.value, "before  between ");
       });
@@ -1133,19 +1139,19 @@ quoted2</div> after</div>");
       assert.equal(parent.childNodes.length, 4);
       const listener = new Listener(tu);
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, next);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = 1;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         assert.equal(ev.node, next);
         assert.isNull(ev.node.parentNode);
       });
       listener.expected.DeleteNode = 1;
 
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         assert.equal(ev.node, node);
         assert.equal(ev.value, "before  between ");
       });
@@ -1291,14 +1297,14 @@ quoted2</div> after</div>");
       const calls = nodes.concat([end.node]);
       let callsIx = 0;
 
-      tu.events.filter(filterBeforeDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterBeforeDeleteNode)).subscribe((ev) => {
         const call = calls[callsIx];
         assert.equal(ev.node, call, `beforeDeleteNode call ${callsIx}`);
         assert.isNotNull(ev.node.parentNode);
       });
       listener.expected.BeforeDeleteNode = calls.length;
 
-      tu.events.filter(filterDeleteNode).subscribe((ev) => {
+      tu.events.pipe(filter(filterDeleteNode)).subscribe((ev) => {
         const call = calls[callsIx];
         assert.equal(ev.node, call, `beforeDeleteNode call ${callsIx}`);
         assert.isNull(ev.node.parentNode);
@@ -1312,7 +1318,7 @@ quoted2</div> after</div>");
         [start.node, "befoter"],
       ];
       let stnvCallsIx = 0;
-      tu.events.filter(filterSetTextNodeValue).subscribe((ev) => {
+      tu.events.pipe(filter(filterSetTextNodeValue)).subscribe((ev) => {
         const call = stnvCalls[stnvCallsIx];
         assert.equal(ev.node, call[0],
                      `setTextNodeValue node, call ${stnvCallsIx}`);

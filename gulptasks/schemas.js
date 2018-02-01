@@ -57,7 +57,7 @@ function xmlToJsonChain(name, dest) {
     }
 
     yield mkdirpAsync(path.dirname(metaJson));
-    yield checkOutputFile("build/standalone/bin/wed-metadata",
+    yield checkOutputFile("build/bin/wed-metadata",
                           ["--tei", "--merge", fragment].concat(json,
                                                                 metaJson));
   }
@@ -104,7 +104,7 @@ gulp.task("docbook-metadata", ["wed-metadata-prereq"],
             }
 
             yield mkdirpAsync(path.dirname(metadata));
-            yield checkOutputFile("build/standalone/bin/wed-metadata",
+            yield checkOutputFile("build/bin/wed-metadata",
                                   [fragment, metadata]);
           }));
 

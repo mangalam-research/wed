@@ -20,17 +20,21 @@ def step_impl(context):
 
 last_obj_re = re.compile('.*}{')
 
-flip_rend_style_re = re.compile(ur'(style=".*?") (rend=".*?")')
-flip_xmlns_re = re.compile(ur'(xmlns:math=".*?") (xmlns=".*?")')
+flip_rend_style_re = re.compile(ur'(style="[^"]*?") (rend="[^"]*?")')
+flip_xmlns_re = re.compile(ur'(xmlns:math="[^"]*?") (xmlns="[^"]*?")')
 flip_div_attrs_re = re.compile(
-    ur'(type=".*?") (rend=".*?") (rendition=".*?") (subtype=".*?")')
+    ur'(type="[^"]*?") (rend="[^"]*?") (rendition="[^"]*?") '
+    ur'(subtype="[^"]*?")')
+
+flip_moo_re = re.compile(ur'(moo="[^"]*?") (MOO="[^"]*?")')
 
 _SCENARIO_TO_EXPECTED_DATA = {
     "serializes namespaces properly":
     u"""\
 <TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc>\
 <titleStmt><title>abcd</title></titleStmt><publicationStmt><p/>\
-</publicationStmt><sourceDesc><p/></sourceDesc></fileDesc></teiHeader>\
+</publicationStmt><sourceDesc><p MOO="a" moo="b"/>\
+</sourceDesc></fileDesc></teiHeader>\
 <text><body><p><hi/>Blah blah <term>blah</term> blah.</p>\
 <p><term>blah</term></p><p><ref/></p><p><hi>a</hi><hi>b</hi>c</p>\
 <p>abcdefghij</p><p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
@@ -54,6 +58,7 @@ This paragraph and its content are designed to test how error markers \
 are shown for inline elements that end up spanning multiple lines.\
 </monogr></p><p n="">P</p>\
 <div type="a" subtype="b" rend="foo" rendition="bar"/>\
+<div xxx="x">This div has a bad attribute.</div>\
 </body></text></TEI>""",
     "serializes multiple top namespaces properly": """\
 <TEI xmlns="http://www.tei-c.org/ns/1.0" \
@@ -81,13 +86,21 @@ def step_impl(context):
         actual = json.loads(text)
         # We don't care about the version here.
         del actual["version"]
-        if util.ie and u"data" in actual:
-            actual[u"data"] =  \
-                flip_rend_style_re.sub(ur'\2 \1', actual[u"data"])
-            actual[u"data"] = \
-                flip_xmlns_re.sub(ur'\2 \1', actual[u"data"])
-            actual[u"data"] = \
-                flip_div_attrs_re.sub(ur'\1 \4 \2 \3', actual[u"data"])
+        if u"data" in actual:
+            if util.ie:
+                actual[u"data"] =  \
+                    flip_rend_style_re.sub(ur'\2 \1', actual[u"data"])
+                actual[u"data"] = \
+                    flip_xmlns_re.sub(ur'\2 \1', actual[u"data"])
+                actual[u"data"] = \
+                    flip_div_attrs_re.sub(ur'\1 \4 \2 \3', actual[u"data"])
+            elif util.edge:
+                actual[u"data"] =  \
+                    flip_rend_style_re.sub(ur'\2 \1', actual[u"data"])
+                actual[u"data"] = \
+                    flip_div_attrs_re.sub(ur'\1 \4 \2 \3', actual[u"data"])
+                actual[u"data"] = flip_moo_re.sub(ur'\2 \1', actual[u"data"])
+
         return Result(actual == expected, [actual, expected])
 
     result = Condition(util, cond).wait()
@@ -95,15 +108,3 @@ def step_impl(context):
     assert_equal.__self__.maxDiff = None
     if not result:
         assert_equal(result.payload[0], result.payload[1])
-
-
-@then(ur'the modification status shows the document is unmodified')
-def step_impl(context):
-    def check(driver):
-        return driver.execute_script("""
-        return wed_editor.$modificationStatus.hasClass("label-success");
-        """)
-
-    util = context.util
-    with util.local_timeout(10):
-        util.wait(check)
