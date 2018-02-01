@@ -145,6 +145,7 @@ saving is not possible.`);
             type: "save_disconnected",
           };
           this._fail(error);
+          return { messages: [] };
         })
           .then((data: Response): void => {
             if (ignore) {

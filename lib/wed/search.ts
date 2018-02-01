@@ -63,7 +63,7 @@ function nodeInScope(doc: Document, node: Node, scope: Range): boolean {
  * (representing attributes, in our usage).
  */
 class AttributeValueCursor {
-  private current: number;
+  private current!: number;
 
   /**
    * @param values The values to iterate over.

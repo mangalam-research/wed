@@ -44,8 +44,6 @@ export class TestDecorator extends GenericDecorator {
     text: 1,
   };
 
-  protected readonly mode: TestMode;
-
   addHandlers(): void {
     super.addHandlers();
     inputTriggerFactory.makeSplitMergeInputTrigger(
@@ -378,23 +376,17 @@ export class TestMode extends GenericMode<TestModeOptions> {
         },
       };
     }
-  }
 
-  init(): Promise<void> {
-    return super.init()
-      .then(() => {
-        const editor = this.editor;
-        this.typeaheadAction = new TypeaheadAction(
-          editor, "Test typeahead", undefined,
-          "<i class='fa fa-plus fa-fw'></i>", true);
+    this.typeaheadAction = new TypeaheadAction(
+      editor, "Test typeahead", undefined,
+      "<i class='fa fa-plus fa-fw'></i>", true);
 
-        this.draggableAction = new DraggableModalAction(
-          editor, "Test draggable", undefined, undefined, true);
-        this.resizableAction = new ResizableModalAction(
-          editor, "Test resizable", undefined, undefined, true);
-        this.draggableResizableAction = new DraggableResizableModalAction(
-          editor, "Test draggable resizable", undefined, undefined, true);
-      });
+    this.draggableAction = new DraggableModalAction(
+      editor, "Test draggable", undefined, undefined, true);
+    this.resizableAction = new ResizableModalAction(
+      editor, "Test resizable", undefined, undefined, true);
+    this.draggableResizableAction = new DraggableResizableModalAction(
+      editor, "Test draggable resizable", undefined, undefined, true);
   }
 
   getStylesheets(): string[] {

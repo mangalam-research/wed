@@ -34,7 +34,7 @@ export class Minibuffer {
   private readonly $input: JQuery;
   private previous: string | undefined;
   private client: MinibufferClient | undefined;
-  private clientSubscription: Subscription;
+  private clientSubscription: Subscription | undefined;
   private _enabled: boolean = false;
 
   /**
@@ -106,7 +106,7 @@ export class Minibuffer {
 
     this.client = undefined;
     this.keydownHandler = undefined;
-    this.clientSubscription.unsubscribe();
+    this.clientSubscription!.unsubscribe();
     this.disable();
     this.prompt = "";
     this.previous = undefined;

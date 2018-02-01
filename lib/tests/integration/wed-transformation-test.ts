@@ -18,7 +18,6 @@ describe("wed transformation:", () => {
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let guiRoot: Element;
-  let titles: NodeListOf<Element>;
 
   before(() => {
     setup = new EditorSetup(
@@ -32,7 +31,6 @@ describe("wed transformation:", () => {
       caretManager = editor.caretManager;
       guiRoot = editor.guiRoot;
       ps = guiRoot.querySelectorAll(".body .p");
-      titles = guiRoot.getElementsByClassName("title");
     });
   });
 

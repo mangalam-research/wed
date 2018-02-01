@@ -20,9 +20,7 @@ const expect = chai.expect;
 describe("quick-search", () => {
   let setup: EditorSetup;
   let editor: Editor;
-  let guiRoot: HTMLElement;
   let dataRoot: Document;
-  let docScope: DLocRange;
   let caretManager: CaretManager;
 
   let ps: Element[];
@@ -32,12 +30,6 @@ describe("quick-search", () => {
   let pFiveFirstFour: DLocRange;
   let pSevenFirstThree: DLocRange;
   let firstABCText: DLocRange;
-  let firstABCDText: DLocRange;
-  let firstABCAttribute: DLocRange;
-  let firstABCDAttribute: DLocRange;
-  let secondABCAttribute: DLocRange;
-  let titleBCD: DLocRange;
-  let titleABCD: DLocRange;
 
   before(() => {
     setup = new EditorSetup(
@@ -49,18 +41,8 @@ describe("quick-search", () => {
   });
 
   beforeEach(() => {
-    guiRoot = editor.guiRoot;
     dataRoot = editor.dataRoot;
     caretManager = editor.caretManager;
-    docScope = editor.caretManager.docDLocRange;
-
-    const title = dataRoot.querySelector("title")!;
-    titleBCD = new DLocRange(
-      caretManager.mustFromDataLocation(title.firstChild!, 1),
-      caretManager.mustFromDataLocation(title.firstChild!, 4));
-    titleABCD = new DLocRange(
-      caretManager.mustFromDataLocation(title.firstChild!, 0),
-      caretManager.mustFromDataLocation(title.firstChild!, 4));
 
     ps = Array.from(dataRoot.querySelectorAll("body p"));
     firstBodyP = ps[0];
@@ -90,24 +72,6 @@ describe("quick-search", () => {
     firstABCText = new DLocRange(
       caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
       caretManager.mustFromDataLocation(ps[3].lastChild!, 1));
-
-    // This is the first "abcd" found when doing a TEXT search.
-    firstABCDText = new DLocRange(
-      caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
-      caretManager.mustFromDataLocation(ps[3].lastChild!, 2));
-
-    const rend = ps[7].getAttributeNode("rend");
-    firstABCAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 0),
-      caretManager.mustFromDataLocation(rend, 3));
-
-    firstABCDAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 0),
-      caretManager.mustFromDataLocation(rend, 4));
-
-    secondABCAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 4),
-      caretManager.mustFromDataLocation(rend, 7));
   });
 
   afterEach(() => {

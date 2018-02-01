@@ -16,7 +16,7 @@ import { Metadata } from "./metadata";
 import { MetadataMultiversionReader } from "./metadata-multiversion-reader";
 
 import Transformation = transformation.Transformation;
-import TransformationData = transformation.TransformationData;
+import NamedTransformationData = transformation.NamedTransformationData;
 
 export interface GenericModeOptions extends CommonModeOptions {
   metadata: string;
@@ -46,9 +46,9 @@ export interface GenericModeOptions extends CommonModeOptions {
  */
 class GenericMode<Options extends GenericModeOptions>
   extends BaseMode<Options> {
-  protected resolver: NameResolver;
-  protected metadata: Metadata;
-  protected tagTr: Record<string, Transformation<TransformationData>>;
+  protected resolver!: NameResolver;
+  protected metadata!: Metadata;
+  protected tagTr!: Record<string, Transformation<NamedTransformationData>>;
 
   /**
    * The template that [[checkOptions]] uses to check the options passed

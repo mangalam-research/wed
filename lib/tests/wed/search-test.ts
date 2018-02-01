@@ -84,7 +84,7 @@ describe("search", () => {
       caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
       caretManager.mustFromDataLocation(ps[3].lastChild!, 2));
 
-    const rend = ps[7].getAttributeNode("rend");
+    const rend = ps[7].getAttributeNode("rend")!;
     firstABCAttribute = new DLocRange(
       caretManager.mustFromDataLocation(rend, 0),
       caretManager.mustFromDataLocation(rend, 3));

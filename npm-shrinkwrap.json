@@ -7868,8 +7868,8 @@
     },
     "typedoc": {
       "version": "0.9.0",
-      "from": "typedoc@latest",
-      "resolved": "https://registry.npmjs.org/typedoc/-/typedoc-0.9.0.tgz",
+      "from": "../typedoc/typedoc-0.9.0.tgz",
+      "resolved": "file:../typedoc/typedoc-0.9.0.tgz",
       "dev": true,
       "dependencies": {
         "@types/lodash": {
@@ -7909,9 +7909,9 @@
           "dev": true
         },
         "typescript": {
-          "version": "2.4.1",
-          "from": "typescript@2.4.1",
-          "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.4.1.tgz",
+          "version": "2.5.3",
+          "from": "typescript@2.5.3",
+          "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.5.3.tgz",
           "dev": true
         }
       }
@@ -7923,10 +7923,9 @@
       "dev": true
     },
     "typescript": {
-      "version": "2.5.3",
-      "from": "typescript@>=2.4.1 <3.0.0",
-      "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.5.3.tgz",
-      "dev": true
+      "version": "2.7.1",
+      "from": "typescript@latest",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.7.1.tgz"
     },
     "uglify-js": {
       "version": "2.6.1",

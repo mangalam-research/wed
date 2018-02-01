@@ -126,7 +126,7 @@ export abstract class Saver {
    * One effect of being in a "failed" state is that the saver won't perform a
    * recover operation if it is in a "failed" state.
    */
-  protected failed: boolean;
+  protected failed: boolean = false;
 
   /**
    * The generation that is currently being edited.  It is mutable. Derived
@@ -143,22 +143,22 @@ export abstract class Saver {
   /**
    * The date of last modification.
    */
-  private lastModification: number;
+  private lastModification: number | undefined;
 
   /**
    * The date of last save.
    */
-  private lastSave: number;
+  private lastSave: number | undefined;
 
   /**
    * The last kind of save.
    */
-  private lastSaveKind: SaveKind;
+  private lastSaveKind: SaveKind | undefined;
 
   /**
    * The interval at which to autosave, in milliseconds.
    */
-  private autosaveInterval: number;
+  private autosaveInterval: number = 0;
 
   /**
    * The current timeout object which will trigger an autosave. It has the value
@@ -381,7 +381,8 @@ export abstract class Saver {
    * string that describes how long ago the modification happened.
    */
   getModifiedWhen(): false | string {
-    if (this.savedGeneration === this.currentGeneration) {
+    if (this.savedGeneration === this.currentGeneration ||
+        this.lastModification === undefined) {
       return false;
     }
 
@@ -396,11 +397,11 @@ export abstract class Saver {
    * occurred yet.
    */
   getSavedWhen(): undefined | string {
-    if (this.lastSaveKind === undefined) {
+    if (this.lastSave === undefined) {
       return undefined;
     }
 
-    return deltaToString(Date.now() - this.lastSave);
+    return deltaToString(Date.now() - this.lastSave!);
   }
 
   /**

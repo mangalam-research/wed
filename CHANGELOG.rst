@@ -5,6 +5,15 @@ there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 2.0.0:
+
+  - Breaking API changes:
+
+    + ``Key.__cache`` is no longer public. It was a mistake that it was.
+
+    + ``Key`` no longer has a public constructor. Previously you were
+      discouraged from using it but it was public.
+
 * 1.0.0:
 
   - Release 1.0.0. Woohoo!

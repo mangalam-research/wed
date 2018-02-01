@@ -138,7 +138,7 @@ export class Saver extends saver.Saver {
 
   private _update(name: string, data: string, autosave: boolean,
                   savingGeneration: number): Promise<void> {
-    return this.store.getItem(name).then((rec: FileRecord) => {
+    return this.store.getItem(name).then(((rec: FileRecord) => {
       if (rec.version !== 1) {
         throw new Error(`unexpected record version number: ${rec.version}`);
       }
@@ -152,7 +152,7 @@ export class Saver extends saver.Saver {
         throw new Error("save failed");
       });
       // tslint:disable-next-line:no-any
-    }) as any;
+    }) as (rec: {}) => Promise<void>);
   }
 
   _recover(): Promise<boolean> {

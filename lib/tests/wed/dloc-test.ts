@@ -750,7 +750,7 @@ describe("dloc", () => {
       let attr: DLoc;
       before(() => {
         quoteNode = root.querySelector(".quote")!;
-        attributeNode = quoteNode.getAttributeNode(encodedType);
+        attributeNode = quoteNode.getAttributeNode(encodedType)!;
         quote = DLoc.mustMakeDLoc(root, quoteNode);
         attr = DLoc.mustMakeDLoc(root, attributeNode, 0);
       });

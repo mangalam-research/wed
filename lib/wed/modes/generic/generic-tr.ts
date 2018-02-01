@@ -9,8 +9,7 @@
 import * as salve from "salve";
 import { ErrorData } from "salve-dom";
 
-import { DLoc, domtypeguards, domutil, EditorAPI,
-         transformation } from "wed";
+import { DLoc, domtypeguards, domutil, EditorAPI, transformation } from "wed";
 
 const { insertElement, unwrap, wrapInElement } = transformation;
 import Transformation = transformation.Transformation;
@@ -290,8 +289,8 @@ function executeDeleteAttribute(editor: EditorAPI,
  * @param forEditorAPI The editor for which to create transformations.
  */
 export function makeTagTr(forEditor: EditorAPI):
-Record<string, Transformation<TransformationData>> {
-  const ret: Record<string, Transformation<TransformationData>> =
+Record<string, Transformation<NamedTransformationData>> {
+  const ret: Record<string, Transformation<NamedTransformationData>> =
     Object.create(null);
   ret.insert = new Transformation(forEditor, "insert", "Create new <name>",
                                   "", executeInsert);

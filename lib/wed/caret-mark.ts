@@ -6,8 +6,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as $ from "jquery";
-
 import { CaretManager } from "./caret-manager";
 import { isElement } from "./domtypeguards";
 import { Layer } from "./gui/layer";
@@ -30,7 +28,6 @@ export class CaretMark {
    * calculations.
    */
   private readonly dummy: HTMLElement;
-  private readonly $dummy: JQuery;
 
   private suspended: number = 0;
   private pendingRefresh: boolean = false;
@@ -68,7 +65,6 @@ export class CaretMark {
     dummy.style.height = "100%";
     dummy.style.width = "1px";
     dummy.style.maxWidth = "1px";
-    this.$dummy = $(dummy);
 
     this.boundRefresh = this.refresh.bind(this);
   }

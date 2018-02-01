@@ -19,10 +19,9 @@ export interface Controller {
  * yet.
  */
 export class ProcessValidationErrors implements Task {
-  private errors: GUIValidationError[];
+  private errors: GUIValidationError[] = [];
 
-  constructor(private readonly controller: Controller) {
-  }
+  constructor(private readonly controller: Controller) {}
 
   reset(): void {
     this.errors = this.controller.copyErrorList();

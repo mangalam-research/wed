@@ -142,12 +142,6 @@ export class ValidationController {
   private processErrorsDelay: number = 500;
   private _errors: GUIValidationError[] = [];
 
-  /**
-   * Gives the index in errors of the last validation error that has
-   * already been processed.
-   */
-  private processedErrorsUpTo: number = -1;
-
   private readonly $errorList: JQuery;
 
   /**
@@ -475,7 +469,6 @@ export class ValidationController {
    */
   private clearErrors(): void {
     this._errors = [];
-    this.processedErrorsUpTo = -1;
     this.refreshErrorsRunner.stop();
     this.processErrorsRunner.stop();
 
@@ -526,7 +519,6 @@ export class ValidationController {
       error.item = undefined;
     }
 
-    this.processedErrorsUpTo = -1;
     this.processErrors();
   }
 

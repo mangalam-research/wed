@@ -45,24 +45,23 @@ export type TriValued = boolean | typeof EITHER;
  */
 export class Key {
   // tslint:disable-next-line:variable-name
-  static __cache: Record<string, Key> = Object.create(null);
+  private static __cache: Record<string, Key> = Object.create(null);
 
-  public readonly which: number;
-  public readonly keyCode: number;
-  public readonly charCode: number;
-  public readonly ctrlKey: boolean;
-  public readonly altKey: boolean;
-  public readonly metaKey: boolean;
-  public readonly shiftKey: TriValued;
-  public readonly keypress: boolean;
+  readonly which: number;
+  readonly keyCode: number;
+  readonly charCode: number;
+  readonly ctrlKey: boolean;
+  readonly altKey: boolean;
+  readonly metaKey: boolean;
+  readonly shiftKey: TriValued;
+  readonly keypress: boolean;
 
-  public readonly hashKey: string;
+  readonly hashKey: string;
 
   private readonly id: number;
 
   /**
-   * Client code should use the convenience functions provided by this module to
-   * create keys rather than use this constructor directly.
+   * @param hashKey The unique hash which represents this key.
    *
    * @param which The character code of the key.
    *
@@ -83,22 +82,10 @@ export class Key {
    * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
    * ``false``, an unspecified value here means ``false``.
    */
-  constructor(which: number, keypress: boolean = true,
-              keyCode: number, charCode: number = 0, ctrlKey: boolean = false,
-              altKey: boolean = false, metaKey: boolean = false,
-              shiftKey: TriValued = EITHER) {
-
-    // Some separator is necessary because otherwise there would be no way to
-    // distinguish (1, 23, 4, ...) from (12, 3, 4, ...) or (1, 2, 34, ...).
-    const key = [which, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey,
-                 keypress].join(",");
-
-    // Ensure we have only one of each key created.
-    const cached = Key.__cache[key];
-    if (cached !== undefined) {
-      return cached;
-    }
-
+  private constructor(hashKey: string, which: number, keypress: boolean = true,
+                      keyCode: number, charCode: number = 0,
+                      ctrlKey: boolean = false, altKey: boolean = false,
+                      metaKey: boolean = false, shiftKey: TriValued = EITHER) {
     if (keypress) {
       if (shiftKey !== EITHER) {
         throw new Error("shiftKey with key presses must be EITHER");
@@ -114,10 +101,53 @@ export class Key {
     this.shiftKey = shiftKey;
     this.keypress = keypress;
 
-    this.hashKey = key;
+    this.hashKey = hashKey;
     this.id = id++;
+  }
 
-    Key.__cache[key] = this;
+  /**
+   * Client code should use the convenience functions provided by this module to
+   * create keys rather than use this function directly.
+   *
+   * @param which The character code of the key.
+   *
+   * @param keypress Whether this key is meant to be used for keypress events
+   * rather than keyup and keydown.
+   *
+   * @param keyCode The key code of the key.
+   *
+   * @param charCode The character code of the key.
+   *
+   * @param ctrlKey Whether this key requires the Ctrl key held.
+   *
+   * @param altKey Whether this key requires the Alt key held.
+   *
+   * @param metaKey Whether this key requires the meta key held.
+   *
+   * @param shiftKey Whether this key requires the shift key held. It is invalid
+   * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
+   * ``false``, an unspecified value here means ``false``.
+   *
+   * @returns The key corresponding to the parameters.
+   */
+  static make(which: number, keypress: boolean = true,
+              keyCode: number, charCode: number = 0,
+              ctrlKey: boolean = false, altKey: boolean = false,
+              metaKey: boolean = false, shiftKey: TriValued = EITHER): Key {
+    // Some separator is necessary because otherwise there would be no way to
+    // distinguish (1, 23, 4, ...) from (12, 3, 4, ...) or (1, 2, 34, ...).
+    const key = [which, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey,
+                 keypress].join(",");
+
+    // Ensure we have only one of each key created.
+    let cached = Key.__cache[key];
+    if (cached === undefined) {
+      Key.__cache[key] = cached = new Key(key, which, keypress, keyCode,
+                                          charCode, ctrlKey, altKey, metaKey,
+                                          shiftKey);
+    }
+
+    return cached;
   }
 
   /**
@@ -196,7 +226,7 @@ export class Key {
 }
 
 /** This is a [[Key]] that cannot match anything. */
-export const NULL_KEY = new Key(-1, false, -1);
+export const NULL_KEY = Key.make(-1, false, -1);
 
 /**
  * This function creates a key object.
@@ -266,8 +296,8 @@ export function makeKey(which: string | number,
     shiftKey = !!shiftKey;
   }
 
-  return new Key(which, keypress, keyCode, charCode, ctrlKey, altKey,
-                 metaKey, shiftKey);
+  return Key.make(which, keypress, keyCode, charCode, ctrlKey, altKey,
+                  metaKey, shiftKey);
 }
 
 /**

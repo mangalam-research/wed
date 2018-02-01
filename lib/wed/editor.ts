@@ -194,8 +194,8 @@ const FRAMEWORK_TEMPLATE = "\
  */
 export class Editor implements EditorAPI {
   private _firstValidationComplete: boolean = false;
-  private firstValidationCompleteResolve: (value: Editor) => void;
-  private initializedResolve: (value: Editor) => void;
+  private firstValidationCompleteResolve!: (value: Editor) => void;
+  private initializedResolve!: (value: Editor) => void;
   // tslint:disable-next-line:no-any
   private modeData: any = {};
   private developmentMode: boolean = false;
@@ -206,10 +206,9 @@ export class Editor implements EditorAPI {
   private readonly normalizeEnteredSpaces: boolean = true;
   private readonly strippedSpaces: RegExp = /\u200B/g;
   private readonly replacedSpaces: RegExp = /\s+/g;
-  private destroying: boolean = false;
   private destroyed: boolean = false;
-  private initialLabelLevel: number;
-  private currentLabelLevel: number;
+  private initialLabelLevel: number = 0;
+  private currentLabelLevel: number = 0;
   /** A temporary initialization value. */
   private _dataChild: Element | undefined;
   private readonly scroller: Scroller;
@@ -232,9 +231,9 @@ export class Editor implements EditorAPI {
   private readonly $navigationList: JQuery;
   private readonly $excludedFromBlur: JQuery;
   private readonly errorItemHandlerBound: ErrorItemHandler;
-  private readonly appender: log4javascript.AjaxAppender;
+  private readonly appender: log4javascript.AjaxAppender | undefined;
   private readonly _undo: UndoList;
-  private undoRecorder: UndoRecorder;
+  private undoRecorder!: UndoRecorder;
   private saveStatusInterval: number | undefined;
   private readonly globalKeydownHandlers: KeydownHandler[] = [];
   private updatingPlaceholder: number = 0;
@@ -245,7 +244,7 @@ export class Editor implements EditorAPI {
     data: any;
     startCaret: DLoc | undefined;
   } | undefined;
-  private validationController: ValidationController;
+  private validationController!: ValidationController;
   private readonly _transformations: Subject<TransformationEvents> =
     new Subject();
 
@@ -285,29 +284,29 @@ export class Editor implements EditorAPI {
   readonly transformations: Observable<TransformationEvents> =
     this._transformations.asObservable();
   readonly toolbar: Toolbar;
-  dataRoot: Document;
-  $dataRoot: JQuery;
-  maxLabelLevel: number;
-  guiDLocRoot: DLocRoot;
-  dataDLocRoot: DLocRoot;
-  dataUpdater: TreeUpdater;
-  guiUpdater: GUIUpdater;
-  domlistener: domlistener.DOMListener;
+  dataRoot!: Document;
+  $dataRoot!: JQuery;
+  maxLabelLevel: number = 0;
+  guiDLocRoot!: DLocRoot;
+  dataDLocRoot!: DLocRoot;
+  dataUpdater!: TreeUpdater;
+  guiUpdater!: GUIUpdater;
+  domlistener!: domlistener.DOMListener;
   modals: StockModals;
 
   mergeWithPreviousHomogeneousSiblingTr: Transformation<TransformationData>;
 
   mergeWithNextHomogeneousSiblingTr: Transformation<TransformationData>;
 
-  modeTree: ModeTree;
+  modeTree!: ModeTree;
 
-  caretManager: CaretManager;
+  caretManager!: CaretManager;
 
-  validator: Validator;
+  validator!: Validator;
 
-  editingMenuManager: EditingMenuManager;
+  editingMenuManager!: EditingMenuManager;
 
-  saver: Saver;
+  saver!: Saver;
 
   // tslint:disable-next-line:max-func-body-length
   constructor(widget: HTMLElement, options: Options | Runtime) {
@@ -1024,7 +1023,6 @@ export class Editor implements EditorAPI {
   }
 
   destroy(): void {
-    this.destroying = true;
     if (this.destroyed) {
       return;
     }

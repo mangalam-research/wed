@@ -28,7 +28,6 @@ export class TypeaheadPopup {
   // tslint:disable-next-line:no-any
   private readonly dismissCallback: (obj?: any) => void;
   private readonly backdrop: HTMLElement;
-  private readonly ta: HTMLElement;
   private readonly $ta: JQuery;
   private dismissed: boolean = false;
 
@@ -79,7 +78,6 @@ export class TypeaheadPopup {
     taWrapper.style.top = `${y}px`;
 
     const $ta = this.$ta = $(ta);
-    this.ta = ta;
 
     let args = [options.options];
     if (options.datasets != null && options.datasets.length > 0) {
