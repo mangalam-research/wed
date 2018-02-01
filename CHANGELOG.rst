@@ -1,11 +1,13 @@
-Please note that Github currently does not implement all
-reStructuredText directives, so some links in this document may not
-work correctly when viewed there.
+Please note that Github currently does not implement all reStructuredText
+directives, so some links in this document may not work correctly when viewed
+there.
 
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
-* 0.31.0:
+* 1.0.0:
+
+  - Release 1.0.0. Woohoo!
 
   - Breaking change: major reorganization of the code to present a facade and
     clarify what is public and what is not public. In particular:
