@@ -35,6 +35,9 @@ export {
   objectCheck,
   Options,
   Runtime,
+  // Right now wed does not load savers dynamically at run-time, but eventually
+  // it should support it. The embedded savers are already written with this
+  // eventuality in mind, and so we need to export this.
   saver,
   transformation,
   treeUpdater,
@@ -52,14 +55,7 @@ export { DLoc, DLocRoot } from "./wed/dloc";
 export { DOMListener } from "./wed/domlistener";
 export { version } from "./wed/editor";
 export { GUISelector } from "./wed/gui-selector";
-export { Button, ToggleButton } from "./wed/gui/button";
-export { ContextMenu } from "./wed/gui/context-menu";
-export { Modal } from "./wed/gui/modal";
-export { tooltip } from "./wed/gui/tooltip";
-export { TypeaheadPopup,
-         TypeaheadPopupOptions } from "./wed/gui/typeahead-popup";
-export { BaseMode, CommonModeOptions } from "./wed/mode";
-export { Mode } from "./wed/mode";
+export { BaseMode, CommonModeOptions, Mode } from "./wed/mode";
 export * from "./wed/mode-api";
 export { UndoMarker } from "./wed/undo";
 // We export Validator too because it is useful in some cases for utility code
@@ -67,5 +63,18 @@ export { UndoMarker } from "./wed/undo";
 // that can take mode validators.
 export { ModeValidator, Validator } from "./wed/validator";
 export { WedOptions } from "./wed/wed-options";
+
+import * as button_ from "./wed/gui/button";
+import * as contextMenu_ from "./wed/gui/context-menu";
+import * as modal_ from "./wed/gui/modal";
+import * as tooltip_ from "./wed/gui/tooltip";
+import * as typeaheadPopup_ from "./wed/gui/typeahead-popup";
+export namespace gui {
+  export import button = button_;
+  export import contextMenu = contextMenu_;
+  export import modal = modal_;
+  export import tooltip = tooltip_;
+  export import typeaheadPopup = typeaheadPopup_;
+}
 
 //  LocalWords:  domutil DLocRoot runtime MPL

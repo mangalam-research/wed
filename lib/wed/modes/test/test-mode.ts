@@ -9,14 +9,17 @@ import * as mergeOptions from "merge-options";
 import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
-import { Action, Button, ContextMenu, Decorator, domutil, EditorAPI,
-         GUISelector, inputTriggerFactory, key, keyConstants, Modal,
-         ModeValidator, objectCheck, transformation } from "wed";
+import { Action, Decorator, domutil, EditorAPI, gui, GUISelector,
+         inputTriggerFactory, key, keyConstants, ModeValidator, objectCheck,
+         transformation } from "wed";
 import { GenericModeOptions,
          Mode as GenericMode } from "wed/modes/generic/generic";
 import { GenericDecorator } from "wed/modes/generic/generic-decorator";
 
 import Template = objectCheck.Template;
+import Button = gui.button.Button;
+import ContextMenu = gui.contextMenu.ContextMenu;
+import Modal = gui.modal.Modal;
 
 const { childrenByClass, closestByClass, indexOf } = domutil;
 

@@ -9,8 +9,10 @@
 
 import { EName, NameResolver } from "salve";
 
-import { Action, Button, Decorator, domtypeguards, domutil, EditorAPI,
+import { Action, Decorator, domtypeguards, domutil, EditorAPI, gui,
          ModeValidator, WedOptions } from "wed";
+
+import Button = gui.button.Button;
 
 /**
  * These are mode options that are supported by default by all modes. Wed is
