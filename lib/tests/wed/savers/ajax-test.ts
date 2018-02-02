@@ -1,6 +1,6 @@
 // tslint:disable-next-line:missing-jsdoc
 import "chai";
-import * as $ from "jquery";
+import $ from "jquery";
 import * as sinon from "sinon";
 
 const expect = chai.expect;

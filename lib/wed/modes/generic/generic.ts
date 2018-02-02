@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
 import { Action, BaseMode, CommonModeOptions, Decorator, EditorAPI, objectCheck,

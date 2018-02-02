@@ -7,7 +7,7 @@
 
 import * as bluejax from "bluejax";
 import { Dexie } from "dexie";
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 import { Options } from "./options";
 
 import { make as ajax } from "./ajax";

@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as $ from "jquery";
+import $ from "jquery";
 
 import * as convert from "./convert";
 import { DLoc } from "./dloc";

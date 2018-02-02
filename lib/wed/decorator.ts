@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as  $ from "jquery";
+import $ from "jquery";
 import * as salve from "salve";
 
 import { Action } from "./action";

@@ -4,9 +4,9 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { expect, use } from "chai";
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 import * as sinon from "sinon";
-import * as sinonChai from "sinon-chai";
+import sinonChai from "sinon-chai";
 use(sinonChai);
 
 import { Editor } from "wed/editor";

@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as _ from "lodash";
+import _ from "lodash";
 
 import { assertSummarily } from "./object-check";
 

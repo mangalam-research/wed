@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as _ from "lodash";
+import _ from "lodash";
 
 import { Action } from "./action";
 import { DLoc } from "./dloc";

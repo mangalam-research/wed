@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as $ from "jquery";
+import $ from "jquery";
 
 import { Editor, KeydownHandler } from "../editor";
 import * as keyConstants from "../key-constants";

@@ -5,7 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as $ from "jquery";
+import $ from "jquery";
+
 import { isAttr, isDocument, isDocumentFragment, isElement,
          isText } from "./domtypeguards";
 import * as util from "./util";

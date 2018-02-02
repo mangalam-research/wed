@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as interact from "interactjs";
+import interact from "interactjs";
 
 import * as browsers from "../browsers";
 

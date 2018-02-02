@@ -13,6 +13,7 @@
     "declaration": true,
     "module": "amd",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "noEmitOnError": true,
     "strict": true,
     "noImplicitReturns": true,

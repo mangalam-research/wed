@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 
 import { EditorAPI } from "wed";
 import { Mode as TestMode, TestModeOptions } from "wed/modes/test/test-mode";

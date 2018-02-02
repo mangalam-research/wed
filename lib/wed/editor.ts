@@ -4,9 +4,9 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Ajv from "ajv";
+import Ajv from "ajv";
 import "bootstrap";
-import * as $ from "jquery";
+import $ from "jquery";
 import { Observable } from "rxjs/Observable";
 import { filter } from "rxjs/operators/filter";
 import { Subject } from "rxjs/Subject";

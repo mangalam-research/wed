@@ -5,8 +5,8 @@
  */
 
 import "bootstrap-notify";
-import * as $ from "jquery";
-import * as mergeOptions from "merge-options";
+import $ from "jquery";
+import mergeOptions from "merge-options";
 
 const defaultSettings = {
   element: "body",

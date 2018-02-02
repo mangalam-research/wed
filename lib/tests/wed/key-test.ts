@@ -16,6 +16,7 @@ describe("key", () => {
     CHROME_31: false,
     MISE: false,
     OSX: false,
+    __esModule: true,
   };
 
   // We load the module into a frame so that we can give it a fake ``browsers``

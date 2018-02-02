@@ -5,7 +5,7 @@
  */
 "use strict";
 
-import * as $ from "jquery";
+import $ from "jquery";
 
 import * as convert from "wed/convert";
 import { DLocRoot, findRoot } from "wed/dloc";

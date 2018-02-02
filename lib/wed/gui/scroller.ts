@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as $ from "jquery";
+import $ from "jquery";
 import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
 

@@ -7,7 +7,7 @@
  */
 import * as bluejax from "bluejax";
 import "bootstrap";
-import * as $ from "jquery";
+import $ from "jquery";
 
 import { suppressUnhandledRejections } from "./util";
 

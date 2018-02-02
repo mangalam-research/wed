@@ -16,6 +16,12 @@
     "no-import-side-effect": [true,
                               { "ignore-pattern": "^(jquery|bootstrap)$" }],
     "await-promise": [true, "Bluebird"],
-    "no-backbone-get-set-outside-model": [false, "False positives galore."]
+    "no-backbone-get-set-outside-model": [false, "False positives galore."],
+    "import-name": [true, {
+      "jquery": "$",
+      "ajv": "Ajv",
+      "lodash": "_",
+      "interactjs": "interact"
+    }]
   }
 }

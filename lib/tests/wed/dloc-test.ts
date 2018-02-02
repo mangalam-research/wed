@@ -5,7 +5,7 @@
  */
 "use strict";
 
-import * as $ from "jquery";
+import $ from "jquery";
 
 import * as convert from "wed/convert";
 import { DLoc, DLocRange, DLocRoot, findRoot, getRoot } from "wed/dloc";

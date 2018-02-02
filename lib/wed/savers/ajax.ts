@@ -6,7 +6,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 
 // Everything from wed must be loaded from "wed".
 import { Runtime, saver, treeUpdater } from "wed";

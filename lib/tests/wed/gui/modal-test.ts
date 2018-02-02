@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as $ from "jquery";
+import $ from "jquery";
 
 import { Modal } from "wed/gui/modal";
 import { makeWedRoot } from "../../wed-test-util";

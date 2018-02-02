@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Ajv from "ajv";
+import Ajv from "ajv";
 import { ArgumentParser } from "argparse";
 import * as fs from "fs";
 import * as yaml from "js-yaml";

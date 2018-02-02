@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import "bootstrap";
-import * as $ from "jquery";
+import $ from "jquery";
 import "typeahead";
 
 import * as domutil from "../domutil";

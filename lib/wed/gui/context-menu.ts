@@ -6,7 +6,7 @@
  */
 
 import "bootstrap";
-import * as $ from "jquery";
+import $ from "jquery";
 import * as domutil from "../domutil";
 
 export type DismissCallback = () => void;

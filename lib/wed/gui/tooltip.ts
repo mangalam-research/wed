@@ -6,7 +6,7 @@
  */
 
 import "bootstrap";
-import * as $ from "jquery";
+import $ from "jquery";
 
 function _showHandler(ev: Event): void {
   const for_ = ev.target as Element;
