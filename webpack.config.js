@@ -69,7 +69,7 @@ module.exports = {
       "{requirejs,external}/*", "{requirejs,external}/!(rxjs)/**/*",
       "../kitchen-sink.html", "../requirejs-config.js", "kitchen-sink.js",
       "../doc/**/*", "global-config.js", "json.js", "wed/**/*.css",
-      "wed/{onerror,log,mode-map}.*"].map(name => ({
+      "wed/less-inc/**/*", "wed/{onerror,log,mode-map}.*"].map(name => ({
         // Using an object with a "glob" field forces CopyWebpackPlugin to treat
         // all patterns as globs and simplifies the logic a bit. Otherwise, we'd
         // have to have a "to" field to switch where we put the results of some
