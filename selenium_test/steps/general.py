@@ -28,7 +28,7 @@ def load_and_wait_for_editor(context, text=None, options=None,
     }
 
     if text is not None:
-        query["file"] = text
+        query["file"] = "../standalone/" + text
 
     if options is not None:
         query["options"] = options
@@ -373,7 +373,7 @@ def step_impl(context):
 @given("the platform variation page is loaded")
 def step_impl(context):
     config = context.builder.config
-    context.driver.get(context.builder.WED_SERVER +
+    context.driver.get(context.builder.WED_UNOPTIMIZED_SERVER +
                        "/platform_test.html?platform=" +
                        urllib.quote(config.platform) +
                        "&browser=" + urllib.quote(config.browser) +

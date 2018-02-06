@@ -159,9 +159,9 @@ by a web server. The files will be in ``build/standalone/``. As the name
 your own server, except the configuration for RequireJS.
 
 Gulp will additionally create an optimized version of wed in
-``build/standalone-optimized/``. This is a version that has been optimized using
-RequireJS's ``r.js`` optimizer. This optimization exists for illustration
-purposes and for testing wed. See the
+``build/packed/``. This is a version that has been optimized using Webpack. This
+optimization exists for illustration purposes, for testing wed, and as a
+possible candidate for deploying wed. See the
 :ref:`tech_notes_deployment_considerations` section in :doc:`tech_notes` to
 determine whether this is the optimization you want to use to deploy wed.
 
@@ -181,15 +181,6 @@ the demos, you can do::
 The address and port ``localhost:8888`` is just a suggestion, but the link in
 the documentation below assume that's the address used.
 
-Demo Saving to Local Storage
-----------------------------
-
-The demo that uses your own browser's local storage is ready to use once wed is
-built. Once the server is started, point your browser to
-`<http://localhost:8888/build/standalone/files.html>`_ or
-`<http://localhost:8888/build/standalone-optimized/files.html>`_. The 2nd link
-is to the optimized application.
-
 Demos Saving to a Server
 ------------------------
 
@@ -198,7 +189,7 @@ Once the server is started, point your browser to either:
 * `<http://localhost:8888/build/standalone/kitchen-sink.html>`_ to view the demo
   with the unoptimized file tree.
 
-* or `<http://localhost:8888/build/standalone-optimized/kitchen-sink.html>`_ to
+* or `<http://localhost:8888/build/packed/kitchen-sink.html>`_ to
   view the demo with an optimized file tree.
 
 The demo currently starts with an empty document using a vanilla TEI schema. See

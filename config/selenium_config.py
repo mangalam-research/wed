@@ -224,11 +224,13 @@ if CONFIG.remote and not REMOTE_SERVICE:
     raise ValueError("you must pass a service argument to behave")
 
 #
-# Location of our server. Changing this use standalone rather than
-# standalone-optimized will run the tests on the non-optimized version
-# of the code.
+# Location of our server. Changing this use standalone rather than packed will
+# run the tests on the non-optimized version of the code.
 #
-WED_ROOT = "/forever/build/standalone-optimized"
+WED_ROOT = "/forever/build/packed"
+
+# We need this for some tests.
+WED_UNOPTIMIZED_ROOT = "/forever/build/standalone"
 
 #
 # This is a setting local to this project. When set to an object:

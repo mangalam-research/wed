@@ -10,16 +10,14 @@ const Promise = require("bluebird");
 const path = require("path");
 const gutil = require("gulp-util");
 const requireDir = require("require-dir");
-const rjs = require("requirejs");
 const wrapAmd = require("gulp-wrap-amd");
 const replace = require("gulp-replace");
 const argparse = require("argparse");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
-const createOptimizedConfig = require("../misc/create_optimized_config").create;
 
 const config = require("./config");
-const { sameFiles, del, newer, exec, execFileAndReport, checkOutputFile,
+const { del, newer, exec, execFileAndReport, checkOutputFile,
         touchAsync, cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
         stampPath } = require("./util");
 
@@ -91,7 +89,7 @@ gulp.task("config", () => {
 
 const buildDeps = ["build-standalone", "build-bundled-doc"];
 if (options.optimize) {
-  buildDeps.push("build-standalone-optimized", "webpack");
+  buildDeps.push("webpack");
 }
 gulp.task("build", buildDeps);
 
@@ -536,53 +534,6 @@ gulp.task("build-bundled-doc", ["build-standalone"],
             yield touchAsync(stamp);
           }));
 
-gulp.task(
-  "build-optimized-config", ["config"],
-  Promise.coroutine(function *task() {
-    const origConfig = "build/config/requirejs-config-dev.js";
-    const buildConfig = "requirejs.build.js";
-    const optimizedConfig = "build/standalone-optimized/requirejs-config.js";
-
-    const isNewer = yield newer([origConfig, buildConfig], optimizedConfig);
-    if (!isNewer) {
-      return;
-    }
-
-    yield mkdirpAsync(path.dirname(optimizedConfig));
-
-    yield fs.writeFileAsync(optimizedConfig, createOptimizedConfig({
-      config: origConfig,
-    }));
-  }));
-
-function *buildStandaloneOptimized() {
-  const stamp = stampPath("standalone-optimized");
-  const newStamp = `${stamp}.new`;
-
-  yield exec("find build/standalone -printf \"%p %t %s\n\" | " +
-             `sort > ${newStamp}`);
-
-  const same = yield sameFiles(stamp, newStamp);
-  if (!same) {
-    yield new Promise((resolve, reject) => {
-      rjs.optimize(["requirejs.build.js"], resolve, reject);
-    })
-      .catch(err => del("build/standalone-optimized/")
-             .then(() => {
-               throw err;
-             }));
-    yield fs.moveAsync(newStamp, stamp, { overwrite: true });
-  }
-}
-
-gulp.task("build-standalone-optimized", [
-  "stamp-dir",
-  "build-standalone",
-  "build-html-optimized",
-  "build-optimized-config",
-  "build-test-files",
-], Promise.coroutine(buildStandaloneOptimized));
-
 gulp.task("webpack", ["build-standalone"], () =>
           execFileAndReport("./node_modules/.bin/webpack", ["--color"],
                             { maxBuffer: 300 * 1024 }));
@@ -633,23 +584,6 @@ function *ghPages() {
   yield exec(`make -C ${merged} html`);
 
   yield exec(`cp -rp ${merged}/_build/html/* build/api ${dest}`);
-
-  const destBuild = `${dest}/build`;
-  yield mkdirpAsync(destBuild);
-  yield cprpdir(["build/samples", "build/schemas", "build/standalone",
-                 "build/standalone-optimized"], destBuild);
-
-  for (const tree of ["standalone", "standalone-optimized"]) {
-    const globalConfig = `${dest}/build/${tree}/lib/global-config.js`;
-    yield fs.moveAsync(globalConfig, `${globalConfig}.t`);
-    yield exec("node misc/modify_config.js -d config.ajaxlog -d config.save " +
-               `${globalConfig}.t > ${globalConfig}`);
-
-    yield del([`${globalConfig}.t`,
-               `${dest}/build/${tree}/test.html`,
-               `${dest}/build/${tree}/mocha_frame.html`,
-               `${dest}/build/${tree}/wed_test.html`]);
-  }
 }
 
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
@@ -657,23 +591,20 @@ gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
 
 const packNoTest = {
   name: "pack-notest",
-  deps: ["build-standalone", "build-standalone-optimized", "webpack"],
+  deps: ["build-standalone", "webpack"],
   *func() {
     yield del("build/wed-*.tgz");
     const dist = "build/dist";
     yield fs.emptyDirAsync(dist);
-    yield cprpdir(["build/standalone", "build/standalone-optimized",
-                   "build/packed", "build/bin", "package.json",
-                   "npm-shrinkwrap.json"],
+    yield cprpdir(["build/standalone", "build/packed", "build/bin",
+                   "package.json", "npm-shrinkwrap.json"],
                   dist);
     yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
 *
 !standalone/**
-!standalone-optimized/**
 !bin/**
 !packed/**
 standalone/lib/tests/**
-standalone-optimized/lib/tests/**
 `);
     yield cprp("NPM_README.md", "build/dist/README.md");
     yield exec("ln -sf `(cd build; npm pack dist)` build/LATEST-DIST.tgz");

@@ -5,7 +5,7 @@
     <link href="/node_modules/mocha/mocha.css" type="text/css" media="screen" rel="stylesheet" />
     <script type="text/javascript" src="lib/external/core-js.min.js"></script>
     <script type="text/javascript" src="lib/external/bluebird.js"></script>
-x    <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>
+    <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>
     <script type="text/javascript" src="lib/wed/polyfills/innerHTML_for_XML.js"></script>
     <script type="text/javascript" src="lib/wed/polyfills/normalize.js"></script>
     <script type="text/javascript" src="lib/requirejs/require.js"></script>
@@ -31,15 +31,6 @@ x    <script type="text/javascript" src="lib/wed/polyfills/matches.js"></script>
           window.test_browser = query.browser;
           window.test_version = query.version;
       });
-      // This is a yucky way to detect that we are running the
-      // optimized version of the bundle, but it works.
-      if (window.location.href.indexOf("standalone-optimized") != -1) {
-          require.config({
-              bundles: {
-                  "wed": [ "wed/browsers"]
-              }
-          });
-      }
     </script>
   </body>
 </html>
