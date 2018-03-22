@@ -7,6 +7,9 @@ odd bug fix may not get mentioned here at all.
 
 * 2.0.0:
 
+  - We no longer support building or running any of the code of this project on
+    Node 4.x. You need Node 6.x or higher.
+
   - Breaking distribution changes:
 
     + The standalone-optimized tree has been removed. Wed now ships a
