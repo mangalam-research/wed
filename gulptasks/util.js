@@ -261,3 +261,5 @@ exports.execFileAndReport = function execFileAndReport(...args) {
       throw err;
     });
 };
+
+exports.execFile = execFile;

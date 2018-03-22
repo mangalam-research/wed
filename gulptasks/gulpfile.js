@@ -17,7 +17,7 @@ const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
 
 const config = require("./config");
-const { del, newer, exec, execFileAndReport, checkOutputFile,
+const { del, newer, exec, execFile, execFileAndReport, checkOutputFile,
         touchAsync, cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
         stampPath } = require("./util");
 
@@ -589,6 +589,7 @@ function *ghPages() {
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
           Promise.coroutine(ghPages));
 
+const LATEST_DIST = "build/LATEST-DIST.tgz";
 const packNoTest = {
   name: "pack-notest",
   deps: ["build-standalone", "webpack"],
@@ -606,12 +607,18 @@ const packNoTest = {
 !packed/**
 standalone/lib/tests/**
 `);
-    yield cprp("NPM_README.md", "build/dist/README.md");
-    yield exec("ln -sf `(cd build; npm pack dist)` build/LATEST-DIST.tgz");
-    yield del("build/t");
-    yield mkdirpAsync("build/t/node_modules");
-    yield exec("(cd build/t; npm install ../LATEST-DIST.tgz)");
-    yield del("build/t");
+    yield cprp("NPM_README.md", `${dist}/README.md`);
+    const { stdout } = yield execFile("npm", ["pack"], { cwd: dist });
+    const packname = stdout.trim();
+    const buildPack = `build/${packname}`;
+    yield fs.renameAsync(`${dist}/${packname}`, buildPack);
+    yield del(LATEST_DIST);
+    yield fs.symlinkAsync(buildPack, LATEST_DIST);
+    const tempPath = "build/t";
+    yield del(tempPath);
+    yield mkdirpAsync(`${tempPath}/node_modules`);
+    yield spawn("npm", ["install", `../${packname}`], { cwd: tempPath });
+    yield del(tempPath);
   },
 };
 defineTask(packNoTest);
@@ -619,8 +626,7 @@ defineTask(packNoTest);
 sequence("pack", test, seleniumTest, packNoTest);
 
 function publish() {
-  return spawn("npm", ["publish", "build/LATEST-DIST.tgz"],
-               { stdio: "inherit" });
+  return spawn("npm", ["publish", LATEST_DIST], { stdio: "inherit" });
 }
 
 gulp.task("publish", ["pack"], publish);
