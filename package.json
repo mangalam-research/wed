@@ -26,7 +26,7 @@
     "amd-loader": "0.0.8",
     "argparse": ">=1.0.3 <2",
     "js-yaml": "^3.8.4",
-    "salve": "^4.3.0",
+    "salve": "^6.0.0",
     "urijs": "1.16.1"
   },
   "devDependencies": {
@@ -110,7 +110,7 @@
     "requirejs": "^2.3.4",
     "requirejs-text": ">=2.0.12 <3",
     "rxjs": "^5.5.2",
-    "salve-dom": "^2.0.0",
+    "salve-dom": "^2.0.2",
     "semver": ">=5 <6",
     "serve-static": ">=1.7.1 <2",
     "shell-quote": ">=1.4.3 <2",
