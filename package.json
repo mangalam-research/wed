@@ -27,7 +27,7 @@
     "argparse": ">=1.0.3 <2",
     "js-yaml": "^3.8.4",
     "salve": "^7.0.0",
-    "urijs": "1.16.1"
+    "urijs": "^1.19.1"
   },
   "devDependencies": {
     "@types/ajv": "^1.0.0",
