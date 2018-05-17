@@ -13,12 +13,13 @@ const requireDir = require("require-dir");
 const wrapAmd = require("gulp-wrap-amd");
 const replace = require("gulp-replace");
 const argparse = require("argparse");
+const touch = require("touch");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
 
 const config = require("./config");
 const { del, newer, exec, execFile, execFileAndReport, checkOutputFile,
-        touchAsync, cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
+        cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
         stampPath } = require("./util");
 
 const { test, seleniumTest } = require("./tests");
@@ -229,7 +230,7 @@ gulp.task("build-standalone-wed-less",
               .pipe(filter.restore)
               .pipe(gulp.dest(dest))
               .on("end", () => {
-                touchAsync(stamp).asCallback(callback);
+                Promise.resolve(touch(stamp)).asCallback(callback);
               });
           });
 
@@ -251,7 +252,7 @@ gulp.task("npm", ["stamp-dir"], Promise.coroutine(function *task() {
 
   yield mkdirpAsync("node_modules");
   yield exec("npm install");
-  yield touchAsync(stamp);
+  yield touch(stamp);
 }));
 
 const copyTasks = [];
@@ -357,7 +358,7 @@ function npmCopyTask(...args) {
     }
 
     stream.pipe(gulp.dest(completeDest))
-      .on("end", () => touchAsync(stamp).asCallback(callback));
+      .on("end", () => Promise.resolve(touch(stamp)).asCallback(callback));
   });
 
   copyTasks.push(fullName);
@@ -531,7 +532,7 @@ gulp.task("build-bundled-doc", ["build-standalone"],
             yield exec(`make -C ${buildBundledDoc} html`);
             yield fs.renameAsync(path.join(buildBundledDoc, "_build/html"),
                                  standaloneDoc);
-            yield touchAsync(stamp);
+            yield touch(stamp);
           }));
 
 gulp.task("webpack", ["build-standalone"], () =>

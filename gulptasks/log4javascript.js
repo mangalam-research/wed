@@ -2,9 +2,10 @@ const gulp = require("gulp");
 const path = require("path");
 const Promise = require("bluebird");
 const log = require("fancy-log");
+const touch = require("touch");
 const { internals, options } = require("./config");
 const { wgetIfMissing } = require("./wget");
-const { exec, del, touchAsync, newer, mkdirpAsync } = require("./util");
+const { exec, del, newer, mkdirpAsync } = require("./util");
 
 const log4javascriptBase = path.basename(internals.log4javascriptUrl);
 const fullPath = path.join("downloads", log4javascriptBase);
@@ -37,5 +38,5 @@ gulp.task("copy-log4javascript", ["download-log4javascript"],
             yield exec(`mv ${destdir}/log4javascript-*/js/${from} ${dest}`);
 
             yield del(`${destdir}/log4javascript-*`);
-            yield touchAsync(dest);
+            yield touch(dest);
           }));

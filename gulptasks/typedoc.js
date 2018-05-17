@@ -1,10 +1,10 @@
 const gulp = require("gulp");
 const log = require("fancy-log");
 const Promise = require("bluebird");
+const touch = require("touch");
 
 const { options } = require("./config");
-const { checkOutputFile, fs, newer, spawn, stampPath,
-        touchAsync } = require("./util");
+const { checkOutputFile, fs, newer, spawn, stampPath } = require("./util");
 
 // This task also needs to check the hash of the latest commit because typedoc
 // generates links to source based on the latest commit in effect when it is
@@ -49,5 +49,5 @@ gulp.task("typedoc", ["generate-ts", "stamp-dir", "lint"],
                         { stdio: "inherit" });
 
             yield Promise.all([fs.writeFileAsync(hashPath, currentHash),
-                               touchAsync(stamp)]);
+                               touch(stamp)]);
           }));
