@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/schema#
-id: http://btw.mangalam-research.org/schemas/wed/options.json
+$id: http://btw.mangalam-research.org/schemas/wed/options.json
 title: Options
 description: Options that may be passed to a new Wed instance.
 definitions:

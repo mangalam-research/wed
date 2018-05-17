@@ -22,7 +22,7 @@
     }
   ],
   "dependencies": {
-    "ajv": "^5.1.5",
+    "ajv": "^6.5.0",
     "amd-loader": "0.0.8",
     "argparse": ">=1.0.3 <2",
     "js-yaml": "^3.8.4",

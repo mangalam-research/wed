@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "id": "http://btw.mangalam-research.org/schemas/wed/metadata.json",
+  "$id": "http://btw.mangalam-research.org/schemas/wed/metadata.json",
   "title": "Metadata",
   "description": "A schema describing metadata for wed modes.",
   "definitions": {
