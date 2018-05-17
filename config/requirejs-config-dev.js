@@ -77,6 +77,7 @@ require.config({
       exports: "jQuery.fn.popover",
       init: function init($) {
         "use strict";
+
         return $;
       },
     },

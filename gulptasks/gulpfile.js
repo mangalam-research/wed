@@ -18,13 +18,14 @@ const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
 
 const config = require("./config");
-const { del, newer, exec, execFile, execFileAndReport, checkOutputFile,
-        cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
-        stampPath } = require("./util");
+const {
+  del, newer, exec, execFile, execFileAndReport, checkOutputFile, cprp,
+  cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs, stampPath,
+} = require("./util");
 
 const { test, seleniumTest } = require("./tests");
 
-const ArgumentParser = argparse.ArgumentParser;
+const { ArgumentParser } = argparse;
 
 // Try to load local configuration options.
 let localConfig = {};
@@ -61,7 +62,7 @@ parser.addArgument(["target"], {
   defaultValue: "default",
 });
 
-const options = config.options;
+const { options } = config;
 Object.assign(options, parser.parseArgs(process.argv.slice(2)));
 
 // We purposely import the files there at this point so that the
@@ -116,7 +117,7 @@ gulp.task("convert-wed-yaml", () => {
     }))
     .pipe(gulpNewer(dest))
     .pipe(es.mapSync((file) => {
-      file.contents = new Buffer(JSON.stringify(yaml.safeLoad(file.contents, {
+      file.contents = Buffer.from(JSON.stringify(yaml.safeLoad(file.contents, {
         schema: yaml.JSON_SCHEMA,
       })));
 
@@ -286,7 +287,7 @@ function npmCopyTask(...args) {
       // name and package names are derived from arg1.
       src = arg1;
       dest = arg2;
-      name = src.split("/", 1)[0];
+      [name] = src.split("/", 1);
       pack = `node_modules/${name}`;
     }
     else {
@@ -304,7 +305,7 @@ function npmCopyTask(...args) {
     // package names from it. And we assume dest is '`external`'.
     [src] = args;
     dest = "external";
-    name = src.split("/", 1)[0];
+    [name] = src.split("/", 1);
     pack = `node_modules/${name}`;
   }
 

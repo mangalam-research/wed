@@ -119,17 +119,15 @@ exports.sameFiles = function sameFiles(a, b) {
       return false;
     }
 
-    const size = statsA.size;
+    const { size } = statsA;
 
     const [fdA, fdB] = yield Promise.all([
       fs.openAsync(a, "r"),
       fs.openAsync(b, "r")]);
 
     const bufsize = 64 * 1024;
-    const bufA = new Buffer(bufsize);
-    const bufB = new Buffer(bufsize);
-    bufA.fill(0);
-    bufB.fill(0);
+    const bufA = Buffer.alloc(bufsize);
+    const bufB = Buffer.alloc(bufsize);
     let read = 0;
 
     while (read < size) {
@@ -178,7 +176,7 @@ exports.spawn = function spawn(cmd, args, options) {
 };
 
 exports.defineTask = function defineTask(task) {
-  let func = task.func;
+  let { func } = task;
   if (func && func.constructor.name === "GeneratorFunction") {
     func = Promise.coroutine(func);
   }
@@ -201,7 +199,7 @@ exports.sequence = function sequence(name, ...tasks) {
   } // No final function to run.
 
   for (const task of tasks) {
-    let func = task.func;
+    let { func } = task;
     if (func) {
       // Ideally we'd use a instanceof test but apparently babel
       // does not make a GeneratorFunction global available...

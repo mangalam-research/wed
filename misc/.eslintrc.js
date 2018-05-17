@@ -9,8 +9,5 @@ module.exports = {
   },
   rules: {
     "import/no-extraneous-dependencies": "off",
-    "indent" : ["error", 2, {
-      "ArrayExpression": "first"
-    }],
   }
 };

@@ -2,11 +2,8 @@
 
 /* eslint-disable no-console */
 
-const ArgumentParser = require("argparse").ArgumentParser;
-const util = require("./util");
-
-const captureConfigObject = util.captureConfigObject;
-const fileAsString = util.fileAsString;
+const { ArgumentParser } = require("argparse");
+const { captureConfigObject, fileAsString } = require("./util");
 
 const parser = new ArgumentParser({
   version: "0.2.0",

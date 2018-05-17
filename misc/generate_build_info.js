@@ -29,9 +29,9 @@ process.on("uncaughtException", (ex) => {
 // Actual logic
 //
 
-const spawn = require("child_process").spawn;
+const { spawn } = require("child_process");
 const semver = require("semver");
-const ArgumentParser = require("argparse").ArgumentParser;
+const { ArgumentParser } = require("argparse");
 
 const parser = new ArgumentParser({
   addHelp: true,

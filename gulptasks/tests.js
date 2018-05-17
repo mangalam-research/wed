@@ -8,8 +8,9 @@ const versync = require("versync");
 const Promise = require("bluebird");
 
 const { options } = require("./config");
-const { cprp, defineTask, exec, existsInFile, mkdirpAsync, newer, sequence,
-        spawn } = require("./util");
+const {
+  cprp, defineTask, exec, existsInFile, mkdirpAsync, newer, sequence, spawn,
+} = require("./util");
 
 const convertXMLDirs = glob.sync("lib/tests/*_test_data")
         .filter(x => x !== "lib/tests/convert_test_data");
