@@ -124,7 +124,7 @@ InputTrigger {
     }
   });
 
-  ret.addKeyHandler(mergeWithPreviousKey, (eventType, el, ev) => {
+  ret.addKeyHandler(mergeWithPreviousKey, (_eventType, el, ev) => {
     const caret = editor.caretManager.getDataCaret();
 
     if (caret == null) {
@@ -145,7 +145,7 @@ InputTrigger {
     }
   });
 
-  ret.addKeyHandler(mergeWithNextKey, (eventType, el, ev) => {
+  ret.addKeyHandler(mergeWithNextKey, (_eventType, el, ev) => {
     const caret = editor.caretManager.getDataCaret();
 
     if (caret == null) {

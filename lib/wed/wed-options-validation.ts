@@ -38,7 +38,7 @@ CleanedWedOptions | string[] {
   const ovalidator = getValidator();
   const valid = ovalidator(options);
   if (!(valid as boolean)) {
-    if (ovalidator.errors !== undefined) {
+    if (ovalidator.errors != null) {
       for (const error of ovalidator.errors) {
         errors.push(`${error.dataPath} ${error.message}`);
       }
@@ -65,6 +65,7 @@ CleanedWedOptions | string[] {
     const tmp = options.attributes;
     // We need the type cast at the end because otherwise TS infers a type of
     // { handling: "hide" | "show" | "edit" }.
+    // tslint:disable-next-line:no-object-literal-type-assertion
     options.attributes = {
       handling: tmp,
     } as { handling: "hide" } | { handling: "show" | "edit" };

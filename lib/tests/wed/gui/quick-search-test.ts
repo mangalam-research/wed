@@ -92,11 +92,11 @@ describe("quick-search", () => {
   }
 
   function checkHighlightRanges(range: DLocRange): void {
-    const highlights = document.querySelectorAll("._wed_highlight")!;
+    const highlights = document.querySelectorAll("._wed_highlight");
     expect(highlights).to.have.property("length").greaterThan(0);
     let highlightRect = highlights[0].getBoundingClientRect();
     const rangeRect =
-      firstABCText.mustMakeDOMRange().getBoundingClientRect();
+      range.mustMakeDOMRange().getBoundingClientRect();
 
     // The highlights are built as a series of rectangles. Checking each and
     // every rectangle would be onerous. We check the start and end of the
@@ -155,7 +155,7 @@ describe("quick-search", () => {
       editor.type(QUICKSEARCH_FORWARD);
       editor.type("abc", WedEventTarget.MINIBUFFER);
       checkHighlightRanges(firstABCText);
-      editor.type(QUICKSEARCH_FORWARD);
+      editor.type(QUICKSEARCH_FORWARD, WedEventTarget.MINIBUFFER);
       checkHighlightRanges(pFiveFirstThree);
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });
@@ -164,9 +164,9 @@ describe("quick-search", () => {
       editor.type(QUICKSEARCH_FORWARD);
       editor.type("abc", WedEventTarget.MINIBUFFER);
       checkHighlightRanges(firstABCText);
-      editor.type(QUICKSEARCH_FORWARD);
+      editor.type(QUICKSEARCH_FORWARD, WedEventTarget.MINIBUFFER);
       checkHighlightRanges(pFiveFirstThree);
-      editor.type(QUICKSEARCH_BACKWARDS);
+      editor.type(QUICKSEARCH_BACKWARDS, WedEventTarget.MINIBUFFER);
       checkHighlightRanges(firstABCText);
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });

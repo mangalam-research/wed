@@ -192,9 +192,9 @@ class GenericMode<Options extends GenericModeOptions>
    * transformation registry.
    */
   getContextualActions(transformationType: string | string[],
-                       tag: string,
-                       container: Node,
-                       offset: number): Action<{}>[] {
+                       _tag: string,
+                       _container: Node,
+                       _offset: number): Action<{}>[] {
     if (!(transformationType instanceof Array)) {
       transformationType = [transformationType];
     }

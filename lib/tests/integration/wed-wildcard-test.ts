@@ -64,6 +64,7 @@ describe("wed wildcard support:", () => {
         break;
       }
     }
+    // tslint:disable-next-line:no-unnecessary-type-assertion
     const attr = attrName!.closest("._attribute")!;
     assert.isTrue(attr.classList.contains("_readonly"));
   });
@@ -85,6 +86,7 @@ describe("wed wildcard support:", () => {
         break;
       }
     }
+    // tslint:disable-next-line:no-unnecessary-type-assertion
     const attr = attrName!.closest("._attribute")!;
     assert.isTrue(attr.classList.contains("_readonly"));
 

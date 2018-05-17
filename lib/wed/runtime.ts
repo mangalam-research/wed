@@ -168,11 +168,11 @@ export class Runtime {
         resources = [resources];
       }
 
-      return new Promise((resolve, reject) => {
+      return new Promise<{}[]>((resolve, reject) => {
         req(resources as string[], function success(): void {
           resolve(Array.prototype.slice.call(arguments));
         }, reject);
-      }) as Promise<{}[]>;
+      });
     });
   }
 }

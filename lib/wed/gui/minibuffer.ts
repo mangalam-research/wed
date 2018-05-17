@@ -143,7 +143,7 @@ export class Minibuffer {
     return undefined;
   }
 
-  protected onKeypress(ev: JQueryKeyEventObject): void {
+  protected onKeypress(_ev: JQueryKeyEventObject): void {
     const value = this.input.value;
     if (value !== this.previous) {
       this.previous = value;
@@ -151,7 +151,7 @@ export class Minibuffer {
     }
   }
 
-  protected onInput(ev: JQueryKeyEventObject): void {
+  protected onInput(_ev: JQueryKeyEventObject): void {
     const value = this.input.value;
     if (value !== this.previous) {
       this.previous = value;

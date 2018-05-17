@@ -81,8 +81,8 @@ export function distFromRect(x: number, y: number, left: number, top: number,
  * @returns The distance.
  */
 export function distsFromRect(x: number, y: number, left: number, top: number,
-                              right: number, bottom: number):
-{x: number, y: number} {
+                              right: number,
+                              bottom: number): { x: number; y: number } {
   const topDelta = y - top;
   const leftDelta = x - left;
   const bottomDelta = y - bottom;
@@ -348,7 +348,7 @@ export function decodeDiff(name: string, diff: string): string {
  * @returns A structure containing the decoded name the optional qualifier.
  */
 export function decodeAttrName(encoded: string):
-{ name: string, qualifier: string | undefined } {
+{ name: string; qualifier: string | undefined } {
   const match = /^data-wed-(.+)-([^-]*?)$/.exec(encoded);
   if (match === null) {
     throw new Error("malformed name");
@@ -646,14 +646,14 @@ export function readFile(file: File): Promise<string> {
 // tslint:disable:no-any
 export function fixPrototype(obj: any, parent: Function): void {
   const oldProto: Function = Object.getPrototypeOf !== undefined ?
-    Object.getPrototypeOf(obj) : (obj as any).__proto__;
+    Object.getPrototypeOf(obj) : obj.__proto__;
 
   if (oldProto !== parent) {
     if (Object.setPrototypeOf !== undefined) {
       Object.setPrototypeOf(obj, parent.prototype);
     }
     else {
-      (obj as any).__proto__ = parent.prototype;
+      obj.__proto__ = parent.prototype;
     }
   }
 }

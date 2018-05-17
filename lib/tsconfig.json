@@ -19,6 +19,7 @@
     "noImplicitReturns": true,
     "skipDefaultLibCheck": true,
     "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true,
     "outDir": "build/standalone/lib",
     "sourceMap": true,

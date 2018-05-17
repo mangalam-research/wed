@@ -152,7 +152,6 @@ export class TestDecorator extends GenericDecorator {
         this.guiUpdater.insertBefore(wrapper, el, null);
         break;
       default:
-        break;
       }
     }
   }
@@ -262,7 +261,7 @@ class TypeaheadAction extends Action<{}> {
     const range = editor.caretManager.range;
 
     // This is purposely not as intelligent as what real mode would need.
-    if (range != null && !(range.collapsed as boolean)) {
+    if (range != null && !range.collapsed) {
       typeahead.setValue(range.toString());
     }
   }

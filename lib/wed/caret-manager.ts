@@ -411,6 +411,7 @@ export class CaretManager implements GUIToDataConverter {
    */
   mustFromDataLocation(loc: DLoc): DLoc;
   mustFromDataLocation(node: Node, offset: number): DLoc;
+  // @ts-ignore
   mustFromDataLocation(node: Node | DLoc, offset?: number): DLoc {
     const ret = this.fromDataLocation.apply(this, arguments);
     if (ret === undefined) {

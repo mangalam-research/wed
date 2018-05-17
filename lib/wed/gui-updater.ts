@@ -104,7 +104,6 @@ export class GUIUpdater extends TreeUpdater {
       element = true;
       break;
     default:
-      break;
     }
     this.deleteNode(toRemove);
 

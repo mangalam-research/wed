@@ -43,7 +43,7 @@ export class ProcessValidationErrors implements Task {
     while (count !== 0) {
       count--;
       const error = errors[ix];
-      if (controller.processError(error) as boolean) {
+      if (controller.processError(error)) {
         errors.splice(ix, 1);
         const item = error.item;
         if (item === undefined) {

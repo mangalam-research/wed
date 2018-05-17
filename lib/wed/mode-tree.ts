@@ -27,7 +27,7 @@ type WedOptionsErrorCallback = (path: string, errors: string[]) => void;
 
 export interface AttributeHidingSpecs {
   elements: {
-    selector: string,
+    selector: string;
     attributes: (string | { except: string[]})[];
   }[];
 }

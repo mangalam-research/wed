@@ -288,7 +288,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
     return [start, end];
   }
 
-  makePlaceholderFor(element: Element): Element {
+  makePlaceholderFor(_element: Element): Element {
     return domutil.makePlaceholder();
   }
 
@@ -299,7 +299,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
    *
    * @returns This default implementation always returns ``undefined``.
    */
-  shortDescriptionFor(name: string): string | null | undefined {
+  shortDescriptionFor(_name: string): string | null | undefined {
     return undefined;
   }
 
@@ -310,7 +310,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
    *
    * @returns The default implementation always returns ``undefined``.
    */
-  documentationLinkFor(name: string): string | null | undefined {
+  documentationLinkFor(_name: string): string | null | undefined {
     return undefined;
   }
 
@@ -325,7 +325,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   /**
    * The default implementation returns an empty array.
    */
-  getAttributeCompletions(attribute: Attr): string[] {
+  getAttributeCompletions(_attribute: Attr): string[] {
     return [];
   }
 

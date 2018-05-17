@@ -84,8 +84,7 @@ describe("input_trigger_factory", () => {
       editor.caretManager.setCaret(ps[ps.length - 1].firstChild, 4);
       editor.type(";");
 
-      ps = editor.dataRoot
-        .querySelectorAll("body p") as NodeListOf<HTMLParagraphElement>;
+      ps = editor.dataRoot.querySelectorAll("body p");
       assert.equal(ps.length, 2);
       assert.equal(cleanNamespace(ps[0].outerHTML), "<p>Blah</p>");
       assert.equal(cleanNamespace(ps[1].outerHTML),
@@ -100,8 +99,7 @@ describe("input_trigger_factory", () => {
       editor.caretManager.setCaret(ps[ps.length - 1].firstChild, 4);
       editor.type(ENTER);
 
-      ps = editor.dataRoot
-        .querySelectorAll("body p") as NodeListOf<HTMLParagraphElement>;
+      ps = editor.dataRoot.querySelectorAll("body p");
       assert.equal(ps.length, 2);
       assert.equal(cleanNamespace(ps[0].outerHTML), "<p>Blah</p>");
       assert.equal(cleanNamespace(ps[1].outerHTML),

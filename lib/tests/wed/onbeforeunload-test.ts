@@ -20,7 +20,7 @@ describe("onbeforeunload", () => {
   beforeEach((done) => {
     frame = document.createElement("iframe");
     document.body.appendChild(frame);
-    frameWindow = frame.contentWindow;
+    frameWindow = frame.contentWindow!;
     // We need <base> in the following code so that the proper protocol
     // is set when resolving the relative paths.
     const frameSrc = `
@@ -68,7 +68,8 @@ describe("onbeforeunload", () => {
     it("works when force is set", () => {
       onbeforeunload.install(frameWindow);
       onbeforeunload.install(frameWindow, undefined, true);
-      assert.isTrue(frameWindow.onbeforeunload(undefined as any));
+      assert.isTrue(frameWindow.onbeforeunload!.call(frameWindow,
+                                                     undefined as any));
     });
 
     it("a true check results in a prompt", () => {
@@ -76,7 +77,8 @@ describe("onbeforeunload", () => {
       check.returns(true);
 
       onbeforeunload.install(frameWindow, check, true);
-      assert.isTrue(frameWindow.onbeforeunload(undefined as any));
+      assert.isTrue(frameWindow.onbeforeunload!.call(frameWindow,
+                                                     undefined as any));
       assert.isTrue(check.calledOnce);
     });
 
@@ -85,7 +87,8 @@ describe("onbeforeunload", () => {
       check.returns(false);
 
       onbeforeunload.install(frameWindow, check, true);
-      assert.isUndefined(frameWindow.onbeforeunload(undefined as any));
+      assert.isUndefined(frameWindow.onbeforeunload!.call(frameWindow,
+                                                          undefined as any));
       assert.isTrue(check.calledOnce);
     });
   });

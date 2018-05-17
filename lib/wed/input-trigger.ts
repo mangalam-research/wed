@@ -5,7 +5,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import $ from "jquery";
-import { HashMap } from "salve";
 
 import { DLoc } from "./dloc";
 import { isText } from "./domtypeguards";
@@ -14,11 +13,6 @@ import { GUISelector } from "./gui-selector";
 import { Key } from "./key";
 import { Mode } from "./mode";
 import { EditorAPI } from "./mode-api";
-
-// tslint:disable-next-line:no-any
-function hashHelper(o: any): any {
-  return o.hash();
-}
 
 /**
  * @param eventType The type of event being processed.
@@ -51,8 +45,8 @@ export type KeyHandler = (eventType: "keypress" | "keydown" | "paste",
  */
 export class InputTrigger {
   // This is a map of all keys to their handlers.
-  private readonly keyToHandler: HashMap = new HashMap(hashHelper);
-  private readonly textInputKeyToHandler: HashMap = new HashMap(hashHelper);
+  private readonly keyToHandler: Map<Key, KeyHandler[]> = new Map();
+  private readonly textInputKeyToHandler: Map<Key, KeyHandler[]> = new Map();
 
   /**
    * @param editor The editor to which this ``InputTrigger`` belongs.
@@ -120,10 +114,10 @@ export class InputTrigger {
    * @param handler The handler that will process events related to that key.
    */
   addKeyHandler(key: Key, handler: KeyHandler): void {
-    let handlers = this.keyToHandler.has(key);
-    if (handlers == null) {
+    let handlers = this.keyToHandler.get(key);
+    if (handlers === undefined) {
       handlers = [];
-      this.keyToHandler.add(key, handlers);
+      this.keyToHandler.set(key, handlers);
     }
 
     handlers.push(handler);
@@ -135,8 +129,8 @@ export class InputTrigger {
     }
 
     // We share the handlers array between the two maps.
-    if (this.textInputKeyToHandler.has(key) == null) {
-      this.textInputKeyToHandler.add(key, handlers);
+    if (!this.textInputKeyToHandler.has(key)) {
+      this.textInputKeyToHandler.set(key, handlers);
     }
   }
 
@@ -164,18 +158,18 @@ export class InputTrigger {
   /**
    * Handles ``keydown`` events.
    *
-   * @param wedEvent The DOM event wed generated to trigger this handler.
+   * @param _wedEvent The DOM event wed generated to trigger this handler.
    *
    * @param e The original DOM event that wed received.
    */
-  private keydownHandler(wedEvent: Event, e: JQueryKeyEventObject): void {
+  private keydownHandler(_wedEvent: Event, e: JQueryKeyEventObject): void {
     const nodeOfInterest = this.getNodeOfInterest();
     if (nodeOfInterest === null) {
       return;
     }
 
     const dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-    this.keyToHandler.forEach((key: Key, handlers: KeyHandler[]) => {
+    this.keyToHandler.forEach((handlers: KeyHandler[], key: Key) => {
       if (key.matchesEvent(e)) {
         for (const handler of handlers) {
           handler("keydown", dataNode, e);
@@ -187,18 +181,18 @@ export class InputTrigger {
   /**
    * Handles ``keypress`` events.
    *
-   * @param wedEvent The DOM event wed generated to trigger this handler.
+   * @param _wedEvent The DOM event wed generated to trigger this handler.
    *
    * @param e The original DOM event that wed received.
    */
-  private keypressHandler(wedEvent: Event, e: JQueryKeyEventObject): void {
+  private keypressHandler(_wedEvent: Event, e: JQueryKeyEventObject): void {
     const nodeOfInterest = this.getNodeOfInterest();
     if (nodeOfInterest === null) {
       return;
     }
 
     const dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-    this.keyToHandler.forEach((key: Key, handlers: KeyHandler[]) => {
+    this.keyToHandler.forEach((handlers: KeyHandler[], key: Key) => {
       if (key.matchesEvent(e)) {
         for (const handler of handlers) {
           handler("keypress", dataNode, e);
@@ -210,7 +204,7 @@ export class InputTrigger {
   /**
    * Handles ``paste`` events.
    *
-   * @param wedEvent The DOM event wed generated to trigger this handler.
+   * @param _wedEvent The DOM event wed generated to trigger this handler.
    *
    * @param e The original DOM event that wed received.
    *
@@ -218,7 +212,7 @@ export class InputTrigger {
    *
    * @param data The data that the user wants to insert.
    */
-  private pasteHandler(wedEvent: Event, e: JQueryKeyEventObject, caret: DLoc,
+  private pasteHandler(_wedEvent: Event, e: JQueryKeyEventObject, caret: DLoc,
                        data: Element): void {
     if (this.editor.undoingOrRedoing()) {
       return;
@@ -247,13 +241,13 @@ export class InputTrigger {
     // writing, on XML namespaces, period).
     const nodeOfInterest = (isText(caret.node) ?
                             caret.node.parentNode! : caret.node) as Element;
-    const guiNode = $.data(nodeOfInterest as Element, "wed_mirror_node");
+    const guiNode = $.data(nodeOfInterest, "wed_mirror_node");
 
     if (closest(guiNode, this.selector.value, this.editor.guiRoot) === null) {
       return;
     }
 
-    this.textInputKeyToHandler.forEach((key: Key, handlers: KeyHandler[]) => {
+    this.textInputKeyToHandler.forEach((handlers: KeyHandler[], key: Key) => {
       // We care only about text input
       if (key.anyModifier()) {
         return;

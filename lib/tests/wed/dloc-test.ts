@@ -55,7 +55,7 @@ describe("dloc", () => {
     $(".__test").remove();
   });
 
-  function makeAttributeNodeCase(): { attrLoc: DLoc, loc: DLoc } {
+  function makeAttributeNodeCase(): { attrLoc: DLoc; loc: DLoc } {
     const a = defined($(".quote")[0].getAttributeNode(encodedType));
     const b = defined($(".body .p")[1]);
     const attrLoc = defined(DLoc.makeDLoc(root, a, 0));
@@ -63,7 +63,7 @@ describe("dloc", () => {
     return { attrLoc, loc };
   }
 
-  function makeInvalidCase(): { loc: DLoc, invalid: DLoc } {
+  function makeInvalidCase(): { loc: DLoc; invalid: DLoc } {
     $root.append("<div class='__test'></div>");
     const t = defined($(".__test")[0]);
     assert.equal(t.nodeType, Node.ELEMENT_NODE);
@@ -529,7 +529,7 @@ describe("dloc", () => {
            const t = defined($(".__test")[0].attributes.getNamedItem("foo"));
            assert.isTrue(isAttr(t));
            const loc = defined(DLoc.makeDLoc(root, t, 0));
-           t.ownerElement.removeAttribute("foo");
+           t.ownerElement!.removeAttribute("foo");
            assert.isFalse(loc.isValid());
          });
 
@@ -948,7 +948,7 @@ describe("dloc", () => {
     describe("mustMakeDOMRange", () => {
       it("makes a DOM range", () => {
         const loc2 = loc.makeWithOffset(1);
-        const range = new DLocRange(loc, loc2).mustMakeDOMRange()!;
+        const range = new DLocRange(loc, loc2).mustMakeDOMRange();
         assert.isDefined(range);
         assert.equal(range.startContainer, loc.node);
         assert.equal(range.startOffset, loc.offset);

@@ -94,7 +94,7 @@ server_interaction_converted.xml",
     // tslint:disable-next-line:no-floating-promises
     editor.save().then(() => {
       const sub = editor.saver.events
-        .pipe(filter((ev) => ev.name === "Autosaved")).subscribe((ev) => {
+        .pipe(filter((ev) => ev.name === "Autosaved")).subscribe(() => {
           throw new Error("autosaved!");
         });
       editor.saver.setAutosaveInterval(50);

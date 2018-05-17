@@ -221,7 +221,7 @@ actualWidth))}px`;
    * to dismiss the popup.
    */
   // tslint:disable-next-line:no-any
-  private _selectedHandler(ev: JQueryEventObject, obj: any): void {
+  private _selectedHandler(_ev: JQueryEventObject, obj: any): void {
     this.dismiss(obj);
   }
 

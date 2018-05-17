@@ -24,7 +24,7 @@ describe("key", () => {
   before((done) => {
     frame = document.createElement("iframe");
     document.body.appendChild(frame);
-    frameWindow = frame.contentWindow;
+    frameWindow = frame.contentWindow!;
     // We need <base> in the following code so that the proper protocol
     // is set when resolving the relative paths.
     const frameSrc = `
@@ -158,6 +158,7 @@ describe("key", () => {
     describe("matchesEvent", () => {
       it("matches keydown/keyup keys, with unspecified shift", () => {
         const k = key.makeCtrlKey(1);
+        // tslint:disable-next-line:no-object-literal-type-assertion
         const event = {
           which: 1,
           keyCode: 1,
@@ -183,6 +184,7 @@ describe("key", () => {
 
       it("matches keydown/keyup keys, with specified shift", () => {
         const k = key.makeCtrlKey(1, true);
+        // tslint:disable-next-line:no-object-literal-type-assertion
         const event = {
           which: 1,
           keyCode: 1,
@@ -208,6 +210,7 @@ describe("key", () => {
 
       it("matches a keypress key", () => {
         const k = key.makeKey(1);
+        // tslint:disable-next-line:no-object-literal-type-assertion
         const event = {
           which: 1,
           keyCode: 1,
@@ -228,6 +231,7 @@ describe("key", () => {
 
       it("returns false when not matching an event", () => {
         const k = key.makeCtrlKey(1);
+        // tslint:disable-next-line:no-object-literal-type-assertion
         assert.isFalse(k.matchesEvent({
           which: 1,
           keyCode: 1,
@@ -242,6 +246,7 @@ describe("key", () => {
 
     describe("setEventToMatch", () => {
       it("sets an event to match a ctrl key, with unspecified shift", () => {
+        // tslint:disable-next-line:no-object-literal-type-assertion
         const event = {} as KeyboardEvent;
         const k = key.makeCtrlKey(1);
         k.setEventToMatch(event);
@@ -252,6 +257,7 @@ describe("key", () => {
       });
 
       it("sets an event to match a ctrl key, with specified shift", () => {
+        // tslint:disable-next-line:no-object-literal-type-assertion
         const event = {} as KeyboardEvent;
         const k = key.makeCtrlKey(1, true);
         k.setEventToMatch(event);
@@ -262,6 +268,7 @@ describe("key", () => {
       });
 
       it("sets an event to match a keypress", () => {
+        // tslint:disable-next-line:no-object-literal-type-assertion
         const event = {} as KeyboardEvent;
         const k = key.makeKey(1);
         k.setEventToMatch(event);

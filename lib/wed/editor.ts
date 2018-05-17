@@ -20,6 +20,7 @@ import { DLoc, DLocRoot } from "./dloc";
 import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import * as domutil from "./domutil";
+// tslint:disable-next-line:no-duplicate-imports
 import { closest, closestByClass, htmlToElements, indexOf } from "./domutil";
 import * as editorActions from "./editor-actions";
 import { AbortTransformationException } from "./exceptions";
@@ -352,11 +353,9 @@ export class Editor implements EditorAPI {
     if (!optionsValidator(options)) {
       // tslint:disable-next-line:prefer-template
       throw new Error("the options passed to wed are not valid: " +
-                      // We need "as string" due to:
-                      // https://github.com/palantir/tslint/issues/2736
-                      (ajv.errorsText(optionsValidator.errors, {
+                      ajv.errorsText(optionsValidator.errors!, {
                         dataVar: "options",
-                      }) as string));
+                      }));
     }
 
     if (options.ajaxlog !== undefined) {
@@ -1275,8 +1274,8 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "children-changed",
       "._real, ._phantom_wrap, .wed-document",
-      (root: Node, added: Node[], removed: Node[], prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, added: Node[], removed: Node[], _prev: Node | null,
+       _next: Node | null, target: Element) => {
         for (const child of added.concat(removed)) {
           if (isText(child) ||
               (isElement(child) &&
@@ -1292,7 +1291,7 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "attribute-changed",
       "._real",
-      (root: Node, el: Element, namespace: string, name: string) => {
+      (_root: Node, el: Element, namespace: string, name: string) => {
         if (namespace === "" && name.indexOf("data-wed", 0) === 0) {
           // Doing the restart immediately messes up the editing. So schedule it
           // for ASAP.
@@ -1310,8 +1309,8 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "included-element",
       "._label",
-      (root: Node, tree: Node, parent: Node, prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _tree: Node, _parent: Node, _prev: Node | null,
+       _next: Node | null, target: Element) => {
          const cl = target.classList;
          let found: number | undefined;
          for (let i = 0; i < cl.length && found === undefined; ++i) {
@@ -1333,8 +1332,8 @@ export class Editor implements EditorAPI {
       "children-changed",
       "._real, ._phantom_wrap, .wed-document",
       // tslint:disable-next-line:cyclomatic-complexity
-      (root: Node, added: Node[], removed: Node[], prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _added: Node[], removed: Node[], _prev: Node | null,
+       _next: Node | null, target: Element) => {
          if (this.updatingPlaceholder !== 0) {
            return;
          }
@@ -1422,16 +1421,16 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "children-changed",
       "._attribute_value",
-      (root: Node, added: Node[], removed: Node[], prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _added: Node[], _removed: Node[], _prev: Node | null,
+       _next: Node | null, target: Element) => {
         attributePlaceholderHandler(target);
       });
 
     this.domlistener.addHandler(
       "included-element",
       "._attribute_value",
-      (root: Node, tree: Node, parent: Node, prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _tree: Node, _parent: Node, _prev: Node | null,
+       _next: Node | null, target: Element) => {
         attributePlaceholderHandler(target);
       });
 
@@ -1522,7 +1521,7 @@ export class Editor implements EditorAPI {
         return;
       }
 
-      const offset = this.$guiRoot.offset();
+      const offset = this.$guiRoot.offset()!;
       const x = ev.pageX - offset.left;
       const y = ev.pageY - offset.top;
 
@@ -1578,9 +1577,9 @@ wed's generic help. The link by default will open in a new tab.</p>`);
         .then((modules) => {
           // tslint:disable-next-line:no-any variable-name
           const SaverClass = (modules[0] as any).Saver as SaverConstructor;
-          const saveOptions = save!.options !== undefined ? save!.options : {};
+          const saveOptions = save.options !== undefined ? save.options : {};
           const saver = new SaverClass(this.runtime, version, this.dataUpdater,
-                                     this.dataRoot, saveOptions!);
+                                       this.dataRoot, saveOptions);
           this.saver = saver;
 
           saver.events
@@ -1704,8 +1703,7 @@ started with incorrect options.`;
         return failure;
       }
 
-      const evs =
-        this.validator.possibleAt(this.dataRoot, 0).toArray() as salve.Event[];
+      const evs = Array.from(this.validator.possibleAt(this.dataRoot, 0));
       if (evs.length === 1 && evs[0].params[0] === "enterStartTag") {
         const name = evs[0].params[1] as salve.BaseName;
         // If the name pattern is not simple or it allows for a number of
@@ -1746,7 +1744,7 @@ in a way not supported by this version of wed.";
 
   addToolbarAction(actionClass: editorActions.ActionCtor,
                    options: AddOptions): void {
-    this.toolbar.addButton( new actionClass(this).makeButton(), options);
+    this.toolbar.addButton(new actionClass(this).makeButton(), options);
   }
 
   /**
@@ -1877,11 +1875,11 @@ in a way not supported by this version of wed.";
    * list contain ``undefined`` for ``name``.
    */
   getElementTransformationsAt(treeCaret: DLoc, types: string |  string[]):
-  { tr: Action<{}>, name?: string }[]
+  { tr: Action<{}>; name?: string }[]
   {
     const mode = this.modeTree.getMode(treeCaret.node);
     const resolver = mode.getAbsoluteResolver();
-    const ret: { tr: Action<{}>, name?: string }[] = [];
+    const ret: { tr: Action<{}>; name?: string }[] = [];
     this.validator.possibleAt(treeCaret).forEach((ev: salve.Event) => {
       if (ev.params[0] !== "enterStartTag") {
         return;
@@ -1998,7 +1996,7 @@ in a way not supported by this version of wed.";
             // contains the contents we actually want to paste.
             this.fireTransformation(
               this.pasteTr,
-              { node: caret!.node, to_paste: data, e: e });
+              { node: caret.node, to_paste: data, e: e });
           }
         });
         return false;
@@ -2170,7 +2168,7 @@ in a way not supported by this version of wed.";
     else if (keyConstants.CONTEXTUAL_MENU.matchesEvent(e)) {
       if (selFocus !== undefined) {
         let selFocusNode = selFocus.node;
-        const gui = closestByClass(selFocusNode, "_gui", selFocus!.root);
+        const gui = closestByClass(selFocusNode, "_gui", selFocus.root);
         if (gui !== null && gui.classList.contains("_label_clicked")) {
           if (isText(selFocusNode)) {
             selFocusNode = selFocusNode.parentNode!;
@@ -2481,7 +2479,7 @@ in a way not supported by this version of wed.";
     }
   }
 
-  private globalKeypressHandler(wedEvent: JQueryEventObject,
+  private globalKeypressHandler(_wedEvent: JQueryEventObject,
                                 e: JQueryKeyEventObject): boolean {
     if (this.caretManager.caret === undefined) {
       return true;
@@ -2700,7 +2698,6 @@ in a way not supported by this version of wed.";
       }
       break;
     default:
-      break;
     }
     return false;
   }
@@ -2761,7 +2758,6 @@ in a way not supported by this version of wed.";
       }
       break;
     default:
-      break;
     }
     this.$guiRoot.off("mousemove");
     ev.preventDefault();
@@ -2935,7 +2931,7 @@ in a way not supported by this version of wed.";
   makeGUITreeTooltip($for: JQuery, options: TooltipOptions): void {
     const title = options.title;
     if (title !== undefined) {
-      options = Object.assign({}, options);
+      options = {...options};
       options.title = () => {
         // The check is here so that we can turn tooltips on and off
         // dynamically.
@@ -3076,7 +3072,7 @@ in a way not supported by this version of wed.";
     const range = this.doc.createRange();
 
     let min: {
-      dist: { x: number, y: number };
+      dist: { x: number; y: number };
       node: Node;
       start: number;
     } | undefined;
@@ -3205,7 +3201,6 @@ in a way not supported by this version of wed.";
               before = false;
               break;
             default:
-              break;
             }
           }
 
@@ -3422,7 +3417,7 @@ ${util.getOriginalName(el)}&nbsp;</span></span>`);
     }, 0);
   }
 
-  private paste(editor: EditorAPI, data: PasteTransformationData): void {
+  private paste(_editor: EditorAPI, data: PasteTransformationData): void {
     const toPaste = data.to_paste;
     const dataClone = toPaste.cloneNode(true);
     let caret = this.caretManager.getDataCaret();
@@ -3491,7 +3486,7 @@ ${util.getOriginalName(el)}&nbsp;</span></span>`);
       value = value.slice(0, dataStart.offset) + newText +
         value.slice(dataEnd.offset);
       editor.dataUpdater.setAttributeNS(
-        attr.ownerElement,
+        attr.ownerElement!,
         attr.namespaceURI === null ? "" : attr.namespaceURI,
         attr.name, value);
       if (caretAtEnd) {

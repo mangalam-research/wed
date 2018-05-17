@@ -56,7 +56,7 @@ function findInsertionPoint(editor: Editor, node: Node,
   catch (ex) {
     if (ex instanceof AttributeNotFound) {
       // This happens only if node points to an attribute.
-      return caretManager.fromDataLocation((node as Attr).ownerElement, 0);
+      return caretManager.fromDataLocation((node as Attr).ownerElement!, 0);
     }
 
     throw ex;
@@ -415,7 +415,7 @@ export class ValidationController {
           const $link = $(this.errorList.querySelector(`#${linkId}`));
           const $scrollable = this.$errorList.parent(".panel-body");
           $scrollable.animate({
-            scrollTop: $link.offset().top - $scrollable.offset().top +
+            scrollTop: $link.offset()!.top - $scrollable.offset()!.top +
               $scrollable[0].scrollTop,
           });
           this.errorLayer.select(marker!);

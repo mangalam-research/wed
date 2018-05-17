@@ -59,7 +59,7 @@ function countInPhantomWrap(top: Element): number {
   return count;
 }
 
-type FindResult = { found: Node | null, count: number };
+type FindResult = { found: Node | null; count: number };
 
 function findInPhantomWrap(top: Element, index: number): FindResult {
   if (!isElement(top) || !top.classList.contains("_phantom_wrap")) {

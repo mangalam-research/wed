@@ -42,7 +42,7 @@ const modal = $modal[0];
 
 // tslint:disable:no-any
 export function make(baseOpts: any):
-{ ajax: bluejax.AjaxCall, ajax$: bluejax.AjaxCall$ } {
+{ ajax: bluejax.AjaxCall; ajax$: bluejax.AjaxCall$ } {
   const bajax = bluejax.make(baseOpts);
 
   const diagnose = bluejax.make({

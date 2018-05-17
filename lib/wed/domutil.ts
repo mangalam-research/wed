@@ -127,7 +127,7 @@ export function comparePositions(firstNode: Node,
  * or no range.
  */
 export function getSelectionRange(win: Window): Range | undefined {
-  const sel = window.getSelection();
+  const sel = win.getSelection();
 
   if (sel === undefined || sel.rangeCount < 1) {
     return undefined;
@@ -142,7 +142,7 @@ export function getSelectionRange(win: Window): Range | undefined {
  * created from a starting point which is greater than the end point (in
  * document order), then the range is "reversed".
  */
-export type RangeInfo = {range: Range, reversed: boolean};
+export type RangeInfo = {range: Range; reversed: boolean};
 
 /**
  * Creates a range from two points in a document.
@@ -284,7 +284,6 @@ export function nextCaretPosition(caret: Caret,
       }
       break;
     default:
-      break;
     }
   }
 
@@ -404,7 +403,6 @@ export function prevCaretPosition(caret: Caret,
       }
       break;
     default:
-      break;
     }
   }
 
@@ -590,7 +588,7 @@ function _genericInsertIntoText(this: GenericInsertIntoTextContext,
       endCaret = [parent, textNodeAt + frag.childNodes.length];
     }
     else {
-      endCaret = [frag.lastChild!, (frag.lastChild as Text)!.length - nextLen];
+      endCaret = [frag.lastChild!, (frag.lastChild as Text).length - nextLen];
     }
 
     // tslint:disable:no-invalid-this
@@ -1749,7 +1747,7 @@ export function isNotDisplayed(el: HTMLElement,
  */
 export function contains(container: Node, contained: Node): boolean {
   if (isAttr(contained)) {
-    contained = contained.ownerElement;
+    contained = contained.ownerElement!;
   }
 
   return container.contains(contained);

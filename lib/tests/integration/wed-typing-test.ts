@@ -459,7 +459,7 @@ describe("wed typing:", () => {
     const ph = guiRoot.getElementsByClassName("_placeholder")[0];
     caretManager.setCaret(ph, 0);
     const ctrlSomething = key.makeCtrlEqKey("A");
-    $(editor.widget).on("wed-global-keydown.btw-mode", (wedEv, ev) => {
+    $(editor.widget).on("wed-global-keydown.btw-mode", (_wedEv, ev) => {
       if (ctrlSomething.matchesEvent(ev)) {
         done();
       }
@@ -499,7 +499,7 @@ describe("wed typing:", () => {
 
     window.setTimeout(() => {
       const clickEvent = new $.Event("click");
-      const offset = $(lastGUISpan).offset();
+      const offset = $(lastGUISpan).offset()!;
       clickEvent.pageX = offset.left;
       clickEvent.pageY = offset.top;
       clickEvent.target = lastGUISpan;

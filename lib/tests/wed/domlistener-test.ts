@@ -78,7 +78,7 @@ describe("domlistener", () => {
     // Create a new fragment each time.
     // tslint:disable-next-line:no-jquery-raw-elements
     fragmentToAdd = $("<div class='_real ul'><div class='_real li'>A</div>\
-<div class='_real li'>B</div></div>")[0] as HTMLElement;
+<div class='_real li'>B</div></div>")[0];
     // tslint:disable-next-line:no-inner-html
     domroot.innerHTML = "";
     root = document.createElement("div");
@@ -94,7 +94,8 @@ describe("domlistener", () => {
   });
 
   function makeIncludedHandler(name: string): IncludedElementHandler {
-    return ((thisRoot, tree, parent, previousSibling, nextSibling, element) => {
+    return ((thisRoot, _tree, _parent, _previousSibling, _nextSibling,
+             element) => {
       assert.equal(thisRoot, root);
       assert.equal(element.className, `_real ${name}`);
       mark.mark(`included ${name}`);
@@ -102,7 +103,8 @@ describe("domlistener", () => {
   }
 
   function makeExcludedHandler(name: string): ExcludedElementHandler {
-    return ((thisRoot, tree, parent, previousSibling, nextSibling, element) => {
+    return ((thisRoot, _tree, _parent, _previousSibling, _nextSibling,
+             element) => {
       assert.equal(thisRoot, root);
       assert.equal(element.className, `_real ${name}`);
       mark.mark(`excluded ${name}`);
@@ -110,7 +112,8 @@ describe("domlistener", () => {
   }
 
   function makeExcludingHandler(name: string): ExcludingElementHandler {
-    return ((thisRoot, tree, parent, previousSibling, nextSibling, element) => {
+    return ((thisRoot, _tree, _parent, _previousSibling, _nextSibling,
+             element) => {
       assert.equal(thisRoot, root);
       assert.equal(element.className, `_real ${name}`);
       mark.mark(`excluding ${name}`);
@@ -130,7 +133,7 @@ describe("domlistener", () => {
        listener.addHandler("included-element", "._real.li",
                            makeIncludedHandler("li"));
        listener.addHandler("added-element", "._real.ul",
-                           ((thisRoot, parent, previousSibling, nextSibling,
+                           ((thisRoot, parent, _previousSibling, _nextSibling,
                              element) => {
                               assert.equal(thisRoot, root);
                               assert.equal(thisRoot, parent);
@@ -162,7 +165,7 @@ describe("domlistener", () => {
        mark = new Mark(2, { "added li": 2 }, listener, done);
        listener.addHandler(
          "added-element", "._real.li",
-         ((thisRoot, parent_, previousSibling, nextSibling, element) => {
+         ((_thisRoot, _parent, previousSibling, nextSibling, element) => {
            assert.equal(previousSibling, element.previousSibling);
            assert.equal(nextSibling, element.nextSibling);
            mark.mark("added li");
@@ -189,7 +192,7 @@ describe("domlistener", () => {
        const $li = $root.find("._real.li");
        listener.addHandler(
          "removing-element", "._real.li",
-         ((thisRoot, parent, previousSibling, nextSibling, element) => {
+         ((_thisRoot, _parent, previousSibling, nextSibling, element) => {
            const text = element.firstChild!.nodeValue;
            if (text === "A") {
              assert.isNull(previousSibling, "previous sibling of A");
@@ -205,7 +208,7 @@ describe("domlistener", () => {
        const ul = root.querySelector("._real.ul");
        listener.addHandler(
          "removed-element", "._real.li",
-         ((thisRoot, parent, previousSibling, nextSibling) => {
+         ((_thisRoot, parent, previousSibling, nextSibling) => {
            assert.isNull(previousSibling, "previous sibling of A");
            assert.isNull(nextSibling, "next sibling of B");
            assert.equal(parent, ul);
@@ -245,7 +248,7 @@ describe("domlistener", () => {
 
        listener.addHandler(
          "removing-element", "._real.ul",
-         ((thisRoot, parent, previousSibling, nextSibling, element) => {
+         ((thisRoot, parent, _previousSibling, _nextSibling, element) => {
            assert.equal(thisRoot, root);
            assert.equal(thisRoot, parent);
            assert.equal(element, fragmentToAdd);
@@ -309,7 +312,7 @@ describe("domlistener", () => {
     });
     listener.addHandler(
       "included-element", "._real.li",
-      ((thisRoot, tree, parent, previousSibling, nextSibling, element) => {
+      ((thisRoot, _tree, _parent, _previousSibling, _nextSibling, element) => {
         assert.equal(thisRoot, root);
         assert.equal(element.className, "_real li");
         listener.trigger("test");
@@ -341,7 +344,7 @@ describe("domlistener", () => {
 
     listener.addHandler(
       "included-element", "._real.li",
-      ((thisRoot, tree, parent, previousSibling, nextSibling, element) => {
+      ((thisRoot, _tree, _parent, _previousSibling, _nextSibling, element) => {
         assert.equal(thisRoot, root);
         assert.equal(element.className, "_real li");
         listener.trigger("test");
@@ -461,7 +464,7 @@ describe("domlistener", () => {
        const li = root.querySelectorAll("._real.li");
        listener.addHandler(
          "children-changed", "._real.ul",
-         ((thisRoot, added, removed, previousSibling, nextSibling) => {
+         ((_thisRoot, added, _removed, previousSibling, nextSibling) => {
            // The marker will also trigger this handler. Ignore it.
            if (added[0] === marker) {
              return;
@@ -493,7 +496,8 @@ describe("domlistener", () => {
        const parent = $li[0].parentNode;
        listener.addHandler(
          "children-changing", "._real.ul",
-         ((thisRoot, added, removed, previousSibling, nextSibling, element) => {
+         ((_thisRoot, added, _removed, previousSibling, nextSibling,
+           element) => {
            // The marker will also trigger this handler. Ignore it.
            if (added[0] === marker) {
              return;
@@ -506,7 +510,8 @@ describe("domlistener", () => {
 
        listener.addHandler(
          "children-changed", "._real.ul",
-         ((thisRoot, added, removed, previousSibling, nextSibling, element) => {
+         ((_thisRoot, added, _removed, previousSibling, nextSibling,
+           element) => {
            // The marker will also trigger this handler. Ignore it.
            if (added[0] === marker) {
              return;
@@ -584,7 +589,7 @@ describe("domlistener", () => {
                       marked = true;
                     });
     listener.addHandler("children-changed", "*",
-                        ((thisRoot, added) => {
+                        ((_thisRoot, added) => {
                           if (added[0] === marker) {
                             return;
                           }
@@ -608,7 +613,7 @@ describe("domlistener", () => {
       marked = true;
     });
     listener.addHandler("children-changed", "*",
-                        ((thisRoot, added) => {
+                        ((_thisRoot, added) => {
                           if (added[0] === marker) {
                             return;
                           }

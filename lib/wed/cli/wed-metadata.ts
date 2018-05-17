@@ -184,7 +184,7 @@ const ajv = new Ajv();
 const validator = ajv.compile(schema);
 const valid = validator(output);
 if (!(valid as boolean)) {
-  if (validator.errors !== undefined) {
+  if (validator.errors != null) {
     for (const error of validator.errors) {
       // tslint:disable-next-line:no-console
       console.log(error);

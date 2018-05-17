@@ -80,6 +80,7 @@ export abstract class Action<Data> {
     // that did not seem fruitful. Instead, we silently use an empty object if
     // the field is missing.
     //
+    // tslint:disable-next-line:no-object-literal-type-assertion
     const data = ev.data != null ? ev.data : ({} as Data);
     this.execute(data);
     ev.preventDefault();
@@ -118,6 +119,7 @@ export abstract class Action<Data> {
    *
    * @returns The description.
    */
+  // @ts-ignore
   getDescriptionFor(data: Data): string {
     return this.getDescription();
   }
@@ -175,7 +177,8 @@ export abstract class Action<Data> {
       this.getAbbreviatedDescription(),
       this.getIcon());
 
-    button.events.subscribe((event) => {
+    button.events.subscribe(() => {
+      // tslint:disable-next-line:no-object-literal-type-assertion
       this.execute(data !== undefined ? data : {} as Data);
     });
 

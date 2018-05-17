@@ -148,7 +148,7 @@ export class WedServer {
     this.oldFilters = (xhr as any).filters;
 
     xhr.useFilters = true;
-    xhr.addFilter((method: string, url: string): boolean =>
+    xhr.addFilter((_method: string, url: string): boolean =>
                   !/^\/build\/ajax\//.test(url));
     server.respondImmediately = true;
     server.respondWith("POST", /^\/build\/ajax\/save\.txt$/,
@@ -241,7 +241,7 @@ export class WedServer {
 }
 
 export function makeWedRoot(doc: Document): HTMLElement {
-  const wedroot = document.createElement("div");
+  const wedroot = doc.createElement("div");
   wedroot.className = "wed-widget container";
   return wedroot;
 }

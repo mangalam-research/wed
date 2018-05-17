@@ -42,7 +42,7 @@ describe("ModeLoader", () => {
   describe("#initMode", () => {
     it("fails if we cannot load", async () => {
       runtime.resolveModules.throws(new Error("cannot load"));
-      await expectError(async () => await loader.initMode("moo", options),
+      await expectError(async () => loader.initMode("moo", options),
                         Error, "cannot load");
     });
 
@@ -104,7 +104,7 @@ describe("ModeLoader", () => {
           return ret;
         },
       }]);
-      await expectError(async () =>  await loader.initMode("moo/foo", options),
+      await expectError(async () =>  loader.initMode("moo/foo", options),
                         Error, "failed");
     });
   });

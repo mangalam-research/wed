@@ -3,7 +3,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { constructTree, Event, Grammar, Name, ValidationError } from "salve";
+import { constructTree, Event, EventSet, Grammar, Name,
+         ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
 import { DLoc, DLocRoot } from "wed/dloc";
@@ -12,6 +13,12 @@ import * as validator from "wed/validator";
 import { DataProvider } from "../util";
 
 const assert = chai.assert;
+
+function sameEvents(evs: EventSet, expected: Event[]): void {
+  assert.sameMembers(
+    Array.from(evs).map((x) => x.toString()),
+    expected.map((x) => x.toString()));
+}
 
 describe("validator", () => {
   let emptyTree: HTMLElement;
@@ -42,9 +49,7 @@ describe("validator", () => {
     it("with DLoc", () => {
       const p = new validator.Validator(grammar, emptyTree, []);
       const evs = p.possibleAt(DLoc.mustMakeDLoc(emptyDataRoot, emptyTree, 0));
-      assert.sameMembers(
-        evs.toArray(),
-        [new Event("enterStartTag", new Name("", "", "html"))]);
+      sameEvents(evs, [new Event("enterStartTag", new Name("", "", "html"))]);
     });
   });
 

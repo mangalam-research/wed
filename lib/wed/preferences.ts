@@ -112,8 +112,7 @@ export class Preferences {
       it = it[part];
 
       if (it === undefined) {
-        // tslint:disable-next-line:no-any
-        it = (it as any)[part] = Object.create(null);
+        it = it[part] = Object.create(null);
       }
       ++ix;
     }

@@ -26,7 +26,7 @@ export class Scroller {
   private readonly _events: Subject<ScrollEvent> = new Subject();
 
   /** This is where you can listen to scrolling events. */
-  readonly events: Observable<ScrollEvent>= this._events.asObservable();
+  readonly events: Observable<ScrollEvent> = this._events.asObservable();
 
   /**
    * @param el The DOM element responsible for scrolling.

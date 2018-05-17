@@ -148,7 +148,7 @@ function executeWrap(editor: EditorAPI, data: NamedTransformationData): void {
     throw new Error("wrap transformation called with undefined range");
   }
 
-  if (sel.collapsed as boolean) {
+  if (sel.collapsed) {
     throw new Error("wrap transformation called with collapsed range");
   }
   const [startCaret, endCaret] = sel.mustAsDataCarets();
@@ -246,7 +246,7 @@ function executeDeleteAttribute(editor: EditorAPI,
     throw new Error("node must be an attribute");
   }
 
-  const element = node.ownerElement;
+  const element = node.ownerElement!;
   const caretManager = editor.caretManager;
   const guiOwnerLoc = caretManager.mustFromDataLocation(element, 0);
   // If the node we start with is an Element, then the node in guiOwnerLoc

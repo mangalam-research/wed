@@ -74,7 +74,7 @@ export class CompletionMenu extends ContextMenu {
     return this._focused;
   }
 
-  private globalKeydownHandler(wedEv: Event, ev: JQueryEventObject): boolean {
+  private globalKeydownHandler(_wedEv: Event, ev: JQueryEventObject): boolean {
     if (keyConstants.ENTER.matchesEvent(ev)) {
       this.$menu.find("li:not(.divider):visible a").first().click();
       return false;

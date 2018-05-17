@@ -496,7 +496,7 @@ describe("domutil", () => {
         it("modifies a text node", () => {
           const node = title.firstChild!;
           const { node: textNode, isNew, caret } = adapter(node, 2, "Q");
-          assert.equal(textNode, node);
+          assert.equal(textNode as Node, node);
           assert.isFalse(isNew);
           assert.equal(textNode!.nodeValue, "abQcd");
           assert.equal(caret[0], textNode);
@@ -505,7 +505,7 @@ describe("domutil", () => {
 
         it("uses the next text node if possible", () => {
           const { node: textNode, isNew, caret } = adapter(title, 0, "Q");
-          assert.equal(textNode, title.firstChild);
+          assert.equal(textNode as Node, title.firstChild);
           assert.isFalse(isNew);
           assert.equal(textNode!.nodeValue, "Qabcd");
           assert.equal(caret[0], textNode);
@@ -514,7 +514,7 @@ describe("domutil", () => {
 
         it("uses the previous text node if possible", () => {
           const { node: textNode, isNew, caret } = adapter(title, 1, "Q");
-          assert.equal(textNode, title.firstChild);
+          assert.equal(textNode as Node, title.firstChild);
           assert.isFalse(isNew);
           assert.equal(textNode!.nodeValue, "abcdQ");
           assert.equal(caret[0], textNode);
@@ -524,7 +524,7 @@ describe("domutil", () => {
         it("creates a text node if needed", () => {
           empty(title);
           const { node: textNode, isNew, caret } = adapter(title, 0, "test");
-          assert.equal(textNode, title.firstChild);
+          assert.equal(textNode as Node, title.firstChild);
           assert.equal(textNode!.nodeValue, "test");
           assert.isTrue(isNew);
           assert.equal(caret[0], textNode);
@@ -547,7 +547,7 @@ describe("domutil", () => {
           b.textContent = "q";
           title.appendChild(b);
           const { node: textNode, isNew, caret } = adapter(title, 1, "test");
-          assert.equal(textNode, title.lastChild);
+          assert.equal(textNode as Node, title.lastChild);
           assert.equal(textNode!.nodeValue, "test");
           assert.isTrue(isNew);
           assert.equal(caret[0], textNode);
@@ -745,7 +745,6 @@ describe("domutil", () => {
                        (nodes[i] as Element).outerHTML, `element node at ${i}`);
           break;
         default:
-          break;
         }
       }
     }
@@ -1100,7 +1099,7 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real \
     });
 
     it("handles attributes", () => {
-      const classAttr = li.attributes.getNamedItem("class");
+      const classAttr = li.attributes.getNamedItem("class")!;
       assert.isTrue(domutil.contains(li, classAttr));
       // Transitively: the attribute is contained by li, which is contained by
       // ul

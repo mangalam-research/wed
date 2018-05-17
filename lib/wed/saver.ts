@@ -401,7 +401,7 @@ export abstract class Saver {
       return undefined;
     }
 
-    return deltaToString(Date.now() - this.lastSave!);
+    return deltaToString(Date.now() - this.lastSave);
   }
 
   /**

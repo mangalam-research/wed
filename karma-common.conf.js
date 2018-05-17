@@ -22,6 +22,11 @@ module.exports = function configure(config, dist, specificMain) {
       { "middleware:serve-fake-css-files": ["factory", makeServeMiddleware] },
     ],
     frameworks: ["requirejs", "mocha", "chai", "source-map-support"],
+    client: {
+      mocha: {
+        grep: config.grep,
+      },
+    },
     files: [
       `${dist}requirejs-config.js`,
       `lib/tests/${specificMain}.js`,

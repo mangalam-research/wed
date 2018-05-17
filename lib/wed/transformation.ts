@@ -224,8 +224,7 @@ Handler extends TransformationHandler<Data> = TransformationHandler<Data>>
           handler = needsInput;
 
           super(editor, desc, abbreviatedDesc,
-                computeIconHtml(iconHtml as (string | undefined),
-                                transformationType), false);
+                computeIconHtml(iconHtml, transformationType), false);
         }
         else {
           if (!(needsInput === undefined || typeof needsInput === "boolean")) {

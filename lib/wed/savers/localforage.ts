@@ -28,11 +28,11 @@ export function config(): LocalForage {
   });
 }
 
-  /**
-   * @typedef Options
-   * @type {Object}
-   * @property {string} name
-   */
+/**
+ * @typedef Options
+ * @type {Object}
+ * @property {string} name
+ */
 
 export interface Options extends saver.SaverOptions {
   /**

@@ -53,7 +53,7 @@ server_interaction_converted.xml",
     $modal.on("shown.bs.modal", () => {
       editor.saver.events.pipe(filter((ev) => ev.name === "Saved"),
                                first())
-        .subscribe((ev) => {
+        .subscribe(() => {
           // Was saved on retry!
 
           // This allows us to let the whole save process run its course before

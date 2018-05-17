@@ -103,7 +103,7 @@ describe("dialog-search-replace", () => {
   }
 
   function checkHighlightRanges(range: DLocRange): void {
-    const highlights = document.querySelectorAll("._wed_highlight")!;
+    const highlights = document.querySelectorAll("._wed_highlight");
     expect(highlights).to.have.property("length").greaterThan(0);
     let highlightRect = highlights[0].getBoundingClientRect();
     const rangeRect =
