@@ -1,5 +1,5 @@
 const gulp = require("gulp");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const path = require("path");
 const glob = require("glob");
 const shell = require("shell-quote");
@@ -127,7 +127,7 @@ exports.test = sequence("test", lint, testKarma, testKarmaWebpack,
                           if (!options.skip_semver) {
                             yield versync.run({
                               verify: true,
-                              onMessage: gutil.log,
+                              onMessage: log,
                             });
                           }
                         });

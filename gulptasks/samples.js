@@ -1,7 +1,7 @@
 const gulp = require("gulp");
 const glob = require("glob");
 const path = require("path");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const Promise = require("bluebird");
 const { options } = require("./config");
 const { newer, checkStatusFile, checkOutputFile, cprp } = require("./util");
@@ -16,7 +16,7 @@ for (const sample of samples) {
     const dest = `build/samples/${path.basename(sample)}`;
     const isNewer = yield newer([sample, "lib/tests/xml-to-xml-tei.xsl"], dest);
     if (!isNewer) {
-      gutil.log(`Skipping generation of ${dest}`);
+      log(`Skipping generation of ${dest}`);
       return;
     }
 

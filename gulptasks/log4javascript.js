@@ -1,7 +1,7 @@
 const gulp = require("gulp");
 const path = require("path");
 const Promise = require("bluebird");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const { internals, options } = require("./config");
 const { wgetIfMissing } = require("./wget");
 const { exec, del, touchAsync, newer, mkdirpAsync } = require("./util");
@@ -20,7 +20,7 @@ gulp.task("copy-log4javascript", ["download-log4javascript"],
             const isNewer = yield newer(fullPath, dest);
 
             if (!isNewer) {
-              gutil.log("Skipping copy of log4javascript");
+              log("Skipping copy of log4javascript");
               return;
             }
 

@@ -1,5 +1,5 @@
 const gulp = require("gulp");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const Promise = require("bluebird");
 
 const { options } = require("./config");
@@ -24,7 +24,7 @@ gulp.task("typedoc", ["generate-ts", "stamp-dir", "lint"],
               ]);
 
             if ((currentHash === savedHash) && !(yield newer(sources, stamp))) {
-              gutil.log("No change, skipping typedoc.");
+              log("No change, skipping typedoc.");
               return;
             }
 

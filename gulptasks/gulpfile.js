@@ -8,7 +8,7 @@ const es = require("event-stream");
 const vinylFile = require("vinyl-file");
 const Promise = require("bluebird");
 const path = require("path");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const requireDir = require("require-dir");
 const wrapAmd = require("gulp-wrap-amd");
 const replace = require("gulp-replace");
@@ -245,7 +245,7 @@ gulp.task("npm", ["stamp-dir"], Promise.coroutine(function *task() {
   const isNewer = yield newer(["package.json", "npm-shrinkwrap.json"], stamp);
 
   if (!isNewer) {
-    gutil.log("Skipping npm.");
+    log("Skipping npm.");
     return;
   }
 
@@ -516,7 +516,7 @@ gulp.task("build-bundled-doc", ["build-standalone"],
             const isNewer = yield newer("doc/**/*", stamp);
 
             if (!isNewer) {
-              gutil.log("Skipping generation of bundled documentation.");
+              log("Skipping generation of bundled documentation.");
               return;
             }
 

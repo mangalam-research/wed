@@ -2,7 +2,7 @@ const gulp = require("gulp");
 const gulpNewer = require("gulp-newer");
 const childProcess = require("child_process");
 const Promise = require("bluebird");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const _fs = require("fs-extra");
 const _del = require("del");
 const touch = require("touch");
@@ -44,8 +44,8 @@ exports.exec = function exec(command, options) {
   return new Promise((resolve, reject) => {
     childProcess.exec(command, options, (err, stdout, stderr) => {
       if (err) {
-        gutil.log(stdout);
-        gutil.log(stderr);
+        log(stdout);
+        log(stderr);
         reject(err);
       }
       resolve(stdout, stderr);
@@ -65,8 +65,8 @@ exports.checkOutputFile = function checkOutputFile(file, args, options) {
     childProcess.execFile(file, args, options,
                           (err, stdout, stderr) => {
                             if (err) {
-                              gutil.log(stdout);
-                              gutil.log(stderr);
+                              log(stdout);
+                              log(stderr);
                               reject(err);
                               return;
                             }
@@ -252,11 +252,11 @@ exports.execFileAndReport = function execFileAndReport(...args) {
   return execFile(...args)
     .then((result) => {
       if (result.stdout) {
-        gutil.log(result.stdout);
+        log(result.stdout);
       }
     }, (err) => {
       if (err.stdout) {
-        gutil.log(err.stdout);
+        log(err.stdout);
       }
       throw err;
     });

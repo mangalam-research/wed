@@ -1,6 +1,6 @@
 const gulp = require("gulp");
 const path = require("path");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const Promise = require("bluebird");
 const { options } = require("./config");
 const { del, newer, checkOutputFile, exec, mkdirpAsync } = require("./util");
@@ -24,7 +24,7 @@ function xmlToJsonChain(name, dest) {
   gulp.task(rngTaskName, Promise.coroutine(function *task() {
     const isNewer = yield newer(xml, compiled);
     if (!isNewer) {
-      gutil.log(`Skipped running roma2 for ${compiled}.`);
+      log(`Skipped running roma2 for ${compiled}.`);
       return;
     }
 
@@ -35,7 +35,7 @@ function xmlToJsonChain(name, dest) {
   function *compiledToJson() {
     const isNewer = yield newer(compiled, json);
     if (!isNewer) {
-      gutil.log(`Skipped running saxon for ${json}.`);
+      log(`Skipped running saxon for ${json}.`);
       return;
     }
 
@@ -52,7 +52,7 @@ function xmlToJsonChain(name, dest) {
     const isNewer = yield newer([json, fragment], metaJson);
 
     if (!isNewer) {
-      gutil.log(`Skipping generation of ${metaJson}`);
+      log(`Skipping generation of ${metaJson}`);
       return;
     }
 
@@ -80,7 +80,7 @@ gulp.task("tei-doc", ["compile-rng-myTEI"], Promise.coroutine(function *task() {
 
   const isNewer = yield newer(src, dest, true /* forceDestFile */);
   if (!isNewer) {
-    gutil.log(`Skipping generation of ${dest}`);
+    log(`Skipping generation of ${dest}`);
     return;
   }
 
@@ -99,7 +99,7 @@ gulp.task("docbook-metadata", ["wed-metadata-prereq"],
             const isNewer = yield newer(fragment, metadata);
 
             if (!isNewer) {
-              gutil.log(`Skipping generation of ${metadata}`);
+              log(`Skipping generation of ${metadata}`);
               return;
             }
 
