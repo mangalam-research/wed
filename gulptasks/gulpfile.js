@@ -85,7 +85,7 @@ gulp.task("config", () => {
                    (err, override) => callback(null, err ? file : override))))
   // We do not use newer here as it would sometimes have
   // unexpected effects.
-    .pipe(changed(dest, { hasChanged: changed.compareSha1Digest }))
+    .pipe(changed(dest, { hasChanged: changed.compareContents }))
     .pipe(gulp.dest(dest));
 });
 
