@@ -30,7 +30,6 @@
     "urijs": "^1.19.1"
   },
   "devDependencies": {
-    "@types/ajv": "^1.0.0",
     "@types/argparse": "^1.0.30",
     "@types/bluebird": "^3.5.2",
     "@types/blueimp-md5": "^2.7.0",
