@@ -101,7 +101,7 @@
     "less": ">=2 <3",
     "localforage": ">=1.2.4 <2",
     "lodash-amd": ">=4 <5",
-    "merge-options": ">=0.0.42 <1",
+    "merge-options": "^1.0.1",
     "mocha": "^5.1.1",
     "morgan": ">=1.5.0 <2",
     "qs": "^6.5.1",
