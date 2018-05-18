@@ -81,8 +81,9 @@ gulp.task("config", () => {
     .pipe(es.map((file, callback) =>
                  vinylFile.read(
                    path.join(localConfigPath, file.relative),
-                   { base: localConfigPath },
-                   (err, override) => callback(null, err ? file : override))))
+                   { base: localConfigPath })
+                 .then(override => callback(null, override),
+                       () => callback(null, file))))
   // We do not use newer here as it would sometimes have
   // unexpected effects.
     .pipe(changed(dest, { hasChanged: changed.compareContents }))
