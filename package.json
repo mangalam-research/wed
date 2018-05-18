@@ -44,7 +44,7 @@
     "@types/localforage": "0.0.33",
     "@types/lodash": "^4.14.62",
     "@types/mocha": "^5.2.0",
-    "@types/node": "^7.0.5",
+    "@types/node": "^10.1.1",
     "@types/qs": "^6.5.0",
     "@types/sinon": "^2.3.5",
     "@types/sinon-chai": "^2.7.28",
