@@ -52,7 +52,8 @@ describe("wed-options-validation", () => {
       };
       const result = processWedOptions(options);
       expect(result).is.not.instanceof(Array);
-      expect(result).to.have.deep.property("attributes.handling").equal("hide");
+      expect(result).to.have.nested.property("attributes.handling")
+        .equal("hide");
     });
 
     it("cleans a string attributes option", () => {
@@ -72,7 +73,8 @@ describe("wed-options-validation", () => {
       };
       const result = processWedOptions(options);
       expect(result).is.not.instanceof(Array);
-      expect(result).to.have.deep.property("attributes.handling").equal("edit");
+      expect(result).to.have.nested.property("attributes.handling")
+        .equal("edit");
     });
 
     it("reports an error if the options are not in the right format", () => {
@@ -93,7 +95,7 @@ describe("wed-options-validation", () => {
       } as any;
       const result = processWedOptions(options);
       expect(result).to.be.instanceof(Array);
-      expect(result).to.have.deep.property("[0]").equal(
+      expect(result).to.have.nested.property("[0]").equal(
         ".attributes should be equal to one of the allowed values");
     });
 
@@ -115,7 +117,7 @@ describe("wed-options-validation", () => {
       } as any;
       const result = processWedOptions(options);
       expect(result).to.be.instanceof(Array);
-      expect(result).to.have.deep.property("[0]").equal(
+      expect(result).to.have.nested.property("[0]").equal(
         "label_levels.initial must be <= label_levels.max");
     });
   });

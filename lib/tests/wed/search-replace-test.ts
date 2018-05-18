@@ -120,12 +120,12 @@ describe("search-replace", () => {
     });
 
     it("starts with whole document scope if no selection", () => {
-      expect(makeSr()).to.have.deep.property("search.scope")
+      expect(makeSr()).to.have.nested.property("search.scope")
         .satisfy(isDocScope);
     });
 
     it("starts with start position === caret if no selection", () => {
-      expect(makeSr()).to.have.deep.property("search.start")
+      expect(makeSr()).to.have.nested.property("search.start")
         .satisfy((x: DLoc) => x.equals(firstBodyPLocation));
     });
 
@@ -134,7 +134,7 @@ describe("search-replace", () => {
                             pFiveFirstThree.start.offset,
                             pFiveFirstThree.end.node,
                             pFiveFirstThree.end.offset);
-      expect(makeSr()).to.have.deep.property("search.scope")
+      expect(makeSr()).to.have.nested.property("search.scope")
         .satisfy(equalRanges.bind(undefined, pFiveFirstThree));
     });
 
@@ -143,7 +143,7 @@ describe("search-replace", () => {
                             pFiveFirstThree.start.offset,
                             pFiveFirstThree.end.node,
                             pFiveFirstThree.end.offset);
-      expect(makeSr()).to.have.deep.property("search.start")
+      expect(makeSr()).to.have.nested.property("search.start")
         .satisfy((x: DLoc) => x.equals(pFiveFirstThree.start));
     });
 

@@ -114,15 +114,15 @@ describe("dialog-search-replace", () => {
     // range.
 
     // Rounding can make the boundaries vary a bit.
-    expect(highlightRect, "correct top").to.have.deep.property("top")
+    expect(highlightRect, "correct top").to.have.nested.property("top")
       .closeTo(rangeRect.top, 3);
-    expect(highlightRect, "correct left").to.have.deep.property("left")
+    expect(highlightRect, "correct left").to.have.nested.property("left")
       .closeTo(rangeRect.left, 3);
 
     highlightRect = highlights[highlights.length - 1].getBoundingClientRect();
-    expect(highlightRect, "correct bottom").to.have.deep.property("bottom")
+    expect(highlightRect, "correct bottom").to.have.nested.property("bottom")
       .closeTo(rangeRect.bottom, 3);
-    expect(highlightRect, "correct right").to.have.deep.property("right")
+    expect(highlightRect, "correct right").to.have.nested.property("right")
       .closeTo(rangeRect.right, 3);
   }
 

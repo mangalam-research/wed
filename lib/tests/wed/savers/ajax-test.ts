@@ -50,7 +50,7 @@ describe("ajax", () => {
                           JSON.stringify({messages: []})]);
       await saver.init();
       expect(server).to.have.property("requests").have.lengthOf(1);
-      expect(server).to.have.deep.property("requests[0].requestBody")
+      expect(server).to.have.nested.property("requests[0].requestBody")
         .equal($.param({ command: "check", version: "0.30.0" }));
     });
 
@@ -64,7 +64,7 @@ describe("ajax", () => {
                           JSON.stringify({messages: []})]);
       await saver.init();
       expect(server).to.have.property("requests").have.lengthOf(1);
-      expect(server).to.not.have.deep
+      expect(server).to.not.have.nested
         .property("requests[0].requestHeaders.If-Match");
     });
 
@@ -79,7 +79,7 @@ describe("ajax", () => {
                           JSON.stringify({messages: []})]);
       await saver.init();
       expect(server).to.have.property("requests").have.lengthOf(1);
-      expect(server).to.have.deep
+      expect(server).to.have.nested
         .property("requests[0].requestHeaders.If-Match").equal("\"abc\"");
     });
   });

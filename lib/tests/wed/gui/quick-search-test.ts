@@ -76,7 +76,7 @@ describe("quick-search", () => {
 
   afterEach(() => {
     // Make sure the minibuffer is off after each test.
-    expect(editor).to.have.deep.property("minibuffer.enabled").false;
+    expect(editor).to.have.nested.property("minibuffer.enabled").false;
     setup.reset();
   });
 
@@ -103,15 +103,15 @@ describe("quick-search", () => {
     // range.
 
     // Rounding can make the boundaries vary a bit.
-    expect(highlightRect).to.have.deep.property("top")
+    expect(highlightRect).to.have.nested.property("top")
       .closeTo(rangeRect.top, 3);
-    expect(highlightRect).to.have.deep.property("left")
+    expect(highlightRect).to.have.nested.property("left")
       .closeTo(rangeRect.left, 3);
 
     highlightRect = highlights[highlights.length - 1].getBoundingClientRect();
-    expect(highlightRect).to.have.deep.property("bottom")
+    expect(highlightRect).to.have.nested.property("bottom")
       .closeTo(rangeRect.bottom, 3);
-    expect(highlightRect).to.have.deep.property("right")
+    expect(highlightRect).to.have.nested.property("right")
       .closeTo(rangeRect.right, 3);
   }
 
@@ -132,14 +132,14 @@ describe("quick-search", () => {
 
     it("prompts forward", () => {
       editor.type(QUICKSEARCH_FORWARD);
-      expect(editor).to.have.deep.property("minibuffer.prompt")
+      expect(editor).to.have.nested.property("minibuffer.prompt")
         .equal("Search forward:");
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });
 
     it("prompts backwards", () => {
       editor.type(QUICKSEARCH_BACKWARDS);
-      expect(editor).to.have.deep.property("minibuffer.prompt")
+      expect(editor).to.have.nested.property("minibuffer.prompt")
         .equal("Search backwards:");
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });
