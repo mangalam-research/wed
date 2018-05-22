@@ -148,12 +148,11 @@ describe("wed validation errors:", () => {
     assert.isTrue(pMarkerRect.left >= pStartLabelRect.right,
                   "the paragraph error marker should be to the right of the \
 start label for the paragraph");
+    // We used to check the top too, but the changes in caret size make that
+    // impractical. So we check only the bottom position.
     assert.isTrue(Math.abs(pMarkerRect.bottom - pStartLabelRect.bottom) <= 5,
                   "the paragraph error marker should have a bottom which is \
 within 5 pixels of the bottom of the start label for the paragraph");
-    assert.isTrue(Math.abs(pMarkerRect.top - pStartLabelRect.top) <= 5,
-                  "the paragraph error marker should have a top which is \
-within 5 pixels of the top of the start label for the paragraph");
 
     const monogrStartLabel = firstGUI(monogr)!;
     assert.isTrue(monogrStartLabel.classList.contains("__start_label"),
@@ -170,14 +169,12 @@ of the left side of the start label for the monogr");
                   "the monogr error marker should be to the right of the \
 start label for the monogr");
     monogrMarker.scrollIntoView();
+    // We used to check the top too, but the changes in caret size make that
+    // impractical. So we check only the bottom position.
     assert.isTrue(Math.abs(monogrMarkerRect.bottom -
                            monogrStartLabelRect.bottom) <= 5,
                   "the monogr error marker should have a bottom which is \
 within 5 pixels of the bottom of the start label for the monogr");
-    assert.isTrue(Math.abs(monogrMarkerRect.top -
-                           monogrStartLabelRect.top) <= 5,
-                  "the monogr error marker should have a top which is within \
-5 pixels of the top of the start label for the monogr");
   });
 
   it("the attributes error are not linked", async () => {

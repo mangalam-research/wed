@@ -268,7 +268,7 @@ export class EditorSetup {
 
   constructor(public readonly source: string,
               options: Options, doc: Document) {
-    this.sandbox = sinon.sandbox.create({
+    this.sandbox = sinon.createSandbox({
       useFakeServer: true,
     });
 

@@ -25,6 +25,7 @@ import { closest, closestByClass, htmlToElements, indexOf } from "./domutil";
 import * as editorActions from "./editor-actions";
 import { AbortTransformationException } from "./exceptions";
 import { GUIUpdater } from "./gui-updater";
+import { GUIValidationError } from "./gui-validation-error";
 import { DialogSearchReplace } from "./gui/dialog-search-replace";
 import { EditingMenuManager } from "./gui/editing-menu-manager";
 import { ErrorLayer } from "./gui/error-layer";
@@ -2896,13 +2897,20 @@ in a way not supported by this version of wed.";
     }
   }
 
-  private errorItemHandler(ev: JQueryEventObject): void {
+  private errorItemHandler(ev: JQueryEventObject): boolean {
+    const err = ev.data as GUIValidationError;
     const marker =
       document.querySelector(ev.target.getAttribute("href")!) as HTMLElement;
     this.errorLayer.select(marker);
     const $parent = $(ev.target.parentNode!);
     $parent.siblings().removeClass("selected");
     $parent.addClass("selected");
+
+    // We move the caret to the location of the error.
+    this.caretManager.setCaret(err.ev.node, err.ev.index);
+
+    // We don't want href to cause further movement.
+    return false;
   }
 
   setNavigationList(items: Node | JQuery | Node[]): void {

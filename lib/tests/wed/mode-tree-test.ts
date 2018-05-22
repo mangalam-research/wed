@@ -347,7 +347,7 @@ describe("ModeTree", () => {
     let sandbox: sinon.SinonSandbox;
 
     before(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     beforeEach(async () => {
@@ -387,7 +387,7 @@ describe("ModeTree", () => {
     let sandbox: sinon.SinonSandbox;
 
     before(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     beforeEach(async () => {

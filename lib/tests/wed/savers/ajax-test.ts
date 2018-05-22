@@ -16,7 +16,7 @@ describe("ajax", () => {
   let server: sinon.SinonFakeServer;
 
   before(() => {
-    sandbox = sinon.sandbox.create({ useFakeServer: true });
+    sandbox = sinon.createSandbox({ useFakeServer: true });
     // We use any here to cheat a bit.
     // tslint:disable-next-line:no-any
     rt = new Runtime({} as any);

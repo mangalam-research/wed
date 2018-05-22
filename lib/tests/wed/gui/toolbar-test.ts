@@ -24,7 +24,7 @@ describe("Toolbar", () => {
   let sandbox: sinon.SinonSandbox;
   beforeEach(() => {
     toolbar = new Toolbar();
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   afterEach(() => {

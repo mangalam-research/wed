@@ -7,6 +7,15 @@ odd bug fix may not get mentioned here at all.
 
 * 2.0.0:
 
+  - Upgrade to salve 7.x. Faster validation.
+
+  - GUI change: error markers are now smaller. The previous size of the error
+    markers made it hard to move the caret where the marker was without also
+    selecting the marker.
+
+  - GUI change: clicking on an error marker moves the caret to where the error
+    applies.
+
   - We no longer support building or running any of the code of this project on
     Node 4.x. You need Node 6.x or higher.
 
