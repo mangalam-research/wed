@@ -380,8 +380,6 @@ npmCopyTask("text-plugin", "requirejs-text/text.js", "requirejs");
 
 npmCopyTask("requirejs/require.js", "requirejs");
 
-npmCopyTask("optional-plugin", "requirejs-optional/optional.js", "requirejs");
-
 npmCopyTask("corejs-typeahead",
             "corejs-typeahead/dist/{bloodhound,typeahead.jquery}.min.js");
 
