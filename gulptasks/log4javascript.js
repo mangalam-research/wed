@@ -5,7 +5,7 @@ const log = require("fancy-log");
 const touch = require("touch");
 const { internals, options } = require("./config");
 const { wgetIfMissing } = require("./wget");
-const { exec, del, newer, mkdirpAsync } = require("./util");
+const { exec, del, newer, mkdirp } = require("./util");
 
 const log4javascriptBase = path.basename(internals.log4javascriptUrl);
 const fullPath = path.join("downloads", log4javascriptBase);
@@ -28,7 +28,7 @@ gulp.task("copy-log4javascript", ["download-log4javascript"],
             // We need the mkdir -p in case there is more than one directory
             // missing in that path. unzip will only create the last directory
             // in the path passed to -d.
-            yield mkdirpAsync(destdir);
+            yield mkdirp(destdir);
             yield exec(`unzip -d ${destdir} ${fullPath} ` +
                        "log4javascript-*/js/*.js");
 

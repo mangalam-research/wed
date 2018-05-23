@@ -3,7 +3,7 @@ const path = require("path");
 const log = require("fancy-log");
 const Promise = require("bluebird");
 const { options } = require("./config");
-const { del, newer, checkOutputFile, exec, mkdirpAsync } = require("./util");
+const { del, newer, checkOutputFile, exec, mkdirp } = require("./util");
 
 gulp.task("wed-metadata-prereq", ["copy-bin", "tsc-wed"]);
 
@@ -56,7 +56,7 @@ function xmlToJsonChain(name, dest) {
       return;
     }
 
-    yield mkdirpAsync(path.dirname(metaJson));
+    yield mkdirp(path.dirname(metaJson));
     yield checkOutputFile("build/bin/wed-metadata",
                           ["--tei", "--merge", fragment].concat(json,
                                                                 metaJson));
@@ -85,7 +85,7 @@ gulp.task("tei-doc", ["compile-rng-myTEI"], Promise.coroutine(function *task() {
   }
 
   yield del(dest);
-  yield mkdirpAsync(dest);
+  yield mkdirp(dest);
   yield checkOutputFile(
     options.saxon,
     [`-s:${src}`, `-xsl:${options.odd2html}`,
@@ -103,7 +103,7 @@ gulp.task("docbook-metadata", ["wed-metadata-prereq"],
               return;
             }
 
-            yield mkdirpAsync(path.dirname(metadata));
+            yield mkdirp(path.dirname(metadata));
             yield checkOutputFile("build/bin/wed-metadata",
                                   [fragment, metadata]);
           }));

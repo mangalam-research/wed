@@ -8,9 +8,8 @@ const versync = require("versync");
 const Promise = require("bluebird");
 
 const { options } = require("./config");
-const {
-  cprp, defineTask, exec, existsInFile, mkdirpAsync, newer, sequence, spawn,
-} = require("./util");
+const { cprp, defineTask, exec, existsInFile, mkdirp, newer, sequence, spawn } =
+      require("./util");
 
 const convertXMLDirs = glob.sync("lib/tests/*_test_data")
         .filter(x => x !== "lib/tests/convert_test_data");
@@ -48,7 +47,7 @@ gulp.task("convert-xml-test-files", (callback) => {
           yield exec(`${options.saxon} -s:${file.path} -o:${dest} -xsl:${xsl}`);
         }
         else {
-          yield mkdirpAsync(path.dirname(dest));
+          yield mkdirp(path.dirname(dest));
           yield cprp(file.path, dest);
         }
       })();

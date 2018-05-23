@@ -17,7 +17,7 @@ gulp.task("typedoc", ["generate-ts", "stamp-dir", "lint"],
             const hashPath = "./build/typedoc.hash.txt";
 
             const [savedHash, [currentHash]] = yield Promise.all(
-              [fs.readFileAsync(hashPath)
+              [fs.readFile(hashPath)
                .then(hash => hash.toString())
                .catch(() => undefined),
                checkOutputFile("git", ["rev-parse", "--short", "HEAD"]),
@@ -48,6 +48,6 @@ gulp.task("typedoc", ["generate-ts", "stamp-dir", "lint"],
             yield spawn("./node_modules/.bin/typedoc", tsoptions,
                         { stdio: "inherit" });
 
-            yield Promise.all([fs.writeFileAsync(hashPath, currentHash),
+            yield Promise.all([fs.writeFile(hashPath, currentHash),
                                touch(stamp)]);
           }));

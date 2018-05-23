@@ -20,7 +20,7 @@ const { compile: compileToTS } = require("json-schema-to-typescript");
 const config = require("./config");
 const {
   del, newer, exec, execFile, execFileAndReport, checkOutputFile, cprp,
-  cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs, stampPath,
+  cprpdir, defineTask, spawn, sequence, mkdirp, fs, stampPath,
 } = require("./util");
 
 const { test, seleniumTest } = require("./tests");
@@ -173,9 +173,9 @@ function convertJSONSchemaToTS(srcPath, destBaseName) {
         return undefined;
       }
 
-      return fs.readFileAsync(srcPath)
+      return fs.readFile(srcPath)
         .then(data => compileToTS(parseFile(srcPath, data)))
-        .then(ts => fs.outputFileAsync(dest, ts));
+        .then(ts => fs.outputFile(dest, ts));
     });
 }
 
@@ -208,7 +208,7 @@ gulp.task("build-standalone-wed-config", ["config"], () => {
 
 const lessInc = "lib/wed/less-inc/";
 
-gulp.task("stamp-dir", () => mkdirpAsync(config.internals.stampDir));
+gulp.task("stamp-dir", () => mkdirp(config.internals.stampDir));
 
 gulp.task("build-standalone-wed-less",
           ["stamp-dir", "build-standalone-wed", "copy-bootstrap"],
@@ -252,7 +252,7 @@ gulp.task("npm", ["stamp-dir"], Promise.coroutine(function *task() {
     return;
   }
 
-  yield mkdirpAsync("node_modules");
+  yield mkdirp("node_modules");
   yield exec("npm install");
   yield touch(stamp);
 }));
@@ -452,7 +452,7 @@ npmCopyTask("diff/diff.js");
 
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
-  yield mkdirpAsync(path.dirname(dest));
+  yield mkdirp(path.dirname(dest));
 
   yield exec("node misc/generate_build_info.js --unclean " +
              `--module > ${dest}`);
@@ -474,9 +474,9 @@ gulp.task("generate-mode-map", Promise.coroutine(function *task() {
     return;
   }
 
-  yield mkdirpAsync(path.dirname(dest));
+  yield mkdirp(path.dirname(dest));
 
-  const modeDirs = yield fs.readdirAsync("lib/wed/modes");
+  const modeDirs = yield fs.readdir("lib/wed/modes");
   const modes = {};
   modeDirs.forEach((x) => {
     for (const mode of generateModes(x)) {
@@ -491,7 +491,7 @@ gulp.task("generate-mode-map", Promise.coroutine(function *task() {
 
   const exporting = { modes };
 
-  yield fs.writeFileAsync(dest, `define(${JSON.stringify(exporting)});`);
+  yield fs.writeFile(dest, `define(${JSON.stringify(exporting)});`);
 }));
 
 function htmlTask(suffix) {
@@ -521,7 +521,7 @@ gulp.task("build-standalone",
             "build-html",
             "build-info",
             "generate-mode-map"),
-          () => mkdirpAsync("build/ajax"));
+          () => mkdirp("build/ajax"));
 
 gulp.task("build-bundled-doc", ["build-standalone"],
           Promise.coroutine(function *task() {
@@ -549,8 +549,8 @@ gulp.task("build-bundled-doc", ["build-standalone"],
             // Then we keep only the index and make that.
             yield del(["*.rst", "!index.rst"], { cwd: buildBundledDoc });
             yield exec(`make -C ${buildBundledDoc} html`);
-            yield fs.renameAsync(path.join(buildBundledDoc, "_build/html"),
-                                 standaloneDoc);
+            yield fs.rename(path.join(buildBundledDoc, "_build/html"),
+                            standaloneDoc);
             yield touch(stamp);
           }));
 
@@ -596,7 +596,7 @@ a branch other than master.
 function *ghPages() {
   const dest = "gh-pages";
   const merged = "build/merged-gh-pages";
-  yield fs.emptyDirAsync(dest);
+  yield fs.emptyDir(dest);
   yield del(merged);
   yield cprp("doc", merged);
 
@@ -616,11 +616,11 @@ const packNoTest = {
   *func() {
     yield del("build/wed-*.tgz");
     const dist = "build/dist";
-    yield fs.emptyDirAsync(dist);
+    yield fs.emptyDir(dist);
     yield cprpdir(["build/standalone", "build/packed", "build/bin",
                    "package.json", "npm-shrinkwrap.json"],
                   dist);
-    yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
+    yield fs.writeFile(path.join(dist, ".npmignore"), `\
 *
 !standalone/**
 !bin/**
@@ -631,12 +631,12 @@ standalone/lib/tests/**
     const { stdout } = yield execFile("npm", ["pack"], { cwd: dist });
     const packname = stdout.trim();
     const buildPack = `build/${packname}`;
-    yield fs.renameAsync(`${dist}/${packname}`, buildPack);
+    yield fs.rename(`${dist}/${packname}`, buildPack);
     yield del(LATEST_DIST);
-    yield fs.symlinkAsync(buildPack, LATEST_DIST);
+    yield fs.symlink(buildPack, LATEST_DIST);
     const tempPath = "build/t";
     yield del(tempPath);
-    yield mkdirpAsync(`${tempPath}/node_modules`);
+    yield mkdirp(`${tempPath}/node_modules`);
     yield spawn("npm", ["install", `../${packname}`], { cwd: tempPath });
     yield del(tempPath);
   },
@@ -660,7 +660,7 @@ gulp.task("distclean", ["clean"],
 
 const venvPath = ".venv";
 gulp.task("venv", [],
-          () => fs.accessAsync(venvPath).catch(() => exec("virtualenv .venv")));
+          () => fs.access(venvPath).catch(() => exec("virtualenv .venv")));
 
 gulp.task("dev-venv", ["venv"],
           () => exec(".venv/bin/pip install -r dev_requirements.txt"));

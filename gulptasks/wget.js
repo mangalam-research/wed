@@ -1,6 +1,6 @@
 const path = require("path");
 const config = require("./config");
-const { fs, checkOutputFile, mkdirpAsync } = require("./util");
+const { fs, checkOutputFile, mkdirp } = require("./util");
 
 const wget = exports.wget = function wget(url, dest) {
   const wgetCmd = config.options.wget;
@@ -15,6 +15,6 @@ const wget = exports.wget = function wget(url, dest) {
 exports.wgetIfMissing = function wgetIfMissing(url, dest) {
   const fullPath = path.join("downloads", dest);
   const dir = path.dirname(fullPath);
-  return fs.accessAsync(fullPath)
-    .catch(() => mkdirpAsync(dir).then(() => wget(url, dest)));
+  return fs.access(fullPath)
+    .catch(() => mkdirp(dir).then(() => wget(url, dest)));
 };

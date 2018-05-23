@@ -3,19 +3,18 @@ const gulpNewer = require("gulp-newer");
 const childProcess = require("child_process");
 const Promise = require("bluebird");
 const log = require("fancy-log");
-const _fs = require("fs-extra");
+const fs = require("fs-extra");
 const _del = require("del");
 const path = require("path");
 const { internals } = require("./config");
 const { execFile } = require("child-process-promise");
 
-const fs = Promise.promisifyAll(_fs);
 exports.fs = fs;
 
-exports.mkdirpAsync = fs.ensureDirAsync;
+exports.mkdirp = fs.ensureDir;
 exports.del = _del;
 
-const copy = exports.copy = fs.copyAsync;
+const copy = exports.copy = fs.copy;
 
 const cprp = exports.cprp = function cprp(src, dest) {
   return copy(src, dest, { overwrite: true, preserveTimestamps: true });
@@ -112,8 +111,8 @@ exports.copyIfNewer = function copyIfNewer(src, dest) {
 exports.sameFiles = function sameFiles(a, b) {
   return Promise.coroutine(function *gen() {
     const [statsA, statsB] = yield Promise.all([
-      fs.statAsync(a).catch(() => null),
-      fs.statAsync(b).catch(() => null)]);
+      fs.stat(a).catch(() => null),
+      fs.stat(b).catch(() => null)]);
 
     if (!statsA || !statsB || statsA.size !== statsB.size) {
       return false;
@@ -122,8 +121,8 @@ exports.sameFiles = function sameFiles(a, b) {
     const { size } = statsA;
 
     const [fdA, fdB] = yield Promise.all([
-      fs.openAsync(a, "r"),
-      fs.openAsync(b, "r")]);
+      fs.open(a, "r"),
+      fs.open(b, "r")]);
 
     const bufsize = 64 * 1024;
     const bufA = Buffer.alloc(bufsize);
@@ -132,8 +131,8 @@ exports.sameFiles = function sameFiles(a, b) {
 
     while (read < size) {
       yield Promise.all([
-        fs.readAsync(fdA, bufA, 0, bufsize, read),
-        fs.readAsync(fdB, bufB, 0, bufsize, read),
+        fs.read(fdA, bufA, 0, bufsize, read),
+        fs.read(fdB, bufB, 0, bufsize, read),
       ]);
       // The last read will probably be partially filling the buffer but it does
       // not matter because in the previous iteration, the data was equal.
@@ -152,7 +151,7 @@ exports.stampPath = function stampPath(name) {
 };
 
 exports.existsInFile = function existsInFile(fpath, re) {
-  return fs.readFileAsync(fpath).then(data => data.toString().search(re) !== -1);
+  return fs.readFile(fpath).then(data => data.toString().search(re) !== -1);
 };
 
 exports.spawn = function spawn(cmd, args, options) {
