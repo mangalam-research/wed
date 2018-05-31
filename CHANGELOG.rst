@@ -35,6 +35,18 @@ odd bug fix may not get mentioned here at all.
     + ``Key`` no longer has a public constructor. Previously you were
       discouraged from using it but it was public.
 
+    + Upgrading to RxJS 6 broke how we allowed transformations to be aborted
+      through handling of transformation events. Throwing
+      ``AbortTransformationException`` from a subscription cannot abort a
+      transformation anymore. wed now emits "real" event objects on the
+      ``transformations`` stream, which have an ``abort()`` method that must be
+      called to abort a transformation from there.
+
+      ``mode-api`` no longer exports any event pertaining to
+      transformations. Instead ``transformation`` exports
+      ``TransformationEvent``, which is now the event that is emitted on the
+      ``transformations`` stream.
+
 * 1.0.0:
 
   - Release 1.0.0. Woohoo!

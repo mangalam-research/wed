@@ -7,7 +7,7 @@
 import Ajv from "ajv";
 import "bootstrap";
 import $ from "jquery";
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
 import { filter } from "rxjs/operators";
 import * as salve from "salve";
 import { WorkingState, WorkingStateData } from "salve-dom";
@@ -43,8 +43,7 @@ import * as keyConstants from "./key-constants";
 import * as log from "./log";
 import { Mode } from "./mode";
 import { EditorAPI , PasteTransformationData,
-         ReplaceRangeTransformationData,
-         TransformationEvents } from "./mode-api";
+         ReplaceRangeTransformationData } from "./mode-api";
 import { ModeTree } from "./mode-tree";
 import * as onbeforeunload from "./onbeforeunload";
 import * as onerror from "./onerror";
@@ -57,7 +56,8 @@ import { StockModals } from "./stock-modals";
 import { Task, TaskRunner } from "./task-runner";
 import { insertElement, mergeWithNextHomogeneousSibling,
          mergeWithPreviousHomogeneousSibling, removeMarkup, splitNode,
-         Transformation, TransformationData } from "./transformation";
+         Transformation, TransformationData, TransformationEvent,
+         TransformationEventSubject } from "./transformation";
 import { BeforeInsertNodeAtEvent, InsertNodeAtEvent,
          TreeUpdater } from "./tree-updater";
 import { Undo, UndoEvents, UndoList } from "./undo";
@@ -246,8 +246,8 @@ export class Editor implements EditorAPI {
     startCaret: DLoc | undefined;
   } | undefined;
   private validationController!: ValidationController;
-  private readonly _transformations: Subject<TransformationEvents> =
-    new Subject();
+  private readonly _transformations: TransformationEventSubject =
+    new TransformationEventSubject();
 
   readonly name: string = "";
   readonly firstValidationComplete: Promise<Editor>;
@@ -282,7 +282,7 @@ export class Editor implements EditorAPI {
     new editorActions.ToggleAttributeHiding(this);
   readonly minibuffer: Minibuffer;
   readonly docURL: string;
-  readonly transformations: Observable<TransformationEvents> =
+  readonly transformations: Observable<TransformationEvent> =
     this._transformations.asObservable();
   readonly toolbar: Toolbar;
   dataRoot!: Document;
@@ -602,15 +602,18 @@ export class Editor implements EditorAPI {
       throw new Error("transformation applied with undefined caret.");
     }
 
-    this._transformations.next({
-      name: "StartTransformation",
-      transformation: tr,
-    });
+    const start =
+      new TransformationEvent("StartTransformation",
+                              tr as Transformation<TransformationData>);
+    this._transformations.next(start);
+    start.throwIfAborted();
+
     tr.handler(this, data);
-    this._transformations.next({
-      name: "EndTransformation",
-      transformation: tr,
-    });
+    const end =
+      new TransformationEvent("EndTransformation",
+                              tr as Transformation<TransformationData>);
+    this._transformations.next(end);
+    end.throwIfAborted();
   }
 
   /**
