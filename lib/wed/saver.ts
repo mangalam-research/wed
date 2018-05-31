@@ -5,8 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
+import { Observable, Subject } from "rxjs";
 
 import * as browsers from "./browsers";
 import { Runtime } from "./runtime";

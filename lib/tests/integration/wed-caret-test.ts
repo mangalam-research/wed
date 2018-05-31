@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { first } from "rxjs/operators/first";
+import { first } from "rxjs/operators";
 
 import * as browsers from "wed/browsers";
 import { CaretManager } from "wed/caret-manager";

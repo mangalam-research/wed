@@ -5,10 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import { Observable } from "rxjs/Observable";
-
-import { first } from "rxjs/operators/first";
+import { BehaviorSubject, Observable } from "rxjs";
+import { first } from "rxjs/operators";
 
 /**
  * The options accepted by a task runner.

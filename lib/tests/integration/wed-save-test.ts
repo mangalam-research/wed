@@ -3,8 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { filter } from "rxjs/operators/filter";
-import { first } from "rxjs/operators/first";
+import { filter, first } from "rxjs/operators";
 
 import { keyConstants, version } from "wed";
 import { Editor } from "wed/editor";

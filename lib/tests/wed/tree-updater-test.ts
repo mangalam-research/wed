@@ -5,7 +5,7 @@
  */
 "use strict";
 
-import { filter } from "rxjs/operators/filter";
+import { filter } from "rxjs/operators";
 
 import * as convert from "wed/convert";
 import { DLoc, DLocRoot } from "wed/dloc";

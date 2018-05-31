@@ -5,7 +5,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 
 import { Action } from "./action";
 import { CaretManager } from "./caret-manager";

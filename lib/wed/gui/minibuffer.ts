@@ -5,9 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import $ from "jquery";
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
-import { Subscription } from "rxjs/Subscription";
+import { Observable, Subject, Subscription } from "rxjs";
 
 import { ESCAPE } from "../key-constants";
 

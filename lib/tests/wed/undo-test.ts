@@ -3,8 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { elementAt } from "rxjs/operators/elementAt";
-import { first } from "rxjs/operators/first";
+import { elementAt, first } from "rxjs/operators";
 
 import { assert, expect } from "chai";
 import { Undo, UndoGroup, UndoList } from "wed/undo";

@@ -9,6 +9,8 @@ odd bug fix may not get mentioned here at all.
 
   - Upgrade to salve 7.x. Faster validation.
 
+  - Upgrade to RxJS 6.
+
   - GUI change: error markers are now smaller. The previous size of the error
     markers made it hard to move the caret where the marker was without also
     selecting the marker.

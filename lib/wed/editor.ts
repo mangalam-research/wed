@@ -7,9 +7,8 @@
 import Ajv from "ajv";
 import "bootstrap";
 import $ from "jquery";
-import { Observable } from "rxjs/Observable";
-import { filter } from "rxjs/operators/filter";
-import { Subject } from "rxjs/Subject";
+import { Observable, Subject } from "rxjs";
+import { filter } from "rxjs/operators";
 import * as salve from "salve";
 import { WorkingState, WorkingStateData } from "salve-dom";
 
