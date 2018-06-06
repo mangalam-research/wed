@@ -8159,12 +8159,12 @@
       "dev": true
     },
     "merge-options": {
-      "version": "1.0.1",
-      "resolved": "https://registry.npmjs.org/merge-options/-/merge-options-1.0.1.tgz",
-      "integrity": "sha512-iuPV41VWKWBIOpBsjoxjDZw8/GbSfZ2mk7N1453bwMrfzdrIk7EzBd+8UVR6rkw67th7xnk9Dytl3J+lHPdxvg==",
+      "version": "0.0.64",
+      "resolved": "https://registry.npmjs.org/merge-options/-/merge-options-0.0.64.tgz",
+      "integrity": "sha1-y+BPWUppheryf3+PCyo6z2+dVi0=",
       "dev": true,
       "requires": {
-        "is-plain-obj": "^1.1"
+        "is-plain-obj": "^1.1.0"
       }
     },
     "methods": {
