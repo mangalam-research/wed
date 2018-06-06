@@ -23,7 +23,7 @@ odd bug fix may not get mentioned here at all.
 
   - Breaking distribution changes:
 
-    + The standalone-optimized tree has been removed. Wed now ships a
+    + The ``standalone-optimized`` tree has been removed. Wed now ships a
       ``standalone`` tree, which is the same as it has ever been, and a
       ``packed`` tree (introduced in 1.0.0) that is wed optimized through
       Webpack.
