@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/schema#
-id: http://btw.mangalam-research.org/schemas/wed/wed-options.json
+$id: http://btw.mangalam-research.org/schemas/wed/wed-options.json
 title: Wed Options
 description: A schema describing the wed options that modes may set.
 definitions:

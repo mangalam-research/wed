@@ -1,9 +1,9 @@
 const gulp = require("gulp");
 const path = require("path");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const Promise = require("bluebird");
 const { options } = require("./config");
-const { del, newer, checkOutputFile, exec, mkdirpAsync } = require("./util");
+const { del, newer, checkOutputFile, exec, mkdirp } = require("./util");
 
 gulp.task("wed-metadata-prereq", ["copy-bin", "tsc-wed"]);
 
@@ -24,7 +24,7 @@ function xmlToJsonChain(name, dest) {
   gulp.task(rngTaskName, Promise.coroutine(function *task() {
     const isNewer = yield newer(xml, compiled);
     if (!isNewer) {
-      gutil.log(`Skipped running roma2 for ${compiled}.`);
+      log(`Skipped running roma2 for ${compiled}.`);
       return;
     }
 
@@ -35,7 +35,7 @@ function xmlToJsonChain(name, dest) {
   function *compiledToJson() {
     const isNewer = yield newer(compiled, json);
     if (!isNewer) {
-      gutil.log(`Skipped running saxon for ${json}.`);
+      log(`Skipped running saxon for ${json}.`);
       return;
     }
 
@@ -52,11 +52,11 @@ function xmlToJsonChain(name, dest) {
     const isNewer = yield newer([json, fragment], metaJson);
 
     if (!isNewer) {
-      gutil.log(`Skipping generation of ${metaJson}`);
+      log(`Skipping generation of ${metaJson}`);
       return;
     }
 
-    yield mkdirpAsync(path.dirname(metaJson));
+    yield mkdirp(path.dirname(metaJson));
     yield checkOutputFile("build/bin/wed-metadata",
                           ["--tei", "--merge", fragment].concat(json,
                                                                 metaJson));
@@ -80,12 +80,12 @@ gulp.task("tei-doc", ["compile-rng-myTEI"], Promise.coroutine(function *task() {
 
   const isNewer = yield newer(src, dest, true /* forceDestFile */);
   if (!isNewer) {
-    gutil.log(`Skipping generation of ${dest}`);
+    log(`Skipping generation of ${dest}`);
     return;
   }
 
   yield del(dest);
-  yield mkdirpAsync(dest);
+  yield mkdirp(dest);
   yield checkOutputFile(
     options.saxon,
     [`-s:${src}`, `-xsl:${options.odd2html}`,
@@ -99,11 +99,11 @@ gulp.task("docbook-metadata", ["wed-metadata-prereq"],
             const isNewer = yield newer(fragment, metadata);
 
             if (!isNewer) {
-              gutil.log(`Skipping generation of ${metadata}`);
+              log(`Skipping generation of ${metadata}`);
               return;
             }
 
-            yield mkdirpAsync(path.dirname(metadata));
+            yield mkdirp(path.dirname(metadata));
             yield checkOutputFile("build/bin/wed-metadata",
                                   [fragment, metadata]);
           }));

@@ -8,24 +8,24 @@ const es = require("event-stream");
 const vinylFile = require("vinyl-file");
 const Promise = require("bluebird");
 const path = require("path");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
 const requireDir = require("require-dir");
-const rjs = require("requirejs");
 const wrapAmd = require("gulp-wrap-amd");
 const replace = require("gulp-replace");
 const argparse = require("argparse");
+const touch = require("touch");
 const yaml = require("js-yaml");
 const { compile: compileToTS } = require("json-schema-to-typescript");
-const createOptimizedConfig = require("../misc/create_optimized_config").create;
 
 const config = require("./config");
-const { sameFiles, del, newer, exec, execFileAndReport, checkOutputFile,
-        touchAsync, cprp, cprpdir, defineTask, spawn, sequence, mkdirpAsync, fs,
-        stampPath } = require("./util");
+const {
+  del, newer, exec, execFile, execFileAndReport, checkOutputFile, cprp,
+  cprpdir, defineTask, spawn, sequence, mkdirp, fs, stampPath,
+} = require("./util");
 
 const { test, seleniumTest } = require("./tests");
 
-const ArgumentParser = argparse.ArgumentParser;
+const { ArgumentParser } = argparse;
 
 // Try to load local configuration options.
 let localConfig = {};
@@ -62,7 +62,7 @@ parser.addArgument(["target"], {
   defaultValue: "default",
 });
 
-const options = config.options;
+const { options } = config;
 Object.assign(options, parser.parseArgs(process.argv.slice(2)));
 
 // We purposely import the files there at this point so that the
@@ -81,17 +81,18 @@ gulp.task("config", () => {
     .pipe(es.map((file, callback) =>
                  vinylFile.read(
                    path.join(localConfigPath, file.relative),
-                   { base: localConfigPath },
-                   (err, override) => callback(null, err ? file : override))))
+                   { base: localConfigPath })
+                 .then(override => callback(null, override),
+                       () => callback(null, file))))
   // We do not use newer here as it would sometimes have
   // unexpected effects.
-    .pipe(changed(dest, { hasChanged: changed.compareSha1Digest }))
+    .pipe(changed(dest, { hasChanged: changed.compareContents }))
     .pipe(gulp.dest(dest));
 });
 
 const buildDeps = ["build-standalone", "build-bundled-doc"];
 if (options.optimize) {
-  buildDeps.push("build-standalone-optimized", "webpack");
+  buildDeps.push("webpack");
 }
 gulp.task("build", buildDeps);
 
@@ -117,7 +118,7 @@ gulp.task("convert-wed-yaml", () => {
     }))
     .pipe(gulpNewer(dest))
     .pipe(es.mapSync((file) => {
-      file.contents = new Buffer(JSON.stringify(yaml.safeLoad(file.contents, {
+      file.contents = Buffer.from(JSON.stringify(yaml.safeLoad(file.contents, {
         schema: yaml.JSON_SCHEMA,
       })));
 
@@ -172,9 +173,9 @@ function convertJSONSchemaToTS(srcPath, destBaseName) {
         return undefined;
       }
 
-      return fs.readFileAsync(srcPath)
+      return fs.readFile(srcPath)
         .then(data => compileToTS(parseFile(srcPath, data)))
-        .then(ts => fs.outputFileAsync(dest, ts));
+        .then(ts => fs.outputFile(dest, ts));
     });
 }
 
@@ -207,7 +208,7 @@ gulp.task("build-standalone-wed-config", ["config"], () => {
 
 const lessInc = "lib/wed/less-inc/";
 
-gulp.task("stamp-dir", () => mkdirpAsync(config.internals.stampDir));
+gulp.task("stamp-dir", () => mkdirp(config.internals.stampDir));
 
 gulp.task("build-standalone-wed-less",
           ["stamp-dir", "build-standalone-wed", "copy-bootstrap"],
@@ -231,7 +232,7 @@ gulp.task("build-standalone-wed-less",
               .pipe(filter.restore)
               .pipe(gulp.dest(dest))
               .on("end", () => {
-                touchAsync(stamp).asCallback(callback);
+                Promise.resolve(touch(stamp)).asCallback(callback);
               });
           });
 
@@ -247,13 +248,13 @@ gulp.task("npm", ["stamp-dir"], Promise.coroutine(function *task() {
   const isNewer = yield newer(["package.json", "npm-shrinkwrap.json"], stamp);
 
   if (!isNewer) {
-    gutil.log("Skipping npm.");
+    log("Skipping npm.");
     return;
   }
 
-  yield mkdirpAsync("node_modules");
+  yield mkdirp("node_modules");
   yield exec("npm install");
-  yield touchAsync(stamp);
+  yield touch(stamp);
 }));
 
 const copyTasks = [];
@@ -287,7 +288,7 @@ function npmCopyTask(...args) {
       // name and package names are derived from arg1.
       src = arg1;
       dest = arg2;
-      name = src.split("/", 1)[0];
+      [name] = src.split("/", 1);
       pack = `node_modules/${name}`;
     }
     else {
@@ -305,7 +306,7 @@ function npmCopyTask(...args) {
     // package names from it. And we assume dest is '`external`'.
     [src] = args;
     dest = "external";
-    name = src.split("/", 1)[0];
+    [name] = src.split("/", 1);
     pack = `node_modules/${name}`;
   }
 
@@ -358,8 +359,12 @@ function npmCopyTask(...args) {
         .pipe(jsFilter.restore);
     }
 
+    if (copyOptions.map) {
+      stream = stream.pipe(es.map(copyOptions.map));
+    }
+
     stream.pipe(gulp.dest(completeDest))
-      .on("end", () => touchAsync(stamp).asCallback(callback));
+      .on("end", () => Promise.resolve(touch(stamp)).asCallback(callback));
   });
 
   copyTasks.push(fullName);
@@ -375,8 +380,6 @@ npmCopyTask("text-plugin", "requirejs-text/text.js", "requirejs");
 
 npmCopyTask("requirejs/require.js", "requirejs");
 
-npmCopyTask("optional-plugin", "requirejs-optional/optional.js", "requirejs");
-
 npmCopyTask("corejs-typeahead",
             "corejs-typeahead/dist/{bloodhound,typeahead.jquery}.min.js");
 
@@ -384,7 +387,20 @@ npmCopyTask("localforage/dist/localforage.js");
 
 npmCopyTask("bootbox/bootbox*.js");
 
-npmCopyTask("urijs/src/**", "external/urijs");
+npmCopyTask("urijs/src/**", "external/urijs",
+            {
+              map: (file, callback) => {
+                // Sigh... the punycode version included with the latest urijs
+                // hardcodes its name.
+                if (file.path.endsWith("punycode.js")) {
+                  file.contents =
+                    Buffer.from(file.contents.toString()
+                                .replace(/define\('punycode',\s*/, "define("));
+                }
+
+                callback(null, file);
+              },
+            });
 
 npmCopyTask("lodash", "lodash-amd/{modern/**,main.js,package.json}",
             "external/lodash");
@@ -434,7 +450,7 @@ npmCopyTask("diff/diff.js");
 
 gulp.task("build-info", Promise.coroutine(function *task() {
   const dest = "build/standalone/lib/wed/build-info.js";
-  yield mkdirpAsync(path.dirname(dest));
+  yield mkdirp(path.dirname(dest));
 
   yield exec("node misc/generate_build_info.js --unclean " +
              `--module > ${dest}`);
@@ -456,9 +472,9 @@ gulp.task("generate-mode-map", Promise.coroutine(function *task() {
     return;
   }
 
-  yield mkdirpAsync(path.dirname(dest));
+  yield mkdirp(path.dirname(dest));
 
-  const modeDirs = yield fs.readdirAsync("lib/wed/modes");
+  const modeDirs = yield fs.readdir("lib/wed/modes");
   const modes = {};
   modeDirs.forEach((x) => {
     for (const mode of generateModes(x)) {
@@ -473,7 +489,7 @@ gulp.task("generate-mode-map", Promise.coroutine(function *task() {
 
   const exporting = { modes };
 
-  yield fs.writeFileAsync(dest, `define(${JSON.stringify(exporting)});`);
+  yield fs.writeFile(dest, `define(${JSON.stringify(exporting)});`);
 }));
 
 function htmlTask(suffix) {
@@ -503,7 +519,7 @@ gulp.task("build-standalone",
             "build-html",
             "build-info",
             "generate-mode-map"),
-          () => mkdirpAsync("build/ajax"));
+          () => mkdirp("build/ajax"));
 
 gulp.task("build-bundled-doc", ["build-standalone"],
           Promise.coroutine(function *task() {
@@ -518,7 +534,7 @@ gulp.task("build-bundled-doc", ["build-standalone"],
             const isNewer = yield newer("doc/**/*", stamp);
 
             if (!isNewer) {
-              gutil.log("Skipping generation of bundled documentation.");
+              log("Skipping generation of bundled documentation.");
               return;
             }
 
@@ -531,57 +547,10 @@ gulp.task("build-bundled-doc", ["build-standalone"],
             // Then we keep only the index and make that.
             yield del(["*.rst", "!index.rst"], { cwd: buildBundledDoc });
             yield exec(`make -C ${buildBundledDoc} html`);
-            yield fs.renameAsync(path.join(buildBundledDoc, "_build/html"),
-                                 standaloneDoc);
-            yield touchAsync(stamp);
+            yield fs.rename(path.join(buildBundledDoc, "_build/html"),
+                            standaloneDoc);
+            yield touch(stamp);
           }));
-
-gulp.task(
-  "build-optimized-config", ["config"],
-  Promise.coroutine(function *task() {
-    const origConfig = "build/config/requirejs-config-dev.js";
-    const buildConfig = "requirejs.build.js";
-    const optimizedConfig = "build/standalone-optimized/requirejs-config.js";
-
-    const isNewer = yield newer([origConfig, buildConfig], optimizedConfig);
-    if (!isNewer) {
-      return;
-    }
-
-    yield mkdirpAsync(path.dirname(optimizedConfig));
-
-    yield fs.writeFileAsync(optimizedConfig, createOptimizedConfig({
-      config: origConfig,
-    }));
-  }));
-
-function *buildStandaloneOptimized() {
-  const stamp = stampPath("standalone-optimized");
-  const newStamp = `${stamp}.new`;
-
-  yield exec("find build/standalone -printf \"%p %t %s\n\" | " +
-             `sort > ${newStamp}`);
-
-  const same = yield sameFiles(stamp, newStamp);
-  if (!same) {
-    yield new Promise((resolve, reject) => {
-      rjs.optimize(["requirejs.build.js"], resolve, reject);
-    })
-      .catch(err => del("build/standalone-optimized/")
-             .then(() => {
-               throw err;
-             }));
-    yield fs.moveAsync(newStamp, stamp, { overwrite: true });
-  }
-}
-
-gulp.task("build-standalone-optimized", [
-  "stamp-dir",
-  "build-standalone",
-  "build-html-optimized",
-  "build-optimized-config",
-  "build-test-files",
-], Promise.coroutine(buildStandaloneOptimized));
 
 gulp.task("webpack", ["build-standalone"], () =>
           execFileAndReport("./node_modules/.bin/webpack", ["--color"],
@@ -625,7 +594,7 @@ a branch other than master.
 function *ghPages() {
   const dest = "gh-pages";
   const merged = "build/merged-gh-pages";
-  yield fs.emptyDirAsync(dest);
+  yield fs.emptyDir(dest);
   yield del(merged);
   yield cprp("doc", merged);
 
@@ -633,54 +602,41 @@ function *ghPages() {
   yield exec(`make -C ${merged} html`);
 
   yield exec(`cp -rp ${merged}/_build/html/* build/api ${dest}`);
-
-  const destBuild = `${dest}/build`;
-  yield mkdirpAsync(destBuild);
-  yield cprpdir(["build/samples", "build/schemas", "build/standalone",
-                 "build/standalone-optimized"], destBuild);
-
-  for (const tree of ["standalone", "standalone-optimized"]) {
-    const globalConfig = `${dest}/build/${tree}/lib/global-config.js`;
-    yield fs.moveAsync(globalConfig, `${globalConfig}.t`);
-    yield exec("node misc/modify_config.js -d config.ajaxlog -d config.save " +
-               `${globalConfig}.t > ${globalConfig}`);
-
-    yield del([`${globalConfig}.t`,
-               `${dest}/build/${tree}/test.html`,
-               `${dest}/build/${tree}/mocha_frame.html`,
-               `${dest}/build/${tree}/wed_test.html`]);
-  }
 }
 
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
           Promise.coroutine(ghPages));
 
+const LATEST_DIST = "build/LATEST-DIST.tgz";
 const packNoTest = {
   name: "pack-notest",
-  deps: ["build-standalone", "build-standalone-optimized", "webpack"],
+  deps: ["build-standalone", "webpack"],
   *func() {
     yield del("build/wed-*.tgz");
     const dist = "build/dist";
-    yield fs.emptyDirAsync(dist);
-    yield cprpdir(["build/standalone", "build/standalone-optimized",
-                   "build/packed", "build/bin", "package.json",
-                   "npm-shrinkwrap.json"],
+    yield fs.emptyDir(dist);
+    yield cprpdir(["build/standalone", "build/packed", "build/bin",
+                   "package.json", "npm-shrinkwrap.json"],
                   dist);
-    yield fs.writeFileAsync(path.join(dist, ".npmignore"), `\
+    yield fs.writeFile(path.join(dist, ".npmignore"), `\
 *
 !standalone/**
-!standalone-optimized/**
 !bin/**
 !packed/**
 standalone/lib/tests/**
-standalone-optimized/lib/tests/**
 `);
-    yield cprp("NPM_README.md", "build/dist/README.md");
-    yield exec("ln -sf `(cd build; npm pack dist)` build/LATEST-DIST.tgz");
-    yield del("build/t");
-    yield mkdirpAsync("build/t/node_modules");
-    yield exec("(cd build/t; npm install ../LATEST-DIST.tgz)");
-    yield del("build/t");
+    yield cprp("NPM_README.md", `${dist}/README.md`);
+    const { stdout } = yield execFile("npm", ["pack"], { cwd: dist });
+    const packname = stdout.trim();
+    const buildPack = `build/${packname}`;
+    yield fs.rename(`${dist}/${packname}`, buildPack);
+    yield del(LATEST_DIST);
+    yield fs.symlink(buildPack, LATEST_DIST);
+    const tempPath = "build/t";
+    yield del(tempPath);
+    yield mkdirp(`${tempPath}/node_modules`);
+    yield spawn("npm", ["install", `../${packname}`], { cwd: tempPath });
+    yield del(tempPath);
   },
 };
 defineTask(packNoTest);
@@ -688,8 +644,7 @@ defineTask(packNoTest);
 sequence("pack", test, seleniumTest, packNoTest);
 
 function publish() {
-  return spawn("npm", ["publish", "build/LATEST-DIST.tgz"],
-               { stdio: "inherit" });
+  return spawn("npm", ["publish", LATEST_DIST], { stdio: "inherit" });
 }
 
 gulp.task("publish", ["pack"], publish);
@@ -703,7 +658,7 @@ gulp.task("distclean", ["clean"],
 
 const venvPath = ".venv";
 gulp.task("venv", [],
-          () => fs.accessAsync(venvPath).catch(() => exec("virtualenv .venv")));
+          () => fs.access(venvPath).catch(() => exec("virtualenv .venv")));
 
 gulp.task("dev-venv", ["venv"],
           () => exec(".venv/bin/pip install -r dev_requirements.txt"));

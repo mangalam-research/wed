@@ -1,10 +1,11 @@
 const gulp = require("gulp");
 const path = require("path");
 const Promise = require("bluebird");
-const gutil = require("gulp-util");
+const log = require("fancy-log");
+const touch = require("touch");
 const { internals, options } = require("./config");
 const { wgetIfMissing } = require("./wget");
-const { exec, del, touchAsync, newer, mkdirpAsync } = require("./util");
+const { exec, del, newer, mkdirp } = require("./util");
 
 const log4javascriptBase = path.basename(internals.log4javascriptUrl);
 const fullPath = path.join("downloads", log4javascriptBase);
@@ -20,14 +21,14 @@ gulp.task("copy-log4javascript", ["download-log4javascript"],
             const isNewer = yield newer(fullPath, dest);
 
             if (!isNewer) {
-              gutil.log("Skipping copy of log4javascript");
+              log("Skipping copy of log4javascript");
               return;
             }
 
             // We need the mkdir -p in case there is more than one directory
             // missing in that path. unzip will only create the last directory
             // in the path passed to -d.
-            yield mkdirpAsync(destdir);
+            yield mkdirp(destdir);
             yield exec(`unzip -d ${destdir} ${fullPath} ` +
                        "log4javascript-*/js/*.js");
 
@@ -37,5 +38,5 @@ gulp.task("copy-log4javascript", ["download-log4javascript"],
             yield exec(`mv ${destdir}/log4javascript-*/js/${from} ${dest}`);
 
             yield del(`${destdir}/log4javascript-*`);
-            yield touchAsync(dest);
+            yield touch(dest);
           }));

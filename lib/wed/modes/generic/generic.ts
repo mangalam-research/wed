@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 import { EName, NameResolver } from "salve";
 
 import { Action, BaseMode, CommonModeOptions, Decorator, EditorAPI, objectCheck,
@@ -16,7 +16,7 @@ import { Metadata } from "./metadata";
 import { MetadataMultiversionReader } from "./metadata-multiversion-reader";
 
 import Transformation = transformation.Transformation;
-import TransformationData = transformation.TransformationData;
+import NamedTransformationData = transformation.NamedTransformationData;
 
 export interface GenericModeOptions extends CommonModeOptions {
   metadata: string;
@@ -46,9 +46,9 @@ export interface GenericModeOptions extends CommonModeOptions {
  */
 class GenericMode<Options extends GenericModeOptions>
   extends BaseMode<Options> {
-  protected resolver: NameResolver;
-  protected metadata: Metadata;
-  protected tagTr: Record<string, Transformation<TransformationData>>;
+  protected resolver!: NameResolver;
+  protected metadata!: Metadata;
+  protected tagTr!: Record<string, Transformation<NamedTransformationData>>;
 
   /**
    * The template that [[checkOptions]] uses to check the options passed
@@ -192,9 +192,9 @@ class GenericMode<Options extends GenericModeOptions>
    * transformation registry.
    */
   getContextualActions(transformationType: string | string[],
-                       tag: string,
-                       container: Node,
-                       offset: number): Action<{}>[] {
+                       _tag: string,
+                       _container: Node,
+                       _offset: number): Action<{}>[] {
     if (!(transformationType instanceof Array)) {
       transformationType = [transformationType];
     }

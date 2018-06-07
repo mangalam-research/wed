@@ -7,7 +7,7 @@
 
 import * as bluejax from "bluejax";
 import { Dexie } from "dexie";
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 import { Options } from "./options";
 
 import { make as ajax } from "./ajax";
@@ -168,11 +168,11 @@ export class Runtime {
         resources = [resources];
       }
 
-      return new Promise((resolve, reject) => {
+      return new Promise<{}[]>((resolve, reject) => {
         req(resources as string[], function success(): void {
           resolve(Array.prototype.slice.call(arguments));
         }, reject);
-      }) as Promise<{}[]>;
+      });
     });
   }
 }

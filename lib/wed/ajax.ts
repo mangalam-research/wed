@@ -7,7 +7,7 @@
  */
 import * as bluejax from "bluejax";
 import "bootstrap";
-import * as $ from "jquery";
+import $ from "jquery";
 
 import { suppressUnhandledRejections } from "./util";
 
@@ -42,7 +42,7 @@ const modal = $modal[0];
 
 // tslint:disable:no-any
 export function make(baseOpts: any):
-{ ajax: bluejax.AjaxCall, ajax$: bluejax.AjaxCall$ } {
+{ ajax: bluejax.AjaxCall; ajax$: bluejax.AjaxCall$ } {
   const bajax = bluejax.make(baseOpts);
 
   const diagnose = bluejax.make({

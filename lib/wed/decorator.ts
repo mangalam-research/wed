@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as  $ from "jquery";
+import $ from "jquery";
 import * as salve from "salve";
 
 import { Action } from "./action";
@@ -142,7 +142,7 @@ export abstract class Decorator implements DecoratorAPI {
     }
   }
 
-  elementDecorator(root: Element, el: Element, level: number,
+  elementDecorator(_root: Element, el: Element, level: number,
                    preContextHandler: ((wedEv: JQueryMouseEventObject,
                                         ev: Event) => boolean) | undefined,
                    postContextHandler: ((wedEv: JQueryMouseEventObject,
@@ -331,7 +331,7 @@ ${domutil.textToHTML(attributes[name])}</span>"</span>`;
                                ev: JQueryEventObject): boolean {
     const editor = this.editor;
     const editingMenuManager = editor.editingMenuManager;
-    let node = wedEv.target as Element;
+    let node = wedEv.target;
     const menuItems: Item[] = [];
     const mode = editor.modeTree.getMode(node);
 

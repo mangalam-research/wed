@@ -37,15 +37,15 @@ export class GenericDecorator extends Decorator {
     this.domlistener.addHandler(
       "included-element",
       util.classFromOriginalName("*", {}),
-      (root: Element, tree: Element, parent: Element, prev: Node | null,
-       next: Node | null, el: Element) => {
+      (root: Node, _tree: Node, _parent: Node, _prev: Node | null,
+       _next: Node | null, el: Element) => {
          // Skip elements which would already have been removed from the
          // tree. Unlikely but...
          if (!root.contains(el)) {
            return;
          }
 
-         this.elementDecorator(root, el);
+         this.elementDecorator(root as Element, el);
 
          const klass = this.getAdditionalClasses(el);
          if (klass.length > 0) {
@@ -56,13 +56,14 @@ export class GenericDecorator extends Decorator {
     this.domlistener.addHandler(
       "children-changed",
       util.classFromOriginalName("*", {}),
-      (root: Element, added: Node[], removed: Node[],
-       previousSibling: Node | null, nextSibling: Node | null, el: Element) => {
+      (root: Node, added: Node[], removed: Node[],
+       _previousSibling: Node | null, _nextSibling: Node | null,
+       el: Element) => {
          for (const child of added.concat(removed)) {
            if (isText(child) || (isElement(child) &&
                                  (child.classList.contains("_real") ||
                                   child.classList.contains("_phantom_wrap")))) {
-             this.elementDecorator(root, el);
+             this.elementDecorator(root as Element, el);
              break;
            }
          }
@@ -70,15 +71,16 @@ export class GenericDecorator extends Decorator {
 
     this.domlistener.addHandler("text-changed",
                                 util.classFromOriginalName("*", {}),
-                                (root: Element, node: Text) => {
+                                (root: Node, node: Text) => {
                                   this.elementDecorator(
-                                    root, node.parentNode! as Element);
+                                    root as Element,
+                                    node.parentNode! as Element);
                                 });
 
     this.domlistener.addHandler("attribute-changed",
                                 util.classFromOriginalName("*", {}),
-                                (root: Element, el: Element) => {
-                                  this.elementDecorator(root, el);
+                                (root: Node, el: Element) => {
+                                  this.elementDecorator(root as Element, el);
                                 });
   }
 

@@ -17,9 +17,6 @@ describe("wed paste copy cut:", () => {
   let setup: EditorSetup;
   let editor: Editor;
   let caretManager: CaretManager;
-  let ps: NodeListOf<Element>;
-  let guiRoot: Element;
-  let titles: NodeListOf<Element>;
 
   before(() => {
     setup = new EditorSetup(
@@ -31,9 +28,6 @@ describe("wed paste copy cut:", () => {
       // tslint:disable-next-line:no-any
       (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
       caretManager = editor.caretManager;
-      guiRoot = editor.guiRoot;
-      ps = guiRoot.querySelectorAll(".body .p");
-      titles = guiRoot.getElementsByClassName("title");
     });
   });
 
@@ -182,7 +176,7 @@ describe("wed paste copy cut:", () => {
 
   it("handles pasting simple text into an attribute", () => {
     const p = editor.dataRoot.querySelector("body>p:nth-of-type(8)")!;
-    const initial = p.getAttributeNode("rend");
+    const initial = p.getAttributeNode("rend")!;
     caretManager.setCaret(initial, 0);
     const initialValue = initial.value;
 
@@ -243,7 +237,7 @@ describe("wed paste copy cut:", () => {
   it("handles cutting in attributes", () => {
     // force_reload = true;
     const p = editor.dataRoot.querySelector("body>p:nth-of-type(8)")!;
-    const initial = p.getAttributeNode("rend");
+    const initial = p.getAttributeNode("rend")!;
     const initialValue = initial.value;
     const start = caretManager.fromDataLocation(initial, 2)!;
     const end = caretManager.fromDataLocation(initial, 4)!;

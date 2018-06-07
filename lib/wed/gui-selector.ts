@@ -6,24 +6,23 @@
  */
 import { toGUISelector } from "./domutil";
 
-const cache = new WeakMap<String, GUISelector>();
-
 /**
  * A "GUI selector" is a CSS selector apt to be used in the GUI tree.
  */
 export class GUISelector {
-  /** The value that the selector holds. */
-  public readonly value: string;
+  // tslint:disable-next-line:variable-name
+  private static __cache: Record<string, GUISelector> = Object.create(null);
+
   /**
    * @param value The value that the selector holds.
    */
-  private constructor(value: string) {
-    const existing = cache.get(value);
+  private constructor(readonly value: string) {
+    const existing = GUISelector.__cache[value];
     if (existing !== undefined) {
       return existing;
     }
 
-    this.value = value;
+    GUISelector.__cache[value] = this;
   }
 
   /**

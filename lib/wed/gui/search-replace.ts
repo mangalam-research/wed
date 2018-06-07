@@ -210,9 +210,11 @@ export class SearchReplace {
 
     const caret = this.getDirectionalStart(current);
     this.caretManager.setCaret(caret, { focus: false });
+    // tslint:disable-next-line:no-object-literal-type-assertion
     this.editor.fireTransformation(this.editor.replaceRangeTr, {
-      range: current!,
+      range: current,
       newText: value,
+      caretAtEnd: false,
     } as ReplaceRangeTransformationData);
     this.clearHighlight();
     const caretAfter = this.caretManager.caret;

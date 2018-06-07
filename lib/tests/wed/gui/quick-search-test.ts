@@ -20,9 +20,7 @@ const expect = chai.expect;
 describe("quick-search", () => {
   let setup: EditorSetup;
   let editor: Editor;
-  let guiRoot: HTMLElement;
   let dataRoot: Document;
-  let docScope: DLocRange;
   let caretManager: CaretManager;
 
   let ps: Element[];
@@ -32,12 +30,6 @@ describe("quick-search", () => {
   let pFiveFirstFour: DLocRange;
   let pSevenFirstThree: DLocRange;
   let firstABCText: DLocRange;
-  let firstABCDText: DLocRange;
-  let firstABCAttribute: DLocRange;
-  let firstABCDAttribute: DLocRange;
-  let secondABCAttribute: DLocRange;
-  let titleBCD: DLocRange;
-  let titleABCD: DLocRange;
 
   before(() => {
     setup = new EditorSetup(
@@ -49,18 +41,8 @@ describe("quick-search", () => {
   });
 
   beforeEach(() => {
-    guiRoot = editor.guiRoot;
     dataRoot = editor.dataRoot;
     caretManager = editor.caretManager;
-    docScope = editor.caretManager.docDLocRange;
-
-    const title = dataRoot.querySelector("title")!;
-    titleBCD = new DLocRange(
-      caretManager.mustFromDataLocation(title.firstChild!, 1),
-      caretManager.mustFromDataLocation(title.firstChild!, 4));
-    titleABCD = new DLocRange(
-      caretManager.mustFromDataLocation(title.firstChild!, 0),
-      caretManager.mustFromDataLocation(title.firstChild!, 4));
 
     ps = Array.from(dataRoot.querySelectorAll("body p"));
     firstBodyP = ps[0];
@@ -90,29 +72,11 @@ describe("quick-search", () => {
     firstABCText = new DLocRange(
       caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
       caretManager.mustFromDataLocation(ps[3].lastChild!, 1));
-
-    // This is the first "abcd" found when doing a TEXT search.
-    firstABCDText = new DLocRange(
-      caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
-      caretManager.mustFromDataLocation(ps[3].lastChild!, 2));
-
-    const rend = ps[7].getAttributeNode("rend");
-    firstABCAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 0),
-      caretManager.mustFromDataLocation(rend, 3));
-
-    firstABCDAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 0),
-      caretManager.mustFromDataLocation(rend, 4));
-
-    secondABCAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 4),
-      caretManager.mustFromDataLocation(rend, 7));
   });
 
   afterEach(() => {
     // Make sure the minibuffer is off after each test.
-    expect(editor).to.have.deep.property("minibuffer.enabled").false;
+    expect(editor).to.have.nested.property("minibuffer.enabled").false;
     setup.reset();
   });
 
@@ -128,26 +92,26 @@ describe("quick-search", () => {
   }
 
   function checkHighlightRanges(range: DLocRange): void {
-    const highlights = document.querySelectorAll("._wed_highlight")!;
+    const highlights = document.querySelectorAll("._wed_highlight");
     expect(highlights).to.have.property("length").greaterThan(0);
     let highlightRect = highlights[0].getBoundingClientRect();
     const rangeRect =
-      firstABCText.mustMakeDOMRange().getBoundingClientRect();
+      range.mustMakeDOMRange().getBoundingClientRect();
 
     // The highlights are built as a series of rectangles. Checking each and
     // every rectangle would be onerous. We check the start and end of the
     // range.
 
     // Rounding can make the boundaries vary a bit.
-    expect(highlightRect).to.have.deep.property("top")
+    expect(highlightRect).to.have.nested.property("top")
       .closeTo(rangeRect.top, 3);
-    expect(highlightRect).to.have.deep.property("left")
+    expect(highlightRect).to.have.nested.property("left")
       .closeTo(rangeRect.left, 3);
 
     highlightRect = highlights[highlights.length - 1].getBoundingClientRect();
-    expect(highlightRect).to.have.deep.property("bottom")
+    expect(highlightRect).to.have.nested.property("bottom")
       .closeTo(rangeRect.bottom, 3);
-    expect(highlightRect).to.have.deep.property("right")
+    expect(highlightRect).to.have.nested.property("right")
       .closeTo(rangeRect.right, 3);
   }
 
@@ -168,14 +132,14 @@ describe("quick-search", () => {
 
     it("prompts forward", () => {
       editor.type(QUICKSEARCH_FORWARD);
-      expect(editor).to.have.deep.property("minibuffer.prompt")
+      expect(editor).to.have.nested.property("minibuffer.prompt")
         .equal("Search forward:");
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });
 
     it("prompts backwards", () => {
       editor.type(QUICKSEARCH_BACKWARDS);
-      expect(editor).to.have.deep.property("minibuffer.prompt")
+      expect(editor).to.have.nested.property("minibuffer.prompt")
         .equal("Search backwards:");
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });
@@ -191,7 +155,7 @@ describe("quick-search", () => {
       editor.type(QUICKSEARCH_FORWARD);
       editor.type("abc", WedEventTarget.MINIBUFFER);
       checkHighlightRanges(firstABCText);
-      editor.type(QUICKSEARCH_FORWARD);
+      editor.type(QUICKSEARCH_FORWARD, WedEventTarget.MINIBUFFER);
       checkHighlightRanges(pFiveFirstThree);
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });
@@ -200,9 +164,9 @@ describe("quick-search", () => {
       editor.type(QUICKSEARCH_FORWARD);
       editor.type("abc", WedEventTarget.MINIBUFFER);
       checkHighlightRanges(firstABCText);
-      editor.type(QUICKSEARCH_FORWARD);
+      editor.type(QUICKSEARCH_FORWARD, WedEventTarget.MINIBUFFER);
       checkHighlightRanges(pFiveFirstThree);
-      editor.type(QUICKSEARCH_BACKWARDS);
+      editor.type(QUICKSEARCH_BACKWARDS, WedEventTarget.MINIBUFFER);
       checkHighlightRanges(firstABCText);
       editor.type(ESCAPE, WedEventTarget.MINIBUFFER);
     });

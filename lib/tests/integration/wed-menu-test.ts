@@ -82,7 +82,7 @@ describe("wed menus:", () => {
        });
 
     it("when there is a caret", async () => {
-      const initial = guiRoot.getElementsByClassName("title")[0].childNodes[1]!;
+      const initial = guiRoot.getElementsByClassName("title")[0].childNodes[1];
       caretManager.setCaret(initial, 0);
 
       activateContextMenu(editor, initial.parentNode as Element);

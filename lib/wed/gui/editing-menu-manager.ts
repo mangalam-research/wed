@@ -136,8 +136,11 @@ export class EditingMenuManager {
    *
    * @param bottom See [[computeMenuPosition]].
    */
-  setupContextMenu(cmClass: typeof ActionContextMenu, items: Item[],
-                   readonly: boolean, e: JQueryEventObject | undefined,
+  // @ts-ignore
+  setupContextMenu(cmClass: typeof ActionContextMenu,
+                   items: Item[],
+                   readonly: boolean,
+                   e: JQueryEventObject | undefined,
                    bottom?: boolean): void {
     const pos = this.computeMenuPosition(e, bottom);
     this.displayContextMenu(ActionContextMenu, pos.left, pos.top, items,
@@ -404,7 +407,7 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
             return;
           }
 
-          possible.push(text);
+          possible.push(text as string);
         });
     }
 
@@ -495,7 +498,7 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
         // length of 0.
         const dataNode = dataCaret.node as Attr;
         const uri = dataNode.namespaceURI !== null ? dataNode.namespaceURI : "";
-        this.editor.dataUpdater.setAttributeNS(dataNode.ownerElement, uri,
+        this.editor.dataUpdater.setAttributeNS(dataNode.ownerElement!, uri,
                                                dataNode.name, selected);
       });
   }
@@ -585,8 +588,9 @@ Element's documentation.</a></li>`, this.doc)[0] as HTMLElement;
    * @returns The top and left coordinates where the menu should appear.
    */
   computeMenuPosition(e: JQueryEventObject | undefined,
-                      bottom: boolean = false): { top: number, left: number } {
+                      bottom: boolean = false): { top: number; left: number } {
     if (e === undefined) {
+      // tslint:disable-next-line:no-object-literal-type-assertion
       e = {} as JQueryEventObject;
     }
 

@@ -4,12 +4,11 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Ajv from "ajv";
+import Ajv from "ajv";
 import "bootstrap";
-import * as $ from "jquery";
-import { Observable } from "rxjs/Observable";
-import { filter } from "rxjs/operators/filter";
-import { Subject } from "rxjs/Subject";
+import $ from "jquery";
+import { Observable } from "rxjs";
+import { filter } from "rxjs/operators";
 import * as salve from "salve";
 import { WorkingState, WorkingStateData } from "salve-dom";
 
@@ -20,10 +19,12 @@ import { DLoc, DLocRoot } from "./dloc";
 import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
 import * as domutil from "./domutil";
+// tslint:disable-next-line:no-duplicate-imports
 import { closest, closestByClass, htmlToElements, indexOf } from "./domutil";
 import * as editorActions from "./editor-actions";
 import { AbortTransformationException } from "./exceptions";
 import { GUIUpdater } from "./gui-updater";
+import { GUIValidationError } from "./gui-validation-error";
 import { DialogSearchReplace } from "./gui/dialog-search-replace";
 import { EditingMenuManager } from "./gui/editing-menu-manager";
 import { ErrorLayer } from "./gui/error-layer";
@@ -42,8 +43,7 @@ import * as keyConstants from "./key-constants";
 import * as log from "./log";
 import { Mode } from "./mode";
 import { EditorAPI , PasteTransformationData,
-         ReplaceRangeTransformationData,
-         TransformationEvents } from "./mode-api";
+         ReplaceRangeTransformationData } from "./mode-api";
 import { ModeTree } from "./mode-tree";
 import * as onbeforeunload from "./onbeforeunload";
 import * as onerror from "./onerror";
@@ -56,7 +56,8 @@ import { StockModals } from "./stock-modals";
 import { Task, TaskRunner } from "./task-runner";
 import { insertElement, mergeWithNextHomogeneousSibling,
          mergeWithPreviousHomogeneousSibling, removeMarkup, splitNode,
-         Transformation, TransformationData } from "./transformation";
+         Transformation, TransformationData, TransformationEvent,
+         TransformationEventSubject } from "./transformation";
 import { BeforeInsertNodeAtEvent, InsertNodeAtEvent,
          TreeUpdater } from "./tree-updater";
 import { Undo, UndoEvents, UndoList } from "./undo";
@@ -68,7 +69,7 @@ import { Validator } from "./validator";
 import { boundaryXY, getGUINodeIfExists } from "./wed-util";
 import * as wundo from "./wundo";
 
-export const version = "1.0.0";
+export const version = "2.0.0";
 
 export type KeydownHandler = (wedEv: JQueryEventObject,
                               ev: JQueryKeyEventObject) => boolean;
@@ -194,8 +195,8 @@ const FRAMEWORK_TEMPLATE = "\
  */
 export class Editor implements EditorAPI {
   private _firstValidationComplete: boolean = false;
-  private firstValidationCompleteResolve: (value: Editor) => void;
-  private initializedResolve: (value: Editor) => void;
+  private firstValidationCompleteResolve!: (value: Editor) => void;
+  private initializedResolve!: (value: Editor) => void;
   // tslint:disable-next-line:no-any
   private modeData: any = {};
   private developmentMode: boolean = false;
@@ -206,10 +207,9 @@ export class Editor implements EditorAPI {
   private readonly normalizeEnteredSpaces: boolean = true;
   private readonly strippedSpaces: RegExp = /\u200B/g;
   private readonly replacedSpaces: RegExp = /\s+/g;
-  private destroying: boolean = false;
   private destroyed: boolean = false;
-  private initialLabelLevel: number;
-  private currentLabelLevel: number;
+  private initialLabelLevel: number = 0;
+  private currentLabelLevel: number = 0;
   /** A temporary initialization value. */
   private _dataChild: Element | undefined;
   private readonly scroller: Scroller;
@@ -232,9 +232,9 @@ export class Editor implements EditorAPI {
   private readonly $navigationList: JQuery;
   private readonly $excludedFromBlur: JQuery;
   private readonly errorItemHandlerBound: ErrorItemHandler;
-  private readonly appender: log4javascript.AjaxAppender;
+  private readonly appender: log4javascript.AjaxAppender | undefined;
   private readonly _undo: UndoList;
-  private undoRecorder: UndoRecorder;
+  private undoRecorder!: UndoRecorder;
   private saveStatusInterval: number | undefined;
   private readonly globalKeydownHandlers: KeydownHandler[] = [];
   private updatingPlaceholder: number = 0;
@@ -245,9 +245,9 @@ export class Editor implements EditorAPI {
     data: any;
     startCaret: DLoc | undefined;
   } | undefined;
-  private validationController: ValidationController;
-  private readonly _transformations: Subject<TransformationEvents> =
-    new Subject();
+  private validationController!: ValidationController;
+  private readonly _transformations: TransformationEventSubject =
+    new TransformationEventSubject();
 
   readonly name: string = "";
   readonly firstValidationComplete: Promise<Editor>;
@@ -282,32 +282,32 @@ export class Editor implements EditorAPI {
     new editorActions.ToggleAttributeHiding(this);
   readonly minibuffer: Minibuffer;
   readonly docURL: string;
-  readonly transformations: Observable<TransformationEvents> =
+  readonly transformations: Observable<TransformationEvent> =
     this._transformations.asObservable();
   readonly toolbar: Toolbar;
-  dataRoot: Document;
-  $dataRoot: JQuery;
-  maxLabelLevel: number;
-  guiDLocRoot: DLocRoot;
-  dataDLocRoot: DLocRoot;
-  dataUpdater: TreeUpdater;
-  guiUpdater: GUIUpdater;
-  domlistener: domlistener.DOMListener;
+  dataRoot!: Document;
+  $dataRoot!: JQuery;
+  maxLabelLevel: number = 0;
+  guiDLocRoot!: DLocRoot;
+  dataDLocRoot!: DLocRoot;
+  dataUpdater!: TreeUpdater;
+  guiUpdater!: GUIUpdater;
+  domlistener!: domlistener.DOMListener;
   modals: StockModals;
 
   mergeWithPreviousHomogeneousSiblingTr: Transformation<TransformationData>;
 
   mergeWithNextHomogeneousSiblingTr: Transformation<TransformationData>;
 
-  modeTree: ModeTree;
+  modeTree!: ModeTree;
 
-  caretManager: CaretManager;
+  caretManager!: CaretManager;
 
-  validator: Validator;
+  validator!: Validator;
 
-  editingMenuManager: EditingMenuManager;
+  editingMenuManager!: EditingMenuManager;
 
-  saver: Saver;
+  saver!: Saver;
 
   // tslint:disable-next-line:max-func-body-length
   constructor(widget: HTMLElement, options: Options | Runtime) {
@@ -353,11 +353,9 @@ export class Editor implements EditorAPI {
     if (!optionsValidator(options)) {
       // tslint:disable-next-line:prefer-template
       throw new Error("the options passed to wed are not valid: " +
-                      // We need "as string" due to:
-                      // https://github.com/palantir/tslint/issues/2736
-                      (ajv.errorsText(optionsValidator.errors, {
+                      ajv.errorsText(optionsValidator.errors!, {
                         dataVar: "options",
-                      }) as string));
+                      }));
     }
 
     if (options.ajaxlog !== undefined) {
@@ -604,15 +602,18 @@ export class Editor implements EditorAPI {
       throw new Error("transformation applied with undefined caret.");
     }
 
-    this._transformations.next({
-      name: "StartTransformation",
-      transformation: tr,
-    });
+    const start =
+      new TransformationEvent("StartTransformation",
+                              tr as Transformation<TransformationData>);
+    this._transformations.next(start);
+    start.throwIfAborted();
+
     tr.handler(this, data);
-    this._transformations.next({
-      name: "EndTransformation",
-      transformation: tr,
-    });
+    const end =
+      new TransformationEvent("EndTransformation",
+                              tr as Transformation<TransformationData>);
+    this._transformations.next(end);
+    end.throwIfAborted();
   }
 
   /**
@@ -1024,7 +1025,6 @@ export class Editor implements EditorAPI {
   }
 
   destroy(): void {
-    this.destroying = true;
     if (this.destroyed) {
       return;
     }
@@ -1277,8 +1277,8 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "children-changed",
       "._real, ._phantom_wrap, .wed-document",
-      (root: Node, added: Node[], removed: Node[], prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, added: Node[], removed: Node[], _prev: Node | null,
+       _next: Node | null, target: Element) => {
         for (const child of added.concat(removed)) {
           if (isText(child) ||
               (isElement(child) &&
@@ -1294,7 +1294,7 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "attribute-changed",
       "._real",
-      (root: Node, el: Element, namespace: string, name: string) => {
+      (_root: Node, el: Element, namespace: string, name: string) => {
         if (namespace === "" && name.indexOf("data-wed", 0) === 0) {
           // Doing the restart immediately messes up the editing. So schedule it
           // for ASAP.
@@ -1312,8 +1312,8 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "included-element",
       "._label",
-      (root: Node, tree: Node, parent: Node, prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _tree: Node, _parent: Node, _prev: Node | null,
+       _next: Node | null, target: Element) => {
          const cl = target.classList;
          let found: number | undefined;
          for (let i = 0; i < cl.length && found === undefined; ++i) {
@@ -1335,8 +1335,8 @@ export class Editor implements EditorAPI {
       "children-changed",
       "._real, ._phantom_wrap, .wed-document",
       // tslint:disable-next-line:cyclomatic-complexity
-      (root: Node, added: Node[], removed: Node[], prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _added: Node[], removed: Node[], _prev: Node | null,
+       _next: Node | null, target: Element) => {
          if (this.updatingPlaceholder !== 0) {
            return;
          }
@@ -1424,16 +1424,16 @@ export class Editor implements EditorAPI {
     this.domlistener.addHandler(
       "children-changed",
       "._attribute_value",
-      (root: Node, added: Node[], removed: Node[], prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _added: Node[], _removed: Node[], _prev: Node | null,
+       _next: Node | null, target: Element) => {
         attributePlaceholderHandler(target);
       });
 
     this.domlistener.addHandler(
       "included-element",
       "._attribute_value",
-      (root: Node, tree: Node, parent: Node, prev: Node | null,
-       next: Node | null, target: Element) => {
+      (_root: Node, _tree: Node, _parent: Node, _prev: Node | null,
+       _next: Node | null, target: Element) => {
         attributePlaceholderHandler(target);
       });
 
@@ -1524,7 +1524,7 @@ export class Editor implements EditorAPI {
         return;
       }
 
-      const offset = this.$guiRoot.offset();
+      const offset = this.$guiRoot.offset()!;
       const x = ev.pageX - offset.left;
       const y = ev.pageY - offset.top;
 
@@ -1580,9 +1580,9 @@ wed's generic help. The link by default will open in a new tab.</p>`);
         .then((modules) => {
           // tslint:disable-next-line:no-any variable-name
           const SaverClass = (modules[0] as any).Saver as SaverConstructor;
-          const saveOptions = save!.options !== undefined ? save!.options : {};
+          const saveOptions = save.options !== undefined ? save.options : {};
           const saver = new SaverClass(this.runtime, version, this.dataUpdater,
-                                     this.dataRoot, saveOptions!);
+                                       this.dataRoot, saveOptions);
           this.saver = saver;
 
           saver.events
@@ -1706,8 +1706,7 @@ started with incorrect options.`;
         return failure;
       }
 
-      const evs =
-        this.validator.possibleAt(this.dataRoot, 0).toArray() as salve.Event[];
+      const evs = Array.from(this.validator.possibleAt(this.dataRoot, 0));
       if (evs.length === 1 && evs[0].params[0] === "enterStartTag") {
         const name = evs[0].params[1] as salve.BaseName;
         // If the name pattern is not simple or it allows for a number of
@@ -1748,7 +1747,7 @@ in a way not supported by this version of wed.";
 
   addToolbarAction(actionClass: editorActions.ActionCtor,
                    options: AddOptions): void {
-    this.toolbar.addButton( new actionClass(this).makeButton(), options);
+    this.toolbar.addButton(new actionClass(this).makeButton(), options);
   }
 
   /**
@@ -1879,11 +1878,11 @@ in a way not supported by this version of wed.";
    * list contain ``undefined`` for ``name``.
    */
   getElementTransformationsAt(treeCaret: DLoc, types: string |  string[]):
-  { tr: Action<{}>, name?: string }[]
+  { tr: Action<{}>; name?: string }[]
   {
     const mode = this.modeTree.getMode(treeCaret.node);
     const resolver = mode.getAbsoluteResolver();
-    const ret: { tr: Action<{}>, name?: string }[] = [];
+    const ret: { tr: Action<{}>; name?: string }[] = [];
     this.validator.possibleAt(treeCaret).forEach((ev: salve.Event) => {
       if (ev.params[0] !== "enterStartTag") {
         return;
@@ -2000,7 +1999,7 @@ in a way not supported by this version of wed.";
             // contains the contents we actually want to paste.
             this.fireTransformation(
               this.pasteTr,
-              { node: caret!.node, to_paste: data, e: e });
+              { node: caret.node, to_paste: data, e: e });
           }
         });
         return false;
@@ -2172,7 +2171,7 @@ in a way not supported by this version of wed.";
     else if (keyConstants.CONTEXTUAL_MENU.matchesEvent(e)) {
       if (selFocus !== undefined) {
         let selFocusNode = selFocus.node;
-        const gui = closestByClass(selFocusNode, "_gui", selFocus!.root);
+        const gui = closestByClass(selFocusNode, "_gui", selFocus.root);
         if (gui !== null && gui.classList.contains("_label_clicked")) {
           if (isText(selFocusNode)) {
             selFocusNode = selFocusNode.parentNode!;
@@ -2483,7 +2482,7 @@ in a way not supported by this version of wed.";
     }
   }
 
-  private globalKeypressHandler(wedEvent: JQueryEventObject,
+  private globalKeypressHandler(_wedEvent: JQueryEventObject,
                                 e: JQueryKeyEventObject): boolean {
     if (this.caretManager.caret === undefined) {
       return true;
@@ -2702,7 +2701,6 @@ in a way not supported by this version of wed.";
       }
       break;
     default:
-      break;
     }
     return false;
   }
@@ -2763,7 +2761,6 @@ in a way not supported by this version of wed.";
       }
       break;
     default:
-      break;
     }
     this.$guiRoot.off("mousemove");
     ev.preventDefault();
@@ -2902,13 +2899,20 @@ in a way not supported by this version of wed.";
     }
   }
 
-  private errorItemHandler(ev: JQueryEventObject): void {
+  private errorItemHandler(ev: JQueryEventObject): boolean {
+    const err = ev.data as GUIValidationError;
     const marker =
       document.querySelector(ev.target.getAttribute("href")!) as HTMLElement;
     this.errorLayer.select(marker);
     const $parent = $(ev.target.parentNode!);
     $parent.siblings().removeClass("selected");
     $parent.addClass("selected");
+
+    // We move the caret to the location of the error.
+    this.caretManager.setCaret(err.ev.node, err.ev.index);
+
+    // We don't want href to cause further movement.
+    return false;
   }
 
   setNavigationList(items: Node | JQuery | Node[]): void {
@@ -2937,7 +2941,7 @@ in a way not supported by this version of wed.";
   makeGUITreeTooltip($for: JQuery, options: TooltipOptions): void {
     const title = options.title;
     if (title !== undefined) {
-      options = Object.assign({}, options);
+      options = {...options};
       options.title = () => {
         // The check is here so that we can turn tooltips on and off
         // dynamically.
@@ -3078,7 +3082,7 @@ in a way not supported by this version of wed.";
     const range = this.doc.createRange();
 
     let min: {
-      dist: { x: number, y: number };
+      dist: { x: number; y: number };
       node: Node;
       start: number;
     } | undefined;
@@ -3207,7 +3211,6 @@ in a way not supported by this version of wed.";
               before = false;
               break;
             default:
-              break;
             }
           }
 
@@ -3424,7 +3427,7 @@ ${util.getOriginalName(el)}&nbsp;</span></span>`);
     }, 0);
   }
 
-  private paste(editor: EditorAPI, data: PasteTransformationData): void {
+  private paste(_editor: EditorAPI, data: PasteTransformationData): void {
     const toPaste = data.to_paste;
     const dataClone = toPaste.cloneNode(true);
     let caret = this.caretManager.getDataCaret();
@@ -3493,7 +3496,7 @@ ${util.getOriginalName(el)}&nbsp;</span></span>`);
       value = value.slice(0, dataStart.offset) + newText +
         value.slice(dataEnd.offset);
       editor.dataUpdater.setAttributeNS(
-        attr.ownerElement,
+        attr.ownerElement!,
         attr.namespaceURI === null ? "" : attr.namespaceURI,
         attr.name, value);
       if (caretAtEnd) {

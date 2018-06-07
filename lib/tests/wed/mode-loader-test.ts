@@ -1,6 +1,6 @@
 import { expect, use } from "chai";
 import * as sinon from "sinon";
-import * as sinonChai from "sinon-chai";
+import sinonChai from "sinon-chai";
 
 import { expectError } from "tests/util";
 import { Editor } from "wed/editor";
@@ -42,7 +42,7 @@ describe("ModeLoader", () => {
   describe("#initMode", () => {
     it("fails if we cannot load", async () => {
       runtime.resolveModules.throws(new Error("cannot load"));
-      await expectError(async () => await loader.initMode("moo", options),
+      await expectError(async () => loader.initMode("moo", options),
                         Error, "cannot load");
     });
 
@@ -104,8 +104,8 @@ describe("ModeLoader", () => {
           return ret;
         },
       }]);
-      expectError(async () =>  await loader.initMode("moo/foo", options),
-                  Error, "failed");
+      await expectError(async () =>  loader.initMode("moo/foo", options),
+                        Error, "failed");
     });
   });
 });

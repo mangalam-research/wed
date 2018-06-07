@@ -22,7 +22,7 @@ This package contains the following:
 * ``standalone``: a standalone build of wed. This build contains
   **everything** needed to load wed, including third-party libraries.
 
-* ``standalone-optimized``: an optimized version of the previous build.
+* ``packed``: a Webpack build of the previous tree.
 
 <!--  LocalWords:  readme npm tei json
  -->

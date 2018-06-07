@@ -19,7 +19,6 @@ const expect = chai.expect;
 describe("search-replace", () => {
   let setup: EditorSetup;
   let editor: Editor;
-  let guiRoot: HTMLElement;
   let dataRoot: Document;
   let docScope: DLocRange;
   let caretManager: CaretManager;
@@ -31,10 +30,7 @@ describe("search-replace", () => {
   let pFiveFirstFour: DLocRange;
   let pSevenFirstThree: DLocRange;
   let firstABCText: DLocRange;
-  let firstABCDText: DLocRange;
   let firstABCAttribute: DLocRange;
-  let firstABCDAttribute: DLocRange;
-  let secondABCAttribute: DLocRange;
   let titleBCD: DLocRange;
   let titleABCD: DLocRange;
 
@@ -48,7 +44,6 @@ describe("search-replace", () => {
   });
 
   beforeEach(() => {
-    guiRoot = editor.guiRoot;
     dataRoot = editor.dataRoot;
     caretManager = editor.caretManager;
     docScope = editor.caretManager.docDLocRange;
@@ -90,23 +85,10 @@ describe("search-replace", () => {
       caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
       caretManager.mustFromDataLocation(ps[3].lastChild!, 1));
 
-    // This is the first "abcd" found when doing a TEXT search.
-    firstABCDText = new DLocRange(
-      caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
-      caretManager.mustFromDataLocation(ps[3].lastChild!, 2));
-
-    const rend = ps[7].getAttributeNode("rend");
+    const rend = ps[7].getAttributeNode("rend")!;
     firstABCAttribute = new DLocRange(
       caretManager.mustFromDataLocation(rend, 0),
       caretManager.mustFromDataLocation(rend, 3));
-
-    firstABCDAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 0),
-      caretManager.mustFromDataLocation(rend, 4));
-
-    secondABCAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 4),
-      caretManager.mustFromDataLocation(rend, 7));
   });
 
   afterEach(() => {
@@ -138,12 +120,12 @@ describe("search-replace", () => {
     });
 
     it("starts with whole document scope if no selection", () => {
-      expect(makeSr()).to.have.deep.property("search.scope")
+      expect(makeSr()).to.have.nested.property("search.scope")
         .satisfy(isDocScope);
     });
 
     it("starts with start position === caret if no selection", () => {
-      expect(makeSr()).to.have.deep.property("search.start")
+      expect(makeSr()).to.have.nested.property("search.start")
         .satisfy((x: DLoc) => x.equals(firstBodyPLocation));
     });
 
@@ -152,7 +134,7 @@ describe("search-replace", () => {
                             pFiveFirstThree.start.offset,
                             pFiveFirstThree.end.node,
                             pFiveFirstThree.end.offset);
-      expect(makeSr()).to.have.deep.property("search.scope")
+      expect(makeSr()).to.have.nested.property("search.scope")
         .satisfy(equalRanges.bind(undefined, pFiveFirstThree));
     });
 
@@ -161,7 +143,7 @@ describe("search-replace", () => {
                             pFiveFirstThree.start.offset,
                             pFiveFirstThree.end.node,
                             pFiveFirstThree.end.offset);
-      expect(makeSr()).to.have.deep.property("search.start")
+      expect(makeSr()).to.have.nested.property("search.start")
         .satisfy((x: DLoc) => x.equals(pFiveFirstThree.start));
     });
 

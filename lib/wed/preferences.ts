@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as _ from "lodash";
+import _ from "lodash";
 
 import { assertSummarily } from "./object-check";
 
@@ -112,8 +112,7 @@ export class Preferences {
       it = it[part];
 
       if (it === undefined) {
-        // tslint:disable-next-line:no-any
-        it = (it as any)[part] = Object.create(null);
+        it = it[part] = Object.create(null);
       }
       ++ix;
     }

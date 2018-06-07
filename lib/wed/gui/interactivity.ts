@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as interact from "interactjs";
+import interact from "interactjs";
 
 import * as browsers from "../browsers";
 
@@ -17,7 +17,7 @@ import * as browsers from "../browsers";
  * won't register any change in dimensions (perhaps due to "min-..." styles.
  */
 class PseudoAtomicRectChange {
-  private readonly changes: { el: HTMLElement, rect: ClientRect }[] = [];
+  private readonly changes: { el: HTMLElement; rect: ClientRect }[] = [];
   private rolledback: boolean = false;
 
   updateElementRect(el: HTMLElement, dx: number, dy: number): void {

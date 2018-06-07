@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Ajv from "ajv";
+import Ajv from "ajv";
 
 import { Metadata } from "./metadata";
 import { MetadataReader } from "./metadata-reader";

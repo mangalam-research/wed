@@ -5,9 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as $ from "jquery";
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
+import $ from "jquery";
+import { Observable, Subject } from "rxjs";
 
 import { pointInContents } from "../domutil";
 
@@ -26,7 +25,7 @@ export class Scroller {
   private readonly _events: Subject<ScrollEvent> = new Subject();
 
   /** This is where you can listen to scrolling events. */
-  readonly events: Observable<ScrollEvent>= this._events.asObservable();
+  readonly events: Observable<ScrollEvent> = this._events.asObservable();
 
   /**
    * @param el The DOM element responsible for scrolling.

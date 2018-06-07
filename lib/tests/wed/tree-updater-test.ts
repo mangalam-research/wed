@@ -5,7 +5,7 @@
  */
 "use strict";
 
-import { filter } from "rxjs/operators/filter";
+import { filter } from "rxjs/operators";
 
 import * as convert from "wed/convert";
 import { DLoc, DLocRoot } from "wed/dloc";
@@ -280,7 +280,7 @@ quoted3</div></div>\
       const { node: textNode, isNew, caret } = tu.insertText(node, 2, "Q");
 
       // Check that we're doing what we think we're doing.
-      assert.equal(textNode, node);
+      assert.equal(textNode as Node, node);
       assert.isFalse(isNew);
       assert.equal(textNode!.nodeValue, "abQcd");
       assert.equal(caret.node, textNode);
@@ -308,7 +308,7 @@ quoted3</div></div>\
              const { node: textNode, isNew, caret } = adapter(node, 0, "Q");
 
              // Check that we're doing what we think we're doing.
-             assert.equal(textNode, node.firstChild);
+             assert.equal(textNode as Node, node.firstChild);
              assert.isFalse(isNew);
              assert.equal(textNode!.nodeValue, "Qabcd");
              assert.equal(caret.node, textNode);
@@ -331,7 +331,7 @@ quoted3</div></div>\
              const { node: textNode, isNew, caret } = adapter(node, 1, "Q");
 
              // Check that we're doing what we think we're doing.
-             assert.equal(textNode, node.firstChild);
+             assert.equal(textNode as Node, node.firstChild);
              assert.isFalse(isNew);
              assert.equal(textNode!.nodeValue, "abcdQ");
              assert.equal(caret.node, textNode);
@@ -358,7 +358,7 @@ quoted3</div></div>\
           const { node: textNode, isNew, caret } = adapter(node, 0, "test");
 
           // Check that we're doing what we think we're doing.
-          assert.equal(textNode, node.firstChild);
+          assert.equal(textNode as Node, node.firstChild);
           assert.equal(textNode!.nodeValue, "test");
           assert.isTrue(isNew);
           assert.equal(caret.node, textNode);
@@ -541,7 +541,7 @@ quoted3</div></div>\
       tu.events.pipe(filter(filterInsertNodeAtAndBefore))
         .subscribe((ev) => {
           const call = inaCalls[inaCallIx];
-          assert.equal(ev.parent, call[0]);
+          assert.equal(ev.parent, call[0] as Node);
           assert.equal(ev.index, call[1]);
           // We don't check ev.node here.
           if (ev.name === "InsertNodeAt") {
@@ -1277,7 +1277,6 @@ quoted2</div> after</div>");
                        `element node at ${i}`);
           break;
         default:
-          break;
         }
       }
     }

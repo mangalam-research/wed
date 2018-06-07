@@ -16,9 +16,6 @@ describe("wed decoration:", () => {
   let setup: EditorSetup;
   let editor: Editor;
   let caretManager: CaretManager;
-  let ps: NodeListOf<Element>;
-  let guiRoot: Element;
-  let titles: NodeListOf<Element>;
 
   before(() => {
     setup = new EditorSetup(
@@ -30,9 +27,6 @@ describe("wed decoration:", () => {
       // tslint:disable-next-line:no-any
       (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
       caretManager = editor.caretManager;
-      guiRoot = editor.guiRoot;
-      ps = guiRoot.querySelectorAll(".body .p");
-      titles = guiRoot.getElementsByClassName("title");
     });
   });
 

@@ -4,10 +4,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as $ from "jquery";
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
-import { Subscription } from "rxjs/Subscription";
+import $ from "jquery";
+import { Observable, Subject, Subscription } from "rxjs";
 
 import { ESCAPE } from "../key-constants";
 
@@ -34,7 +32,7 @@ export class Minibuffer {
   private readonly $input: JQuery;
   private previous: string | undefined;
   private client: MinibufferClient | undefined;
-  private clientSubscription: Subscription;
+  private clientSubscription: Subscription | undefined;
   private _enabled: boolean = false;
 
   /**
@@ -106,7 +104,7 @@ export class Minibuffer {
 
     this.client = undefined;
     this.keydownHandler = undefined;
-    this.clientSubscription.unsubscribe();
+    this.clientSubscription!.unsubscribe();
     this.disable();
     this.prompt = "";
     this.previous = undefined;
@@ -143,7 +141,7 @@ export class Minibuffer {
     return undefined;
   }
 
-  protected onKeypress(ev: JQueryKeyEventObject): void {
+  protected onKeypress(_ev: JQueryKeyEventObject): void {
     const value = this.input.value;
     if (value !== this.previous) {
       this.previous = value;
@@ -151,7 +149,7 @@ export class Minibuffer {
     }
   }
 
-  protected onInput(ev: JQueryKeyEventObject): void {
+  protected onInput(_ev: JQueryKeyEventObject): void {
     const value = this.input.value;
     if (value !== this.previous) {
       this.previous = value;

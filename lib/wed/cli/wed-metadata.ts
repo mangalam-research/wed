@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as Ajv from "ajv";
+import Ajv from "ajv";
 import { ArgumentParser } from "argparse";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
@@ -184,7 +184,7 @@ const ajv = new Ajv();
 const validator = ajv.compile(schema);
 const valid = validator(output);
 if (!(valid as boolean)) {
-  if (validator.errors !== undefined) {
+  if (validator.errors != null) {
     for (const error of validator.errors) {
       // tslint:disable-next-line:no-console
       console.log(error);

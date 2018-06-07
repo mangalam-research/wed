@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 
 import { Decorator } from "./decorator";
 import { contains, toGUISelector } from "./domutil";
@@ -27,7 +27,7 @@ type WedOptionsErrorCallback = (path: string, errors: string[]) => void;
 
 export interface AttributeHidingSpecs {
   elements: {
-    selector: string,
+    selector: string;
     attributes: (string | { except: string[]})[];
   }[];
 }
@@ -36,7 +36,7 @@ export interface AttributeHidingSpecs {
  * A node for the mode tree.
  */
 class ModeNode {
-  private _attributeHidingSpecs: AttributeHidingSpecs | null;
+  private _attributeHidingSpecs: AttributeHidingSpecs | null | undefined;
   private _decorator: Decorator | undefined;
 
   /**
@@ -155,9 +155,9 @@ class ModeNode {
  * A tree containing the modes configured for the current editing session.
  */
 export class ModeTree implements ModeTreeAPI {
-  private root: ModeNode;
+  private root!: ModeNode;
   private loader: ModeLoader;
-  private cachedMaxLabelNode: ModeNode;
+  private cachedMaxLabelNode: ModeNode | undefined;
 
   /**
    * @param editor The editor for which we are building this tree.

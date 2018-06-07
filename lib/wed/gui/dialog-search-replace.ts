@@ -5,7 +5,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import * as bootbox from "bootbox";
-import * as $ from "jquery";
+import $ from "jquery";
 
 import { Editor } from "../editor";
 import { makeDraggable, makeResizable } from "./interactivity";

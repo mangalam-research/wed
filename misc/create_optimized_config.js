@@ -29,9 +29,7 @@
 //     "C": "foo.js",
 //     "D": "bar.js"
 //
-const util = require("./util");
-
-const fileAsString = util.fileAsString;
+const { fileAsString } = require("./util");
 
 function create(args) {
   const configFilePath = args.config;
@@ -60,7 +58,7 @@ exports.create = create;
 
 if (require.main === module) {
   // eslint-disable-next-line global-require
-  const ArgumentParser = require("argparse").ArgumentParser;
+  const { ArgumentParser } = require("argparse");
 
   const parser = new ArgumentParser({
     version: "0.0.2",

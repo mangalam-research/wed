@@ -15,8 +15,6 @@ describe("wed label visibility level:", () => {
   let setup: EditorSetup;
   let editor: Editor;
   let caretManager: CaretManager;
-  let ps: NodeListOf<Element>;
-  let titles: NodeListOf<Element>;
 
   before(() => {
     setup = new EditorSetup(
@@ -28,8 +26,6 @@ describe("wed label visibility level:", () => {
       // tslint:disable-next-line:no-any
       (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
       caretManager = editor.caretManager;
-      ps = editor.guiRoot.querySelectorAll(".body .p");
-      titles = editor.guiRoot.getElementsByClassName("title");
     });
   });
 

@@ -26,14 +26,13 @@ require.config({
     "last-resort": "external/last-resort",
     "rangy-core": "external/rangy/rangy-core",
     "rangy-textrange": "external/rangy/rangy-textrange",
-    salve: "external/salve",
-    "salve-dom": "external/salve-dom",
+    salve: "external/salve.min",
+    "salve-dom": "external/salve-dom.min",
     "bootstrap-notify": "external/bootstrap-notify",
     dexie: "external/dexie.min",
     bluejax: "external/bluejax",
     "bluejax.try": "external/bluejax.try",
     slug: "external/slug",
-    rxjs: "external/rxjs",
     ajv: "external/ajv.min",
     diff: "external/diff",
   },
@@ -54,6 +53,8 @@ require.config({
       "wed/wed-options-schema.json": "json!wed/wed-options-schema.json",
       "wed/options-schema.json": "json!wed/options-schema.json",
       rangy: "wed/glue/rangy-glue",
+      rxjs: "external/rxjs/index",
+      "rxjs/operators": "external/rxjs/operators/index",
     },
     "wed/patches/bootstrap": {
       bootstrap: "bootstrap",
@@ -77,6 +78,7 @@ require.config({
       exports: "jQuery.fn.popover",
       init: function init($) {
         "use strict";
+
         return $;
       },
     },

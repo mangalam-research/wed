@@ -9,8 +9,7 @@
 import * as salve from "salve";
 import { ErrorData } from "salve-dom";
 
-import { DLoc, domtypeguards, domutil, EditorAPI,
-         transformation } from "wed";
+import { DLoc, domtypeguards, domutil, EditorAPI, transformation } from "wed";
 
 const { insertElement, unwrap, wrapInElement } = transformation;
 import Transformation = transformation.Transformation;
@@ -149,7 +148,7 @@ function executeWrap(editor: EditorAPI, data: NamedTransformationData): void {
     throw new Error("wrap transformation called with undefined range");
   }
 
-  if (sel.collapsed as boolean) {
+  if (sel.collapsed) {
     throw new Error("wrap transformation called with collapsed range");
   }
   const [startCaret, endCaret] = sel.mustAsDataCarets();
@@ -247,7 +246,7 @@ function executeDeleteAttribute(editor: EditorAPI,
     throw new Error("node must be an attribute");
   }
 
-  const element = node.ownerElement;
+  const element = node.ownerElement!;
   const caretManager = editor.caretManager;
   const guiOwnerLoc = caretManager.mustFromDataLocation(element, 0);
   // If the node we start with is an Element, then the node in guiOwnerLoc
@@ -290,8 +289,8 @@ function executeDeleteAttribute(editor: EditorAPI,
  * @param forEditorAPI The editor for which to create transformations.
  */
 export function makeTagTr(forEditor: EditorAPI):
-Record<string, Transformation<TransformationData>> {
-  const ret: Record<string, Transformation<TransformationData>> =
+Record<string, Transformation<NamedTransformationData>> {
+  const ret: Record<string, Transformation<NamedTransformationData>> =
     Object.create(null);
   ret.insert = new Transformation(forEditor, "insert", "Create new <name>",
                                   "", executeInsert);

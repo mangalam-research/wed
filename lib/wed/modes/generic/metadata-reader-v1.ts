@@ -15,7 +15,7 @@ class MetadataV1 extends MetadataBase {
     super("1", metadata);
   }
 
-  isInline(node: Element): boolean {
+  isInline(_node: Element): boolean {
     return false;
   }
 

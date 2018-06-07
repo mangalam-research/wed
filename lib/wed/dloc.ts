@@ -4,7 +4,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as $ from "jquery";
+import $ from "jquery";
 import { isAttr, isDocument, isElement } from "./domtypeguards";
 import { Caret, comparePositions, contains, indexOf, rangeFromPoints,
          RangeInfo } from "./domutil";
@@ -322,9 +322,12 @@ export class DLoc {
                       offset?: number, normalize?: boolean): DLoc;
   static mustMakeDLoc(root: ValidRoots | DLocRoot, location: Caret,
                       normalize?: boolean): DLoc;
+  // @ts-ignore
   static mustMakeDLoc(root: ValidRoots | DLocRoot,
                       node: Node | Attr | Caret | undefined | null,
+                      // @ts-ignore
                       offset?: number | boolean,
+                      // @ts-ignore
                       normalize?: boolean): DLoc {
     let nodeToCheck = node;
     if (nodeToCheck instanceof Array) {
@@ -531,7 +534,7 @@ export class DLoc {
     const node = this.node;
     // We do not check that offset is greater than 0 as this would be
     // done while constructing the object.
-    return this.root.contains(isAttr(node) ? node.ownerElement : node) &&
+    return this.root.contains(isAttr(node) ? node.ownerElement! : node) &&
       this.offset <= getTestLength(node);
   }
 
@@ -609,7 +612,7 @@ export class DLoc {
         }
       }
 
-      const owner = thisNode.ownerElement;
+      const owner = thisNode.ownerElement!;
       if (owner === other.pointedNode) {
         // This location points into an attribute that belongs to the node
         // that other points to. So this is later than other.
@@ -623,7 +626,7 @@ export class DLoc {
     }
 
     if (isAttr(otherNode)) {
-      const owner = otherNode.ownerElement;
+      const owner = otherNode.ownerElement!;
       if (owner === this.pointedNode) {
         // The other location points into an attribute that belongs to the node
         // that this location points to. So this is earlier than other.

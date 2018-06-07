@@ -51,7 +51,7 @@ by the test mode",
   });
 
   it("present a contextual menu showing mode-specific actions", () => {
-    function check(el: HTMLElement, msg: string, custom: boolean): void {
+    function check(el: HTMLElement, custom: boolean): void {
       expect(el).to.not.be.null;
       activateContextMenu(editor, el);
       contextMenuHasOption(editor, /^Test draggable$/, custom ? 1 : 0);
@@ -60,17 +60,15 @@ by the test mode",
 
     const first =
       editor.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
-    check(first as HTMLElement,
-          "the first paragraph should have the test-mode options", true);
+    check(first as HTMLElement, true);
 
     const second =
       editor.guiRoot.querySelector(".tei\\:body._real>.tei\\:p._real");
-    check(second as HTMLElement,
-          "the second paragraph should not have the test-mode options", false);
+    check(second as HTMLElement, false);
   });
 
   it("present mode-specific completions", () => {
-    function check(el: HTMLElement, msg: string, custom: boolean): void {
+    function check(el: HTMLElement, custom: boolean): void {
       expect(el).to.not.be.null;
       const attrVals = getAttributeValuesFor(el);
       editor.caretManager.setCaret(attrVals[0].firstChild, 0);
@@ -87,13 +85,11 @@ by the test mode",
 
     const first =
       editor.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
-    check(first as HTMLElement,
-          "the first paragraph should have the completions", true);
+    check(first as HTMLElement, true);
 
     const second =
       editor.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
-    check(second as HTMLElement,
-          "the second paragraph should not have the completions", false);
+    check(second as HTMLElement, false);
   });
 
   it("adds mode-specific toolbar buttons", () => {

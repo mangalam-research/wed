@@ -97,6 +97,7 @@ export function handle(e: any): never {
  * @returns The value returned by f.
  */
 export function wrap<T extends (this: any, ...args: any[]) => any>(fn: T): T {
+  // @ts-ignore
   return function wrapper(this: any, ...args: any[]): any {
     try {
       // tslint:disable-next-line:no-invalid-this

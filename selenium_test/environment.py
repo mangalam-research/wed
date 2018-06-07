@@ -106,14 +106,21 @@ def start_server(context):
         # This is the address at which we can control the server
         # locally.
         local_server = "http://localhost:" + port + builder.WED_ROOT
+        local_unoptimized_server = "http://localhost:" + port + \
+                                   builder.WED_UNOPTIMIZED_ROOT
         ssh_tunnel = builder.WED_SSH_TUNNEL
         if builder.remote and ssh_tunnel:
             builder.WED_SERVER = "{0}:{1}{2}".format(
                 ssh_tunnel["server"],
                 ssh_tunnel["server_port"],
                 builder.WED_ROOT)
+            builder.WED_UNOPTIMIZED_SERVER = "{0}:{1}{2}".format(
+                ssh_tunnel["server"],
+                ssh_tunnel["server_port"],
+                builder.WED_UNOPTIMIZED_ROOT)
         else:
             builder.WED_SERVER = local_server
+            builder.WED_UNOPTIMIZED_SERVER = local_unoptimized_server
 
         context.local_server = local_server
 
@@ -374,7 +381,10 @@ def before_scenario(context, scenario):
     context.top.driver_meta.scenarios += 1
 
 
-def after_scenario(context, _scenario):
+def after_scenario(context, scenario):
+    if "skip" in scenario.status:
+        return
+
     driver = context.driver
 
     # Close all extra tabs.
@@ -394,8 +404,13 @@ def after_scenario(context, _scenario):
 
     window.onbeforeunload = function () {};
 
-    if (typeof require === "undefined" || !require.defined) {
-        done(false);
+    if (typeof require === "undefined") {
+        done({ loadError: "no require" });
+        return;
+    }
+
+    if (!require.defined) {
+        done({ loadError: "no require.defined" });
         return;
     }
 

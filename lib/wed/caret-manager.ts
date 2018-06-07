@@ -4,9 +4,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as $ from "jquery";
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
+import $ from "jquery";
+import { Observable, Subject } from "rxjs";
 
 import * as browsers from "./browsers";
 import { CaretMark } from "./caret-mark";
@@ -411,6 +410,7 @@ export class CaretManager implements GUIToDataConverter {
    */
   mustFromDataLocation(loc: DLoc): DLoc;
   mustFromDataLocation(node: Node, offset: number): DLoc;
+  // @ts-ignore
   mustFromDataLocation(node: Node | DLoc, offset?: number): DLoc {
     const ret = this.fromDataLocation.apply(this, arguments);
     if (ret === undefined) {

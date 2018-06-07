@@ -19,9 +19,7 @@ const expect = chai.expect;
 describe("dialog-search-replace", () => {
   let setup: EditorSetup;
   let editor: Editor;
-  let guiRoot: HTMLElement;
   let dataRoot: Document;
-  let docScope: DLocRange;
   let caretManager: CaretManager;
 
   let ps: Element[];
@@ -33,10 +31,6 @@ describe("dialog-search-replace", () => {
   let firstABCText: DLocRange;
   let firstABCDText: DLocRange;
   let firstABCAttribute: DLocRange;
-  let firstABCDAttribute: DLocRange;
-  let secondABCAttribute: DLocRange;
-  let titleBCD: DLocRange;
-  let titleABCD: DLocRange;
 
   before(() => {
     setup = new EditorSetup(
@@ -48,18 +42,8 @@ describe("dialog-search-replace", () => {
   });
 
   beforeEach(() => {
-    guiRoot = editor.guiRoot;
     dataRoot = editor.dataRoot;
     caretManager = editor.caretManager;
-    docScope = editor.caretManager.docDLocRange;
-
-    const title = dataRoot.querySelector("title")!;
-    titleBCD = new DLocRange(
-      caretManager.mustFromDataLocation(title.firstChild!, 1),
-      caretManager.mustFromDataLocation(title.firstChild!, 4));
-    titleABCD = new DLocRange(
-      caretManager.mustFromDataLocation(title.firstChild!, 0),
-      caretManager.mustFromDataLocation(title.firstChild!, 4));
 
     ps = Array.from(dataRoot.querySelectorAll("body p"));
     firstBodyP = ps[0];
@@ -95,18 +79,10 @@ describe("dialog-search-replace", () => {
       caretManager.mustFromDataLocation(ps[3].firstChild!.firstChild!, 0),
       caretManager.mustFromDataLocation(ps[3].lastChild!, 2));
 
-    const rend = ps[7].getAttributeNode("rend");
+    const rend = ps[7].getAttributeNode("rend")!;
     firstABCAttribute = new DLocRange(
       caretManager.mustFromDataLocation(rend, 0),
       caretManager.mustFromDataLocation(rend, 3));
-
-    firstABCDAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 0),
-      caretManager.mustFromDataLocation(rend, 4));
-
-    secondABCAttribute = new DLocRange(
-      caretManager.mustFromDataLocation(rend, 4),
-      caretManager.mustFromDataLocation(rend, 7));
   });
 
   afterEach(() => {
@@ -127,7 +103,7 @@ describe("dialog-search-replace", () => {
   }
 
   function checkHighlightRanges(range: DLocRange): void {
-    const highlights = document.querySelectorAll("._wed_highlight")!;
+    const highlights = document.querySelectorAll("._wed_highlight");
     expect(highlights).to.have.property("length").greaterThan(0);
     let highlightRect = highlights[0].getBoundingClientRect();
     const rangeRect =
@@ -138,15 +114,15 @@ describe("dialog-search-replace", () => {
     // range.
 
     // Rounding can make the boundaries vary a bit.
-    expect(highlightRect, "correct top").to.have.deep.property("top")
+    expect(highlightRect, "correct top").to.have.nested.property("top")
       .closeTo(rangeRect.top, 3);
-    expect(highlightRect, "correct left").to.have.deep.property("left")
+    expect(highlightRect, "correct left").to.have.nested.property("left")
       .closeTo(rangeRect.left, 3);
 
     highlightRect = highlights[highlights.length - 1].getBoundingClientRect();
-    expect(highlightRect, "correct bottom").to.have.deep.property("bottom")
+    expect(highlightRect, "correct bottom").to.have.nested.property("bottom")
       .closeTo(rangeRect.bottom, 3);
-    expect(highlightRect, "correct right").to.have.deep.property("right")
+    expect(highlightRect, "correct right").to.have.nested.property("right")
       .closeTo(rangeRect.right, 3);
   }
 

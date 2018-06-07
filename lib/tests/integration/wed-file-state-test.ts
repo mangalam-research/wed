@@ -53,7 +53,7 @@ describe("wed file state:", () => {
   });
 
   it("onbeforeunload returns falsy on unmodified doc", () => {
-    assert.isFalse(!!editor.window.onbeforeunload
+    assert.isFalse(!!editor.window.onbeforeunload!
                    // tslint:disable-next-line:no-any
                    .call(editor.window, undefined) as any);
   });
@@ -73,7 +73,7 @@ describe("wed file state:", () => {
     caretManager.setCaret(initial, 0);
     editor.type(" ");
 
-    assert.isTrue(!!editor.window.onbeforeunload
+    assert.isTrue(!!editor.window.onbeforeunload!
                   .call(editor.window, undefined));
   });
 

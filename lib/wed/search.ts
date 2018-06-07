@@ -36,6 +36,7 @@ function unknownDirection(d: never): never {
 function directionToRangyDirection(direction: Direction): rangy.Direction {
   // There does not seem to be a way currently to declare this map in a way
   // that will enforce that all directions have a value. :-/
+  // tslint:disable-next-line:no-object-literal-type-assertion
   const ret = ({
     [Direction.FORWARD]: "forward",
     [Direction.BACKWARDS]: "backward",
@@ -63,7 +64,7 @@ function nodeInScope(doc: Document, node: Node, scope: Range): boolean {
  * (representing attributes, in our usage).
  */
 class AttributeValueCursor {
-  private current: number;
+  private current!: number;
 
   /**
    * @param values The values to iterate over.

@@ -252,10 +252,8 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real");
     });
 
     it("converts a NameChoice", () => {
-      const name = new NameChoice("", [
-        new Name("", "uri", "name"),
-        new Name("", "uri2", "name2"),
-      ]);
+      const name = new NameChoice("", new Name("", "uri", "name"),
+                                  new Name("", "uri2", "name2"));
       assert.equal(util.convertPatternObj(name.toObject(), nr),
                    "(prefix:name) or (prefix2:name2)");
     });

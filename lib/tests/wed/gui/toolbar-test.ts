@@ -10,7 +10,8 @@ import * as editorActions from "wed/editor-actions";
 import { Toolbar } from "wed/gui/toolbar";
 import { EditorAPI } from "wed/mode-api";
 
-// tslint:disable-next-line:mocha-no-side-effect-code
+// tslint:disable-next-line:max-line-length
+// tslint:disable-next-line:mocha-no-side-effect-code no-object-literal-type-assertion
 const fakeEditor: EditorAPI = {
   // tslint:disable-next-line:no-empty
   undo: () => {},
@@ -23,7 +24,7 @@ describe("Toolbar", () => {
   let sandbox: sinon.SinonSandbox;
   beforeEach(() => {
     toolbar = new Toolbar();
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   afterEach(() => {

@@ -108,6 +108,7 @@ define(function f(require) {
   }
 
   if (fetchOptions) {
+    // eslint-disable-next-line import/no-dynamic-require
     require([fetchOptions], function loaded(module) {
       fetched(module.config);
     });

@@ -3,12 +3,11 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { filter } from "rxjs/operators/filter";
-import { first } from "rxjs/operators/first";
+import { Subscription } from "rxjs";
+import { filter, first } from "rxjs/operators";
 
 import { CaretManager } from "wed/caret-manager";
 import { Editor } from "wed/editor";
-import { AbortTransformationException } from "wed/exceptions";
 import * as keyConstants from "wed/key-constants";
 
 import * as globalConfig from "../base-config";
@@ -23,6 +22,7 @@ describe("wed undo redo:", () => {
   let caretManager: CaretManager;
   let ps: NodeListOf<Element>;
   let titles: NodeListOf<Element>;
+  let subscription: Subscription | undefined;
 
   before(() => {
     setup = new EditorSetup(
@@ -41,6 +41,11 @@ describe("wed undo redo:", () => {
 
   afterEach(() => {
     setup.reset();
+    // We have to clean up subscriptions manually.
+    if (subscription !== undefined) {
+      subscription.unsubscribe();
+      subscription = undefined;
+    }
   });
 
   after(() => {
@@ -222,9 +227,9 @@ describe("wed undo redo:", () => {
     caretManager.setCaret(elName.firstChild, 0);
     caretCheck(editor, elName.firstChild!, 0,
                "the caret should be in the element name");
-    editor.transformations.subscribe((ev) => {
+    subscription = editor.transformations.subscribe((ev) => {
       if (ev.name === "EndTransformation") {
-        throw new AbortTransformationException("moo");
+        ev.abort("moo");
       }
     });
     trs[0].execute({ node: dataP, name: "abbr" });
@@ -244,7 +249,7 @@ describe("wed undo redo:", () => {
     caretManager.setCaret(elName.firstChild, 0);
     caretCheck(editor, elName.firstChild!, 0,
                "the caret should be in the element name");
-    editor.transformations.subscribe((ev) => {
+    subscription = editor.transformations.subscribe((ev) => {
       if (ev.name === "EndTransformation") {
         assert.equal(getAttributeValuesFor(p).length, 1, "one attribute");
         editor.dataUpdater.setAttribute(dataP as Element, "abbr", "moo");

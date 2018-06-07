@@ -3,8 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { filter } from "rxjs/operators/filter";
-import { first } from "rxjs/operators/first";
+import { filter, first } from "rxjs/operators";
 
 import * as wed from "wed";
 import { Editor } from "wed/editor";
@@ -53,7 +52,7 @@ server_interaction_converted.xml",
     $modal.on("shown.bs.modal", () => {
       editor.saver.events.pipe(filter((ev) => ev.name === "Saved"),
                                first())
-        .subscribe((ev) => {
+        .subscribe(() => {
           // Was saved on retry!
 
           // This allows us to let the whole save process run its course before

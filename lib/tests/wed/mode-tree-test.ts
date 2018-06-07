@@ -4,9 +4,9 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 import { expect, use } from "chai";
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 import * as sinon from "sinon";
-import * as sinonChai from "sinon-chai";
+import sinonChai from "sinon-chai";
 use(sinonChai);
 
 import { Editor } from "wed/editor";
@@ -101,34 +101,34 @@ describe("ModeTree", () => {
 
     it("returns the top mode for the top GUI node", () => {
       const mode = tree.getMode(editor.guiRoot);
-      expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+      expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
         .equal("Generic");
     });
 
     it("returns the top mode for the top data node", () => {
       const mode = tree.getMode(editor.dataRoot);
-      expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+      expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
         .equal("Generic");
     });
 
     it("returns a submode for a GUI node governed by a submode", () => {
       const p = editor.guiRoot.querySelector(".p._real")!;
       const mode = tree.getMode(p);
-      expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+      expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
         .equal("Test1");
     });
 
     it("returns a submode for a data node governed by a submode", () => {
       const p = editor.dataRoot.querySelector("p")!;
       const mode = tree.getMode(p);
-      expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+      expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
         .equal("Test1");
     });
 
     it("returns the same submode for nodes governed by same submode", () => {
       const ps = editor.dataRoot.querySelectorAll("p");
       const mode = tree.getMode(ps[0]);
-      expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+      expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
         .equal("Test1");
       for (const p of Array.from(ps)) {
         expect(mode).to.equal(tree.getMode(p));
@@ -142,7 +142,7 @@ describe("ModeTree", () => {
       // be governed by the top mode.
       const el = editor.dataRoot.querySelector("teiHeader")!;
       const mode = tree.getMode(el);
-      expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+      expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
         .equal("Generic");
     });
 
@@ -162,33 +162,33 @@ describe("ModeTree", () => {
 
     it("returns the top options for the top GUI node", () => {
       const opts = tree.getWedOptions(editor.guiRoot);
-      expect(opts).to.have.deep.property("metadata.name").equal("Generic");
+      expect(opts).to.have.nested.property("metadata.name").equal("Generic");
     });
 
     it("returns the top options for the top data node", () => {
       const opts = tree.getWedOptions(editor.dataRoot);
-      expect(opts).to.have.deep.property("metadata.name").equal("Generic");
+      expect(opts).to.have.nested.property("metadata.name").equal("Generic");
     });
 
     it("returns the submode options for a GUI node governed by a submode",
        () => {
          const p = editor.guiRoot.querySelector(".p._real")!;
          const opts = tree.getWedOptions(p);
-         expect(opts).to.have.deep.property("metadata.name").equal("Test1");
+         expect(opts).to.have.nested.property("metadata.name").equal("Test1");
        });
 
     it("returns the submode options for a data node governed by a submode",
        () => {
          const p = editor.dataRoot.querySelector("p")!;
          const opts = tree.getWedOptions(p);
-         expect(opts).have.deep.property("metadata.name").equal("Test1");
+         expect(opts).have.nested.property("metadata.name").equal("Test1");
        });
 
     it("returns the same submode options for nodes governed by same submode",
        () => {
          const ps = editor.dataRoot.querySelectorAll("p");
          const opts = tree.getWedOptions(ps[0]);
-         expect(opts).to.have.deep.property("metadata.name")
+         expect(opts).to.have.nested.property("metadata.name")
            .equal("Test1");
          for (const p of Array.from(ps)) {
            expect(opts).to.equal(tree.getWedOptions(p));
@@ -202,7 +202,7 @@ describe("ModeTree", () => {
       // be governed by the top mode.
       const el = editor.dataRoot.querySelector("teiHeader")!;
       const opts = tree.getWedOptions(el);
-      expect(opts).to.have.deep.property("metadata.name").equal("Generic");
+      expect(opts).to.have.nested.property("metadata.name").equal("Generic");
     });
 
     it("fails if the node passed was not in the GUI or data trees", () => {
@@ -338,7 +338,7 @@ describe("ModeTree", () => {
       // We use test-mode twice. So two validators.
       const validators = tree.getValidators();
       expect(validators).to.have.length(2);
-      expect(validators).to.have.deep.property("[0].validateDocument");
+      expect(validators).to.have.nested.property("[0].validateDocument");
     });
   });
 
@@ -347,7 +347,7 @@ describe("ModeTree", () => {
     let sandbox: sinon.SinonSandbox;
 
     before(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     beforeEach(async () => {
@@ -387,7 +387,7 @@ describe("ModeTree", () => {
     let sandbox: sinon.SinonSandbox;
 
     before(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     beforeEach(async () => {

@@ -19,10 +19,9 @@ export interface Controller {
  * yet.
  */
 export class ProcessValidationErrors implements Task {
-  private errors: GUIValidationError[];
+  private errors: GUIValidationError[] = [];
 
-  constructor(private readonly controller: Controller) {
-  }
+  constructor(private readonly controller: Controller) {}
 
   reset(): void {
     this.errors = this.controller.copyErrorList();
@@ -44,7 +43,7 @@ export class ProcessValidationErrors implements Task {
     while (count !== 0) {
       count--;
       const error = errors[ix];
-      if (controller.processError(error) as boolean) {
+      if (controller.processError(error)) {
         errors.splice(ix, 1);
         const item = error.item;
         if (item === undefined) {

@@ -4,7 +4,6 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as Promise from "bluebird";
 import { ajax } from "bluejax";
 import { AssertionError, expect } from "chai";
 

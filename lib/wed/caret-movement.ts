@@ -209,7 +209,7 @@ export function positionRight(pos: DLoc | undefined | null,
     }
 
     pos = pos.make(nextCaret);
-    const { node, offset }: { node: Node, offset: number } = pos;
+    const { node, offset }: { node: Node; offset: number } = pos;
     const closestGUI = closest(node, "._gui:not(._invisible)", root);
     if (closestGUI !== null) {
       const startLabel = closestGUI.classList.contains("__start_label");

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 "use strict";
 
 /* eslint-disable no-console */
@@ -26,11 +27,12 @@ const fs = require("fs");
 const querystring = require("querystring");
 const crypto = require("crypto");
 const morgan = require("morgan");
-const ArgumentParser = require("argparse").ArgumentParser;
+const { ArgumentParser } = require("argparse");
 
 const parser = new ArgumentParser({
   addHelp: true,
-  description: "Starts a server to run the in-browser tests for wed." });
+  description: "Starts a server to run the in-browser tests for wed.",
+});
 
 parser.addArgument(["-v", "--verbose"], {
   help: "Run verbosely.",
@@ -42,14 +44,11 @@ parser.addArgument(["address"], {
 });
 
 const args = parser.parseArgs();
-const verbose = args.verbose;
-const address = args.address;
+const { verbose, address } = args;
 let ip;
 let port;
 if (address) {
-  const parts = address.split(":");
-  ip = parts[0];
-  port = parts[1];
+  [ip, port] = address.split(":");
 }
 const cwd = process.cwd();
 
@@ -128,8 +127,8 @@ function dumpData(request, options, callback) {
       decoded = JSON.parse(body);
     }
     else {
-      throw new Error(`cannot handle content-type: ${
-                      request.get("Content-Type")}`);
+      throw new Error(`cannot handle content-type: \
+${request.get("Content-Type")}`);
     }
 
     if (options.dump) {
@@ -205,7 +204,7 @@ function runserver() {
   if (!ip) {
     const server = http.createServer(app).listen();
     ip = "0.0.0.0";
-    port = server.address().port;
+    ({ port } = server.address());
     app.set("port", port);
   }
   else {

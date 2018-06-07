@@ -20,7 +20,7 @@ describe("onbeforeunload", () => {
   beforeEach((done) => {
     frame = document.createElement("iframe");
     document.body.appendChild(frame);
-    frameWindow = frame.contentWindow;
+    frameWindow = frame.contentWindow!;
     // We need <base> in the following code so that the proper protocol
     // is set when resolving the relative paths.
     const frameSrc = `
@@ -60,15 +60,30 @@ describe("onbeforeunload", () => {
   describe("install", () => {
     it("fails when already set and force is not set", () => {
       onbeforeunload.install(frameWindow);
-      assert.throws(onbeforeunload.install.bind(undefined, frameWindow),
-                    (frameWindow as any).Error,
-                    "reregistering window with `force` false");
+      // Upon upgrading from Chai 3.5.0 to 4.1.2 this fails. The problem is that
+      // isCompatibleConstructor in check-error is too strict. It checks whether
+      // the parameter passed to throws is an instance of Error, which fails due
+      // to the error being raised in a frame.
+      //
+      // assert.throws(onbeforeunload.install.bind(undefined, frameWindow),
+      //               (frameWindow as any).Error,
+      //               /^reregistering window with `force` false$/);
+      let e: any;
+      try {
+        onbeforeunload.install(frameWindow);
+      }
+      catch (_e) {
+        e = _e;
+      }
+      assert.instanceOf(e, (frameWindow as any).Error);
+      assert.equal(e.message, "reregistering window with `force` false");
     });
 
     it("works when force is set", () => {
       onbeforeunload.install(frameWindow);
       onbeforeunload.install(frameWindow, undefined, true);
-      assert.isTrue(frameWindow.onbeforeunload(undefined as any));
+      assert.isTrue(frameWindow.onbeforeunload!.call(frameWindow,
+                                                     undefined as any));
     });
 
     it("a true check results in a prompt", () => {
@@ -76,7 +91,8 @@ describe("onbeforeunload", () => {
       check.returns(true);
 
       onbeforeunload.install(frameWindow, check, true);
-      assert.isTrue(frameWindow.onbeforeunload(undefined as any));
+      assert.isTrue(frameWindow.onbeforeunload!.call(frameWindow,
+                                                     undefined as any));
       assert.isTrue(check.calledOnce);
     });
 
@@ -85,7 +101,8 @@ describe("onbeforeunload", () => {
       check.returns(false);
 
       onbeforeunload.install(frameWindow, check, true);
-      assert.isUndefined(frameWindow.onbeforeunload(undefined as any));
+      assert.isUndefined(frameWindow.onbeforeunload!.call(frameWindow,
+                                                          undefined as any));
       assert.isTrue(check.calledOnce);
     });
   });

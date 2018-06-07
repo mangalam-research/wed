@@ -6,8 +6,6 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import * as $ from "jquery";
-
 import { CaretManager } from "./caret-manager";
 import { isElement } from "./domtypeguards";
 import { Layer } from "./gui/layer";
@@ -30,7 +28,6 @@ export class CaretMark {
    * calculations.
    */
   private readonly dummy: HTMLElement;
-  private readonly $dummy: JQuery;
 
   private suspended: number = 0;
   private pendingRefresh: boolean = false;
@@ -68,7 +65,6 @@ export class CaretMark {
     dummy.style.height = "100%";
     dummy.style.width = "1px";
     dummy.style.maxWidth = "1px";
-    this.$dummy = $(dummy);
 
     this.boundRefresh = this.refresh.bind(this);
   }
@@ -157,7 +153,7 @@ export class CaretMark {
   /**
    * @returns The coordinates of the caret marker relative to the scroller.
    */
-  private getPositionFromScroller(): { left: number, top: number } {
+  private getPositionFromScroller(): { left: number; top: number } {
     // This function may be called when the caret layer is invisible. So we
     // can't rely on offset. Fortunately, the CSS values are what we want, so...
     const el = this.el;

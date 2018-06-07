@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as mergeOptions from "merge-options";
+import mergeOptions from "merge-options";
 
 import { CaretManager } from "wed/caret-manager";
 import { Editor } from "wed/editor";
@@ -23,9 +23,7 @@ describe("wed wildcard support:", () => {
   let setup: EditorSetup;
   let editor: Editor;
   let caretManager: CaretManager;
-  let ps: NodeListOf<Element>;
   let guiRoot: Element;
-  let titles: NodeListOf<Element>;
 
   before(() => {
     setup = new EditorSetup(
@@ -38,8 +36,6 @@ describe("wed wildcard support:", () => {
       (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
       caretManager = editor.caretManager;
       guiRoot = editor.guiRoot;
-      ps = guiRoot.querySelectorAll(".body .p");
-      titles = guiRoot.getElementsByClassName("title");
     });
   });
 
@@ -68,6 +64,7 @@ describe("wed wildcard support:", () => {
         break;
       }
     }
+    // tslint:disable-next-line:no-unnecessary-type-assertion
     const attr = attrName!.closest("._attribute")!;
     assert.isTrue(attr.classList.contains("_readonly"));
   });
@@ -89,10 +86,11 @@ describe("wed wildcard support:", () => {
         break;
       }
     }
+    // tslint:disable-next-line:no-unnecessary-type-assertion
     const attr = attrName!.closest("._attribute")!;
     assert.isTrue(attr.classList.contains("_readonly"));
 
-    const fooBaz = bar.getAttributeNode("foo:baz");
+    const fooBaz = bar.getAttributeNode("foo:baz")!;
     caretManager.setCaret(fooBaz, 0);
     editor.type("foo");
     assert.equal(fooBaz.value, "x");

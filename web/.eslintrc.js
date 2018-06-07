@@ -3,4 +3,7 @@ module.exports = {
     "lddubeau-base/es5",
     "../.eslintrc-common.js",
   ],
+  rules: {
+    "prefer-destructuring": "off",
+  }
 };

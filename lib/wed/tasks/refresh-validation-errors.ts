@@ -17,8 +17,8 @@ export interface Controller {
  * screen.
  */
 export class RefreshValidationErrors implements Task {
-  private errors: GUIValidationError[];
-  private resumeAt: number;
+  private errors: GUIValidationError[] = [];
+  private resumeAt: number = 0;
 
   constructor(private readonly controller: Controller) {}
 

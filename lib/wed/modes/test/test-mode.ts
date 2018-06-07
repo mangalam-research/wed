@@ -4,8 +4,8 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import * as $ from "jquery";
-import * as mergeOptions from "merge-options";
+import $ from "jquery";
+import mergeOptions from "merge-options";
 import { EName, ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
@@ -43,8 +43,6 @@ export class TestDecorator extends GenericDecorator {
     ref: 2,
     text: 1,
   };
-
-  protected readonly mode: TestMode;
 
   addHandlers(): void {
     super.addHandlers();
@@ -154,7 +152,6 @@ export class TestDecorator extends GenericDecorator {
         this.guiUpdater.insertBefore(wrapper, el, null);
         break;
       default:
-        break;
       }
     }
   }
@@ -264,7 +261,7 @@ class TypeaheadAction extends Action<{}> {
     const range = editor.caretManager.range;
 
     // This is purposely not as intelligent as what real mode would need.
-    if (range != null && !(range.collapsed as boolean)) {
+    if (range != null && !range.collapsed) {
       typeahead.setValue(range.toString());
     }
   }
@@ -378,23 +375,17 @@ export class TestMode extends GenericMode<TestModeOptions> {
         },
       };
     }
-  }
 
-  init(): Promise<void> {
-    return super.init()
-      .then(() => {
-        const editor = this.editor;
-        this.typeaheadAction = new TypeaheadAction(
-          editor, "Test typeahead", undefined,
-          "<i class='fa fa-plus fa-fw'></i>", true);
+    this.typeaheadAction = new TypeaheadAction(
+      editor, "Test typeahead", undefined,
+      "<i class='fa fa-plus fa-fw'></i>", true);
 
-        this.draggableAction = new DraggableModalAction(
-          editor, "Test draggable", undefined, undefined, true);
-        this.resizableAction = new ResizableModalAction(
-          editor, "Test resizable", undefined, undefined, true);
-        this.draggableResizableAction = new DraggableResizableModalAction(
-          editor, "Test draggable resizable", undefined, undefined, true);
-      });
+    this.draggableAction = new DraggableModalAction(
+      editor, "Test draggable", undefined, undefined, true);
+    this.resizableAction = new ResizableModalAction(
+      editor, "Test resizable", undefined, undefined, true);
+    this.draggableResizableAction = new DraggableResizableModalAction(
+      editor, "Test draggable resizable", undefined, undefined, true);
   }
 
   getStylesheets(): string[] {

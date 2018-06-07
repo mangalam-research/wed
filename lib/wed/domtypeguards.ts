@@ -20,12 +20,12 @@ export function isText(node?: Node | null): node is Text {
 
 const attrNodeType = Node.ATTRIBUTE_NODE;
 // Specialized for when Node.ATTRIBUTE_NODE still exists.
-function isAttrWithType(it: Attr | Node): it is Attr {
-  return it instanceof Attr || (it.nodeType === attrNodeType);
+function isAttrWithType(it: Attr | Node | null | undefined): it is Attr {
+  return it instanceof Attr || (it != null && it.nodeType === attrNodeType);
 }
 
 // Specialized for when the platform has removed Node.ATTRIBUTE_NODE.
-function isAttrNoType(it: Attr | Node): it is Attr {
+function isAttrNoType(it: Attr | Node | null | undefined): it is Attr {
   return it instanceof Attr;
 }
 

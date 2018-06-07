@@ -56,7 +56,7 @@ function findInsertionPoint(editor: Editor, node: Node,
   catch (ex) {
     if (ex instanceof AttributeNotFound) {
       // This happens only if node points to an attribute.
-      return caretManager.fromDataLocation((node as Attr).ownerElement, 0);
+      return caretManager.fromDataLocation((node as Attr).ownerElement!, 0);
     }
 
     throw ex;
@@ -141,12 +141,6 @@ export class ValidationController {
    */
   private processErrorsDelay: number = 500;
   private _errors: GUIValidationError[] = [];
-
-  /**
-   * Gives the index in errors of the last validation error that has
-   * already been processed.
-   */
-  private processedErrorsUpTo: number = -1;
 
   private readonly $errorList: JQuery;
 
@@ -367,53 +361,52 @@ export class ValidationController {
    * @return ``false`` if there was no insertion point for the error, and thus
    * no marker or item were created. ``true`` otherwise.
    */
+  // tslint:disable-next-line:max-func-body-length
   processError(err: GUIValidationError): boolean {
     this.editor.expandErrorPanelWhenNoNavigation();
     const { ev } = err;
     const { error, node: dataNode } = ev;
+
+    if (dataNode == null) {
+      throw new Error("error without a node");
+    }
 
     const insertAt = this.findInsertionPoint(ev);
     if (insertAt === undefined) {
       return false;
     }
 
+    let closestElement = insertAt.node as HTMLElement;
+    if (closestElement.nodeType === Node.TEXT_NODE) {
+      closestElement = closestElement.parentNode as HTMLElement;
+    }
+
+    if (!isElement(closestElement)) {
+      throw new Error("we should be landing on an element");
+    }
+
     let item;
     let marker = err.marker;
-
-    if (dataNode == null) {
-      throw new Error("error without a node");
-    }
 
     // We may be getting here with an error that already has a marker. It has
     // already been "processed" and only needs its location updated. Otherwise,
     // this is a new error: create a list item and marker for it.
     if (marker === undefined) {
-      const doc = insertAt.node.ownerDocument;
-      let invisibleAttribute = false;
-      if (isAttr(dataNode)) {
-        let nodeToTest = insertAt.node;
-        if (nodeToTest.nodeType === Node.TEXT_NODE) {
-          nodeToTest = nodeToTest.parentNode!;
-        }
-
-        if (!isElement(nodeToTest)) {
-          throw new Error("we should be landing on an element");
-        }
-
-        invisibleAttribute = isNotDisplayed(
-          nodeToTest as HTMLElement,
-          insertAt.root as (HTMLElement | HTMLDocument));
-      }
-
       // Turn the names into qualified names.
       const convertedNames = convertNames(error, this.resolver);
-
+      const doc = insertAt.node.ownerDocument;
       item = doc.createElement("li");
       const linkId = item.id = newGenericID();
-      if (!invisibleAttribute) {
+      if (isAttr(dataNode) &&
+          isNotDisplayed(closestElement,
+                         insertAt.root as (HTMLElement | HTMLDocument))) {
+        item.textContent = error.toStringWithNames(convertedNames);
+        item.title = "This error belongs to an attribute " +
+          "which is not currently displayed.";
+      }
+      else {
         marker = doc.createElement("span");
         marker.className = "_phantom wed-validation-error";
-        marker.innerText = "\u00A0";
         const $marker = $(marker);
 
         $marker.mousedown(() => {
@@ -421,7 +414,7 @@ export class ValidationController {
           const $link = $(this.errorList.querySelector(`#${linkId}`));
           const $scrollable = this.$errorList.parent(".panel-body");
           $scrollable.animate({
-            scrollTop: $link.offset().top - $scrollable.offset().top +
+            scrollTop: $link.offset()!.top - $scrollable.offset()!.top +
               $scrollable[0].scrollTop,
           });
           this.errorLayer.select(marker!);
@@ -442,23 +435,26 @@ export class ValidationController {
         link.textContent = error.toStringWithNames(convertedNames);
         item.appendChild(link);
 
-        $(item.firstElementChild).click(this.errorItemHandler);
-      }
-      else {
-        item.textContent = error.toStringWithNames(convertedNames);
-        item.title = "This error belongs to an attribute " +
-          "which is not currently displayed.";
+        $(item.firstElementChild).click(err, this.errorItemHandler);
       }
     }
 
     // Update the marker's location.
     if (marker !== undefined) {
-      const loc = boundaryXY(insertAt);
-      const scroller = this.scroller;
-      const scrollerPos = scroller.getBoundingClientRect();
-      marker.style.top = `${loc.top - scrollerPos.top + scroller.scrollTop}px`;
-      marker.style.left =
-        `${loc.left - scrollerPos.left + scroller.scrollLeft}px`;
+      const { top, left } = boundaryXY(insertAt);
+      const { scrollTop, scrollLeft } = this.scroller;
+      const scrollerPos = this.scroller.getBoundingClientRect();
+      const fontSize =
+        parseFloat(this.editor.window.getComputedStyle(closestElement)
+                   .fontSize!);
+      const height = fontSize * 0.2;
+      marker.style.height = `${height}px`;
+      // We move down from the top of the box produced by boundaryXY because
+      // when targeting parent, it may return a box which is as high as the
+      // parent's contents.
+      marker.style.top =
+        `${top + fontSize - height - scrollerPos.top + scrollTop}px`;
+      marker.style.left = `${left - scrollerPos.left + scrollLeft}px`;
     }
 
     if (err.item === undefined) {
@@ -475,7 +471,6 @@ export class ValidationController {
    */
   private clearErrors(): void {
     this._errors = [];
-    this.processedErrorsUpTo = -1;
     this.refreshErrorsRunner.stop();
     this.processErrorsRunner.stop();
 
@@ -526,7 +521,6 @@ export class ValidationController {
       error.item = undefined;
     }
 
-    this.processedErrorsUpTo = -1;
     this.processErrors();
   }
 

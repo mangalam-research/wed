@@ -5,6 +5,48 @@ there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 2.0.0:
+
+  - Upgrade to salve 7.x. Faster validation.
+
+  - Upgrade to RxJS 6.
+
+  - GUI change: error markers are now smaller. The previous size of the error
+    markers made it hard to move the caret where the marker was without also
+    selecting the marker.
+
+  - GUI change: clicking on an error marker moves the caret to where the error
+    applies.
+
+  - We no longer support building or running any of the code of this project on
+    Node 4.x. You need Node 6.x or higher.
+
+  - Breaking distribution changes:
+
+    + The ``standalone-optimized`` tree has been removed. Wed now ships a
+      ``standalone`` tree, which is the same as it has ever been, and a
+      ``packed`` tree (introduced in 1.0.0) that is wed optimized through
+      Webpack.
+
+  - Breaking API changes:
+
+    + ``Key.__cache`` is no longer public. It was a mistake that it was.
+
+    + ``Key`` no longer has a public constructor. Previously you were
+      discouraged from using it but it was public.
+
+    + Upgrading to RxJS 6 broke how we allowed transformations to be aborted
+      through handling of transformation events. Throwing
+      ``AbortTransformationException`` from a subscription cannot abort a
+      transformation anymore. wed now emits "real" event objects on the
+      ``transformations`` stream, which have an ``abort()`` method that must be
+      called to abort a transformation from there.
+
+      ``mode-api`` no longer exports any event pertaining to
+      transformations. Instead ``transformation`` exports
+      ``TransformationEvent``, which is now the event that is emitted on the
+      ``transformations`` stream.
+
 * 1.0.0:
 
   - Release 1.0.0. Woohoo!
