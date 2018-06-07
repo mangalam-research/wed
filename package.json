@@ -1,7 +1,7 @@
 {
   "name": "wed",
   "description": "Wed is a schema-aware editor for XML documents.",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "versionedSources": "lib/wed/editor.ts",
   "keywords": [
     "RelaxNG",
