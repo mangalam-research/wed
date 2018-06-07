@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var retryWhen_1 = require('../../operator/retryWhen');
-Observable_1.Observable.prototype.retryWhen = retryWhen_1.retryWhen;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/retryWhen");
 //# sourceMappingURL=retryWhen.js.map
 return module.exports;
 

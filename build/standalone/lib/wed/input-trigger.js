@@ -1,10 +1,10 @@
-define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"], function (require, exports, $, salve_1, domtypeguards_1, domutil_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], function (require, exports, jquery_1, domtypeguards_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // tslint:disable-next-line:no-any
-    function hashHelper(o) {
-        return o.hash();
-    }
+    jquery_1 = __importDefault(jquery_1);
     /**
      * An InputTrigger listens to keyboard events and to DOM changes that insert
      * text into an element. The object has to listen to both types of events
@@ -44,8 +44,8 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
             this.mode = mode;
             this.selector = selector;
             // This is a map of all keys to their handlers.
-            this.keyToHandler = new salve_1.HashMap(hashHelper);
-            this.textInputKeyToHandler = new salve_1.HashMap(hashHelper);
+            this.keyToHandler = new Map();
+            this.textInputKeyToHandler = new Map();
             editor.$guiRoot.on("wed-post-paste", this.pasteHandler.bind(this));
             // Implementation note: getting keydown events to get fired on random HTML
             // elements is finicky. For one thing, the element needs to be focusable,
@@ -88,10 +88,10 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
          * @param handler The handler that will process events related to that key.
          */
         InputTrigger.prototype.addKeyHandler = function (key, handler) {
-            var handlers = this.keyToHandler.has(key);
-            if (handlers == null) {
+            var handlers = this.keyToHandler.get(key);
+            if (handlers === undefined) {
                 handlers = [];
-                this.keyToHandler.add(key, handlers);
+                this.keyToHandler.set(key, handlers);
             }
             handlers.push(handler);
             // We could get here due to keys that are actually not text (e.g. ENTER,
@@ -100,8 +100,8 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
                 return;
             }
             // We share the handlers array between the two maps.
-            if (this.textInputKeyToHandler.has(key) == null) {
-                this.textInputKeyToHandler.add(key, handlers);
+            if (!this.textInputKeyToHandler.has(key)) {
+                this.textInputKeyToHandler.set(key, handlers);
             }
         };
         InputTrigger.prototype.getNodeOfInterest = function () {
@@ -117,23 +117,23 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
             // selectors cannot operate on XML namespace prefixes (or, at the time of
             // writing, on XML namespaces, period).
             var dataNode = domtypeguards_1.isText(caret.node) ? caret.node.parentNode : caret.node;
-            var guiNode = $.data(dataNode, "wed_mirror_node");
+            var guiNode = jquery_1.default.data(dataNode, "wed_mirror_node");
             return domutil_1.closest(guiNode, this.selector.value, this.editor.guiRoot);
         };
         /**
          * Handles ``keydown`` events.
          *
-         * @param wedEvent The DOM event wed generated to trigger this handler.
+         * @param _wedEvent The DOM event wed generated to trigger this handler.
          *
          * @param e The original DOM event that wed received.
          */
-        InputTrigger.prototype.keydownHandler = function (wedEvent, e) {
+        InputTrigger.prototype.keydownHandler = function (_wedEvent, e) {
             var nodeOfInterest = this.getNodeOfInterest();
             if (nodeOfInterest === null) {
                 return;
             }
-            var dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-            this.keyToHandler.forEach(function (key, handlers) {
+            var dataNode = jquery_1.default.data(nodeOfInterest, "wed_mirror_node");
+            this.keyToHandler.forEach(function (handlers, key) {
                 if (key.matchesEvent(e)) {
                     for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
                         var handler = handlers_1[_i];
@@ -145,17 +145,17 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
         /**
          * Handles ``keypress`` events.
          *
-         * @param wedEvent The DOM event wed generated to trigger this handler.
+         * @param _wedEvent The DOM event wed generated to trigger this handler.
          *
          * @param e The original DOM event that wed received.
          */
-        InputTrigger.prototype.keypressHandler = function (wedEvent, e) {
+        InputTrigger.prototype.keypressHandler = function (_wedEvent, e) {
             var nodeOfInterest = this.getNodeOfInterest();
             if (nodeOfInterest === null) {
                 return;
             }
-            var dataNode = $.data(nodeOfInterest, "wed_mirror_node");
-            this.keyToHandler.forEach(function (key, handlers) {
+            var dataNode = jquery_1.default.data(nodeOfInterest, "wed_mirror_node");
+            this.keyToHandler.forEach(function (handlers, key) {
                 if (key.matchesEvent(e)) {
                     for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
                         var handler = handlers_2[_i];
@@ -167,7 +167,7 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
         /**
          * Handles ``paste`` events.
          *
-         * @param wedEvent The DOM event wed generated to trigger this handler.
+         * @param _wedEvent The DOM event wed generated to trigger this handler.
          *
          * @param e The original DOM event that wed received.
          *
@@ -175,7 +175,7 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
          *
          * @param data The data that the user wants to insert.
          */
-        InputTrigger.prototype.pasteHandler = function (wedEvent, e, caret, data) {
+        InputTrigger.prototype.pasteHandler = function (_wedEvent, e, caret, data) {
             if (this.editor.undoingOrRedoing()) {
                 return;
             }
@@ -199,11 +199,11 @@ define(["require", "exports", "jquery", "salve", "./domtypeguards", "./domutil"]
             // writing, on XML namespaces, period).
             var nodeOfInterest = (domtypeguards_1.isText(caret.node) ?
                 caret.node.parentNode : caret.node);
-            var guiNode = $.data(nodeOfInterest, "wed_mirror_node");
+            var guiNode = jquery_1.default.data(nodeOfInterest, "wed_mirror_node");
             if (domutil_1.closest(guiNode, this.selector.value, this.editor.guiRoot) === null) {
                 return;
             }
-            this.textInputKeyToHandler.forEach(function (key, handlers) {
+            this.textInputKeyToHandler.forEach(function (handlers, key) {
                 // We care only about text input
                 if (key.anyModifier()) {
                     return;

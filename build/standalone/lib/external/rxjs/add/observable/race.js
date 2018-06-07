@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var race_1 = require('../../observable/race');
-Observable_1.Observable.race = race_1.race;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/observable/race");
 //# sourceMappingURL=race.js.map
 return module.exports;
 

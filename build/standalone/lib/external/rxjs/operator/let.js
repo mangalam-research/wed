@@ -1,16 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-/**
- * @param func
- * @return {Observable<R>}
- * @method let
- * @owner Observable
- */
-function letProto(func) {
-    return func(this);
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-exports.letProto = letProto;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/operator/let"));
 //# sourceMappingURL=let.js.map
 return module.exports;
 

@@ -39,9 +39,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "blueimp-md5", "chai", "qs", "sinon", "wed", "wed/onerror", "./util"], function (require, exports, md5, chai_1, qs, sinon, wed_1, onerror, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    sinon = __importStar(sinon);
+    onerror = __importStar(onerror);
     var childByClass = wed_1.domutil.childByClass, childrenByClass = wed_1.domutil.childrenByClass;
     function activateContextMenu(editor, el) {
         // tslint:disable-next-line:no-any
@@ -148,7 +157,7 @@ equal to the expected count");
             // tslint:disable-next-line:no-any
             this.oldFilters = xhr.filters;
             xhr.useFilters = true;
-            xhr.addFilter(function (method, url) {
+            xhr.addFilter(function (_method, url) {
                 return !/^\/build\/ajax\//.test(url);
             });
             server.respondImmediately = true;
@@ -238,7 +247,7 @@ equal to the expected count");
     }());
     exports.WedServer = WedServer;
     function makeWedRoot(doc) {
-        var wedroot = document.createElement("div");
+        var wedroot = doc.createElement("div");
         wedroot.className = "wed-widget container";
         return wedroot;
     }
@@ -257,7 +266,7 @@ equal to the expected count");
     var EditorSetup = /** @class */ (function () {
         function EditorSetup(source, options, doc) {
             this.source = source;
-            this.sandbox = sinon.sandbox.create({
+            this.sandbox = sinon.createSandbox({
                 useFakeServer: true,
             });
             this.server = new WedServer(this.sandbox.server);

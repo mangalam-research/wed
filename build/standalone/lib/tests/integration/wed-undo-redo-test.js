@@ -1,6 +1,15 @@
-define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "wed/exceptions", "wed/key-constants", "../base-config", "../wed-test-util"], function (require, exports, filter_1, first_1, exceptions_1, keyConstants, globalConfig, wed_test_util_1) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "rxjs/operators", "wed/key-constants", "../base-config", "../wed-test-util"], function (require, exports, operators_1, keyConstants, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    keyConstants = __importStar(keyConstants);
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed undo redo:", function () {
         var setup;
@@ -8,6 +17,7 @@ define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "
         var caretManager;
         var ps;
         var titles;
+        var subscription;
         before(function () {
             setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/source_converted.xml", globalConfig.config, document);
             (editor = setup.editor);
@@ -21,6 +31,11 @@ define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "
         });
         afterEach(function () {
             setup.reset();
+            // We have to clean up subscriptions manually.
+            if (subscription !== undefined) {
+                subscription.unsubscribe();
+                subscription = undefined;
+            }
         });
         after(function () {
             setup.restore();
@@ -156,9 +171,9 @@ define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "
             var trs = editor.modeTree.getMode(elName).getContextualActions(["add-attribute"], "abbr", elName, 0);
             caretManager.setCaret(elName.firstChild, 0);
             wed_test_util_1.caretCheck(editor, elName.firstChild, 0, "the caret should be in the element name");
-            editor.transformations.subscribe(function (ev) {
+            subscription = editor.transformations.subscribe(function (ev) {
                 if (ev.name === "EndTransformation") {
-                    throw new exceptions_1.AbortTransformationException("moo");
+                    ev.abort("moo");
                 }
             });
             trs[0].execute({ node: dataP, name: "abbr" });
@@ -174,7 +189,7 @@ define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "
             var trs = editor.modeTree.getMode(elName).getContextualActions(["add-attribute"], "abbr", elName, 0);
             caretManager.setCaret(elName.firstChild, 0);
             wed_test_util_1.caretCheck(editor, elName.firstChild, 0, "the caret should be in the element name");
-            editor.transformations.subscribe(function (ev) {
+            subscription = editor.transformations.subscribe(function (ev) {
                 if (ev.name === "EndTransformation") {
                     assert.equal(wed_test_util_1.getAttributeValuesFor(p).length, 1, "one attribute");
                     editor.dataUpdater.setAttribute(dataP, "abbr", "moo");
@@ -193,7 +208,7 @@ define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "
             caretManager.setCaret(initial, 0);
             editor.type("blah");
             var prom = editor.undoEvents
-                .pipe(filter_1.filter(function (ev) { return ev.name === "Undo"; }), first_1.first()).toPromise();
+                .pipe(operators_1.filter(function (ev) { return ev.name === "Undo"; }), operators_1.first()).toPromise();
             var button = editor.widget
                 .querySelector("[data-original-title='Undo']");
             button.click();
@@ -208,7 +223,7 @@ define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "
             editor.undo();
             // ... then we can redo.
             var prom = editor.undoEvents
-                .pipe(filter_1.filter(function (ev) { return ev.name === "Redo"; }), first_1.first()).toPromise();
+                .pipe(operators_1.filter(function (ev) { return ev.name === "Redo"; }), operators_1.first()).toPromise();
             var button = editor.widget
                 .querySelector("[data-original-title='Redo']");
             button.click();

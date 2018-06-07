@@ -1,12 +1,19 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/dloc", "wed/gui/search-replace", "../base-config", "../wed-test-util"], function (require, exports, dloc_1, search_replace_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    globalConfig = __importStar(globalConfig);
     var expect = chai.expect;
     // tslint:disable:no-any
     describe("search-replace", function () {
         var setup;
         var editor;
-        var guiRoot;
         var dataRoot;
         var docScope;
         var caretManager;
@@ -17,10 +24,7 @@ define(["require", "exports", "wed/dloc", "wed/gui/search-replace", "../base-con
         var pFiveFirstFour;
         var pSevenFirstThree;
         var firstABCText;
-        var firstABCDText;
         var firstABCAttribute;
-        var firstABCDAttribute;
-        var secondABCAttribute;
         var titleBCD;
         var titleABCD;
         beforeEach(function () {
@@ -29,7 +33,6 @@ define(["require", "exports", "wed/dloc", "wed/gui/search-replace", "../base-con
             return setup.init();
         });
         beforeEach(function () {
-            guiRoot = editor.guiRoot;
             dataRoot = editor.dataRoot;
             caretManager = editor.caretManager;
             docScope = editor.caretManager.docDLocRange;
@@ -51,12 +54,8 @@ define(["require", "exports", "wed/dloc", "wed/gui/search-replace", "../base-con
             expect(pSevenFirstThree.mustMakeDOMRange().toString()).to.equal("abc");
             // This is the first "abc" found when doing a TEXT search.
             firstABCText = new dloc_1.DLocRange(caretManager.mustFromDataLocation(ps[3].firstChild.firstChild, 0), caretManager.mustFromDataLocation(ps[3].lastChild, 1));
-            // This is the first "abcd" found when doing a TEXT search.
-            firstABCDText = new dloc_1.DLocRange(caretManager.mustFromDataLocation(ps[3].firstChild.firstChild, 0), caretManager.mustFromDataLocation(ps[3].lastChild, 2));
             var rend = ps[7].getAttributeNode("rend");
             firstABCAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 0), caretManager.mustFromDataLocation(rend, 3));
-            firstABCDAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 0), caretManager.mustFromDataLocation(rend, 4));
-            secondABCAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 4), caretManager.mustFromDataLocation(rend, 7));
         });
         afterEach(function () {
             setup.restore();
@@ -81,21 +80,21 @@ define(["require", "exports", "wed/dloc", "wed/gui/search-replace", "../base-con
                 expect(makeSr).to.throw(Error, "search without a caret!");
             });
             it("starts with whole document scope if no selection", function () {
-                expect(makeSr()).to.have.deep.property("search.scope")
+                expect(makeSr()).to.have.nested.property("search.scope")
                     .satisfy(isDocScope);
             });
             it("starts with start position === caret if no selection", function () {
-                expect(makeSr()).to.have.deep.property("search.start")
+                expect(makeSr()).to.have.nested.property("search.start")
                     .satisfy(function (x) { return x.equals(firstBodyPLocation); });
             });
             it("starts with scope === selection", function () {
                 caretManager.setRange(pFiveFirstThree.start.node, pFiveFirstThree.start.offset, pFiveFirstThree.end.node, pFiveFirstThree.end.offset);
-                expect(makeSr()).to.have.deep.property("search.scope")
+                expect(makeSr()).to.have.nested.property("search.scope")
                     .satisfy(equalRanges.bind(undefined, pFiveFirstThree));
             });
             it("starts with start === selection start", function () {
                 caretManager.setRange(pFiveFirstThree.start.node, pFiveFirstThree.start.offset, pFiveFirstThree.end.node, pFiveFirstThree.end.offset);
-                expect(makeSr()).to.have.deep.property("search.start")
+                expect(makeSr()).to.have.nested.property("search.start")
                     .satisfy(function (x) { return x.equals(pFiveFirstThree.start); });
             });
             describe("current", function () {

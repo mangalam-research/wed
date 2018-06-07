@@ -3,9 +3,18 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/browsers", "wed/convert", "../util"], function (require, exports, browsers, convert, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    browsers = __importStar(browsers);
+    convert = __importStar(convert);
     var assert = chai.assert;
     describe("convert", function () {
         var parser;

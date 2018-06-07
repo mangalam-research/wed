@@ -1,7 +1,6 @@
 define(["require", "exports", "./domutil"], function (require, exports, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var cache = new WeakMap();
     /**
      * A "GUI selector" is a CSS selector apt to be used in the GUI tree.
      */
@@ -10,11 +9,12 @@ define(["require", "exports", "./domutil"], function (require, exports, domutil_
          * @param value The value that the selector holds.
          */
         function GUISelector(value) {
-            var existing = cache.get(value);
+            this.value = value;
+            var existing = GUISelector.__cache[value];
             if (existing !== undefined) {
                 return existing;
             }
-            this.value = value;
+            GUISelector.__cache[value] = this;
         }
         /**
          * Make a GUI selector from a CSS selector, as-is.
@@ -38,6 +38,8 @@ define(["require", "exports", "./domutil"], function (require, exports, domutil_
         GUISelector.fromDataSelector = function (selector, namespaces) {
             return new GUISelector(domutil_1.toGUISelector(selector, namespaces));
         };
+        // tslint:disable-next-line:variable-name
+        GUISelector.__cache = Object.create(null);
         return GUISelector;
     }());
     exports.GUISelector = GUISelector;

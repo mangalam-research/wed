@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var sample_1 = require('../../operator/sample');
-Observable_1.Observable.prototype.sample = sample_1.sample;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/sample");
 //# sourceMappingURL=sample.js.map
 return module.exports;
 

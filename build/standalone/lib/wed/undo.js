@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "rxjs/Subject"], function (require, exports, Subject_1) {
+define(["require", "exports", "rxjs"], function (require, exports, rxjs_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -26,7 +26,7 @@ define(["require", "exports", "rxjs/Subject"], function (require, exports, Subje
             this.list = [];
             this.index = -1;
             this._undoingOrRedoing = false;
-            this._events = new Subject_1.Subject();
+            this._events = new rxjs_1.Subject();
             this.events = this._events.asObservable();
         }
         /**
@@ -209,7 +209,7 @@ define(["require", "exports", "rxjs/Subject"], function (require, exports, Subje
     var Undo = /** @class */ (function () {
         function Undo(desc) {
             this.desc = desc;
-            this._events = new Subject_1.Subject();
+            this._events = new rxjs_1.Subject();
             this.events = this._events.asObservable();
         }
         /**

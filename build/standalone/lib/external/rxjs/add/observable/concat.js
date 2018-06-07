@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var concat_1 = require('../../observable/concat');
-Observable_1.Observable.concat = concat_1.concat;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/observable/concat");
 //# sourceMappingURL=concat.js.map
 return module.exports;
 

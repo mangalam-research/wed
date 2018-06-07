@@ -1,3 +1,1 @@
-import {  mergeStatic  } from '../operator/merge';
-
-export const merge = mergeStatic;
+export * from 'rxjs-compat/observable/merge';

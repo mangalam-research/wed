@@ -140,11 +140,6 @@ define(["require", "exports", "salve", "salve-dom", "./dloc", "./domtypeguards",
              */
             this.processErrorsDelay = 500;
             this._errors = [];
-            /**
-             * Gives the index in errors of the last validation error that has
-             * already been processed.
-             */
-            this.processedErrorsUpTo = -1;
             this.document = guiRoot.ownerDocument;
             this.$errorList = $(errorList);
             this.refreshErrorsRunner =
@@ -301,44 +296,46 @@ define(["require", "exports", "salve", "salve-dom", "./dloc", "./domtypeguards",
          * @return ``false`` if there was no insertion point for the error, and thus
          * no marker or item were created. ``true`` otherwise.
          */
+        // tslint:disable-next-line:max-func-body-length
         ValidationController.prototype.processError = function (err) {
             var _this = this;
             this.editor.expandErrorPanelWhenNoNavigation();
             var ev = err.ev;
             var error = ev.error, dataNode = ev.node;
+            if (dataNode == null) {
+                throw new Error("error without a node");
+            }
             var insertAt = this.findInsertionPoint(ev);
             if (insertAt === undefined) {
                 return false;
             }
+            var closestElement = insertAt.node;
+            if (closestElement.nodeType === Node.TEXT_NODE) {
+                closestElement = closestElement.parentNode;
+            }
+            if (!domtypeguards_1.isElement(closestElement)) {
+                throw new Error("we should be landing on an element");
+            }
             var item;
             var marker = err.marker;
-            if (dataNode == null) {
-                throw new Error("error without a node");
-            }
             // We may be getting here with an error that already has a marker. It has
             // already been "processed" and only needs its location updated. Otherwise,
             // this is a new error: create a list item and marker for it.
             if (marker === undefined) {
-                var doc = insertAt.node.ownerDocument;
-                var invisibleAttribute = false;
-                if (domtypeguards_1.isAttr(dataNode)) {
-                    var nodeToTest = insertAt.node;
-                    if (nodeToTest.nodeType === Node.TEXT_NODE) {
-                        nodeToTest = nodeToTest.parentNode;
-                    }
-                    if (!domtypeguards_1.isElement(nodeToTest)) {
-                        throw new Error("we should be landing on an element");
-                    }
-                    invisibleAttribute = domutil_1.isNotDisplayed(nodeToTest, insertAt.root);
-                }
                 // Turn the names into qualified names.
                 var convertedNames = convertNames(error, this.resolver);
+                var doc = insertAt.node.ownerDocument;
                 item = doc.createElement("li");
                 var linkId_1 = item.id = util_1.newGenericID();
-                if (!invisibleAttribute) {
+                if (domtypeguards_1.isAttr(dataNode) &&
+                    domutil_1.isNotDisplayed(closestElement, insertAt.root)) {
+                    item.textContent = error.toStringWithNames(convertedNames);
+                    item.title = "This error belongs to an attribute " +
+                        "which is not currently displayed.";
+                }
+                else {
                     marker = doc.createElement("span");
                     marker.className = "_phantom wed-validation-error";
-                    marker.innerText = "\u00A0";
                     var $marker = $(marker);
                     $marker.mousedown(function () {
                         _this.$errorList.parents(".panel-collapse").collapse("show");
@@ -363,22 +360,24 @@ define(["require", "exports", "salve", "salve-dom", "./dloc", "./domtypeguards",
                     link.href = "#" + markerId;
                     link.textContent = error.toStringWithNames(convertedNames);
                     item.appendChild(link);
-                    $(item.firstElementChild).click(this.errorItemHandler);
-                }
-                else {
-                    item.textContent = error.toStringWithNames(convertedNames);
-                    item.title = "This error belongs to an attribute " +
-                        "which is not currently displayed.";
+                    $(item.firstElementChild).click(err, this.errorItemHandler);
                 }
             }
             // Update the marker's location.
             if (marker !== undefined) {
-                var loc = wed_util_1.boundaryXY(insertAt);
-                var scroller = this.scroller;
-                var scrollerPos = scroller.getBoundingClientRect();
-                marker.style.top = loc.top - scrollerPos.top + scroller.scrollTop + "px";
-                marker.style.left =
-                    loc.left - scrollerPos.left + scroller.scrollLeft + "px";
+                var _a = wed_util_1.boundaryXY(insertAt), top_1 = _a.top, left = _a.left;
+                var _b = this.scroller, scrollTop = _b.scrollTop, scrollLeft = _b.scrollLeft;
+                var scrollerPos = this.scroller.getBoundingClientRect();
+                var fontSize = parseFloat(this.editor.window.getComputedStyle(closestElement)
+                    .fontSize);
+                var height = fontSize * 0.2;
+                marker.style.height = height + "px";
+                // We move down from the top of the box produced by boundaryXY because
+                // when targeting parent, it may return a box which is as high as the
+                // parent's contents.
+                marker.style.top =
+                    top_1 + fontSize - height - scrollerPos.top + scrollTop + "px";
+                marker.style.left = left - scrollerPos.left + scrollLeft + "px";
             }
             if (err.item === undefined) {
                 err.item = item;
@@ -392,7 +391,6 @@ define(["require", "exports", "salve", "salve-dom", "./dloc", "./domtypeguards",
          */
         ValidationController.prototype.clearErrors = function () {
             this._errors = [];
-            this.processedErrorsUpTo = -1;
             this.refreshErrorsRunner.stop();
             this.processErrorsRunner.stop();
             this.errorLayer.clear();
@@ -435,7 +433,6 @@ define(["require", "exports", "salve", "salve-dom", "./dloc", "./domtypeguards",
                 error.marker = undefined;
                 error.item = undefined;
             }
-            this.processedErrorsUpTo = -1;
             this.processErrors();
         };
         /**

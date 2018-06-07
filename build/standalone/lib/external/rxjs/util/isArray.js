@@ -1,7 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-exports.isArray = Array.isArray || (function (x) { return x && typeof x.length === 'number'; });
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/util/isArray"));
 //# sourceMappingURL=isArray.js.map
 return module.exports;
 

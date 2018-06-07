@@ -33,10 +33,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "merge-options", "../base-config", "../util", "../wed-test-util"], function (require, exports, mergeOptions, globalConfig, util_1, wed_test_util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "merge-options", "../base-config", "../util", "../wed-test-util"], function (require, exports, merge_options_1, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
+    merge_options_1 = __importDefault(merge_options_1);
+    globalConfig = __importStar(globalConfig);
     var options = {
         schema: "/base/build/schemas/simplified-rng.js",
     };
@@ -45,19 +57,15 @@ define(["require", "exports", "merge-options", "../base-config", "../util", "../
         var setup;
         var editor;
         var caretManager;
-        var ps;
         var guiRoot;
-        var titles;
         before(function () {
-            setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/wildcard_converted.xml", mergeOptions(globalConfig.config, options), document);
+            setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/wildcard_converted.xml", merge_options_1.default(globalConfig.config, options), document);
             (editor = setup.editor);
             return setup.init().then(function () {
                 // tslint:disable-next-line:no-any
                 editor.validator._validateUpTo(editor.dataRoot, -1);
                 caretManager = editor.caretManager;
                 guiRoot = editor.guiRoot;
-                ps = guiRoot.querySelectorAll(".body .p");
-                titles = guiRoot.getElementsByClassName("title");
             });
         });
         afterEach(function () {
@@ -82,6 +90,7 @@ define(["require", "exports", "merge-options", "../base-config", "../util", "../
                     break;
                 }
             }
+            // tslint:disable-next-line:no-unnecessary-type-assertion
             var attr = attrName.closest("._attribute");
             assert.isTrue(attr.classList.contains("_readonly"));
         });
@@ -100,6 +109,7 @@ define(["require", "exports", "merge-options", "../base-config", "../util", "../
                     break;
                 }
             }
+            // tslint:disable-next-line:no-unnecessary-type-assertion
             var attr = attrName.closest("._attribute");
             assert.isTrue(attr.classList.contains("_readonly"));
             var fooBaz = bar.getAttributeNode("foo:baz");

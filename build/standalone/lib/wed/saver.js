@@ -4,9 +4,18 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "rxjs/Subject", "./browsers", "./serializer"], function (require, exports, Subject_1, browsers, serializer) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "rxjs", "./browsers", "./serializer"], function (require, exports, rxjs_1, browsers, serializer) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    browsers = __importStar(browsers);
+    serializer = __importStar(serializer);
     var SaveKind;
     (function (SaveKind) {
         SaveKind[SaveKind["AUTO"] = 1] = "AUTO";
@@ -63,6 +72,15 @@ define(["require", "exports", "rxjs/Subject", "./browsers", "./serializer"], fun
              */
             this.initialized = false;
             /**
+             * Subclasses must set this variable to true if the saver is in a failed
+             * state. Note that the "failed" state is for cases where it makes no sense to
+             * attempt a recovery operation.
+             *
+             * One effect of being in a "failed" state is that the saver won't perform a
+             * recover operation if it is in a "failed" state.
+             */
+            this.failed = false;
+            /**
              * The generation that is currently being edited.  It is mutable. Derived
              * classes can read it but not modify it.
              */
@@ -72,6 +90,10 @@ define(["require", "exports", "rxjs/Subject", "./browsers", "./serializer"], fun
              * not modify it.
              */
             this.savedGeneration = 0;
+            /**
+             * The interval at which to autosave, in milliseconds.
+             */
+            this.autosaveInterval = 0;
             dataUpdater.events.subscribe(function (ev) {
                 if (ev.name !== "Changed") {
                     return;
@@ -87,7 +109,7 @@ define(["require", "exports", "rxjs/Subject", "./browsers", "./serializer"], fun
              * @private
              */
             this._boundAutosave = this._autosave.bind(this);
-            this._events = new Subject_1.Subject();
+            this._events = new rxjs_1.Subject();
             this.events = this._events.asObservable();
             if (options.autosave !== undefined) {
                 this.setAutosaveInterval(options.autosave * 1000);
@@ -219,7 +241,8 @@ define(["require", "exports", "rxjs/Subject", "./browsers", "./serializer"], fun
          * string that describes how long ago the modification happened.
          */
         Saver.prototype.getModifiedWhen = function () {
-            if (this.savedGeneration === this.currentGeneration) {
+            if (this.savedGeneration === this.currentGeneration ||
+                this.lastModification === undefined) {
                 return false;
             }
             return deltaToString(Date.now() - this.lastModification);
@@ -232,7 +255,7 @@ define(["require", "exports", "rxjs/Subject", "./browsers", "./serializer"], fun
          * occurred yet.
          */
         Saver.prototype.getSavedWhen = function () {
-            if (this.lastSaveKind === undefined) {
+            if (this.lastSave === undefined) {
                 return undefined;
             }
             return deltaToString(Date.now() - this.lastSave);

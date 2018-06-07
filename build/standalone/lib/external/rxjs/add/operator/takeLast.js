@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var takeLast_1 = require('../../operator/takeLast');
-Observable_1.Observable.prototype.takeLast = takeLast_1.takeLast;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/takeLast");
 //# sourceMappingURL=takeLast.js.map
 return module.exports;
 

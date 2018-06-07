@@ -1,4 +1,14 @@
-define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "wed/util", "../util"], function (require, exports, $, convert, dloc_1, domutil_1, util_1, util_2) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "wed/util", "../util"], function (require, exports, jquery_1, convert, dloc_1, domutil_1, util_1, util_2) {
     /**
      * @author Louis-Dominique Dubeau
      * @license MPL 2.0
@@ -6,6 +16,8 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
      */
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    convert = __importStar(convert);
     var assert = chai.assert;
     function defined(x) {
         assert.isDefined(x);
@@ -24,7 +36,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 .then(function (sourceXML) {
                 root = document.createElement("div");
                 document.body.appendChild(root);
-                $root = $(root);
+                $root = jquery_1.default(root);
                 var parser = new window.DOMParser();
                 var xmlDoc = parser.parseFromString(sourceXML, "text/xml");
                 var htmlTree = convert.toHTMLTree(window.document, xmlDoc.firstElementChild);
@@ -39,20 +51,20 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
         afterEach(function () {
             // Some tests add elements with the class __test to the DOM tree.
             // Proactively delete them here.
-            $(".__test").remove();
+            jquery_1.default(".__test").remove();
         });
         function makeAttributeNodeCase() {
-            var a = defined($(".quote")[0].getAttributeNode(encodedType));
-            var b = defined($(".body .p")[1]);
+            var a = defined(jquery_1.default(".quote")[0].getAttributeNode(encodedType));
+            var b = defined(jquery_1.default(".body .p")[1]);
             var attrLoc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
             var loc = attrLoc.make(b, 1);
             return { attrLoc: attrLoc, loc: loc };
         }
         function makeInvalidCase() {
             $root.append("<div class='__test'></div>");
-            var t = defined($(".__test")[0]);
+            var t = defined(jquery_1.default(".__test")[0]);
             assert.equal(t.nodeType, Node.ELEMENT_NODE);
-            var b = defined($(".body .p")[1]);
+            var b = defined(jquery_1.default(".body .p")[1]);
             var loc = defined(dloc_1.DLoc.makeDLoc(root, b, 1));
             var invalid = loc.make(t, 0);
             t.parentNode.removeChild(t);
@@ -85,7 +97,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                     assert.equal(rootObj.nodeToPath(node), "0/1/0/1/@class");
                 });
                 it("fails on a node which is not a descendant of its root", function () {
-                    var node = defined($("body")[0]);
+                    var node = defined(jquery_1.default("body")[0]);
                     assert.throws(rootObj.nodeToPath.bind(rootObj, node), Error, "node is not a descendant of root");
                 });
                 it("fails on invalid node", function () {
@@ -123,7 +135,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
         });
         describe("findRoot", function () {
             it("finds the root", function () {
-                assert.equal(dloc_1.findRoot(defined($(".p")[0])), rootObj);
+                assert.equal(dloc_1.findRoot(defined(jquery_1.default(".p")[0])), rootObj);
             });
             it("returns undefined if not in a root", function () {
                 assert.isUndefined(dloc_1.findRoot(defined($root.parent()[0])));
@@ -131,7 +143,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
         });
         describe("getRoot", function () {
             it("gets the root", function () {
-                assert.equal(dloc_1.getRoot(defined($(".p")[0])), rootObj);
+                assert.equal(dloc_1.getRoot(defined(jquery_1.default(".p")[0])), rootObj);
             });
             it("throws an exception if not in a root", function () {
                 assert.throws(dloc_1.getRoot.bind(undefined, defined($root.parent()[0])), Error, "no root found");
@@ -142,7 +154,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.isUndefined(dloc_1.DLoc.makeDLoc(root, undefined));
             });
             it("returns a valid DLoc", function () {
-                var a = defined($(".p")[0]);
+                var a = defined(jquery_1.default(".p")[0]);
                 var loc = dloc_1.DLoc.makeDLoc(root, a, 0);
                 assert.equal(loc.node, a);
                 assert.equal(loc.offset, 0);
@@ -150,7 +162,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.isTrue(loc.isValid());
             });
             it("returns a valid DLoc when the root is a DLocRoot", function () {
-                var a = defined($(".p")[0]);
+                var a = defined(jquery_1.default(".p")[0]);
                 var loc = dloc_1.DLoc.makeDLoc(rootObj, a, 0);
                 assert.equal(loc.node, a);
                 assert.equal(loc.offset, 0);
@@ -158,7 +170,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.isTrue(loc.isValid());
             });
             it("returns a valid DLoc on an attribute node", function () {
-                var a = defined($(".quote")[0].getAttributeNode(encodedType));
+                var a = defined(jquery_1.default(".quote")[0].getAttributeNode(encodedType));
                 var loc = dloc_1.DLoc.makeDLoc(root, a, 0);
                 assert.equal(loc.node, a);
                 assert.equal(loc.offset, 0);
@@ -166,7 +178,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.isTrue(loc.isValid());
             });
             it("returns a valid DLoc when called with an array", function () {
-                var a = defined($(".p")[0]);
+                var a = defined(jquery_1.default(".p")[0]);
                 var loc = dloc_1.DLoc.makeDLoc(root, [a, 0]);
                 assert.equal(loc.node, a);
                 assert.equal(loc.offset, 0);
@@ -174,7 +186,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.isTrue(loc.isValid());
             });
             it("returns a valid DLoc when the offset is omitted", function () {
-                var a = defined($(".body .p")[1]);
+                var a = defined(jquery_1.default(".body .p")[1]);
                 var loc = dloc_1.DLoc.makeDLoc(root, a);
                 assert.equal(loc.node, a.parentNode);
                 assert.equal(loc.offset, 1);
@@ -198,39 +210,39 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.throws(dloc_1.DLoc.makeDLoc.bind(undefined, root, c, -1), Error, /^negative offsets are not allowed/);
             });
             it("throws an error when the offset is too large (element)", function () {
-                var c = defined($(".p")[0]);
+                var c = defined(jquery_1.default(".p")[0]);
                 assert.equal(c.nodeType, Node.ELEMENT_NODE);
                 assert.throws(dloc_1.DLoc.makeDLoc.bind(undefined, root, c, 100), Error, /^offset greater than allowable value/);
             });
             it("throws an error when the offset is too large (text)", function () {
-                var c = defined($(".body .p")[0].firstChild);
+                var c = defined(jquery_1.default(".body .p")[0].firstChild);
                 assert.equal(c.nodeType, Node.TEXT_NODE);
                 assert.throws(dloc_1.DLoc.makeDLoc.bind(undefined, root, c, 100), Error, /^offset greater than allowable value/);
             });
             it("throws an error when the offset is too large (attribute)", function () {
-                var c = defined($(".quote")[0].getAttributeNode(encodedType));
+                var c = defined(jquery_1.default(".quote")[0].getAttributeNode(encodedType));
                 assert.isTrue(domutil_1.isAttr(c));
                 assert.throws(dloc_1.DLoc.makeDLoc.bind(undefined, root, c, 100), Error, /^offset greater than allowable value/);
             });
             it("normalizes a negative offset", function () {
-                var c = defined($(".p")[0]);
+                var c = defined(jquery_1.default(".p")[0]);
                 var loc = dloc_1.DLoc.makeDLoc(root, c, -1, true);
                 assert.equal(loc.offset, 0);
             });
             it("normalizes an offset that is too large (element)", function () {
-                var c = defined($(".p")[0]);
+                var c = defined(jquery_1.default(".p")[0]);
                 assert.equal(c.nodeType, Node.ELEMENT_NODE);
                 var loc = dloc_1.DLoc.makeDLoc(root, c, 100, true);
                 assert.equal(loc.offset, 0);
             });
             it("normalizes an offset that is too large (text)", function () {
-                var c = defined($(".body .p")[0].firstChild);
+                var c = defined(jquery_1.default(".body .p")[0].firstChild);
                 assert.equal(c.nodeType, Node.TEXT_NODE);
                 var loc = dloc_1.DLoc.makeDLoc(root, c, 100, true);
                 assert.equal(loc.offset, c.data.length);
             });
             it("normalizes an offset that is too large (attribute)", function () {
-                var c = defined($(".quote")[0].getAttributeNode(encodedType));
+                var c = defined(jquery_1.default(".quote")[0].getAttributeNode(encodedType));
                 assert.isTrue(domutil_1.isAttr(c));
                 var loc = dloc_1.DLoc.makeDLoc(root, c, 100, true);
                 assert.equal(loc.offset, c.value.length);
@@ -241,7 +253,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.throws(dloc_1.DLoc.mustMakeDLoc.bind(undefined, root, undefined), Error, /^called mustMakeDLoc with an absent node$/);
             });
             it("returns a valid DLoc", function () {
-                var a = defined($(".p")[0]);
+                var a = defined(jquery_1.default(".p")[0]);
                 var loc = dloc_1.DLoc.mustMakeDLoc(root, a, 0);
                 assert.equal(loc.node, a);
                 assert.equal(loc.offset, 0);
@@ -249,7 +261,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 assert.isTrue(loc.isValid());
             });
             it("returns a valid DLoc when called with an array", function () {
-                var a = defined($(".p")[0]);
+                var a = defined(jquery_1.default(".p")[0]);
                 var loc = dloc_1.DLoc.mustMakeDLoc(root, [a, 0]);
                 assert.equal(loc.node, a);
                 assert.equal(loc.offset, 0);
@@ -263,15 +275,15 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
         describe("DLoc", function () {
             describe("clone", function () {
                 it("clones", function () {
-                    var a = defined($(".body .p")[0]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 1));
                     assert.deepEqual(loc, loc.clone());
                 });
             });
             describe("make", function () {
                 it("makes a new location with the same root", function () {
-                    var a = defined($(".body .p")[0]);
-                    var b = defined($(".body .p")[1]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
+                    var b = defined(jquery_1.default(".body .p")[1]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 1));
                     var loc2 = loc.make(b, 0);
                     assert.equal(loc.root, loc2.root);
@@ -281,8 +293,8 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
             });
             describe("makeRange", function () {
                 it("makes a range", function () {
-                    var a = defined($(".body .p")[0]);
-                    var b = defined($(".body .p")[1]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
+                    var b = defined(jquery_1.default(".body .p")[1]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
                     var loc2 = loc.make(b, 1);
                     var range = defined(loc.makeRange(loc2));
@@ -294,7 +306,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                     assert.isFalse(range.reversed);
                 });
                 it("makes a collapsed range", function () {
-                    var a = defined($(".body .p")[0]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
                     var range = defined(loc.makeRange());
                     assert.equal(range.startContainer, a);
@@ -304,8 +316,8 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                     assert.isTrue(range.collapsed);
                 });
                 it("makes a reversed range", function () {
-                    var a = defined($(".body .p")[0]);
-                    var b = defined($(".body .p")[1]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
+                    var b = defined(jquery_1.default(".body .p")[1]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, b, 1));
                     var loc2 = loc.make(a, 0);
                     var range = defined(loc.makeRange(loc2));
@@ -337,8 +349,8 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
             });
             describe("makeDLocRange", function () {
                 it("makes a range", function () {
-                    var a = defined($(".body .p")[0]);
-                    var b = defined($(".body .p")[1]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
+                    var b = defined(jquery_1.default(".body .p")[1]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
                     var loc2 = loc.make(b, 1);
                     var range = defined(loc.makeDLocRange(loc2));
@@ -346,7 +358,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                     assert.equal(range.end, loc2);
                 });
                 it("makes a collapsed range", function () {
-                    var a = defined($(".body .p")[0]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
                     var range = defined(loc.makeDLocRange());
                     assert.equal(range.start, loc);
@@ -376,33 +388,33 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
             });
             describe("toArray", function () {
                 it("returns an array with the right values", function () {
-                    var a = defined($(".body .p")[0]);
+                    var a = defined(jquery_1.default(".body .p")[0]);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 1));
                     assert.deepEqual(loc.toArray(), [a, 1]);
                 });
             });
             describe("isValid", function () {
                 it("returns true when the location is valid (element)", function () {
-                    var p = defined($(".p")[0]);
+                    var p = defined(jquery_1.default(".p")[0]);
                     assert.equal(p.nodeType, Node.ELEMENT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, p, 0));
                     assert.isTrue(loc.isValid());
                 });
                 it("returns true when the location is valid (text)", function () {
-                    var t = defined($(".body .p")[0].firstChild);
+                    var t = defined(jquery_1.default(".body .p")[0].firstChild);
                     assert.equal(t.nodeType, Node.TEXT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 0));
                     assert.isTrue(loc.isValid());
                 });
                 it("returns true when the location is valid (attribute)", function () {
-                    var a = defined($(".quote")[0].getAttributeNode(encodedType));
+                    var a = defined(jquery_1.default(".quote")[0].getAttributeNode(encodedType));
                     assert.isTrue(domutil_1.isAttr(a));
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, a, 0));
                     assert.isTrue(loc.isValid());
                 });
                 it("returns false when the node is no longer in the document (element)", function () {
                     $root.append("<div class='__test'></div>");
-                    var t = defined($(".__test")[0]);
+                    var t = defined(jquery_1.default(".__test")[0]);
                     assert.equal(t.nodeType, Node.ELEMENT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 0));
                     t.parentNode.removeChild(t);
@@ -410,7 +422,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 });
                 it("returns false when the node is no longer in the document (text)", function () {
                     $root.append("<div class='__test'>test</div>");
-                    var t = defined($(".__test")[0].firstChild);
+                    var t = defined(jquery_1.default(".__test")[0].firstChild);
                     assert.equal(t.nodeType, Node.TEXT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 0));
                     t.parentNode.removeChild(t);
@@ -418,7 +430,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 });
                 it("returns false when the node is no longer in the document (attribute)", function () {
                     $root.append("<div class='__test' foo='bar'></div>");
-                    var t = defined($(".__test")[0].attributes.getNamedItem("foo"));
+                    var t = defined(jquery_1.default(".__test")[0].attributes.getNamedItem("foo"));
                     assert.isTrue(domutil_1.isAttr(t));
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 0));
                     t.ownerElement.removeAttribute("foo");
@@ -426,7 +438,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 });
                 it("returns false when the offset is not longer valid (element)", function () {
                     $root.append("<div class='__test'>test</div>");
-                    var t = defined($(".__test")[0]);
+                    var t = defined(jquery_1.default(".__test")[0]);
                     assert.equal(t.nodeType, Node.ELEMENT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 1));
                     t.removeChild(t.firstChild);
@@ -434,7 +446,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 });
                 it("returns false when the offset is no longer valid (text)", function () {
                     $root.append("<div class='__test'>test</div>");
-                    var t = defined($(".__test")[0].firstChild);
+                    var t = defined(jquery_1.default(".__test")[0].firstChild);
                     assert.equal(t.nodeType, Node.TEXT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 4));
                     t.textContent = "t";
@@ -442,7 +454,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 });
                 it("returns false when the offset is no longer valid (attribute)", function () {
                     $root.append("<div class='__test' foo='bar'></div>");
-                    var t = defined($(".__test")[0].attributes.getNamedItem("foo"));
+                    var t = defined(jquery_1.default(".__test")[0].attributes.getNamedItem("foo"));
                     assert.isTrue(domutil_1.isAttr(t));
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 3));
                     t.value = "f";
@@ -452,7 +464,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
             describe("normalizeOffset", function () {
                 it("makes a new valid location (element)", function () {
                     $root.append("<div class='__test'>test</div>");
-                    var t = defined($(".__test")[0]);
+                    var t = defined(jquery_1.default(".__test")[0]);
                     assert.equal(t.nodeType, Node.ELEMENT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 1));
                     t.removeChild(t.firstChild);
@@ -464,7 +476,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 });
                 it("makes a new valid location (text)", function () {
                     $root.append("<div class='__test'>test</div>");
-                    var t = defined($(".__test")[0].firstChild);
+                    var t = defined(jquery_1.default(".__test")[0].firstChild);
                     assert.equal(t.nodeType, Node.TEXT_NODE);
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 4));
                     t.textContent = "t";
@@ -476,7 +488,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 });
                 it("makes a new valid location (attribute)", function () {
                     $root.append("<div class='__test' foo='bar'></div>");
-                    var t = defined($(".__test")[0].attributes.getNamedItem("foo"));
+                    var t = defined(jquery_1.default(".__test")[0].attributes.getNamedItem("foo"));
                     assert.isTrue(domutil_1.isAttr(t));
                     var loc = defined(dloc_1.DLoc.makeDLoc(root, t, 3));
                     t.value = "f";
@@ -491,7 +503,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 var p;
                 var loc;
                 before(function () {
-                    p = defined($(".body .p")[0]);
+                    p = defined(jquery_1.default(".body .p")[0]);
                     assert.equal(p.nodeType, Node.ELEMENT_NODE);
                     loc = defined(dloc_1.DLoc.makeDLoc(root, p, 0));
                 });
@@ -519,7 +531,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 var p;
                 var loc;
                 before(function () {
-                    p = defined($(".body .p")[0]);
+                    p = defined(jquery_1.default(".body .p")[0]);
                     assert.equal(p.nodeType, Node.ELEMENT_NODE);
                     loc = defined(dloc_1.DLoc.makeDLoc(root, p, 0));
                 });
@@ -632,7 +644,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 var p;
                 var loc;
                 before(function () {
-                    p = defined($(".body .p")[0]);
+                    p = defined(jquery_1.default(".body .p")[0]);
                     assert.equal(p.nodeType, Node.ELEMENT_NODE);
                     loc = defined(dloc_1.DLoc.makeDLoc(root, p, 0));
                 });
@@ -651,7 +663,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 var p;
                 var loc;
                 before(function () {
-                    p = defined($(".body .p")[1]);
+                    p = defined(jquery_1.default(".body .p")[1]);
                     assert.equal(p.nodeType, Node.ELEMENT_NODE);
                     loc = defined(dloc_1.DLoc.makeDLoc(root, p, 0));
                 });
@@ -669,7 +681,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 var p;
                 var loc;
                 before(function () {
-                    p = defined($(".body .p")[1]);
+                    p = defined(jquery_1.default(".body .p")[1]);
                     assert.equal(p.nodeType, Node.ELEMENT_NODE);
                     loc = defined(dloc_1.DLoc.makeDLoc(root, p, 0));
                 });
@@ -688,7 +700,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
             var a;
             var loc;
             before(function () {
-                a = defined($(".body .p")[0].firstChild);
+                a = defined(jquery_1.default(".body .p")[0].firstChild);
                 loc = dloc_1.DLoc.mustMakeDLoc(root, a, 0);
             });
             describe("collapsed", function () {

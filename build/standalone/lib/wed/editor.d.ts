@@ -1,7 +1,7 @@
 /// <reference types="jquery" />
 /// <reference types="bootstrap" />
 import "bootstrap";
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 import { Action } from "./action";
 import { CaretManager } from "./caret-manager";
 import { DLoc, DLocRoot } from "./dloc";
@@ -13,18 +13,18 @@ import { Minibuffer } from "./gui/minibuffer";
 import { Modal, Options as ModalOptions } from "./gui/modal";
 import { AddOptions, Toolbar } from "./gui/toolbar";
 import { Key } from "./key";
-import { EditorAPI, PasteTransformationData, ReplaceRangeTransformationData, TransformationEvents } from "./mode-api";
+import { EditorAPI, PasteTransformationData, ReplaceRangeTransformationData } from "./mode-api";
 import { ModeTree } from "./mode-tree";
 import { Options } from "./options";
 import { Runtime } from "./runtime";
 import { Saver } from "./saver";
 import { StockModals } from "./stock-modals";
 import { Task, TaskRunner } from "./task-runner";
-import { Transformation, TransformationData } from "./transformation";
+import { Transformation, TransformationData, TransformationEvent } from "./transformation";
 import { TreeUpdater } from "./tree-updater";
 import { Undo, UndoEvents } from "./undo";
 import { Validator } from "./validator";
-export declare const version = "1.0.0";
+export declare const version = "2.0.0";
 export declare type KeydownHandler = (wedEv: JQueryEventObject, ev: JQueryKeyEventObject) => boolean;
 /**
  * The possible targets for some wed operations that generate events. It is
@@ -51,7 +51,6 @@ export declare class Editor implements EditorAPI {
     private readonly normalizeEnteredSpaces;
     private readonly strippedSpaces;
     private readonly replacedSpaces;
-    private destroying;
     private destroyed;
     private initialLabelLevel;
     private currentLabelLevel;
@@ -115,7 +114,7 @@ export declare class Editor implements EditorAPI {
     readonly toggleAttributeHidingAction: Action<{}>;
     readonly minibuffer: Minibuffer;
     readonly docURL: string;
-    readonly transformations: Observable<TransformationEvents>;
+    readonly transformations: Observable<TransformationEvent>;
     readonly toolbar: Toolbar;
     dataRoot: Document;
     $dataRoot: JQuery;
@@ -278,7 +277,7 @@ export declare class Editor implements EditorAPI {
      * key.
      */
     type(text: string | Key | Key[], where?: WedEventTarget): void;
-    private globalKeypressHandler(wedEvent, e);
+    private globalKeypressHandler(_wedEvent, e);
     private cutSelection();
     private handleKeyInsertingText(e);
     private compositionHandler(ev);
@@ -344,7 +343,7 @@ export declare class Editor implements EditorAPI {
      */
     private setLocationTo(el);
     private cut();
-    private paste(editor, data);
+    private paste(_editor, data);
     replaceRange(editor: EditorAPI, data: ReplaceRangeTransformationData): void;
 }
 export { PasteTransformationData, ReplaceRangeTransformationData };

@@ -3,9 +3,17 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "salve", "wed/util"], function (require, exports, salve_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    util = __importStar(util);
     var assert = chai.assert;
     var expect = chai.expect;
     describe("util", function () {
@@ -200,10 +208,7 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real");
                 assert.equal(util.convertPatternObj(name.toObject(), nr), "*:* except (prefix:name)");
             });
             it("converts a NameChoice", function () {
-                var name = new salve_1.NameChoice("", [
-                    new salve_1.Name("", "uri", "name"),
-                    new salve_1.Name("", "uri2", "name2"),
-                ]);
+                var name = new salve_1.NameChoice("", new salve_1.Name("", "uri", "name"), new salve_1.Name("", "uri2", "name2"));
                 assert.equal(util.convertPatternObj(name.toObject(), nr), "(prefix:name) or (prefix2:name2)");
             });
         });

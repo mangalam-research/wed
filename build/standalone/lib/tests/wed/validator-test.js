@@ -1,7 +1,18 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "salve", "wed/dloc", "wed/validator", "../util"], function (require, exports, salve_1, dloc_1, validator, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    validator = __importStar(validator);
     var assert = chai.assert;
+    function sameEvents(evs, expected) {
+        assert.sameMembers(Array.from(evs).map(function (x) { return x.toString(); }), expected.map(function (x) { return x.toString(); }));
+    }
     describe("validator", function () {
         var emptyTree;
         var emptyDataRoot;
@@ -27,7 +38,7 @@ define(["require", "exports", "salve", "wed/dloc", "wed/validator", "../util"], 
             it("with DLoc", function () {
                 var p = new validator.Validator(grammar, emptyTree, []);
                 var evs = p.possibleAt(dloc_1.DLoc.mustMakeDLoc(emptyDataRoot, emptyTree, 0));
-                assert.sameMembers(evs.toArray(), [new salve_1.Event("enterStartTag", new salve_1.Name("", "", "html"))]);
+                sameEvents(evs, [new salve_1.Event("enterStartTag", new salve_1.Name("", "", "html"))]);
             });
         });
         // We test speculativelyValidateFragment through speculativelyValidate

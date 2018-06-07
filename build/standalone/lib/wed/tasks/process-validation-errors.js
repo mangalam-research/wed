@@ -8,6 +8,7 @@ define(["require", "exports"], function (require, exports) {
     var ProcessValidationErrors = /** @class */ (function () {
         function ProcessValidationErrors(controller) {
             this.controller = controller;
+            this.errors = [];
         }
         ProcessValidationErrors.prototype.reset = function () {
             this.errors = this.controller.copyErrorList();

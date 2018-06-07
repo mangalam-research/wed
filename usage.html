@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using Wed in an Application &mdash; Wed v1.0.0 documentation</title>
+  <title>Using Wed in an Application &mdash; Wed v2.0.0-3-g031e9d63 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v1.0.0 documentation" href="index.html"/>
+    <link rel="top" title="Wed v2.0.0-3-g031e9d63 documentation" href="index.html"/>
         <link rel="next" title="Creating a Mode" href="mode_design.html"/>
         <link rel="prev" title="Wed’s Help" href="help.html"/> 
 
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v1.0
+                v2.0
               </div>
             
           
@@ -92,7 +92,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#building">Building</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#local-demos">Local Demos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#demo-saving-to-local-storage">Demo Saving to Local Storage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#demos-saving-to-a-server">Demos Saving to a Server</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#label-visibility">Label Visibility</a></li>
 </ul>
@@ -247,17 +246,17 @@ can use wed for your project.</p>
 to first load RequireJS and pass to it a configuration that will allow it to
 find wed&#8217;s code. An example of such configuration, which allows running the
 browser-dependent test suite, is located in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>.</p>
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If you want to change this configuration for experimentation or to
 match your local setup, please copy it to the <code class="docutils literal"><span class="pre">local_config</span></code>
 directory and edit it <em>there</em>. This directory is not tracked by
 git. This is true of all files that are stored in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/">config/</a>.</p>
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/">config/</a>.</p>
 </div>
-<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/package.json">package.json</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>,
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/Makefile">Makefile</a> and <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/build.mk">build.mk</a> files for details regarding run-time
+<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/package.json">package.json</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>,
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/Makefile">Makefile</a> and <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> files for details regarding run-time
 and development dependencies. Running the test suite also requires that <a class="reference external" href="http://saxon.sourceforge.net/">saxon</a> be installed.</p>
 <p>Wed works with jQuery 3.x and 2.x. We strongly recommend using jQuery
 3.x. jQuery 2.x is no longer maintained by its development team and thus no
@@ -271,7 +270,7 @@ with jQuery 1.x or earlier versions.</p>
 <p>Running wed&#8217;s selenium-based tests <strong>additionally</strong> requires Python 2.7 and the
 Python packages listed in <code class="docutils literal"><span class="pre">dev_requirements.txt</span></code>.</p>
 <p>If you want to contribute to wed, your code will have to pass the checks listed
-in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. So you either have to install glerbl to get
+in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. So you either have to install glerbl to get
 those checks done for you or run the checks through other means. See
 <a class="reference internal" href="#contributing">Contributing</a>.</p>
 </div>
@@ -305,9 +304,9 @@ by a web server. The files will be in <code class="docutils literal"><span class
 &#8220;standalone&#8221; implies, this build includes <strong>everything</strong> needed to run wed on
 your own server, except the configuration for RequireJS.</p>
 <p>Gulp will additionally create an optimized version of wed in
-<code class="docutils literal"><span class="pre">build/standalone-optimized/</span></code>. This is a version that has been optimized using
-RequireJS&#8217;s <code class="docutils literal"><span class="pre">r.js</span></code> optimizer. This optimization exists for illustration
-purposes and for testing wed. See the
+<code class="docutils literal"><span class="pre">build/packed/</span></code>. This is a version that has been optimized using Webpack. This
+optimization exists for illustration purposes, for testing wed, and as a
+possible candidate for deploying wed. See the
 <a class="reference internal" href="tech_notes.html#tech-notes-deployment-considerations"><span class="std std-ref">Deployment Considerations</span></a> section in <a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a> to
 determine whether this is the optimization you want to use to deploy wed.</p>
 </div>
@@ -324,21 +323,13 @@ the demos, you can do:</p>
 </div>
 <p>The address and port <code class="docutils literal"><span class="pre">localhost:8888</span></code> is just a suggestion, but the link in
 the documentation below assume that&#8217;s the address used.</p>
-<div class="section" id="demo-saving-to-local-storage">
-<h3>Demo Saving to Local Storage<a class="headerlink" href="#demo-saving-to-local-storage" title="Permalink to this headline">¶</a></h3>
-<p>The demo that uses your own browser&#8217;s local storage is ready to use once wed is
-built. Once the server is started, point your browser to
-<a class="reference external" href="http://localhost:8888/build/standalone/files.html">http://localhost:8888/build/standalone/files.html</a> or
-<a class="reference external" href="http://localhost:8888/build/standalone-optimized/files.html">http://localhost:8888/build/standalone-optimized/files.html</a>. The 2nd link
-is to the optimized application.</p>
-</div>
 <div class="section" id="demos-saving-to-a-server">
 <h3>Demos Saving to a Server<a class="headerlink" href="#demos-saving-to-a-server" title="Permalink to this headline">¶</a></h3>
 <p>Once the server is started, point your browser to either:</p>
 <ul class="simple">
 <li><a class="reference external" href="http://localhost:8888/build/standalone/kitchen-sink.html">http://localhost:8888/build/standalone/kitchen-sink.html</a> to view the demo
 with the unoptimized file tree.</li>
-<li>or <a class="reference external" href="http://localhost:8888/build/standalone-optimized/kitchen-sink.html">http://localhost:8888/build/standalone-optimized/kitchen-sink.html</a> to
+<li>or <a class="reference external" href="http://localhost:8888/build/packed/kitchen-sink.html">http://localhost:8888/build/packed/kitchen-sink.html</a> to
 view the demo with an optimized file tree.</li>
 </ul>
 <p>The demo currently starts with an empty document using a vanilla TEI schema. See
@@ -425,7 +416,7 @@ since wed uses salve. See salve&#8217;s documentation.</p>
 <li><p class="first"><code class="docutils literal"><span class="pre">mode</span></code>: a simple object recording mode parameters. This object must have a
 <code class="docutils literal"><span class="pre">path</span></code> field set to the RequireJS path of the mode. An optional <code class="docutils literal"><span class="pre">options</span></code>
 field may contain options to be passed to the mode. Wed comes bundled with a
-generic mode located at <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/modes/generic/generic.js">lib/wed/modes/generic/generic.js</a>.</p>
+generic mode located at <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/modes/generic/generic.js">lib/wed/modes/generic/generic.js</a>.</p>
 </li>
 <li><p class="first"><code class="docutils literal"><span class="pre">ajaxlog</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#remote-logging"><span class="std std-ref">remote logging</span></a>.</p>
 </li>
@@ -468,7 +459,7 @@ options are accepted and what they mean is determined by each mode.</p>
 </div>
 <div class="section" id="errors">
 <h2>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/lib/wed/onerror.js">lib/wed/onerror.js</a> module provides an error handler that could be
+<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/onerror.js">lib/wed/onerror.js</a> module provides an error handler that could be
 used with <a class="reference external" href="https://github.com/lddubeau/last-resort">last-resort</a> or with any
 other error handler that can call a handler that takes a single argument which
 is an <code class="docutils literal"><span class="pre">error</span></code> DOM event. This handler tries to save the data in all editors
@@ -571,7 +562,7 @@ a file to be usable by wed:</p>
 <div class="section" id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
 <p>Contributions must pass the commit checks turned on in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. Use <code class="docutils literal"><span class="pre">glerbl</span> <span class="pre">install</span></code> to install the
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. Use <code class="docutils literal"><span class="pre">glerbl</span> <span class="pre">install</span></code> to install the
 hooks. Glerbl itself can be found at <a class="reference external" href="https://github.com/lddubeau/glerbl">https://github.com/lddubeau/glerbl</a>. It
 will eventually make its way to the Python package repository so that <code class="docutils literal"><span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">glerbl</span></code> will work.</p>
@@ -619,7 +610,7 @@ will eventually make its way to the Python package repository so that <code clas
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v1.0.0',
+            VERSION:'v2.0.0-3-g031e9d63',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

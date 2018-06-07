@@ -8,9 +8,21 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "jquery", "../key-constants", "./context-menu"], function (require, exports, $, keyConstants, context_menu_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "../key-constants", "./context-menu"], function (require, exports, jquery_1, keyConstants, context_menu_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    keyConstants = __importStar(keyConstants);
     /**
      * A menu for displaying completions.
      */
@@ -68,7 +80,7 @@ define(["require", "exports", "jquery", "../key-constants", "./context-menu"], f
             enumerable: true,
             configurable: true
         });
-        CompletionMenu.prototype.globalKeydownHandler = function (wedEv, ev) {
+        CompletionMenu.prototype.globalKeydownHandler = function (_wedEv, ev) {
             if (keyConstants.ENTER.matchesEvent(ev)) {
                 this.$menu.find("li:not(.divider):visible a").first().click();
                 return false;
@@ -101,7 +113,7 @@ define(["require", "exports", "jquery", "../key-constants", "./context-menu"], f
                     li.innerHTML = "<a href='#'></a>";
                     li.lastChild.textContent = item;
                     items.push(li);
-                    $(li).click(item, typeData);
+                    jquery_1.default(li).click(item, typeData);
                 }
                 else if (item.lastIndexOf(prefix, 0) === 0) {
                     var li = doc.createElement("li");
@@ -112,7 +124,7 @@ define(["require", "exports", "jquery", "../key-constants", "./context-menu"], f
                     var tail = item.slice(prefix.length);
                     a.appendChild(doc.createTextNode(tail));
                     items.push(li);
-                    $(li).click(tail, typeData);
+                    jquery_1.default(li).click(tail, typeData);
                 }
             }
             if (items.length === 0) {

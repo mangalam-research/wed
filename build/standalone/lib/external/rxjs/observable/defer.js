@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var DeferObservable_1 = require('./DeferObservable');
-exports.defer = DeferObservable_1.DeferObservable.create;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/observable/defer"));
 //# sourceMappingURL=defer.js.map
 return module.exports;
 

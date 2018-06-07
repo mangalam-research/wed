@@ -4,13 +4,17 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "jquery", "bootstrap"], function (require, exports, $) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "bootstrap"], function (require, exports, jquery_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
     function _showHandler(ev) {
         var for_ = ev.target;
-        var tt = $.data(for_, "bs.tooltip");
-        $.data(tt.tip()[0], "wed-tooltip-for", for_);
+        var tt = jquery_1.default.data(for_, "bs.tooltip");
+        jquery_1.default.data(tt.tip()[0], "wed-tooltip-for", for_);
     }
     /**
      * Creates a tooltip for an element. This function must be used to create *all*

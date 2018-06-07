@@ -1,6 +1,14 @@
-define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "wed", "../base-config", "../wed-test-util"], function (require, exports, filter_1, first_1, wed_1, globalConfig, wed_test_util_1) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "rxjs/operators", "wed", "../base-config", "../wed-test-util"], function (require, exports, operators_1, wed_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed save:", function () {
         var setup;
@@ -22,7 +30,7 @@ server_interaction_converted.xml", globalConfig.config, document);
         });
         it("saves using the keyboard", function () {
             var prom = editor.saver.events
-                .pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first()).toPromise()
+                .pipe(operators_1.filter(function (ev) { return ev.name === "Saved"; }), operators_1.first()).toPromise()
                 .then(function () {
                 assert.deepEqual(server.lastSaveRequest, {
                     command: "save",
@@ -40,7 +48,7 @@ server_interaction_converted.xml", globalConfig.config, document);
         it("saves using the toolbar", function () {
             // We just check the event happened.
             var prom = editor.saver.events
-                .pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first()).toPromise();
+                .pipe(operators_1.filter(function (ev) { return ev.name === "Saved"; }), operators_1.first()).toPromise();
             var button = editor.widget
                 .querySelector("[data-original-title='Save']");
             button.click();
@@ -48,7 +56,7 @@ server_interaction_converted.xml", globalConfig.config, document);
         });
         it("serializes properly", function () {
             var prom = editor.saver.events
-                .pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first()).toPromise()
+                .pipe(operators_1.filter(function (ev) { return ev.name === "Saved"; }), operators_1.first()).toPromise()
                 .then(function () {
                 assert.deepEqual(server.lastSaveRequest, {
                     command: "save",
@@ -72,7 +80,7 @@ server_interaction_converted.xml", globalConfig.config, document);
             // tslint:disable-next-line:no-floating-promises
             editor.save().then(function () {
                 var sub = editor.saver.events
-                    .pipe(filter_1.filter(function (ev) { return ev.name === "Autosaved"; })).subscribe(function (ev) {
+                    .pipe(operators_1.filter(function (ev) { return ev.name === "Autosaved"; })).subscribe(function () {
                     throw new Error("autosaved!");
                 });
                 editor.saver.setAutosaveInterval(50);
@@ -85,7 +93,7 @@ server_interaction_converted.xml", globalConfig.config, document);
         it("autosaves when the document is modified", function (done) {
             // We're testing that autosave is not called again after the first time.
             var autosaved = false;
-            var sub = editor.saver.events.pipe(filter_1.filter(function (x) { return x.name === "Autosaved"; }))
+            var sub = editor.saver.events.pipe(operators_1.filter(function (x) { return x.name === "Autosaved"; }))
                 .subscribe(function () {
                 if (autosaved) {
                     throw new Error("autosaved more than once");
@@ -117,7 +125,7 @@ server_interaction_converted.xml", globalConfig.config, document);
                 var autosaved = false;
                 var interval = 50;
                 var sub = editor.saver.events
-                    .pipe(filter_1.filter(function (x) { return x.name === "Autosaved"; }))
+                    .pipe(operators_1.filter(function (x) { return x.name === "Autosaved"; }))
                     .subscribe(function () {
                     if (autosaved) {
                         throw new Error("autosaved more than once");

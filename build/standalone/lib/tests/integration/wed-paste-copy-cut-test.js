@@ -1,14 +1,20 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/browsers", "../base-config", "../util", "../wed-test-util"], function (require, exports, browsers, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    browsers = __importStar(browsers);
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed paste copy cut:", function () {
         var setup;
         var editor;
         var caretManager;
-        var ps;
-        var guiRoot;
-        var titles;
         before(function () {
             setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/source_converted.xml", globalConfig.config, document);
             (editor = setup.editor);
@@ -16,9 +22,6 @@ define(["require", "exports", "wed/browsers", "../base-config", "../util", "../w
                 // tslint:disable-next-line:no-any
                 editor.validator._validateUpTo(editor.dataRoot, -1);
                 caretManager = editor.caretManager;
-                guiRoot = editor.guiRoot;
-                ps = guiRoot.querySelectorAll(".body .p");
-                titles = guiRoot.getElementsByClassName("title");
             });
         });
         afterEach(function () {

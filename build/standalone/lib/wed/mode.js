@@ -87,7 +87,7 @@ define(["require", "exports", "wed"], function (require, exports, wed_1) {
             }
             return [start, end];
         };
-        BaseMode.prototype.makePlaceholderFor = function (element) {
+        BaseMode.prototype.makePlaceholderFor = function (_element) {
             return wed_1.domutil.makePlaceholder();
         };
         /**
@@ -97,7 +97,7 @@ define(["require", "exports", "wed"], function (require, exports, wed_1) {
          *
          * @returns This default implementation always returns ``undefined``.
          */
-        BaseMode.prototype.shortDescriptionFor = function (name) {
+        BaseMode.prototype.shortDescriptionFor = function (_name) {
             return undefined;
         };
         /**
@@ -107,7 +107,7 @@ define(["require", "exports", "wed"], function (require, exports, wed_1) {
          *
          * @returns The default implementation always returns ``undefined``.
          */
-        BaseMode.prototype.documentationLinkFor = function (name) {
+        BaseMode.prototype.documentationLinkFor = function (_name) {
             return undefined;
         };
         /**
@@ -120,7 +120,7 @@ define(["require", "exports", "wed"], function (require, exports, wed_1) {
         /**
          * The default implementation returns an empty array.
          */
-        BaseMode.prototype.getAttributeCompletions = function (attribute) {
+        BaseMode.prototype.getAttributeCompletions = function (_attribute) {
             return [];
         };
         /**

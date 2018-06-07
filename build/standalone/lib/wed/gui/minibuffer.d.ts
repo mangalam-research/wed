@@ -1,6 +1,5 @@
 /// <reference types="jquery" />
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
+import { Observable, Subject } from "rxjs";
 export interface ChangeEvent {
     name: "ChangeEvent";
     value: string;
@@ -47,6 +46,6 @@ export declare class Minibuffer {
     prompt: string;
     forwardEvent(ev: JQueryEventObject): void;
     private onKeydown(ev);
-    protected onKeypress(ev: JQueryKeyEventObject): void;
-    protected onInput(ev: JQueryKeyEventObject): void;
+    protected onKeypress(_ev: JQueryKeyEventObject): void;
+    protected onInput(_ev: JQueryKeyEventObject): void;
 }

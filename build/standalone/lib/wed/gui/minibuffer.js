@@ -1,6 +1,10 @@
-define(["require", "exports", "jquery", "rxjs/Subject", "../key-constants"], function (require, exports, $, Subject_1, key_constants_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "rxjs", "../key-constants"], function (require, exports, jquery_1, rxjs_1, key_constants_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
     /**
      * A minibuffer is a kind of single line prompt that allows the user to enter
      * data. As the name suggests, this is inspired from Emacs.
@@ -11,17 +15,17 @@ define(["require", "exports", "jquery", "rxjs/Subject", "../key-constants"], fun
             /**
              * The object on which this class and subclasses may push new events.
              */
-            this._events = new Subject_1.Subject();
+            this._events = new rxjs_1.Subject();
             /**
              * The observable on which clients can listen for events.
              */
             this.events = this._events.asObservable();
-            this.$top = $(top);
+            this.$top = jquery_1.default(top);
             this.$top.append("\
 <label></label>&nbsp;<input type='text'>");
             this.promptEl = top.getElementsByTagName("label")[0];
             this.input = top.getElementsByTagName("input")[0];
-            var $input = this.$input = $(this.input);
+            var $input = this.$input = jquery_1.default(this.input);
             $input.on("input", this.onInput.bind(this));
             $input.on("keypress", this.onKeypress.bind(this));
             $input.on("keydown", this.onKeydown.bind(this));
@@ -93,14 +97,14 @@ define(["require", "exports", "jquery", "rxjs/Subject", "../key-constants"], fun
             }
             return undefined;
         };
-        Minibuffer.prototype.onKeypress = function (ev) {
+        Minibuffer.prototype.onKeypress = function (_ev) {
             var value = this.input.value;
             if (value !== this.previous) {
                 this.previous = value;
                 this._events.next({ name: "ChangeEvent", value: value });
             }
         };
-        Minibuffer.prototype.onInput = function (ev) {
+        Minibuffer.prototype.onInput = function (_ev) {
             var value = this.input.value;
             if (value !== this.previous) {
                 this.previous = value;

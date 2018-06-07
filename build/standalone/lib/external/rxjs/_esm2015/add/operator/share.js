@@ -1,9 +1,0 @@
-define(function(require,exports,module){
-
-import { Observable } from '../../Observable';
-import { share } from '../../operator/share';
-Observable.prototype.share = share;
-//# sourceMappingURL=share.js.map
-return module.exports;
-
-});

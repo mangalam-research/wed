@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var PromiseObservable_1 = require('./PromiseObservable');
-exports.fromPromise = PromiseObservable_1.PromiseObservable.create;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/observable/fromPromise"));
 //# sourceMappingURL=fromPromise.js.map
 return module.exports;
 

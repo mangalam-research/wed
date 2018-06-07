@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var BoundNodeCallbackObservable_1 = require('./BoundNodeCallbackObservable');
-exports.bindNodeCallback = BoundNodeCallbackObservable_1.BoundNodeCallbackObservable.create;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/observable/bindNodeCallback"));
 //# sourceMappingURL=bindNodeCallback.js.map
 return module.exports;
 

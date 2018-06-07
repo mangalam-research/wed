@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var delay_1 = require('../../operator/delay');
-Observable_1.Observable.prototype.delay = delay_1.delay;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/delay");
 //# sourceMappingURL=delay.js.map
 return module.exports;
 

@@ -29,7 +29,7 @@ export declare class CompletionMenu extends ContextMenu {
     constructor(editor: Editor, document: Document, x: number, y: number, prefix: string, items: string[], dismissCallback?: DismissCallback);
     /** Whether the completion menu has been focused. */
     readonly focused: boolean;
-    private globalKeydownHandler(wedEv, ev);
+    private globalKeydownHandler(_wedEv, ev);
     render(): void;
     dismiss(): void;
 }

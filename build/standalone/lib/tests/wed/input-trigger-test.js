@@ -1,6 +1,19 @@
-define(["require", "exports", "chai", "merge-options", "wed/gui-selector", "wed/input-trigger", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, chai_1, mergeOptions, gui_selector_1, input_trigger_1, input_trigger_factory_1, key, key_constants_1, globalConfig, util_1, wed_test_util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "chai", "merge-options", "wed/gui-selector", "wed/input-trigger", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, chai_1, merge_options_1, gui_selector_1, input_trigger_1, input_trigger_factory_1, key, key_constants_1, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    merge_options_1 = __importDefault(merge_options_1);
+    key = __importStar(key);
+    globalConfig = __importStar(globalConfig);
     var options = {
         schema: "/base/build/schemas/tei-simplified-rng.js",
         mode: {
@@ -41,7 +54,7 @@ define(["require", "exports", "chai", "merge-options", "wed/gui-selector", "wed/
         });
         beforeEach(function () {
             setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/input_trigger_test_data/\
-source_converted.xml", mergeOptions(globalConfig.config, options), document);
+source_converted.xml", merge_options_1.default(globalConfig.config, options), document);
             (editor = setup.editor);
             return setup.init().then(function () {
                 mode = editor.modeTree.getMode(editor.guiRoot);

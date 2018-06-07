@@ -1,13 +1,19 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", "wed/key-constants", "../../base-config", "../../wed-test-util"], function (require, exports, dloc_1, editor_1, quick_search_1, key_constants_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    globalConfig = __importStar(globalConfig);
     var expect = chai.expect;
     describe("quick-search", function () {
         var setup;
         var editor;
-        var guiRoot;
         var dataRoot;
-        var docScope;
         var caretManager;
         var ps;
         var firstBodyP;
@@ -16,25 +22,14 @@ define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", 
         var pFiveFirstFour;
         var pSevenFirstThree;
         var firstABCText;
-        var firstABCDText;
-        var firstABCAttribute;
-        var firstABCDAttribute;
-        var secondABCAttribute;
-        var titleBCD;
-        var titleABCD;
         before(function () {
             setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/search_test_data/source_converted.xml", globalConfig.config, document);
             (editor = setup.editor);
             return setup.init();
         });
         beforeEach(function () {
-            guiRoot = editor.guiRoot;
             dataRoot = editor.dataRoot;
             caretManager = editor.caretManager;
-            docScope = editor.caretManager.docDLocRange;
-            var title = dataRoot.querySelector("title");
-            titleBCD = new dloc_1.DLocRange(caretManager.mustFromDataLocation(title.firstChild, 1), caretManager.mustFromDataLocation(title.firstChild, 4));
-            titleABCD = new dloc_1.DLocRange(caretManager.mustFromDataLocation(title.firstChild, 0), caretManager.mustFromDataLocation(title.firstChild, 4));
             ps = Array.from(dataRoot.querySelectorAll("body p"));
             firstBodyP = ps[0];
             firstBodyPLocation = caretManager.mustFromDataLocation(dloc_1.DLoc.mustMakeDLoc(dataRoot, firstBodyP, 0));
@@ -50,16 +45,10 @@ define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", 
             expect(pSevenFirstThree.mustMakeDOMRange().toString()).to.equal("abc");
             // This is the first "abc" found when doing a TEXT search.
             firstABCText = new dloc_1.DLocRange(caretManager.mustFromDataLocation(ps[3].firstChild.firstChild, 0), caretManager.mustFromDataLocation(ps[3].lastChild, 1));
-            // This is the first "abcd" found when doing a TEXT search.
-            firstABCDText = new dloc_1.DLocRange(caretManager.mustFromDataLocation(ps[3].firstChild.firstChild, 0), caretManager.mustFromDataLocation(ps[3].lastChild, 2));
-            var rend = ps[7].getAttributeNode("rend");
-            firstABCAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 0), caretManager.mustFromDataLocation(rend, 3));
-            firstABCDAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 0), caretManager.mustFromDataLocation(rend, 4));
-            secondABCAttribute = new dloc_1.DLocRange(caretManager.mustFromDataLocation(rend, 4), caretManager.mustFromDataLocation(rend, 7));
         });
         afterEach(function () {
             // Make sure the minibuffer is off after each test.
-            expect(editor).to.have.deep.property("minibuffer.enabled").false;
+            expect(editor).to.have.nested.property("minibuffer.enabled").false;
             setup.reset();
         });
         after(function () {
@@ -75,19 +64,19 @@ define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", 
             var highlights = document.querySelectorAll("._wed_highlight");
             expect(highlights).to.have.property("length").greaterThan(0);
             var highlightRect = highlights[0].getBoundingClientRect();
-            var rangeRect = firstABCText.mustMakeDOMRange().getBoundingClientRect();
+            var rangeRect = range.mustMakeDOMRange().getBoundingClientRect();
             // The highlights are built as a series of rectangles. Checking each and
             // every rectangle would be onerous. We check the start and end of the
             // range.
             // Rounding can make the boundaries vary a bit.
-            expect(highlightRect).to.have.deep.property("top")
+            expect(highlightRect).to.have.nested.property("top")
                 .closeTo(rangeRect.top, 3);
-            expect(highlightRect).to.have.deep.property("left")
+            expect(highlightRect).to.have.nested.property("left")
                 .closeTo(rangeRect.left, 3);
             highlightRect = highlights[highlights.length - 1].getBoundingClientRect();
-            expect(highlightRect).to.have.deep.property("bottom")
+            expect(highlightRect).to.have.nested.property("bottom")
                 .closeTo(rangeRect.bottom, 3);
-            expect(highlightRect).to.have.deep.property("right")
+            expect(highlightRect).to.have.nested.property("right")
                 .closeTo(rangeRect.right, 3);
         }
         function checkNoHighlight() {
@@ -103,13 +92,13 @@ define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", 
             });
             it("prompts forward", function () {
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
-                expect(editor).to.have.deep.property("minibuffer.prompt")
+                expect(editor).to.have.nested.property("minibuffer.prompt")
                     .equal("Search forward:");
                 editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
             it("prompts backwards", function () {
                 editor.type(key_constants_1.QUICKSEARCH_BACKWARDS);
-                expect(editor).to.have.deep.property("minibuffer.prompt")
+                expect(editor).to.have.nested.property("minibuffer.prompt")
                     .equal("Search backwards:");
                 editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
@@ -123,7 +112,7 @@ define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", 
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
                 editor.type("abc", editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(firstABCText);
-                editor.type(key_constants_1.QUICKSEARCH_FORWARD);
+                editor.type(key_constants_1.QUICKSEARCH_FORWARD, editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(pFiveFirstThree);
                 editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });
@@ -131,9 +120,9 @@ define(["require", "exports", "wed/dloc", "wed/editor", "wed/gui/quick-search", 
                 editor.type(key_constants_1.QUICKSEARCH_FORWARD);
                 editor.type("abc", editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(firstABCText);
-                editor.type(key_constants_1.QUICKSEARCH_FORWARD);
+                editor.type(key_constants_1.QUICKSEARCH_FORWARD, editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(pFiveFirstThree);
-                editor.type(key_constants_1.QUICKSEARCH_BACKWARDS);
+                editor.type(key_constants_1.QUICKSEARCH_BACKWARDS, editor_1.WedEventTarget.MINIBUFFER);
                 checkHighlightRanges(firstABCText);
                 editor.type(key_constants_1.ESCAPE, editor_1.WedEventTarget.MINIBUFFER);
             });

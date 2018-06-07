@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var TimerObservable_1 = require('./TimerObservable');
-exports.timer = TimerObservable_1.TimerObservable.create;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/observable/timer"));
 //# sourceMappingURL=timer.js.map
 return module.exports;
 

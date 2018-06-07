@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first", "chai", "wed/undo"], function (require, exports, elementAt_1, first_1, chai_1, undo_1) {
+define(["require", "exports", "rxjs/operators", "chai", "wed/undo"], function (require, exports, operators_1, chai_1, undo_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // tslint:disable:no-any
@@ -90,7 +90,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
             });
             it("emits an UndoEvent after the undo is done", function () {
                 var tracker = new Tracker();
-                undo.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                undo.events.pipe(operators_1.first()).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Undo",
                         undo: undo,
@@ -108,7 +108,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
             });
             it("emits an RedoEvent after the redo is done", function () {
                 var tracker = new Tracker();
-                undo.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                undo.events.pipe(operators_1.first()).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Redo",
                         undo: undo,
@@ -146,7 +146,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
             });
             it("emits UndoEvents for all undos", function () {
                 var tracker = new Tracker();
-                group.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                group.events.pipe(operators_1.first()).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Undo",
                         undo: secondUndo,
@@ -156,7 +156,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
                         bar: false,
                     });
                 }));
-                group.events.pipe(elementAt_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
+                group.events.pipe(operators_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Undo",
                         undo: firstUndo,
@@ -166,7 +166,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
                         bar: false,
                     });
                 }));
-                group.events.pipe(elementAt_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
+                group.events.pipe(operators_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Undo",
                         undo: group,
@@ -192,7 +192,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
             it("emits RedoEvents for all redos", function () {
                 group.undo();
                 var tracker = new Tracker();
-                group.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                group.events.pipe(operators_1.first()).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Redo",
                         undo: firstUndo,
@@ -202,7 +202,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
                         bar: false,
                     });
                 }));
-                group.events.pipe(elementAt_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
+                group.events.pipe(operators_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Redo",
                         undo: secondUndo,
@@ -212,7 +212,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
                         bar: true,
                     });
                 }));
-                group.events.pipe(elementAt_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
+                group.events.pipe(operators_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Redo",
                         undo: group,
@@ -522,7 +522,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
                 ul.record(undo2);
                 ul.endGroup();
                 var tracker = new Tracker();
-                ul.events.pipe(first_1.first()).subscribe(tracker.wrap(function (x) {
+                ul.events.pipe(operators_1.first()).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Undo",
                         undo: undo2,
@@ -532,7 +532,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
                         undo1: true,
                     });
                 }));
-                ul.events.pipe(elementAt_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
+                ul.events.pipe(operators_1.elementAt(1)).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Undo",
                         undo: undo1,
@@ -542,7 +542,7 @@ define(["require", "exports", "rxjs/operators/elementAt", "rxjs/operators/first"
                         undo1: false,
                     });
                 }));
-                ul.events.pipe(elementAt_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
+                ul.events.pipe(operators_1.elementAt(2)).subscribe(tracker.wrap(function (x) {
                     chai_1.expect(x).to.deep.equal({
                         name: "Undo",
                         undo: group1,

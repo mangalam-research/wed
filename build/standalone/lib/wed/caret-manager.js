@@ -1,6 +1,20 @@
-define(["require", "exports", "jquery", "rxjs/Subject", "./browsers", "./caret-mark", "./caret-movement", "./dloc", "./domtypeguards", "./domutil", "./object-check", "./wed-selection", "./wed-util"], function (require, exports, $, Subject_1, browsers, caret_mark_1, caretMovement, dloc_1, domtypeguards_1, domutil_1, objectCheck, wed_selection_1, wed_util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "rxjs", "./browsers", "./caret-mark", "./caret-movement", "./dloc", "./domtypeguards", "./domutil", "./object-check", "./wed-selection", "./wed-util"], function (require, exports, jquery_1, rxjs_1, browsers, caret_mark_1, caretMovement, dloc_1, domtypeguards_1, domutil_1, objectCheck, wed_selection_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    browsers = __importStar(browsers);
+    caretMovement = __importStar(caretMovement);
+    objectCheck = __importStar(objectCheck);
     /**
      * This is the template use with objectCheck to check whether the options passed
      * are correct. Changes to [[SetCaretOptions]] must be reflected here.
@@ -77,16 +91,16 @@ define(["require", "exports", "jquery", "rxjs/Subject", "./browsers", "./caret-m
             this.dataRootEl = dataRoot.node;
             this.doc = guiRootEl.ownerDocument;
             this.win = this.doc.defaultView;
-            this.$inputField = $(this.inputField);
-            this._events = new Subject_1.Subject();
+            this.$inputField = jquery_1.default(this.inputField);
+            this._events = new rxjs_1.Subject();
             this.events = this._events.asObservable();
-            $(this.guiRootEl).on("focus", function (ev) {
+            jquery_1.default(this.guiRootEl).on("focus", function (ev) {
                 _this.focusInputField();
                 ev.preventDefault();
                 ev.stopPropagation();
             });
-            $(this.win).on("blur.wed", this.onBlur.bind(this));
-            $(this.win).on("focus.wed", this.onFocus.bind(this));
+            jquery_1.default(this.win).on("blur.wed", this.onBlur.bind(this));
+            jquery_1.default(this.win).on("focus.wed", this.onFocus.bind(this));
         }
         Object.defineProperty(CaretManager.prototype, "caret", {
             /**
@@ -296,6 +310,7 @@ define(["require", "exports", "jquery", "rxjs/Subject", "./browsers", "./caret-m
             }
             return ret;
         };
+        // @ts-ignore
         CaretManager.prototype.mustFromDataLocation = function (node, offset) {
             var ret = this.fromDataLocation.apply(this, arguments);
             if (ret === undefined) {

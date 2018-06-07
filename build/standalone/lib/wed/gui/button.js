@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "rxjs/Subject"], function (require, exports, Subject_1) {
+define(["require", "exports", "rxjs"], function (require, exports, rxjs_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -36,7 +36,7 @@ define(["require", "exports", "rxjs/Subject"], function (require, exports, Subje
             /**
              * The object on which this class and subclasses may push new events.
              */
-            this._events = new Subject_1.Subject();
+            this._events = new rxjs_1.Subject();
             /**
              * The observable on which clients can listen for events.
              */

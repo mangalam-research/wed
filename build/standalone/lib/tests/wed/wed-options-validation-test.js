@@ -49,7 +49,8 @@ define(["require", "exports", "chai", "wed/wed-options-validation"], function (r
                 };
                 var result = wed_options_validation_1.processWedOptions(options);
                 chai_1.expect(result).is.not.instanceof(Array);
-                chai_1.expect(result).to.have.deep.property("attributes.handling").equal("hide");
+                chai_1.expect(result).to.have.nested.property("attributes.handling")
+                    .equal("hide");
             });
             it("cleans a string attributes option", function () {
                 var options = {
@@ -68,7 +69,8 @@ define(["require", "exports", "chai", "wed/wed-options-validation"], function (r
                 };
                 var result = wed_options_validation_1.processWedOptions(options);
                 chai_1.expect(result).is.not.instanceof(Array);
-                chai_1.expect(result).to.have.deep.property("attributes.handling").equal("edit");
+                chai_1.expect(result).to.have.nested.property("attributes.handling")
+                    .equal("edit");
             });
             it("reports an error if the options are not in the right format", function () {
                 var options = {
@@ -87,7 +89,7 @@ define(["require", "exports", "chai", "wed/wed-options-validation"], function (r
                 };
                 var result = wed_options_validation_1.processWedOptions(options);
                 chai_1.expect(result).to.be.instanceof(Array);
-                chai_1.expect(result).to.have.deep.property("[0]").equal(".attributes should be equal to one of the allowed values");
+                chai_1.expect(result).to.have.nested.property("[0]").equal(".attributes should be equal to one of the allowed values");
             });
             it("reports an error if the initial label level > the max", function () {
                 var options = {
@@ -106,7 +108,7 @@ define(["require", "exports", "chai", "wed/wed-options-validation"], function (r
                 };
                 var result = wed_options_validation_1.processWedOptions(options);
                 chai_1.expect(result).to.be.instanceof(Array);
-                chai_1.expect(result).to.have.deep.property("[0]").equal("label_levels.initial must be <= label_levels.max");
+                chai_1.expect(result).to.have.nested.property("[0]").equal("label_levels.initial must be <= label_levels.max");
             });
         });
     });

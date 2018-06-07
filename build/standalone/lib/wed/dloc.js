@@ -1,6 +1,10 @@
-define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], function (require, exports, $, domtypeguards_1, domutil_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], function (require, exports, jquery_1, domtypeguards_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
     /**
      * A class for objects that are used to mark DOM nodes as roots for the purpose
      * of using DLoc objects.
@@ -11,10 +15,10 @@ define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], functio
          */
         function DLocRoot(node) {
             this.node = node;
-            if ($.data(node, "wed-dloc-root") != null) {
+            if (jquery_1.default.data(node, "wed-dloc-root") != null) {
                 throw new Error("node already marked as root");
             }
-            $.data(node, "wed-dloc-root", this);
+            jquery_1.default.data(node, "wed-dloc-root", this);
         }
         /**
          * Converts a node to a path. A path is a string representation of the
@@ -225,7 +229,7 @@ define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], functio
             if (root instanceof DLocRoot) {
                 root = root.node;
             }
-            else if ($.data(root, "wed-dloc-root") == null) {
+            else if (jquery_1.default.data(root, "wed-dloc-root") == null) {
                 throw new Error("root has not been marked as a root");
             }
             if (!domutil_1.contains(root, node)) {
@@ -243,7 +247,12 @@ define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], functio
             return new DLoc(root, node, offset);
             var _a;
         };
-        DLoc.mustMakeDLoc = function (root, node, offset, normalize) {
+        // @ts-ignore
+        DLoc.mustMakeDLoc = function (root, node, 
+        // @ts-ignore
+        offset, 
+        // @ts-ignore
+        normalize) {
             var nodeToCheck = node;
             if (nodeToCheck instanceof Array) {
                 nodeToCheck = nodeToCheck[0];
@@ -496,7 +505,7 @@ define(["require", "exports", "jquery", "./domtypeguards", "./domutil"], functio
     function findRoot(node) {
         while (node != null) {
             if (domtypeguards_1.isElement(node) || domtypeguards_1.isDocument(node)) {
-                var root = $.data(node, "wed-dloc-root");
+                var root = jquery_1.default.data(node, "wed-dloc-root");
                 if (root != null) {
                     return root;
                 }

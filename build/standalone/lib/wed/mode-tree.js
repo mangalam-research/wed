@@ -33,9 +33,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "merge-options", "./domutil", "./mode-loader", "./wed-options-validation"], function (require, exports, mergeOptions, domutil_1, mode_loader_1, wed_options_validation_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "merge-options", "./domutil", "./mode-loader", "./wed-options-validation"], function (require, exports, merge_options_1, domutil_1, mode_loader_1, wed_options_validation_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    merge_options_1 = __importDefault(merge_options_1);
     /**
      * A node for the mode tree.
      */
@@ -123,7 +127,7 @@ define(["require", "exports", "merge-options", "./domutil", "./mode-loader", "./
                         };
                         for (var _i = 0, _a = attributeHiding.elements; _i < _a.length; _i++) {
                             var element = _a[_i];
-                            var copy = mergeOptions({}, element);
+                            var copy = merge_options_1.default({}, element);
                             copy.selector =
                                 domutil_1.toGUISelector(copy.selector, this.mode.getAbsoluteNamespaceMappings());
                             specs.elements.push(copy);

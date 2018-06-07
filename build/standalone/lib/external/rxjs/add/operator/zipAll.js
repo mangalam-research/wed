@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var zipAll_1 = require('../../operator/zipAll');
-Observable_1.Observable.prototype.zipAll = zipAll_1.zipAll;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/zipAll");
 //# sourceMappingURL=zipAll.js.map
 return module.exports;
 

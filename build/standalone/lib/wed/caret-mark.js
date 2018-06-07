@@ -5,7 +5,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "jquery", "./domtypeguards", "./wed-util"], function (require, exports, $, domtypeguards_1, wed_util_1) {
+define(["require", "exports", "./domtypeguards", "./wed-util"], function (require, exports, domtypeguards_1, wed_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -42,7 +42,6 @@ define(["require", "exports", "jquery", "./domtypeguards", "./wed-util"], functi
             dummy.style.height = "100%";
             dummy.style.width = "1px";
             dummy.style.maxWidth = "1px";
-            this.$dummy = $(dummy);
             this.boundRefresh = this.refresh.bind(this);
         }
         /**

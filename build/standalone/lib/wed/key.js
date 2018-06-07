@@ -4,9 +4,17 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "./browsers", "jquery"], function (require, exports, browsers) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    browsers = __importStar(browsers);
     var id = 0;
     // tslint:disable-next-line:completed-docs class-name
     var EITHER_ = /** @class */ (function () {
@@ -43,8 +51,7 @@ define(["require", "exports", "./browsers", "jquery"], function (require, export
      */
     var Key = /** @class */ (function () {
         /**
-         * Client code should use the convenience functions provided by this module to
-         * create keys rather than use this constructor directly.
+         * @param hashKey The unique hash which represents this key.
          *
          * @param which The character code of the key.
          *
@@ -65,22 +72,13 @@ define(["require", "exports", "./browsers", "jquery"], function (require, export
          * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
          * ``false``, an unspecified value here means ``false``.
          */
-        function Key(which, keypress, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey) {
+        function Key(hashKey, which, keypress, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey) {
             if (keypress === void 0) { keypress = true; }
             if (charCode === void 0) { charCode = 0; }
             if (ctrlKey === void 0) { ctrlKey = false; }
             if (altKey === void 0) { altKey = false; }
             if (metaKey === void 0) { metaKey = false; }
             if (shiftKey === void 0) { shiftKey = exports.EITHER; }
-            // Some separator is necessary because otherwise there would be no way to
-            // distinguish (1, 23, 4, ...) from (12, 3, 4, ...) or (1, 2, 34, ...).
-            var key = [which, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey,
-                keypress].join(",");
-            // Ensure we have only one of each key created.
-            var cached = Key.__cache[key];
-            if (cached !== undefined) {
-                return cached;
-            }
             if (keypress) {
                 if (shiftKey !== exports.EITHER) {
                     throw new Error("shiftKey with key presses must be EITHER");
@@ -94,10 +92,52 @@ define(["require", "exports", "./browsers", "jquery"], function (require, export
             this.metaKey = metaKey;
             this.shiftKey = shiftKey;
             this.keypress = keypress;
-            this.hashKey = key;
+            this.hashKey = hashKey;
             this.id = id++;
-            Key.__cache[key] = this;
         }
+        /**
+         * Client code should use the convenience functions provided by this module to
+         * create keys rather than use this function directly.
+         *
+         * @param which The character code of the key.
+         *
+         * @param keypress Whether this key is meant to be used for keypress events
+         * rather than keyup and keydown.
+         *
+         * @param keyCode The key code of the key.
+         *
+         * @param charCode The character code of the key.
+         *
+         * @param ctrlKey Whether this key requires the Ctrl key held.
+         *
+         * @param altKey Whether this key requires the Alt key held.
+         *
+         * @param metaKey Whether this key requires the meta key held.
+         *
+         * @param shiftKey Whether this key requires the shift key held. It is invalid
+         * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
+         * ``false``, an unspecified value here means ``false``.
+         *
+         * @returns The key corresponding to the parameters.
+         */
+        Key.make = function (which, keypress, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey) {
+            if (keypress === void 0) { keypress = true; }
+            if (charCode === void 0) { charCode = 0; }
+            if (ctrlKey === void 0) { ctrlKey = false; }
+            if (altKey === void 0) { altKey = false; }
+            if (metaKey === void 0) { metaKey = false; }
+            if (shiftKey === void 0) { shiftKey = exports.EITHER; }
+            // Some separator is necessary because otherwise there would be no way to
+            // distinguish (1, 23, 4, ...) from (12, 3, 4, ...) or (1, 2, 34, ...).
+            var key = [which, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey,
+                keypress].join(",");
+            // Ensure we have only one of each key created.
+            var cached = Key.__cache[key];
+            if (cached === undefined) {
+                Key.__cache[key] = cached = new Key(key, which, keypress, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey);
+            }
+            return cached;
+        };
         /**
          * This method compares the key object to an event object. The event object
          * should have been generated for a keyboard event. This method does not check
@@ -174,7 +214,7 @@ define(["require", "exports", "./browsers", "jquery"], function (require, export
     }());
     exports.Key = Key;
     /** This is a [[Key]] that cannot match anything. */
-    exports.NULL_KEY = new Key(-1, false, -1);
+    exports.NULL_KEY = Key.make(-1, false, -1);
     /**
      * This function creates a key object.
      *
@@ -237,7 +277,7 @@ define(["require", "exports", "./browsers", "jquery"], function (require, export
         if (shiftKey !== exports.EITHER) {
             shiftKey = !!shiftKey;
         }
-        return new Key(which, keypress, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey);
+        return Key.make(which, keypress, keyCode, charCode, ctrlKey, altKey, metaKey, shiftKey);
     }
     exports.makeKey = makeKey;
     /**

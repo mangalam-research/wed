@@ -143,6 +143,7 @@ define(["require", "exports", "./domtypeguards"], function (require, exports, do
                         _this._setAttributeNSHandler(ev);
                         break;
                     default:
+                    // Do nothing...
                 }
             });
         }

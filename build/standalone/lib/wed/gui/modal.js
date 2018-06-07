@@ -1,6 +1,10 @@
-define(["require", "exports", "jquery", "./interactivity", "bootstrap"], function (require, exports, $, interactivity_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "./interactivity", "bootstrap"], function (require, exports, jquery_1, interactivity_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
     /**
      * A modal needs to be created only once per instance of wed. After creation it
      * must be installed into the DOM tree of the page on which it is going to be
@@ -44,7 +48,7 @@ define(["require", "exports", "jquery", "./interactivity", "bootstrap"], functio
             // tabindex needed to make keyboard stuff work... grumble...
             // https://github.com/twitter/bootstrap/issues/4663
             // tslint:disable-next-line:no-jquery-raw-elements
-            var $dom = this._$dom = $("\
+            var $dom = this._$dom = jquery_1.default("\
 <div class=\"modal\" style=\"position: absolute\" tabindex=\"1\">\
   <div class=\"modal-dialog\">\
     <div class=\"modal-content\">\
@@ -65,7 +69,7 @@ define(["require", "exports", "jquery", "./interactivity", "bootstrap"], functio
             this._$body = $dom.find(".modal-body");
             this._$footer = $dom.find(".modal-footer");
             $dom.on("click", ".btn", function (ev) {
-                _this._$clicked = $(ev.currentTarget);
+                _this._$clicked = jquery_1.default(ev.currentTarget);
                 return true;
             });
             $dom.on("shown.bs.modal.modal", this._handleShown.bind(this));
@@ -124,7 +128,7 @@ define(["require", "exports", "jquery", "./interactivity", "bootstrap"], functio
             button.textContent = name;
             button.classList.add(isPrimary ? "btn-primary" : "btn-default");
             this._$footer.append(button);
-            return $(button);
+            return jquery_1.default(button);
         };
         /**
          * Adds one Ok and one Cancel button.

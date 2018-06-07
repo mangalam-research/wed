@@ -1,6 +1,19 @@
-define(["require", "exports", "jquery", "wed/convert", "wed/domutil", "../util"], function (require, exports, $, convert, domutil, util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "wed/convert", "wed/domutil", "../util"], function (require, exports, jquery_1, convert, domutil, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    convert = __importStar(convert);
+    domutil = __importStar(domutil);
     var assert = chai.assert;
     // Utility  XML nodes.
     function empty(el) {
@@ -568,8 +581,8 @@ define(["require", "exports", "jquery", "wed/convert", "wed/domutil", "../util"]
                 domutil.linkTrees(cloned, root);
                 var p = root.getElementsByTagName("p")[0];
                 var clonedP = cloned.getElementsByTagName("p")[0];
-                assert.equal($.data(p, "wed_mirror_node"), clonedP);
-                assert.equal($.data(clonedP, "wed_mirror_node"), p);
+                assert.equal(jquery_1.default.data(p, "wed_mirror_node"), clonedP);
+                assert.equal(jquery_1.default.data(clonedP, "wed_mirror_node"), p);
             });
         });
         describe("focusNode", function () {
@@ -612,7 +625,6 @@ define(["require", "exports", "jquery", "wed/convert", "wed/domutil", "../util"]
                             assert.equal(ret[i].outerHTML, nodes[i].outerHTML, "element node at " + i);
                             break;
                         default:
-                            break;
                     }
                 }
             }

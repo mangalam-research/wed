@@ -20,6 +20,7 @@ var REPLACE_REGEXP = new RegExp("^" + karmaBaseUrl.replace(/\//g, "\\/") +
 // Get a list of all the test files to include.
 Object.keys(window.__karma__.files).forEach(function each(file) {
   "use strict";
+
   if (TEST_REGEXP.test(file) && !WED_REGEXP.test(file)) {
     var normalizedTestModule = file.replace(REPLACE_REGEXP, "");
     allTestFiles.push(normalizedTestModule);
@@ -29,6 +30,7 @@ Object.keys(window.__karma__.files).forEach(function each(file) {
 // Chai is already loaded.
 define("chai", function factory() {
   "use strict";
+
   return window.chai;
 });
 
@@ -56,12 +58,16 @@ if (karmaTestType === "webpack") {
   // Webpack packs the rxjs files wed uses inside its bundle. So we do not have
   // rxjs in the external files.
   require.config({
-    paths: {
-      rxjs: baseUrlMap.unit + "external/rxjs",
+    map: {
+      "*": {
+        rxjs: baseUrlMap.unit + "external/rxjs/index",
+        "rxjs/operators": baseUrlMap.unit + "external/rxjs/operators/index",
+      },
     },
   });
 }
 
+// eslint-disable-next-line import/no-dynamic-require
 require(
   ["require", "last-resort", "wed/onerror", "jquery", "bootstrap"],
   function loaded(require, lr, onerror, $) {
@@ -107,5 +113,6 @@ require(
       }
     });
 
+    // eslint-disable-next-line import/no-dynamic-require
     require(allTestFiles, window.__karma__.start);
   });

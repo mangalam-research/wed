@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var NeverObservable_1 = require('./NeverObservable');
-exports.never = NeverObservable_1.NeverObservable.create;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/observable/never"));
 //# sourceMappingURL=never.js.map
 return module.exports;
 

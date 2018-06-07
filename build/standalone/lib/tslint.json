@@ -13,9 +13,22 @@
                               "We're not going to pepper the code with ",
                               "spurious null checks."],
     "newline-before-return": [false, "Not for this project."],
+    "no-parameter-reassignment": [false,
+                                  "We reassign parameters often. It might be",
+                                  "worth turning on after a redesign."],
     "no-import-side-effect": [true,
                               { "ignore-pattern": "^(jquery|bootstrap)$" }],
     "await-promise": [true, "Bluebird"],
-    "no-backbone-get-set-outside-model": [false, "False positives galore."]
+    "no-backbone-get-set-outside-model": [false, "False positives galore."],
+    "no-implicit-dependencies": [false, "Way too many false positives."],
+    "match-default-export-name": [false, "Way too many false positives."],
+    "no-submodule-imports": [true, "rxjs", "wed", "tests"],
+    "no-unused-variable": false,
+    "import-name": [true, {
+      "jquery": "$",
+      "ajv": "Ajv",
+      "lodash": "_",
+      "interactjs": "interact"
+    }]
   }
 }

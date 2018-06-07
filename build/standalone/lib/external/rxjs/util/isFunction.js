@@ -1,10 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-function isFunction(x) {
-    return typeof x === 'function';
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-exports.isFunction = isFunction;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/util/isFunction"));
 //# sourceMappingURL=isFunction.js.map
 return module.exports;
 

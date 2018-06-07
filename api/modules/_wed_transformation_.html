@@ -74,6 +74,8 @@
 							<h3>Classes</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-class tsd-parent-kind-external-module tsd-has-type-parameter"><a href="../classes/_wed_transformation_.transformation.html" class="tsd-kind-icon">Transformation</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_wed_transformation_.transformationevent.html" class="tsd-kind-icon">Transformation<wbr>Event</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_wed_transformation_.transformationeventsubject.html" class="tsd-kind-icon">Transformation<wbr>Event<wbr>Subject</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -126,7 +128,7 @@
 					<div class="tsd-signature tsd-kind-icon">Attribute<wbr>Table<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L269">wed/transformation.ts:269</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L336">wed/transformation.ts:336</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -136,7 +138,7 @@
 					<div class="tsd-signature tsd-kind-icon">Transformation<wbr>Handler<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L130">wed/transformation.ts:130</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L131">wed/transformation.ts:131</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -183,7 +185,7 @@
 					<div class="tsd-signature tsd-kind-icon">TYPE_<wbr>TO_<wbr>KIND<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;_.extend(Object.create(null), {// These are not actually type names. It is possible to use a kind name as a// type name if the transformation is not more specific. In this case the kind// &#x3D;&#x3D;&#x3D; type.add: &quot;add&quot;,delete: &quot;delete&quot;,transform: &quot;transform&quot;,insert: &quot;add&quot;,&quot;delete-element&quot;: &quot;delete&quot;,&quot;delete-parent&quot;: &quot;delete&quot;,wrap: &quot;wrap&quot;,&quot;wrap-content&quot;: &quot;wrap&quot;,&quot;merge-with-next&quot;: &quot;transform&quot;,&quot;merge-with-previous&quot;: &quot;transform&quot;,&quot;swap-with-next&quot;: &quot;transform&quot;,&quot;swap-with-previous&quot;: &quot;transform&quot;,split: &quot;transform&quot;,append: &quot;add&quot;,prepend: &quot;add&quot;,unwrap: &quot;unwrap&quot;,&quot;add-attribute&quot;: &quot;add&quot;,&quot;delete-attribute&quot;: &quot;delete&quot;,})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L20">wed/transformation.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L21">wed/transformation.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -193,7 +195,7 @@
 					<div class="tsd-signature tsd-kind-icon">TYPE_<wbr>TO_<wbr>NODE_<wbr>TYPE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;_.extend(Object.create(null), {// These are not actually type names. These are here to handle the// case where the type is actually a kind name. Since they are not// more specific, the node type is set to &quot;other&quot;. Note that// &quot;wrap&quot; and &quot;unwrap&quot; are always about elements so there is no// way to have a &quot;wrap/unwrap&quot; which has &quot;other&quot; for the node// type.add: &quot;other&quot;,delete: &quot;other&quot;,transform: &quot;other&quot;,insert: &quot;element&quot;,&quot;delete-element&quot;: &quot;element&quot;,&quot;delete-parent&quot;: &quot;element&quot;,wrap: &quot;element&quot;,&quot;wrap-content&quot;: &quot;element&quot;,&quot;merge-with-next&quot;: &quot;element&quot;,&quot;merge-with-previous&quot;: &quot;element&quot;,&quot;swap-with-next&quot;: &quot;element&quot;,&quot;swap-with-previous&quot;: &quot;element&quot;,split: &quot;element&quot;,append: &quot;element&quot;,prepend: &quot;element&quot;,unwrap: &quot;element&quot;,&quot;add-attribute&quot;: &quot;attribute&quot;,&quot;delete-attribute&quot;: &quot;attribute&quot;,})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L45">wed/transformation.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L46">wed/transformation.ts:46</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -210,7 +212,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L392">wed/transformation.ts:392</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L459">wed/transformation.ts:459</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -254,7 +256,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L133">wed/transformation.ts:133</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L134">wed/transformation.ts:134</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -283,7 +285,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L316">wed/transformation.ts:316</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L383">wed/transformation.ts:383</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -346,7 +348,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L285">wed/transformation.ts:285</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L352">wed/transformation.ts:352</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -397,7 +399,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L620">wed/transformation.ts:620</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L687">wed/transformation.ts:687</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -436,7 +438,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L572">wed/transformation.ts:572</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L639">wed/transformation.ts:639</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -475,7 +477,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L687">wed/transformation.ts:687</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L754">wed/transformation.ts:754</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -508,7 +510,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L547">wed/transformation.ts:547</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L614">wed/transformation.ts:614</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -551,7 +553,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L670">wed/transformation.ts:670</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L737">wed/transformation.ts:737</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -590,7 +592,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L639">wed/transformation.ts:639</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L706">wed/transformation.ts:706</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -629,7 +631,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L495">wed/transformation.ts:495</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L562">wed/transformation.ts:562</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -667,7 +669,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L443">wed/transformation.ts:443</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L510">wed/transformation.ts:510</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -744,7 +746,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/4a51dbd2/lib/wed/transformation.ts#L348">wed/transformation.ts:348</a></li>
+									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/transformation.ts#L415">wed/transformation.ts:415</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -822,6 +824,12 @@
 				<ul class="before-current">
 					<li class=" tsd-kind-class tsd-parent-kind-external-module tsd-has-type-parameter">
 						<a href="../classes/_wed_transformation_.transformation.html" class="tsd-kind-icon">Transformation</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/_wed_transformation_.transformationevent.html" class="tsd-kind-icon">Transformation<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/_wed_transformation_.transformationeventsubject.html" class="tsd-kind-icon">Transformation<wbr>Event<wbr>Subject</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="../interfaces/_wed_transformation_.namedtransformationdata.html" class="tsd-kind-icon">Named<wbr>Transformation<wbr>Data</a>

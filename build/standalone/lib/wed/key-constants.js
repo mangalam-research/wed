@@ -4,9 +4,17 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "./browsers", "./key"], function (require, exports, browsers_1, key) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    key = __importStar(key);
     // A few constants are named by their key.
     exports.LEFT_ARROW = key.makeKey(37, false);
     exports.UP_ARROW = key.makeKey(38, false);

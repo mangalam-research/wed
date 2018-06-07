@@ -1,6 +1,19 @@
-define(["require", "exports", "jquery", "../domutil", "../key-constants", "bootstrap", "typeahead"], function (require, exports, $, domutil, keyConstants) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "../domutil", "../key-constants", "bootstrap", "typeahead"], function (require, exports, jquery_1, domutil, keyConstants) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    domutil = __importStar(domutil);
+    keyConstants = __importStar(keyConstants);
     /**
      * A typeahead popup GUI element.
      */
@@ -25,8 +38,8 @@ define(["require", "exports", "jquery", "../domutil", "../key-constants", "boots
          */
         // tslint:disable-next-line:max-func-body-length
         function TypeaheadPopup(doc, x, y, width, placeholder, options, 
-            // tslint:disable-next-line:no-any
-            dismissCallback) {
+        // tslint:disable-next-line:no-any
+        dismissCallback) {
             var _this = this;
             this.dismissed = false;
             var taWrapper = domutil.htmlToElements("<div class=\"wed-typeahead-popup\">\
@@ -38,15 +51,14 @@ define(["require", "exports", "jquery", "../domutil", "../key-constants", "boots
             this.dismissCallback = dismissCallback;
             this.backdrop = document.createElement("div");
             this.backdrop.className = "wed-typeahead-popup-backdrop";
-            $(this.backdrop).click(function () {
+            jquery_1.default(this.backdrop).click(function () {
                 _this.dismiss();
                 return false;
             });
             taWrapper.style.width = width + "px";
             taWrapper.style.left = x + "px";
             taWrapper.style.top = y + "px";
-            var $ta = this.$ta = $(ta);
-            this.ta = ta;
+            var $ta = this.$ta = jquery_1.default(ta);
             var args = [options.options];
             if (options.datasets != null && options.datasets.length > 0) {
                 args = args.concat(options.datasets);
@@ -71,7 +83,7 @@ define(["require", "exports", "jquery", "../domutil", "../key-constants", "boots
             var maxHeight = winHeight - y;
             taWrapper.style.maxHeight = maxHeight + "px";
             var dropdown = taWrapper.getElementsByClassName("tt-menu")[0];
-            var $dropdown = $(dropdown);
+            var $dropdown = jquery_1.default(dropdown);
             // Yep, we forcibly display it here because the next computations depend on
             // the dropdown being visible.
             var oldDisplay = dropdown.style.display;
@@ -108,7 +120,7 @@ define(["require", "exports", "jquery", "../domutil", "../key-constants", "boots
             // constructor. For our purposes we want the typeahead to be activated right
             // away. So we unfortunately break through into private bits of the
             // typeahead code.
-            var tt = $.data(ta, "ttTypeahead");
+            var tt = jquery_1.default.data(ta, "ttTypeahead");
             tt.isActivated = true;
             // The default implementation closes the dropdown when the input is
             // unfocused. This is not a particularly good behavior for
@@ -165,7 +177,7 @@ define(["require", "exports", "jquery", "../domutil", "../key-constants", "boots
          * to dismiss the popup.
          */
         // tslint:disable-next-line:no-any
-        TypeaheadPopup.prototype._selectedHandler = function (ev, obj) {
+        TypeaheadPopup.prototype._selectedHandler = function (_ev, obj) {
             this.dismiss(obj);
         };
         /**

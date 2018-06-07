@@ -19,7 +19,6 @@ export declare class TypeaheadPopup {
     private readonly taWrapper;
     private readonly dismissCallback;
     private readonly backdrop;
-    private readonly ta;
     private readonly $ta;
     private dismissed;
     /**
@@ -62,7 +61,7 @@ export declare class TypeaheadPopup {
      * Event handler for typeahead:selected events. The default implementation is
      * to dismiss the popup.
      */
-    private _selectedHandler(ev, obj);
+    private _selectedHandler(_ev, obj);
     /**
      * Hide the spinner that was created to indicate that the data is being
      * loaded.

@@ -1,15 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var reduce_1 = require('./reduce');
-function toArrayReducer(arr, item, index) {
-    arr.push(item);
-    return arr;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-function toArray() {
-    return reduce_1.reduce(toArrayReducer, []);
-}
-exports.toArray = toArray;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/operators/toArray"));
 //# sourceMappingURL=toArray.js.map
 return module.exports;
 

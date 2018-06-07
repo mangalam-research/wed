@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var windowCount_1 = require('../../operator/windowCount');
-Observable_1.Observable.prototype.windowCount = windowCount_1.windowCount;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/windowCount");
 //# sourceMappingURL=windowCount.js.map
 return module.exports;
 

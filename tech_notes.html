@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage Notes &mdash; Wed v1.0.0 documentation</title>
+  <title>Advanced Usage Notes &mdash; Wed v2.0.0-3-g031e9d63 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v1.0.0 documentation" href="index.html"/>
+    <link rel="top" title="Wed v2.0.0-3-g031e9d63 documentation" href="index.html"/>
         <link rel="prev" title="Creating a Mode" href="mode_design.html"/> 
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                v1.0
+                v2.0
               </div>
             
           
@@ -206,40 +206,15 @@ case to work around a bug in gitflow.</p>
 <p>It is possible to deploy wed using the <code class="docutils literal"><span class="pre">build/standalone/</span></code> file tree but you
 will pay in execution time and bandwidth because the files in this tree are not
 optimized.</p>
-<p>The <code class="docutils literal"><span class="pre">build/standalone-optimized/</span></code> file tree is optimized. This optimization
-exists primarily for illustration purposes and for testing wed, but it could be
-used for deployment too, as long as you understand how it is constructed. The
-build file driving how <code class="docutils literal"><span class="pre">r.js</span></code> created the optimized tree is
-<code class="docutils literal"><span class="pre">requirejs.build.js</span></code>. Here are the major characteristics of this optimization:</p>
-<ul class="simple">
-<li>All of wed&#8217;s JavaScript is combined into one file. The only part of wed
-excluded is the test mode used in testing, which is not meant to be deployed
-anywhere.</li>
-<li>All external libraries (jQuery, Bootstrap, etc.) are excluded from the
-optimization.</li>
-<li>The CSS files are not optimized with regards to space but not combined.</li>
-</ul>
-<p>This optimization is designed to provide a balance between performance and
-flexibility. Greater performance could have been achieved by incorporating into
-one file all of the external libraries. However, such bundle would be unlikely
-to be trivially deployable on a full-fledged web site in which wed would be
-embedded. Such site might already be using jQuery and Bootstrap, perhaps
-different versions from those used to build wed, etc. The optimization described
-above could conceivably be used on this hypothetical server, provided that the
-configuration is updated to look for the external libraries at the right places.</p>
-<p>Wed&#8217;s build process creates a configuration for the optimized bundle at
-<code class="docutils literal"><span class="pre">build/standalone-optimized/requirejs-config.js</span></code>. This configuration allows an
-external custom mode to load some individual modules of wed in any order because
-it includes a <code class="docutils literal"><span class="pre">bundles</span></code> configuration option.</p>
-<p>It is also possible to use a configuration file that does not have the
-individual module mappings. In this scenario, it is <strong>not</strong> possible for code
-external to wed to load parts of wed in an arbitrary order. The <code class="docutils literal"><span class="pre">wed.js</span></code> file
-has to be loaded first, and then wed&#8217;s modules become accessible. Note that this
-way of operating should work for the vast majority of cases because the typical
-usage scenario for wed is to first create a an <code class="docutils literal"><span class="pre">Editor</span></code> instance which
-dynamically loads a mode. Since the mode is loaded after <code class="docutils literal"><span class="pre">Editor</span></code> is created,
-it is guaranteed that by the time the mode runs, all of wed&#8217;s modules are
-available.</p>
+<p>The <code class="docutils literal"><span class="pre">build/packed/</span></code> file tree is optimized with Webpack. This optimization is
+designed to provide a balance between performance and flexibility. Greater
+performance could have been achieved by incorporating into one file all of the
+external libraries. However, such bundle would be unlikely to be trivially
+deployable on a full-fledged web site in which wed would be embedded. Such site
+might already be using jQuery and Bootstrap, perhaps different versions from
+those used to build wed, etc. The optimization described above could conceivably
+be used on this hypothetical server, provided that the configuration is updated
+to look for the external libraries at the right places.</p>
 </div>
 <div class="section" id="schema-and-structure-considerations">
 <h2>Schema and Structure Considerations<a class="headerlink" href="#schema-and-structure-considerations" title="Permalink to this headline">¶</a></h2>
@@ -469,7 +444,7 @@ compilation time. The Karma tests, in contrast, run the pre-compiled code.</p>
 <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>. Read its documentation.  You also need to have <a class="reference external" href="http://github.com/mangalam-research/wedutil">wedutil</a> installed and available on your
 <code class="docutils literal"><span class="pre">PYTHONPATH</span></code>.</p>
 <p>It is very likely that you&#8217;ll want to override some of the values in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a> by creating
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/selenium_config.py">config/selenium_config.py</a> by creating
 <code class="docutils literal"><span class="pre">local_config/selenium_config.py</span></code> that loads the default file but override or
 adds some values. For instance:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># If used, must appear before the default file is loaded. The</span>
@@ -490,12 +465,12 @@ adds some values. For instance:</p>
 </div>
 <p>Behind the scenes, this will launch Behave. An instance of <code class="docutils literal"><span class="pre">./server.js</span></code> will
 be launched automatically to respond to the requests of the browser that the
-test suite launches. See the gulpfile <a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/gulpfile.babel.js">gulpfile.babel.js</a> for
+test suite launches. See the gulpfile <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/gulpfile.babel.js">gulpfile.babel.js</a> for
 information about how behave is run.</p>
 <p>The <code class="docutils literal"><span class="pre">browser</span></code> variable determines which browser will run the test. You may
 omit any of <code class="docutils literal"><span class="pre">platform</span></code>, <code class="docutils literal"><span class="pre">browser</span></code> or <code class="docutils literal"><span class="pre">versions</span></code> so long as the parts that
 are specified are enough to match a <strong>single</strong> configuration defined in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/master/config/selenium_config.py">config/selenium_config.py</a>. See the list of configurations there to see
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/selenium_config.py">config/selenium_config.py</a>. See the list of configurations there to see
 what has been configured. If you want something different from the list there,
 you&#8217;ll have to configure it in the copy you made into <code class="docutils literal"><span class="pre">local_config</span></code>.</p>
 <p>The environment variable <code class="docutils literal"><span class="pre">BEHAVE_WAIT_BETWEEN_STEPS</span></code> can be set to a numerical
@@ -1073,7 +1048,7 @@ obsolete code may still remain.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v1.0.0',
+            VERSION:'v2.0.0-3-g031e9d63',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

@@ -14,9 +14,22 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "jquery", "./convert", "./dloc", "./domtypeguards", "./domutil", "./tree-updater", "./util"], function (require, exports, $, convert, dloc_1, domtypeguards_1, domutil_1, tree_updater_1, util) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "./convert", "./dloc", "./domtypeguards", "./domutil", "./tree-updater", "./util"], function (require, exports, jquery_1, convert, dloc_1, domtypeguards_1, domutil_1, tree_updater_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    convert = __importStar(convert);
+    util = __importStar(util);
     /**
      * Updates a GUI tree so that its data nodes (those nodes that are not
      * decorations) mirror a data tree.
@@ -48,6 +61,7 @@ define(["require", "exports", "jquery", "./convert", "./dloc", "./domtypeguards"
                         _this._setAttributeNSHandler(ev);
                         break;
                     default:
+                    // Do nothing...
                 }
             });
             return _this;
@@ -99,11 +113,10 @@ define(["require", "exports", "jquery", "./convert", "./dloc", "./domtypeguards"
                     toRemove = guiCaret.node;
                     break;
                 case Node.ELEMENT_NODE:
-                    toRemove = $.data(dataNode, "wed_mirror_node");
+                    toRemove = jquery_1.default.data(dataNode, "wed_mirror_node");
                     element = true;
                     break;
                 default:
-                    break;
             }
             this.deleteNode(toRemove);
             // We have to do this **after** we delete the node.

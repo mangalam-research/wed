@@ -1,21 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var publishReplay_1 = require('../operators/publishReplay');
-/* tslint:enable:max-line-length */
-/**
- * @param bufferSize
- * @param windowTime
- * @param selectorOrScheduler
- * @param scheduler
- * @return {Observable<T> | ConnectableObservable<T>}
- * @method publishReplay
- * @owner Observable
- */
-function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
-    return publishReplay_1.publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler)(this);
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-exports.publishReplay = publishReplay;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/operator/publishReplay"));
 //# sourceMappingURL=publishReplay.js.map
 return module.exports;
 

@@ -33,10 +33,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/browsers", "wed/domtypeguards", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, browsers, domtypeguards_1, keyConstants, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
+    browsers = __importStar(browsers);
+    keyConstants = __importStar(keyConstants);
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     var _slice = Array.prototype.slice;
     describe("wed validation errors:", function () {
@@ -152,10 +162,10 @@ define(["require", "exports", "wed/browsers", "wed/domtypeguards", "wed/key-cons
                         pStartLabelRect = pStartLabel.getBoundingClientRect();
                         assert.isTrue(pMarkerRect.left >= pStartLabelRect.right, "the paragraph error marker should be to the right of the \
 start label for the paragraph");
+                        // We used to check the top too, but the changes in caret size make that
+                        // impractical. So we check only the bottom position.
                         assert.isTrue(Math.abs(pMarkerRect.bottom - pStartLabelRect.bottom) <= 5, "the paragraph error marker should have a bottom which is \
 within 5 pixels of the bottom of the start label for the paragraph");
-                        assert.isTrue(Math.abs(pMarkerRect.top - pStartLabelRect.top) <= 5, "the paragraph error marker should have a top which is \
-within 5 pixels of the top of the start label for the paragraph");
                         monogrStartLabel = wed_test_util_1.firstGUI(monogr);
                         assert.isTrue(monogrStartLabel.classList.contains("__start_label"), "should should have a start label for the paragraph");
                         monogrStartLabelRect = monogrStartLabel.getBoundingClientRect();
@@ -165,12 +175,11 @@ of the left side of the start label for the monogr");
                         assert.isTrue(monogrMarkerRect.left >= monogrStartLabelRect.right, "the monogr error marker should be to the right of the \
 start label for the monogr");
                         monogrMarker.scrollIntoView();
+                        // We used to check the top too, but the changes in caret size make that
+                        // impractical. So we check only the bottom position.
                         assert.isTrue(Math.abs(monogrMarkerRect.bottom -
                             monogrStartLabelRect.bottom) <= 5, "the monogr error marker should have a bottom which is \
 within 5 pixels of the bottom of the start label for the monogr");
-                        assert.isTrue(Math.abs(monogrMarkerRect.top -
-                            monogrStartLabelRect.top) <= 5, "the monogr error marker should have a top which is within \
-5 pixels of the top of the start label for the monogr");
                         return [2 /*return*/];
                 }
             });

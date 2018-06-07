@@ -1,6 +1,18 @@
-define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domutil", "wed/tree-updater"], function (require, exports, $, dloc, domlistener_1, domutil_1, tree_updater_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domutil", "wed/tree-updater"], function (require, exports, jquery_1, dloc, domlistener_1, domutil_1, tree_updater_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    dloc = __importStar(dloc);
     var assert = chai.assert;
     // tslint:disable-next-line:completed-docs
     var Mark = /** @class */ (function () {
@@ -57,14 +69,14 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
         beforeEach(function () {
             // Create a new fragment each time.
             // tslint:disable-next-line:no-jquery-raw-elements
-            fragmentToAdd = $("<div class='_real ul'><div class='_real li'>A</div>\
+            fragmentToAdd = jquery_1.default("<div class='_real ul'><div class='_real li'>A</div>\
 <div class='_real li'>B</div></div>")[0];
             // tslint:disable-next-line:no-inner-html
             domroot.innerHTML = "";
             root = document.createElement("div");
             domroot.appendChild(root);
             new dloc.DLocRoot(root);
-            $root = $(root);
+            $root = jquery_1.default(root);
             treeUpdater = new tree_updater_1.TreeUpdater(root);
             listener = new domlistener_1.DOMListener(root, treeUpdater);
         });
@@ -72,21 +84,21 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             listener.stopListening();
         });
         function makeIncludedHandler(name) {
-            return (function (thisRoot, tree, parent, previousSibling, nextSibling, element) {
+            return (function (thisRoot, _tree, _parent, _previousSibling, _nextSibling, element) {
                 assert.equal(thisRoot, root);
                 assert.equal(element.className, "_real " + name);
                 mark.mark("included " + name);
             });
         }
         function makeExcludedHandler(name) {
-            return (function (thisRoot, tree, parent, previousSibling, nextSibling, element) {
+            return (function (thisRoot, _tree, _parent, _previousSibling, _nextSibling, element) {
                 assert.equal(thisRoot, root);
                 assert.equal(element.className, "_real " + name);
                 mark.mark("excluded " + name);
             });
         }
         function makeExcludingHandler(name) {
-            return (function (thisRoot, tree, parent, previousSibling, nextSibling, element) {
+            return (function (thisRoot, _tree, _parent, _previousSibling, _nextSibling, element) {
                 assert.equal(thisRoot, root);
                 assert.equal(element.className, "_real " + name);
                 mark.mark("excluding " + name);
@@ -102,7 +114,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             }, listener, done);
             listener.addHandler("included-element", "._real.ul", makeIncludedHandler("ul"));
             listener.addHandler("included-element", "._real.li", makeIncludedHandler("li"));
-            listener.addHandler("added-element", "._real.ul", (function (thisRoot, parent, previousSibling, nextSibling, element) {
+            listener.addHandler("added-element", "._real.ul", (function (thisRoot, parent, _previousSibling, _nextSibling, element) {
                 assert.equal(thisRoot, root);
                 assert.equal(thisRoot, parent);
                 assert.equal(element, fragmentToAdd);
@@ -127,7 +139,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
         });
         it("generates added-element with the right previous and next siblings", function (done) {
             mark = new Mark(2, { "added li": 2 }, listener, done);
-            listener.addHandler("added-element", "._real.li", (function (thisRoot, parent_, previousSibling, nextSibling, element) {
+            listener.addHandler("added-element", "._real.li", (function (_thisRoot, _parent, previousSibling, nextSibling, element) {
                 assert.equal(previousSibling, element.previousSibling);
                 assert.equal(nextSibling, element.nextSibling);
                 mark.mark("added li");
@@ -151,7 +163,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             }, listener, done);
             root.appendChild(fragmentToAdd);
             var $li = $root.find("._real.li");
-            listener.addHandler("removing-element", "._real.li", (function (thisRoot, parent, previousSibling, nextSibling, element) {
+            listener.addHandler("removing-element", "._real.li", (function (_thisRoot, _parent, previousSibling, nextSibling, element) {
                 var text = element.firstChild.nodeValue;
                 if (text === "A") {
                     assert.isNull(previousSibling, "previous sibling of A");
@@ -164,7 +176,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
                 mark.mark("removing li");
             }));
             var ul = root.querySelector("._real.ul");
-            listener.addHandler("removed-element", "._real.li", (function (thisRoot, parent, previousSibling, nextSibling) {
+            listener.addHandler("removed-element", "._real.li", (function (_thisRoot, parent, previousSibling, nextSibling) {
                 assert.isNull(previousSibling, "previous sibling of A");
                 assert.isNull(nextSibling, "next sibling of B");
                 assert.equal(parent, ul);
@@ -195,7 +207,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             listener.addHandler("excluded-element", "._real.ul", makeExcludedHandler("ul"));
             listener.addHandler("excluding-element", "._real.li", makeExcludingHandler("li"));
             listener.addHandler("excluded-element", "._real.li", makeExcludedHandler("li"));
-            listener.addHandler("removing-element", "._real.ul", (function (thisRoot, parent, previousSibling, nextSibling, element) {
+            listener.addHandler("removing-element", "._real.ul", (function (thisRoot, parent, _previousSibling, _nextSibling, element) {
                 assert.equal(thisRoot, root);
                 assert.equal(thisRoot, parent);
                 assert.equal(element, fragmentToAdd);
@@ -245,7 +257,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
                 assert.equal(thisRoot, root);
                 mark.mark("triggered test");
             });
-            listener.addHandler("included-element", "._real.li", (function (thisRoot, tree, parent, previousSibling, nextSibling, element) {
+            listener.addHandler("included-element", "._real.li", (function (thisRoot, _tree, _parent, _previousSibling, _nextSibling, element) {
                 assert.equal(thisRoot, root);
                 assert.equal(element.className, "_real li");
                 listener.trigger("test");
@@ -273,7 +285,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
                 assert.equal(thisRoot, root);
                 mark.mark("triggered test2");
             });
-            listener.addHandler("included-element", "._real.li", (function (thisRoot, tree, parent, previousSibling, nextSibling, element) {
+            listener.addHandler("included-element", "._real.li", (function (thisRoot, _tree, _parent, _previousSibling, _nextSibling, element) {
                 assert.equal(thisRoot, root);
                 assert.equal(element.className, "_real li");
                 listener.trigger("test");
@@ -378,7 +390,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             mark = new Mark(1, { "children ul": 1 }, listener, done);
             root.appendChild(fragmentToAdd);
             var li = root.querySelectorAll("._real.li");
-            listener.addHandler("children-changed", "._real.ul", (function (thisRoot, added, removed, previousSibling, nextSibling) {
+            listener.addHandler("children-changed", "._real.ul", (function (_thisRoot, added, _removed, previousSibling, nextSibling) {
                 // The marker will also trigger this handler. Ignore it.
                 if (added[0] === marker) {
                     return;
@@ -388,14 +400,14 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
                 mark.mark("children ul");
             }));
             listener.startListening();
-            var $new = $("<li>Q</li>");
+            var $new = jquery_1.default("<li>Q</li>");
             treeUpdater
                 .insertNodeAt(li[0].parentNode, domutil_1.indexOf(li[0].parentNode.childNodes, li[0]) + 1, $new[0]);
             mark.check();
         });
         it("generates children-changing and children-changed with " +
             "the right previous and next siblings when removing", function (done) {
-            fragmentToAdd = $("<div class='_real ul'><div class='_real li'>A</div><div class='_real li'>B</div><div class='_real li'>C</div></div>")[0];
+            fragmentToAdd = jquery_1.default("<div class='_real ul'><div class='_real li'>A</div><div class='_real li'>B</div><div class='_real li'>C</div></div>")[0];
             mark = new Mark(2, {
                 "children-changed ul": 1,
                 "children-changing ul": 1,
@@ -403,7 +415,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             root.appendChild(fragmentToAdd);
             var $li = $root.find("._real.li");
             var parent = $li[0].parentNode;
-            listener.addHandler("children-changing", "._real.ul", (function (thisRoot, added, removed, previousSibling, nextSibling, element) {
+            listener.addHandler("children-changing", "._real.ul", (function (_thisRoot, added, _removed, previousSibling, nextSibling, element) {
                 // The marker will also trigger this handler. Ignore it.
                 if (added[0] === marker) {
                     return;
@@ -413,7 +425,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
                 assert.equal(element, parent);
                 mark.mark("children-changing ul");
             }));
-            listener.addHandler("children-changed", "._real.ul", (function (thisRoot, added, removed, previousSibling, nextSibling, element) {
+            listener.addHandler("children-changed", "._real.ul", (function (_thisRoot, added, _removed, previousSibling, nextSibling, element) {
                 // The marker will also trigger this handler. Ignore it.
                 if (added[0] === marker) {
                     return;
@@ -434,7 +446,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
                 "excluding li at ul": 2,
                 "excluding li at root": 2,
             }, listener, done);
-            var $fragment = $("<div><p>before</p><div class='_real ul'><div class='_real li'>A</div><div class='_real li'>B</div></div><p>after</p></div>");
+            var $fragment = jquery_1.default("<div><p>before</p><div class='_real ul'><div class='_real li'>A</div><div class='_real li'>B</div></div><p>after</p></div>");
             function addHandler(incex) {
                 listener.addHandler(incex + "-element", "._real.li", (function (thisRoot, tree, parent, previousSibling, nextSibling, element) {
                     assert.equal(thisRoot, root, "root");
@@ -477,7 +489,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             mark = new Mark(2, { "children root": 1, trigger: 1 }, listener, function () {
                 marked = true;
             });
-            listener.addHandler("children-changed", "*", (function (thisRoot, added) {
+            listener.addHandler("children-changed", "*", (function (_thisRoot, added) {
                 if (added[0] === marker) {
                     return;
                 }
@@ -498,7 +510,7 @@ define(["require", "exports", "jquery", "wed/dloc", "wed/domlistener", "wed/domu
             mark = new Mark(1, { "children root": 1 }, listener, function () {
                 marked = true;
             });
-            listener.addHandler("children-changed", "*", (function (thisRoot, added) {
+            listener.addHandler("children-changed", "*", (function (_thisRoot, added) {
                 if (added[0] === marker) {
                     return;
                 }

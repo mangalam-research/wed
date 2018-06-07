@@ -3,9 +3,14 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "jquery", "merge-options", "bootstrap-notify"], function (require, exports, $, mergeOptions) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "merge-options", "bootstrap-notify"], function (require, exports, jquery_1, merge_options_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    merge_options_1 = __importDefault(merge_options_1);
     var defaultSettings = {
         element: "body",
         type: "info",
@@ -17,8 +22,8 @@ define(["require", "exports", "jquery", "merge-options", "bootstrap-notify"], fu
     };
     function notify(message, settings) {
         var s = settings === undefined ? defaultSettings :
-            mergeOptions(defaultSettings, settings);
-        $.notify({ message: message }, s);
+            merge_options_1.default(defaultSettings, settings);
+        jquery_1.default.notify({ message: message }, s);
     }
     exports.notify = notify;
 });

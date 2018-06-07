@@ -8,6 +8,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -43,10 +51,35 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "ajv", "jquery", "rxjs/operators/filter", "rxjs/Subject", "salve", "salve-dom", "./action", "./caret-manager", "./dloc", "./domlistener", "./domtypeguards", "./domutil", "./domutil", "./editor-actions", "./exceptions", "./gui-updater", "./gui/dialog-search-replace", "./gui/editing-menu-manager", "./gui/error-layer", "./gui/icon", "./gui/layer", "./gui/minibuffer", "./gui/modal", "./gui/notify", "./gui/quick-search", "./gui/scroller", "./gui/toolbar", "./gui/tooltip", "./guiroot", "./key", "./key-constants", "./log", "./mode-tree", "./onbeforeunload", "./onerror", "./options-schema.json", "./preferences", "./runtime", "./saver", "./stock-modals", "./task-runner", "./transformation", "./tree-updater", "./undo", "./undo-recorder", "./util", "./validation-controller", "./validator", "./wed-util", "./wundo", "bootstrap"], function (require, exports, Ajv, $, filter_1, Subject_1, salve, salve_dom_1, action_1, caret_manager_1, dloc_1, domlistener, domtypeguards_1, domutil, domutil_1, editorActions, exceptions_1, gui_updater_1, dialog_search_replace_1, editing_menu_manager_1, error_layer_1, icon, layer_1, minibuffer_1, modal_1, notify_1, quick_search_1, scroller_1, toolbar_1, tooltip_1, guiroot_1, key_1, keyConstants, log, mode_tree_1, onbeforeunload, onerror, optionsSchema, preferences, runtime_1, saver_1, stock_modals_1, task_runner_1, transformation_1, tree_updater_1, undo_1, undo_recorder_1, util, validation_controller_1, validator_1, wed_util_1, wundo) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "ajv", "jquery", "rxjs/operators", "salve", "salve-dom", "./action", "./caret-manager", "./dloc", "./domlistener", "./domtypeguards", "./domutil", "./domutil", "./editor-actions", "./exceptions", "./gui-updater", "./gui/dialog-search-replace", "./gui/editing-menu-manager", "./gui/error-layer", "./gui/icon", "./gui/layer", "./gui/minibuffer", "./gui/modal", "./gui/notify", "./gui/quick-search", "./gui/scroller", "./gui/toolbar", "./gui/tooltip", "./guiroot", "./key", "./key-constants", "./log", "./mode-tree", "./onbeforeunload", "./onerror", "./options-schema.json", "./preferences", "./runtime", "./saver", "./stock-modals", "./task-runner", "./transformation", "./tree-updater", "./undo", "./undo-recorder", "./util", "./validation-controller", "./validator", "./wed-util", "./wundo", "bootstrap"], function (require, exports, ajv_1, jquery_1, operators_1, salve, salve_dom_1, action_1, caret_manager_1, dloc_1, domlistener, domtypeguards_1, domutil, domutil_1, editorActions, exceptions_1, gui_updater_1, dialog_search_replace_1, editing_menu_manager_1, error_layer_1, icon, layer_1, minibuffer_1, modal_1, notify_1, quick_search_1, scroller_1, toolbar_1, tooltip_1, guiroot_1, key_1, keyConstants, log, mode_tree_1, onbeforeunload, onerror, optionsSchema, preferences, runtime_1, saver_1, stock_modals_1, task_runner_1, transformation_1, tree_updater_1, undo_1, undo_recorder_1, util, validation_controller_1, validator_1, wed_util_1, wundo) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.version = "1.0.0";
+    ajv_1 = __importDefault(ajv_1);
+    jquery_1 = __importDefault(jquery_1);
+    salve = __importStar(salve);
+    domlistener = __importStar(domlistener);
+    domutil = __importStar(domutil);
+    editorActions = __importStar(editorActions);
+    icon = __importStar(icon);
+    keyConstants = __importStar(keyConstants);
+    log = __importStar(log);
+    onbeforeunload = __importStar(onbeforeunload);
+    onerror = __importStar(onerror);
+    optionsSchema = __importStar(optionsSchema);
+    preferences = __importStar(preferences);
+    util = __importStar(util);
+    wundo = __importStar(wundo);
+    exports.version = "2.0.0";
     // We don't put this in keyConstants because ESCAPE_KEYPRESS should never be
     // seen elsewhere.
     var ESCAPE_KEYPRESS = key_1.makeKey(27);
@@ -182,12 +215,13 @@ provided by the complex pattern here.</p>");
             this.normalizeEnteredSpaces = true;
             this.strippedSpaces = /\u200B/g;
             this.replacedSpaces = /\s+/g;
-            this.destroying = false;
             this.destroyed = false;
+            this.initialLabelLevel = 0;
+            this.currentLabelLevel = 0;
             this.globalKeydownHandlers = [];
             this.updatingPlaceholder = 0;
             this.composing = false;
-            this._transformations = new Subject_1.Subject();
+            this._transformations = new transformation_1.TransformationEventSubject();
             this.name = "";
             this.saveAction = new editorActions.Save(this);
             this.decreaseLabelVisibilityLevelAction = new editorActions.DecreaseLabelVisibilityLevel(this);
@@ -196,6 +230,7 @@ provided by the complex pattern here.</p>");
             this.redoAction = new editorActions.Redo(this);
             this.toggleAttributeHidingAction = new editorActions.ToggleAttributeHiding(this);
             this.transformations = this._transformations.asObservable();
+            this.maxLabelLevel = 0;
             // tslint:disable-next-line:promise-must-complete
             this.firstValidationComplete = new Promise(function (resolve) {
                 _this.firstValidationCompleteResolve = resolve;
@@ -206,10 +241,10 @@ provided by the complex pattern here.</p>");
             });
             onerror.editors.push(this);
             this.widget = widget;
-            this.$widget = $(this.widget);
+            this.$widget = jquery_1.default(this.widget);
             // We could be loaded in a frame in which case we should not alter anything
             // outside our frame.
-            this.$frame = $(domutil_1.closest(this.widget, "html"));
+            this.$frame = jquery_1.default(domutil_1.closest(this.widget, "html"));
             var doc = this.doc = this.$frame[0].ownerDocument;
             this.window = doc.defaultView;
             // It is possible to pass a runtime as "options" but if the user passed
@@ -224,13 +259,11 @@ provided by the complex pattern here.</p>");
             if (options.ignore_module_config) {
                 console.warn("the option ignore_module_config is no longer useful");
             }
-            var ajv = new Ajv();
+            var ajv = new ajv_1.default();
             var optionsValidator = ajv.compile(optionsSchema);
             if (!optionsValidator(options)) {
                 // tslint:disable-next-line:prefer-template
                 throw new Error("the options passed to wed are not valid: " +
-                    // We need "as string" due to:
-                    // https://github.com/palantir/tslint/issues/2736
                     ajv.errorsText(optionsValidator.errors, {
                         dataVar: "options",
                     }));
@@ -258,7 +291,7 @@ provided by the complex pattern here.</p>");
             //
             var guiRoot = this.guiRoot =
                 framework.getElementsByClassName("wed-document")[0];
-            this.$guiRoot = $(guiRoot);
+            this.$guiRoot = jquery_1.default(guiRoot);
             this.scroller =
                 new scroller_1.Scroller(framework.getElementsByClassName("wed-scroller")[0]);
             this.constrainer =
@@ -270,7 +303,7 @@ provided by the complex pattern here.</p>");
             toolbarPlaceholder.parentNode.removeChild(toolbarPlaceholder);
             this.inputField =
                 framework.getElementsByClassName("wed-comp-field")[0];
-            this.$inputField = $(this.inputField);
+            this.$inputField = jquery_1.default(this.inputField);
             this.cutBuffer =
                 framework.getElementsByClassName("wed-cut-buffer")[0];
             this.caretLayer = new layer_1.Layer(framework.getElementsByClassName("wed-caret-layer")[0]);
@@ -301,15 +334,15 @@ provided by the complex pattern here.</p>");
             this.clickedLabels = guiRoot.getElementsByClassName("_label_clicked");
             this.withCaret = guiRoot.getElementsByClassName("_with_caret");
             this.$modificationStatus =
-                $(sidebar.getElementsByClassName("wed-modification-status")[0]);
+                jquery_1.default(sidebar.getElementsByClassName("wed-modification-status")[0]);
             this.$saveStatus =
-                $(sidebar.getElementsByClassName("wed-save-status")[0]);
+                jquery_1.default(sidebar.getElementsByClassName("wed-save-status")[0]);
             this.$navigationPanel =
-                $(sidebar.getElementsByClassName("wed-navigation-panel")[0]);
+                jquery_1.default(sidebar.getElementsByClassName("wed-navigation-panel")[0]);
             this.$navigationPanel.css("display", "none");
-            this.$navigationList = $(doc.getElementById("navlist"));
-            this.$errorList = $(doc.getElementById("sb-errorlist"));
-            this.$excludedFromBlur = $();
+            this.$navigationList = jquery_1.default(doc.getElementById("navlist"));
+            this.$errorList = jquery_1.default(doc.getElementById("sb-errorlist"));
+            this.$excludedFromBlur = jquery_1.default();
             this.errorItemHandlerBound = this.errorItemHandler.bind(this);
             this._undo = new undo_1.UndoList();
             this.complexPatternAction = new ComplexPatternAction(this, "Complex name pattern", undefined, icon.makeHTML("exclamation"), true);
@@ -339,10 +372,10 @@ provided by the complex pattern here.</p>");
                 this.removeMarkupTr.makeButton(),
                 this.toggleAttributeHidingAction.makeButton()]);
             // Setup the cleanup code.
-            $(this.window).on("unload.wed", { editor: this }, function (e) {
+            jquery_1.default(this.window).on("unload.wed", { editor: this }, function (e) {
                 e.data.editor.destroy();
             });
-            $(this.window).on("popstate.wed", function () {
+            jquery_1.default(this.window).on("popstate.wed", function () {
                 if (document.location.hash === "") {
                     _this.guiRoot.scrollTop = 0;
                 }
@@ -424,15 +457,13 @@ provided by the complex pattern here.</p>");
             if (this.caretManager.caret === undefined) {
                 throw new Error("transformation applied with undefined caret.");
             }
-            this._transformations.next({
-                name: "StartTransformation",
-                transformation: tr,
-            });
+            var start = new transformation_1.TransformationEvent("StartTransformation", tr);
+            this._transformations.next(start);
+            start.throwIfAborted();
             tr.handler(this, data);
-            this._transformations.next({
-                name: "EndTransformation",
-                transformation: tr,
-            });
+            var end = new transformation_1.TransformationEvent("EndTransformation", tr);
+            this._transformations.next(end);
+            end.throwIfAborted();
         };
         /**
          * Enter a state in which all tasks are suspended. It is possible to call this
@@ -668,7 +699,7 @@ provided by the complex pattern here.</p>");
             var textUndo = this.initiateTextUndo();
             val = val.slice(0, offset) + add + val.slice(offset + count);
             offset += add.length;
-            var dataReal = $.data(domutil_1.closestByClass(attrVal, "_real"), "wed_mirror_node");
+            var dataReal = jquery_1.default.data(domutil_1.closestByClass(attrVal, "_real"), "wed_mirror_node");
             var guiPath = this.nodeToPath(attrVal);
             var name = domutil.siblingByClass(attrVal, "_attribute_name").textContent;
             var mode = this.modeTree.getMode(attrVal);
@@ -705,14 +736,14 @@ provided by the complex pattern here.</p>");
         Editor.prototype.insertTransientPlaceholderAt = function (loc) {
             var ph = 
             // tslint:disable-next-line:no-jquery-raw-elements
-            $("<span class='_placeholder _transient' contenteditable='false'> \
+            jquery_1.default("<span class='_placeholder _transient' contenteditable='false'> \
 </span>", loc.node.ownerDocument)[0];
             this.guiUpdater.insertNodeAt(loc, ph);
             return ph;
         };
         Editor.prototype.toDataNode = function (node) {
             if (domtypeguards_1.isElement(node)) {
-                var ret = $.data(node, "wed_mirror_node");
+                var ret = jquery_1.default.data(node, "wed_mirror_node");
                 // We can bypass the whole pathToNode, nodeToPath thing.
                 if (ret != null) {
                     return ret;
@@ -722,7 +753,7 @@ provided by the complex pattern here.</p>");
         };
         Editor.prototype.fromDataNode = function (node) {
             if (domtypeguards_1.isElement(node)) {
-                var ret = $.data(node, "wed_mirror_node");
+                var ret = jquery_1.default.data(node, "wed_mirror_node");
                 // We can bypass the whole pathToNode, nodeToPath thing.
                 if (ret != null) {
                     return ret;
@@ -779,7 +810,6 @@ provided by the complex pattern here.</p>");
             this.modeData[key] = value;
         };
         Editor.prototype.destroy = function () {
-            this.destroying = true;
             if (this.destroyed) {
                 return;
             }
@@ -836,7 +866,7 @@ provided by the complex pattern here.</p>");
                 this.$widget.empty();
                 this.$frame.find("*").off(".wed");
                 // This will also remove handlers on the window.
-                $(this.window).off(".wed");
+                jquery_1.default(this.window).off(".wed");
             }
             catch (ex) {
                 log.unhandled(ex);
@@ -875,7 +905,7 @@ provided by the complex pattern here.</p>");
                             this.dataRoot.removeChild(this.dataRoot.firstChild);
                             // $dataRoot is the document we are editing, $guiRoot will become decorated
                             // with all kinds of HTML elements so we keep the two separate.
-                            this.$dataRoot = $(this.dataRoot);
+                            this.$dataRoot = jquery_1.default(this.dataRoot);
                             this.guiDLocRoot = new guiroot_1.GUIRoot(this.guiRoot);
                             this.dataDLocRoot = new dloc_1.DLocRoot(this.dataRoot);
                             this.dataUpdater = new tree_updater_1.TreeUpdater(this.dataRoot);
@@ -908,18 +938,10 @@ provided by the complex pattern here.</p>");
                                         if (!node.contains(hasTooltip)) {
                                             continue;
                                         }
-                                        var tt = $.data(hasTooltip, "bs.tooltip");
+                                        var tt = jquery_1.default.data(hasTooltip, "bs.tooltip");
                                         if (tt != null) {
                                             tt.destroy();
                                         }
-                                        // We don't remove the wed-has-tooltip class. Generally, the elements
-                                        // that have tooltips and are removed from the GUI tree won't be added
-                                        // to the tree again. If they are added again, they'll most likely get
-                                        // a new tooltip so removing the class does not gain us much because
-                                        // it will be added again.
-                                        //
-                                        // If we *were* to remove the class, then the collection would change
-                                        // as we go through it.
                                     }
                                 }
                             });
@@ -996,7 +1018,7 @@ provided by the complex pattern here.</p>");
                             }
                             // Make the validator revalidate the structure from the point where a change
                             // occurred.
-                            this.domlistener.addHandler("children-changed", "._real, ._phantom_wrap, .wed-document", function (root, added, removed, prev, next, target) {
+                            this.domlistener.addHandler("children-changed", "._real, ._phantom_wrap, .wed-document", function (_root, added, removed, _prev, _next, target) {
                                 for (var _i = 0, _a = added.concat(removed); _i < _a.length; _i++) {
                                     var child = _a[_i];
                                     if (domtypeguards_1.isText(child) ||
@@ -1009,7 +1031,7 @@ provided by the complex pattern here.</p>");
                                 }
                             });
                             // Revalidate on attribute change.
-                            this.domlistener.addHandler("attribute-changed", "._real", function (root, el, namespace, name) {
+                            this.domlistener.addHandler("attribute-changed", "._real", function (_root, el, namespace, name) {
                                 if (namespace === "" && name.indexOf("data-wed", 0) === 0) {
                                     // Doing the restart immediately messes up the editing. So schedule it
                                     // for ASAP.
@@ -1022,7 +1044,7 @@ provided by the complex pattern here.</p>");
                                 }
                             });
                             this.modeTree.addDecoratorHandlers();
-                            this.domlistener.addHandler("included-element", "._label", function (root, tree, parent, prev, next, target) {
+                            this.domlistener.addHandler("included-element", "._label", function (_root, _tree, _parent, _prev, _next, target) {
                                 var cl = target.classList;
                                 var found;
                                 for (var i = 0; i < cl.length && found === undefined; ++i) {
@@ -1041,7 +1063,7 @@ provided by the complex pattern here.</p>");
                             // placeholder
                             this.domlistener.addHandler("children-changed", "._real, ._phantom_wrap, .wed-document", 
                             // tslint:disable-next-line:cyclomatic-complexity
-                            function (root, added, removed, prev, next, target) {
+                            function (_root, _added, removed, _prev, _next, target) {
                                 if (_this.updatingPlaceholder !== 0) {
                                     return;
                                 }
@@ -1119,10 +1141,10 @@ provided by the complex pattern here.</p>");
                                 }
                                 _this.updatingPlaceholder--;
                             };
-                            this.domlistener.addHandler("children-changed", "._attribute_value", function (root, added, removed, prev, next, target) {
+                            this.domlistener.addHandler("children-changed", "._attribute_value", function (_root, _added, _removed, _prev, _next, target) {
                                 attributePlaceholderHandler(target);
                             });
-                            this.domlistener.addHandler("included-element", "._attribute_value", function (root, tree, parent, prev, next, target) {
+                            this.domlistener.addHandler("included-element", "._attribute_value", function (_root, _tree, _parent, _prev, _next, target) {
                                 attributePlaceholderHandler(target);
                             });
                             this.modeTree.startListening();
@@ -1155,14 +1177,14 @@ provided by the complex pattern here.</p>");
                             $guiRoot.on("paste", log.wrap(this.pasteHandler.bind(this)));
                             this.$inputField.on("paste", log.wrap(this.pasteHandler.bind(this)));
                             $guiRoot.on("cut", log.wrap(this.cutHandler.bind(this)));
-                            $(this.window).on("resize.wed", this.resizeHandler.bind(this));
+                            jquery_1.default(this.window).on("resize.wed", this.resizeHandler.bind(this));
                             $guiRoot.on("click", "a", function (ev) {
                                 if (ev.ctrlKey) {
                                     window.location.href = ev.currentTarget.href;
                                 }
                                 return false;
                             });
-                            $body = $(this.doc.body);
+                            $body = jquery_1.default(this.doc.body);
                             $body.on("mouseup.wed", function () {
                                 _this.$guiRoot.off("mousemove.wed mouseup");
                             });
@@ -1187,7 +1209,7 @@ provided by the complex pattern here.</p>");
                                     return;
                                 }
                                 var el = _this.doc.elementFromPoint(ev.clientX, ev.clientY);
-                                if ($(el).closest(_this.$excludedFromBlur).length !== 0) {
+                                if (jquery_1.default(el).closest(_this.$excludedFromBlur).length !== 0) {
                                     return;
                                 }
                                 var offset = _this.$guiRoot.offset();
@@ -1240,16 +1262,16 @@ provided by the complex pattern here.</p>");
                                     var saver = new SaverClass(_this.runtime, exports.version, _this.dataUpdater, _this.dataRoot, saveOptions);
                                     _this.saver = saver;
                                     saver.events
-                                        .pipe(filter_1.filter(filterSaveEvents.bind(undefined, "Saved")))
+                                        .pipe(operators_1.filter(filterSaveEvents.bind(undefined, "Saved")))
                                         .subscribe(_this.onSaverSaved.bind(_this));
                                     saver.events
-                                        .pipe(filter_1.filter(filterSaveEvents.bind(undefined, "Autosaved")))
+                                        .pipe(operators_1.filter(filterSaveEvents.bind(undefined, "Autosaved")))
                                         .subscribe(_this.onSaverAutosaved.bind(_this));
                                     saver.events
-                                        .pipe(filter_1.filter(filterSaveEvents.bind(undefined, "Failed")))
+                                        .pipe(operators_1.filter(filterSaveEvents.bind(undefined, "Failed")))
                                         .subscribe(_this.onSaverFailed.bind(_this));
                                     saver.events
-                                        .pipe(filter_1.filter(filterSaveEvents.bind(undefined, "Changed")))
+                                        .pipe(operators_1.filter(filterSaveEvents.bind(undefined, "Changed")))
                                         .subscribe(_this.onSaverChanged.bind(_this));
                                     _this.refreshSaveStatus();
                                     _this.saveStatusInterval =
@@ -1345,7 +1367,7 @@ provided by the complex pattern here.</p>");
                 if (failure !== undefined) {
                     return failure;
                 }
-                var evs = this.validator.possibleAt(this.dataRoot, 0).toArray();
+                var evs = Array.from(this.validator.possibleAt(this.dataRoot, 0));
                 if (evs.length === 1 && evs[0].params[0] === "enterStartTag") {
                     var name_1 = evs[0].params[1];
                     // If the name pattern is not simple or it allows for a number of
@@ -1451,16 +1473,16 @@ in a way not supported by this version of wed.";
             var hheight = 0;
             for (var i = 0; i < headings.length; ++i) {
                 var heading = headings[i];
-                var $parent = $(heading.parentNode);
+                var $parent = jquery_1.default(heading.parentNode);
                 hheight += $parent.outerHeight(true) - $parent.innerHeight();
-                hheight += $(heading).outerHeight(true);
+                hheight += jquery_1.default(heading).outerHeight(true);
             }
             var maxPanelHeight = pheight - hheight;
             var panel;
             for (var i = 0; i < panels.length; ++i) {
                 panel = panels[i];
                 panel.style.maxHeight = maxPanelHeight +
-                    $(domutil.childByClass(panel, "panel-heading")).outerHeight(true) + "px";
+                    jquery_1.default(domutil.childByClass(panel, "panel-heading")).outerHeight(true) + "px";
                 var body = panel.getElementsByClassName("panel-body")[0];
                 body.style.height = maxPanelHeight + "px";
             }
@@ -1754,7 +1776,7 @@ in a way not supported by this version of wed.";
                         if (domtypeguards_1.isText(selFocusNode)) {
                             selFocusNode = selFocusNode.parentNode;
                         }
-                        $(selFocusNode).trigger("wed-context-menu", [e]);
+                        jquery_1.default(selFocusNode).trigger("wed-context-menu", [e]);
                         return terminate();
                     }
                 }
@@ -1865,8 +1887,8 @@ in a way not supported by this version of wed.";
                 return terminate();
             }
             else if (keyConstants.DELETE.matchesEvent(e)) {
-                if (attrVal !== null) {
-                    if (attrVal.textContent === "") {
+                if (attrVal !== null) { // In attribute.
+                    if (attrVal.textContent === "") { // empty === noop
                         return terminate();
                     }
                     this.spliceAttribute(attrVal, this.caretManager.getNormalizedCaret().offset, 1, "");
@@ -1909,8 +1931,8 @@ in a way not supported by this version of wed.";
                 return terminate();
             }
             else if (keyConstants.BACKSPACE.matchesEvent(e)) {
-                if (attrVal !== null) {
-                    if (attrVal.textContent === "") {
+                if (attrVal !== null) { // In attribute.
+                    if (attrVal.textContent === "") { // empty === noop
                         return terminate();
                     }
                     this.spliceAttribute(attrVal, this.caretManager.getNormalizedCaret().offset - 1, 1, "");
@@ -2000,7 +2022,7 @@ in a way not supported by this version of wed.";
                 if (typeof k === "string") {
                     k = (k === " ") ? keyConstants.SPACE : key_1.makeKey(k);
                 }
-                var event_1 = new $.Event("keydown");
+                var event_1 = new jquery_1.default.Event("keydown");
                 k.setEventToMatch(event_1);
                 switch (where) {
                     case WedEventTarget.MINIBUFFER:
@@ -2015,7 +2037,7 @@ in a way not supported by this version of wed.";
                 }
             }
         };
-        Editor.prototype.globalKeypressHandler = function (wedEvent, e) {
+        Editor.prototype.globalKeypressHandler = function (_wedEvent, e) {
             if (this.caretManager.caret === undefined) {
                 return true;
             }
@@ -2209,7 +2231,6 @@ in a way not supported by this version of wed.";
                     }
                     break;
                 default:
-                    break;
             }
             return false;
         };
@@ -2245,7 +2266,7 @@ in a way not supported by this version of wed.";
                     }
                     if (label !== null) {
                         caretManager.setCaretToLabelPosition(target, label, boundary);
-                        $(target).trigger("wed-context-menu", [ev]);
+                        jquery_1.default(target).trigger("wed-context-menu", [ev]);
                     }
                     else {
                         // If the editor is just gaining focus with *this* click, then
@@ -2255,7 +2276,7 @@ in a way not supported by this version of wed.";
                             caretManager.setCaret(boundary);
                         }
                         if (domutil_1.closest(target, "*[data-wed--custom-context-menu]", root) !== null) {
-                            $(target).trigger("wed-context-menu", [ev]);
+                            jquery_1.default(target).trigger("wed-context-menu", [ev]);
                         }
                         else {
                             this.editingMenuManager.contextMenuHandler(ev);
@@ -2263,7 +2284,6 @@ in a way not supported by this version of wed.";
                     }
                     break;
                 default:
-                    break;
             }
             this.$guiRoot.off("mousemove");
             ev.preventDefault();
@@ -2287,8 +2307,8 @@ in a way not supported by this version of wed.";
                     placement: "auto top",
                     trigger: "hover",
                 };
-                this.makeGUITreeTooltip($(label), options);
-                var tt = $.data(label, "bs.tooltip");
+                this.makeGUITreeTooltip(jquery_1.default(label), options);
+                var tt = jquery_1.default.data(label, "bs.tooltip");
                 tt.enter(tt);
             }
         };
@@ -2296,7 +2316,7 @@ in a way not supported by this version of wed.";
             var root = this.guiRoot;
             var label = domutil_1.closestByClass(ev.target, "_label", root);
             if (label !== null) {
-                $(label).tooltip("destroy");
+                jquery_1.default(label).tooltip("destroy");
                 // See _mouseoutHandler. We return false here for symmetry.
                 return false;
             }
@@ -2389,11 +2409,16 @@ in a way not supported by this version of wed.";
             }
         };
         Editor.prototype.errorItemHandler = function (ev) {
+            var err = ev.data;
             var marker = document.querySelector(ev.target.getAttribute("href"));
             this.errorLayer.select(marker);
-            var $parent = $(ev.target.parentNode);
+            var $parent = jquery_1.default(ev.target.parentNode);
             $parent.siblings().removeClass("selected");
             $parent.addClass("selected");
+            // We move the caret to the location of the error.
+            this.caretManager.setCaret(err.ev.node, err.ev.index);
+            // We don't want href to cause further movement.
+            return false;
         };
         Editor.prototype.setNavigationList = function (items) {
             this.$navigationList.empty();
@@ -2420,7 +2445,7 @@ in a way not supported by this version of wed.";
             var _this = this;
             var title = options.title;
             if (title !== undefined) {
-                options = Object.assign({}, options);
+                options = __assign({}, options);
                 options.title = function () {
                     // The check is here so that we can turn tooltips on and off
                     // dynamically.
@@ -2495,8 +2520,8 @@ in a way not supported by this version of wed.";
             var tts = this.doc.querySelectorAll("div.tooltip");
             var closed = false;
             for (var i = 0; i < tts.length; ++i) {
-                var forEl = $.data(tts[i], "wed-tooltip-for");
-                var data = $(forEl).data("bs.tooltip");
+                var forEl = jquery_1.default.data(tts[i], "wed-tooltip-for");
+                var data = jquery_1.default(forEl).data("bs.tooltip");
                 if (data != null) {
                     data.leave(data);
                     closed = true;
@@ -2650,7 +2675,6 @@ in a way not supported by this version of wed.";
                                         before_1 = false;
                                         break;
                                     default:
-                                        break;
                                 }
                             }
                             if (before_1 === undefined) {
@@ -2835,7 +2859,7 @@ in a way not supported by this version of wed.";
                 caretManager.focusInputField();
             }, 0);
         };
-        Editor.prototype.paste = function (editor, data) {
+        Editor.prototype.paste = function (_editor, data) {
             var toPaste = data.to_paste;
             var dataClone = toPaste.cloneNode(true);
             var caret = this.caretManager.getDataCaret();

@@ -1,4 +1,4 @@
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 import { CaretMark } from "./caret-mark";
 import * as caretMovement from "./caret-movement";
 import { DLoc, DLocRange, DLocRoot } from "./dloc";

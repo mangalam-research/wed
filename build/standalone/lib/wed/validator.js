@@ -14,9 +14,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "salve-dom", "./dloc", "./domtypeguards"], function (require, exports, salve_dom_1, dloc, domtypeguards_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    dloc = __importStar(dloc);
     exports.INCOMPLETE = salve_dom_1.WorkingState.INCOMPLETE;
     exports.WORKING = salve_dom_1.WorkingState.WORKING;
     exports.INVALID = salve_dom_1.WorkingState.INVALID;

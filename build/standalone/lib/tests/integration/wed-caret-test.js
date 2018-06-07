@@ -1,6 +1,16 @@
-define(["require", "exports", "rxjs/operators/first", "wed/browsers", "wed/domutil", "wed/key-constants", "wed/util", "../base-config", "../wed-test-util"], function (require, exports, first_1, browsers, domutil_1, keyConstants, util_1, globalConfig, wed_test_util_1) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "rxjs/operators", "wed/browsers", "wed/domutil", "wed/key-constants", "wed/util", "../base-config", "../wed-test-util"], function (require, exports, operators_1, browsers, domutil_1, keyConstants, util_1, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    browsers = __importStar(browsers);
+    keyConstants = __importStar(keyConstants);
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed caret", function () {
         var setup;
@@ -441,7 +451,7 @@ define(["require", "exports", "rxjs/operators/first", "wed/browsers", "wed/domut
             // tslint:disable-next-line:no-any
             var scroller = editor.scroller;
             var initialScroll = scroller.scrollTop;
-            scroller.events.pipe(first_1.first()).subscribe(function () {
+            scroller.events.pipe(operators_1.first()).subscribe(function () {
                 // We need to wait until the scroller has fired the scroll event.
                 assert.isTrue(initialScroll < scroller.scrollTop);
                 var caretRect = editor.caretManager.mark.getBoundingClientRect();

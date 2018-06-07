@@ -1,2 +1,1 @@
-import { mergeStatic } from '../operator/merge';
-export declare const merge: typeof mergeStatic;
+export * from 'rxjs-compat/observable/merge';

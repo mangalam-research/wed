@@ -14,9 +14,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "./undo"], function (require, exports, undo) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    undo = __importStar(undo);
     /**
      * This class extends the vanilla UndoGroup class by recording the
      * location of the caret when the group is created and when group

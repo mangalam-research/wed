@@ -5,10 +5,9 @@
  * we need these bogus classes, which are not stripped away. This file on the
  * other hand, is not included in the release bundle.
  */
-import { TeardownLogic } from './Subscription';
-import { Observable } from './Observable';
-import './observable/dom/MiscJSDoc';
-import { Observer } from './Observer';
+import { Observer, TeardownLogic } from './internal/types';
+import { Observable } from './internal/Observable';
+import './internal/observable/dom/MiscJSDoc';
 
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -134,10 +133,11 @@ export class ObservableDoc {
    * @static true
    * @name create
    * @owner Observable
+   * @nocollapse
    */
   static create<T>(onSubscription: <R>(observer: Observer<R>) => TeardownLogic): Observable<T> {
     return new Observable<T>(onSubscription);
-  };
+  }
 }
 
 /**

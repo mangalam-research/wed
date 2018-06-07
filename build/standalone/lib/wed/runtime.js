@@ -4,9 +4,21 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "dexie", "merge-options", "./ajax", "./util"], function (require, exports, dexie_1, mergeOptions, ajax_1, util) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "dexie", "merge-options", "./ajax", "./util"], function (require, exports, dexie_1, merge_options_1, ajax_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    merge_options_1 = __importDefault(merge_options_1);
+    util = __importStar(util);
     // We "hide" the require call under a different name. It prevents Webpack from
     // choking on the dynamic require call we use in this file. (It is up to *us* to
     // set the environment so that the dynamic calls can work, not up to Webpack to
@@ -20,7 +32,7 @@ define(["require", "exports", "dexie", "merge-options", "./ajax", "./util"], fun
     var Runtime = /** @class */ (function () {
         function Runtime(options) {
             // Make a deep copy.
-            options = mergeOptions({}, options);
+            options = merge_options_1.default({}, options);
             this.options = options;
             var bluejaxOptions = options.bluejaxOptions != null ?
                 options.bluejaxOptions : {
@@ -94,6 +106,10 @@ define(["require", "exports", "dexie", "merge-options", "./ajax", "./util"], fun
                     }
                     var store_1 = new dexie_1.Dexie(db);
                     return store_1.open()
+                        // We have to use .then<any> otherwise, TS is unable to use the right
+                        // signature.
+                        //
+                        // tslint:disable-next-line:no-any
                         .then(function () { return store_1.table(table_1).get(key_1); })
                         .then(function (record) {
                         if (record == null) {

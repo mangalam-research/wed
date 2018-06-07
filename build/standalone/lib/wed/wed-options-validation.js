@@ -1,10 +1,22 @@
-define(["require", "exports", "ajv", "./wed-options-schema.json"], function (require, exports, Ajv, wedOptionsSchema) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "ajv", "./wed-options-schema.json"], function (require, exports, ajv_1, wedOptionsSchema) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    ajv_1 = __importDefault(ajv_1);
+    wedOptionsSchema = __importStar(wedOptionsSchema);
     var _wedOptionsValidator;
     function getValidator() {
         if (_wedOptionsValidator === undefined) {
-            _wedOptionsValidator = new Ajv().compile(wedOptionsSchema);
+            _wedOptionsValidator = new ajv_1.default().compile(wedOptionsSchema);
         }
         return _wedOptionsValidator;
     }
@@ -21,7 +33,7 @@ define(["require", "exports", "ajv", "./wed-options-schema.json"], function (req
         var ovalidator = getValidator();
         var valid = ovalidator(options);
         if (!valid) {
-            if (ovalidator.errors !== undefined) {
+            if (ovalidator.errors != null) {
                 for (var _i = 0, _a = ovalidator.errors; _i < _a.length; _i++) {
                     var error = _a[_i];
                     errors.push(error.dataPath + " " + error.message);
@@ -43,6 +55,7 @@ define(["require", "exports", "ajv", "./wed-options-schema.json"], function (req
             var tmp = options.attributes;
             // We need the type cast at the end because otherwise TS infers a type of
             // { handling: "hide" | "show" | "edit" }.
+            // tslint:disable-next-line:no-object-literal-type-assertion
             options.attributes = {
                 handling: tmp,
             };

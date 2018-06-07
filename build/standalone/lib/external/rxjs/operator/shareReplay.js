@@ -1,16 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var shareReplay_1 = require('../operators/shareReplay');
-/**
- * @method shareReplay
- * @owner Observable
- */
-function shareReplay(bufferSize, windowTime, scheduler) {
-    return shareReplay_1.shareReplay(bufferSize, windowTime, scheduler)(this);
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-exports.shareReplay = shareReplay;
-;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/operator/shareReplay"));
 //# sourceMappingURL=shareReplay.js.map
 return module.exports;
 

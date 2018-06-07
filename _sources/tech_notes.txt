@@ -32,44 +32,15 @@ It is possible to deploy wed using the ``build/standalone/`` file tree but you
 will pay in execution time and bandwidth because the files in this tree are not
 optimized.
 
-The ``build/standalone-optimized/`` file tree is optimized. This optimization
-exists primarily for illustration purposes and for testing wed, but it could be
-used for deployment too, as long as you understand how it is constructed. The
-build file driving how ``r.js`` created the optimized tree is
-``requirejs.build.js``. Here are the major characteristics of this optimization:
-
-* All of wed's JavaScript is combined into one file. The only part of wed
-  excluded is the test mode used in testing, which is not meant to be deployed
-  anywhere.
-
-* All external libraries (jQuery, Bootstrap, etc.) are excluded from the
-  optimization.
-
-* The CSS files are not optimized with regards to space but not combined.
-
-This optimization is designed to provide a balance between performance and
-flexibility. Greater performance could have been achieved by incorporating into
-one file all of the external libraries. However, such bundle would be unlikely
-to be trivially deployable on a full-fledged web site in which wed would be
-embedded. Such site might already be using jQuery and Bootstrap, perhaps
-different versions from those used to build wed, etc. The optimization described
-above could conceivably be used on this hypothetical server, provided that the
-configuration is updated to look for the external libraries at the right places.
-
-Wed's build process creates a configuration for the optimized bundle at
-``build/standalone-optimized/requirejs-config.js``. This configuration allows an
-external custom mode to load some individual modules of wed in any order because
-it includes a ``bundles`` configuration option.
-
-It is also possible to use a configuration file that does not have the
-individual module mappings. In this scenario, it is **not** possible for code
-external to wed to load parts of wed in an arbitrary order. The ``wed.js`` file
-has to be loaded first, and then wed's modules become accessible. Note that this
-way of operating should work for the vast majority of cases because the typical
-usage scenario for wed is to first create a an ``Editor`` instance which
-dynamically loads a mode. Since the mode is loaded after ``Editor`` is created,
-it is guaranteed that by the time the mode runs, all of wed's modules are
-available.
+The ``build/packed/`` file tree is optimized with Webpack. This optimization is
+designed to provide a balance between performance and flexibility. Greater
+performance could have been achieved by incorporating into one file all of the
+external libraries. However, such bundle would be unlikely to be trivially
+deployable on a full-fledged web site in which wed would be embedded. Such site
+might already be using jQuery and Bootstrap, perhaps different versions from
+those used to build wed, etc. The optimization described above could conceivably
+be used on this hypothetical server, provided that the configuration is updated
+to look for the external libraries at the right places.
 
 Schema and Structure Considerations
 ===================================

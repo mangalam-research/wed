@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var map_1 = require('../../operator/map');
-Observable_1.Observable.prototype.map = map_1.map;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/map");
 //# sourceMappingURL=map.js.map
 return module.exports;
 

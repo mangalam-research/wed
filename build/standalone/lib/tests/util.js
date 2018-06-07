@@ -1,4 +1,4 @@
-define(["require", "exports", "bluebird", "bluejax", "chai"], function (require, exports, Promise, bluejax_1, chai_1) {
+define(["require", "exports", "bluejax", "chai"], function (require, exports, bluejax_1, chai_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function delay(timeout) {

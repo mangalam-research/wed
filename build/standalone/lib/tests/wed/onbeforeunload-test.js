@@ -1,3 +1,10 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "sinon"], function (require, exports, sinon) {
     /**
      * @author Louis-Dominique Dubeau
@@ -6,6 +13,7 @@ define(["require", "exports", "sinon"], function (require, exports, sinon) {
      */
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    sinon = __importStar(sinon);
     var assert = chai.assert;
     // We need any in a bunch of places here.
     // tslint:disable:no-any
@@ -41,25 +49,41 @@ define(["require", "exports", "sinon"], function (require, exports, sinon) {
         describe("install", function () {
             it("fails when already set and force is not set", function () {
                 onbeforeunload.install(frameWindow);
-                assert.throws(onbeforeunload.install.bind(undefined, frameWindow), frameWindow.Error, "reregistering window with `force` false");
+                // Upon upgrading from Chai 3.5.0 to 4.1.2 this fails. The problem is that
+                // isCompatibleConstructor in check-error is too strict. It checks whether
+                // the parameter passed to throws is an instance of Error, which fails due
+                // to the error being raised in a frame.
+                //
+                // assert.throws(onbeforeunload.install.bind(undefined, frameWindow),
+                //               (frameWindow as any).Error,
+                //               /^reregistering window with `force` false$/);
+                var e;
+                try {
+                    onbeforeunload.install(frameWindow);
+                }
+                catch (_e) {
+                    e = _e;
+                }
+                assert.instanceOf(e, frameWindow.Error);
+                assert.equal(e.message, "reregistering window with `force` false");
             });
             it("works when force is set", function () {
                 onbeforeunload.install(frameWindow);
                 onbeforeunload.install(frameWindow, undefined, true);
-                assert.isTrue(frameWindow.onbeforeunload(undefined));
+                assert.isTrue(frameWindow.onbeforeunload.call(frameWindow, undefined));
             });
             it("a true check results in a prompt", function () {
                 var check = sinon.stub();
                 check.returns(true);
                 onbeforeunload.install(frameWindow, check, true);
-                assert.isTrue(frameWindow.onbeforeunload(undefined));
+                assert.isTrue(frameWindow.onbeforeunload.call(frameWindow, undefined));
                 assert.isTrue(check.calledOnce);
             });
             it("a false check does not result in a prompt", function () {
                 var check = sinon.stub();
                 check.returns(false);
                 onbeforeunload.install(frameWindow, check, true);
-                assert.isUndefined(frameWindow.onbeforeunload(undefined));
+                assert.isUndefined(frameWindow.onbeforeunload.call(frameWindow, undefined));
                 assert.isTrue(check.calledOnce);
             });
         });

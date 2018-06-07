@@ -1,6 +1,10 @@
-define(["require", "exports", "jquery", "wed/gui/modal", "../../wed-test-util"], function (require, exports, $, modal_1, wed_test_util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "wed/gui/modal", "../../wed-test-util"], function (require, exports, jquery_1, modal_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
     var assert = chai.assert;
     describe("Modal", function () {
         var wedroot;
@@ -23,7 +27,7 @@ define(["require", "exports", "jquery", "wed/gui/modal", "../../wed-test-util"],
             it("sets the title", function () {
                 var $title = modal.getTopLevel().find(".modal-header>h3");
                 assert.equal($title.text(), "Untitled", "initial title");
-                modal.setTitle($("<b>foo</b>"));
+                modal.setTitle(jquery_1.default("<b>foo</b>"));
                 $title = modal.getTopLevel().find(".modal-header>h3");
                 assert.equal($title[0].innerHTML, "<b>foo</b>", "new title");
             });
@@ -32,7 +36,7 @@ define(["require", "exports", "jquery", "wed/gui/modal", "../../wed-test-util"],
             it("sets the body", function () {
                 var body = modal.getTopLevel().find(".modal-body")[0];
                 assert.equal(body.innerHTML.trim(), "<p>No body.</p>", "initial body");
-                modal.setBody($("<p>A body.</p>"));
+                modal.setBody(jquery_1.default("<p>A body.</p>"));
                 assert.equal(body.innerHTML, "<p>A body.</p>", "new body");
             });
         });
@@ -40,7 +44,7 @@ define(["require", "exports", "jquery", "wed/gui/modal", "../../wed-test-util"],
             it("sets the footer", function () {
                 var footer = modal.getTopLevel().find(".modal-footer")[0];
                 assert.equal(footer.innerHTML.trim(), "", "initial footer");
-                modal.setFooter($("<p>A footer.</p>"));
+                modal.setFooter(jquery_1.default("<p>A footer.</p>"));
                 assert.equal(footer.innerHTML, "<p>A footer.</p>", "new footer");
             });
         });

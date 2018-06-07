@@ -34,7 +34,7 @@ export declare type TriValued = boolean | typeof EITHER;
  * browsers report that the key "A" was pressed whether Shift was held or not.)
  */
 export declare class Key {
-    static __cache: Record<string, Key>;
+    private static __cache;
     readonly which: number;
     readonly keyCode: number;
     readonly charCode: number;
@@ -46,8 +46,7 @@ export declare class Key {
     readonly hashKey: string;
     private readonly id;
     /**
-     * Client code should use the convenience functions provided by this module to
-     * create keys rather than use this constructor directly.
+     * @param hashKey The unique hash which represents this key.
      *
      * @param which The character code of the key.
      *
@@ -68,7 +67,33 @@ export declare class Key {
      * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
      * ``false``, an unspecified value here means ``false``.
      */
-    constructor(which: number, keypress: boolean | undefined, keyCode: number, charCode?: number, ctrlKey?: boolean, altKey?: boolean, metaKey?: boolean, shiftKey?: TriValued);
+    private constructor();
+    /**
+     * Client code should use the convenience functions provided by this module to
+     * create keys rather than use this function directly.
+     *
+     * @param which The character code of the key.
+     *
+     * @param keypress Whether this key is meant to be used for keypress events
+     * rather than keyup and keydown.
+     *
+     * @param keyCode The key code of the key.
+     *
+     * @param charCode The character code of the key.
+     *
+     * @param ctrlKey Whether this key requires the Ctrl key held.
+     *
+     * @param altKey Whether this key requires the Alt key held.
+     *
+     * @param metaKey Whether this key requires the meta key held.
+     *
+     * @param shiftKey Whether this key requires the shift key held. It is invalid
+     * to use this parameter if ``keypress`` is ``true``. When ``keypress`` is
+     * ``false``, an unspecified value here means ``false``.
+     *
+     * @returns The key corresponding to the parameters.
+     */
+    static make(which: number, keypress: boolean | undefined, keyCode: number, charCode?: number, ctrlKey?: boolean, altKey?: boolean, metaKey?: boolean, shiftKey?: TriValued): Key;
     /**
      * This method compares the key object to an event object. The event object
      * should have been generated for a keyboard event. This method does not check

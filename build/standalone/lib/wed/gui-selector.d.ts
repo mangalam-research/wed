@@ -2,8 +2,8 @@
  * A "GUI selector" is a CSS selector apt to be used in the GUI tree.
  */
 export declare class GUISelector {
-    /** The value that the selector holds. */
     readonly value: string;
+    private static __cache;
     /**
      * @param value The value that the selector holds.
      */

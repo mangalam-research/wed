@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-// typeof any so that it we don't have to cast when comparing a result to the error object
-exports.errorObject = { e: {} };
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/util/errorObject"));
 //# sourceMappingURL=errorObject.js.map
 return module.exports;
 

@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var EmptyObservable_1 = require('./EmptyObservable');
-exports.empty = EmptyObservable_1.EmptyObservable.create;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/observable/empty"));
 //# sourceMappingURL=empty.js.map
 return module.exports;
 

@@ -1,7 +1,17 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "chai", "sinon", "wed/editor-actions", "wed/gui/toolbar"], function (require, exports, chai_1, sinon, editorActions, toolbar_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // tslint:disable-next-line:mocha-no-side-effect-code
+    sinon = __importStar(sinon);
+    editorActions = __importStar(editorActions);
+    // tslint:disable-next-line:max-line-length
+    // tslint:disable-next-line:mocha-no-side-effect-code no-object-literal-type-assertion
     var fakeEditor = {
         // tslint:disable-next-line:no-empty
         undo: function () { },
@@ -13,7 +23,7 @@ define(["require", "exports", "chai", "sinon", "wed/editor-actions", "wed/gui/to
         var sandbox;
         beforeEach(function () {
             toolbar = new toolbar_1.Toolbar();
-            sandbox = sinon.sandbox.create();
+            sandbox = sinon.createSandbox();
         });
         afterEach(function () {
             sandbox.restore();

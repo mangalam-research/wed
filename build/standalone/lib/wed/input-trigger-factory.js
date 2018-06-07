@@ -4,9 +4,18 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "./domtypeguards", "./domutil", "./input-trigger", "./transformation"], function (require, exports, domtypeguards_1, domutil, input_trigger_1, transformation) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    domutil = __importStar(domutil);
+    transformation = __importStar(transformation);
     /**
      * A transformation handler for a node splitting transformation.
      *
@@ -99,7 +108,7 @@ define(["require", "exports", "./domtypeguards", "./domutil", "./input-trigger",
                 });
             }
         });
-        ret.addKeyHandler(mergeWithPreviousKey, function (eventType, el, ev) {
+        ret.addKeyHandler(mergeWithPreviousKey, function (_eventType, el, ev) {
             var caret = editor.caretManager.getDataCaret();
             if (caret == null) {
                 return;
@@ -116,7 +125,7 @@ define(["require", "exports", "./domtypeguards", "./domutil", "./input-trigger",
                 editor.fireTransformation(editor.mergeWithPreviousHomogeneousSiblingTr, { node: el, name: el.tagName });
             }
         });
-        ret.addKeyHandler(mergeWithNextKey, function (eventType, el, ev) {
+        ret.addKeyHandler(mergeWithNextKey, function (_eventType, el, ev) {
             var caret = editor.caretManager.getDataCaret();
             if (caret == null) {
                 return;

@@ -8,6 +8,8 @@ define(["require", "exports"], function (require, exports) {
     var RefreshValidationErrors = /** @class */ (function () {
         function RefreshValidationErrors(controller) {
             this.controller = controller;
+            this.errors = [];
+            this.resumeAt = 0;
         }
         RefreshValidationErrors.prototype.reset = function () {
             this.errors = this.controller.copyErrorList();

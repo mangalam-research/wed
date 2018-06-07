@@ -1,11 +1,3 @@
-/// <reference types="bluebird" />
-/**
- * Utilities that don't require a DOM to run.
- * @author Louis-Dominique Dubeau
- * @license MPL 2.0
- * @copyright Mangalam Research Center for Buddhist Languages
- */
-import * as Promise from "bluebird";
 export declare function delay(timeout: number): Promise<void>;
 export declare function waitFor(fn: () => boolean | Promise<boolean>, pollDelay?: number, timeout?: number): Promise<boolean>;
 export declare function waitForSuccess(fn: () => void, pollDelay?: number, timeout?: number): Promise<void>;

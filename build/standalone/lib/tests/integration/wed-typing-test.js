@@ -1,6 +1,16 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/domtypeguards", "wed/domutil", "wed/key", "wed/key-constants", "../base-config", "../wed-test-util"], function (require, exports, domtypeguards_1, domutil_1, key, keyConstants, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    key = __importStar(key);
+    keyConstants = __importStar(keyConstants);
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed typing:", function () {
         var setup;
@@ -353,7 +363,7 @@ define(["require", "exports", "wed/domtypeguards", "wed/domutil", "wed/key", "we
             var ph = guiRoot.getElementsByClassName("_placeholder")[0];
             caretManager.setCaret(ph, 0);
             var ctrlSomething = key.makeCtrlEqKey("A");
-            $(editor.widget).on("wed-global-keydown.btw-mode", function (wedEv, ev) {
+            $(editor.widget).on("wed-global-keydown.btw-mode", function (_wedEv, ev) {
                 if (ctrlSomething.matchesEvent(ev)) {
                     done();
                 }

@@ -1,13 +1,19 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "../base-config", "../wed-test-util"], function (require, exports, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    globalConfig = __importStar(globalConfig);
     var expect = chai.expect;
     describe("wed label visibility level:", function () {
         var setup;
         var editor;
         var caretManager;
-        var ps;
-        var titles;
         before(function () {
             setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/source_converted.xml", globalConfig.config, document);
             (editor = setup.editor);
@@ -15,8 +21,6 @@ define(["require", "exports", "../base-config", "../wed-test-util"], function (r
                 // tslint:disable-next-line:no-any
                 editor.validator._validateUpTo(editor.dataRoot, -1);
                 caretManager = editor.caretManager;
-                ps = editor.guiRoot.querySelectorAll(".body .p");
-                titles = editor.guiRoot.getElementsByClassName("title");
             });
         });
         afterEach(function () {

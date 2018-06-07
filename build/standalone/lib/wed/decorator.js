@@ -4,9 +4,22 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "jquery", "./dloc", "./domtypeguards", "./domutil", "./gui/action-context-menu", "./util"], function (require, exports, $, dloc_1, domtypeguards_1, domutil, action_context_menu_1, util) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "./dloc", "./domtypeguards", "./domutil", "./gui/action-context-menu", "./util"], function (require, exports, jquery_1, dloc_1, domtypeguards_1, domutil, action_context_menu_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    domutil = __importStar(domutil);
+    util = __importStar(util);
     var indexOf = domutil.indexOf;
     var closestByClass = domutil.closestByClass;
     function tryToSetDataCaret(editor, dataCaret) {
@@ -106,7 +119,7 @@ define(["require", "exports", "jquery", "./dloc", "./domtypeguards", "./domutil"
                 child = child.nextElementSibling;
             }
         };
-        Decorator.prototype.elementDecorator = function (root, el, level, preContextHandler, postContextHandler) {
+        Decorator.prototype.elementDecorator = function (_root, el, level, preContextHandler, postContextHandler) {
             if (this.editor.modeTree.getMode(el) !== this.mode) {
                 // The element is not governed by this mode.
                 return;
@@ -118,10 +131,10 @@ define(["require", "exports", "jquery", "./dloc", "./domtypeguards", "./domutil"
             var dataCaret = this.editor.caretManager.getDataCaret();
             if (dataCaret != null &&
                 !(domtypeguards_1.isAttr(dataCaret.node) &&
-                    dataCaret.node.ownerElement === $.data(el, "wed_mirror_node"))) {
+                    dataCaret.node.ownerElement === jquery_1.default.data(el, "wed_mirror_node"))) {
                 dataCaret = undefined;
             }
-            var dataNode = $.data(el, "wed_mirror_node");
+            var dataNode = jquery_1.default.data(el, "wed_mirror_node");
             this.setReadOnly(el, Boolean(this.editor.validator.getNodeProperty(dataNode, "PossibleDueToWildcard")));
             var origName = util.getOriginalName(el);
             // _[name]_label is used locally to make the function idempotent.
@@ -176,8 +189,8 @@ define(["require", "exports", "jquery", "./dloc", "./domtypeguards", "./domutil"
             this.guiUpdater.insertBefore(el, post, null);
             // Setup a handler so that clicking one label highlights it and the other
             // label.
-            $(pre).on("wed-context-menu", preContextHandler !== undefined ? preContextHandler : false);
-            $(post).on("wed-context-menu", postContextHandler !== undefined ? postContextHandler : false);
+            jquery_1.default(pre).on("wed-context-menu", preContextHandler !== undefined ? preContextHandler : false);
+            jquery_1.default(post).on("wed-context-menu", postContextHandler !== undefined ? postContextHandler : false);
             if (dataCaret != null) {
                 tryToSetDataCaret(this.editor, dataCaret);
             }
@@ -340,7 +353,7 @@ define(["require", "exports", "jquery", "./dloc", "./domtypeguards", "./domutil"
                 // the label belongs.
                 var orig = util.getOriginalName(node);
                 if (!topNode) {
-                    pushItems({ node: node, name: orig }, mode.getContextualActions(["unwrap", "delete-element"], orig, $.data(node, "wed_mirror_node"), 0));
+                    pushItems({ node: node, name: orig }, mode.getContextualActions(["unwrap", "delete-element"], orig, jquery_1.default.data(node, "wed_mirror_node"), 0));
                 }
                 // Then we check what could be done before the node (if the
                 // user clicked on an start element label) or after the node

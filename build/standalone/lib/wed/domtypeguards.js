@@ -23,7 +23,7 @@ define(["require", "exports"], function (require, exports) {
     var attrNodeType = Node.ATTRIBUTE_NODE;
     // Specialized for when Node.ATTRIBUTE_NODE still exists.
     function isAttrWithType(it) {
-        return it instanceof Attr || (it.nodeType === attrNodeType);
+        return it instanceof Attr || (it != null && it.nodeType === attrNodeType);
     }
     // Specialized for when the platform has removed Node.ATTRIBUTE_NODE.
     function isAttrNoType(it) {

@@ -1,6 +1,14 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "../base-config", "../wed-test-util"], function (require, exports, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed transformation:", function () {
         var setup;
@@ -8,7 +16,6 @@ define(["require", "exports", "../base-config", "../wed-test-util"], function (r
         var caretManager;
         var ps;
         var guiRoot;
-        var titles;
         before(function () {
             setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/source_converted.xml", globalConfig.config, document);
             (editor = setup.editor);
@@ -18,7 +25,6 @@ define(["require", "exports", "../base-config", "../wed-test-util"], function (r
                 caretManager = editor.caretManager;
                 guiRoot = editor.guiRoot;
                 ps = guiRoot.querySelectorAll(".body .p");
-                titles = guiRoot.getElementsByClassName("title");
             });
         });
         afterEach(function () {

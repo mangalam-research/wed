@@ -1,0 +1,19 @@
+define(function(require,exports,module){
+
+/** PURE_IMPORTS_START  PURE_IMPORTS_END */
+export function getSymbolIterator() {
+    if (typeof Symbol !== 'function' || !Symbol.iterator) {
+        return '@@iterator';
+    }
+    return Symbol.iterator;
+}
+export var iterator = /*@__PURE__*/ getSymbolIterator();
+/**
+ * @deprecated use {@link iterator} instead
+ */
+export var $$iterator = iterator;
+//# sourceMappingURL=iterator.js.map
+
+return module.exports;
+
+});

@@ -33,17 +33,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "jquery", "sinon", "wed/dloc", "wed/runtime", "wed/savers/ajax", "wed/tree-updater", "chai"], function (require, exports, $, sinon, dloc_1, runtime_1, ajax_1, tree_updater_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "sinon", "wed/dloc", "wed/runtime", "wed/savers/ajax", "wed/tree-updater", "chai"], function (require, exports, jquery_1, sinon, dloc_1, runtime_1, ajax_1, tree_updater_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    sinon = __importStar(sinon);
     var expect = chai.expect;
     describe("ajax", function () {
         var sandbox;
         var rt;
         var server;
         before(function () {
-            sandbox = sinon.sandbox.create({ useFakeServer: true });
+            sandbox = sinon.createSandbox({ useFakeServer: true });
             // We use any here to cheat a bit.
             // tslint:disable-next-line:no-any
             rt = new runtime_1.Runtime({});
@@ -77,8 +89,8 @@ define(["require", "exports", "jquery", "sinon", "wed/dloc", "wed/runtime", "wed
                         case 1:
                             _a.sent();
                             expect(server).to.have.property("requests").have.lengthOf(1);
-                            expect(server).to.have.deep.property("requests[0].requestBody")
-                                .equal($.param({ command: "check", version: "0.30.0" }));
+                            expect(server).to.have.nested.property("requests[0].requestBody")
+                                .equal(jquery_1.default.param({ command: "check", version: "0.30.0" }));
                             return [2 /*return*/];
                     }
                 });
@@ -97,7 +109,7 @@ define(["require", "exports", "jquery", "sinon", "wed/dloc", "wed/runtime", "wed
                         case 1:
                             _a.sent();
                             expect(server).to.have.property("requests").have.lengthOf(1);
-                            expect(server).to.not.have.deep
+                            expect(server).to.not.have.nested
                                 .property("requests[0].requestHeaders.If-Match");
                             return [2 /*return*/];
                     }
@@ -118,7 +130,7 @@ define(["require", "exports", "jquery", "sinon", "wed/dloc", "wed/runtime", "wed
                         case 1:
                             _a.sent();
                             expect(server).to.have.property("requests").have.lengthOf(1);
-                            expect(server).to.have.deep
+                            expect(server).to.have.nested
                                 .property("requests[0].requestHeaders.If-Match").equal("\"abc\"");
                             return [2 /*return*/];
                     }

@@ -196,7 +196,7 @@ export declare abstract class BaseMode<ModeOptions> implements Mode<ModeOptions>
      */
     getStylesheets(): string[];
     nodesAroundEditableContents(element: Element): [Node | null, Node | null];
-    makePlaceholderFor(element: Element): Element;
+    makePlaceholderFor(_element: Element): Element;
     /**
      * While this API provides for the case where descriptions have not been
      * loaded yet or cannot be loaded, this class does not allow such eventuality
@@ -204,7 +204,7 @@ export declare abstract class BaseMode<ModeOptions> implements Mode<ModeOptions>
      *
      * @returns This default implementation always returns ``undefined``.
      */
-    shortDescriptionFor(name: string): string | null | undefined;
+    shortDescriptionFor(_name: string): string | null | undefined;
     /**
      * While this API provides for the case such URL have not been loaded
      * yet or cannot be loaded, this class does not allow such eventuality
@@ -212,7 +212,7 @@ export declare abstract class BaseMode<ModeOptions> implements Mode<ModeOptions>
      *
      * @returns The default implementation always returns ``undefined``.
      */
-    documentationLinkFor(name: string): string | null | undefined;
+    documentationLinkFor(_name: string): string | null | undefined;
     /**
      * @returns ``undefined``. The default implementation has no mode-specific
      * checks and thus not return a validator.
@@ -221,7 +221,7 @@ export declare abstract class BaseMode<ModeOptions> implements Mode<ModeOptions>
     /**
      * The default implementation returns an empty array.
      */
-    getAttributeCompletions(attribute: Attr): string[];
+    getAttributeCompletions(_attribute: Attr): string[];
     /**
      * The default implementaiton returns an empty array.
      */

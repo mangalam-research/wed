@@ -8,7 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "rxjs/Subject", "./action", "./gui/button", "./gui/icon"], function (require, exports, Subject_1, action_1, button_1, icon_1) {
+define(["require", "exports", "rxjs", "./action", "./gui/button", "./gui/icon"], function (require, exports, rxjs_1, action_1, button_1, icon_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function makeAction(desc, abbreviatedDesc, icon, needsInput, fn) {
@@ -72,7 +72,7 @@ define(["require", "exports", "rxjs/Subject", "./action", "./gui/button", "./gui
             /**
              * The object on which this class and subclasses may push new events.
              */
-            _this._events = new Subject_1.Subject();
+            _this._events = new rxjs_1.Subject();
             /**
              * The observable on which clients can listen for events.
              */

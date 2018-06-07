@@ -1,8 +1,20 @@
-define(["require", "exports", "bluejax", "jquery", "./util", "bootstrap"], function (require, exports, bluejax, $, util_1) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "bluejax", "jquery", "./util", "bootstrap"], function (require, exports, bluejax, jquery_1, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    bluejax = __importStar(bluejax);
+    jquery_1 = __importDefault(jquery_1);
     // tslint:disable-next-line:no-jquery-raw-elements
-    var $modal = $("\
+    var $modal = jquery_1.default("\
 <div class='modal btw-fatal-modal' style='position: absolute' tabindex='1'>\
   <div class='modal-dialog'>\
     <div class='modal-content'>\

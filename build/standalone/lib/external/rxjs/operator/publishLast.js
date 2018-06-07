@@ -1,17 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var publishLast_1 = require('../operators/publishLast');
-/**
- * @return {ConnectableObservable<T>}
- * @method publishLast
- * @owner Observable
- */
-function publishLast() {
-    //TODO(benlesh): correct type-flow through here.
-    return publishLast_1.publishLast()(this);
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-exports.publishLast = publishLast;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/operator/publishLast"));
 //# sourceMappingURL=publishLast.js.map
 return module.exports;
 

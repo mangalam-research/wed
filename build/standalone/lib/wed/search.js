@@ -1,6 +1,14 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "rangy", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, rangy, dloc_1, domtypeguards_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    rangy = __importStar(rangy);
     /** The direction of searches. */
     var Direction;
     (function (Direction) {
@@ -23,6 +31,7 @@ define(["require", "exports", "rangy", "./dloc", "./domtypeguards", "./domutil"]
     function directionToRangyDirection(direction) {
         // There does not seem to be a way currently to declare this map in a way
         // that will enforce that all directions have a value. :-/
+        // tslint:disable-next-line:no-object-literal-type-assertion
         var ret = (_a = {},
             _a[Direction.FORWARD] = "forward",
             _a[Direction.BACKWARDS] = "backward",

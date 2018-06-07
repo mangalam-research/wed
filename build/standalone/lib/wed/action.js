@@ -69,6 +69,7 @@ define(["require", "exports", "./gui/button"], function (require, exports, butto
             // that did not seem fruitful. Instead, we silently use an empty object if
             // the field is missing.
             //
+            // tslint:disable-next-line:no-object-literal-type-assertion
             var data = ev.data != null ? ev.data : {};
             this.execute(data);
             ev.preventDefault();
@@ -104,6 +105,7 @@ define(["require", "exports", "./gui/button"], function (require, exports, butto
          *
          * @returns The description.
          */
+        // @ts-ignore
         Action.prototype.getDescriptionFor = function (data) {
             return this.getDescription();
         };
@@ -151,7 +153,8 @@ define(["require", "exports", "./gui/button"], function (require, exports, butto
         Action.prototype.makeButton = function (data) {
             var _this = this;
             var button = new button_1.Button(data !== undefined ? this.getDescriptionFor(data) : this.getDescription(), this.getAbbreviatedDescription(), this.getIcon());
-            button.events.subscribe(function (event) {
+            button.events.subscribe(function () {
+                // tslint:disable-next-line:no-object-literal-type-assertion
                 _this.execute(data !== undefined ? data : {});
             });
             return button;

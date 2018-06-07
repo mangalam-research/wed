@@ -4,9 +4,17 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "./browsers", "./build-info"], function (require, exports, browsers_1, buildInfo) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    buildInfo = __importStar(buildInfo);
     /**
      * A collection of stock modals.
      */

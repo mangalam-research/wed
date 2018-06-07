@@ -172,9 +172,11 @@ define(["require", "exports", "../dloc", "../domutil", "../search"], function (r
             }
             var caret = this.getDirectionalStart(current);
             this.caretManager.setCaret(caret, { focus: false });
+            // tslint:disable-next-line:no-object-literal-type-assertion
             this.editor.fireTransformation(this.editor.replaceRangeTr, {
                 range: current,
                 newText: value,
+                caretAtEnd: false,
             });
             this.clearHighlight();
             var caretAfter = this.caretManager.caret;

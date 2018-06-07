@@ -1,10 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-function identity(x) {
-    return x;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-exports.identity = identity;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/util/identity"));
 //# sourceMappingURL=identity.js.map
 return module.exports;
 

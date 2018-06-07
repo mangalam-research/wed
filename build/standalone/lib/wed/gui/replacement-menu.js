@@ -8,9 +8,13 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "jquery", "./context-menu"], function (require, exports, $, context_menu_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "./context-menu"], function (require, exports, jquery_1, context_menu_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
     /**
      * A menu for displaying replacement values.
      */
@@ -50,7 +54,7 @@ define(["require", "exports", "jquery", "./context-menu"], function (require, ex
                 li.innerHTML = "<a href='#'></a>";
                 li.lastChild.textContent = item;
                 items.push(li);
-                $(li).click(item, function () {
+                jquery_1.default(li).click(item, function () {
                     _this.selected = item;
                     _this.dismiss();
                 });

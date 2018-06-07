@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var from_1 = require('../../observable/from');
-Observable_1.Observable.from = from_1.from;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/observable/from");
 //# sourceMappingURL=from.js.map
 return module.exports;
 

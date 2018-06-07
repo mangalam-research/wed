@@ -33,10 +33,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/key-constants", "../base-config", "../util", "../wed-test-util"], function (require, exports, keyConstants, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
+    keyConstants = __importStar(keyConstants);
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed file state:", function () {
         var setup;
@@ -71,6 +80,7 @@ define(["require", "exports", "wed/key-constants", "../base-config", "../util", 
         });
         it("onbeforeunload returns falsy on unmodified doc", function () {
             assert.isFalse(!!editor.window.onbeforeunload
+                // tslint:disable-next-line:no-any
                 .call(editor.window, undefined));
         });
         it("modification status shows a modified document after modification", function () {

@@ -1,6 +1,15 @@
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "wed/gui-selector", "wed/input-trigger-factory", "wed/key", "wed/key-constants", "../util", "../wed-test-util"], function (require, exports, gui_selector_1, inputTriggerFactory, key, key_constants_1, util_1, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    inputTriggerFactory = __importStar(inputTriggerFactory);
+    key = __importStar(key);
     var assert = chai.assert;
     var options = {
         schema: "/base/build/schemas/tei-simplified-rng.js",
@@ -59,8 +68,7 @@ define(["require", "exports", "wed/gui-selector", "wed/input-trigger-factory", "
                 var ps = editor.dataRoot.querySelectorAll("p");
                 editor.caretManager.setCaret(ps[ps.length - 1].firstChild, 4);
                 editor.type(";");
-                ps = editor.dataRoot
-                    .querySelectorAll("body p");
+                ps = editor.dataRoot.querySelectorAll("body p");
                 assert.equal(ps.length, 2);
                 assert.equal(cleanNamespace(ps[0].outerHTML), "<p>Blah</p>");
                 assert.equal(cleanNamespace(ps[1].outerHTML), "<p> blah <term>blah</term><term>blah2</term> blah.</p>");
@@ -70,8 +78,7 @@ define(["require", "exports", "wed/gui-selector", "wed/input-trigger-factory", "
                 var ps = editor.dataRoot.getElementsByTagName("p");
                 editor.caretManager.setCaret(ps[ps.length - 1].firstChild, 4);
                 editor.type(key_constants_1.ENTER);
-                ps = editor.dataRoot
-                    .querySelectorAll("body p");
+                ps = editor.dataRoot.querySelectorAll("body p");
                 assert.equal(ps.length, 2);
                 assert.equal(cleanNamespace(ps[0].outerHTML), "<p>Blah</p>");
                 assert.equal(cleanNamespace(ps[1].outerHTML), "<p> blah <term>blah</term><term>blah2</term> blah.</p>");

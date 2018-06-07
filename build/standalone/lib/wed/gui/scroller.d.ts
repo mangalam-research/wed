@@ -1,4 +1,4 @@
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 /**
  * Event emitted when the scroller scrolls.
  */

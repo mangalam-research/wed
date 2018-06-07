@@ -26,19 +26,19 @@ the test mode", true);
 by the test mode", false);
         });
         it("present a contextual menu showing mode-specific actions", function () {
-            function check(el, msg, custom) {
+            function check(el, custom) {
                 chai_1.expect(el).to.not.be.null;
                 wed_test_util_1.activateContextMenu(editor, el);
                 wed_test_util_1.contextMenuHasOption(editor, /^Test draggable$/, custom ? 1 : 0);
                 editor.editingMenuManager.dismiss();
             }
             var first = editor.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
-            check(first, "the first paragraph should have the test-mode options", true);
+            check(first, true);
             var second = editor.guiRoot.querySelector(".tei\\:body._real>.tei\\:p._real");
-            check(second, "the second paragraph should not have the test-mode options", false);
+            check(second, false);
         });
         it("present mode-specific completions", function () {
-            function check(el, msg, custom) {
+            function check(el, custom) {
                 chai_1.expect(el).to.not.be.null;
                 var attrVals = wed_test_util_1.getAttributeValuesFor(el);
                 editor.caretManager.setCaret(attrVals[0].firstChild, 0);
@@ -53,9 +53,9 @@ by the test mode", false);
                 }
             }
             var first = editor.guiRoot.querySelector(".tei\\:sourceDesc._real>.tei\\:p._real");
-            check(first, "the first paragraph should have the completions", true);
+            check(first, true);
             var second = editor.guiRoot.querySelectorAll(".tei\\:body._real>.tei\\:p._real")[13];
-            check(second, "the second paragraph should not have the completions", false);
+            check(second, false);
         });
         it("adds mode-specific toolbar buttons", function () {
             function check(el, expected) {

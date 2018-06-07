@@ -8,9 +8,24 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "jquery", "../browsers", "../key", "../key-constants", "../transformation", "./context-menu", "./icon"], function (require, exports, $, browsers, keyMod, keyConstants, transformation_1, context_menu_1, icon) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "../browsers", "../key", "../key-constants", "../transformation", "./context-menu", "./icon"], function (require, exports, jquery_1, browsers, keyMod, keyConstants, transformation_1, context_menu_1, icon) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    browsers = __importStar(browsers);
+    keyMod = __importStar(keyMod);
+    keyConstants = __importStar(keyConstants);
+    icon = __importStar(icon);
     var KINDS = ["transform", "add", "delete", "wrap", "unwrap"];
     // ``undefined`` is "other kinds".
     var KIND_FILTERS = KINDS.concat(undefined);
@@ -144,7 +159,7 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
             var kindGroup = _this.makeKindGroup(document);
             var typeGroup = _this.makeTypeGroup(document);
             // Prevent clicks in the group from closing the context menu.
-            $(li).on("click", false);
+            jquery_1.default(li).on("click", false);
             li.appendChild(groupGroup);
             groupGroup.appendChild(kindGroup);
             groupGroup.appendChild(document.createTextNode("\u00a0"));
@@ -155,7 +170,7 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
             var textDiv = document.createElement("div");
             textDiv.appendChild(textInput);
             li.appendChild(textDiv);
-            var $textInput = $(textInput);
+            var $textInput = jquery_1.default(textInput);
             $textInput.on("input", _this.inputChangeHandler.bind(_this));
             $textInput.on("keydown", _this.inputKeydownHandler.bind(_this));
             _this.actionFilterItem = li;
@@ -164,8 +179,8 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
             $menu.parent().on("hidden.bs.dropdown", function () {
                 // Manually destroy the tooltips so that they are not
                 // left behind.
-                $(textInput).tooltip("destroy");
-                $(kindGroup).children().tooltip("destroy");
+                jquery_1.default(textInput).tooltip("destroy");
+                jquery_1.default(kindGroup).children().tooltip("destroy");
             });
             $menu.on("keydown", _this.actionKeydownHandler.bind(_this));
             $menu.on("keypress", _this.actionKeypressHandler.bind(_this));
@@ -191,7 +206,7 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
                     child.innerHTML = icon.makeHTML("other");
                     title = "Show operations not covered by other filter buttons.";
                 }
-                $(child).tooltip({
+                jquery_1.default(child).tooltip({
                     title: title,
                     // If we don't set it to be on the body, then the tooltip will be
                     // clipped by the dropdown. However, we then run into the problem that
@@ -200,7 +215,7 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
                     placement: "auto top",
                     trigger: "hover",
                 });
-                $(child).on("click", this.makeKindHandler(kind));
+                jquery_1.default(child).on("click", this.makeKindHandler(kind));
                 kindGroup.appendChild(child);
             }
             return kindGroup;
@@ -223,7 +238,7 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
                     child.innerHTML = icon.makeHTML("other");
                     title = "Show operations not covered by other filter buttons.";
                 }
-                $(child).tooltip({
+                jquery_1.default(child).tooltip({
                     title: title,
                     // If we don't set it to be on the body, then the tooltip will be
                     // clipped by the dropdown. However, we then run into the problem that
@@ -232,7 +247,7 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
                     placement: "auto top",
                     trigger: "hover",
                 });
-                $(child).on("click", this.makeTypeHandler(actionType));
+                jquery_1.default(child).on("click", this.makeTypeHandler(actionType));
                 typeGroup.appendChild(child);
             }
             return typeGroup;
@@ -340,7 +355,7 @@ define(["require", "exports", "jquery", "../browsers", "../key", "../key-constan
                 }
             }
             if (matches !== undefined) {
-                var fakeEv = new $.Event("keydown");
+                var fakeEv = new jquery_1.default.Event("keydown");
                 matches.setEventToMatch(fakeEv);
                 // We have to pass the event to ``actionKeypressHandler`` so that it can
                 // act in the same way as if the event had been directly on the menu. If

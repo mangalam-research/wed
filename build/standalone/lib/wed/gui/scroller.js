@@ -4,9 +4,13 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "jquery", "rxjs/Subject", "../domutil"], function (require, exports, $, Subject_1, domutil_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "jquery", "rxjs", "../domutil"], function (require, exports, jquery_1, rxjs_1, domutil_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
     /**
      * Content scroller. This object is responsible for scrolling the GUI tree.
      */
@@ -17,10 +21,10 @@ define(["require", "exports", "jquery", "rxjs/Subject", "../domutil"], function 
         function Scroller(el) {
             var _this = this;
             this.el = el;
-            this._events = new Subject_1.Subject();
+            this._events = new rxjs_1.Subject();
             /** This is where you can listen to scrolling events. */
             this.events = this._events.asObservable();
-            $(el).on("scroll", function () {
+            jquery_1.default(el).on("scroll", function () {
                 _this._events.next({ scroller: _this });
             });
         }

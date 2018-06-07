@@ -12,9 +12,17 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-define(["require", "exports", "rxjs/Subject", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, Subject_1, dloc_1, domtypeguards_1, domutil) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "rxjs", "./dloc", "./domtypeguards", "./domutil"], function (require, exports, rxjs_1, dloc_1, domtypeguards_1, domutil) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    domutil = __importStar(domutil);
     var indexOf = domutil.indexOf;
     /**
      * A TreeUpdater is meant to serve as the sole point of modification for a DOM
@@ -64,7 +72,7 @@ define(["require", "exports", "rxjs/Subject", "./dloc", "./domtypeguards", "./do
                 throw new Error("the tree must have a DLocRoot");
             }
             this.dlocRoot = root;
-            this._events = new Subject_1.Subject();
+            this._events = new rxjs_1.Subject();
             this.events = this._events.asObservable();
         }
         TreeUpdater.prototype._emit = function (event) {
@@ -226,7 +234,7 @@ define(["require", "exports", "rxjs/Subject", "./dloc", "./domtypeguards", "./do
             else {
                 throw new Error("unexpected node type: " + node.nodeType);
             }
-            if (stop) {
+            if (stop) { // We've just split the top, so end here...
                 return ret;
             }
             if (parent === null) {

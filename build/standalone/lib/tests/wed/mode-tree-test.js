@@ -33,11 +33,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "wed/mode-tree", "../base-config", "../util", "../wed-test-util"], function (require, exports, chai_1, mergeOptions, sinon, sinonChai, mode_tree_1, globalConfig, util_1, wed_test_util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "wed/mode-tree", "../base-config", "../util", "../wed-test-util"], function (require, exports, chai_1, merge_options_1, sinon, sinon_chai_1, mode_tree_1, globalConfig, util_1, wed_test_util_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
-    chai_1.use(sinonChai);
+    merge_options_1 = __importDefault(merge_options_1);
+    sinon = __importStar(sinon);
+    sinon_chai_1 = __importDefault(sinon_chai_1);
+    globalConfig = __importStar(globalConfig);
+    chai_1.use(sinon_chai_1.default);
     var options = {
         schema: "/base/build/schemas/tei-simplified-rng.js",
         mode: {
@@ -78,7 +92,7 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
         var setup;
         var editor;
         before(function () {
-            setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/source_converted.xml", mergeOptions(globalConfig.config, options), document);
+            setup = new wed_test_util_1.EditorSetup("/base/build/standalone/lib/tests/wed_test_data/source_converted.xml", merge_options_1.default(globalConfig.config, options), document);
             (editor = setup.editor);
             return setup.init();
         });
@@ -108,7 +122,7 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            newOptions = mergeOptions({}, options.mode);
+                            newOptions = merge_options_1.default({}, options.mode);
                             path = "tests/modes/failing-init";
                             newOptions.path = path;
                             tree = new mode_tree_1.ModeTree(editor, newOptions);
@@ -136,30 +150,30 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
             }); });
             it("returns the top mode for the top GUI node", function () {
                 var mode = tree.getMode(editor.guiRoot);
-                chai_1.expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+                chai_1.expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
                     .equal("Generic");
             });
             it("returns the top mode for the top data node", function () {
                 var mode = tree.getMode(editor.dataRoot);
-                chai_1.expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+                chai_1.expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
                     .equal("Generic");
             });
             it("returns a submode for a GUI node governed by a submode", function () {
                 var p = editor.guiRoot.querySelector(".p._real");
                 var mode = tree.getMode(p);
-                chai_1.expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+                chai_1.expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
                     .equal("Test1");
             });
             it("returns a submode for a data node governed by a submode", function () {
                 var p = editor.dataRoot.querySelector("p");
                 var mode = tree.getMode(p);
-                chai_1.expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+                chai_1.expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
                     .equal("Test1");
             });
             it("returns the same submode for nodes governed by same submode", function () {
                 var ps = editor.dataRoot.querySelectorAll("p");
                 var mode = tree.getMode(ps[0]);
-                chai_1.expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+                chai_1.expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
                     .equal("Test1");
                 for (var _i = 0, _a = Array.from(ps); _i < _a.length; _i++) {
                     var p = _a[_i];
@@ -173,7 +187,7 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
                 // be governed by the top mode.
                 var el = editor.dataRoot.querySelector("teiHeader");
                 var mode = tree.getMode(el);
-                chai_1.expect(mode.getWedOptions()).to.have.deep.property("metadata.name")
+                chai_1.expect(mode.getWedOptions()).to.have.nested.property("metadata.name")
                     .equal("Generic");
             });
             it("fails if the node passed was not in the GUI or data trees", function () {
@@ -196,26 +210,26 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
             }); });
             it("returns the top options for the top GUI node", function () {
                 var opts = tree.getWedOptions(editor.guiRoot);
-                chai_1.expect(opts).to.have.deep.property("metadata.name").equal("Generic");
+                chai_1.expect(opts).to.have.nested.property("metadata.name").equal("Generic");
             });
             it("returns the top options for the top data node", function () {
                 var opts = tree.getWedOptions(editor.dataRoot);
-                chai_1.expect(opts).to.have.deep.property("metadata.name").equal("Generic");
+                chai_1.expect(opts).to.have.nested.property("metadata.name").equal("Generic");
             });
             it("returns the submode options for a GUI node governed by a submode", function () {
                 var p = editor.guiRoot.querySelector(".p._real");
                 var opts = tree.getWedOptions(p);
-                chai_1.expect(opts).to.have.deep.property("metadata.name").equal("Test1");
+                chai_1.expect(opts).to.have.nested.property("metadata.name").equal("Test1");
             });
             it("returns the submode options for a data node governed by a submode", function () {
                 var p = editor.dataRoot.querySelector("p");
                 var opts = tree.getWedOptions(p);
-                chai_1.expect(opts).have.deep.property("metadata.name").equal("Test1");
+                chai_1.expect(opts).have.nested.property("metadata.name").equal("Test1");
             });
             it("returns the same submode options for nodes governed by same submode", function () {
                 var ps = editor.dataRoot.querySelectorAll("p");
                 var opts = tree.getWedOptions(ps[0]);
-                chai_1.expect(opts).to.have.deep.property("metadata.name")
+                chai_1.expect(opts).to.have.nested.property("metadata.name")
                     .equal("Test1");
                 for (var _i = 0, _a = Array.from(ps); _i < _a.length; _i++) {
                     var p = _a[_i];
@@ -229,7 +243,7 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
                 // be governed by the top mode.
                 var el = editor.dataRoot.querySelector("teiHeader");
                 var opts = tree.getWedOptions(el);
-                chai_1.expect(opts).to.have.deep.property("metadata.name").equal("Generic");
+                chai_1.expect(opts).to.have.nested.property("metadata.name").equal("Generic");
             });
             it("fails if the node passed was not in the GUI or data trees", function () {
                 chai_1.expect(tree.getMode.bind(tree, editor.guiRoot.parentNode)).to.throw(Error, /^did not pass a node in the GUI or data tree$/);
@@ -275,7 +289,7 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            localOptions = mergeOptions({}, options);
+                            localOptions = merge_options_1.default({}, options);
                             localOptions.mode.submode.mode.options.hide_attributes = false;
                             tree = new mode_tree_1.ModeTree(editor, localOptions.mode);
                             return [4 /*yield*/, tree.init()];
@@ -397,14 +411,14 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
                 // We use test-mode twice. So two validators.
                 var validators = tree.getValidators();
                 chai_1.expect(validators).to.have.length(2);
-                chai_1.expect(validators).to.have.deep.property("[0].validateDocument");
+                chai_1.expect(validators).to.have.nested.property("[0].validateDocument");
             });
         });
         describe("#addDecoratorHandlers", function () {
             var tree;
             var sandbox;
             before(function () {
-                sandbox = sinon.sandbox.create();
+                sandbox = sinon.createSandbox();
             });
             beforeEach(function () { return __awaiter(_this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
@@ -448,7 +462,7 @@ define(["require", "exports", "chai", "merge-options", "sinon", "sinon-chai", "w
             var tree;
             var sandbox;
             before(function () {
-                sandbox = sinon.sandbox.create();
+                sandbox = sinon.createSandbox();
             });
             beforeEach(function () { return __awaiter(_this, void 0, void 0, function () {
                 return __generator(this, function (_a) {

@@ -4,9 +4,21 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (require, exports, $, domtypeguards_1, util) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (require, exports, jquery_1, domtypeguards_1, util) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    util = __importStar(util);
     exports.isAttr = domtypeguards_1.isAttr;
     function indexOf(a, target) {
         var length = a.length;
@@ -100,7 +112,7 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
      * or no range.
      */
     function getSelectionRange(win) {
-        var sel = window.getSelection();
+        var sel = win.getSelection();
         if (sel === undefined || sel.rangeCount < 1) {
             return undefined;
         }
@@ -226,7 +238,6 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
                     }
                     break;
                 default:
-                    break;
             }
         }
         if (!found) {
@@ -317,6 +328,8 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
                         node = parent;
                         found = true;
                     }
+                    // If node.childNodes.length === 0, the first branch would have been
+                    // taken. No need to test that offset indexes to something that exists.
                     else {
                         node = node.childNodes[offset];
                         if (domtypeguards_1.isElement(node)) {
@@ -330,7 +343,6 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
                     }
                     break;
                 default:
-                    break;
             }
         }
         if (!found) {
@@ -641,8 +653,8 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
      * other, although no test is performed to confirm this.
      */
     function linkTrees(rootA, rootB) {
-        $.data(rootA, "wed_mirror_node", rootB);
-        $.data(rootB, "wed_mirror_node", rootA);
+        jquery_1.default.data(rootA, "wed_mirror_node", rootB);
+        jquery_1.default.data(rootB, "wed_mirror_node", rootA);
         for (var i = 0; i < rootA.children.length; ++i) {
             var childA = rootA.children[i];
             var childB = rootB.children[i];
@@ -658,7 +670,7 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
      *
      */
     function unlinkTree(root) {
-        $.removeData(root, "wed_mirror_node");
+        jquery_1.default.removeData(root, "wed_mirror_node");
         for (var i = 0; i < root.children.length; ++i) {
             unlinkTree(root.children[i]);
         }
@@ -1333,12 +1345,12 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
      */
     function dataFind(node, selector, namespaces) {
         var guiSelector = toGUISelector(selector, namespaces);
-        var guiNode = $.data(node, "wed_mirror_node");
+        var guiNode = jquery_1.default.data(node, "wed_mirror_node");
         var foundNodes = guiNode.querySelector(guiSelector);
         if (foundNodes == null) {
             return null;
         }
-        var data = $.data(foundNodes, "wed_mirror_node");
+        var data = jquery_1.default.data(foundNodes, "wed_mirror_node");
         return (data != null) ? data : null;
     }
     exports.dataFind = dataFind;
@@ -1357,11 +1369,11 @@ define(["require", "exports", "jquery", "./domtypeguards", "./util"], function (
      */
     function dataFindAll(node, selector, namespaces) {
         var guiSelector = toGUISelector(selector, namespaces);
-        var guiNode = $.data(node, "wed_mirror_node");
+        var guiNode = jquery_1.default.data(node, "wed_mirror_node");
         var foundNodes = guiNode.querySelectorAll(guiSelector);
         var ret = [];
         for (var i = 0; i < foundNodes.length; ++i) {
-            ret.push($.data(foundNodes[i], "wed_mirror_node"));
+            ret.push(jquery_1.default.data(foundNodes[i], "wed_mirror_node"));
         }
         return ret;
     }

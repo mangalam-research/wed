@@ -33,11 +33,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "chai", "sinon", "sinon-chai", "tests/util", "wed/mode-loader"], function (require, exports, chai_1, sinon, sinonChai, util_1, mode_loader_1) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "chai", "sinon", "sinon-chai", "tests/util", "wed/mode-loader"], function (require, exports, chai_1, sinon, sinon_chai_1, util_1, mode_loader_1) {
     "use strict";
     var _this = this;
     Object.defineProperty(exports, "__esModule", { value: true });
-    chai_1.use(sinonChai);
+    sinon = __importStar(sinon);
+    sinon_chai_1 = __importDefault(sinon_chai_1);
+    chai_1.use(sinon_chai_1.default);
     // tslint:disable-next-line:completed-docs
     var FakeMode = /** @class */ (function () {
         // tslint:disable-next-line:no-any
@@ -77,10 +89,7 @@ define(["require", "exports", "chai", "sinon", "sinon-chai", "tests/util", "wed/
                         case 0:
                             runtime.resolveModules.throws(new Error("cannot load"));
                             return [4 /*yield*/, util_1.expectError(function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0: return [4 /*yield*/, loader.initMode("moo", options)];
-                                        case 1: return [2 /*return*/, _a.sent()];
-                                    }
+                                    return [2 /*return*/, loader.initMode("moo", options)];
                                 }); }); }, Error, "cannot load")];
                         case 1:
                             _a.sent();
@@ -180,20 +189,22 @@ define(["require", "exports", "chai", "sinon", "sinon-chai", "tests/util", "wed/
             it("fails if the module fails to init", function () { return __awaiter(_this, void 0, void 0, function () {
                 var _this = this;
                 return __generator(this, function (_a) {
-                    runtime.resolveModules.returns([{
-                            Mode: function Mode() {
-                                var ret = sinon.createStubInstance(FakeMode);
-                                ret.init.returns(Promise.reject(new Error("failed")));
-                                return ret;
-                            },
-                        }]);
-                    util_1.expectError(function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, loader.initMode("moo/foo", options)];
-                            case 1: return [2 /*return*/, _a.sent()];
-                        }
-                    }); }); }, Error, "failed");
-                    return [2 /*return*/];
+                    switch (_a.label) {
+                        case 0:
+                            runtime.resolveModules.returns([{
+                                    Mode: function Mode() {
+                                        var ret = sinon.createStubInstance(FakeMode);
+                                        ret.init.returns(Promise.reject(new Error("failed")));
+                                        return ret;
+                                    },
+                                }]);
+                            return [4 /*yield*/, util_1.expectError(function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                                    return [2 /*return*/, loader.initMode("moo/foo", options)];
+                                }); }); }, Error, "failed")];
+                        case 1:
+                            _a.sent();
+                            return [2 /*return*/];
+                    }
                 });
             }); });
         });

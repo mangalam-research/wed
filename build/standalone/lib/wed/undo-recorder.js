@@ -8,9 +8,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 define(["require", "exports", "./domutil", "./undo"], function (require, exports, domutil_1, undo) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    undo = __importStar(undo);
     function getOuterHTML(node) {
         return (node == null) ? "undefined" : node.outerHTML;
     }
@@ -216,6 +224,7 @@ define(["require", "exports", "./domutil", "./undo"], function (require, exports
                         _this.setAttributeNSHandler(ev);
                         break;
                     default:
+                    // Do nothing...
                 }
             });
         }

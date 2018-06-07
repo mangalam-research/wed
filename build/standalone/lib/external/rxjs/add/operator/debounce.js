@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var debounce_1 = require('../../operator/debounce');
-Observable_1.Observable.prototype.debounce = debounce_1.debounce;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/debounce");
 //# sourceMappingURL=debounce.js.map
 return module.exports;
 

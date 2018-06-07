@@ -1,18 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var ReplaySubject_1 = require('../ReplaySubject');
-var multicast_1 = require('./multicast');
-/* tslint:enable:max-line-length */
-function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
-    if (selectorOrScheduler && typeof selectorOrScheduler !== 'function') {
-        scheduler = selectorOrScheduler;
-    }
-    var selector = typeof selectorOrScheduler === 'function' ? selectorOrScheduler : undefined;
-    var subject = new ReplaySubject_1.ReplaySubject(bufferSize, windowTime, scheduler);
-    return function (source) { return multicast_1.multicast(function () { return subject; }, selector)(source); };
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-exports.publishReplay = publishReplay;
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/operators/publishReplay"));
 //# sourceMappingURL=publishReplay.js.map
 return module.exports;
 

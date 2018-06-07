@@ -1,4 +1,14 @@
-define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "wed/guiroot", "../util"], function (require, exports, $, convert, dloc_1, domutil_1, guiroot, util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil", "wed/guiroot", "../util"], function (require, exports, jquery_1, convert, dloc_1, domutil_1, guiroot, util_1) {
     /**
      * @author Louis-Dominique Dubeau
      * @license MPL 2.0
@@ -6,6 +16,9 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
      */
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    convert = __importStar(convert);
+    guiroot = __importStar(guiroot);
     var assert = chai.assert;
     function defined(x) {
         assert.isDefined(x);
@@ -25,7 +38,7 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 .then(function (sourceXML) {
                 root = document.createElement("div");
                 document.body.appendChild(root);
-                $root = $(root);
+                $root = jquery_1.default(root);
                 var parser = new window.DOMParser();
                 xmlDoc = parser.parseFromString(sourceXML, "text/xml");
                 htmlTree = convert.toHTMLTree(window.document, xmlDoc.firstElementChild);
@@ -70,29 +83,29 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 it("returns a correct path on attribute", function () {
                     var node = defined($root.find(".body>.p:last-of-type>.quote")[0]);
                     // Decorate it.
-                    $(node).prepend("<span class=\"_gui _phantom __start_label _quote_label" +
+                    jquery_1.default(node).prepend("<span class=\"_gui _phantom __start_label _quote_label" +
                         " _label_level_1 _label\"><span class=\"_phantom\">" +
                         "&nbsp; quote <span class=\"_phantom _attribute\">" +
                         "<span class=\"_phantom _attribute_name\">type</span>" +
                         "=<span class=\"_phantom _attribute_value\">q</span>" +
                         "</span> >&nbsp;</span></span>");
-                    node = defined($(node).find("._attribute_value")[0]);
+                    node = defined(jquery_1.default(node).find("._attribute_value")[0]);
                     assert.equal(rootObj.nodeToPath(node), "0/1/0/1/1/@type");
                 });
                 it("returns a correct path on text node in attribute", function () {
                     var node = defined($root.find(".body>.p:last-of-type>.quote")[0]);
                     // Decorate it.
-                    $(node).prepend("<span class=\"_gui _phantom __start_label _quote_label" +
+                    jquery_1.default(node).prepend("<span class=\"_gui _phantom __start_label _quote_label" +
                         " _label_level_1 _label\"><span class=\"_phantom\">" +
                         "&nbsp; quote <span class=\"_phantom _attribute\">" +
                         "<span class=\"_phantom _attribute_name\">type</span>" +
                         "=<span class=\"_phantom _attribute_value\">q</span>" +
                         "</span> >&nbsp;</span></span>");
-                    node = defined($(node).find("._attribute_value")[0].childNodes[0]);
+                    node = defined(jquery_1.default(node).find("._attribute_value")[0].childNodes[0]);
                     assert.equal(rootObj.nodeToPath(node), "0/1/0/1/1/@type");
                 });
                 it("fails on a node which is not a descendant of its root", function () {
-                    var node = defined($("body")[0]);
+                    var node = defined(jquery_1.default("body")[0]);
                     assert.throws(rootObj.nodeToPath.bind(rootObj, node), Error, "node is not a descendant of root");
                 });
                 it("fails on invalid node", function () {
@@ -104,17 +117,17 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                     domutil_1.linkTrees(xmlDoc.firstElementChild, root.firstElementChild);
                     var targetDataNode = xmlDoc.getElementsByTagName("quote")[0];
                     var phantomWrapTemplate = "<span class='_phantom_wrap'></span>";
-                    $($.data(targetDataNode, "wed_mirror_node"))
+                    jquery_1.default(jquery_1.default.data(targetDataNode, "wed_mirror_node"))
                         .wrap(phantomWrapTemplate)
                         .after("<span class='_phantom'>Boo</span>Blip")
                         .wrap(phantomWrapTemplate);
                     var dataNode = targetDataNode.parentNode;
                     // Wrap twice for good measure.
-                    $($.data(dataNode, "wed_mirror_node"))
+                    jquery_1.default(jquery_1.default.data(dataNode, "wed_mirror_node"))
                         .wrap(phantomWrapTemplate)
                         .wrap(phantomWrapTemplate);
                     targetDataNode = xmlDoc.getElementsByTagName("quote")[1];
-                    var targetGuiNode = $.data(targetDataNode, "wed_mirror_node");
+                    var targetGuiNode = jquery_1.default.data(targetDataNode, "wed_mirror_node");
                     var guiPath = rootObj.nodeToPath(targetGuiNode);
                     var dataPath = dataRootObj.nodeToPath(targetDataNode);
                     // Both paths should be equal.
@@ -138,13 +151,13 @@ define(["require", "exports", "jquery", "wed/convert", "wed/dloc", "wed/domutil"
                 it("returns a correct node on attribute path", function () {
                     var node = defined($root.find(".body>.p:last-of-type>.quote")[0]);
                     // Decorate it.
-                    $(node).prepend("<span class=\"_gui _phantom __start_label _quote_label" +
+                    jquery_1.default(node).prepend("<span class=\"_gui _phantom __start_label _quote_label" +
                         " _label_level_1 _label\"><span class=\"_phantom\">" +
                         "&nbsp; quote <span class=\"_phantom _attribute\">" +
                         "<span class=\"_phantom _attribute_name\">type</span>" +
                         "=<span class=\"_phantom _attribute_value\">q</span>" +
                         "</span> >&nbsp;</span></span>");
-                    node = defined($(node).find("._attribute_value")[0]);
+                    node = defined(jquery_1.default(node).find("._attribute_value")[0]);
                     assert.equal(rootObj.pathToNode("0/1/0/1/1/@type"), node);
                 });
                 it("returns a correct node when path contains _phantom_wrap", function () {

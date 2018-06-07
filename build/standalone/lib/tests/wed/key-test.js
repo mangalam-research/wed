@@ -10,6 +10,7 @@ define(["require", "exports"], function (require, exports) {
             CHROME_31: false,
             MISE: false,
             OSX: false,
+            __esModule: true,
         };
         // We load the module into a frame so that we can give it a fake ``browsers``
         // module.
@@ -125,6 +126,7 @@ define(["require", "exports"], function (require, exports) {
             describe("matchesEvent", function () {
                 it("matches keydown/keyup keys, with unspecified shift", function () {
                     var k = key.makeCtrlKey(1);
+                    // tslint:disable-next-line:no-object-literal-type-assertion
                     var event = {
                         which: 1,
                         keyCode: 1,
@@ -147,6 +149,7 @@ define(["require", "exports"], function (require, exports) {
                 });
                 it("matches keydown/keyup keys, with specified shift", function () {
                     var k = key.makeCtrlKey(1, true);
+                    // tslint:disable-next-line:no-object-literal-type-assertion
                     var event = {
                         which: 1,
                         keyCode: 1,
@@ -169,6 +172,7 @@ define(["require", "exports"], function (require, exports) {
                 });
                 it("matches a keypress key", function () {
                     var k = key.makeKey(1);
+                    // tslint:disable-next-line:no-object-literal-type-assertion
                     var event = {
                         which: 1,
                         keyCode: 1,
@@ -187,6 +191,7 @@ define(["require", "exports"], function (require, exports) {
                 });
                 it("returns false when not matching an event", function () {
                     var k = key.makeCtrlKey(1);
+                    // tslint:disable-next-line:no-object-literal-type-assertion
                     assert.isFalse(k.matchesEvent({
                         which: 1,
                         keyCode: 1,
@@ -200,6 +205,7 @@ define(["require", "exports"], function (require, exports) {
             });
             describe("setEventToMatch", function () {
                 it("sets an event to match a ctrl key, with unspecified shift", function () {
+                    // tslint:disable-next-line:no-object-literal-type-assertion
                     var event = {};
                     var k = key.makeCtrlKey(1);
                     k.setEventToMatch(event);
@@ -209,6 +215,7 @@ define(["require", "exports"], function (require, exports) {
                     assert.isUndefined(event.shiftKey);
                 });
                 it("sets an event to match a ctrl key, with specified shift", function () {
+                    // tslint:disable-next-line:no-object-literal-type-assertion
                     var event = {};
                     var k = key.makeCtrlKey(1, true);
                     k.setEventToMatch(event);
@@ -218,6 +225,7 @@ define(["require", "exports"], function (require, exports) {
                     assert.equal(event.shiftKey, true);
                 });
                 it("sets an event to match a keypress", function () {
+                    // tslint:disable-next-line:no-object-literal-type-assertion
                     var event = {};
                     var k = key.makeKey(1);
                     k.setEventToMatch(event);

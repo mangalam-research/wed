@@ -1,3 +1,10 @@
+/**
+ * This module implements the "caret mark". The "caret mark" is the graphical
+ * indicator showing the position of the caret.
+ * @author Louis-Dominique Dubeau
+ * @license MPL 2.0
+ * @copyright Mangalam Research Center for Buddhist Languages
+ */
 import { CaretManager } from "./caret-manager";
 import { Layer } from "./gui/layer";
 import { Scroller } from "./gui/scroller";
@@ -20,7 +27,6 @@ export declare class CaretMark {
      * calculations.
      */
     private readonly dummy;
-    private readonly $dummy;
     private suspended;
     private pendingRefresh;
     /**

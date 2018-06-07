@@ -41,11 +41,6 @@ export declare class ValidationController {
      */
     private processErrorsDelay;
     private _errors;
-    /**
-     * Gives the index in errors of the last validation error that has
-     * already been processed.
-     */
-    private processedErrorsUpTo;
     private readonly $errorList;
     /**
      * @param editor The editor for which this controller is created.

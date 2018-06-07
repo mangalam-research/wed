@@ -98,6 +98,7 @@ define(["require", "exports", "../dloc", "../domtypeguards", "../domutil", "../t
          *
          * @param bottom See [[computeMenuPosition]].
          */
+        // @ts-ignore
         EditingMenuManager.prototype.setupContextMenu = function (cmClass, items, readonly, e, bottom) {
             var pos = this.computeMenuPosition(e, bottom);
             this.displayContextMenu(action_context_menu_1.ActionContextMenu, pos.left, pos.top, items, readonly);
@@ -171,7 +172,8 @@ define(["require", "exports", "../dloc", "../domtypeguards", "../domutil", "../t
                 var li = _this.makeMenuItemForAction(tr, data);
                 menuItems.push({ action: tr, item: li, data: data });
             };
-            if (!actualNode.parentNode.classList.contains("_gui")) {
+            if ( // Should not be part of a gui element.
+            !actualNode.parentNode.classList.contains("_gui")) {
                 // We want the data node, not the gui node.
                 var treeCaret = this.caretManager.toDataLocation(actualNode, offset);
                 if (treeCaret === undefined) {
@@ -420,10 +422,10 @@ define(["require", "exports", "../dloc", "../domtypeguards", "../domutil", "../t
          * @returns The popup that was created.
          */
         EditingMenuManager.prototype.setupTypeaheadPopup = function (width, placeholder, 
-            // tslint:disable-next-line:no-any
-            options, 
-            // tslint:disable-next-line:no-any
-            dismissCallback, e, bottom) {
+        // tslint:disable-next-line:no-any
+        options, 
+        // tslint:disable-next-line:no-any
+        dismissCallback, e, bottom) {
             var pos = this.computeMenuPosition(e, bottom);
             return this.displayTypeaheadPopup(pos.left, pos.top, width, placeholder, options, dismissCallback);
         };
@@ -446,10 +448,10 @@ define(["require", "exports", "../dloc", "../domtypeguards", "../domutil", "../t
          * @returns The popup that was created.
          */
         EditingMenuManager.prototype.displayTypeaheadPopup = function (x, y, width, placeholder, 
-            // tslint:disable-next-line:no-any
-            options, 
-            // tslint:disable-next-line:no-any
-            dismissCallback) {
+        // tslint:disable-next-line:no-any
+        options, 
+        // tslint:disable-next-line:no-any
+        dismissCallback) {
             var _this = this;
             this.dismiss();
             this.caretManager.pushSelection();
@@ -479,6 +481,7 @@ define(["require", "exports", "../dloc", "../domtypeguards", "../domutil", "../t
         EditingMenuManager.prototype.computeMenuPosition = function (e, bottom) {
             if (bottom === void 0) { bottom = false; }
             if (e === undefined) {
+                // tslint:disable-next-line:no-object-literal-type-assertion
                 e = {};
             }
             // Take care of cases where the user is using the mouse.

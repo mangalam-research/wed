@@ -4,9 +4,21 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-define(["require", "exports", "jquery", "../domutil", "bootstrap"], function (require, exports, $, domutil) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "jquery", "../domutil", "bootstrap"], function (require, exports, jquery_1, domutil) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    jquery_1 = __importDefault(jquery_1);
+    domutil = __importStar(domutil);
     /**
      * A context menu GUI element.
      */
@@ -50,19 +62,19 @@ define(["require", "exports", "jquery", "../domutil", "bootstrap"], function (re
             this.x = x;
             this.y = y;
             var menu = this.menu = dropdown.lastElementChild;
-            var $menu = this.$menu = $(menu);
+            var $menu = this.$menu = jquery_1.default(menu);
             var toggle = this.toggle = dropdown.firstElementChild;
-            var $toggle = this.$toggle = $(toggle);
+            var $toggle = this.$toggle = jquery_1.default(toggle);
             var backdrop = this.backdrop = document.createElement("div");
             backdrop.className = "wed-context-menu-backdrop";
-            $(backdrop).click(this.backdropClickHandler.bind(this));
+            jquery_1.default(backdrop).click(this.backdropClickHandler.bind(this));
             $menu.on("click", this.contentsClickHandler.bind(this));
             // Bootstrap may dispatch clicks onto the toggle. We must catch them.
             $toggle.on("click", this.contentsClickHandler.bind(this));
             $menu.on("mousedown", function (ev) {
                 ev.stopPropagation();
             });
-            $(dropdown).on("contextmenu mouseup", false);
+            jquery_1.default(dropdown).on("contextmenu mouseup", false);
             var body = document.body;
             body.insertBefore(dropdown, body.firstChild);
             body.insertBefore(backdrop, body.firstChild);
@@ -72,7 +84,7 @@ define(["require", "exports", "jquery", "../domutil", "bootstrap"], function (re
         }
         ContextMenu.prototype.display = function (items) {
             var dropdown = this.dropdown;
-            var $toggle = $(dropdown.firstElementChild);
+            var $toggle = jquery_1.default(dropdown.firstElementChild);
             this.render(items);
             var $menu = this.$menu;
             var menu = this.menu;
@@ -82,7 +94,7 @@ define(["require", "exports", "jquery", "../domutil", "bootstrap"], function (re
             // Verify if we're going to run off screen. If so, then modify our position
             // to be inside the screen.
             var width = $menu.outerWidth();
-            var winWidth = $(document.defaultView).width();
+            var winWidth = jquery_1.default(document.defaultView).width();
             // The x value that would put the menu just against the side of the window
             // is width - winWidth. If x is less than it, then x is the value we want,
             // but we don't want less than 0.
@@ -90,7 +102,7 @@ define(["require", "exports", "jquery", "../domutil", "bootstrap"], function (re
             menu.style.maxWidth = winWidth + "px";
             // Adjust height so that we can see about 5 lines.
             var fiveLines = Number($menu.css("line-height").replace("px", "")) * 5;
-            var winHeight = $(document.defaultView).height();
+            var winHeight = jquery_1.default(document.defaultView).height();
             var maxHeight = winHeight - y;
             if (maxHeight < fiveLines) {
                 y -= fiveLines - maxHeight;

@@ -14,9 +14,23 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-define(["require", "exports", "ajv", "argparse", "fs", "js-yaml", "path", "../modes/generic/doc-pattern", "../modes/generic/metadata-schema.json", "../util"], function (require, exports, Ajv, argparse_1, fs, yaml, path, doc_pattern_1, schema, util_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "ajv", "argparse", "fs", "js-yaml", "path", "../modes/generic/doc-pattern", "../modes/generic/metadata-schema.json", "../util"], function (require, exports, ajv_1, argparse_1, fs, yaml, path, doc_pattern_1, schema, util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    ajv_1 = __importDefault(ajv_1);
+    fs = __importStar(fs);
+    yaml = __importStar(yaml);
+    path = __importStar(path);
     // tslint:disable-next-line:completed-docs
     var Fatal = /** @class */ (function (_super) {
         __extends(Fatal, _super);
@@ -154,11 +168,11 @@ define(["require", "exports", "ajv", "argparse", "fs", "js-yaml", "path", "../mo
             output[key] = parsedMerge[key];
         }
     }
-    var ajv = new Ajv();
+    var ajv = new ajv_1.default();
     var validator = ajv.compile(schema);
     var valid = validator(output);
     if (!valid) {
-        if (validator.errors !== undefined) {
+        if (validator.errors != null) {
             for (var _c = 0, _d = validator.errors; _c < _d.length; _c++) {
                 var error = _d[_c];
                 // tslint:disable-next-line:no-console

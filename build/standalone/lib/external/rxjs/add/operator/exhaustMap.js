@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var exhaustMap_1 = require('../../operator/exhaustMap');
-Observable_1.Observable.prototype.exhaustMap = exhaustMap_1.exhaustMap;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/exhaustMap");
 //# sourceMappingURL=exhaustMap.js.map
 return module.exports;
 

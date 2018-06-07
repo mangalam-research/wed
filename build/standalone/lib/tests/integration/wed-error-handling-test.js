@@ -1,6 +1,17 @@
-define(["require", "exports", "rxjs/operators/filter", "rxjs/operators/first", "wed", "wed/key-constants", "wed/onerror", "../base-config", "../wed-test-util"], function (require, exports, filter_1, first_1, wed, keyConstants, onerror, globalConfig, wed_test_util_1) {
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "rxjs/operators", "wed", "wed/key-constants", "wed/onerror", "../base-config", "../wed-test-util"], function (require, exports, operators_1, wed, keyConstants, onerror, globalConfig, wed_test_util_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    wed = __importStar(wed);
+    keyConstants = __importStar(keyConstants);
+    onerror = __importStar(onerror);
+    globalConfig = __importStar(globalConfig);
     var assert = chai.assert;
     describe("wed error handling:", function () {
         var setup;
@@ -29,8 +40,8 @@ server_interaction_converted.xml", globalConfig.config, document);
             server.failOnSave = true;
             var $modal = editor.modals.getModal("disconnect").getTopLevel();
             $modal.on("shown.bs.modal", function () {
-                editor.saver.events.pipe(filter_1.filter(function (ev) { return ev.name === "Saved"; }), first_1.first())
-                    .subscribe(function (ev) {
+                editor.saver.events.pipe(operators_1.filter(function (ev) { return ev.name === "Saved"; }), operators_1.first())
+                    .subscribe(function () {
                     // Was saved on retry!
                     // This allows us to let the whole save process run its course before
                     // we declare it done.

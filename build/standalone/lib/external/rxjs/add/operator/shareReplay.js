@@ -1,9 +1,8 @@
 define(function(require,exports,module){
 
 "use strict";
-var Observable_1 = require('../../Observable');
-var shareReplay_1 = require('../../operator/shareReplay');
-Observable_1.Observable.prototype.shareReplay = shareReplay_1.shareReplay;
+Object.defineProperty(exports, "__esModule", { value: true });
+require("rxjs-compat/add/operator/shareReplay");
 //# sourceMappingURL=shareReplay.js.map
 return module.exports;
 

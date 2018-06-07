@@ -78,23 +78,23 @@ export declare class InputTrigger {
     /**
      * Handles ``keydown`` events.
      *
-     * @param wedEvent The DOM event wed generated to trigger this handler.
+     * @param _wedEvent The DOM event wed generated to trigger this handler.
      *
      * @param e The original DOM event that wed received.
      */
-    private keydownHandler(wedEvent, e);
+    private keydownHandler(_wedEvent, e);
     /**
      * Handles ``keypress`` events.
      *
-     * @param wedEvent The DOM event wed generated to trigger this handler.
+     * @param _wedEvent The DOM event wed generated to trigger this handler.
      *
      * @param e The original DOM event that wed received.
      */
-    private keypressHandler(wedEvent, e);
+    private keypressHandler(_wedEvent, e);
     /**
      * Handles ``paste`` events.
      *
-     * @param wedEvent The DOM event wed generated to trigger this handler.
+     * @param _wedEvent The DOM event wed generated to trigger this handler.
      *
      * @param e The original DOM event that wed received.
      *
@@ -102,5 +102,5 @@ export declare class InputTrigger {
      *
      * @param data The data that the user wants to insert.
      */
-    private pasteHandler(wedEvent, e, caret, data);
+    private pasteHandler(_wedEvent, e, caret, data);
 }

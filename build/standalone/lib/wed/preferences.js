@@ -1,6 +1,10 @@
-define(["require", "exports", "lodash", "./object-check"], function (require, exports, _, object_check_1) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+define(["require", "exports", "lodash", "./object-check"], function (require, exports, lodash_1, object_check_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    lodash_1 = __importDefault(lodash_1);
     var template = {
         tooltips: false,
     };
@@ -22,7 +26,7 @@ define(["require", "exports", "lodash", "./object-check"], function (require, ex
                 return;
             }
             this._validatePrefs(initial);
-            this.prefs = _.extend(Object.create(null), initial);
+            this.prefs = lodash_1.default.extend(Object.create(null), initial);
         }
         /**
          * Validates a set of preferences.
@@ -89,7 +93,6 @@ define(["require", "exports", "lodash", "./object-check"], function (require, ex
                 }
                 it = it[part];
                 if (it === undefined) {
-                    // tslint:disable-next-line:no-any
                     it = it[part] = Object.create(null);
                 }
                 ++ix;

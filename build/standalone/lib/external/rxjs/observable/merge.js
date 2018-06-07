@@ -1,8 +1,11 @@
 define(function(require,exports,module){
 
 "use strict";
-var merge_1 = require('../operator/merge');
-exports.merge = merge_1.mergeStatic;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("rxjs-compat/observable/merge"));
 //# sourceMappingURL=merge.js.map
 return module.exports;
 

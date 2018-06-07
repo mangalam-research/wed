@@ -32,7 +32,7 @@ export declare abstract class Decorator implements DecoratorAPI {
      */
     startListening(): void;
     listDecorator(el: Element, sep: string | Element): void;
-    elementDecorator(root: Element, el: Element, level: number, preContextHandler: ((wedEv: JQueryMouseEventObject, ev: Event) => boolean) | undefined, postContextHandler: ((wedEv: JQueryMouseEventObject, ev: Event) => boolean) | undefined): void;
+    elementDecorator(_root: Element, el: Element, level: number, preContextHandler: ((wedEv: JQueryMouseEventObject, ev: Event) => boolean) | undefined, postContextHandler: ((wedEv: JQueryMouseEventObject, ev: Event) => boolean) | undefined): void;
     /**
      * Determine whether an attribute must be hidden. The default implementation
      * calls upon the ``attributes.autohide`` section of the "wed options" that

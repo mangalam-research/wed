@@ -1,6 +1,18 @@
-define(["require", "exports", "interactjs", "../browsers"], function (require, exports, interact, browsers) {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+define(["require", "exports", "interactjs", "../browsers"], function (require, exports, interactjs_1, browsers) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    interactjs_1 = __importDefault(interactjs_1);
+    browsers = __importStar(browsers);
     /**
      * This records changes in such a way that if any of the changes cannot take
      * effect, then all the changes are "rolled back". It is called pseudo-atomic
@@ -65,7 +77,7 @@ define(["require", "exports", "interactjs", "../browsers"], function (require, e
         // ignoreBackdropClick, this causes the modal to close.
         var content = $top.find(".modal-content")[0];
         var body = $top.find(".modal-body")[0];
-        interact(content)
+        interactjs_1.default(content)
             .resizable({})
             .on("resizestart", function () {
             var modal = $top.data("bs.modal");
@@ -104,7 +116,7 @@ define(["require", "exports", "interactjs", "../browsers"], function (require, e
         var content = $top.find(".modal-content")[0];
         var startLeft;
         var startTop;
-        interact(header)
+        interactjs_1.default(header)
             .draggable({
             restrict: {
                 restriction: {
