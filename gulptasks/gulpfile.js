@@ -607,7 +607,7 @@ function *ghPages() {
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],
           Promise.coroutine(ghPages));
 
-const LATEST_DIST = "build/LATEST-DIST.tgz";
+const LATEST_DIST = "./build/LATEST-DIST.tgz";
 const packNoTest = {
   name: "pack-notest",
   deps: ["build-standalone", "webpack"],
@@ -631,7 +631,7 @@ standalone/lib/tests/**
     const buildPack = `build/${packname}`;
     yield fs.rename(`${dist}/${packname}`, buildPack);
     yield del(LATEST_DIST);
-    yield fs.symlink(buildPack, LATEST_DIST);
+    yield fs.symlink(packname, LATEST_DIST);
     const tempPath = "build/t";
     yield del(tempPath);
     yield mkdirp(`${tempPath}/node_modules`);
