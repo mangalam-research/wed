@@ -58,6 +58,16 @@ def step_impl(context, step, where=None):
     result = Condition(util, check).wait()
     assert_true(result, result.payload)
 
+    # Move the mouse pointer out of the way. The problem is that if we leave he
+    # mouse pointer where it is, then it is hovering over the completion
+    # menu. This is a problem because the hover is treated as a user action,
+    # and the choice under the mouse pointer is effectively selected. It did
+    # not use to be a problem but a change in Selenium or Chrome made it an
+    # issue. :-/
+    ActionChains(driver) \
+        .move_to_element(context.origin_object) \
+        .perform()
+
 
 @then("the typeahead popup is not visible")
 def step_impl(context):
