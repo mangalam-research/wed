@@ -423,7 +423,7 @@ def after_scenario(context, scenario):
 
     require(deps, function (onerror) {
       var terminating = onerror && onerror.is_terminating();
-      done({ terminating: terminating });
+      done({ terminating: !!terminating });
     }, function (err) {
       done({ loadError: err.toString() });
     });
