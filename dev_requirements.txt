@@ -3,7 +3,7 @@ sphinx>=1.4.8,<2
 glerbl>=0.1.0,<1
 selenic>=0.12.1,<1
 wedutil>=0.21.3,<1
-behave>=1.2.5,<2
+behave==1.2.5
 selenium==3.8.0
 requests>=2.7.0,<3
 PyVirtualDisplay>=0.1.5,<1
