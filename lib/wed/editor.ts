@@ -863,6 +863,81 @@ export class Editor implements EditorAPI {
     }
   }
 
+  /**
+   * Delete a single character of text at caret.
+   *
+   * @param backspace True if the operation should be a backspace. Otherwise, it
+   * is a delete.
+   *
+   * @returns Whether a character was deleted.
+   */
+  private deleteCharacter(key: Key): boolean {
+    const { caretManager } = this;
+    let caret = caretManager.getDataCaret()!;
+    switch (key) {
+      case keyConstants.BACKSPACE: {
+        // If the container is not a text node, we may still be just behind a
+        // text node from which we can delete. Handle this.
+        if (!isText(caret.node)) {
+          const last = caret.node.childNodes[caret.offset - 1];
+          // tslint:disable-next-line:no-any
+          const length: number | undefined = (last as any).length;
+          caret = caret.make(last, length);
+
+          if (!isText(caret.node)) {
+            return false;
+          }
+        }
+
+        // At start of text, nothing to delete.
+        if (caret.offset === 0) {
+          return false;
+        }
+
+        caret = caret.makeWithOffset(caret.offset - 1);
+        break;
+      }
+      case keyConstants.DELETE: {
+        // If the container is not a text node, we may still be just AT a text
+        // node from which we can delete. Handle this.
+        if (!isText(caret.node)) {
+          caret = caret.make(caret.node.childNodes[caret.offset], 0);
+          if (!isText(caret.node)) {
+            return false;
+          }
+        }
+
+        break;
+      }
+      default:
+        throw new Error(`cannot handle deleting with key ${key}`);
+    }
+
+    this.enterTaskSuspension();
+    try {
+      // We need to grab the parent and offset before we do the transformation,
+      // because the node may be removed from its tree.
+      const parent = caret.node.parentNode!;
+      const offset = indexOf(parent.childNodes, caret.node);
+      const textUndo = this.initiateTextUndo();
+      this.dataUpdater.deleteText(caret, 1);
+      // Don't set the caret inside a node that has been deleted.
+      if (caret.node.parentNode !== null) {
+        caretManager.setCaret(caret, { textEdit: true });
+      }
+      else {
+        caretManager.setCaret(parent, offset, { textEdit: true });
+      }
+
+      textUndo.recordCaretAfter();
+    }
+    finally {
+      this.exitTaskSuspension();
+      this.validationController.refreshErrors();
+    }
+    return true;
+  }
+
   private spliceAttribute(attrVal: HTMLElement, offset: number, count: number,
                           add: string): void {
     if (offset < 0) {
@@ -893,46 +968,54 @@ export class Editor implements EditorAPI {
       }
     }
 
-    const textUndo = this.initiateTextUndo();
-    val = val.slice(0, offset) + add + val.slice(offset + count);
-    offset += add.length;
-    const dataReal =
-      $.data(closestByClass(attrVal, "_real")!, "wed_mirror_node");
-    const guiPath = this.nodeToPath(attrVal);
-    const name =
-      domutil.siblingByClass(attrVal, "_attribute_name")!.textContent!;
-    const mode = this.modeTree.getMode(attrVal);
-    const resolved = mode.getAbsoluteResolver().resolveName(name, true);
-    if (resolved === undefined) {
-      throw new Error(`cannot resolve ${name}`);
-    }
-    this.dataUpdater.setAttributeNS(dataReal, resolved.ns, resolved.name, val);
-    // Redecoration of the attribute's element may have destroyed our old
-    // attrVal node. Refetch. And after redecoration, the attribute value
-    // element may not have a child. Not only that, but the attribute may no
-    // longer be shown at all.
-    let moveTo;
+    this.enterTaskSuspension();
     try {
-      moveTo = this.pathToNode(guiPath)!;
-      if (moveTo.firstChild !== null) {
-        moveTo = moveTo.firstChild;
+      const textUndo = this.initiateTextUndo();
+      val = val.slice(0, offset) + add + val.slice(offset + count);
+      offset += add.length;
+      const dataReal =
+        $.data(closestByClass(attrVal, "_real")!, "wed_mirror_node");
+      const guiPath = this.nodeToPath(attrVal);
+      const name =
+        domutil.siblingByClass(attrVal, "_attribute_name")!.textContent!;
+      const mode = this.modeTree.getMode(attrVal);
+      const resolved = mode.getAbsoluteResolver().resolveName(name, true);
+      if (resolved === undefined) {
+        throw new Error(`cannot resolve ${name}`);
       }
-    }
-    catch (ex) {
-      if (!(ex instanceof AttributeNotFound)) {
-        throw ex;
+      this.dataUpdater.setAttributeNS(dataReal, resolved.ns, resolved.name,
+                                      val);
+      // Redecoration of the attribute's element may have destroyed our old
+      // attrVal node. Refetch. And after redecoration, the attribute value
+      // element may not have a child. Not only that, but the attribute may no
+      // longer be shown at all.
+      let moveTo;
+      try {
+        moveTo = this.pathToNode(guiPath)!;
+        if (moveTo.firstChild !== null) {
+          moveTo = moveTo.firstChild;
+        }
       }
-    }
+      catch (ex) {
+        if (!(ex instanceof AttributeNotFound)) {
+          throw ex;
+        }
+      }
 
-    // We don't have an attribute to go back to. Go back to the element that
-    // held the attribute.
-    if (moveTo == null) {
-      moveTo = dataReal;
-      offset = 0;
-    }
+      // We don't have an attribute to go back to. Go back to the element that
+      // held the attribute.
+      if (moveTo == null) {
+        moveTo = dataReal;
+        offset = 0;
+      }
 
-    this.caretManager.setCaret(moveTo, offset, { textEdit: true });
-    textUndo.recordCaretAfter();
+      this.caretManager.setCaret(moveTo, offset, { textEdit: true });
+      textUndo.recordCaretAfter();
+    }
+    finally {
+      this.exitTaskSuspension();
+      this.validationController.refreshErrors();
+    }
   }
 
   insertTransientPlaceholderAt(loc: DLoc): Element {
@@ -1306,6 +1389,12 @@ export class Editor implements EditorAPI {
           }, 0);
         }
       });
+
+    // Revalidate on text change.
+    this.domlistener.addHandler("text-changed", "._real",
+                                (_root: Node, text: Node) => {
+                                  this.validator.resetTo(text);
+                                });
 
     this.modeTree.addDecoratorHandlers();
 
@@ -2288,10 +2377,6 @@ in a way not supported by this version of wed.";
       return terminate();
     }
 
-    let textUndo;
-    let parent;
-    let offset;
-
     if (keyConstants.SPACE.matchesEvent(e)) {
       caret = this.caretManager.getNormalizedCaret();
       if (caret === undefined) {
@@ -2307,13 +2392,11 @@ in a way not supported by this version of wed.";
     }
     else if (keyConstants.DELETE.matchesEvent(e)) {
       if (attrVal !== null) { // In attribute.
-        if (attrVal.textContent === "") { // empty === noop
-          return terminate();
+        if (attrVal.textContent !== "") { // empty === noop
+          this.spliceAttribute(attrVal as HTMLElement,
+                               this.caretManager.getNormalizedCaret()!.offset,
+                               1, "");
         }
-
-        this.spliceAttribute(attrVal as HTMLElement,
-                             this.caretManager.getNormalizedCaret()!.offset, 1,
-                             "");
       }
       else {
         // Prevent deleting phantom stuff
@@ -2323,48 +2406,22 @@ in a way not supported by this version of wed.";
             !(next.classList.contains("_phantom") ||
               next.classList.contains("_phantom_wrap"))) {
           // When a range is selected, we delete the whole range.
-          if (this.cutSelection()) {
-            this.validationController.refreshErrors();
-            return terminate();
-          }
-
-          // We need to handle the delete
-          caret = this.caretManager.getDataCaret()!;
-          // If the container is not a text node, we may still be just AT a text
-          // node from which we can delete. Handle this.
-          if (!isText(caret.node)) {
-            caret = caret.make(caret.node.childNodes[caret.offset], 0);
-          }
-
-          if (isText(caret.node)) {
-            parent = caret.node.parentNode!;
-            offset = indexOf(parent.childNodes, caret.node);
-
-            textUndo = this.initiateTextUndo();
-            this.dataUpdater.deleteText(caret, 1);
-            // Don't set the caret inside a node that has been deleted.
-            if (caret.node.parentNode !== null) {
-              this.caretManager.setCaret(caret, { textEdit: true });
-            }
-            else {
-              this.caretManager.setCaret(parent, offset, { textEdit: true });
-            }
-            textUndo.recordCaretAfter();
+          if (!this.cutSelection()) {
+            // There was no range, so we need to handle the delete.
+            this.deleteCharacter(keyConstants.DELETE);
           }
         }
       }
-      this.validationController.refreshErrors();
       return terminate();
     }
     else if (keyConstants.BACKSPACE.matchesEvent(e)) {
       if (attrVal !== null) { // In attribute.
-        if (attrVal.textContent === "") { // empty === noop
-          return terminate();
+        if (attrVal.textContent !== "") { // empty === noop
+          this.spliceAttribute(attrVal as HTMLElement,
+                               this.caretManager
+                               .getNormalizedCaret()!.offset - 1,
+                               1, "");
         }
-
-        this.spliceAttribute(attrVal as HTMLElement,
-                             this.caretManager.getNormalizedCaret()!.offset - 1,
-                             1, "");
       }
       else {
         // Prevent backspacing over phantom stuff
@@ -2374,48 +2431,12 @@ in a way not supported by this version of wed.";
             !(prev.classList.contains("_phantom") ||
               prev.classList.contains("_phantom_wrap"))) {
           // When a range is selected, we delete the whole range.
-          if (this.cutSelection()) {
-            this.validationController.refreshErrors();
-            return terminate();
-          }
-
-          // We need to handle the backspace
-          caret = this.caretManager.getDataCaret()!;
-
-          // If the container is not a text node, we may still be just behind a
-          // text node from which we can delete. Handle this.
-          if (!isText(caret.node)) {
-            const last = caret.node.childNodes[caret.offset - 1];
-            // tslint:disable-next-line:no-any
-            const length: number | undefined = (last as any).length;
-            caret = caret.make(last, length);
-          }
-
-          if (isText(caret.node)) {
-            parent = caret.node.parentNode!;
-            offset = indexOf(parent.childNodes, caret.node);
-
-            // At start of text, nothing to delete.
-            if (caret.offset === 0) {
-              return terminate();
-            }
-
-            textUndo = this.initiateTextUndo();
-            this.dataUpdater.deleteText(caret.node, caret.offset - 1,
-                                         1);
-            // Don't set the caret inside a node that has been deleted.
-            if (caret.node.parentNode !== null) {
-              this.caretManager.setCaret(caret.node, caret.offset - 1,
-                                         { textEdit: true });
-            }
-            else {
-              this.caretManager.setCaret(parent, offset, { textEdit: true });
-            }
-            textUndo.recordCaretAfter();
+          if (!this.cutSelection()) {
+            // There was no range, so we need to handle the backspace
+            this.deleteCharacter(keyConstants.BACKSPACE);
           }
         }
       }
-      this.validationController.refreshErrors();
       return terminate();
     }
 
@@ -2525,11 +2546,18 @@ in a way not supported by this version of wed.";
         return true;
       }
 
-      const textUndo = this.initiateTextUndo();
-      const [start, end] = sel.mustAsDataCarets();
-      const cutRet = this.dataUpdater.cut(start, end)[0];
-      this.caretManager.setCaret(cutRet, { textEdit: true });
-      textUndo.recordCaretAfter();
+      this.enterTaskSuspension();
+      try {
+        const textUndo = this.initiateTextUndo();
+        const [start, end] = sel.mustAsDataCarets();
+        const cutRet = this.dataUpdater.cut(start, end)[0];
+        this.caretManager.setCaret(cutRet, { textEdit: true });
+        textUndo.recordCaretAfter();
+      }
+      finally {
+        this.exitTaskSuspension();
+        this.validationController.refreshErrors();
+      }
       return true;
     }
 

@@ -5,6 +5,11 @@ there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 2.0.1:
+
+  - Fix validation restarts. There was a bug whereby wed would not restart
+    validation on text changes.
+
 * 2.0.0:
 
   - Upgrade to salve 7.x. Faster validation.
