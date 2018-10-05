@@ -9,7 +9,7 @@ import { CaretManager } from "wed/caret-manager";
 import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
-import { delay, makeFakePasteEvent } from "../util";
+import { delay, makeFakePasteEvent, waitForSuccess } from "../util";
 import { activateContextMenu, contextMenuHasOption, dataCaretCheck,
          EditorSetup, getAttributeNamesFor } from "../wed-test-util";
 
@@ -25,18 +25,19 @@ describe("wed wildcard support:", () => {
   let caretManager: CaretManager;
   let guiRoot: Element;
 
-  before(() => {
+  before(async () => {
     setup = new EditorSetup(
       "/base/build/standalone/lib/tests/wed_test_data/wildcard_converted.xml",
       mergeOptions(globalConfig.config, options),
       document);
     ({ editor } = setup);
-    return setup.init().then(() => {
-      // tslint:disable-next-line:no-any
-      (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
-      caretManager = editor.caretManager;
-      guiRoot = editor.guiRoot;
-    });
+
+    await setup.init();
+
+    // tslint:disable-next-line:no-any
+    (editor.validator as any)._validateUpTo(editor.dataRoot, -1);
+    caretManager = editor.caretManager;
+    guiRoot = editor.guiRoot;
   });
 
   afterEach(() => {
@@ -147,9 +148,12 @@ describe("wed wildcard support:", () => {
 
   it("prevents cutting from readonly elements", async () => {
     const initial = editor.dataRoot.querySelector("bar")!;
-    const initialGUI =
-      caretManager.fromDataLocation(initial, 0)!.node as Element;
-    assert.isTrue(initialGUI.classList.contains("_readonly"));
+    let initialGUI!: Element;
+    await waitForSuccess(() => {
+      initialGUI =
+        caretManager.fromDataLocation(initial, 0)!.node as Element;
+      assert.isTrue(initialGUI.classList.contains("_readonly"));
+    });
     const initialValue = initial.textContent!;
 
     const guiStart = caretManager.fromDataLocation(initial.firstChild!, 1)!;
@@ -173,17 +177,24 @@ describe("wed wildcard support:", () => {
                  initialValue.slice(0, 1) + initialValue.slice(2));
   });
 
-  describe("a context menu has the complex pattern action", () => {
-    it("when invoked on an element allowed due to a complex pattern", () => {
-      activateContextMenu(editor,
-                          guiRoot.querySelector("._readonly ._element_name")!);
+  describe("a context menu has the complex pattern action when invoked", () => {
+    it("on an element allowed due to a complex pattern", async () => {
+      let el!: Element;
+      await waitForSuccess(() => {
+        el = guiRoot.querySelector("._readonly ._element_name")!;
+        assert.isNotNull(el);
+      });
+      activateContextMenu(editor, el);
       contextMenuHasOption(editor, /Complex name pattern/, 1);
     });
 
-    it("when invoked on an attribute allowed due to a complex pattern", () => {
-      activateContextMenu(
-        editor,
-        guiRoot.querySelector("._readonly ._attribute_value")!);
+    it("on an attribute allowed due to a complex pattern", async () => {
+      let el!: Element;
+      await waitForSuccess(() => {
+        el = guiRoot.querySelector("._readonly ._attribute_value")!;
+        assert.isNotNull(el);
+      });
+      activateContextMenu(editor, el);
       contextMenuHasOption(editor, /Complex name pattern/, 1);
     });
   });
@@ -198,16 +209,23 @@ describe("wed wildcard support:", () => {
   }
 
   describe("a context menu invoked on a readonly", () => {
-    it("element has no actions that can transform the document", () => {
-      activateContextMenu(editor,
-                          guiRoot.querySelector("._readonly ._element_name")!);
+    it("element has no actions that can transform the document", async () => {
+      let el!: Element;
+      await waitForSuccess(() => {
+        el = guiRoot.querySelector("._readonly ._element_name")!;
+        assert.isNotNull(el);
+      });
+      activateContextMenu(editor, el);
       contextMenuHasNoTransforms();
     });
 
-    it("attribute has no actions that can transform the document", () => {
-      activateContextMenu(
-        editor,
-        guiRoot.querySelector("._readonly ._attribute_value")!);
+    it("attribute has no actions that can transform the document", async () => {
+      let el!: Element;
+      await waitForSuccess(() => {
+        el = guiRoot.querySelector("._readonly ._attribute_value")!;
+        assert.isNotNull(el);
+      });
+      activateContextMenu(editor, el);
       contextMenuHasNoTransforms();
     });
   });
