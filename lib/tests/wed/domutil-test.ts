@@ -50,7 +50,7 @@ describe("domutil", () => {
   before(() => {
     domroot = document.createElement("div");
     testPara = document.createElement("p");
-    testPara.setAttribute("contenteditable", "true");
+    testPara.setAttribute("tabindex", "-1");
     testPara.textContent = "Test para which has to be visible.";
     document.body.appendChild(domroot);
     document.body.appendChild(testPara);

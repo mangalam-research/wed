@@ -132,6 +132,9 @@ def step_impl(context, what):
     var parent_text = jQuery(parent).contents().filter(function() {
        return this.nodeType == Node.TEXT_NODE;
     }).text();
+    // We need this because the Edge driver chokes on properly
+    // scrolling the element when we do .click(button)
+    button.scrollIntoView();
     return [button, parent, button.className, parent_text];
     """, selector)
     context.clicked_element = button

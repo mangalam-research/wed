@@ -44,6 +44,11 @@ export class Scroller {
     return this.el.scrollLeft;
   }
 
+  scrollTo(left: number, top: number): void {
+    this.el.scrollLeft = left;
+    this.el.scrollTop = top;
+  }
+
   getBoundingClientRect(): ClientRect {
     return this.el.getBoundingClientRect();
   }

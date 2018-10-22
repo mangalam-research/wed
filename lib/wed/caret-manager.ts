@@ -904,16 +904,16 @@ export class CaretManager implements GUIToDataConverter {
       return;
     }
 
-    // tslint:disable-next-line:no-suspicious-comment
-    // The focusTheNode call is required to work around bug:
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
-    if (browsers.FIREFOX) {
-      focusTheNode(range.endContainer);
-    }
-
     const sel = this._getDOMSelection();
     sel.removeAllRanges();
     sel.addRange(range);
+
+    // tslint:disable-next-line:no-suspicious-comment
+    // The focusTheNode call is required to work around bug:
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
+    if (browsers.FIREFOX || browsers.EDGE) {
+      focusTheNode(range.endContainer);
+    }
   }
 
   /**
@@ -1040,7 +1040,11 @@ export class CaretManager implements GUIToDataConverter {
   private onFocus(): void {
     if (this.selAtBlur !== undefined) {
       this._sel = this.selAtBlur;
+      // We do not want to scroll the editing pane when we come back. So save
+      // the value and restore.
+      const { scrollTop, scrollLeft } = this.scroller;
       this._restoreCaretAndSelection(true);
+      this.scroller.scrollTo(scrollLeft, scrollTop);
       this.selAtBlur = undefined;
     }
   }

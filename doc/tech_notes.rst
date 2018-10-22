@@ -746,17 +746,20 @@ It is possible to listen to ``cut`` events and let them go through or veto them,
 but this is about the maximum level of control that can be achieved
 cross-browser.
 
-Contenteditable
----------------
+``contenteditable``
+-------------------
+
+Wed no longer uses ``contenteditable ``*generally* so the following section is
+mostly kept as a historical note.
 
 Incompatibilities
 ~~~~~~~~~~~~~~~~~
 
-One area of incompatibility is the implementation of contenteditable across
+One area of incompatibility is the implementation of ``contenteditable`` across
 browsers. Even a single browser can behave inconsistently depending on how the
 DOM tree is structured. (In Firefox 20, the presence or absence of white-space
 text nodes sometimes changes the way BACKSPACE is handled when the caret is at
-the start of a contenteditable element.)
+the start of a ``contenteditable`` element.)
 
 Successive Elements and the Caret
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -805,12 +808,12 @@ In Firefox 20, it seems impossible to get the browser to handle a synthetic
 keyboard event exactly as if the user had typed it. The event can be created and
 dispatched, and it will trigger event handlers. However, sending a series of
 "keydown", "keypress", "keyup" events for the letter "a" while the caret is in a
-contenteditable region won't result in the letter "a" being added to the element
-being edited.
+``contenteditable`` region won't result in the letter "a" being added to the
+element being edited.
 
 It is possible to use plugins like sendkeys_ to simulate key presses that
 actually modify the contents of editable elements. However, when it comes to
-simulating key presses in contenteditable elements, the simulation is very
+simulating key presses in ``contenteditable`` elements, the simulation is very
 imperfect. Cursory testing sending BACKSPACE using sendkeys and BACKSPACE using
 the keyboard shows inconsistent behavior.
 
@@ -820,7 +823,7 @@ Vetoing Mutations
 -----------------
 
 It might seem that using MutationObserver to check on a DOM tree, one would be
-able to veto a user-initiated change inside contenteditable elements. In
+able to veto a user-initiated change inside ``contenteditable`` elements. In
 practice, a single keyboard key (like BACKSPACE) hit might result in 5-6
 mutations of the DOM tree, and there is no simple way to know that these 5-6
 mutations were all initiated by a single key.
@@ -897,6 +900,10 @@ operated under the first approach was found right next to code that operated
 under the second approach. Version 0.17.0 cleaned up a good deal of the old code
 (first approach) that was made obsolete by the incremental changes, but some
 obsolete code may still remain.
+
+Prior to version 3.x, wed made the GUI tree use ``contenteditable="true"`` As of
+version 3.x, wed no longer uses ``contenteditable`` *generally*. It is used for a
+few very specific functions.
 
 ..  LocalWords:  truthy unclicked unclick github gui requirejs py deployable js
 ..  LocalWords:  AVH nvie SauceLabs wedutil gitflow CSS programmatically desc

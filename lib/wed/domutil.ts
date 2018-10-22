@@ -475,7 +475,6 @@ export function correspondingNode(treeA: Node, treeB: Node,
 export function makePlaceholder(text?: string): HTMLElement {
   const span = document.createElement("span");
   span.className = "_placeholder";
-  span.setAttribute("contenteditable", "true");
   span.textContent = text !== undefined ? text : " ";
   return span;
 }

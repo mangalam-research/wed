@@ -58,8 +58,7 @@ import { insertElement, mergeWithNextHomogeneousSibling,
          mergeWithPreviousHomogeneousSibling, removeMarkup, splitNode,
          Transformation, TransformationData, TransformationEvent,
          TransformationEventSubject } from "./transformation";
-import { BeforeInsertNodeAtEvent, InsertNodeAtEvent,
-         TreeUpdater } from "./tree-updater";
+import { BeforeInsertNodeAtEvent, TreeUpdater } from "./tree-updater";
 import { Undo, UndoEvents, UndoList } from "./undo";
 import { UndoRecorder } from "./undo-recorder";
 import * as util from "./util";
@@ -949,6 +948,11 @@ export class Editor implements EditorAPI {
       return;
     }
 
+    // We ignore changes to non-editable attributes.
+    if (this.modeTree.getAttributeHandling(attrVal) !== "edit") {
+      return;
+    }
+
     let val = (this.toDataNode(attrVal) as Attr).value;
     if (offset > val.length) {
       return;
@@ -1021,8 +1025,8 @@ export class Editor implements EditorAPI {
   insertTransientPlaceholderAt(loc: DLoc): Element {
     const ph =
       // tslint:disable-next-line:no-jquery-raw-elements
-      $("<span class='_placeholder _transient' contenteditable='false'> \
-</span>", loc.node.ownerDocument)[0];
+      $("<span class='_placeholder _transient'> </span>",
+        loc.node.ownerDocument)[0];
     this.guiUpdater.insertNodeAt(loc, ph);
     return ph;
   }
@@ -1222,12 +1226,7 @@ export class Editor implements EditorAPI {
       switch (ev.name) {
       case "BeforeInsertNodeAt":
         if (isElement(ev.node)) {
-          this.initialContentEditableHandler(ev);
-        }
-        break;
-      case "InsertNodeAt":
-        if (isElement(ev.node)) {
-          this.finalContentEditableHandler(ev);
+          this.newContentHandler(ev);
         }
         break;
       default:
@@ -1714,20 +1713,15 @@ wed's generic help. The link by default will open in a new tab.</p>`);
   }
 
   /**
-   * Handler for setting ``contenteditable`` on nodes included into the
-   * tree. This handler preforms an initial generic setup that does not need
-   * mode-specific information. It sets ``contenteditable`` to true on any real
-   * element or any attribute value.
+   * Handler preparing nodes included into the tree. This handler preforms an
+   * initial generic setup that does not need mode-specific information.
    */
-  private initialContentEditableHandler(ev: BeforeInsertNodeAtEvent): void {
+  private newContentHandler(ev: BeforeInsertNodeAtEvent): void {
     const mod = (el: Element) => {
       // All elements that may get a selection must be focusable to
       // work around issue:
       // https://bugzilla.mozilla.org/show_bug.cgi?id=921444
       el.setAttribute("tabindex", "-1");
-      el.setAttribute("contenteditable",
-                      String(el.classList.contains("_real") ||
-                             el.classList.contains("_attribute_value")));
       let child = el.firstElementChild;
       while (child !== null) {
         mod(child);
@@ -1738,24 +1732,6 @@ wed's generic help. The link by default will open in a new tab.</p>`);
     // We never call this function with something else than an Element for
     // ev.node.
     mod(ev.node as Element);
-  }
-
-  /**
-   * Handler for setting ``contenteditable`` on nodes included into the
-   * tree. This handler adjusts whether attribute values are editable by using
-   * mode-specific data.
-   */
-  private finalContentEditableHandler(ev: InsertNodeAtEvent): void {
-    // We never call this function with something else than an Element for
-    // ev.node.
-    const el = ev.node as Element;
-
-    const attrs = el.getElementsByClassName("_attribute_value");
-    for (const attr of Array.from(attrs)) {
-      if (this.modeTree.getAttributeHandling(attr) !== "edit") {
-        attr.setAttribute("contenteditable", "false");
-      }
-    }
   }
 
   private initializeNamespaces(): string | undefined {
