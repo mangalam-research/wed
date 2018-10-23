@@ -1,5 +1,7 @@
 import urllib
+import os
 
+from slugify import slugify
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -522,3 +524,13 @@ def step_impl(context):
             len(context.handles_before_help_link_click) + 1
 
     context.util.wait(check)
+
+
+@then("take screenshot named (?P<name>.*?)\.?")
+def step_impl(context, name):
+    fname = os.path.join(context.screenshots_dir_path,
+                         slugify(name) + ".png")
+    context.driver.save_screenshot(fname)
+    print("")
+    print("Captured screenshot:", fname)
+    print("")
