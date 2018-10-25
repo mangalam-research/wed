@@ -4,9 +4,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
-from nose.tools import assert_equal  # pylint: disable=E0611
+from nose.tools import assert_equal, assert_true  # pylint: disable=E0611
 from behave import step_matcher
 
+from selenic.util import Condition, Result
 import wedutil
 
 # Don't complain about redefined functions
@@ -149,15 +150,19 @@ def step_impl(context):
     button.click()
 
 
-@then(ur'the text is pasted after the last paragraph')
+@then(ur'the text is pasted into the new paragraph')
 def step_impl(context):
 
     def cond(driver):
         text = driver.execute_script("""
         var ps = wed_editor.dataRoot.querySelectorAll("body>p");
         var p = ps[ps.length - 1];
-        return p.nextSibling.textContent;
+        return p.innerHTML;
         """)
-        return text == context.expected_selection_serialization
+        return Result(text == context.expected_selection_serialization,
+                      text)
 
-    context.util.wait(cond)
+    ret = Condition(context.util, cond).wait()
+    assert_true(ret,
+                ret.payload + " should equal " +
+                context.expected_selection_serialization)

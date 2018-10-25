@@ -396,6 +396,7 @@ def step_impl(context, choice):
     context.context_menu_for = parent
 
 
+@when(ur"the user brings up the context menu")
 @when(ur"the user uses the keyboard to bring up the context menu")
 def step_impl(context):
     driver = context.driver

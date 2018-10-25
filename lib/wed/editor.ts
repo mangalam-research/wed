@@ -10,7 +10,8 @@ import $ from "jquery";
 import { Observable } from "rxjs";
 import { filter } from "rxjs/operators";
 import * as salve from "salve";
-import { WorkingState, WorkingStateData } from "salve-dom";
+import { ParsingError, safeParse, WorkingState,
+         WorkingStateData } from "salve-dom";
 
 import { Action } from "./action";
 import { CaretChange, CaretManager } from "./caret-manager";
@@ -2034,41 +2035,19 @@ in a way not supported by this version of wed.";
       return false;
     }
 
-    const parser = new this.window.DOMParser();
-    const doc = parser.parseFromString(`<div>${text}</div>`, "text/xml");
-    let asXML = true;
-    if (isElement(doc.firstChild) &&
-        doc.firstChild.tagName === "parsererror" &&
-        doc.firstChild.namespaceURI ===
-        // tslint:disable-next-line:no-http-string
-        "http://www.mozilla.org/newlayout/xml/parsererror.xml") {
-      asXML = false;
+    let doc: Document | null = null;
+    try {
+      doc = safeParse(`<div>${text}</div>`, this.window);
+    }
+    catch (ex) {
+      if (!(ex instanceof ParsingError)) {
+        throw ex;
+      }
     }
 
     let data: Element;
-    if (asXML) {
+    if (doc !== null) {
       data = doc.firstChild as Element;
-      // Otherwise, check whether it is valid.
-      const errors = this.validator.speculativelyValidate(
-        caret, Array.prototype.slice.call(data.childNodes));
-
-      if (errors) {
-        // We need to save this before we bring up the modal because clicking to
-        // dismiss the modal will mangle ``cd``.
-        const modal = this.modals.getModal("paste");
-        modal.modal(() => {
-          if (modal.getClickedAsText() === "Yes") {
-            data = this.doc.createElement("div");
-            data.textContent = text;
-            // At this point data is a single top level fake <div> element which
-            // contains the contents we actually want to paste.
-            this.fireTransformation(
-              this.pasteTr,
-              { node: caret.node, to_paste: data, e: e });
-          }
-        });
-        return false;
-      }
     }
     else {
       data = this.doc.createElement("div");

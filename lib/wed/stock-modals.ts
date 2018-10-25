@@ -14,7 +14,7 @@ export interface ModalMaker {
   docURL: string;
 }
 
-export type ModalNames = "limitation" | "paste" | "straddling" | "help" |
+export type ModalNames = "limitation" | "straddling" | "help" |
   "disconnect" | "editedByOther" | "tooOld";
 
 /**
@@ -40,14 +40,6 @@ export class StockModals {
     switch (name) {
     case "limitation":
       modal.setTitle("Cannot proceed");
-      break;
-    case "paste":
-      modal.setTitle("Invalid structure");
-      modal.setBody("<p>The data you are trying to paste appears to be \
-XML. However, pasting it here will result in a structurally invalid document. \
-Do you want to paste it as text instead? (If you answer negatively, the data \
-won't be pasted at all.)<p>");
-      modal.addYesNo();
       break;
     case "straddling":
       modal.setTitle("Invalid modification");

@@ -83,15 +83,16 @@ Scenario: pasting text that triggers an input trigger outside an element that sh
 @not.with_platform=osx
 # IE does not allow us to get the contents of the clipboard as HTML.
 @not.with_browser=ie
-Scenario: pasting HTML where it cannot be pasted, and accepting conversion to text
+Scenario: pasting XML
   Given a document containing a top level element, a p element, and text.
   When the user selects the whole contents of the first paragraph in "body"
   And the user cuts
   And the user clicks on the end label of the last paragraph
   And the user hits the right arrow
+  And the user brings up the context menu
+  And the user clicks a choice for creating a new p
   And the user pastes
-  When the user closes the pasting modal by accepting it
-  Then the text is pasted after the last paragraph
+  Then the text is pasted into the new paragraph
 
 Scenario: overwriting a selection
   Given a document containing a top level element, a p element, and text.

@@ -122,6 +122,12 @@ export type InsertionBoundaries = [DLoc, DLoc];
  *
  * - [[DeleteNodeEvent]] has the additional ``formerParent`` property.
  *
+ * ``DocumentFragment`` have special handling. Although the methods below that
+ * insert new content into the tree accept ``DocumentFragment`` nodes, the tree
+ * updater inserts the *contents* of the fragment rather than the fragment
+ * itself. Or to put it differently, inserting a fragment is equivalent to
+ * iterating through the fragment's children and inserting each one in order. A
+ * fragment is essentially equivalent to an array.
  */
 export class TreeUpdater {
   protected readonly dlocRoot: DLocRoot;
@@ -212,7 +218,7 @@ export class TreeUpdater {
         throw new Error(`unexpected node type: ${parent.nodeType}`);
       }
     }
-    else if (isElement(what)) {
+    else if (isElement(what) || isDocumentFragment(what)) {
       switch (parent.nodeType) {
       case Node.TEXT_NODE:
         this.insertIntoText(parent as Text, index, what);
@@ -532,6 +538,8 @@ export class TreeUpdater {
     else {
       parent = loc;
     }
+
+    // genericInsertIntoTextContext handles inserting fragments.
     const ret = domutil.genericInsertIntoText.call(this, parent, index, node);
     return [DLoc.mustMakeDLoc(this.tree, ret[0]),
             DLoc.mustMakeDLoc(this.tree, ret[1])];
@@ -549,7 +557,6 @@ export class TreeUpdater {
    *
    * @emits InsertNodeAtEvent
    * @emits ChangedEvent
-   * @throws {Error} If ``node`` is a document fragment Node type.
    */
   insertNodeAt(loc: DLoc, node: Node): void;
   insertNodeAt(parent: Node, index: number, node: Node): void;
@@ -575,7 +582,11 @@ export class TreeUpdater {
     }
 
     if (isDocumentFragment(node)) {
-      throw new Error("document fragments cannot be passed to insertNodeAt");
+      while (node.firstChild != null) {
+        this.insertNodeAt(parent, index++, node.firstChild);
+      }
+
+      return;
     }
 
     this._emit({ name: "BeforeInsertNodeAt", parent, index, node });

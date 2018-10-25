@@ -112,66 +112,26 @@ describe("wed paste copy cut:", () => {
     dataCaretCheck(editor, p.childNodes[2], 6, "final position");
   });
 
-  it("pasting structured text: invalid, decline pasting as text", (done) => {
+  it("pasting structured text; invalid xml", () => {
     const p = editor.dataRoot.querySelector("body>p")!;
     const initial = p.firstChild!;
     caretManager.setCaret(initial, 0);
     const initialValue = p.innerHTML;
 
+    const toPaste = `Blah <fnord xmlns="http://www.tei-c.org/ns/1.0">blah\
+</fnord> blah.`;
     // Synthetic event
     const event = makeFakePasteEvent({
       types: ["text/html", "text/plain"],
-      getData: () => p.outerHTML,
-    });
-    const pasteModal = editor.modals.getModal("paste");
-    const $top = pasteModal.getTopLevel();
-    $top.one("shown.bs.modal", () => {
-      // Wait until visible to add this handler so that it is run after the
-      // callback that wed sets on the modal.
-      $top.one("hidden.bs.modal", () => {
-        assert.equal(p.innerHTML, initialValue);
-        dataCaretCheck(editor, initial, 0, "final position");
-        done();
-      });
+      getData: () => toPaste,
     });
     editor.$guiRoot.trigger(event);
-    // This clicks "No".
-    pasteModal.getTopLevel().find(".modal-footer .btn")[1].click();
-  });
-
-  it("pasting structured text: invalid, accept pasting as text", (done) => {
-    const p = editor.dataRoot.querySelector("body>p")!;
-    const initial = p.firstChild;
-    caretManager.setCaret(initial, 0);
-    const initialValue = p.innerHTML;
-    const initialOuter = p.outerHTML;
-    const x = document.createElement("div");
-    x.textContent = initialOuter;
-    const initialOuterFromTextToHtml = x.innerHTML;
-
-    // Synthetic event
-    const event = makeFakePasteEvent({
-      types: ["text/html", "text/plain"],
-      getData: () => initialOuter,
-    });
-
-    const pasteModal = editor.modals.getModal("paste");
-    const $top = pasteModal.getTopLevel();
-    $top.one("shown.bs.modal", () => {
-      // Wait until visible to add this handler so that it is run after the
-      // callback that wed sets on the modal.
-      $top.one("hidden.bs.modal", () => {
-        assert.equal(p.innerHTML, initialOuterFromTextToHtml + initialValue);
-        dataCaretCheck(editor, p.firstChild!, initialOuter.length,
-                       "final position");
-        done();
-      });
-      // This clicks "Yes".
-      const button = pasteModal.getTopLevel()[0]
-        .getElementsByClassName("btn-primary")[0] as HTMLElement;
-      button.click();
-    });
-    editor.$guiRoot.trigger(event);
+    let expected = toPaste + initialValue;
+    if (browsers.MSIE) {
+      expected = expected.replace(` xmlns="http://www.tei-c.org/ns/1.0"`, "");
+    }
+    assert.equal(p.innerHTML, expected);
+    dataCaretCheck(editor, p.childNodes[2], 6, "final position");
   });
 
   it("handles pasting simple text into an attribute", () => {

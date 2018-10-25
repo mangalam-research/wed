@@ -133,11 +133,36 @@ describe("TreeUpdater", () => {
   }
 
   describe("insertNodeAt", () => {
-    it("fails on fragments", () => {
-      const top = root.querySelector(".p");
+    it("works with fragments", () => {
+      const top = root.querySelector(".p")!;
       const node = document.createDocumentFragment();
-      assert.throws(tu.insertNodeAt.bind(tu, top, 0, node), Error,
-                    "document fragments cannot be passed to insertNodeAt");
+      const firstChild = document.createElement("a");
+      const secondChild = document.createElement("b");
+      node.appendChild(firstChild);
+      node.appendChild(secondChild);
+      const listener = new Listener(tu);
+      const calls = [
+        [top, 0, firstChild],
+        [top, 1, secondChild],
+      ] as [Node, number, Node][];
+      let callsIx = 0;
+
+      tu.events.pipe(filter(filterInsertNodeAtAndBefore))
+        .subscribe((ev) => {
+          const call = calls[callsIx];
+          assert.equal(ev.parent, call[0]);
+          assert.equal(ev.index, call[1]);
+          if (ev.name === "InsertNodeAt") {
+            callsIx++;
+          }
+        });
+      listener.expected.InsertNodeAt = 2;
+      listener.expected.BeforeInsertNodeAt = 2;
+
+      tu.insertNodeAt(top, 0, node);
+
+      assert.equal(top.innerHTML, "<a></a><b></b>");
+      listener.check();
     });
   });
 

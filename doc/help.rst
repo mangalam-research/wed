@@ -1050,21 +1050,6 @@ because it edits XML, there are some limitations to what you can do:
                cut, the selected data will be deleted from the editing
                screen but will **not** be copied into the clipboard.
 
-* Pasting does not allow the creation of an invalid document. Suppose
-  you select a region of the document that cannot be cut because it
-  violates the rule mentioned above. However, this selection can be
-  copied so you copy it. Then you go elsewhere in the document and try
-  to paste it. You will get a dialog box saying:
-
-    The data you are trying to paste appears to be XML. However,
-    pasting it here will result in a structurally invalid document. Do
-    you want to paste it as text instead? (If you answer negatively,
-    the data won't be pasted at all.)
-
-  If you answer ``No`` then copy operation will be canceled. If you
-  answer ``Yes`` then the selection will be converted to text and then
-  the text will be pasted.
-
 Undo and Redo
 =============
 
