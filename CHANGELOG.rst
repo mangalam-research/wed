@@ -15,9 +15,12 @@ odd bug fix may not get mentioned here at all.
     unhandled by wed would still be handled as an editing operation by the
     browser.
 
-  - When pasting XML, wed no longer checks whether the added XML causes
+  - GUI fix: when pasting XML, wed no longer checks whether the added XML causes
     errors. The check prevented some legitimate use-case scenarios. The user can
     fix the errors after the fact.
+
+  - GUI feature: implemented a "real" copy operation that treats the XML as XML
+    instead of treating it as text.
 
 * 2.0.1:
 

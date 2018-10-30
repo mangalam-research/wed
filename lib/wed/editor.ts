@@ -16,6 +16,7 @@ import { ParsingError, safeParse, WorkingState,
 import { Action } from "./action";
 import { CaretChange, CaretManager } from "./caret-manager";
 import * as caretMovement from "./caret-movement";
+import { Clipboard } from "./clipboard";
 import { DLoc, DLocRoot } from "./dloc";
 import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
@@ -216,7 +217,7 @@ export class Editor implements EditorAPI {
   private readonly constrainer: HTMLElement;
   private readonly inputField: HTMLInputElement;
   private readonly $inputField: JQuery;
-  private readonly cutBuffer: HTMLElement;
+  private readonly clipboard: Clipboard;
   private readonly caretLayer: Layer;
   private readonly errorLayer: ErrorLayer;
   private readonly wedLocationBar: HTMLElement;
@@ -405,8 +406,9 @@ export class Editor implements EditorAPI {
     this.inputField =
       framework.getElementsByClassName("wed-comp-field")[0] as HTMLInputElement;
     this.$inputField = $(this.inputField);
-    this.cutBuffer =
+    const clipboardBuffer =
       framework.getElementsByClassName("wed-cut-buffer")[0] as HTMLElement;
+    this.clipboard = new Clipboard(clipboardBuffer);
 
     this.caretLayer = new Layer(
       framework.getElementsByClassName("wed-caret-layer")[0] as HTMLElement);
@@ -1567,6 +1569,9 @@ export class Editor implements EditorAPI {
     $guiRoot.on("paste", log.wrap(this.pasteHandler.bind(this)));
     this.$inputField.on("paste", log.wrap(this.pasteHandler.bind(this)));
 
+    $guiRoot.on("copy", log.wrap(this.copyHandler.bind(this)));
+    this.$inputField.on("copy", log.wrap(this.copyHandler.bind(this)));
+
     $guiRoot.on("cut", log.wrap(this.cutHandler.bind(this)));
     $(this.window).on("resize.wed", this.resizeHandler.bind(this));
 
@@ -1980,39 +1985,127 @@ in a way not supported by this version of wed.";
     return ret;
   }
 
+  private copyHandler(): boolean {
+    const { caretManager } = this;
+    const sel = caretManager.sel;
+    if (sel === undefined) {
+      return false;
+    }
+
+    const { clipboard } = this;
+
+    if (!sel.wellFormed) {
+      clipboard.clear();
+      notify(`Selection is not well-formed XML, and consequently was copied \
+as text.`, { type: "warning" });
+      return true;
+    }
+
+    const [startCaret, endCaret] = sel.mustAsDataCarets();
+    if (isAttr(startCaret.node)) {
+      const attr = startCaret.node;
+      if (attr !== endCaret.node) {
+        throw new Error("attribute selection that does not start " +
+                        "and end in the same attribute");
+      }
+      clipboard.setText(attr.value.slice(startCaret.offset, endCaret.offset));
+    }
+    else {
+      const copied = domutil.copy([startCaret.node, startCaret.offset],
+                                  [endCaret.node, endCaret.offset]);
+      clipboard.setNodes(copied);
+    }
+
+    caretManager.pushSelection();
+    clipboard.selectBuffer();
+
+    // We've set the range to the cut buffer, which is what we want for the copy
+    // operation to work. However, the focus is also set to the cut buffer but
+    // once the cut is done we want the focus to be back to our caret, so...
+    setTimeout(() => {
+      caretManager.popSelection();
+    }, 0);
+
+    return true;
+  }
+
   private cutHandler(e: JQueryEventObject): boolean {
     if (this.caretManager.getDataCaret() === undefined) {
-      // XXX alert the user?
       return false;
     }
 
     const sel = this.caretManager.sel!;
-    if (sel.wellFormed) {
-      const el = closestByClass(sel.anchor.node, "_real", this.guiRoot);
-      // We do not operate on elements that are readonly.
-      if (el === null || el.classList.contains("_readonly")) {
-        return false;
-      }
-
-      // The only thing we need to pass is the event that triggered the
-      // cut.
-      this.fireTransformation(this.cutTr, { e: e });
-      return true;
+    if (!sel.wellFormed) {
+      this.clipboard.clear();
+      notify(`Selection is not well-formed XML, and consequently the selection \
+cannot be cut.`, { type: "danger" });
+      return false;
     }
 
-    this.modals.getModal("straddling").modal();
-    return false;
+    const el = closestByClass(sel.anchor.node, "_real", this.guiRoot);
+    // We do not operate on elements that are readonly.
+    if (el === null || el.classList.contains("_readonly")) {
+      return false;
+    }
+
+    // The only thing we need to pass is the event that triggered the
+    // cut.
+    this.fireTransformation(this.cutTr, { e: e });
+    return true;
+  }
+
+  private cut(): void {
+    const caretManager = this.caretManager;
+    const sel = caretManager.sel;
+    if (sel === undefined) {
+      throw new Error("no selection");
+    }
+
+    if (!sel.wellFormed) {
+      throw new Error("malformed range");
+    }
+
+    const [startCaret, endCaret] = sel.mustAsDataCarets();
+    const { clipboard } = this;
+    if (isAttr(startCaret.node)) {
+      const attr = startCaret.node;
+      if (attr !== endCaret.node) {
+        throw new Error("attribute selection that does not start " +
+                        "and end in the same attribute");
+      }
+      const removedText = attr.value.slice(startCaret.offset, endCaret.offset);
+      this.spliceAttribute(
+        closestByClass(caretManager.mustFromDataLocation(startCaret).node,
+                       "_attribute_value") as HTMLElement,
+        startCaret.offset,
+        endCaret.offset - startCaret.offset, "");
+      clipboard.setText(removedText);
+    }
+    else {
+      const cutRet = this.dataUpdater.cut(startCaret, endCaret);
+      const nodes = cutRet[1];
+      clipboard.setNodes(nodes);
+      caretManager.setCaret(cutRet[0]);
+    }
+
+    clipboard.selectBuffer();
+
+    // We've set the range to the cut buffer, which is what we want for the cut
+    // operation to work. However, the focus is also set to the cut buffer but
+    // once the cut is done we want the focus to be back to our caret, so...
+    setTimeout(() => {
+      caretManager.focusInputField();
+    }, 0);
   }
 
   private pasteHandler(e: JQueryEventObject): boolean {
     const caret = this.caretManager.getDataCaret();
     if (caret === undefined) {
-      // XXX alert the user?
       return false;
     }
 
     const el = closestByClass(this.caretManager.anchor!.node, "_real",
-                            this.guiRoot);
+                              this.guiRoot);
     // We do not operate on elements that are readonly.
     if (el === null || el.classList.contains("_readonly")) {
       return false;
@@ -2029,19 +2122,42 @@ in a way not supported by this version of wed.";
       return false;
     }
 
-    // This could result in an empty string.
-    text = this.normalizeEnteredText(text);
-    if (text === "") {
-      return false;
-    }
-
     let doc: Document | null = null;
-    try {
-      doc = safeParse(`<div>${text}</div>`, this.window);
+    const { clipboard } = this;
+    if (clipboard.canUseTree(text)) {
+      //
+      // If the text we are trying to paste is identical to the text in our
+      // cutBuffer then we assume that the user is trying to paste what has been
+      // cut/copied from a previous wed operation, and we just get the nodes to
+      // paste from the cutTree *instead* of reparsing the pasted text.
+      //
+      // One advantage of doing this is that it works around the spurious
+      // ``xmlns`` attributes that are created when we do a
+      // serialization/parsing round-trip.
+      //
+      // (Note that in the odd case where a user would in fact have gotten the
+      // text from somewhere else, the false positive does not matter. What
+      // matters is that the cutBuffer and the cutTree are in sync.
+      //
+      doc = clipboard.cloneTree();
     }
-    catch (ex) {
-      if (!(ex instanceof ParsingError)) {
-        throw ex;
+    // If we are in an attribute then the clipboard has to be pasted as text. It
+    // cannot be parsed as XML and insert Elements or other nodes into the
+    // attribute value.
+    else if (!isAttr(caret.node)) {
+      // This could result in an empty string.
+      text = this.normalizeEnteredText(text);
+      if (text === "") {
+        return false;
+      }
+
+      try {
+        doc = safeParse(`<div>${text}</div>`, this.window);
+      }
+      catch (ex) {
+        if (!(ex instanceof ParsingError)) {
+          throw ex;
+        }
       }
     }
 
@@ -2059,6 +2175,60 @@ in a way not supported by this version of wed.";
     this.fireTransformation(this.pasteTr,
                             { node: caret.node, to_paste: data, e: e });
     return false;
+  }
+
+  private paste(_editor: EditorAPI, data: PasteTransformationData): void {
+    const toPaste = data.to_paste;
+    const dataClone = toPaste.cloneNode(true);
+    let caret = this.caretManager.getDataCaret();
+    if (caret === undefined) {
+      throw new Error("trying to paste without a caret");
+    }
+
+    let newCaret;
+
+    // Handle the case where we are pasting only text.
+    if (toPaste.childNodes.length === 1 && isText(toPaste.firstChild)) {
+      if (isAttr(caret.node)) {
+        const guiCaret = this.caretManager.mustGetNormalizedCaret();
+        this.spliceAttribute(closestByClass(
+          guiCaret.node, "_attribute_value",
+          guiCaret.node as HTMLElement) as HTMLElement,
+                             guiCaret.offset, 0, toPaste.firstChild.data);
+      }
+      else {
+        ({ caret: newCaret } =
+         this.dataUpdater.insertText(caret, toPaste.firstChild.data));
+      }
+    }
+    else {
+      const frag = document.createDocumentFragment();
+      while (toPaste.firstChild !== null) {
+        frag.appendChild(toPaste.firstChild);
+      }
+      switch (caret.node.nodeType) {
+      case Node.TEXT_NODE:
+        newCaret = this.dataUpdater.insertIntoText(caret, frag)[1];
+        break;
+      case Node.ELEMENT_NODE:
+        const child = caret.node.childNodes[caret.offset];
+        const after = child != null ? child.nextSibling : null;
+        // tslint:disable-next-line:no-any
+        this.dataUpdater.insertBefore(caret.node as Element, frag as any,
+                                      child);
+        newCaret = caret.makeWithOffset(after !== null ?
+                                        indexOf(caret.node.childNodes, after) :
+                                        caret.node.childNodes.length);
+        break;
+      default:
+        throw new Error(`unexpected node type: ${caret.node.nodeType}`);
+      }
+    }
+    if (newCaret != null) {
+      this.caretManager.setCaret(newCaret);
+      caret = newCaret;
+    }
+    this.$guiRoot.trigger("wed-post-paste", [data.e, caret, dataClone]);
   }
 
   private keydownHandler(e: JQueryKeyEventObject): void {
@@ -3350,118 +3520,6 @@ ${util.getOriginalName(el)}&nbsp;</span></span>`);
     // tslint:disable-next-line:no-inner-html
     span.innerHTML =
       steps.length !== 0 ? steps.join("/") : "<span>&nbsp;</span>";
-  }
-
-  private cut(): void {
-    const caretManager = this.caretManager;
-    const sel = caretManager.sel;
-    if (sel === undefined) {
-      throw new Error("no selection");
-    }
-
-    if (!sel.wellFormed) {
-      throw new Error("malformed range");
-    }
-
-    const [startCaret, endCaret] = sel.mustAsDataCarets();
-    const cutBuffer = this.cutBuffer;
-    while (cutBuffer.firstChild !== null) {
-      cutBuffer.removeChild(cutBuffer.firstChild);
-    }
-    if (isAttr(startCaret.node)) {
-      const attr = startCaret.node;
-      if (attr !== endCaret.node) {
-        throw new Error("attribute selection that does not start " +
-                        "and end in the same attribute");
-      }
-      const removedText = attr.value.slice(startCaret.offset, endCaret.offset);
-      this.spliceAttribute(
-        closestByClass(caretManager.mustFromDataLocation(startCaret).node,
-                       "_attribute_value") as HTMLElement,
-        startCaret.offset,
-        endCaret.offset - startCaret.offset, "");
-      cutBuffer.textContent = removedText;
-    }
-    else {
-      const cutRet = this.dataUpdater.cut(startCaret, endCaret);
-      const nodes = cutRet[1];
-      const parser = new this.window.DOMParser();
-      const doc = parser.parseFromString("<div></div>", "text/xml");
-      for (const node of nodes) {
-        doc.firstChild!.appendChild(doc.adoptNode(node));
-      }
-      cutBuffer.textContent = (doc.firstChild as Element).innerHTML;
-      caretManager.setCaret(cutRet[0]);
-    }
-
-    const range = this.doc.createRange();
-    const container = cutBuffer;
-    range.setStart(container, 0);
-    range.setEnd(container, container.childNodes.length);
-    const domSel = this.window.getSelection();
-    domSel.removeAllRanges();
-    domSel.addRange(range);
-
-    // We've set the range to the cut buffer, which is what we want for the cut
-    // operation to work. However, the focus is also set to the cut buffer but
-    // once the cut is done we want the focus to be back to our caret, so...
-    setTimeout(() => {
-      caretManager.focusInputField();
-    }, 0);
-  }
-
-  private paste(_editor: EditorAPI, data: PasteTransformationData): void {
-    const toPaste = data.to_paste;
-    const dataClone = toPaste.cloneNode(true);
-    let caret = this.caretManager.getDataCaret();
-    if (caret === undefined) {
-      throw new Error("trying to paste without a caret");
-    }
-
-    let newCaret;
-
-    // Handle the case where we are pasting only text.
-    if (toPaste.childNodes.length === 1 && isText(toPaste.firstChild)) {
-      if (isAttr(caret.node)) {
-        const guiCaret = this.caretManager.mustGetNormalizedCaret();
-        this.spliceAttribute(closestByClass(
-          guiCaret.node, "_attribute_value",
-          guiCaret.node as HTMLElement) as HTMLElement,
-                             guiCaret.offset, 0, toPaste.firstChild.data);
-      }
-      else {
-        ({ caret: newCaret } =
-         this.dataUpdater.insertText(caret, toPaste.firstChild.data));
-      }
-    }
-    else {
-      const frag = document.createDocumentFragment();
-      while (toPaste.firstChild !== null) {
-        frag.appendChild(toPaste.firstChild);
-      }
-      switch (caret.node.nodeType) {
-      case Node.TEXT_NODE:
-        newCaret = this.dataUpdater.insertIntoText(caret, frag)[1];
-        break;
-      case Node.ELEMENT_NODE:
-        const child = caret.node.childNodes[caret.offset];
-        const after = child != null ? child.nextSibling : null;
-        // tslint:disable-next-line:no-any
-        this.dataUpdater.insertBefore(caret.node as Element, frag as any,
-                                      child);
-        newCaret = caret.makeWithOffset(after !== null ?
-                                        indexOf(caret.node.childNodes, after) :
-                                        caret.node.childNodes.length);
-        break;
-      default:
-        throw new Error(`unexpected node type: ${caret.node.nodeType}`);
-      }
-    }
-    if (newCaret != null) {
-      this.caretManager.setCaret(newCaret);
-      caret = newCaret;
-    }
-    this.$guiRoot.trigger("wed-post-paste", [data.e, caret, dataClone]);
   }
 
   public replaceRange(editor: EditorAPI,

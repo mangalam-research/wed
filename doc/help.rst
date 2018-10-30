@@ -1013,42 +1013,86 @@ application that uses wed. Possible outcomes:
   they are saved could report an error if you try to save a document
   without a title.
 
-Cut, Copy and Paste
+Copy, Cut and Paste
 ===================
 
-Wed allows cutting, copying and pasting parts of a document. However,
-because it edits XML, there are some limitations to what you can do:
+Wed allows copying, cutting and pasting parts of a document. However, because it
+edits XML, there are some limitations to what you can do:
 
-* Cutting will work only if the selection being cut starts and ends
-  inside the same XML element. The selection can span over XML
-  elements, provided that it completely contains these elements.
+Copy
+----
 
-  .. figure:: help_images/invalid_selection_cut.png
-     :align: center
-     :alt: A selection which cannot be cut.
+Copying contents *as XML* works only if the selection being cut starts and ends
+inside the same XML element. The selection can span over XML elements, provided
+that it completely contains these elements. If your selection straddles XML
+elements, then it will be copied *as text*.
 
-     This selection cannot be cut from the document because it begins
-     in one ``p`` element but ends in the subsequent ``p`` element.
+.. figure:: help_images/invalid_selection_cut.png
+   :align: center
+   :alt: A selection which cannot be copied as XML.
 
-  .. figure:: help_images/valid_selection_cut.png
-     :align: center
-     :alt: A selection which can be cut.
+   This selection cannot be copied as XML because it begins in one ``p``
+   element but ends in the subsequent ``p`` element.
 
-     This selection can be cut from the document because it begins and
-     ends in the same ``p`` element. There is a ``lb`` element inside
-     the selection, which is fine.
+.. figure:: help_images/valid_selection_cut.png
+   :align: center
+   :alt: A selection which can be copied as XML.
 
-  A selection that cannot be cut can still be copied.
+   This selection can be copied as XML because it begins and ends in the same
+   ``p`` element. There is an ``lb`` element inside the selection, which is
+   fine.
 
-  .. warning:: Browsers put significant obstacles into the path of any
-               JavaScript code that wants to handle cutting
-               itself. (It is a security issue.) Consequently, it is
-               possible that cutting won't work on your platform. Wed
-               *cannot* verify that cutting *will* work on your
-               platform and cannot for now *reliably* issue warnings
-               about problems. So... it is possible that if you try to
-               cut, the selected data will be deleted from the editing
-               screen but will **not** be copied into the clipboard.
+Cutting
+-------
+
+Cutting will work only if the selection being cut starts and ends inside the
+same XML element or the same XML attribute value. The selection can span over
+XML elements, provided that it completely contains these elements.
+
+.. figure:: help_images/invalid_selection_cut.png
+   :align: center
+   :alt: A selection which cannot be cut.
+
+   This selection cannot be cut from the document because it begins in one ``p``
+   element but ends in the subsequent ``p`` element.
+
+.. figure:: help_images/valid_selection_cut.png
+   :align: center
+   :alt: A selection which can be cut.
+
+   This selection can be cut from the document because it begins and ends in the
+   same ``p`` element. There is an ``lb`` element inside the selection, which is
+   fine.
+
+A selection that cannot be cut can still be copied.
+
+.. warning:: Browsers put significant obstacles into the path of any JavaScript
+             code that wants to handle cutting itself. (It is a security issue.)
+             Consequently, it is possible that cutting won't work on your
+             platform. Wed *cannot* verify that cutting *will* work on your
+             platform and cannot for now *reliably* issue warnings about
+             problems. So... it is possible that if you try to cut, the selected
+             data will be deleted from the editing screen but will **not** be
+             copied into the clipboard.
+
+Pasting
+-------
+
+Wed will attempt parsing the pasted text, and if it is a well-formed XML
+fragment, it will insert into your document the *parsed XML*, even if the
+original document was plain text. Here's an example. Suppose you have a plain
+text editor opened, and you have the text ``<foo>something</foo>`` in it. If you
+select that text and paste it into wed, wed will create a ``foo`` element that
+contains the text ``something``. It will not paste the text
+``<foo>something</foo>`` *as text*.
+
+If the text in the clipboard is not well-formed XML, then wed will insert it
+into your document as text. So if you have the copy the text ``<foo blah</foo>``
+from your plain text editor, and paste it into wed, this will be pasted *as
+text*.
+
+Note that pasting into attribute values always pastes the clipboard data as text
+because attributes cannot contain anything else than text.
 
 Undo and Redo
 =============

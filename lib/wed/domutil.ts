@@ -1095,22 +1095,19 @@ export type CutResult = [Caret, Node[]];
 export function genericCutFunction(this: GenericCutContext,
                                    startCaret: Caret,
                                    endCaret: Caret): CutResult {
-  if (!isWellFormedRange({ startContainer: startCaret[0],
-                           startOffset: startCaret[1],
-                           endContainer: endCaret[0],
-                           endOffset: endCaret[1] })) {
-    throw new Error("range is not well-formed");
-  }
-
+  // copy uses an algorithm similar to the one here and probably should also be
+  // modified if this function is modified.
   let [startContainer, startOffset] = startCaret;
   let [endContainer, endOffset] = endCaret;
+  if (!isWellFormedRange({ startContainer, startOffset, endContainer,
+                           endOffset })) {
+    throw new Error("range is not well-formed");
+  }
 
   let parent = startContainer.parentNode;
   if (parent == null) {
     throw new Error("detached node");
   }
-  let finalCaret: [Node, number];
-  let startText;
 
   if (isText(startContainer) && startOffset === 0) {
     // We are at the start of a text node, move up to the parent.
@@ -1122,11 +1119,11 @@ export function genericCutFunction(this: GenericCutContext,
     }
   }
 
+  let finalCaret: [Node, number];
+  let startText;
   if (isText(startContainer)) {
     const sameContainer = startContainer === endContainer;
-
     const startContainerOffset = indexOf(parent.childNodes, startContainer);
-
     const endTextOffset = sameContainer ? endOffset : startContainer.length;
 
     startText = parent.ownerDocument.createTextNode(
@@ -1134,8 +1131,10 @@ export function genericCutFunction(this: GenericCutContext,
     // tslint:disable-next-line:no-invalid-this
     this.deleteText(startContainer, startOffset, startText.length);
 
-    finalCaret = (startContainer.parentNode != null) ?
-      [startContainer, startOffset] :
+    // deleteText will delete startContainer from the tree if it happens that
+    // we've emptied it.
+    const notEmptied = startContainer.parentNode !== null;
+    finalCaret = notEmptied ? [startContainer, startOffset] :
       // Selection was such that the text node was emptied.
       [parent, startContainerOffset];
 
@@ -1146,7 +1145,7 @@ export function genericCutFunction(this: GenericCutContext,
     }
 
     // Alter our start to take care of the rest
-    startOffset = (startContainer.parentNode != null) ?
+    startOffset = notEmptied ?
       // Look after the text node we just modified.
       startContainerOffset + 1 :
       // Selection was such that the text node was emptied, and thus removed. So
@@ -1185,30 +1184,114 @@ export function genericCutFunction(this: GenericCutContext,
     throw new Error("internal error in cut: not an element");
   }
 
-  const returnNodes = [];
+  const returnNodes: Node[] = startText === undefined ? [] : [startText];
   endOffset--;
-  // Doing it in reverse allows us to not worry about offsets getting out of
-  // whack.
-  while (endOffset >= startOffset) {
-    returnNodes.unshift(endContainer.childNodes[endOffset]);
+  for (let count = endOffset - startOffset; count >= 0; count--) {
+    returnNodes.push(endContainer.childNodes[startOffset]);
     // tslint:disable-next-line:no-invalid-this
-    this.deleteNode(endContainer.childNodes[endOffset]);
-    endOffset--;
-  }
-  if (startText != null) {
-    returnNodes.unshift(startText);
+    this.deleteNode(endContainer.childNodes[startOffset]);
   }
   if (endText != null) {
     returnNodes.push(endText);
   }
 
-  // At this point, endOffset points to the node that is before the list of
-  // nodes removed.
-  if (endContainer.childNodes[endOffset] != null) {
+  if (endContainer.childNodes[startOffset - 1] != null) {
     // tslint:disable-next-line:no-invalid-this
-    this.mergeTextNodes(endContainer.childNodes[endOffset]);
+    this.mergeTextNodes(endContainer.childNodes[startOffset - 1]);
   }
   return [finalCaret, returnNodes];
+}
+
+/**
+ * Copies a well formed region of the DOM tree.
+ *
+ * @param startCaret Start caret position.
+ *
+ * @param endCaret Ending caret position.
+ *
+ * @returns A copy of the contents.
+ *
+ * @throws {Error} If Nodes in the range are not in the same element.
+ */
+// tslint:disable-next-line:max-func-body-length
+export function copy(startCaret: Caret, endCaret: Caret): Node[] {
+  // genericCutFunction uses an algorithm similar to the one here and probably
+  // should also be modified if this function is modified.
+  let [startContainer, startOffset] = startCaret;
+  let [endContainer, endOffset] = endCaret;
+  if (!isWellFormedRange({ startContainer, startOffset, endContainer,
+                           endOffset })) {
+    throw new Error("range is not well-formed");
+  }
+  let parent = startContainer.parentNode;
+  if (parent == null) {
+    throw new Error("detached node");
+  }
+
+  if (isText(startContainer) && startOffset === 0) {
+    // We are at the start of a text node, move up to the parent.
+    startOffset = indexOf(parent.childNodes, startContainer);
+    startContainer = parent;
+    parent = startContainer.parentNode;
+    if (parent == null) {
+      throw new Error("detached node");
+    }
+  }
+
+  let startText;
+  if (isText(startContainer)) {
+    const sameContainer = startContainer === endContainer;
+    const startContainerOffset = indexOf(parent.childNodes, startContainer);
+    const endTextOffset = sameContainer ? endOffset : startContainer.length;
+
+    startText = parent.ownerDocument.createTextNode(
+      startContainer.data.slice(startOffset, endTextOffset));
+
+    if (sameContainer) {
+      // Both the start and end were in the same node, so the deleteText
+      // operation above did everything needed.
+      return [startText];
+    }
+
+    startOffset = startContainerOffset + 1;
+    startContainer = parent;
+  }
+
+  let endText;
+  if (isText(endContainer)) {
+    parent = endContainer.parentNode;
+    if (parent == null) {
+      throw new Error("detached node");
+    }
+
+    const endContainerOffset = indexOf(parent.childNodes, endContainer);
+
+    endText = parent.ownerDocument.createTextNode(
+      endContainer.data.slice(0, endOffset));
+
+    // Alter our end to take care of the rest
+    endOffset = endContainerOffset;
+    endContainer = parent;
+  }
+
+  // At this point, the following checks must hold
+  if (startContainer !== endContainer) {
+    throw new Error("internal error in cut: containers unequal");
+  }
+  if (!isElement(startContainer)) {
+    throw new Error("internal error in cut: not an element");
+  }
+
+  const returnNodes: Node[] = startText === undefined ? [] : [startText];
+  endOffset--;
+  while (startOffset <= endOffset) {
+    returnNodes.push(endContainer.childNodes[startOffset++].cloneNode(true));
+  }
+  if (endText != null) {
+    returnNodes.push(endText);
+  }
+
+  return returnNodes;
 }
 
 /**

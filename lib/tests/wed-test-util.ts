@@ -12,7 +12,7 @@ import { expect } from "chai";
 import qs = require("qs");
 import * as sinon from "sinon";
 
-import { domutil, makeEditor, Options } from "wed";
+import { DLoc, domutil, makeEditor, Options } from "wed";
 import { Editor } from "wed/editor";
 import * as onerror from "wed/onerror";
 
@@ -115,6 +115,15 @@ export function dataCaretCheck(editor: Editor, container: Node,
                                offset: number, msg: string): void {
   const dataCaret = editor.caretManager.getDataCaret()!;
   expect(dataCaret.toArray(), msg).to.deep.equal([container, offset]);
+}
+
+export function dataSelectionCheck(editor: Editor, start: DLoc,
+                                   end: DLoc, msg: string): void {
+  const sel = editor.caretManager.sel!;
+  expect(sel).to.be.not.be.undefined;
+  const [selStart, selEnd] = sel.mustAsDataCarets();
+  expect(selStart.toArray(), msg).to.deep.equal(start.toArray());
+  expect(selEnd.toArray(), msg).to.deep.equal(end.toArray());
 }
 
 export interface Payload {
@@ -257,6 +266,15 @@ export function errorCheck(): void {
     .to.equal(false, "test caused an unhandled exception to occur");
 }
 
+export function expectNotification(kind: string, content: string): void {
+  const notification = document.querySelector("[data-notify='container']")!;
+  expect(notification, "there should be a notification").to.not.be.null;
+  expect(notification.classList.contains(`alert-${kind}`),
+         `the notification should be of kind ${kind}`).to.be.true;
+  const message = notification.querySelector("[data-notify='message']");
+  expect(message).to.have.property("textContent").equal(content);
+}
+
 // tslint:disable-next-line:completed-docs
 export class EditorSetup {
   private static provider: DataProvider = new DataProvider("");
@@ -298,6 +316,9 @@ export class EditorSetup {
     editor.caretManager.clearSelection();
     this.server.reset();
     errorCheck();
+    // Immediately destroy all notifications to prevent interfering with other
+    // tests. ($.notifyClose is not drastic enough.)
+    $("[data-notify=container]").remove();
   }
 
   restore(): void {

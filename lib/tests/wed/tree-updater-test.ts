@@ -1312,12 +1312,11 @@ quoted2</div> after</div>");
       const end = DLoc.mustMakeDLoc(root, p.childNodes[4], 3);
       assert.equal(p.childNodes.length, 5);
 
-      let nodes = Array.prototype.slice.call(
+      const nodes = Array.prototype.slice.call(
         p.childNodes,
         indexOf(p.childNodes, start.node.nextSibling!),
         indexOf(p.childNodes, end.node.previousSibling!) + 1);
       const listener = new Listener(tu);
-      nodes = nodes.reverse();
       const calls = nodes.concat([end.node]);
       let callsIx = 0;
 
