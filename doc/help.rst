@@ -1140,9 +1140,8 @@ stick with it.
 Browser Requirements
 ====================
 
-Wed is primarily developed using a recent version of Chrome (version 59 now,
-earlier versions have also been used earlier). (But see a note about Chrome 34
-below.)
+Wed is primarily developed using a recent version of Chrome. (But see a note
+about Chrome 34 below.)
 
 Here is the list of officially supported browsers, in order of decreasing
 priority. The higher a browser is in the list, the less likely you are to run
@@ -1151,9 +1150,7 @@ browser.
 
 * The latest stable version of Chrome.
 
-* The latest stable version of Edge.
-
-* IE 11, but see `the section about it <IE11>`_.
+* The latest stable version of Edge, but `see the section on Edge <Edge_>`_.
 
 * Versions of Chrome or Edge older than the latest stable version, but not very
   old. (Yeah, this is vague. Sorry about that.)
@@ -1170,9 +1167,9 @@ supported:
 
 * Firefox. It deserves its own `discussion <Firefox_>`_.
 
-* IE 10 and 9. Wed used to be routinely tested on IE 10, but Microsoft no longer
-  supports it. Resuming support for IE 10 or 9 is extremely unlikely, because
-  wed has accumulated features and methods that do not work on these browsers.
+* IE. Support for IE 11 has become too costly. Resuming support for IE is
+  extremely unlikely, because wed has accumulated features and methods that do
+  not work on these browsers.
 
 * Chrome 34: the luminaries at Google decided to remove ``Attr.ownerElement``
   from Chrome 34. It was reintroduced in Chrome 35. We'll probably never have
@@ -1185,12 +1182,32 @@ supported:
 
 * Operating systems or browsers no longer supported by their own vendors.
 
+Edge
+----
+
+Cut-copy-paste are not working well in Edge, and there is currently no
+development resource available to devote to it. The root cause is that the
+luminaries who develop Edge cannot be bothered to implement the clipboard API
+correctly. See:
+
+* https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14080506/
+* https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14110451/
+
+At the time of writing this, the bugs were reported over a year ago: response
+from Microsoft... crickets.
+
 Firefox
 -------
 
 We're hoping that the lack of Firefox support is going to be temporary. The
 paragraphs below give the state of Firefox support, in reverse chronological
 order (most recent on top):
+
+Update August 2018: Firefox support is still suspended. Geckodriver is plagued
+by asinine regressions like `this one
+<https://github.com/SeleniumHQ/selenium/issues/5621>`__ Returning DOM elements
+is supported on all browsers and has been supported by Selenium since time
+immemorial, but they managed to screw it up. *sigh*
 
 Update November 2017: Firefox support is still suspended. The Marionette driver
 has been released. However it is so buggy that there's no way we can run our
@@ -1230,12 +1247,18 @@ support in Firefox and so Firefox support has been temporarily pulled.
 IE11
 ----
 
-At some point in 2017 Selenium, IEDriver, or something else changed in such a
-way that makes the test suite run incredibly slowly on IE11. Wed itself runs at
-normal speed, as we can assess by running it manually in IE11. We've looked for
-a solution but could not find one. Tracking down what broke is more work than we
-can spend on this now. We accept bug reports due to issues on IE11 and accept
-patches that would resolve the slowdown on IE11.
+We no longer support any version of IE. The benefit/cost ratio does not make it
+viable for us to continue supporting IE. If **you** want to bring back support
+for IE 11 you'll have to champion it: concretely, this means you need to provide
+the development time to support it.
+
+If somehow we were to reintroduce IE 11 support, we'd still be facing the
+following issue. At some point in 2017 Selenium, IEDriver, or something else
+changed in such a way that makes the test suite run incredibly slowly on
+IE11. Wed itself runs at normal speed, as we can assess by running it manually
+in IE11. We've looked for a solution but could not find one. Tracking down what
+broke is more work than we can spend on this now. We accept bug reports due to
+issues on IE11 and accept patches that would resolve the slowdown on IE11.
 
 It is perhaps related to a bug whereby keystrokes are extremely slow in IE11,
 but we've tried the solutions outlined there and nothing worked.
@@ -1272,44 +1295,37 @@ suite with Firefox or Safari.
 Safari
 ------
 
-Safari is a vexing case. Wed may or may not work on Safari. We
-currently cannot run the automated test suite with Safari. Manual
-testing is out of the question.
+Safari is a vexing case. Wed may or may not work on Safari. We currently cannot
+run the automated test suite with Safari. Manual testing is out of the question.
 
-We would like to have wed be supported on recent versions of Safari to
-the same extent it is supported on recent versions of Chrome. The tool
-we use to test it is Selenium. For better or for worse this is the
-go-to tool to do the kind of test wed needs. We've not seen evidence
-of any collaboration between the Selenium project and Apple. Thus
-testing support for Safari is deficient, and it is not something that
-we here have the resources to fix.
+We would like to have wed be supported on recent versions of Safari to the same
+extent it is supported on recent versions of Chrome. The tool we use to test it
+is Selenium. For better or for worse this is the go-to tool to do the kind of
+test wed needs. We've not seen evidence of any collaboration between the
+Selenium project and Apple. Thus testing support for Safari is deficient, and it
+is not something that we here have the resources to fix.
 
-If you desire that wed be actually tested on Safari and are in a
-position to contribute substantial monetary or technical resources
-towards this goal, you are welcome to contact us. In particular,
-immediate problem we've run into when trying to test on Safari is this
-`Selenium issue
-<http://code.google.com/p/selenium/issues/detail?id=4136>`__. If you
-want fix it, then this would bring us one step closer to being able to
-test wed on Safari. And regarding the state of Selenium support for
-Safari, take note this response from a Selenium project member:
+If you desire that wed be actually tested on Safari and are in a position to
+contribute substantial monetary or technical resources towards this goal, you
+are welcome to contact us. In particular, immediate problem we've run into when
+trying to test on Safari is this `Selenium issue
+<http://code.google.com/p/selenium/issues/detail?id=4136>`__. If you want fix
+it, then this would bring us one step closer to being able to test wed on
+Safari. And regarding the state of Selenium support for Safari, take note this
+response from a Selenium project member:
 
  Safari is not a priority, sorry. But your patches are welcome!
 
 Absent these patches, wed is unlikely to support Safari.
-
-On the other hand, if you feel the urge to write an email saying "You
-should just...", then please abstain because there is nothing "just"
-about testing web applications.
 
 .. _complex_name_patterns:
 
 Complex Name Patterns
 =====================
 
-When you open the contextual menu to check what it is possible to
-insert in a document you may see a menu item with an exclamation mark,
-labeled "Complex name pattern". What's the deal?
+When you open the contextual menu to check what it is possible to insert in a
+document you may see a menu item with an exclamation mark, labeled "Complex name
+pattern". What's the deal?
 
 Brief Explanation
 -----------------

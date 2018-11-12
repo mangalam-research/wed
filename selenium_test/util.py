@@ -70,6 +70,33 @@ def get_element_parent_and_parent_text(driver, selector):
     """, selector)
 
 
+def get_element_parent_and_selection_length(driver, selector):
+    """
+    Given a CSS selector, return the element found, its parent and the
+    number of caret moves needed to select the whole content of the
+    element.
+    """
+    return driver.execute_script("""
+    var button = jQuery(arguments[0])[0];
+    var parent = button.parentNode;
+    var dataNode = wed_editor.toDataNode(parent);
+    var caretManager = wed_editor.caretManager;
+    var final = caretManager.mustFromDataLocation(
+      caretManager.makeCaret(dataNode.lastChild,
+                             dataNode.lastChild.length));
+    var initial = caretManager.mustFromDataLocation(
+      caretManager.makeCaret(dataNode, 0));
+    var count = 0;
+
+    while (initial.compare(final) < 0) {
+      count++;
+      initial = caretManager.newPosition(initial, "right");
+    }
+
+    return [button, parent, count - 1];
+    """, selector)
+
+
 def get_real_siblings(driver, element):
     """
     Returns a couple whose first member is the list of siblings before

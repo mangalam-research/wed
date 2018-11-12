@@ -59,41 +59,6 @@ Scenario: typing text that triggers an input trigger
   Then the first "hi" in body has the text "A"
   And the second "hi" in body has the text "B"
 
-@not.with_platform=osx
-Scenario: pasting text that triggers an input trigger
-  Given a document without "hi"
-  When the user selects the whole text of the first paragraph in "body"
-  And the user cuts
-  And the user uses the keyboard to bring up the context menu
-  And the user clicks a choice for creating a new hi
-  And the user pastes
-  Then the first "hi" in body has the text "A"
-  And the second "hi" in body has the text "B"
-
-@not.with_platform=osx
-Scenario: pasting text that triggers an input trigger outside an element that should trigger it
-  Given a document without "hi"
-  When the user selects the whole text of the first paragraph in "body"
-  And the user cuts
-  Then the text is cut
-  When the user pastes
-  Then the first paragraph in body has the text "A;B"
-
-# Selenium for OSX just does not allow us to paste.
-@not.with_platform=osx
-# IE does not allow us to get the contents of the clipboard as HTML.
-@not.with_browser=ie
-Scenario: pasting XML
-  Given a document containing a top level element, a p element, and text.
-  When the user selects the whole contents of the first paragraph in "body"
-  And the user cuts
-  And the user clicks on the end label of the last paragraph
-  And the user hits the right arrow
-  And the user brings up the context menu
-  And the user clicks a choice for creating a new p
-  And the user pastes
-  Then the text is pasted into the new paragraph
-
 Scenario: overwriting a selection
   Given a document containing a top level element, a p element, and text.
   When the user selects the "bc" of the first title

@@ -131,7 +131,6 @@ const FRAMEWORK_TEMPLATE = "\
    </div>\
   </div>\
   <div class='row'>\
-   <div class='wed-cut-buffer' contenteditable='true'></div>\
    <div class='wed-document-constrainer'>\
     <input class='wed-comp-field' type='text'></input>\
     <div class='wed-scroller'>\
@@ -406,9 +405,7 @@ export class Editor implements EditorAPI {
     this.inputField =
       framework.getElementsByClassName("wed-comp-field")[0] as HTMLInputElement;
     this.$inputField = $(this.inputField);
-    const clipboardBuffer =
-      framework.getElementsByClassName("wed-cut-buffer")[0] as HTMLElement;
-    this.clipboard = new Clipboard(clipboardBuffer);
+    this.clipboard = new Clipboard();
 
     this.caretLayer = new Layer(
       framework.getElementsByClassName("wed-caret-layer")[0] as HTMLElement);
@@ -1985,7 +1982,7 @@ in a way not supported by this version of wed.";
     return ret;
   }
 
-  private copyHandler(): boolean {
+  private copyHandler(e: JQueryEventObject): boolean {
     const { caretManager } = this;
     const sel = caretManager.sel;
     if (sel === undefined) {
@@ -1995,7 +1992,6 @@ in a way not supported by this version of wed.";
     const { clipboard } = this;
 
     if (!sel.wellFormed) {
-      clipboard.clear();
       notify(`Selection is not well-formed XML, and consequently was copied \
 as text.`, { type: "warning" });
       return true;
@@ -2016,45 +2012,47 @@ as text.`, { type: "warning" });
       clipboard.setNodes(copied);
     }
 
-    caretManager.pushSelection();
-    clipboard.selectBuffer();
+    // tslint:disable-next-line:no-any
+    const cd = (e.originalEvent as any).clipboardData as DataTransfer;
+    clipboard.setClipboardData(cd);
 
-    // We've set the range to the cut buffer, which is what we want for the copy
-    // operation to work. However, the focus is also set to the cut buffer but
-    // once the cut is done we want the focus to be back to our caret, so...
-    setTimeout(() => {
-      caretManager.popSelection();
-    }, 0);
-
-    return true;
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
   }
 
   private cutHandler(e: JQueryEventObject): boolean {
-    if (this.caretManager.getDataCaret() === undefined) {
+    const sel = this.caretManager.sel;
+    if (sel === undefined) {
       return false;
     }
 
-    const sel = this.caretManager.sel!;
     if (!sel.wellFormed) {
       this.clipboard.clear();
       notify(`Selection is not well-formed XML, and consequently the selection \
 cannot be cut.`, { type: "danger" });
+      e.preventDefault();
+      e.stopPropagation();
       return false;
     }
 
     const el = closestByClass(sel.anchor.node, "_real", this.guiRoot);
     // We do not operate on elements that are readonly.
     if (el === null || el.classList.contains("_readonly")) {
+      e.preventDefault();
+      e.stopPropagation();
       return false;
     }
 
     // The only thing we need to pass is the event that triggered the
     // cut.
     this.fireTransformation(this.cutTr, { e: e });
-    return true;
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
   }
 
-  private cut(): void {
+  private cut(_editor: EditorAPI, data: TransformationData): void {
     const caretManager = this.caretManager;
     const sel = caretManager.sel;
     if (sel === undefined) {
@@ -2088,14 +2086,9 @@ cannot be cut.`, { type: "danger" });
       caretManager.setCaret(cutRet[0]);
     }
 
-    clipboard.selectBuffer();
-
-    // We've set the range to the cut buffer, which is what we want for the cut
-    // operation to work. However, the focus is also set to the cut buffer but
-    // once the cut is done we want the focus to be back to our caret, so...
-    setTimeout(() => {
-      caretManager.focusInputField();
-    }, 0);
+    // tslint:disable-next-line:no-any
+    const cd = (data.e as any).originalEvent.clipboardData as DataTransfer;
+    clipboard.setClipboardData(cd);
   }
 
   private pasteHandler(e: JQueryEventObject): boolean {
@@ -2111,54 +2104,54 @@ cannot be cut.`, { type: "danger" });
       return false;
     }
 
-    // IE puts the clipboardData as a object on the window.
-    // tslint:disable
-    const cd = (e.originalEvent as any).clipboardData ||
-      (this.window as any).clipboardData;
-    // tslint:enable
+    // tslint:disable-next-line:no-any
+    const cd = (e.originalEvent as any).clipboardData as DataTransfer;
 
-    let text = cd.getData("text");
-    if (text == null || text === "") {
-      return false;
-    }
-
-    let doc: Document | null = null;
     const { clipboard } = this;
-    if (clipboard.canUseTree(text)) {
-      //
-      // If the text we are trying to paste is identical to the text in our
-      // cutBuffer then we assume that the user is trying to paste what has been
-      // cut/copied from a previous wed operation, and we just get the nodes to
-      // paste from the cutTree *instead* of reparsing the pasted text.
-      //
-      // One advantage of doing this is that it works around the spurious
-      // ``xmlns`` attributes that are created when we do a
-      // serialization/parsing round-trip.
-      //
-      // (Note that in the odd case where a user would in fact have gotten the
-      // text from somewhere else, the false positive does not matter. What
-      // matters is that the cutBuffer and the cutTree are in sync.
-      //
-      doc = clipboard.cloneTree();
-    }
-    // If we are in an attribute then the clipboard has to be pasted as text. It
-    // cannot be parsed as XML and insert Elements or other nodes into the
-    // attribute value.
-    else if (!isAttr(caret.node)) {
-      // This could result in an empty string.
-      text = this.normalizeEnteredText(text);
-      if (text === "") {
-        return false;
+    const xml = cd.getData("text/xml");
+    let text = cd.getData("text/plain");
+    let doc: Document | null = null;
+    if (xml !== "") {
+      if (clipboard.canUseTree(text)) {
+        //
+        // If the text we are trying to paste is identical to the text in our
+        // cutBuffer then we assume that the user is trying to paste what has
+        // been cut/copied from a previous wed operation, and we just get the
+        // nodes to paste from the cutTree *instead* of reparsing the pasted
+        // text.
+        //
+        // One advantage of doing this is that it works around the spurious
+        // ``xmlns`` attributes that are created when we do a
+        // serialization/parsing round-trip.
+        //
+        // (Note that in the odd case where a user would in fact have gotten the
+        // text from somewhere else, the false positive does not matter. What
+        // matters is that the cutBuffer and the cutTree are in sync.
+        //
+        doc = clipboard.cloneTree();
       }
+      // If we are in an attribute then the clipboard has to be pasted as
+      // text. It cannot be parsed as XML and insert Elements or other nodes
+      // into the attribute value.
+      else if (!isAttr(caret.node)) {
+        // This could result in an empty string.
+        text = this.normalizeEnteredText(text);
+        if (text === "") {
+          return false;
+        }
 
-      try {
-        doc = safeParse(`<div>${text}</div>`, this.window);
-      }
-      catch (ex) {
-        if (!(ex instanceof ParsingError)) {
-          throw ex;
+        try {
+          doc = safeParse(`<div>${text}</div>`, this.window);
+        }
+        catch (ex) {
+          if (!(ex instanceof ParsingError)) {
+            throw ex;
+          }
         }
       }
+    }
+    else if (text == null || text === "") {
+      return false;
     }
 
     let data: Element;

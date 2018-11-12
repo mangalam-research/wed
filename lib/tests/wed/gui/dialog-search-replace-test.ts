@@ -87,7 +87,7 @@ describe("dialog-search-replace", () => {
 
   afterEach(() => {
     // Make sure there is no dialog after each test.
-    expect(document.querySelector(".modal .in")).to.be.null;
+    expect(document.querySelector(".modal.in")).to.be.null;
     setup.reset();
   });
 

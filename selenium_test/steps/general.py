@@ -308,6 +308,14 @@ def open_simple_doc(context):
         text="lib/tests/wed_test_data/notext_converted.xml")
 
 
+@given(ur'a document with readonly elements')
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        schema="/build/schemas/simplified-rng.js",
+        text="lib/tests/wed_test_data/wildcard_converted.xml")
+
+
 @when(ur"the user scrolls the window (?P<choice>completely down|down "
       ur"by (?P<by>\d+))")
 def step_impl(context, choice, by):

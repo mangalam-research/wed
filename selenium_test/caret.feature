@@ -55,19 +55,6 @@ Scenario: Bringing up the context menu on an element label after another element
   And the user uses the mouse to bring up the context menu on the start label of another element
   Then the label of the element that has the context menu is selected.
 
-Scenario: Cutting text.
-  When the user selects the whole text of an element
-  And the user cuts
-  Then the text is cut
-
-@not.with_platform=osx
-Scenario: Pasting text.
-  When the user selects the whole text of an element
-  And the user cuts
-  Then the text is cut
-  When the user pastes
-  Then the text is pasted
-
 Scenario: restoring the selection
   When the user selects text
   And the user brings up the context menu on the selection

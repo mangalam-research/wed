@@ -7,13 +7,7 @@
 export class Clipboard {
   private readonly tree: Document =
     new DOMParser().parseFromString("<div/>", "text/xml");
-  private readonly doc: Document;
-  private readonly win: Window;
-
-  constructor(private readonly buffer: HTMLElement) {
-    this.doc = buffer.ownerDocument;
-    this.win = buffer.ownerDocument.defaultView;
-  }
+  private readonly firstChild: Element = this.tree.firstChild as Element;
 
   /**
    * Clear the clipboard.
@@ -22,21 +16,15 @@ export class Clipboard {
    * AFFECT THE BROWSER CLIPBOARD!**
    */
   clear(): void {
-    const { tree, buffer } = this;
-    while (buffer.firstChild !== null) {
-      buffer.removeChild(buffer.firstChild);
-    }
-
     // Empty the div.
     // tslint:disable-next-line:no-inner-html
-    (tree.firstChild as Element).innerHTML = "";
+    this.firstChild.innerHTML = "";
   }
 
   /**
-   * Sets the clipboard nodes. This adds the nodes to the internal DOM tree, and
-   * sets the text of the internal buffer to the HTML of the nodes.
+   * Sets the clipboard nodes. This adds the nodes to the internal DOM tree.
    *
-   * Note that the buffer and tree are cleared before adding the nodes.
+   * Note that the clipboard is cleared before adding the nodes.
    *
    * @param nodes The nodes to add. These nodes become property of the clipboard
    * after being added. If you want to keep the nodes in another document, clone
@@ -44,46 +32,52 @@ export class Clipboard {
    */
   setNodes(nodes: Node[]): void {
     this.clear();
-    const { tree, buffer } = this;
+    const { tree, firstChild } = this;
     for (const node of nodes) {
-      tree.firstChild!.appendChild(tree.adoptNode(node));
+      firstChild.appendChild(tree.adoptNode(node));
     }
-
-    buffer.textContent = (tree.firstChild as Element).innerHTML;
   }
 
   /**
-   * Sets the text of the internal buffer.
+   * Sets the text of the clipboard.
    *
-   * Note that the buffer and tree are cleared before setting the text.
+   * Note that the clipboard is cleared before setting the text.
    *
    * @param text The text to set the buffer to.
    */
   setText(text: string): void {
     this.clear();
-    this.buffer.textContent = text;
+    this.firstChild.textContent = text;
   }
 
   /**
-   * Sets the current selection of the window to which the clipboard belongs to
-   * select the whole buffer.
+   * Determines whether, in a paste operation, the tree that is stored in this
+   * clipboard should be used.
+   *
+   * @param toPaste The XML that the user is trying to paste.
    */
-  selectBuffer(): void {
-    const range = this.doc.createRange();
-    const { buffer } = this;
-    range.setStart(buffer, 0);
-    range.setEnd(buffer, buffer.childNodes.length);
-    const domSel = this.win.getSelection();
-    domSel.removeAllRanges();
-    domSel.addRange(range);
-  }
-
   canUseTree(toPaste: string): boolean {
-    return toPaste === this.buffer.textContent &&
-      this.tree.firstChild!.firstChild !== null;
+    return this.firstChild.textContent === toPaste;
   }
 
+  /**
+   * @returns A deep copy of the tree in this clipboard.
+   */
   cloneTree(): Document {
     return this.tree.cloneNode(true) as Document;
+  }
+
+  /**
+   * Set the DOM clipboard data to reflect what is stored in this wed-internal
+   * clipboard. Note that any old data in the DOM clipboard data is cleared
+   * before setting the new data.
+   *
+   * @param clipboardData The object to set.
+   */
+  setClipboardData(clipboardData: DataTransfer): void {
+    const { firstChild } = this;
+    clipboardData.clearData();
+    clipboardData.setData("text/plain", firstChild.textContent!);
+    clipboardData.setData("text/xml", firstChild.innerHTML);
   }
 }

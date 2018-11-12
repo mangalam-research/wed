@@ -9,9 +9,9 @@ import { CaretManager } from "wed/caret-manager";
 import { Editor } from "wed/editor";
 
 import * as globalConfig from "../base-config";
-import { delay, makeFakePasteEvent, waitForSuccess } from "../util";
-import { activateContextMenu, contextMenuHasOption, dataCaretCheck,
-         EditorSetup, getAttributeNamesFor } from "../wed-test-util";
+import { waitForSuccess } from "../util";
+import { activateContextMenu, contextMenuHasOption, EditorSetup,
+         getAttributeNamesFor } from "../wed-test-util";
 
 const options = {
   schema: "/base/build/schemas/simplified-rng.js",
@@ -111,70 +111,6 @@ describe("wed wildcard support:", () => {
     caretManager.setCaret(bar, 0);
     editor.type("f");
     assert.equal(bar.textContent, "fabc");
-  });
-
-  it("prevents pasting in readonly elements and attributes", () => {
-    const initial = editor.dataRoot.querySelector("bar")!;
-    const initialGUI =
-      caretManager.fromDataLocation(initial, 0)!.node as Element;
-    assert.isTrue(initialGUI.classList.contains("_readonly"));
-    caretManager.setCaret(initial, 0);
-    const initialValue = initial.textContent;
-
-    // Synthetic event
-    let event = makeFakePasteEvent({
-      types: ["text/plain"],
-      getData: () => "a",
-    });
-    editor.$guiRoot.trigger(event);
-    assert.equal(initial.textContent, initialValue);
-    dataCaretCheck(editor, initial, 0, "final position");
-
-    // Check that removing _readonly would make the paste work. This proves that
-    // the only thing that was preventing pasting was _readonly.
-    initialGUI.classList.remove("_readonly");
-    caretManager.setCaret(initial, 0);
-
-    // We have to create a new event.
-    event = makeFakePasteEvent({
-      types: ["text/plain"],
-      getData: () => "a",
-    });
-
-    editor.$guiRoot.trigger(event);
-    assert.equal(initial.textContent, `a${initialValue}`);
-    dataCaretCheck(editor, initial.firstChild!, 1, "final position");
-  });
-
-  it("prevents cutting from readonly elements", async () => {
-    const initial = editor.dataRoot.querySelector("bar")!;
-    let initialGUI!: Element;
-    await waitForSuccess(() => {
-      initialGUI =
-        caretManager.fromDataLocation(initial, 0)!.node as Element;
-      assert.isTrue(initialGUI.classList.contains("_readonly"));
-    });
-    const initialValue = initial.textContent!;
-
-    const guiStart = caretManager.fromDataLocation(initial.firstChild!, 1)!;
-    caretManager.setCaret(guiStart);
-    caretManager.setRange(
-      guiStart,
-      caretManager.fromDataLocation(initial.firstChild!, 2)!);
-
-    // Synthetic event
-    editor.$guiRoot.trigger(new $.Event("cut"));
-    await delay(1);
-
-    assert.equal(initial.textContent, initialValue);
-    // Try again, after removing _readonly so that we prove the only reason the
-    // cut did not work is that _readonly was present.
-    initialGUI.classList.remove("_readonly");
-    editor.$guiRoot.trigger(new $.Event("cut"));
-
-    await delay(1);
-    assert.equal(initial.textContent,
-                 initialValue.slice(0, 1) + initialValue.slice(2));
   });
 
   describe("a context menu has the complex pattern action when invoked", () => {

@@ -9,7 +9,8 @@ from selenium.webdriver.common.keys import Keys
 import wedutil
 import selenic.util
 
-from selenium_test.util import get_element_parent_and_parent_text
+from selenium_test.util import get_element_parent_and_parent_text, \
+    get_element_parent_and_selection_length
 
 # Don't complain about redefined functions
 # pylint: disable=E0102
@@ -313,7 +314,8 @@ def step_impl(context, direction):
 
 @when(u'the user selects the whole text of '
       u'(?P<what>an element|the first title element|'
-      u'the first paragraph in "body")')
+      u'the first paragraph in "body"|'
+      u'a readonly element with the text "abc")')
 def step_impl(context, what):
     driver = context.driver
     util = context.util
@@ -321,33 +323,99 @@ def step_impl(context, what):
     if what == "an element":
         what = "the first title element"
 
+    expected_text = None
     if what == "the first title element":
         selector = ".__start_label._title_label"
     elif what == 'the first paragraph in "body"':
         selector = ".body .__start_label._p_label"
+    elif what == "an attribute":
+        selector = ".body .__start_label._p_label"
+    elif what == 'a readonly element with the text "abc"':
+        selector = ".body ._readonly .__end_label"
+        expected_text = "abc"
     else:
         raise ValueError("unknown value for what: " + what)
 
-    element, parent, parent_text = get_element_parent_and_parent_text(
-        driver, selector)
+    element, parent, length = \
+        get_element_parent_and_selection_length(driver, selector)
 
     ActionChains(driver)\
         .click(element) \
         .perform()
 
-    util.send_keys(element,
-                   # From the label to before the first letter.
-                   [Keys.ARROW_RIGHT] +
-                   # This select the whole text of the element.
-                   [Keys.SHIFT] + [Keys.ARROW_RIGHT] * len(parent_text) +
-                   [Keys.SHIFT])
+    if selector.find("__end_label") != -1:
+        util.send_keys(element,
+                       # From the label to after the text
+                       [Keys.ARROW_LEFT] +
+                       # This select the whole text of the element.
+                       [Keys.SHIFT] + [Keys.ARROW_LEFT] * length +
+                       [Keys.SHIFT])
+    else:
+        util.send_keys(element,
+                       # From the label to before the first letter.
+                       [Keys.ARROW_RIGHT] +
+                       # This select the whole text of the element.
+                       [Keys.SHIFT] + [Keys.ARROW_RIGHT] * length +
+                       [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
     text = util.get_selection_text()
-    assert_equal(text, parent_text, "expected selection")
+
+    if expected_text is not None:
+        assert_equal(text, expected_text)
 
     context.expected_selection = text
     context.selection_parent = parent
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
+
+
+# This step is not meant to test whether we can select things. So we
+# select directly.
+@when(u'the user selects the whole text of an attribute')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    driver.execute_script("""
+    const p = wed_editor.guiRoot.querySelectorAll(".body .p")[7];
+    const caretManager = wed_editor.caretManager;
+    const attr = p.getElementsByClassName("_attribute_value")[0];
+    const text = attr.firstChild;
+    const guiStart = caretManager.makeCaret(text, 0);
+    const guiEnd = caretManager.makeCaret(text, text.length);
+    const dataStart = caretManager.toDataLocation(guiStart);
+    const dataEnd = caretManager.toDataLocation(guiEnd);
+    caretManager.setRange(guiStart, guiEnd);
+    """)
+
+    context.expected_selection = util.get_selection_text()
+    context.selection_parent = None
+    context.caret_screen_position = wedutil.caret_screen_pos(driver)
+
+
+# This step is not meant to test whether we can select things. So we
+# select directly.
+@when(u'the user selects the whole text of a readonly attribute with '
+      u'the text "x"')
+def step_impl(context):
+    driver = context.driver
+    util = context.util
+
+    driver.execute_script("""
+    const p =
+      wed_editor.guiRoot.querySelector(".body ._readonly .__start_label");
+    const caretManager = wed_editor.caretManager;
+    const attr = p.getElementsByClassName("_attribute_value")[0];
+    const text = attr.firstChild;
+    const guiStart = caretManager.makeCaret(text, 0);
+    const guiEnd = caretManager.makeCaret(text, text.length);
+    const dataStart = caretManager.toDataLocation(guiStart);
+    const dataEnd = caretManager.toDataLocation(guiEnd);
+    caretManager.setRange(guiStart, guiEnd);
+    """)
+
+    context.expected_selection = util.get_selection_text()
+    context.selection_parent = None
     context.caret_screen_position = wedutil.caret_screen_pos(driver)
 
 
@@ -445,35 +513,6 @@ def step_impl(context):
 
     text = util.get_selection_text()
     assert_equal(text, "abcd", "expected selection")
-
-
-@when(u'the user cuts')
-def step_impl(context):
-    wedutil.cut(context.util)
-
-
-@when(u'the user pastes')
-def step_impl(context):
-    wedutil.paste(context.util)
-
-
-@then(u'the text is cut')
-def step_impl(context):
-    util = context.util
-    parent = context.selection_parent
-
-    # It may take a bit.
-    util.wait(lambda *_: not len(util.get_text_excluding_children(parent)))
-
-
-@then(u'the text is pasted')
-def step_impl(context):
-    util = context.util
-    parent = context.selection_parent
-    text = context.expected_selection
-
-    # It may take a bit.
-    util.wait(lambda *_: util.get_text_excluding_children(parent) == text)
 
 
 @then(ur"the selection is restored to what it was before the context menu "
@@ -586,6 +625,16 @@ def step_impl(context):
     button = driver.find_element_by_class_name("_gui_test")
     button.click()
 
+
+@then(ur'the current (?:element|attribute) has the text "(?P<expected>.*?)"')
+def step_impl(context, expected):
+    driver = context.driver
+    text = driver.execute_script("""
+    var caret = wed_editor.caretManager.getDataCaret();
+    return caret.node.textContent;
+    """)
+    assert_equal(text, expected)
+
 step_matcher("parse")
 
 
@@ -669,8 +718,8 @@ def step_impl(context):
     driver = context.driver
     util = context.util
 
-    element = util.find_element((By.CSS_SELECTOR,
-                                 ".__start_label._title_label"))
+    element, parent, _ = get_element_parent_and_parent_text(
+        driver, ".__start_label._title_label")
 
     ActionChains(driver)\
         .click(element)\
@@ -688,6 +737,8 @@ def step_impl(context):
                    [Keys.SHIFT] + [Keys.ARROW_RIGHT] * 9 + [Keys.SHIFT])
 
     assert_true(util.is_something_selected(), "something must be selected")
+
+    context.selection_parent = parent
 
 
 @when(ur'the user clicks on uneditable text whose parent does not contain "A"')
@@ -755,6 +806,44 @@ def step_impl(context):
                                      pos["top"] - el_pos["top"]) \
         .click() \
         .perform()
+
+
+@when(ur'the user clicks in the text of a readonly element with '
+      ur'the text "abc"')
+def step_impl(context):
+    util = context.util
+    driver = context.driver
+    button = util.find_element(
+        (By.CSS_SELECTOR, ".body ._readonly .__end_label"))
+    ActionChains(driver)\
+        .click(button)\
+        .send_keys([Keys.ARROW_LEFT]) \
+        .perform()
+
+    text = driver.execute_script("""
+    var caret = wed_editor.caretManager.getDataCaret();
+    return caret.node.textContent;
+    """)
+    assert_equal(text, "abc")
+
+
+@when(ur'the user clicks in the text of a readonly attribute with '
+      ur'the text "x"')
+def step_impl(context):
+    util = context.util
+    driver = context.driver
+    button = util.find_element(
+        (By.CSS_SELECTOR, ".body ._readonly .__start_label"))
+    ActionChains(driver)\
+        .click(button)\
+        .send_keys([Keys.ARROW_RIGHT]) \
+        .perform()
+
+    text = driver.execute_script("""
+    var caret = wed_editor.caretManager.getDataCaret();
+    return caret.node.textContent;
+    """)
+    assert_equal(text, "x")
 
 
 @then(ur"the caret is set next to the clicked location")

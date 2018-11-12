@@ -7,7 +7,6 @@ from selenium.webdriver.common.by import By
 from nose.tools import assert_equal, assert_true  # pylint: disable=E0611
 from behave import step_matcher
 
-from selenic.util import Condition, Result
 import wedutil
 
 # Don't complain about redefined functions
@@ -141,28 +140,3 @@ def step_impl(context, ordinal, what, text):
     def cond(*_):
         return util.get_text_excluding_children(els[index]) == text
     util.wait(cond)
-
-
-@when(ur'the user closes the pasting modal by accepting it')
-def step_impl(context):
-    button = context.util.find_element(
-        (By.CSS_SELECTOR, ".modal.in .btn-primary"))
-    button.click()
-
-
-@then(ur'the text is pasted into the new paragraph')
-def step_impl(context):
-
-    def cond(driver):
-        text = driver.execute_script("""
-        var ps = wed_editor.dataRoot.querySelectorAll("body>p");
-        var p = ps[ps.length - 1];
-        return p.innerHTML;
-        """)
-        return Result(text == context.expected_selection_serialization,
-                      text)
-
-    ret = Condition(context.util, cond).wait()
-    assert_true(ret,
-                ret.payload + " should equal " +
-                context.expected_selection_serialization)

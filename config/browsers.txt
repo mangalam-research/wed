@@ -21,12 +21,12 @@ Windows 10,Edge,15,Remote
 # Perform these next because OS X compatibility is an issue. Again, we want to
 # find problems early.
 #
-OS X 10.12,CH,60,Remote
+OS X 10.12,CH,69,Remote
 
 #
 # The rest is unlikely to fail if the previous tests passed.
 #
-Windows 8.1,CH,60,Remote
+Windows 8.1,CH,69,Remote
 
 # FF support is still suspended.
 # ESR

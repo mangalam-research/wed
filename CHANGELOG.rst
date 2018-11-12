@@ -22,6 +22,12 @@ odd bug fix may not get mentioned here at all.
   - GUI feature: implemented a "real" copy operation that treats the XML as XML
     instead of treating it as text.
 
+  - Breaking change: the copy/cut/paste functions have been refactored to use
+    the clipboard API. This is a breaking change for Edge users. Unfortunately,
+    Edge does not correctly support the clipboard API, and thus wed does not
+    support copy/cut/paste on that platform. We don't have resources to fix
+    this. Really, it is Edge that should be fixed to conform to the API.
+
 * 2.0.1:
 
   - Fix validation restarts. There was a bug whereby wed would not restart
