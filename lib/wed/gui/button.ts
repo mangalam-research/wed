@@ -78,8 +78,8 @@ export class Button {
       position = this.el.nextSibling;
       parent = this.el.parentNode as Element;
       const $el = $(this.el);
-      $el.remove();
       $el.tooltip("destroy");
+      $el.remove();
     }
 
     if (parent == null) {
