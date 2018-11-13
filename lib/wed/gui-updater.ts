@@ -20,6 +20,8 @@ import * as util from "./util";
  * decorations) mirror a data tree.
  */
 export class GUIUpdater extends TreeUpdater {
+  private readonly haveTooltips: HTMLCollectionOf<Element>;
+
   /**
    * @param guiTree The DOM tree to update.
    *
@@ -29,6 +31,8 @@ export class GUIUpdater extends TreeUpdater {
    */
   constructor(guiTree: Element, private readonly treeUpdater: TreeUpdater) {
     super(guiTree);
+    this.haveTooltips =
+      guiTree.ownerDocument.getElementsByClassName("wed-has-tooltip");
     this.treeUpdater.events.subscribe((ev) => {
       switch (ev.name) {
       case "InsertNodeAt":
@@ -185,6 +189,36 @@ export class GUIUpdater extends TreeUpdater {
     }
 
     return DLoc.mustMakeDLoc(this.tree, guiChild);
+  }
+
+  /**
+   * Check whether a tooltip should be destroyed when the element is removed
+   * from the tree. This function checks whether the element or any descendant
+   * has a tooltip.
+   *
+   * @param el An element to check.
+   *
+   */
+  removeTooltips(el: Element): void {
+    for (const hasTooltip of Array.from(this.haveTooltips)) {
+      if (!el.contains(hasTooltip)) {
+        continue;
+      }
+
+      const tt = $.data(hasTooltip, "bs.tooltip");
+      if (tt != null) {
+        tt.destroy();
+      }
+
+      // We don't remove the wed-has-tooltip class. Generally, the elements
+      // that have tooltips and are removed from the GUI tree won't be added
+      // to the tree again. If they are added again, they'll most likely get
+      // a new tooltip so removing the class does not gain us much because
+      // it will be added again.
+      //
+      // If we *were* to remove the class, then the collection would change
+      // as we go through it.
+    }
   }
 }
 

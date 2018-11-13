@@ -164,6 +164,17 @@ def step_impl(context, what):
         .click() \
         .perform()
 
+@when(u"the user clicks on an attribute value")
+def step_impl(context):
+    util = context.util
+    driver = context.driver
+
+    where = util.find_element((By.CSS_SELECTOR, "._attribute_value"))
+    ActionChains(driver) \
+        .move_to_element(where) \
+        .click() \
+        .perform()
+
 
 @when(ur'(?:the user )?clicks on the start label of (?P<choice>an element|'
       ur'the first "(?P<element>.*?)" element in "body")')

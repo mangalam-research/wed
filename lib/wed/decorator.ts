@@ -142,6 +142,7 @@ export abstract class Decorator implements DecoratorAPI {
     }
   }
 
+  // tslint:disable-next-line:max-func-body-length
   elementDecorator(_root: Element, el: Element, level: number,
                    preContextHandler: ((wedEv: JQueryMouseEventObject,
                                         ev: Event) => boolean) | undefined,
@@ -179,6 +180,19 @@ export abstract class Decorator implements DecoratorAPI {
     // placeholder while we are modifying it. This could throw off the scan.
     const toRemove = domutil.childrenByClass(el, cls);
     for (const remove of toRemove) {
+      //
+      // This is really a workaround for a problem with how the decorator
+      // works. We should use this.guiUpdater.removeChild. However, when this
+      // removal merges text nodes, it causes elementDecorator to be reentered
+      // and this causes problems.
+      //
+      // The decoration code should be revamped to listen on the data tree
+      // rather than listen on the GUI tree.
+      //
+      // Listening on the GUI tree may be desirable sometimes but it should not
+      // be the default wed behavior.
+      //
+      this.guiUpdater.removeTooltips(remove);
       el.removeChild(remove);
     }
 

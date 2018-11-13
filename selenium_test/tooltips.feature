@@ -36,3 +36,9 @@ Scenario: a tooltip disappears when the user modifies text nodes
   Then a tooltip comes up
   When the user types "a"
   Then there are no tooltips
+
+Scenario: a tooltip disappears when the user modifies attribute text
+  When the user clicks on an attribute value
+  Then a tooltip comes up
+  When the user types "a"
+  Then there are no tooltips

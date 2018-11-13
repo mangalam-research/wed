@@ -331,7 +331,6 @@ export class Editor implements EditorAPI {
     this.$frame = $(closest(this.widget, "html"));
     const doc = this.doc = this.$frame[0].ownerDocument;
     this.window = doc.defaultView;
-
     // It is possible to pass a runtime as "options" but if the user passed
     // actual options, then make a runtime from them.
     this.runtime = (options instanceof Runtime) ? options :
@@ -1242,33 +1241,14 @@ export class Editor implements EditorAPI {
     // associated with it is deleted from the DOM. This does not cause a crash
     // but must be dealt with to avoid leaving orphan tooltips around.
     //
-    const hasTooltips = document.getElementsByClassName("wed-has-tooltip");
     this.guiUpdater.events.subscribe((ev) => {
       if (ev.name !== "BeforeDeleteNode") {
         return;
       }
 
-      const node = ev.node;
-      if (node.nodeType !== Node.TEXT_NODE) {
-        for (const hasTooltip of Array.from(hasTooltips)) {
-          if (!node.contains(hasTooltip)) {
-            continue;
-          }
-
-          const tt = $.data(hasTooltip, "bs.tooltip");
-          if (tt != null) {
-            tt.destroy();
-          }
-
-          // We don't remove the wed-has-tooltip class. Generally, the elements
-          // that have tooltips and are removed from the GUI tree won't be added
-          // to the tree again. If they are added again, they'll most likely get
-          // a new tooltip so removing the class does not gain us much because
-          // it will be added again.
-          //
-          // If we *were* to remove the class, then the collection would change
-          // as we go through it.
-        }
+      const { node } = ev;
+      if (isElement(node)) {
+        this.guiUpdater.removeTooltips(node);
       }
     });
 
