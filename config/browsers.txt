@@ -5,7 +5,7 @@
 #
 # Perform these first because they are extremely cheap to perform.
 #
-Linux,CH,69
+Linux,CH,70
 
 
 #
@@ -21,12 +21,12 @@ Windows 10,Edge,15,Remote
 # Perform these next because OS X compatibility is an issue. Again, we want to
 # find problems early.
 #
-OS X 10.12,CH,69,Remote
+OS X 10.12,CH,70,Remote
 
 #
 # The rest is unlikely to fail if the previous tests passed.
 #
-Windows 8.1,CH,69,Remote
+Windows 8.1,CH,70,Remote
 
 # FF support is still suspended.
 # ESR
