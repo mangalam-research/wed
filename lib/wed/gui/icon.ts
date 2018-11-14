@@ -22,6 +22,8 @@ ICON_NAMES["arrow-down"] = "fa-arrow-down";
 ICON_NAMES.upload = "fa-cloud-upload";
 ICON_NAMES.undo = "fa-undo";
 ICON_NAMES.redo = "fa-repeat";
+ICON_NAMES.spanSelectionMode = "fa-i-cursor";
+ICON_NAMES.unitSelectionMode = "fa-hand-o-up";
 
 /**
  * Generates the HTML for an icon. The icon name can be any of:

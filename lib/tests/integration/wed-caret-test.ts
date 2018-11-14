@@ -59,11 +59,14 @@ describe("wed caret", () => {
                   false);
   }
 
-  it("starts with undefined carets and selection ranges", () => {
-    assert.isUndefined(caretManager.caret, "no gui caret");
-    assert.isUndefined(caretManager.getDataCaret(), "no data caret");
-    assert.isUndefined(caretManager.range, "no gui selection range");
-  });
+  it(`starts with undefined carets, undefined selection ranges, \
+span selection mode`,
+     () => {
+       assert.isUndefined(caretManager.caret, "no gui caret");
+       assert.isUndefined(caretManager.getDataCaret(), "no data caret");
+       assert.isUndefined(caretManager.range, "no gui selection range");
+       setup.expectSelectionModeIsSpan();
+     });
 
   describe("moveCaretRight", () => {
     it("works even if there is no caret defined", () => {
@@ -650,5 +653,21 @@ necessary precondition");
     editor.$guiRoot.trigger(event);
     caretCheck(editor, textLoc.node, textLoc.offset,
                "the caret should be in the text node");
+  });
+
+  it("The keyboard shortcut changes the selection mode", () => {
+    setup.expectSelectionModeIsSpan();
+    editor.type(keyConstants.NEXT_SELECTION_MODE);
+    setup.expectSelectionModeIsUnit();
+    editor.type(keyConstants.NEXT_SELECTION_MODE);
+    setup.expectSelectionModeIsSpan();
+  });
+
+  it("The toolbar buttons change the selection mode", () => {
+    setup.expectSelectionModeIsSpan();
+    setup.unitSelectionButton.click();
+    setup.expectSelectionModeIsUnit();
+    setup.spanSelectionButton.click();
+    setup.expectSelectionModeIsSpan();
   });
 });

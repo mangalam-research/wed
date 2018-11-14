@@ -12,7 +12,7 @@ import { expect } from "chai";
 import qs = require("qs");
 import * as sinon from "sinon";
 
-import { DLoc, domutil, makeEditor, Options } from "wed";
+import { DLoc, domutil, makeEditor, Options, SelectionMode } from "wed";
 import { Editor } from "wed/editor";
 import * as onerror from "wed/onerror";
 
@@ -314,6 +314,7 @@ export class EditorSetup {
     // Then we clear the selection to reset the caret to undefined. The mark
     // will still be visible, but that's not an issue.
     editor.caretManager.clearSelection();
+    editor.selectionMode = SelectionMode.SPAN;
     this.server.reset();
     errorCheck();
     // Immediately destroy all notifications to prevent interfering with other
@@ -341,5 +342,34 @@ export class EditorSetup {
     // Immediately destroy all notifications to prevent interfering with other
     // tests. ($.notifyClose is not drastic enough.)
     $("[data-notify=container]").remove();
+  }
+
+  get spanSelectionButton(): HTMLElement {
+    return this.wedroot
+      .querySelector(`[data-original-title=\
+'Set selection mode to span']`) as HTMLElement;
+  }
+
+  get unitSelectionButton(): HTMLElement {
+    return this.wedroot
+      .querySelector(`[data-original-title=\
+'Set selection mode to unit']`) as HTMLElement;
+  }
+
+  expectSelectionModeIsSpan(): void {
+    expect(this.editor.selectionMode).to.equal(SelectionMode.SPAN);
+    expect(this.spanSelectionButton.classList.contains("active"),
+          "span selection button in toolbar should be active").to.be.true;
+    expect(this.unitSelectionButton.classList.contains("active"),
+           "unit selection button in toolbar should not be active").to.be.false;
+  }
+
+  expectSelectionModeIsUnit(): void {
+    expect(this.editor.selectionMode).to.equal(SelectionMode.UNIT);
+    expect(this.spanSelectionButton.classList.contains("active"),
+           "span selection button in toolbar should not be active")
+      .to.be.false;
+    expect(this.unitSelectionButton.classList.contains("active"),
+           "unit selection button in toolbar should be active").to.be.true;
   }
 }

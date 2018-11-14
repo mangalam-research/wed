@@ -10,6 +10,11 @@ def step_impl(context):
     wedutil.cut(context.util)
 
 
+@when(u'the user cut-adds')
+def step_impl(context):
+    wedutil.cut_add(context.util)
+
+
 @then(u"the text is (?P<negation>not )?cut")
 def step_impl(context, negation=None):
     util = context.util

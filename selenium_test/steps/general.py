@@ -316,6 +316,13 @@ def open_simple_doc(context):
         text="lib/tests/wed_test_data/wildcard_converted.xml")
 
 
+@given(ur'a document for testing unit selection mode')
+def open_simple_doc(context):
+    load_and_wait_for_editor(
+        context,
+        text="lib/tests/wed_test_data/unit_selection.xml")
+
+
 @when(ur"the user scrolls the window (?P<choice>completely down|down "
       ur"by (?P<by>\d+))")
 def step_impl(context, choice, by):

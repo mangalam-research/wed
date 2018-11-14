@@ -876,6 +876,17 @@ export class CaretManager implements GUIToDataConverter {
   }
 
   /**
+   * Collapse the selection to the current caret location.
+   */
+  collapseSelection(): void {
+    const { caret } = this;
+    if (caret !== undefined) {
+      // Doing this collapses the selection.
+      this.setCaret(caret);
+    }
+  }
+
+  /**
    * Get the current selection from the DOM tree.
    */
   private _getDOMSelectionRange(): Range | undefined {
@@ -899,11 +910,6 @@ export class CaretManager implements GUIToDataConverter {
    * selection directly.
    */
   private _setDOMSelectionRange(range: Range): void {
-    if (range.collapsed) {
-      this._clearDOMSelection();
-      return;
-    }
-
     const sel = this._getDOMSelection();
     sel.removeAllRanges();
     sel.addRange(range);
@@ -957,14 +963,13 @@ export class CaretManager implements GUIToDataConverter {
       return;
     }
 
+    this._sel = new WedSelection(this, loc);
+    this.mark.refresh();
     // If we do not want to gain focus, we also don't want to take it away
     // from somewhere else, so don't change the DOM.
     if (options.focus !== false) {
-      this._clearDOMSelection(true);
-    }
-    this._sel = new WedSelection(this, loc);
-    this.mark.refresh();
-    if (options.focus !== false) {
+      // The range cannot be undefined, because we've set the selection.
+      this._setDOMSelectionRange(this.range!);
       this.focusInputField();
     }
     this._caretChange(options);
@@ -989,14 +994,6 @@ export class CaretManager implements GUIToDataConverter {
       });
       this.prevCaret = caret;
       this.prevMode = mode;
-    }
-  }
-
-  private _clearDOMSelection(dontFocus: boolean = false): void {
-    this._getDOMSelection().removeAllRanges();
-    // Make sure the focus goes back there.
-    if (!dontFocus) {
-      this.focusInputField();
     }
   }
 
@@ -1083,6 +1080,15 @@ export class CaretManager implements GUIToDataConverter {
     }
     else {
       console.log("no data caret");
+    }
+
+    const approximate = this.getDataCaret(true);
+    if (approximate !== undefined) {
+      console.log("approximate data caret", approximate.node,
+                  approximate.offset);
+    }
+    else {
+      console.log("no approximate data caret");
     }
 
     if (this.anchor !== undefined) {

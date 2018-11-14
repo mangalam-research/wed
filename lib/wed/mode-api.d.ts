@@ -19,6 +19,7 @@ import { Mode } from "./mode";
 import { AttributeHidingSpecs } from "./mode-tree";
 import { Options } from "./options";
 import { Runtime } from "./runtime";
+import { SelectionMode, SelectionModeChange } from "./selection-mode";
 import { StockModals } from "./stock-modals";
 import { Transformation, TransformationData,
          TransformationEvent } from "./transformation";
@@ -35,6 +36,11 @@ export interface ReplaceRangeTransformationData extends TransformationData {
   range: DLocRange;
   newText: string;
   caretAtEnd: boolean;
+}
+
+export interface CutUnitTransformationData extends TransformationData {
+  /** Whether to add to the clipboard or replace. */
+  add: boolean;
 }
 
 export interface DecoratorAPI {
@@ -194,8 +200,14 @@ export interface EditorAPI {
   /** Paste transformation. */
   readonly pasteTr: Transformation<PasteTransformationData>;
 
+  /** Paste unit transformation. */
+  readonly pasteUnitTr: Transformation<PasteTransformationData>;
+
   /** Cut transformation. */
   readonly cutTr: Transformation<TransformationData>;
+
+  /** Cut transformation. */
+  readonly cutUnitTr: Transformation<CutUnitTransformationData>;
 
   /** Transformation for splitting nodes. */
   readonly splitNodeTr: Transformation<TransformationData>;
@@ -212,8 +224,13 @@ export interface EditorAPI {
   /** The stream of transformation events for this editor. */
   readonly transformations: Observable<TransformationEvent>;
 
+  /** The stream of selection mode changes for this editor. */
+  readonly selectionModeChanges: Observable<SelectionModeChange>;
+
   /** The stream of undo/redo events for this editor. */
   readonly undoEvents: Observable<UndoEvents>;
+
+  selectionMode: SelectionMode;
 
   /** The root of the data tree. */
   dataRoot: Document;

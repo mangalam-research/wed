@@ -47,6 +47,7 @@ Table of Contents
 
    demos
    help
+   tutorials
    usage
    mode_design
    tech_notes

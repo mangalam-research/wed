@@ -177,14 +177,23 @@ def step_impl(context):
 
 
 @when(ur'(?:the user )?clicks on the start label of (?P<choice>an element|'
-      ur'the first "(?P<element>.*?)" element in "body")')
-def step_impl(context, choice, element=None):
+      ur'the first "(?P<element>.*?)" element in "body"|'
+      ur'the (?P<order>first|second) element in "body")')
+def step_impl(context, choice, element=None, order=None):
     driver = context.driver
     util = context.util
 
     if choice == "an element":
         button = util.find_element((By.CSS_SELECTOR,
                                     ".__start_label._p_label"))
+    elif order is not None:
+        ix = {
+            "first": 0,
+            "second": 1,
+        }[order]
+        button = util.find_elements(
+            (By.CSS_SELECTOR,
+             ".body>._real .__start_label ._element_name"))[ix]
     elif element is not None:
         element = element.replace(":", ur"\:")
         button = util.find_element((By.CSS_SELECTOR,
@@ -195,6 +204,29 @@ def step_impl(context, choice, element=None):
 
     context.clicked_element = button
     assert_true("_label_clicked" not in button.get_attribute("class").split())
+    ActionChains(driver)\
+        .click(button)\
+        .perform()
+
+
+@when(ur'the user clicks on '
+      ur'(?P<choice>the (?P<attribute>first|second) attribute of the first '
+      ur'element in "body")')
+def step_impl(context, choice, attribute=None):
+    driver = context.driver
+    util = context.util
+
+    if choice.endswith('attribute of the first element in "body"'):
+        ix = {
+            "first": 0,
+            "second": 1,
+        }[attribute]
+        button = \
+            util.find_elements((By.CSS_SELECTOR,
+                                ".body .__start_label ._attribute_value"))[ix]
+    else:
+        raise ValueError("unexpected choice: " + choice)
+
     ActionChains(driver)\
         .click(button)\
         .perform()
@@ -645,6 +677,32 @@ def step_impl(context, expected):
     return caret.node.textContent;
     """)
     assert_equal(text, expected)
+
+
+@when(ur"the user switches to (?P<mode>unit|span) selection mode")
+def step_impl(context, mode):
+    driver = context.driver
+
+    selector = {
+        "unit": "[data-original-title='Set selection mode to unit']",
+        "span": "[data-original-title='Set selection mode to span']",
+    }[mode]
+
+    button = driver.find_element_by_css_selector(selector)
+    button.click()
+
+
+@then(ur"the selection mode is (?P<mode>unit|span)")
+def step_impl(context, mode):
+    driver = context.driver
+
+    expect = {
+        "unit": 1,
+        "span": 0,
+    }[mode]
+
+    actual = driver.execute_script("return wed_editor.selectionMode;")
+    assert_equal(actual, expect)
 
 step_matcher("parse")
 

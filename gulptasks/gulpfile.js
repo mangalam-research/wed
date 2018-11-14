@@ -602,6 +602,10 @@ function *ghPages() {
   yield exec(`make -C ${merged} html`);
 
   yield exec(`cp -rp ${merged}/_build/html/* build/api ${dest}`);
+
+  const tutorialData = `${dest}/tutorial_data`;
+  yield cprpdir("build/standalone/lib/tests/wed_test_data/unit_selection.xml",
+                tutorialData);
 }
 
 gulp.task("gh-pages", ["gh-pages-check", "default", "doc"],

@@ -7,7 +7,7 @@
 import Ajv from "ajv";
 import "bootstrap";
 import $ from "jquery";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { filter } from "rxjs/operators";
 import * as salve from "salve";
 import { ParsingError, safeParse, WorkingState,
@@ -16,7 +16,7 @@ import { ParsingError, safeParse, WorkingState,
 import { Action } from "./action";
 import { CaretChange, CaretManager } from "./caret-manager";
 import * as caretMovement from "./caret-movement";
-import { Clipboard } from "./clipboard";
+import { Clipboard, containsClipboardAttributeCollection } from "./clipboard";
 import { DLoc, DLocRoot } from "./dloc";
 import * as domlistener from "./domlistener";
 import { isAttr, isElement, isText } from "./domtypeguards";
@@ -44,7 +44,7 @@ import { Key, makeKey } from "./key";
 import * as keyConstants from "./key-constants";
 import * as log from "./log";
 import { Mode } from "./mode";
-import { EditorAPI , PasteTransformationData,
+import { CutUnitTransformationData, EditorAPI , PasteTransformationData,
          ReplaceRangeTransformationData } from "./mode-api";
 import { ModeTree } from "./mode-tree";
 import * as onbeforeunload from "./onbeforeunload";
@@ -54,6 +54,7 @@ import * as optionsSchema from "./options-schema.json";
 import * as preferences from "./preferences";
 import { Runtime } from "./runtime";
 import { FailedEvent, SaveKind, Saver, SaverConstructor } from "./saver";
+import { SelectionMode, SelectionModeChange } from "./selection-mode";
 import { StockModals } from "./stock-modals";
 import { Task, TaskRunner } from "./task-runner";
 import { insertElement, mergeWithNextHomogeneousSibling,
@@ -118,6 +119,17 @@ export enum WedEventTarget {
   DEFAULT,
   /** Target the minibuffer. */
   MINIBUFFER,
+}
+
+enum ClipboardEventHandling {
+  /** Set the DOM clipboard to the internal clipboard. */
+  SET_CLIPBOARD,
+
+  /** Let the browser handle the event. */
+  PASS_TO_BROWSER,
+
+  /** Swallow the event: neither wed, nor the browser do anything. */
+  NOOP,
 }
 
 const FRAMEWORK_TEMPLATE = "\
@@ -203,6 +215,7 @@ export class Editor implements EditorAPI {
   private textUndoMaxLength: number = 10;
   private readonly taskRunners: TaskRunner[] = [];
   private taskSuspension: number = 0;
+  private clipboardAdd: boolean = false;
   // We may want to make this configurable in the future.
   private readonly normalizeEnteredSpaces: boolean = true;
   private readonly strippedSpaces: RegExp = /\u200B/g;
@@ -234,6 +247,7 @@ export class Editor implements EditorAPI {
   private readonly errorItemHandlerBound: ErrorItemHandler;
   private readonly appender: log4javascript.AjaxAppender | undefined;
   private readonly _undo: UndoList;
+  private _selectionMode: SelectionMode = SelectionMode.SPAN;
   private undoRecorder!: UndoRecorder;
   private saveStatusInterval: number | undefined;
   private readonly globalKeydownHandlers: KeydownHandler[] = [];
@@ -248,6 +262,8 @@ export class Editor implements EditorAPI {
   private validationController!: ValidationController;
   private readonly _transformations: TransformationEventSubject =
     new TransformationEventSubject();
+  private readonly _selectionModeChanges: Subject<SelectionModeChange> =
+    new Subject();
 
   readonly name: string = "";
   readonly firstValidationComplete: Promise<Editor>;
@@ -264,7 +280,9 @@ export class Editor implements EditorAPI {
   readonly $errorList: JQuery;
   readonly complexPatternAction: Action<{}>;
   readonly pasteTr: Transformation<PasteTransformationData>;
+  readonly pasteUnitTr: Transformation<PasteTransformationData>;
   readonly cutTr: Transformation<TransformationData>;
+  readonly cutUnitTr: Transformation<CutUnitTransformationData>;
   readonly splitNodeTr: Transformation<TransformationData>;
   readonly replaceRangeTr: Transformation<ReplaceRangeTransformationData>;
   readonly removeMarkupTr: Transformation<TransformationData>;
@@ -280,10 +298,20 @@ export class Editor implements EditorAPI {
     new editorActions.Redo(this);
   readonly toggleAttributeHidingAction: Action<{}> =
     new editorActions.ToggleAttributeHiding(this);
+  readonly setSelectionModeToSpan: Action<{}> =
+    new editorActions.SetSelectionMode(this, "span",
+                                       icon.makeHTML("spanSelectionMode"),
+                                       SelectionMode.SPAN);
+  readonly setSelectionModeToUnit: Action<{}> =
+    new editorActions.SetSelectionMode(this, "unit",
+                                       icon.makeHTML("unitSelectionMode"),
+                                       SelectionMode.UNIT);
   readonly minibuffer: Minibuffer;
   readonly docURL: string;
   readonly transformations: Observable<TransformationEvent> =
     this._transformations.asObservable();
+  readonly selectionModeChanges: Observable<SelectionModeChange> =
+    this._selectionModeChanges.asObservable();
   readonly toolbar: Toolbar;
   dataRoot!: Document;
   $dataRoot!: JQuery;
@@ -467,7 +495,11 @@ export class Editor implements EditorAPI {
 
     this.pasteTr = new Transformation(this, "add", "Paste",
                                       this.paste.bind(this));
+    this.pasteUnitTr = new Transformation(this, "add", "Paste Unit",
+                                          this.pasteUnit.bind(this));
     this.cutTr = new Transformation(this, "delete", "Cut", this.cut.bind(this));
+    this.cutUnitTr = new Transformation(this, "delete", "Cut Unit",
+                                        this.cutUnit.bind(this));
 
     this.replaceRangeTr =
       new Transformation(
@@ -504,7 +536,9 @@ export class Editor implements EditorAPI {
                        this.decreaseLabelVisibilityLevelAction.makeButton(),
                        this.increaseLabelVisibilityLevelAction.makeButton(),
                        this.removeMarkupTr.makeButton(),
-                       this.toggleAttributeHidingAction.makeButton()]);
+                       this.toggleAttributeHidingAction.makeButton(),
+                       this.setSelectionModeToSpan.makeButton(),
+                       this.setSelectionModeToUnit.makeButton()]);
 
     // Setup the cleanup code.
     $(this.window).on("unload.wed", { editor: this }, (e) => {
@@ -520,6 +554,19 @@ export class Editor implements EditorAPI {
 
   get undoEvents(): Observable<UndoEvents> {
     return this._undo.events;
+  }
+
+  get selectionMode(): SelectionMode {
+    return this._selectionMode;
+  }
+
+  set selectionMode(value: SelectionMode) {
+    const different = this._selectionMode !== value;
+    if (different) {
+      this.caretManager.collapseSelection();
+      this._selectionMode = value;
+      this._selectionModeChanges.next({ name: "SelectionModeChange", value });
+    }
   }
 
   fireTransformation<T extends TransformationData>(tr: Transformation<T>,
@@ -1550,6 +1597,7 @@ export class Editor implements EditorAPI {
     this.$inputField.on("copy", log.wrap(this.copyHandler.bind(this)));
 
     $guiRoot.on("cut", log.wrap(this.cutHandler.bind(this)));
+    this.$inputField.on("cut", log.wrap(this.cutHandler.bind(this)));
     $(this.window).on("resize.wed", this.resizeHandler.bind(this));
 
     $guiRoot.on("click", "a", (ev) => {
@@ -1962,77 +2010,178 @@ in a way not supported by this version of wed.";
     return ret;
   }
 
+  private shouldAddToClipboard(): boolean {
+    const ret = this.clipboardAdd;
+    this.clipboardAdd = false;
+    return ret;
+  }
+
   private copyHandler(e: JQueryEventObject): boolean {
+    const add = this.shouldAddToClipboard();
+    let result = ClipboardEventHandling.NOOP;
+    switch (this.selectionMode) {
+      case SelectionMode.SPAN:
+        result = this.spanCopyHandler();
+        break;
+      case SelectionMode.UNIT:
+        result = this.unitCopyHandler(add);
+        break;
+      default:
+        const q: never = this.selectionMode;
+        throw new Error(`unhandled selection mode: ${q}`);
+    }
+
+    if (result === ClipboardEventHandling.PASS_TO_BROWSER) {
+      return true;
+    }
+
+    if (result === ClipboardEventHandling.SET_CLIPBOARD) {
+      // tslint:disable-next-line:no-any
+      const cd = (e.originalEvent as any).clipboardData as DataTransfer;
+      this.clipboard.setupDOMClipboardData(cd);
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+
+  private spanCopyHandler(): ClipboardEventHandling {
     const { caretManager } = this;
     const sel = caretManager.sel;
     if (sel === undefined) {
-      return false;
+      return ClipboardEventHandling.NOOP;
     }
 
     const { clipboard } = this;
 
     if (!sel.wellFormed) {
       notify(`Selection is not well-formed XML, and consequently was copied \
-as text.`, { type: "warning" });
-      return true;
+naively.`, { type: "warning" });
+      return ClipboardEventHandling.PASS_TO_BROWSER;
     }
 
     const [startCaret, endCaret] = sel.mustAsDataCarets();
+    let span: Node[] | string;
     if (isAttr(startCaret.node)) {
       const attr = startCaret.node;
       if (attr !== endCaret.node) {
         throw new Error("attribute selection that does not start " +
                         "and end in the same attribute");
       }
-      clipboard.setText(attr.value.slice(startCaret.offset, endCaret.offset));
+      span = attr.value.slice(startCaret.offset, endCaret.offset);
     }
     else {
-      const copied = domutil.copy([startCaret.node, startCaret.offset],
-                                  [endCaret.node, endCaret.offset]);
-      clipboard.setNodes(copied);
+      span = domutil.copy([startCaret.node, startCaret.offset],
+                          [endCaret.node, endCaret.offset]);
+    }
+    clipboard.putSpan(span);
+
+    return ClipboardEventHandling.SET_CLIPBOARD;
+  }
+
+  private notifyHeterogenousData(): void {
+    notify("The data to add to the clipboard is not of the same kind as \
+the data already in the clipboard. Operation aborted.", { type: "danger" });
+  }
+
+  private unitCopyHandler(add: boolean): ClipboardEventHandling {
+    const { caretManager } = this;
+    const caret = caretManager.getDataCaret(true);
+    if (caret === undefined) {
+      return ClipboardEventHandling.NOOP;
     }
 
-    // tslint:disable-next-line:no-any
-    const cd = (e.originalEvent as any).clipboardData as DataTransfer;
-    clipboard.setClipboardData(cd);
+    const { clipboard } = this;
+    let { node } = caret;
+    if (add && !clipboard.canAddUnit(node)) {
+      this.notifyHeterogenousData();
+      return ClipboardEventHandling.NOOP;
+    }
+    if (isText(node)) {
+      node = node.parentNode as Element;
+    }
+    clipboard.putUnit(node.cloneNode(true), add);
+    return ClipboardEventHandling.SET_CLIPBOARD;
+  }
+
+  private cutHandler(e: JQueryEventObject): boolean {
+    const add = this.shouldAddToClipboard();
+    let result = ClipboardEventHandling.NOOP;
+    switch (this.selectionMode) {
+      case SelectionMode.SPAN:
+        result = this.spanCutHandler();
+        break;
+      case SelectionMode.UNIT:
+        result = this.unitCutHandler(add);
+        break;
+      default:
+        const q: never = this.selectionMode;
+        throw new Error(`unhandled selection mode: ${q}`);
+    }
+
+    if (result === ClipboardEventHandling.PASS_TO_BROWSER) {
+      return true;
+    }
+
+    if (result === ClipboardEventHandling.SET_CLIPBOARD) {
+      // tslint:disable-next-line:no-any
+      const cd = (e.originalEvent as any).clipboardData as DataTransfer;
+      this.clipboard.setupDOMClipboardData(cd);
+    }
 
     e.preventDefault();
     e.stopPropagation();
     return false;
   }
 
-  private cutHandler(e: JQueryEventObject): boolean {
+  private spanCutHandler(): ClipboardEventHandling {
     const sel = this.caretManager.sel;
     if (sel === undefined) {
-      return false;
+      return ClipboardEventHandling.NOOP;
     }
 
     if (!sel.wellFormed) {
       this.clipboard.clear();
       notify(`Selection is not well-formed XML, and consequently the selection \
 cannot be cut.`, { type: "danger" });
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
+      return ClipboardEventHandling.NOOP;
     }
 
     const el = closestByClass(sel.anchor.node, "_real", this.guiRoot);
     // We do not operate on elements that are readonly.
     if (el === null || el.classList.contains("_readonly")) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
+      return ClipboardEventHandling.NOOP;
     }
 
-    // The only thing we need to pass is the event that triggered the
-    // cut.
-    this.fireTransformation(this.cutTr, { e: e });
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
+    // The only thing we need to pass is the event that triggered the cut.
+    this.fireTransformation(this.cutTr, {});
+    return ClipboardEventHandling.SET_CLIPBOARD;
   }
 
-  private cut(_editor: EditorAPI, data: TransformationData): void {
+  private unitCutHandler(add: boolean): ClipboardEventHandling {
+    const { caretManager, clipboard } = this;
+    const caret = caretManager.getDataCaret(true);
+    if (caret === undefined) {
+      return ClipboardEventHandling.NOOP;
+    }
+
+    const el = closestByClass(caretManager.caret!.node, "_real", this.guiRoot);
+    // We do not operate on elements that are readonly.
+    if (el === null || el.classList.contains("_readonly")) {
+      return ClipboardEventHandling.NOOP;
+    }
+
+    if (add && !clipboard.canAddUnit(caret.node)) {
+      this.notifyHeterogenousData();
+      return ClipboardEventHandling.NOOP;
+    }
+
+    this.fireTransformation<CutUnitTransformationData>(this.cutUnitTr, { add });
+    return ClipboardEventHandling.SET_CLIPBOARD;
+  }
+
+  private cut(_editor: EditorAPI, _data: TransformationData): void {
     const caretManager = this.caretManager;
     const sel = caretManager.sel;
     if (sel === undefined) {
@@ -2045,34 +2194,78 @@ cannot be cut.`, { type: "danger" });
 
     const [startCaret, endCaret] = sel.mustAsDataCarets();
     const { clipboard } = this;
+    let span: Node[] | string;
     if (isAttr(startCaret.node)) {
       const attr = startCaret.node;
       if (attr !== endCaret.node) {
         throw new Error("attribute selection that does not start " +
                         "and end in the same attribute");
       }
-      const removedText = attr.value.slice(startCaret.offset, endCaret.offset);
+      span = attr.value.slice(startCaret.offset, endCaret.offset);
       this.spliceAttribute(
         closestByClass(caretManager.mustFromDataLocation(startCaret).node,
                        "_attribute_value") as HTMLElement,
         startCaret.offset,
         endCaret.offset - startCaret.offset, "");
-      clipboard.setText(removedText);
     }
     else {
       const cutRet = this.dataUpdater.cut(startCaret, endCaret);
-      const nodes = cutRet[1];
-      clipboard.setNodes(nodes);
+      span = cutRet[1];
       caretManager.setCaret(cutRet[0]);
     }
+    clipboard.putSpan(span);
+  }
 
-    // tslint:disable-next-line:no-any
-    const cd = (data.e as any).originalEvent.clipboardData as DataTransfer;
-    clipboard.setClipboardData(cd);
+  private cutUnit(_editor: EditorAPI, data: CutUnitTransformationData): void {
+    const { caretManager, clipboard } = this;
+    const caret = caretManager.getDataCaret(true);
+    if (caret === undefined) {
+      throw Error("no caret");
+    }
+
+    const { add } = data;
+    const { node } = caret;
+    if (isAttr(node)) {
+      const { ownerElement, name, namespaceURI } = node;
+      const { attributes } = ownerElement!;
+      let names = [];
+      for (let ix = 0; ix < attributes.length; ++ix) {
+        names.push(attributes[ix].name);
+      }
+      names = names.sort();
+      const index = names.indexOf(name);
+      if (index === -1) {
+        throw new Error("cannot find attribute name in list of names");
+      }
+      this.dataUpdater.setAttributeNS(ownerElement!,
+                                      namespaceURI === null ? "" : namespaceURI,
+                                      node.localName!,
+                                      null);
+      clipboard.putUnit(node, add);
+      if (index < names.length - 1) {
+        const newAttributeName = names[index + 1];
+        caretManager.setCaret(attributes.getNamedItem(newAttributeName), 0);
+      }
+      else {
+        caretManager.setCaret(ownerElement!, 0);
+      }
+    }
+    else {
+      const el = isElement(node) ? node : node.parentNode as Element;
+      const next = el.nextElementSibling;
+      const parent = el.parentNode;
+      this.dataUpdater.removeNode(el);
+      clipboard.putUnit(el, add);
+      const caretNode = next !== null ? next : parent;
+      if (caretNode !== null) {
+        caretManager.setCaret(caretNode, 0);
+      }
+      // Otherwise, there's no good value.
+    }
   }
 
   private pasteHandler(e: JQueryEventObject): boolean {
-    const caret = this.caretManager.getDataCaret();
+    const caret = this.caretManager.caret;
     if (caret === undefined) {
       return false;
     }
@@ -2084,15 +2277,28 @@ cannot be cut.`, { type: "danger" });
       return false;
     }
 
-    // tslint:disable-next-line:no-any
-    const cd = (e.originalEvent as any).clipboardData as DataTransfer;
-
     const { clipboard } = this;
-    const xml = cd.getData("text/xml");
-    let text = cd.getData("text/plain");
-    let doc: Document | null = null;
+    switch (clipboard.mode) {
+      case SelectionMode.SPAN:
+        this.spanPasteHandler(e);
+        break;
+      case SelectionMode.UNIT:
+        this.unitPasteHandler(e);
+        break;
+      default:
+        const q: never = clipboard.mode;
+        throw new Error(`unexpected selection mode: ${q}`);
+    }
+
+    return false;
+  }
+
+  private clipboardToElement(data: DataTransfer): Element | null{
+    const { clipboard } = this;
+    let xml = data.getData("text/xml");
+    let el: Element | null = null;
     if (xml !== "") {
-      if (clipboard.canUseTree(text)) {
+      if (clipboard.isSerializedTree(xml)) {
         //
         // If the text we are trying to paste is identical to the text in our
         // cutBuffer then we assume that the user is trying to paste what has
@@ -2104,24 +2310,22 @@ cannot be cut.`, { type: "danger" });
         // ``xmlns`` attributes that are created when we do a
         // serialization/parsing round-trip.
         //
-        // (Note that in the odd case where a user would in fact have gotten the
-        // text from somewhere else, the false positive does not matter. What
-        // matters is that the cutBuffer and the cutTree are in sync.
+        // (Note that in the odd case where a user would in fact have gotten
+        // the text from somewhere else, the false positive does not
+        // matter. What matters is that the cutBuffer and the cutTree are in
+        // sync.)
         //
-        doc = clipboard.cloneTree();
+        el = clipboard.cloneTree();
       }
-      // If we are in an attribute then the clipboard has to be pasted as
-      // text. It cannot be parsed as XML and insert Elements or other nodes
-      // into the attribute value.
-      else if (!isAttr(caret.node)) {
+      else {
         // This could result in an empty string.
-        text = this.normalizeEnteredText(text);
-        if (text === "") {
-          return false;
+        xml = this.normalizeEnteredText(xml);
+        if (xml === "") {
+          return null;
         }
 
         try {
-          doc = safeParse(`<div>${text}</div>`, this.window);
+          el = safeParse(`<div>${xml}</div>`, this.window).firstElementChild;
         }
         catch (ex) {
           if (!(ex instanceof ParsingError)) {
@@ -2130,24 +2334,82 @@ cannot be cut.`, { type: "danger" });
         }
       }
     }
-    else if (text == null || text === "") {
-      return false;
+
+    return el;
+  }
+
+  private spanPasteHandler(e: JQueryEventObject): void {
+    const caret = this.caretManager.getDataCaret();
+    if (caret === undefined) {
+      return;
     }
 
-    let data: Element;
-    if (doc !== null) {
-      data = doc.firstChild as Element;
-    }
-    else {
+    // tslint:disable-next-line:no-any
+    const cd = (e.originalEvent as any).clipboardData as DataTransfer;
+
+    // If we are in an attribute then the clipboard has to be pasted as text. It
+    // cannot be parsed as XML and insert Elements or other nodes into the
+    // attribute value.
+    let data = isAttr(caret.node) ? null : this.clipboardToElement(cd);
+    if (data === null) {
+      const text = this.normalizeEnteredText(cd.getData("text/plain"));
+      if (text == null || text === "") {
+        return;
+      }
+
       data = this.doc.createElement("div");
       data.textContent = text;
     }
 
     // At this point data is a single top level fake <div> element
     // which contains the contents we actually want to paste.
-    this.fireTransformation(this.pasteTr,
-                            { node: caret.node, to_paste: data, e: e });
-    return false;
+    this.fireTransformation(this.pasteTr, { to_paste: data, e: e });
+  }
+
+  private unitPasteHandler(e: JQueryEventObject): void {
+    // tslint:disable-next-line:no-any
+    const cd = (e.originalEvent as any).clipboardData as DataTransfer;
+
+    const top = this.clipboardToElement(cd);
+    if (top === null) {
+      return;
+    }
+
+    const caret = this.caretManager.getDataCaret();
+    if (!containsClipboardAttributeCollection(top) && caret === undefined) {
+      notify(`Cannot paste the content here.`, { type: "danger" });
+      return;
+    }
+
+    this.fireTransformation(this.pasteUnitTr, { to_paste: top, e: e });
+  }
+
+  private pasteIntoElement(caret: DLoc, toPaste: Element): DLoc {
+    let newCaret: DLoc;
+    const frag = document.createDocumentFragment();
+    while (toPaste.firstChild !== null) {
+      frag.appendChild(toPaste.firstChild);
+    }
+    const { nodeType } = caret.node;
+    switch (nodeType) {
+      case Node.TEXT_NODE:
+        newCaret = this.dataUpdater.insertIntoText(caret, frag)[1];
+        break;
+      case Node.ELEMENT_NODE:
+        const child = caret.node.childNodes[caret.offset];
+        const after = child != null ? child.nextSibling : null;
+        // tslint:disable-next-line:no-any
+        this.dataUpdater.insertBefore(caret.node as Element, frag as any,
+                                      child);
+        newCaret = caret.makeWithOffset(after !== null ?
+                                        indexOf(caret.node.childNodes, after) :
+                                        caret.node.childNodes.length);
+        break;
+      default:
+        throw new Error(`unexpected node type ${nodeType}`);
+    }
+
+    return newCaret;
   }
 
   private paste(_editor: EditorAPI, data: PasteTransformationData): void {
@@ -2158,7 +2420,7 @@ cannot be cut.`, { type: "danger" });
       throw new Error("trying to paste without a caret");
     }
 
-    let newCaret;
+    let newCaret: DLoc | undefined;
 
     // Handle the case where we are pasting only text.
     if (toPaste.childNodes.length === 1 && isText(toPaste.firstChild)) {
@@ -2175,32 +2437,62 @@ cannot be cut.`, { type: "danger" });
       }
     }
     else {
-      const frag = document.createDocumentFragment();
-      while (toPaste.firstChild !== null) {
-        frag.appendChild(toPaste.firstChild);
-      }
-      switch (caret.node.nodeType) {
-      case Node.TEXT_NODE:
-        newCaret = this.dataUpdater.insertIntoText(caret, frag)[1];
-        break;
-      case Node.ELEMENT_NODE:
-        const child = caret.node.childNodes[caret.offset];
-        const after = child != null ? child.nextSibling : null;
-        // tslint:disable-next-line:no-any
-        this.dataUpdater.insertBefore(caret.node as Element, frag as any,
-                                      child);
-        newCaret = caret.makeWithOffset(after !== null ?
-                                        indexOf(caret.node.childNodes, after) :
-                                        caret.node.childNodes.length);
-        break;
-      default:
-        throw new Error(`unexpected node type: ${caret.node.nodeType}`);
-      }
+      newCaret = this.pasteIntoElement(caret, toPaste);
     }
-    if (newCaret != null) {
+    if (newCaret !== undefined) {
       this.caretManager.setCaret(newCaret);
       caret = newCaret;
     }
+    this.$guiRoot.trigger("wed-post-paste", [data.e, caret, dataClone]);
+  }
+
+  private pasteUnit(_editor: EditorAPI, data: PasteTransformationData): void {
+    const top = data.to_paste;
+    const dataClone = top.cloneNode();
+    let caret = this.caretManager.getDataCaret(true);
+    if (caret === undefined) {
+      throw new Error("trying to paste without a caret");
+    }
+
+    const { node } = caret;
+    if (containsClipboardAttributeCollection(top)) {
+      let el: Element;
+      if (isElement(node)) {
+        el = node;
+      }
+      else if (isAttr(node)) {
+        el = node.ownerElement!;
+      }
+      else if (isText(node)) {
+        el = node.parentNode as Element;
+      }
+      else {
+        throw new Error(`unexpected node type: ${node.nodeType}`);
+      }
+
+      const collection = top.firstElementChild!;
+      for (let ix = 0; ix < collection.attributes.length; ++ix) {
+        const { namespaceURI, localName, value } = collection.attributes[ix];
+        this.dataUpdater.setAttributeNS(el,
+                                        namespaceURI === null ? "" :
+                                        namespaceURI,
+                                        localName!, value);
+        this.caretManager.mark.refresh();
+      }
+    }
+    else if (isAttr(node)) {
+      const guiCaret = this.caretManager.mustGetNormalizedCaret();
+      this.spliceAttribute(closestByClass(
+        guiCaret.node, "_attribute_value",
+        guiCaret.node as HTMLElement) as HTMLElement,
+                           guiCaret.offset, 0, top.firstChild!.textContent!);
+    }
+    else {
+      const newCaret = this.pasteIntoElement(caret, top);
+      this.caretManager.setCaret(newCaret);
+      caret = newCaret;
+    }
+
     this.$guiRoot.trigger("wed-post-paste", [data.e, caret, dataClone]);
   }
 
@@ -2311,7 +2603,11 @@ cannot be cut.`, { type: "danger" });
       }
 
       if (direction !== undefined) {
-        this.caretManager.move(direction, e.shiftKey);
+        this.caretManager.move(direction,
+                               // When we are in span mode, we don't select
+                               // ranges.
+                               e.shiftKey &&
+                               this.selectionMode === SelectionMode.SPAN);
         return terminate();
       }
       return true;
@@ -2327,6 +2623,10 @@ cannot be cut.`, { type: "danger" });
       this.save();
       return terminate();
     }
+    else if (keyConstants.NEXT_SELECTION_MODE.matchesEvent(e)) {
+      this.selectionMode = SelectionMode.next(this.selectionMode);
+      return terminate();
+    }
     else if (keyConstants.UNDO.matchesEvent(e)) {
       this.undo();
       return terminate();
@@ -2339,6 +2639,26 @@ cannot be cut.`, { type: "danger" });
              keyConstants.CUT.matchesEvent(e) ||
              keyConstants.PASTE.matchesEvent(e)) {
       return true;
+    }
+    else if (keyConstants.COPY_ADD.matchesEvent(e)) {
+      if (this.selectionMode === SelectionMode.UNIT) {
+        // This assignment is a crappy way to convey to the "copy" handler that
+        // it should add to the clipboard. There's no way to pass arguments to
+        // the "copy" command that we invoke with execCommand.
+        this.clipboardAdd = true;
+        this.doc.execCommand("copy");
+      }
+      return terminate();
+    }
+    else if (keyConstants.CUT_ADD.matchesEvent(e)) {
+      if (this.selectionMode === SelectionMode.UNIT) {
+        // This assignment is a crappy way to convey to the "cut" handler that
+        // it should add to the clipboard. There's no way to pass arguments to
+        // the "cut" command that we invoke with execCommand.
+        this.clipboardAdd = true;
+        this.doc.execCommand("cut");
+      }
+      return terminate();
     }
     else if (keyConstants.DEVELOPMENT.matchesEvent(e)) {
       this.developmentMode = !this.developmentMode;
@@ -2715,6 +3035,11 @@ cannot be cut.`, { type: "danger" });
   }
 
   private mousemoveHandler(e: JQueryMouseEventObject): void {
+    // If the selection mode is not span, there's nothing to do.
+    if (this.selectionMode !== SelectionMode.SPAN) {
+      return;
+    }
+
     let elementAtMouse = this.doc.elementFromPoint(e.clientX, e.clientY);
     if (!this.guiRoot.contains(elementAtMouse)) {
       // Not in GUI tree.

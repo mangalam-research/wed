@@ -62,6 +62,19 @@ def step_impl(context, order, what):
     wedutil.wait_for_caret_to_be_in(util, el)
 
 
+@then(ur'the caret is in the (?P<order>last|first|second) '
+      ur'element in "body"')
+def step_impl(context, order):
+    driver = context.driver
+    util = context.util
+
+    position = ORDER_TO_POS[order]
+
+    el = driver.find_elements_by_css_selector("._real.body > ._real")[position]
+
+    wedutil.wait_for_caret_to_be_in(util, el)
+
+
 @then(ur"the (?P<label>end|start) label of the last (?P<what>.*?) "
       ur"element is selected")
 def step_impl(context, label, what):

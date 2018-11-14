@@ -28,6 +28,11 @@ odd bug fix may not get mentioned here at all.
     support copy/cut/paste on that platform. We don't have resources to fix
     this. Really, it is Edge that should be fixed to conform to the API.
 
+  - Feature: wed now supports two selection modes: a span selection mode, and a
+    unit selection mode. The span selection mode is the same as what wed has
+    always supported. The unit selection mode allows selecting elements for
+    copying, cutting and pasting as XML structural units.
+
 * 2.0.1:
 
   - Fix validation restarts. There was a bug whereby wed would not restart

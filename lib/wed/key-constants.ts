@@ -25,6 +25,8 @@ export const UNDO = key.makeCtrlEqKey("Z", false);
 export const REDO = key.makeCtrlEqKey("Y", false);
 export const COPY = key.makeCtrlEqKey("C", false);
 export const CUT = key.makeCtrlEqKey("X", false);
+export const COPY_ADD = key.makeCtrlEqKey("C", true);
+export const CUT_ADD = key.makeCtrlEqKey("X", true);
 export const PASTE = key.makeCtrlEqKey("V", false);
 export const DEVELOPMENT = key.makeCtrlEqKey(192, false); // Cmd or Ctrl-`
 export const QUICKSEARCH_FORWARD = key.makeCtrlEqKey("F", false);
@@ -37,5 +39,6 @@ export const LOWER_LABEL_VISIBILITY =
   OSX ? key.NULL_KEY : key.makeCtrlKey(219, false); // Ctrl-[
 export const INCREASE_LABEL_VISIBILITY =
   OSX ? key.NULL_KEY : key.makeCtrlKey(221, false); // Ctrl-]
+export const NEXT_SELECTION_MODE = key.makeCtrlKey(32, false); // Ctrl-SPACE
 
 //  LocalWords:  Mangalam MPL Dubeau Ctrl

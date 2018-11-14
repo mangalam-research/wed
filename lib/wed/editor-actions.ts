@@ -10,6 +10,7 @@ import { Action } from "./action";
 import { Button, ToggleButton } from "./gui/button";
 import { makeHTML } from "./gui/icon";
 import { EditorAPI } from "./mode-api";
+import { SelectionMode } from "./selection-mode";
 
 export type ActionCtor = { new (editor: EditorAPI): Action<{}> };
 
@@ -141,6 +142,38 @@ export class ToggleAttributeHiding extends Action<boolean> {
 
     this.events.subscribe(() => {
       button.pressed = this.pressed;
+    });
+
+    return button;
+  }
+}
+
+/**
+ * An action that changes the editor's selection mode.
+ */
+export class SetSelectionMode extends Action<{}> {
+  constructor(editor: EditorAPI, name: string, icon: string,
+              private readonly desiredMode: SelectionMode) {
+    super(editor, `Set selection mode to ${name}`, name, icon, false);
+  }
+
+  execute(): void {
+    this.editor.selectionMode = this.desiredMode;
+  }
+
+  makeButton(data?: boolean): Button {
+    const button = new ToggleButton(
+      this.editor.selectionMode === this.desiredMode,
+      data !== undefined ? this.getDescriptionFor(data) : this.getDescription(),
+      this.getAbbreviatedDescription(),
+      this.getIcon());
+
+    button.events.subscribe(() => {
+      this.execute();
+    });
+
+    this.editor.selectionModeChanges.subscribe(({ value }) => {
+      button.pressed = value === this.desiredMode;
     });
 
     return button;

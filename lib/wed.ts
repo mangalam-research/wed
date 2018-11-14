@@ -57,6 +57,7 @@ export { version } from "./wed/editor";
 export { GUISelector } from "./wed/gui-selector";
 export { BaseMode, CommonModeOptions, Mode } from "./wed/mode";
 export * from "./wed/mode-api";
+export { SelectionMode } from "./wed/selection-mode";
 export { UndoMarker } from "./wed/undo";
 // We export Validator too because it is useful in some cases for utility code
 // to be able to perform validation of DOM trees with a bona-fide wed validator

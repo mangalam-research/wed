@@ -1,6 +1,7 @@
 # pylint: disable=E0611
-from nose.tools import assert_equal, assert_is_not_none
+from nose.tools import assert_equal, assert_is_not_none, assert_true
 from selenium.webdriver.support.wait import TimeoutException
+from selenic.util import Condition, Result
 
 from ..util import get_real_siblings
 
@@ -158,3 +159,72 @@ def step_impl(context):
         """)
 
     context.util.wait(check)
+
+@then(ur"the caret is in an element with the attributes")
+def step_impl(context):
+    def cond(driver):
+        result = context.driver.execute_script("""
+        if (wed_editor.caretManager.caret === undefined) {
+          return [false, "no GUI caret"];
+        }
+
+        const caret = wed_editor.caretManager.getDataCaret(true);
+        if (caret === undefined) {
+          return [false, "no caret"];
+        }
+
+        let { node } = caret;
+        if (node.ownerElement) {
+          node = node.ownerElement;
+        }
+        else if (node.nodeType === Node.TEXT_NODE) {
+          node = node.parentNode;
+        }
+
+        const actual = {};
+        for (let ix = 0; ix < node.attributes.length; ++ix) {
+          const attr = node.attributes[ix];
+          actual[attr.name] = {
+            ns: attr.namespaceURI === null ? "" : attr.namespaceURI,
+            value: attr.value,
+          }
+        }
+
+        return [true, actual];
+        """)
+
+        return Result(result[0], result[1])
+
+    result = Condition(context.util, cond).wait()
+    assert_true(result, result.payload)
+    actual = result.payload
+
+    expected = context.table.rows
+    assert_equal(len(actual), len(expected),
+                 "expected {} attributes, but found {}"
+                 .format(len(expected), actual.keys()))
+
+    for row in expected:
+        name = row["name"]
+        assert_true(name in actual,
+                    "expected {}, but did not find it".format(name))
+        attr = actual[name]
+        assert_equal(attr, {"ns": row["ns"], "value": row["value"]})
+
+@then(ur"the caret is in an element with no attributes")
+def step_impl(context):
+    actual = context.driver.execute_script("""
+    const caret = wed_editor.caretManager.getDataCaret(true);
+    if (caret === undefined) {
+      return [false, "no caret"];
+    }
+
+    let { node } = caret;
+    if (node.ownerElement) {
+      node = node.ownerElement;
+    }
+
+    return node.attributes.length;
+    """)
+
+    assert_equal(actual, 0, "the element should not have attributes")
