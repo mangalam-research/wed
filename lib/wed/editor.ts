@@ -2824,7 +2824,7 @@ cannot be cut.`, { type: "danger" });
             !(next.classList.contains("_phantom") ||
               next.classList.contains("_phantom_wrap"))) {
           // When a range is selected, we delete the whole range.
-          if (!this.cutSelection()) {
+          if (!this.deleteSelection()) {
             // There was no range, so we need to handle the delete.
             this.deleteCharacter(keyConstants.DELETE);
           }
@@ -2849,7 +2849,7 @@ cannot be cut.`, { type: "danger" });
             !(prev.classList.contains("_phantom") ||
               prev.classList.contains("_phantom_wrap"))) {
           // When a range is selected, we delete the whole range.
-          if (!this.cutSelection()) {
+          if (!this.deleteSelection()) {
             // There was no range, so we need to handle the backspace
             this.deleteCharacter(keyConstants.BACKSPACE);
           }
@@ -2952,12 +2952,22 @@ cannot be cut.`, { type: "danger" });
       return true;
     }
 
-    this.cutSelection();
+    this.deleteSelection();
     this.handleKeyInsertingText(e);
     return terminate();
   }
 
-  private cutSelection(): boolean {
+  /**
+   * Delete the current selection from the document. If the selection is not
+   * well-formed, this is a no-op.
+   *
+   * We do not call this a "cut" because a real cut operation modifies the
+   * clipboard. Whereas this does not.
+   *
+   * @returns ``false`` if there was no selection to process, or the selection
+   * was empty. ``true`` otherwise.
+   */
+  private deleteSelection(): boolean {
     const sel = this.caretManager.sel;
     if (sel !== undefined && !sel.collapsed) {
       if (!sel.wellFormed) {
