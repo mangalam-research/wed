@@ -10,18 +10,7 @@ articles.  We aim to make it extensible by means of a stable API, but
 the API is likely to change quickly until we hit 1.0.
 
 For now wed is not meant to be used alone. Rather, it is meant to be
-incorporated into web applications that need to edit XML documents. It
-is possible to use the :ref:`demo <demo_localstorage>` of wed based on
-`localStorage` and load in it documents based on the TEI schema that
-is bundled with the demo, and edit documents that conform to this
-schema. So it would be possible to use wed as a generic XML
-editor. However, since the demo does not offer any facility for users
-to load arbitrary schemas, the usefulness of the demo as a generic XML
-editor is currently quite limited. (Wed *itself* is quite capable of
-loading arbitrary schemas. It's just that the *demo* offers no means
-to do it.) We hope to lift this limitation and have wed be usable both
-as an editor part of a larger web application **and** as a generic XML
-editor but it may take a few more releases before this happens.
+incorporated into web applications that need to edit XML documents.
 
 People who are actually editing documents using wed should read
 :doc:`help`. You should also read it if you want to know about which
@@ -45,7 +34,6 @@ Table of Contents
 .. toctree::
    :maxdepth: 3
 
-   demos
    help
    tutorials
    usage
