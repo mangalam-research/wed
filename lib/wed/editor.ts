@@ -859,9 +859,9 @@ export class Editor implements EditorAPI {
   }
 
   insertText(text: string): void {
-    // We remove zero-width spaces.
     this.closeAllTooltips();
 
+    // We remove zero-width spaces.
     text = this.normalizeEnteredText(text);
 
     if (text === "") {
