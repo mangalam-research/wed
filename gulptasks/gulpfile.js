@@ -102,10 +102,9 @@ gulp.task("build-standalone-wed", ["copy-wed-source",
 
 gulp.task("copy-wed-source", () => {
   const dest = "build/standalone/";
-  return es.merge(gulp.src(["lib/**/*", "!**/*_flymake.*", "!**/flycheck*",
-                            "!**/*.{less,ts,yml}", "lib/**/*.d.ts"],
-                           { base: "." }),
-                  gulp.src(["lib/**/*.d.ts"], { base: "." }))
+  return gulp.src(["lib/**/*.@(js|json|d.ts|xml|html|xsl)",
+                   "!lib/**/*_flymake.*", "!lib/**/flycheck*"],
+                  { base: "." })
     .pipe(gulpNewer(dest))
     .pipe(gulp.dest(dest));
 });
