@@ -110,6 +110,14 @@ provided by the complex pattern here.</p>");
   }
 }
 
+interface InsertTextTransformationData extends TransformationData {
+  text: string;
+}
+
+interface DeleteCharTransformationData extends TransformationData {
+  key: Key;
+}
+
 /**
  * The possible targets for some wed operations that generate events. It is
  * currently used to determine where to type keys when calling [[Editor.type]].
@@ -247,6 +255,8 @@ export class Editor implements EditorAPI {
   private readonly errorItemHandlerBound: ErrorItemHandler;
   private readonly appender: log4javascript.AjaxAppender | undefined;
   private readonly _undo: UndoList;
+  private readonly insertTextTr: Transformation<InsertTextTransformationData>;
+  private readonly deleteCharTr: Transformation<DeleteCharTransformationData>;
   private _selectionMode: SelectionMode = SelectionMode.SPAN;
   private undoRecorder!: UndoRecorder;
   private saveStatusInterval: number | undefined;
@@ -515,6 +525,17 @@ export class Editor implements EditorAPI {
                            splitNode(editor, data.node!);
                          });
 
+    this.insertTextTr = new Transformation<InsertTextTransformationData>(
+      this, "add", "Insert text", this._insertText.bind(this),
+      {
+        treatAsTextInput: true,
+      });
+    this.deleteCharTr = new Transformation<DeleteCharTransformationData>(
+      this, "delete", "Insert text", this._deleteChar.bind(this),
+      {
+        treatAsTextInput: true,
+      });
+
     this.mergeWithPreviousHomogeneousSiblingTr =
       new Transformation(
         this, "merge-with-previous", "Merge <name> with previous",
@@ -583,7 +604,11 @@ export class Editor implements EditorAPI {
     // could destroy the markers that rangy put in and rangy will complain.
     this.editingMenuManager.dismiss();
     let currentGroup = this._undo.getGroup();
-    if (currentGroup instanceof wundo.TextUndoGroup) {
+    let textUndo: wundo.UndoGroup | undefined;
+    if (tr.treatAsTextInput) {
+      textUndo = this.initiateTextUndo();
+    }
+    else if (currentGroup instanceof wundo.TextUndoGroup) {
       this._undo.endGroup();
     }
 
@@ -606,6 +631,9 @@ export class Editor implements EditorAPI {
         throw ex;
       }
       finally {
+        if (textUndo !== undefined) {
+          textUndo.recordCaretAfter();
+        }
         // It is possible for a transformation to create new subgroups without
         // going through fireTransformation. So we terminate all groups until
         // the last one we terminated is the one we created.
@@ -866,64 +894,67 @@ export class Editor implements EditorAPI {
   }
 
   insertText(text: string): void {
-    this.closeAllTooltips();
-
     // We remove zero-width spaces.
     text = this.normalizeEnteredText(text);
 
-    if (text === "") {
+    if (text === "" || this.caretManager.caret === undefined) {
       return;
     }
 
-    const caretManager = this.caretManager;
-    let caret = caretManager.caret;
+    this.fireTransformation<InsertTextTransformationData>(this.insertTextTr,
+                                                          { text });
+  }
 
+  private _insertText(_editor: EditorAPI,
+                      data: InsertTextTransformationData): void {
+    this.closeAllTooltips();
+
+    const { caretManager } = this;
+    let caret = caretManager.caret;
     if (caret === undefined) {
       return;
     }
 
+    let { text } = data;
     const el = closestByClass(caret.node, "_real", this.guiRoot);
     // We do not operate on elements that are readonly.
     if (el === null || el.classList.contains("_readonly")) {
       return;
     }
 
-    this.enterTaskSuspension();
-    try {
-      const attrVal = closestByClass(caret.node, "_attribute_value",
-                                     this.guiRoot);
-      if (attrVal === null) {
-        caret = caretManager.getDataCaret()!;
-        text = this.compensateForAdjacentSpaces(text, caret);
-        if (text === "") {
-          return;
-        }
+    const attrVal = closestByClass(caret.node, "_attribute_value",
+                                   this.guiRoot);
+    if (attrVal === null) {
+      caret = caretManager.getDataCaret()!;
+      text = this.compensateForAdjacentSpaces(text, caret);
+      if (text === "") {
+        return;
+      }
 
-        const textUndo = this.initiateTextUndo();
-        const { caret: newCaret } = this.dataUpdater.insertText(caret, text);
-        caretManager.setCaret(newCaret, { textEdit: true });
-        textUndo.recordCaretAfter();
-      }
-      else {
-        // Modifying an attribute...
-        this.spliceAttribute(attrVal as HTMLElement, caret.offset, 0, text);
-      }
+      const { caret: newCaret } = this.dataUpdater.insertText(caret, text);
+      caretManager.setCaret(newCaret, { textEdit: true });
     }
-    finally {
-      this.exitTaskSuspension();
-      this.validationController.refreshErrors();
+    else {
+      // Modifying an attribute...
+      this.spliceAttribute(attrVal as HTMLElement, caret.offset, 0, text);
     }
   }
 
   /**
    * Delete a single character of text at caret.
    *
-   * @param backspace True if the operation should be a backspace. Otherwise, it
-   * is a delete.
+   * @param key The keyboard key that performs the deletion.
    *
    * @returns Whether a character was deleted.
    */
-  private deleteCharacter(key: Key): boolean {
+  private deleteChar(key: Key): void {
+    this.fireTransformation<DeleteCharTransformationData>(this.deleteCharTr,
+                                                          { key });
+  }
+
+  private _deleteChar(_editor: EditorAPI,
+                      data: DeleteCharTransformationData): void {
+    const { key } = data;
     const { caretManager } = this;
     let caret = caretManager.getDataCaret()!;
     switch (key) {
@@ -937,13 +968,13 @@ export class Editor implements EditorAPI {
           caret = caret.make(last, length);
 
           if (!isText(caret.node)) {
-            return false;
+            return;
           }
         }
 
         // At start of text, nothing to delete.
         if (caret.offset === 0) {
-          return false;
+          return;
         }
 
         caret = caret.makeWithOffset(caret.offset - 1);
@@ -955,7 +986,7 @@ export class Editor implements EditorAPI {
         if (!isText(caret.node)) {
           caret = caret.make(caret.node.childNodes[caret.offset], 0);
           if (!isText(caret.node)) {
-            return false;
+            return;
           }
         }
 
@@ -965,29 +996,18 @@ export class Editor implements EditorAPI {
         throw new Error(`cannot handle deleting with key ${key}`);
     }
 
-    this.enterTaskSuspension();
-    try {
-      // We need to grab the parent and offset before we do the transformation,
-      // because the node may be removed from its tree.
-      const parent = caret.node.parentNode!;
-      const offset = indexOf(parent.childNodes, caret.node);
-      const textUndo = this.initiateTextUndo();
-      this.dataUpdater.deleteText(caret, 1);
-      // Don't set the caret inside a node that has been deleted.
-      if (caret.node.parentNode !== null) {
-        caretManager.setCaret(caret, { textEdit: true });
-      }
-      else {
-        caretManager.setCaret(parent, offset, { textEdit: true });
-      }
-
-      textUndo.recordCaretAfter();
+    // We need to grab the parent and offset before we do the transformation,
+    // because the node may be removed from its tree.
+    const parent = caret.node.parentNode!;
+    const offset = indexOf(parent.childNodes, caret.node);
+    this.dataUpdater.deleteText(caret, 1);
+    // Don't set the caret inside a node that has been deleted.
+    if (caret.node.parentNode !== null) {
+      caretManager.setCaret(caret, { textEdit: true });
     }
-    finally {
-      this.exitTaskSuspension();
-      this.validationController.refreshErrors();
+    else {
+      caretManager.setCaret(parent, offset, { textEdit: true });
     }
-    return true;
   }
 
   private spliceAttribute(attrVal: HTMLElement, offset: number, count: number,
@@ -1025,54 +1045,45 @@ export class Editor implements EditorAPI {
       }
     }
 
-    this.enterTaskSuspension();
+    val = val.slice(0, offset) + add + val.slice(offset + count);
+    offset += add.length;
+    const dataReal =
+      $.data(closestByClass(attrVal, "_real")!, "wed_mirror_node");
+    const guiPath = this.nodeToPath(attrVal);
+    const name =
+      domutil.siblingByClass(attrVal, "_attribute_name")!.textContent!;
+    const mode = this.modeTree.getMode(attrVal);
+    const resolved = mode.getAbsoluteResolver().resolveName(name, true);
+    if (resolved === undefined) {
+      throw new Error(`cannot resolve ${name}`);
+    }
+    this.dataUpdater.setAttributeNS(dataReal, resolved.ns, resolved.name,
+                                    val);
+    // Redecoration of the attribute's element may have destroyed our old
+    // attrVal node. Refetch. And after redecoration, the attribute value
+    // element may not have a child. Not only that, but the attribute may no
+    // longer be shown at all.
+    let moveTo;
     try {
-      const textUndo = this.initiateTextUndo();
-      val = val.slice(0, offset) + add + val.slice(offset + count);
-      offset += add.length;
-      const dataReal =
-        $.data(closestByClass(attrVal, "_real")!, "wed_mirror_node");
-      const guiPath = this.nodeToPath(attrVal);
-      const name =
-        domutil.siblingByClass(attrVal, "_attribute_name")!.textContent!;
-      const mode = this.modeTree.getMode(attrVal);
-      const resolved = mode.getAbsoluteResolver().resolveName(name, true);
-      if (resolved === undefined) {
-        throw new Error(`cannot resolve ${name}`);
+      moveTo = this.pathToNode(guiPath)!;
+      if (moveTo.firstChild !== null) {
+        moveTo = moveTo.firstChild;
       }
-      this.dataUpdater.setAttributeNS(dataReal, resolved.ns, resolved.name,
-                                      val);
-      // Redecoration of the attribute's element may have destroyed our old
-      // attrVal node. Refetch. And after redecoration, the attribute value
-      // element may not have a child. Not only that, but the attribute may no
-      // longer be shown at all.
-      let moveTo;
-      try {
-        moveTo = this.pathToNode(guiPath)!;
-        if (moveTo.firstChild !== null) {
-          moveTo = moveTo.firstChild;
-        }
-      }
-      catch (ex) {
-        if (!(ex instanceof AttributeNotFound)) {
-          throw ex;
-        }
-      }
-
-      // We don't have an attribute to go back to. Go back to the element that
-      // held the attribute.
-      if (moveTo == null) {
-        moveTo = dataReal;
-        offset = 0;
-      }
-
-      this.caretManager.setCaret(moveTo, offset, { textEdit: true });
-      textUndo.recordCaretAfter();
     }
-    finally {
-      this.exitTaskSuspension();
-      this.validationController.refreshErrors();
+    catch (ex) {
+      if (!(ex instanceof AttributeNotFound)) {
+        throw ex;
+      }
     }
+
+    // We don't have an attribute to go back to. Go back to the element that
+    // held the attribute.
+    if (moveTo == null) {
+      moveTo = dataReal;
+      offset = 0;
+    }
+
+    this.caretManager.setCaret(moveTo, offset, { textEdit: true });
   }
 
   insertTransientPlaceholderAt(loc: DLoc): Element {
@@ -2833,7 +2844,7 @@ cannot be cut.`, { type: "danger" });
           // When a range is selected, we delete the whole range.
           if (!this.deleteSelection()) {
             // There was no range, so we need to handle the delete.
-            this.deleteCharacter(keyConstants.DELETE);
+            this.deleteChar(keyConstants.DELETE);
           }
         }
       }
@@ -2858,7 +2869,7 @@ cannot be cut.`, { type: "danger" });
           // When a range is selected, we delete the whole range.
           if (!this.deleteSelection()) {
             // There was no range, so we need to handle the backspace
-            this.deleteCharacter(keyConstants.BACKSPACE);
+            this.deleteChar(keyConstants.BACKSPACE);
           }
         }
       }

@@ -36,6 +36,11 @@ odd bug fix may not get mentioned here at all.
   - Breaking change: the signature of the constructor for ``Transformation``
     objects has changed. This affects you if you wrote custom code for wed.
 
+  - Feature: from this version onwards, inserting characters or deleting
+    characters are treated as transformations. Previously, they weren't. This
+    means that transformation events are emitted whenever characters are
+    inserted or deleted, and modes can listen to these events.
+
 * 2.0.1:
 
   - Fix validation restarts. There was a bug whereby wed would not restart

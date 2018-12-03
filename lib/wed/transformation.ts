@@ -166,6 +166,22 @@ export interface TransformationOptions {
    * Defaults to ``false`` if not specified.
    */
   needsInput?: boolean;
+
+  /**
+   * Indicates whether this transformation needs to be treated as a kind of text
+   * input.
+   *
+   * The distinction originates with how typing text is treated differently for
+   * undo/redo purposes than other changes to a document. We group sequences of
+   * keys together, with a default maximum length of 10 keys. So if I type
+   * ``abcdefghijklmn`` and then undo. The ``klmn`` will be removed and then if
+   * I do another undo the rest of the text will be undone. The first ten
+   * characters were grouped in an undo group, and the last four in another.
+   *
+   * Some key presses can trigger transformations, and such transformations need
+   * to be treated as text input.
+   */
+  treatAsTextInput?: boolean;
 }
 
 /**
@@ -178,6 +194,7 @@ Handler extends TransformationHandler<Data> = TransformationHandler<Data>>
   public readonly transformationType: string;
   public readonly kind: string;
   public readonly nodeType: string;
+  public readonly treatAsTextInput: boolean;
 
   /**
    * @param editor The editor for which this transformation is created.
@@ -209,6 +226,8 @@ Handler extends TransformationHandler<Data> = TransformationHandler<Data>>
     this.transformationType = transformationType;
     this.kind = TYPE_TO_KIND[transformationType];
     this.nodeType = TYPE_TO_NODE_TYPE[transformationType];
+    this.treatAsTextInput = actualOpts.treatAsTextInput !== undefined ?
+      actualOpts.treatAsTextInput : false;
   }
 
   getDescriptionFor(data: Data): string {
