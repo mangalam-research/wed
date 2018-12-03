@@ -283,6 +283,7 @@ export class Editor implements EditorAPI {
   readonly pasteUnitTr: Transformation<PasteTransformationData>;
   readonly cutTr: Transformation<TransformationData>;
   readonly cutUnitTr: Transformation<CutUnitTransformationData>;
+  readonly deleteSelectionTr: Transformation<TransformationData>;
   readonly splitNodeTr: Transformation<TransformationData>;
   readonly replaceRangeTr: Transformation<ReplaceRangeTransformationData>;
   readonly removeMarkupTr: Transformation<TransformationData>;
@@ -500,6 +501,9 @@ export class Editor implements EditorAPI {
     this.cutTr = new Transformation(this, "delete", "Cut", this.cut.bind(this));
     this.cutUnitTr = new Transformation(this, "delete", "Cut Unit",
                                         this.cutUnit.bind(this));
+    this.deleteSelectionTr =
+      new Transformation(this, "delete", "Delete Selection",
+                         this._deleteSelection.bind(this));
 
     this.replaceRangeTr =
       new Transformation(
@@ -2974,22 +2978,22 @@ cannot be cut.`, { type: "danger" });
         return true;
       }
 
-      this.enterTaskSuspension();
-      try {
-        const textUndo = this.initiateTextUndo();
-        const [start, end] = sel.mustAsDataCarets();
-        const cutRet = this.dataUpdater.cut(start, end)[0];
-        this.caretManager.setCaret(cutRet, { textEdit: true });
-        textUndo.recordCaretAfter();
-      }
-      finally {
-        this.exitTaskSuspension();
-        this.validationController.refreshErrors();
-      }
+      this.fireTransformation(this.deleteSelectionTr, {});
       return true;
     }
 
     return false;
+  }
+
+  private _deleteSelection(_editor: EditorAPI,
+                           _data: TransformationData): void {
+    const sel = this.caretManager.sel;
+    if (sel === undefined) {
+      throw new Error("called with undefined selection");
+    }
+    const [start, end] = sel.mustAsDataCarets();
+    const cutRet = this.dataUpdater.cut(start, end)[0];
+    this.caretManager.setCaret(cutRet, { textEdit: true });
   }
 
   private handleKeyInsertingText(e: JQueryKeyEventObject): boolean | undefined {
