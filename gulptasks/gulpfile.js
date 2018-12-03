@@ -4,7 +4,7 @@ const gulpFilter = require("gulp-filter");
 const less = require("gulp-less");
 const rename = require("gulp-rename");
 const changed = require("gulp-changed");
-const es = require("event-stream");
+const through2 = require("through2");
 const vinylFile = require("vinyl-file");
 const Promise = require("bluebird");
 const path = require("path");
@@ -78,7 +78,7 @@ gulp.task("config", () => {
   const configPath = "config";
   const localConfigPath = "local_config";
   return gulp.src(path.join(configPath, "**"), { nodir: true })
-    .pipe(es.map((file, callback) =>
+    .pipe(through2.obj((file, enc, callback) =>
                  vinylFile.read(
                    path.join(localConfigPath, file.relative),
                    { base: localConfigPath })
@@ -116,12 +116,12 @@ gulp.task("convert-wed-yaml", () => {
       extname: ".json",
     }))
     .pipe(gulpNewer(dest))
-    .pipe(es.mapSync((file) => {
+    .pipe(through2.obj((file, enc, callback) => {
       file.contents = Buffer.from(JSON.stringify(yaml.safeLoad(file.contents, {
         schema: yaml.JSON_SCHEMA,
       })));
 
-      return file;
+      callback(null, file);
     }))
     .pipe(gulp.dest(dest));
 });
@@ -358,8 +358,8 @@ function npmCopyTask(...args) {
         .pipe(jsFilter.restore);
     }
 
-    if (copyOptions.map) {
-      stream = stream.pipe(es.map(copyOptions.map));
+    if (copyOptions.through) {
+      stream = stream.pipe(through2.obj(copyOptions.through));
     }
 
     stream.pipe(gulp.dest(completeDest))
@@ -388,7 +388,7 @@ npmCopyTask("bootbox/bootbox*.js");
 
 npmCopyTask("urijs/src/**", "external/urijs",
             {
-              map: (file, callback) => {
+              through: (file, enc, callback) => {
                 // Sigh... the punycode version included with the latest urijs
                 // hardcodes its name.
                 if (file.path.endsWith("punycode.js")) {
@@ -558,7 +558,7 @@ gulp.task("webpack", ["build-standalone"], () =>
 gulp.task("rst-doc", () =>
           gulp.src("*.rst", { read: false })
           // eslint-disable-next-line array-callback-return
-          .pipe(es.map((file, callback) => {
+          .pipe(through2.obj((file, enc, callback) => {
             const dest = `${file.path.substr(
                   0, file.path.length - path.extname(file.path).length)}.html`;
             exec(`${options.rst2html} ${file.path}` +
