@@ -404,10 +404,10 @@ export class TestMode extends GenericMode<TestModeOptions> {
     if (this.options.fileDesc_insert_needs_input &&
         tag === "fileDesc" && transformationType === "insert") {
       return [new transformation.Transformation(
-        this.editor, "insert", "foo", undefined, undefined, true,
+        this.editor, "insert", "foo",
         // We don't need a real handler because it will not be called.
         // tslint:disable-next-line:no-empty
-        () => {})];
+        () => {}, { needsInput: true })];
     }
 
     let ret = super.getContextualActions(transformationType, tag,

@@ -33,6 +33,9 @@ odd bug fix may not get mentioned here at all.
     always supported. The unit selection mode allows selecting elements for
     copying, cutting and pasting as XML structural units.
 
+  - Breaking change: the signature of the constructor for ``Transformation``
+    objects has changed. This affects you if you wrote custom code for wed.
+
 * 2.0.1:
 
   - Fix validation restarts. There was a bug whereby wed would not restart

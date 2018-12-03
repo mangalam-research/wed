@@ -531,8 +531,11 @@ export class Editor implements EditorAPI {
 
     this.removeMarkupTr =
       new Transformation(this, "delete", "Remove mixed-content markup",
-          "Remove mixed-content markup", "<i class='fa fa-eraser'></i>", true,
-          removeMarkup);
+                         removeMarkup, {
+                           abbreviatedDesc: "Remove mixed-content markup",
+                           iconHtml: "<i class='fa fa-eraser'></i>",
+                           needsInput: true,
+                         });
 
     toolbar.addButton([this.saveAction.makeButton(),
                        this.undoAction.makeButton(),

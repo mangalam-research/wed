@@ -145,6 +145,29 @@ function computeIconHtml(iconHtml: string | undefined,
   return undefined;
 }
 
+export interface TransformationOptions {
+  /**  An abbreviated description of this transformation. */
+  abbreviatedDesc?: string;
+
+  /** An HTML representation of the icon associated with this transformation. */
+  iconHtml?: string;
+
+  /**
+   * Indicates whether this action needs input from the user. For instance, an
+   * action which brings up a modal dialog to ask something of the user must
+   * have this parameter set to ``true``. It is important to record whether an
+   * action needs input because, to take one example, the ``autoinsert`` logic
+   * will try to insert automatically any element it can. However, doing this
+   * for elements that need user input will just confuse the user (or could
+   * cause a crash). Therefore, it is important that the insertion operations
+   * for such elements be marked with ``needsInput`` set to ``true`` so that the
+   * ``autoinsert`` logic backs off from trying to insert these elements.
+   *
+   * Defaults to ``false`` if not specified.
+   */
+  needsInput?: boolean;
+}
+
 /**
  * An operation that transforms the data tree.
  */
@@ -167,76 +190,16 @@ Handler extends TransformationHandler<Data> = TransformationHandler<Data>>
    * become ``Remove foo`` when the transformation is called for the element
    * ``foo``.
    *
-   * @param abbreviatedDesc An abbreviated description of this transformation.
-   *
-   * @param iconHtml An HTML representation of the icon associated with this
-   * transformation.
-   *
-   * @param needsInput Defaults to ``false`` for signatures that do not contain
-   * this parameter. Indicates whether this action needs input from the
-   * user. For instance, an action which brings up a modal dialog to ask
-   * something of the user must have this parameter set to ``true``. It is
-   * important to record whether an action needs input because, to take one
-   * example, the ``autoinsert`` logic will try to insert automatically any
-   * element it can. However, doing this for elements that need user input will
-   * just confuse the user (or could cause a crash). Therefore, it is important
-   * that the insertion operations for such elements be marked with
-   * ``needsInput`` set to ``true`` so that the ``autoinsert`` logic backs off
-   * from trying to insert these elements.
-   *
    * @param handler The handler to call when this transformation is executed.
+   *
+   * @param options Additional options.
    */
   constructor(editor: EditorAPI, transformationType: string, desc: string,
-              handler: Handler);
-  constructor(editor: EditorAPI, transformationType: string, desc: string,
-              abbreviatedDesc: string | undefined, handler: Handler);
-  constructor(editor: EditorAPI, transformationType: string, desc: string,
-              abbreviatedDesc: string | undefined, iconHtml: string | undefined,
-              handler: Handler);
-  constructor(editor: EditorAPI, transformationType: string, desc: string,
-              abbreviatedDesc: string | undefined, iconHtml: string | undefined,
-              needsInput: boolean, handler: Handler);
-  constructor(editor: EditorAPI, transformationType: string, desc: string,
-              abbreviatedDesc: string | Handler | undefined,
-              iconHtml?: string | Handler | undefined,
-              needsInput?: boolean | Handler, handler?: Handler) {
-    if (typeof abbreviatedDesc === "function") {
-      handler = abbreviatedDesc;
-      super(editor, desc, undefined,
-            computeIconHtml(undefined, transformationType), false);
-    }
-    else {
-      if (!(abbreviatedDesc === undefined ||
-            typeof abbreviatedDesc === "string")) {
-        throw new TypeError("abbreviatedDesc must be a string or undefined");
-      }
-
-      if (typeof iconHtml === "function") {
-        handler = iconHtml;
-        super(editor, desc, abbreviatedDesc,
-              computeIconHtml(undefined, transformationType), false);
-      }
-      else {
-        if (!(iconHtml === undefined || typeof iconHtml === "string")) {
-          throw new TypeError("iconHtml must be a string or undefined");
-        }
-
-        if (typeof needsInput === "function") {
-          handler = needsInput;
-
-          super(editor, desc, abbreviatedDesc,
-                computeIconHtml(iconHtml, transformationType), false);
-        }
-        else {
-          if (!(needsInput === undefined || typeof needsInput === "boolean")) {
-            throw new TypeError("needsInput must be a boolean or undefined");
-          }
-
-          super(editor, desc, abbreviatedDesc,
-                computeIconHtml(iconHtml, transformationType), needsInput);
-        }
-      }
-    }
+              handler: Handler, options?: TransformationOptions) {
+    const actualOpts = options !== undefined ? options : {};
+    super(editor, desc, actualOpts.abbreviatedDesc,
+          computeIconHtml(actualOpts.iconHtml, transformationType),
+          actualOpts.needsInput);
 
     if (handler === undefined) {
       throw new Error("did not specify a handler");

@@ -293,31 +293,29 @@ Record<string, Transformation<NamedTransformationData>> {
   const ret: Record<string, Transformation<NamedTransformationData>> =
     Object.create(null);
   ret.insert = new Transformation(forEditor, "insert", "Create new <name>",
-                                  "", executeInsert);
+                                  executeInsert, { abbreviatedDesc: "" });
   ret.unwrap = new Transformation(forEditor, "unwrap",
                                   "Unwrap the content of this element",
-                                  undefined, executeUnwrap);
+                                  executeUnwrap);
   ret.wrap = new Transformation(forEditor, "wrap", "Wrap in <name>",
-                                undefined, executeWrap);
+                                executeWrap);
   ret["wrap-content"] = new Transformation(forEditor, "wrap-content",
-                                           "Wrap content in <name>", undefined,
+                                           "Wrap content in <name>",
                                            executeWrapContent);
   ret["delete-element"] = new Transformation(forEditor, "delete-element",
-                                             "Delete this element", undefined,
+                                             "Delete this element",
                                              executeDeleteElement);
   ret["delete-parent"] = new Transformation(forEditor, "delete-parent",
-                                            "Delete <name>", undefined,
+                                            "Delete <name>",
                                             executeDeleteParent);
   ret["add-attribute"] = new Transformation(forEditor, "add-attribute",
-                                            "Add @<name>", undefined,
+                                            "Add @<name>",
                                             executeAddAttribute);
   ret["delete-attribute"] = new Transformation(forEditor, "delete-attribute",
                                                "Delete this attribute",
-                                               undefined,
                                                executeDeleteAttribute);
   ret["insert-text"] = new Transformation(
-       forEditor, "insert-text",
-     "Insert \"<name>\"", undefined,
+    forEditor, "insert-text", "Insert \"<name>\"",
     (editor: EditorAPI, data: NamedTransformationData) => {
       editor.insertText(data.name);
     });
