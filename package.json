@@ -99,7 +99,7 @@
     "karma-mocha-reporter": "^2.2.4",
     "karma-requirejs": "^1.1.0",
     "karma-source-map-support": "^1.2.0",
-    "last-resort": "^0.1.0",
+    "last-resort": "^1.0.1",
     "less": ">=2 <3",
     "localforage": ">=1.2.4 <2",
     "lodash-amd": ">=4 <5",
