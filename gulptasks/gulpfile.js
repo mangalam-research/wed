@@ -635,7 +635,8 @@ standalone/lib/tests/**
     const buildPack = `build/${packname}`;
     yield fs.rename(`${dist}/${packname}`, buildPack);
     yield del(LATEST_DIST);
-    yield fs.symlink(buildPack, LATEST_DIST);
+    // We want packname without the `build/` path.
+    yield fs.symlink(packname, LATEST_DIST);
     const tempPath = "build/t";
     yield del(tempPath);
     yield mkdirp(`${tempPath}/node_modules`);
@@ -648,7 +649,11 @@ defineTask(packNoTest);
 sequence("pack", test, seleniumTest, packNoTest);
 
 function publish() {
-  return spawn("npm", ["publish", LATEST_DIST], { stdio: "inherit" });
+  // We have to execute this in the directory where the pack is located.
+  return spawn("npm", ["publish", "LATEST_DIST.tgz"], {
+    stdio: "inherit",
+    cwd: "./build",
+  });
 }
 
 gulp.task("publish", ["pack"], publish);
