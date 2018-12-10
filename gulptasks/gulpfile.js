@@ -421,7 +421,7 @@ npmCopyTask("is-plain-obj", "is-plain-obj/index.js",
 
 npmCopyTask("bluebird/js/browser/bluebird.js");
 
-npmCopyTask("last-resort/dist/last-resort.js**");
+npmCopyTask("last-resort/last-resort.js");
 
 npmCopyTask("rangy/lib/**", "external/rangy");
 
