@@ -6,7 +6,7 @@
  */
 
 import mergeOptions from "merge-options";
-import { EName, NameResolver } from "salve";
+import { DefaultNameResolver, EName } from "salve";
 
 import { Action, BaseMode, CommonModeOptions, Decorator, EditorAPI, objectCheck,
          transformation } from "wed";
@@ -46,7 +46,7 @@ export interface GenericModeOptions extends CommonModeOptions {
  */
 class GenericMode<Options extends GenericModeOptions>
   extends BaseMode<Options> {
-  protected resolver!: NameResolver;
+  protected resolver!: DefaultNameResolver;
   protected metadata!: Metadata;
   protected tagTr!: Record<string, Transformation<NamedTransformationData>>;
 
@@ -96,7 +96,7 @@ class GenericMode<Options extends GenericModeOptions>
         });
       })
       .then(() => {
-        this.resolver = new NameResolver();
+        this.resolver = new DefaultNameResolver();
         const mappings = this.metadata.getNamespaceMappings();
         for (const key of Object.keys(mappings)) {
           this.resolver.definePrefix(key, mappings[key]);
@@ -138,7 +138,7 @@ class GenericMode<Options extends GenericModeOptions>
     return this.metadata.unresolveName(name);
   }
 
-  getAbsoluteResolver(): NameResolver {
+  getAbsoluteResolver(): DefaultNameResolver {
     return this.resolver;
   }
 

@@ -5,6 +5,16 @@ there.
 Only salient changes are recorded here. Releases that contain only the
 odd bug fix may not get mentioned here at all.
 
+* 4.0.0:
+
+  - Potentially breaking change: Upgrade to salve 9.x. Immediate benefits are
+    faster validation, and a smaller salve bundle. This affects scenarios in
+    which salve is used outside wed.
+
+  - Potentially breaking change: we no longer downcompile to ES5. If ES5
+    downcompilation is desired, someone will have to provide the patch and
+    maintain it. This affects only scenarios where ES5 support is necessary.
+
 * 3.0.0:
 
   - Potentially breaking change: wed no longer makes the GUI tree

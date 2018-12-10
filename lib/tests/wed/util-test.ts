@@ -4,7 +4,7 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { AnyName, Name, NameChoice, NameResolver, NsName } from "salve";
+import { AnyName, DefaultNameResolver, Name, NameChoice, NsName } from "salve";
 
 import * as util from "wed/util";
 
@@ -194,9 +194,9 @@ _xmlns_http\\:\\/\\/mangalamresearch\\.org\\/ns\\/btw-storage._real");
   });
 
   describe("convertPatternObj", () => {
-    let nr: NameResolver;
+    let nr: DefaultNameResolver;
     before(() => {
-      nr = new NameResolver();
+      nr = new DefaultNameResolver();
       nr.definePrefix("", "default");
       nr.definePrefix("prefix", "uri");
       nr.definePrefix("prefix2", "uri2");

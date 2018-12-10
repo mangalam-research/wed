@@ -7,7 +7,7 @@
  */
 "use strict";
 
-import { EName, NameResolver } from "salve";
+import { DefaultNameResolver, EName } from "salve";
 
 import { Action, Decorator, domtypeguards, domutil, EditorAPI, gui,
          ModeValidator, WedOptions } from "wed";
@@ -80,7 +80,7 @@ CommonModeOptions = CommonModeOptions> {
    *
    * @returns The resolver.
    */
-  getAbsoluteResolver(): NameResolver;
+  getAbsoluteResolver(): DefaultNameResolver;
 
   /**
    * Make a decorator that this mode will use.
@@ -339,7 +339,7 @@ export abstract class BaseMode<ModeOptions> implements Mode<ModeOptions> {
   abstract init(): Promise<void>;
   abstract getAbsoluteNamespaceMappings(): Record<string, string>;
   abstract unresolveName(name: EName): string | undefined;
-  abstract getAbsoluteResolver(): NameResolver;
+  abstract getAbsoluteResolver(): DefaultNameResolver;
   abstract makeDecorator(): Decorator;
   abstract getContextualActions(transformationType: string | string[],
                                 tag: string,

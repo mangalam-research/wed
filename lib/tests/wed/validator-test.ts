@@ -3,7 +3,7 @@
  * @license MPL 2.0
  * @copyright Mangalam Research Center for Buddhist Languages
  */
-import { constructTree, Event, EventSet, Grammar, Name,
+import { Event, EventSet, Grammar, Name, readTreeFromJSON,
          ValidationError } from "salve";
 import { ErrorData } from "salve-dom";
 
@@ -35,7 +35,7 @@ describe("validator", () => {
     const provider = new DataProvider("/base/build/");
     return Promise.all([
       provider.getText("schemas/simplified-rng.js").then((schema) => {
-        grammar = constructTree(schema);
+        grammar = readTreeFromJSON(schema);
       }),
       provider.getDoc(
         "standalone/lib/tests/validator_test_data/to_parse_converted.xml")

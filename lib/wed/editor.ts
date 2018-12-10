@@ -1366,7 +1366,7 @@ export class Editor implements EditorAPI {
     }
     else if (typeof schemaOption === "string") {
       const schemaText = await this.runtime.resolveToString(schemaOption);
-      schema = salve.constructTree(schemaText);
+      schema = salve.readTreeFromJSON(schemaText);
     }
     else {
       throw new Error("unexpected value for schema");

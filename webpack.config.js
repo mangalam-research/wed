@@ -2,8 +2,8 @@
 
 /* global __dirname */
 
-const webpack = require("webpack");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 const buildDir = "build/standalone/lib/";
 
@@ -60,11 +60,17 @@ module.exports = {
     library: "wed",
     libraryTarget: "amd",
   },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin({
+      terserOptions: {
+        safari10: true,
+      },
       sourceMap: true,
       include: /\.min\.js$/,
-    }),
+    })],
+  },
+  plugins: [
     new CopyWebpackPlugin([
       "wed/{glue,patches,polyfills,modes,savers}/**/*",
       "{requirejs,external}/*", "{requirejs,external}/!(rxjs)/**/*",

@@ -26,8 +26,10 @@
     "amd-loader": "0.0.8",
     "argparse": ">=1.0.3 <2",
     "js-yaml": "^3.8.4",
-    "salve": "^7.0.2",
-    "urijs": "^1.19.1"
+    "salve": "^9.0.1",
+    "terser-webpack-plugin": "^1.1.0",
+    "urijs": "^1.19.1",
+    "webpack-cli": "^3.1.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^6.2.0",
@@ -113,7 +115,7 @@
     "requirejs": "^2.3.4",
     "requirejs-text": ">=2.0.12 <3",
     "rxjs": "^6.2.0",
-    "salve-dom": "^3.0.0",
+    "salve-dom": "^5.0.1",
     "semver": ">=5 <6",
     "serve-static": ">=1.7.1 <2",
     "shell-quote": ">=1.4.3 <2",
@@ -130,7 +132,7 @@
     "typescript": "^2.7.1",
     "versync": "^3.1.0",
     "vinyl-file": "^3.0.0",
-    "webpack": "^3.8.1",
+    "webpack": "^4.27.1",
     "zone.js": "^0.8.10"
   },
   "bin": {

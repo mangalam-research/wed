@@ -5,7 +5,8 @@
  * @copyright Mangalam Research Center for Buddhist Languages
  */
 
-import { AttributeNameError, NameResolver, ValidationError } from "salve";
+import { AttributeNameError, DefaultNameResolver,
+         ValidationError } from "salve";
 import { ErrorData, ResetData, WorkingState,
          WorkingStateData } from "salve-dom";
 
@@ -92,7 +93,7 @@ function elementsToFrag(doc: Document,
  * @returns The converted names.
  */
 function convertNames(error: ValidationError,
-                      resolver: NameResolver): string[] {
+                      resolver: DefaultNameResolver): string[] {
   // Turn the names into qualified names.
   const convertedNames = [];
   const patterns = error.getNames();
@@ -170,7 +171,7 @@ export class ValidationController {
    */
   constructor(private readonly editor: Editor,
               private readonly validator: Validator,
-              private readonly resolver: NameResolver,
+              private readonly resolver: DefaultNameResolver,
               private readonly scroller: Scroller,
               private readonly guiRoot: Element,
               private readonly progressBar: HTMLElement,
