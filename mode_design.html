@@ -8,9 +8,11 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Creating a Mode &mdash; Wed v2.0.0-3-g031e9d63 documentation</title>
+  <title>Creating a Mode &mdash; Wed v4.0.0-1-gbcd6a1d0-unclean documentation</title>
   
 
+  
+  
   
   
 
@@ -22,28 +24,21 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v2.0.0-3-g031e9d63 documentation" href="index.html"/>
-        <link rel="next" title="Advanced Usage Notes" href="tech_notes.html"/>
-        <link rel="prev" title="Using Wed in an Application" href="usage.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Usage Notes" href="tech_notes.html" />
+    <link rel="prev" title="Using Wed in an Application" href="usage.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -63,7 +58,7 @@
             
             
               <div class="version">
-                v2.0
+                v4.0
               </div>
             
           
@@ -84,9 +79,12 @@
           
             
             
-                <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="help.html">Wed’s Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Using Wed in an Application</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Creating a Mode</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#submodes">Submodes</a></li>
@@ -102,34 +100,54 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">Wed</a>
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Wed</a>
+        
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Creating a Mode</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Creating a Mode</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/mode_design.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/mode_design.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -138,9 +156,9 @@
   <div class="section" id="creating-a-mode">
 <h1>Creating a Mode<a class="headerlink" href="#creating-a-mode" title="Permalink to this headline">¶</a></h1>
 <p>We recommend creating new modes by inheriting from the generic mode. The first
-thing you must do is set the metadata on the <code class="docutils literal"><span class="pre">wedOptions</span></code> object because wed
+thing you must do is set the metadata on the <code class="docutils literal notranslate"><span class="pre">wedOptions</span></code> object because wed
 will refuse to load your mode if these are not set:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">this</span><span class="o">.</span><span class="n">wedOptions</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">this</span><span class="o">.</span><span class="n">wedOptions</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">name</span><span class="p">:</span> <span class="s2">&quot;Foo&quot;</span><span class="p">,</span>
     <span class="n">authors</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Ty Coon&quot;</span><span class="p">],</span>
     <span class="n">description</span><span class="p">:</span>
@@ -150,12 +168,12 @@ will refuse to load your mode if these are not set:</p>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>Modes may set other options on the <code class="docutils literal"><span class="pre">wedOptions</span></code> property. This is
+<p>Modes may set other options on the <code class="docutils literal notranslate"><span class="pre">wedOptions</span></code> property. This is
 essentially a mean for the mode to control how wed operates when the mode is
 active. These are not meant to be directly settable by the user or by the
 application in which wed is being used. (Although it would be possible for the
 mode to expose options to make them settable.)</p>
-<p>See the file <code class="docutils literal"><span class="pre">lib/wed/wed-options-schema.yml</span></code> to learn what options are
+<p>See the file <code class="docutils literal notranslate"><span class="pre">lib/wed/wed-options-schema.yml</span></code> to learn what options are
 available.</p>
 </div>
 <div class="section" id="submodes">
@@ -171,18 +189,18 @@ a document that require specialized handling.</p>
 <li>A submode must know that it is a submode. It is possible to write a mode in a
 way that allows it to be used as a main mode <em>and</em> a submode but it must be
 aware of when it is used as a submode and adapt accordingly.</li>
-<li>The <code class="docutils literal"><span class="pre">Mode</span></code> object created for a submode is created <em>once</em> per document, even
+<li>The <code class="docutils literal notranslate"><span class="pre">Mode</span></code> object created for a submode is created <em>once</em> per document, even
 if the mode applies to multiple subregions. If the submode may apply to
 multiple regions of a document and these regions are to be handled as
 self-contained structures, the submode must handle it itself. (This is by
 opposition to the hypothetical situation where the editor would create a
-different <code class="docutils literal"><span class="pre">Mode</span></code> object per region governed by the submode. In this case,
+different <code class="docutils literal notranslate"><span class="pre">Mode</span></code> object per region governed by the submode. In this case,
 the submode would not have to take special care to treat different regions in
 isolation. We do not create a new submode for each region because the memory
 requirements would be prohibitive, with benefits that are very
 situation-specific.)</li>
 <li>A submode is not a substitute for schema design. There is no such thing as a
-&#8220;subschema&#8221;. A document is validated by one schema &#8212; and only one &#8212; which
+“subschema”. A document is validated by one schema — and only one — which
 must support all structures expected in a valid document. So if you want to
 incorporate MathML in a TEI schema, you must create and use a schema that
 supports it.</li>
@@ -197,7 +215,7 @@ submode can be used.</li>
 <p>Design goals:</p>
 <ul class="simple">
 <li>Provided that a mode is well-behaved, it should not have to be modified to
-work with submodes. (What &#8220;well-behaved&#8221; means remains to be determined. The
+work with submodes. (What “well-behaved” means remains to be determined. The
 point here is that there should be a set of rules that allow writing modes in
 a way that does not require ad-hoc modifications later if they are used with
 submodes.)</li>
@@ -208,15 +226,15 @@ submodes.)</li>
 submodes. However, they may operate on such elements <em>as a whole</em> and may
 allow editing attributes on such elements.</p>
 <p>This rule extends to classes or instances provided by modes. E.g. a
-<code class="docutils literal"><span class="pre">ModeValidator</span></code> must check that it is operating only on appropriate nodes.</p>
+<code class="docutils literal notranslate"><span class="pre">ModeValidator</span></code> must check that it is operating only on appropriate nodes.</p>
 </li>
 <li><p class="first">Take care to not operate on elements that are outside the region they manage,
 even though they have access to the whole document.</p>
 <ul>
-<li><p class="first">In particular a customized <code class="docutils literal"><span class="pre">Decorator</span></code> will normally want to check that
+<li><p class="first">In particular a customized <code class="docutils literal notranslate"><span class="pre">Decorator</span></code> will normally want to check that
 the nodes it operates on are governed by the mode associated with the
 decorator. The typical test is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">modeTree</span><span class="o">.</span><span class="n">getMode</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">!==</span> <span class="n">this</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">modeTree</span><span class="o">.</span><span class="n">getMode</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">!==</span> <span class="n">this</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="p">{</span>
   <span class="o">//</span> <span class="n">The</span> <span class="n">element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">governed</span> <span class="n">by</span> <span class="n">this</span> <span class="n">mode</span><span class="o">.</span>
   <span class="k">return</span><span class="p">;</span>
 <span class="p">}</span>
@@ -235,15 +253,16 @@ designers.]</p>
 
 
            </div>
+           
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tech_notes.html" class="btn btn-neutral float-right" title="Advanced Usage Notes" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tech_notes.html" class="btn btn-neutral float-right" title="Advanced Usage Notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="usage.html" class="btn btn-neutral" title="Using Wed in an Application" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="usage.html" class="btn btn-neutral" title="Using Wed in an Application" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -256,7 +275,7 @@ designers.]</p>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -274,31 +293,28 @@ designers.]</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v2.0.0-3-g031e9d63',
+            VERSION:'v4.0.0-1-gbcd6a1d0-unclean',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

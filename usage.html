@@ -8,9 +8,11 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using Wed in an Application &mdash; Wed v2.0.0-3-g031e9d63 documentation</title>
+  <title>Using Wed in an Application &mdash; Wed v4.0.0-1-gbcd6a1d0-unclean documentation</title>
   
 
+  
+  
   
   
 
@@ -22,28 +24,21 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Wed v2.0.0-3-g031e9d63 documentation" href="index.html"/>
-        <link rel="next" title="Creating a Mode" href="mode_design.html"/>
-        <link rel="prev" title="Wed’s Help" href="help.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Creating a Mode" href="mode_design.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -63,7 +58,7 @@
             
             
               <div class="version">
-                v2.0
+                v4.0
               </div>
             
           
@@ -84,9 +79,12 @@
           
             
             
-                <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="demos.html">Demos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">Wed&#8217;s Help</a></li>
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="help.html">Wed’s Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Using Wed in an Application</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building">Building</a></li>
@@ -120,34 +118,54 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">Wed</a>
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Wed</a>
+        
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Using Wed in an Application</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Using Wed in an Application</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/usage.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -164,13 +182,13 @@ supported by wed.</p>
 <p>Known limitations:</p>
 <ul>
 <li><dl class="first docutils">
-<dt>Wed does not load documents containing XML comments (<code class="docutils literal"><span class="pre">&lt;!--</span> <span class="pre">...</span> <span class="pre">--&gt;</span></code>) or</dt>
+<dt>Wed does not load documents containing XML comments (<code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">...</span> <span class="pre">--&gt;</span></code>) or</dt>
 <dd><p class="first last">CDATA sections.</p>
 </dd>
 </dl>
 </li>
 <li><p class="first">Wed does not load documents that include processing instructions other than
-the <code class="docutils literal"><span class="pre">&lt;?xml</span> <span class="pre">...&gt;</span></code> declaration at the very top of documents. (Some hold that
+the <code class="docutils literal notranslate"><span class="pre">&lt;?xml</span> <span class="pre">...&gt;</span></code> declaration at the very top of documents. (Some hold that
 the XML declaration is not a processing instruction. The distinction is
 irrelevant to the point being made here.)</p>
 </li>
@@ -182,10 +200,10 @@ preference. (The order is alphabetic.)</p>
 <li><p class="first">Wed does not currently support multiline values in attributes.</p>
 </li>
 <li><p class="first">Empty elements appear in the editor as if they had an opening and closing tag,
-irrespective of how they are encoded in the original document. So <code class="docutils literal"><span class="pre">&lt;foo/&gt;</span></code>
-and <code class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></code> are treated the same. Part of this problem is due to the
+irrespective of how they are encoded in the original document. So <code class="docutils literal notranslate"><span class="pre">&lt;foo/&gt;</span></code>
+and <code class="docutils literal notranslate"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></code> are treated the same. Part of this problem is due to the
 fact that wed sees the document as a DOM tree, not as a serialization. In a
-DOM tree, <code class="docutils literal"><span class="pre">&lt;foo/&gt;</span></code> and <code class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></code> are the same.</p>
+DOM tree, <code class="docutils literal notranslate"><span class="pre">&lt;foo/&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></code> are the same.</p>
 </li>
 <li><p class="first">Elements that <em>must be empty</em> appear in the editor as if they <em>could</em> contain
 contents. Note that the validator raises an error if these elements are filled
@@ -195,7 +213,7 @@ worked on a prototype that would check whether an element <em>can</em> contain
 anything and display it differently if it could not. However, this required
 that the rendering engine query the validating engine during rendering, which
 made rendering extremely slow. Since the editor will raise an error if an
-element that should be empty is filled erroneously, we&#8217;ve decided that a
+element that should be empty is filled erroneously, we’ve decided that a
 solution to this problem can wait.</p>
 </li>
 <li><p class="first">Eventually the plan is to handle XML namespace changes completely, and there
@@ -205,12 +223,12 @@ top element, and never change them throughout the document. Otherwise,
 problems are likely.</p>
 <p>[A significant issue here is that the various browsers do not handle
 namespaces in the same way. For instance FF and Chrome are absolutely fine if
-you specify <code class="docutils literal"><span class="pre">xmlns</span></code> with DOM&#8217;s <code class="docutils literal"><span class="pre">setAttribute</span></code> on an element that is on the
-same namespace as the namespace specified with the new <code class="docutils literal"><span class="pre">xmlns</span></code> attribute and
+you specify <code class="docutils literal notranslate"><span class="pre">xmlns</span></code> with DOM’s <code class="docutils literal notranslate"><span class="pre">setAttribute</span></code> on an element that is on the
+same namespace as the namespace specified with the new <code class="docutils literal notranslate"><span class="pre">xmlns</span></code> attribute and
 they will produce a correct serialization. IE, on the other hand, will produce
-a node with two <code class="docutils literal"><span class="pre">xmlns</span></code> attributes.]</p>
+a node with two <code class="docutils literal notranslate"><span class="pre">xmlns</span></code> attributes.]</p>
 </li>
-<li><p class="first">We&#8217;ve not tested a setup in which more than one wed instance appears on the
+<li><p class="first">We’ve not tested a setup in which more than one wed instance appears on the
 same page. So using more than one wed editor on the same page could be
 problematic.</p>
 </li>
@@ -226,7 +244,7 @@ support for RTL scripts. So no resources have been expended towards supporting
 this.</p>
 </li>
 <li><p class="first">Wed is not internationalized. Although the contents of a document could be in
-any language, wed&#8217;s UI is in English. Again, there is no inherent reason wed
+any language, wed’s UI is in English. Again, there is no inherent reason wed
 could not support other languages for the UI. The project for which it is
 developed currently does not need support for other languages, hence this
 state of affairs.</p>
@@ -244,67 +262,67 @@ can use wed for your project.</p>
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <p>Wed is packaged as an AMD module. To use it in a browser environment, you need
 to first load RequireJS and pass to it a configuration that will allow it to
-find wed&#8217;s code. An example of such configuration, which allows running the
+find wed’s code. An example of such configuration, which allows running the
 browser-dependent test suite, is located in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>.</p>
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If you want to change this configuration for experimentation or to
-match your local setup, please copy it to the <code class="docutils literal"><span class="pre">local_config</span></code>
+match your local setup, please copy it to the <code class="docutils literal notranslate"><span class="pre">local_config</span></code>
 directory and edit it <em>there</em>. This directory is not tracked by
 git. This is true of all files that are stored in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/">config/</a>.</p>
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/config/">config/</a>.</p>
 </div>
-<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/package.json">package.json</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>,
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/Makefile">Makefile</a> and <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/build.mk">build.mk</a> files for details regarding run-time
+<p>Please see the <a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/package.json">package.json</a>, <a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/config/requirejs-config-dev.js">config/requirejs-config-dev.js</a>,
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/Makefile">Makefile</a> and <a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/build.mk">build.mk</a> files for details regarding run-time
 and development dependencies. Running the test suite also requires that <a class="reference external" href="http://saxon.sourceforge.net/">saxon</a> be installed.</p>
 <p>Wed works with jQuery 3.x and 2.x. We strongly recommend using jQuery
 3.x. jQuery 2.x is no longer maintained by its development team and thus no
 longer receives security patches. There is no formal support for running wed
 with jQuery 1.x or earlier versions.</p>
 <p>The optimized builds of wed include jQuery 3.x.</p>
-<p>Building wed&#8217;s documentation <strong>additionally</strong> requires the following packages:</p>
+<p>Building wed’s documentation <strong>additionally</strong> requires the following packages:</p>
 <ul class="simple">
 <li>rst2html</li>
 </ul>
-<p>Running wed&#8217;s selenium-based tests <strong>additionally</strong> requires Python 2.7 and the
-Python packages listed in <code class="docutils literal"><span class="pre">dev_requirements.txt</span></code>.</p>
+<p>Running wed’s selenium-based tests <strong>additionally</strong> requires Python 2.7 and the
+Python packages listed in <code class="docutils literal notranslate"><span class="pre">dev_requirements.txt</span></code>.</p>
 <p>If you want to contribute to wed, your code will have to pass the checks listed
-in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. So you either have to install glerbl to get
+in <a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. So you either have to install glerbl to get
 those checks done for you or run the checks through other means. See
 <a class="reference internal" href="#contributing">Contributing</a>.</p>
 </div>
 <div class="section" id="building">
 <h2>Building<a class="headerlink" href="#building" title="Permalink to this headline">¶</a></h2>
-<p>Everything generated during a build is output to the <code class="docutils literal"><span class="pre">build/</span></code> subdirectory,
-except for some documentation files like <code class="docutils literal"><span class="pre">README.html</span></code> and <code class="docutils literal"><span class="pre">CHANGELOG.html</span></code>,
+<p>Everything generated during a build is output to the <code class="docutils literal notranslate"><span class="pre">build/</span></code> subdirectory,
+except for some documentation files like <code class="docutils literal notranslate"><span class="pre">README.html</span></code> and <code class="docutils literal notranslate"><span class="pre">CHANGELOG.html</span></code>,
 which are in the root directory.</p>
-<p>Wed uses gulp to build itself. You may want to create a <code class="docutils literal"><span class="pre">gulp.local.js</span></code> file
-to record settings specific to your own build environment. Run <code class="docutils literal"><span class="pre">gulp</span> <span class="pre">--help</span></code>
+<p>Wed uses gulp to build itself. You may want to create a <code class="docutils literal notranslate"><span class="pre">gulp.local.js</span></code> file
+to record settings specific to your own build environment. Run <code class="docutils literal notranslate"><span class="pre">gulp</span> <span class="pre">--help</span></code>
 to see what variables you can set. Note that the variable names when use on the
 command line have dashes where they would have underscore in
-<code class="docutils literal"><span class="pre">gulp.local.js</span></code>. For instance, on the command line you&#8217;d use
-<code class="docutils literal"><span class="pre">--behave-params</span></code> to set the parameters passed to <code class="docutils literal"><span class="pre">behave</span></code> but in
-<code class="docutils literal"><span class="pre">gulp.local.js</span></code> it would be <code class="docutils literal"><span class="pre">behave_params</span></code>. Also note that your
-<code class="docutils literal"><span class="pre">gulp.local.js</span></code> file should return a single anonymous object whose fields are
+<code class="docutils literal notranslate"><span class="pre">gulp.local.js</span></code>. For instance, on the command line you’d use
+<code class="docutils literal notranslate"><span class="pre">--behave-params</span></code> to set the parameters passed to <code class="docutils literal notranslate"><span class="pre">behave</span></code> but in
+<code class="docutils literal notranslate"><span class="pre">gulp.local.js</span></code> it would be <code class="docutils literal notranslate"><span class="pre">behave_params</span></code>. Also note that your
+<code class="docutils literal notranslate"><span class="pre">gulp.local.js</span></code> file should return a single anonymous object whose fields are
 the values you want to set. For instance:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">module</span><span class="o">.</span><span class="n">export</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span><span class="o">.</span><span class="n">export</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">behave_params</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>When everything is set, install gulp locally (<code class="docutils literal"><span class="pre">npm</span> <span class="pre">install</span> <span class="pre">gulp</span></code>) and run:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ gulp
+<p>When everything is set, install gulp locally (<code class="docutils literal notranslate"><span class="pre">npm</span> <span class="pre">install</span> <span class="pre">gulp</span></code>) and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gulp
 </pre></div>
 </div>
-<p>Gulp will install locally some packages with <code class="docutils literal"><span class="pre">npm</span></code> and download some external
-packages that cannot be installed with <code class="docutils literal"><span class="pre">npm</span></code> for whatever reason and place
-them in <code class="docutils literal"><span class="pre">downloads/</span></code>. It will then create a tree of files that could be served
-by a web server. The files will be in <code class="docutils literal"><span class="pre">build/standalone/</span></code>. As the name
-&#8220;standalone&#8221; implies, this build includes <strong>everything</strong> needed to run wed on
+<p>Gulp will install locally some packages with <code class="docutils literal notranslate"><span class="pre">npm</span></code> and download some external
+packages that cannot be installed with <code class="docutils literal notranslate"><span class="pre">npm</span></code> for whatever reason and place
+them in <code class="docutils literal notranslate"><span class="pre">downloads/</span></code>. It will then create a tree of files that could be served
+by a web server. The files will be in <code class="docutils literal notranslate"><span class="pre">build/standalone/</span></code>. As the name
+“standalone” implies, this build includes <strong>everything</strong> needed to run wed on
 your own server, except the configuration for RequireJS.</p>
 <p>Gulp will additionally create an optimized version of wed in
-<code class="docutils literal"><span class="pre">build/packed/</span></code>. This is a version that has been optimized using Webpack. This
+<code class="docutils literal notranslate"><span class="pre">build/packed/</span></code>. This is a version that has been optimized using Webpack. This
 optimization exists for illustration purposes, for testing wed, and as a
 possible candidate for deploying wed. See the
 <a class="reference internal" href="tech_notes.html#tech-notes-deployment-considerations"><span class="std std-ref">Deployment Considerations</span></a> section in <a class="reference internal" href="tech_notes.html"><span class="doc">Advanced Usage Notes</span></a> to
@@ -318,11 +336,11 @@ determine whether this is the optimization you want to use to deploy wed.</p>
 <h2>Local Demos<a class="headerlink" href="#local-demos" title="Permalink to this headline">¶</a></h2>
 <p>The demos, you must have a minimal server running. To run a server suitable for
 the demos, you can do:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./misc/server.js localhost:8888 &amp;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./misc/server.js localhost:8888 &amp;
 </pre></div>
 </div>
-<p>The address and port <code class="docutils literal"><span class="pre">localhost:8888</span></code> is just a suggestion, but the link in
-the documentation below assume that&#8217;s the address used.</p>
+<p>The address and port <code class="docutils literal notranslate"><span class="pre">localhost:8888</span></code> is just a suggestion, but the link in
+the documentation below assume that’s the address used.</p>
 <div class="section" id="demos-saving-to-a-server">
 <h3>Demos Saving to a Server<a class="headerlink" href="#demos-saving-to-a-server" title="Permalink to this headline">¶</a></h3>
 <p>Once the server is started, point your browser to either:</p>
@@ -333,17 +351,17 @@ with the unoptimized file tree.</li>
 view the demo with an optimized file tree.</li>
 </ul>
 <p>The demo currently starts with an empty document using a vanilla TEI schema. See
-<a class="reference internal" href="help.html"><span class="doc">Wed&#8217;s Help</span></a> to learn what wed can do, in general.</p>
+<a class="reference internal" href="help.html"><span class="doc">Wed’s Help</span></a> to learn what wed can do, in general.</p>
 <p>When you save with this demo, the data is currently dumped into a file located
-at <code class="docutils literal"><span class="pre">build/ajax/save.txt</span></code>. You won&#8217;t be able to reload data from that file. For
+at <code class="docutils literal notranslate"><span class="pre">build/ajax/save.txt</span></code>. You won’t be able to reload data from that file. For
 full functionality wed needs to be used with a server able to save the data and
 serve it intelligently.</p>
-<p><code class="kbd docutils literal"><span class="pre">Ctrl-`</span></code> allows to go into development mode. Since this is meant only for
+<p><kbd class="kbd docutils literal notranslate">Ctrl-`</kbd> allows to go into development mode. Since this is meant only for
 developers, you should read the source code of wed to know what this allows.
-(In particular, search for <code class="docutils literal"><span class="pre">this._development_mode</span></code> in the
-<code class="docutils literal"><span class="pre">_globalKeydownHandler</span></code> method.)</p>
+(In particular, search for <code class="docutils literal notranslate"><span class="pre">this._development_mode</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">_globalKeydownHandler</span></code> method.)</p>
 <p>It is possible to run the kitchen sink with a different mode than the default
-one (generic) by passing a <code class="docutils literal"><span class="pre">mode</span></code> parameter in the URL, for instance the URL
+one (generic) by passing a <code class="docutils literal notranslate"><span class="pre">mode</span></code> parameter in the URL, for instance the URL
 <a class="reference external" href="http://localhost:8888/web/kitchen-sink.html?mode=tei">http://localhost:8888/web/kitchen-sink.html?mode=tei</a> would tell the kitchen
 sink to load the tei mode.</p>
 </div>
@@ -351,7 +369,7 @@ sink to load the tei mode.</p>
 <span id="id1"></span><h3>Label Visibility<a class="headerlink" href="#label-visibility" title="Permalink to this headline">¶</a></h3>
 <p>Wed allows the user to reduce or increase the number of element labeled on the
 screen. How this works is dependent in part on the specific mode that the user
-has selected. For instance, the default mode that comes with wed (the &#8220;generic&#8221;
+has selected. For instance, the default mode that comes with wed (the “generic”
 mode) knows only two levels of visibility: 0 and 1. At level 0, no elements are
 labeled. At level 1, all elements are labeled. A mode with levels 0, 1, and 2
 would label all elements at level 2, no elements at level 0 and some elements at
@@ -363,69 +381,69 @@ the mode.</p>
 <h2>Using<a class="headerlink" href="#using" title="Permalink to this headline">¶</a></h2>
 <p>Starting with version 0.31, wed is much stricter as to what it exposes to
 libraries. The only parts of the code base that are safe to access are those
-exported by the facade exposed as <code class="docutils literal"><span class="pre">wed</span></code>. <code class="docutils literal"><span class="pre">wed</span></code> exports <code class="docutils literal"><span class="pre">EditorInstance</span></code>
+exported by the facade exposed as <code class="docutils literal notranslate"><span class="pre">wed</span></code>. <code class="docutils literal notranslate"><span class="pre">wed</span></code> exports <code class="docutils literal notranslate"><span class="pre">EditorInstance</span></code>
 for the sake of allowing the creation of editors. However, modes <strong>must</strong> access
-the editor through the interface defined in <code class="docutils literal"><span class="pre">wed/mode-api</span></code> (which is
-reexported by <code class="docutils literal"><span class="pre">wed</span></code>). It is <strong>not</strong> legal for a mode to cast an <code class="docutils literal"><span class="pre">EditorAPI</span></code>
+the editor through the interface defined in <code class="docutils literal notranslate"><span class="pre">wed/mode-api</span></code> (which is
+reexported by <code class="docutils literal notranslate"><span class="pre">wed</span></code>). It is <strong>not</strong> legal for a mode to cast an <code class="docutils literal notranslate"><span class="pre">EditorAPI</span></code>
 variable to anything that exposes members that are not exposed through
-<code class="docutils literal"><span class="pre">wed/mode-api</span></code>. Any access that bypasses the public API is liable to break
+<code class="docutils literal notranslate"><span class="pre">wed/mode-api</span></code>. Any access that bypasses the public API is liable to break
 without notice, no complaints, no recourse.</p>
 <p>Also note that under the new regime the only module that is generally legitimate
-to load is <code class="docutils literal"><span class="pre">wed</span></code>, and nothing else. You can probably still load individual
-modules from the <code class="docutils literal"><span class="pre">standalone</span></code> subdirectory as you used to, but this way of
+to load is <code class="docutils literal notranslate"><span class="pre">wed</span></code>, and nothing else. You can probably still load individual
+modules from the <code class="docutils literal notranslate"><span class="pre">standalone</span></code> subdirectory as you used to, but this way of
 operating is deprecated and will most likely be gone by version 1.0. There are a
 few exceptions to the rule just given:</p>
 <ul class="simple">
-<li>You may load <code class="docutils literal"><span class="pre">wed/onerror</span></code> by itself to set an error handler.</li>
-<li>You may load <code class="docutils literal"><span class="pre">wed/log</span></code> by itself if you need to mess with logging.</li>
-<li>The files in <code class="docutils literal"><span class="pre">wed/glue</span></code>, <code class="docutils literal"><span class="pre">wed/patches</span></code> and <code class="docutils literal"><span class="pre">wed/polyfills</span></code> can (and
-sometimes <em>must</em>) be used indepdently of the main <code class="docutils literal"><span class="pre">wed</span></code> module.</li>
+<li>You may load <code class="docutils literal notranslate"><span class="pre">wed/onerror</span></code> by itself to set an error handler.</li>
+<li>You may load <code class="docutils literal notranslate"><span class="pre">wed/log</span></code> by itself if you need to mess with logging.</li>
+<li>The files in <code class="docutils literal notranslate"><span class="pre">wed/glue</span></code>, <code class="docutils literal notranslate"><span class="pre">wed/patches</span></code> and <code class="docutils literal notranslate"><span class="pre">wed/polyfills</span></code> can (and
+sometimes <em>must</em>) be used indepdently of the main <code class="docutils literal notranslate"><span class="pre">wed</span></code> module.</li>
 <li>You may load any module from the bundled editing modes. This may be useful to
 build your own modes.</li>
 </ul>
 <p>To include wed in a web page you must:</p>
 <ul>
-<li><p class="first">Require <code class="docutils literal"><span class="pre">wed</span></code></p>
+<li><p class="first">Require <code class="docutils literal notranslate"><span class="pre">wed</span></code></p>
 </li>
-<li><p class="first">Instantiate an <code class="docutils literal"><span class="pre">Editor</span></code> object of that module as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="n">editor</span> <span class="o">=</span> <span class="n">wed</span><span class="o">.</span><span class="n">makeEditor</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
+<li><p class="first">Instantiate an <code class="docutils literal notranslate"><span class="pre">Editor</span></code> object of that module as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">var</span> <span class="n">editor</span> <span class="o">=</span> <span class="n">wed</span><span class="o">.</span><span class="n">makeEditor</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
 <span class="p">[</span><span class="o">...</span><span class="p">]</span>
 <span class="n">editor</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Between the creation of the <code class="docutils literal"><span class="pre">Editor</span></code> object and the call to <code class="docutils literal"><span class="pre">init</span></code>, there
+<p>Between the creation of the <code class="docutils literal notranslate"><span class="pre">Editor</span></code> object and the call to <code class="docutils literal notranslate"><span class="pre">init</span></code>, there
 conceivably could be some calls to add event handlers or condition
-handlers. The <code class="docutils literal"><span class="pre">widget</span></code> parameter must be an element (preferably a <code class="docutils literal"><span class="pre">div</span></code>)
-that wed will take over to install its GUI. The <code class="docutils literal"><span class="pre">options</span></code> parameter is
+handlers. The <code class="docutils literal notranslate"><span class="pre">widget</span></code> parameter must be an element (preferably a <code class="docutils literal notranslate"><span class="pre">div</span></code>)
+that wed will take over to install its GUI. The <code class="docutils literal notranslate"><span class="pre">options</span></code> parameter is
 either an anonymous JavaScript object that contains the options to pass to the
-editor, or it can be a <code class="docutils literal"><span class="pre">Runtime</span></code> object. If the latter, the options are
-passed to the <code class="docutils literal"><span class="pre">Runtime</span></code> and the runtime is passed to the <code class="docutils literal"><span class="pre">Editor</span></code>
-instance. The <code class="docutils literal"><span class="pre">data</span></code> parameter is a string containing the document to edit,
+editor, or it can be a <code class="docutils literal notranslate"><span class="pre">Runtime</span></code> object. If the latter, the options are
+passed to the <code class="docutils literal notranslate"><span class="pre">Runtime</span></code> and the runtime is passed to the <code class="docutils literal notranslate"><span class="pre">Editor</span></code>
+instance. The <code class="docutils literal notranslate"><span class="pre">data</span></code> parameter is a string containing the document to edit,
 in XML format.</p>
 </li>
 </ul>
 <div class="section" id="options">
 <h3>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">options</span></code> parameter is a dictionary which at present understands the
+<p>The <code class="docutils literal notranslate"><span class="pre">options</span></code> parameter is a dictionary which at present understands the
 following keys:</p>
 <ul>
-<li><p class="first"><code class="docutils literal"><span class="pre">schema</span></code>: the path to the schema to use for interpreting the document. This
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">schema</span></code>: the path to the schema to use for interpreting the document. This
 file must contain the result of doing the schema conversion required by salve
-since wed uses salve. See salve&#8217;s documentation.</p>
+since wed uses salve. See salve’s documentation.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">mode</span></code>: a simple object recording mode parameters. This object must have a
-<code class="docutils literal"><span class="pre">path</span></code> field set to the RequireJS path of the mode. An optional <code class="docutils literal"><span class="pre">options</span></code>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">mode</span></code>: a simple object recording mode parameters. This object must have a
+<code class="docutils literal notranslate"><span class="pre">path</span></code> field set to the RequireJS path of the mode. An optional <code class="docutils literal notranslate"><span class="pre">options</span></code>
 field may contain options to be passed to the mode. Wed comes bundled with a
-generic mode located at <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/modes/generic/generic.js">lib/wed/modes/generic/generic.js</a>.</p>
+generic mode located at <a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/lib/wed/modes/generic/generic.js">lib/wed/modes/generic/generic.js</a>.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">ajaxlog</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#remote-logging"><span class="std std-ref">remote logging</span></a>.</p>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">ajaxlog</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#remote-logging"><span class="std std-ref">remote logging</span></a>.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">save</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#saving"><span class="std std-ref">saving</span></a>.</p>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">save</span></code>: See the documentation about <a class="reference internal" href="tech_notes.html#saving"><span class="std std-ref">saving</span></a>.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">bluejaxOptions</span></code>: This is passed directly to <a class="reference external" href="https://github.com/lddubeau/bluejax">Bluejax</a> when the editor uses Bluejax. So you
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">bluejaxOptions</span></code>: This is passed directly to <a class="reference external" href="https://github.com/lddubeau/bluejax">Bluejax</a> when the editor uses Bluejax. So you
 can use this to configure how many times wed would retry a failing connection,
 and whether it would provide error checking. The default value is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="n">tries</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
   <span class="n">delay</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
   <span class="n">diagnose</span><span class="p">:</span> <span class="p">{</span>
@@ -438,11 +456,11 @@ and whether it would provide error checking. The default value is:</p>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>There is no <code class="docutils literal"><span class="pre">serverURL</span></code> set because there&#8217;s no good default value for it.</p>
+<p>There is no <code class="docutils literal notranslate"><span class="pre">serverURL</span></code> set because there’s no good default value for it.</p>
 </li>
 </ul>
-<p>Here is an example of an <code class="docutils literal"><span class="pre">options</span></code> object:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+<p>Here is an example of an <code class="docutils literal notranslate"><span class="pre">options</span></code> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
      <span class="n">schema</span><span class="p">:</span> <span class="s1">&#39;test/tei-simplified-rng.js&#39;</span><span class="p">,</span>
      <span class="n">mode</span><span class="p">:</span> <span class="p">{</span>
          <span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/generic&#39;</span><span class="p">,</span>
@@ -453,18 +471,18 @@ and whether it would provide error checking. The default value is:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">mode.options</span></code> will be passed to the generic mode when it is created. What
+<p>The <code class="docutils literal notranslate"><span class="pre">mode.options</span></code> will be passed to the generic mode when it is created. What
 options are accepted and what they mean is determined by each mode.</p>
 </div>
 </div>
 <div class="section" id="errors">
 <h2>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/lib/wed/onerror.js">lib/wed/onerror.js</a> module provides an error handler that could be
+<p>The <a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/lib/wed/onerror.js">lib/wed/onerror.js</a> module provides an error handler that could be
 used with <a class="reference external" href="https://github.com/lddubeau/last-resort">last-resort</a> or with any
 other error handler that can call a handler that takes a single argument which
-is an <code class="docutils literal"><span class="pre">error</span></code> DOM event. This handler tries to save the data in all editors
-that exist in the window. Here is an example that uses <code class="docutils literal"><span class="pre">last-resort</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">define</span><span class="p">(</span><span class="n">function</span> <span class="p">(</span><span class="n">require</span><span class="p">)</span> <span class="p">{</span>
+is an <code class="docutils literal notranslate"><span class="pre">error</span></code> DOM event. This handler tries to save the data in all editors
+that exist in the window. Here is an example that uses <code class="docutils literal notranslate"><span class="pre">last-resort</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">define</span><span class="p">(</span><span class="n">function</span> <span class="p">(</span><span class="n">require</span><span class="p">)</span> <span class="p">{</span>
 
 <span class="n">var</span> <span class="n">lr</span> <span class="o">=</span> <span class="n">require</span><span class="p">(</span><span class="s2">&quot;last-resort&quot;</span><span class="p">);</span>
 <span class="n">var</span> <span class="n">onerror</span> <span class="o">=</span> <span class="n">require</span><span class="p">(</span><span class="s2">&quot;wed/onerror&quot;</span><span class="p">);</span>
@@ -492,26 +510,26 @@ ways. Notably:</p>
 <li>The XML declaration is not preserved.</li>
 <li>The order of the attributes could differ.</li>
 <li>The order and location of namespaces declarations could differ.</li>
-<li>The encoding of empty elements could differ. That is, <code class="docutils literal"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></code> could
-become <code class="docutils literal"><span class="pre">&lt;foo/&gt;</span></code> or vice-versa.</li>
+<li>The encoding of empty elements could differ. That is, <code class="docutils literal notranslate"><span class="pre">&lt;foo&gt;&lt;/foo&gt;</span></code> could
+become <code class="docutils literal notranslate"><span class="pre">&lt;foo/&gt;</span></code> or vice-versa.</li>
 <li>Whitespace before the start tag of the top element or after the end tag of the
 top element may not be preserved.</li>
 </ul>
 </div>
 <div class="section" id="the-generic-mode">
 <h2>The Generic Mode<a class="headerlink" href="#the-generic-mode" title="Permalink to this headline">¶</a></h2>
-<p>Wed is bundled with a single mode, the &#8220;generic&#8221; mode. We recommend to
+<p>Wed is bundled with a single mode, the “generic” mode. We recommend to
 developers who wish to create modes to use the generic mode as their
 basis. Therefore, the explanations here should apply to those modes that follow
 our recommendations.</p>
-<p>The generic mode is a mode that provides almost no customization of wed&#8217;s
+<p>The generic mode is a mode that provides almost no customization of wed’s
 capabilities. For instance, a custom mode could represent elements that are
 paragraphs purely through indentation changes and line breaks <em>rather than</em>
 start and end labels. (Such a mode does exist for the BTW project.) The generic
 mode does not do this: it represents paragraphs as any other element, with a
 start label and end label.</p>
 <p>Nonetheless, the generic mode requires a minimum amount of customization in
-order to be able to do its work. In particular, it needs to use a &#8220;metadata&#8221;
+order to be able to do its work. In particular, it needs to use a “metadata”
 file that provides information on the schema being used. This is necessary
 because Relax NG schemas often lack information that wed needs. For instance,
 while it is possible to include documentation about the elements that are part
@@ -522,7 +540,7 @@ validation. Even if it did, it would not solve all problems. The TEI
 documentation, for instance, is multilingual. Having it all stored in the schema
 would increase its size considerably, even if the user needs using only one
 language. It would be possible to produce schemas that include documentation
-only in one language but then you&#8217;d need one schema per language. By having the
+only in one language but then you’d need one schema per language. By having the
 metadata be responsible for providing this documentation, wed can load only the
 language the user needs. Another issue that the metadata addresses is the fact
 that Relax NG schemas do not specify what prefix to use for namespaces. One of
@@ -534,23 +552,23 @@ standardized mapping of prefix to URI.</p>
 <p>The information provided by the metadata is not made part of the mode itself
 because the information it provides may be orthogonal to the concerns of the
 mode. The generic mode is a case in point: it can work just as well (or as
-&#8220;generically&#8221;) for editing TEI documents as DocBook documents, or documents
+“generically”) for editing TEI documents as DocBook documents, or documents
 using any other schema. Or to take another example, TEI allows for quite a bit
 of customization: elements can be redefined, added, or removed. Entire modules
 can be added if a project calls for it. A mode specialized for editing TEI
 documents could have its metadata load only the documentation that pertains to
 the specific customization of TEI being used.</p>
-<p>Therefore, the generic mode takes a <code class="docutils literal"><span class="pre">metadata</span></code> option which is a simple string
+<p>Therefore, the generic mode takes a <code class="docutils literal notranslate"><span class="pre">metadata</span></code> option which is a simple string
 which is a path to metadata that will be loaded by the mode.</p>
-<p>Here is an example of what the <code class="docutils literal"><span class="pre">mode</span></code> option passed to wed could contain:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/generic&#39;</span><span class="p">,</span>
+<p>Here is an example of what the <code class="docutils literal notranslate"><span class="pre">mode</span></code> option passed to wed could contain:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">path</span><span class="p">:</span> <span class="s1">&#39;wed/modes/generic/generic&#39;</span><span class="p">,</span>
 <span class="n">options</span><span class="p">:</span> <span class="p">{</span>
   <span class="n">metadata</span><span class="p">:</span> <span class="s1">&#39;../../../../../schemas/tei-math-metadata.json&#39;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>This tells wed to load the generic mode, and have it load the metadata file
-<code class="docutils literal"><span class="pre">../../../../../schemas/tei-math-metadata.json</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">../../../../../schemas/tei-math-metadata.json</span></code>.</p>
 <p>The way the generic mode operates entails that three elements must cooperate for
 a file to be usable by wed:</p>
 <ul class="simple">
@@ -562,24 +580,25 @@ a file to be usable by wed:</p>
 <div class="section" id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
 <p>Contributions must pass the commit checks turned on in
-<a class="reference external" href="https://github.com/mangalam-research/wed/blob/develop/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. Use <code class="docutils literal"><span class="pre">glerbl</span> <span class="pre">install</span></code> to install the
+<a class="reference external" href="https://github.com/mangalam-research/wed/blob/4.0.0-series/.glerbl/repo_conf.py">.glerbl/repo_conf.py</a>. Use <code class="docutils literal notranslate"><span class="pre">glerbl</span> <span class="pre">install</span></code> to install the
 hooks. Glerbl itself can be found at <a class="reference external" href="https://github.com/lddubeau/glerbl">https://github.com/lddubeau/glerbl</a>. It
-will eventually make its way to the Python package repository so that <code class="docutils literal"><span class="pre">pip</span>
+will eventually make its way to the Python package repository so that <code class="docutils literal notranslate"><span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">glerbl</span></code> will work.</p>
 </div>
 </div>
 
 
            </div>
+           
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mode_design.html" class="btn btn-neutral float-right" title="Creating a Mode" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="mode_design.html" class="btn btn-neutral float-right" title="Creating a Mode" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="help.html" class="btn btn-neutral" title="Wed’s Help" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -592,7 +611,7 @@ will eventually make its way to the Python package repository so that <code clas
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -610,31 +629,28 @@ will eventually make its way to the Python package repository so that <code clas
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v2.0.0-3-g031e9d63',
+            VERSION:'v4.0.0-1-gbcd6a1d0-unclean',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

@@ -104,6 +104,12 @@
 						<li><p><a href="../interfaces/_wed_tree_updater_.deletenodeevent.html">DeleteNodeEvent</a> has the additional <code>formerParent</code> property.</p>
 						</li>
 					</ul>
+					<p><code>DocumentFragment</code> have special handling. Although the methods below that
+						insert new content into the tree accept <code>DocumentFragment</code> nodes, the tree
+						updater inserts the <em>contents</em> of the fragment rather than the fragment
+						itself. Or to put it differently, inserting a fragment is equivalent to
+						iterating through the fragment&#39;s children and inserting each one in order. A
+					fragment is essentially equivalent to an array.</p>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -180,7 +186,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L130">wed/tree-updater.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L136">wed/tree-updater.ts:136</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -209,7 +215,7 @@
 					<div class="tsd-signature tsd-kind-icon">_events<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_wed_tree_updater_.html#treeupdaterevents" class="tsd-signature-type">TreeUpdaterEvents</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L128">wed/tree-updater.ts:128</a></li>
+							<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L134">wed/tree-updater.ts:134</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -219,7 +225,7 @@
 					<div class="tsd-signature tsd-kind-icon">dloc<wbr>Root<span class="tsd-signature-symbol">:</span> <a href="_wed_dloc_.dlocroot.html" class="tsd-signature-type">DLocRoot</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L127">wed/tree-updater.ts:127</a></li>
+							<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L133">wed/tree-updater.ts:133</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -229,7 +235,7 @@
 					<div class="tsd-signature tsd-kind-icon">events<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../modules/_wed_tree_updater_.html#treeupdaterevents" class="tsd-signature-type">TreeUpdaterEvents</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L130">wed/tree-updater.ts:130</a></li>
+							<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L136">wed/tree-updater.ts:136</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -239,7 +245,7 @@
 					<div class="tsd-signature tsd-kind-icon">tree<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Document</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L134">wed/tree-updater.ts:134</a></li>
+							<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L140">wed/tree-updater.ts:140</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -261,7 +267,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L146">wed/tree-updater.ts:146</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L152">wed/tree-updater.ts:152</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -284,7 +290,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L314">wed/tree-updater.ts:314</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L320">wed/tree-updater.ts:320</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -330,7 +336,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L738">wed/tree-updater.ts:738</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L749">wed/tree-updater.ts:749</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -376,7 +382,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L807">wed/tree-updater.ts:807</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L818">wed/tree-updater.ts:818</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -424,7 +430,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L471">wed/tree-updater.ts:471</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L477">wed/tree-updater.ts:477</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -453,7 +459,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L472">wed/tree-updater.ts:472</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L478">wed/tree-updater.ts:478</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -483,7 +489,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L168">wed/tree-updater.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L174">wed/tree-updater.ts:174</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -520,7 +526,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L169">wed/tree-updater.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L175">wed/tree-updater.ts:175</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -549,7 +555,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L391">wed/tree-updater.ts:391</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L397">wed/tree-updater.ts:397</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -600,7 +606,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L519">wed/tree-updater.ts:519</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L525">wed/tree-updater.ts:525</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -642,7 +648,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L520">wed/tree-updater.ts:520</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L526">wed/tree-updater.ts:526</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -672,7 +678,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L554">wed/tree-updater.ts:554</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L561">wed/tree-updater.ts:561</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -685,9 +691,6 @@
 									</dd>
 									<dt>emits</dt>
 									<dd><p>ChangedEvent</p>
-									</dd>
-									<dt>throws</dt>
-									<dd><p>{Error} If <code>node</code> is a document fragment Node type.</p>
 									</dd>
 								</dl>
 							</div>
@@ -711,7 +714,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L555">wed/tree-updater.ts:555</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L562">wed/tree-updater.ts:562</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -741,7 +744,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L423">wed/tree-updater.ts:423</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L429">wed/tree-updater.ts:429</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -783,7 +786,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L425">wed/tree-updater.ts:425</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L431">wed/tree-updater.ts:431</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -815,7 +818,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L757">wed/tree-updater.ts:757</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L768">wed/tree-updater.ts:768</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -852,7 +855,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L786">wed/tree-updater.ts:786</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L797">wed/tree-updater.ts:797</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -891,7 +894,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L891">wed/tree-updater.ts:891</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L902">wed/tree-updater.ts:902</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -924,7 +927,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L902">wed/tree-updater.ts:902</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L913">wed/tree-updater.ts:913</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -959,7 +962,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L647">wed/tree-updater.ts:647</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L658">wed/tree-updater.ts:658</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -996,7 +999,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L677">wed/tree-updater.ts:677</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L688">wed/tree-updater.ts:688</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1035,7 +1038,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L698">wed/tree-updater.ts:698</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L709">wed/tree-updater.ts:709</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1079,7 +1082,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L834">wed/tree-updater.ts:834</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L845">wed/tree-updater.ts:845</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1132,7 +1135,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L854">wed/tree-updater.ts:854</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L865">wed/tree-updater.ts:865</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1190,7 +1193,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L596">wed/tree-updater.ts:596</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L607">wed/tree-updater.ts:607</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1232,7 +1235,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L625">wed/tree-updater.ts:625</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L636">wed/tree-updater.ts:636</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1286,7 +1289,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L253">wed/tree-updater.ts:253</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L259">wed/tree-updater.ts:259</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1323,7 +1326,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/lddubeau/wed/blob/031e9d63/lib/wed/tree-updater.ts#L254">wed/tree-updater.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/mangalam-research/wed/blob/bcd6a1d0/lib/wed/tree-updater.ts#L260">wed/tree-updater.ts:260</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
